@@ -2,26 +2,26 @@
 translations:
   PowerStateTranslationTable:
     powered off: "OFF"
-    suspended: "SUSPENDED"
+    suspended: SUSPENDED
     powered on: "ON"
 connector:
-  displayName: "VMware ESXi - Virtual Machines (SNMP)"
-  platforms: "VMware ESXi"
-  reliesOn: "SNMP"
-  information: "This connector provides Virtual Machine monitoring (Power consumption and State) through VMWare SNMP agent."
+  displayName: VMware ESXi - Virtual Machines (SNMP)
+  platforms: VMware ESXi
+  reliesOn: SNMP
+  information: This connector provides Virtual Machine monitoring (Power consumption and State) through VMWare SNMP agent.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "OOB"
-    - "Linux"
+    - OOB
+    - Linux
     criteria:
-      # Hardware Sentry v11.3.00+
-    - type: "productRequirements"
-      kmVersion: "11.3.00"
-      # Checking if we have VM
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.6876.2.1.1"
+    - _comment: Hardware Sentry v11.3.00+
+      type: productRequirements
+      kmVersion: 11.3.00
+    - _comment: Checking if we have VM
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.6876.2.1.1
 monitors:
   vm:
     discovery:
@@ -29,36 +29,36 @@ monitors:
         source(1):
           # discover the VM
           # ID, DisplayName,Powershare
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6876.2.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6876.2.1.1
           selectColumns: "ID,2,9"
       mapping:
-        # The Instance table
-        source: "$monitors.vm.discovery.sources.source(1)$"
+        _comment: The Instance table
+        source: $monitors.vm.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
     collect:
       # Collect type is: multi-instance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # ID, Vcpu (for powershare),Power state
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6876.2.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6876.2.1.1
           selectColumns: "ID,9,6"
           computes:
             # remove the powered  word from the power state so we can have on off suspended without mapping table
             # / ID, Vcpu (for powershare),Power state
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PowerStateTranslationTable"
+            translationTable: PowerStateTranslationTable
       mapping:
         # / ID, Vcpu (for powershare),Power state
-        source: "$monitors.vm.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.vm.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.vm.power_ratio: "computePowerShareRatio($column(2))"
-          hw.vm.power_state: "$column(3)"
+          hw.vm.power_ratio: computePowerShareRatio($column(2))
+          hw.vm.power_state: $column(3)

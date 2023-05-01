@@ -6,254 +6,254 @@ embedded:
   EmbeddedFile(4): "BEGIN {\n\tcontrollerID=\"\" ; status=\"OK\";statusInformation=\"\";\n      }\n\ntolower($1) ~ /^bbu$/ && $2 ~ /^[Ss]tatus$/ && $4 ~ /^[Aa]dapter/ {controllerID=(\"#\" $NF)}\n\ntolower ($1) ~ /^issohgood/ {if (tolower($NF) ~ /no/) {status = \"ALARM\"}\n\t                           print (\"MSHW;\"controllerID\";\" status\";\");\n\t                           controllerID=\"\" ; status=\"\";\n\t                          }"
 translations:
   LogicalDiskStatusTranslationTable:
-    offline: "failed"
-    default: "UNKNOWN"
-    optimal: "ok"
-    degraded: "degraded"
-    partially: "degraded"
+    offline: failed
+    default: UNKNOWN
+    optimal: ok
+    degraded: degraded
+    partially: degraded
   PhysicalDiskStatusTranslationTable:
-    rebuild: "degraded"
-    offline: "ok"
-    copyback: "degraded"
-    unconfigured(good): "ok"
-    default: "UNKNOWN"
-    hotspare: "failed"
-    online: "ok"
-    failed: "failed"
-    unconfigured(bad): "degraded"
+    rebuild: degraded
+    offline: ok
+    copyback: degraded
+    unconfigured(good): ok
+    default: UNKNOWN
+    hotspare: failed
+    online: ok
+    failed: failed
+    unconfigured(bad): degraded
 connector:
-  displayName: "LSI MegaCli"
-  platforms: "Any system with LSI MegaCli"
-  reliesOn: "Windows system commands (MegaCli / CmdTool2)"
-  information: "Gives physical disk and array status."
-  version: "1.0"
+  displayName: LSI MegaCli
+  platforms: Any system with LSI MegaCli
+  reliesOn: Windows system commands (MegaCli / CmdTool2)
+  information: Gives physical disk and array status.
+  version: 1.0
   detection:
     appliesTo:
-    - "NT"
+    - NT
     criteria:
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "NT"
-    - type: "osCommand"
-      commandLine: "MegaCli -v -NoLog"
+      - NT
+    - type: osCommand
+      commandLine: MegaCli -v -NoLog
       expectedResult: "Exit Code: 0x00"
-      errorMessage: "MegaCli not installed on this server."
-    - type: "osCommand"
-      commandLine: "MegaCli -PDList -aALL -NoLog"
+      errorMessage: MegaCli not installed on this server.
+    - type: osCommand
+      commandLine: MegaCli -PDList -aALL -NoLog
       expectedResult: "[Pp][Dd] [Tt]ype"
-      errorMessage: "No Physical Disks Found"
+      errorMessage: No Physical Disks Found
 monitors:
   disk_controller:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
-          commandLine: "MegaCli -AdpAllInfo -aALL -NoLog"
+          type: osCommand
+          commandLine: MegaCli -AdpAllInfo -aALL -NoLog
           computes:
             # Reformat MegaCli's output through awk see EmbeddedFile(1)
             # MSHW;controllerID;model;serialnumber;firmwareversion;biosversion;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6"
         source(2):
-          # Source(2) = lsiutil output
-          type: "osCommand"
-          commandLine: "MegaCli -PDList -aALL -NoLog"
+          _comment: Source(2) = lsiutil output
+          type: osCommand
+          commandLine: MegaCli -PDList -aALL -NoLog
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # MSHW;controllernumber;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
-            selectColumns: "2"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
         source(3):
           # Source (3) Table Join of Source (1) and Source (2) to keep only controllers that have physical disks associated with them
           # controllerID;model;serialnumber;firmwareversion;biosversion;controllerID
-          type: "tableJoin"
-          leftTable: "$monitors.disk_controller.discovery.sources.source(1)$"
-          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(4):
-          type: "osCommand"
-          commandLine: "MegaCli -AdpBbuCmd -aALL -NoLog"
+          type: osCommand
+          commandLine: MegaCli -AdpBbuCmd -aALL -NoLog
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             #    MSHW;ControllerNumber;BatteryPatrolStatus;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(5):
           # Source (5) Table Join of Source (1) and Source (2) to activate / deactivate the battery parameter
           # controllerID;model;serialnumber;firmwareversion;biosversion;controllerID;ControllerNumber;BatteryPatrolStatus;
-          type: "tableJoin"
-          leftTable: "$monitors.disk_controller.discovery.sources.source(3)$"
-          rightTable: "$monitors.disk_controller.discovery.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(5)
         # controllerID;model;serialnumber;firmwareversion;biosversion;controllerID;ControllerNumber;BatteryPatrolStatus;
-        source: "$monitors.disk_controller.discovery.sources.source(5)$"
+        source: $monitors.disk_controller.discovery.sources.source(5)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(1)"
-          model: "$column(2)"
-          serial_number: "$column(3)"
-          firmware_version: "$column(4)"
-          bios_version: "$column(5)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(2)
+          serial_number: $column(3)
+          firmware_version: $column(4)
+          bios_version: $column(5)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          type: "osCommand"
-          commandLine: "MegaCli -AdpBbuCmd -aALL -NoLog"
+          type: osCommand
+          commandLine: MegaCli -AdpBbuCmd -aALL -NoLog
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             #    MSHW;ControllerNumber;BatteryPatrolStatus;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
       mapping:
         # ValueTable = Source(1)
         # ControllerNumber;BatteryPatrolStatus;
-        source: "$monitors.disk_controller.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
-          commandLine: "MegaCli -PDList -aALL -NoLog"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
+          commandLine: MegaCli -PDList -aALL -NoLog
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # MSHW;controllernumber;location;type;size;model;status;statusinformation;deviceID;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,9"
             # Translate size into bytes
             # controllernumber;location;type;size;model;deviceID;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1073741824"
-          - type: "leftConcat"
+            value: 1073741824
+          - type: leftConcat
             column: 3
             value: "Type: "
       mapping:
         # InstanceTable = Source(1)
         # controllernumber;location;type;size;model;deviceID;
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          model: "$column(5)"
-          id: "$column(6)"
+          model: $column(5)
+          id: $column(6)
           info: "join($column(2), $column(3), \" \")"
-          hw.parent.type: "disk_controller"
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(6), $column(5), $column(4))"
         metrics:
-          hw.physical_disk.size: "$column(4)"
+          hw.physical_disk.size: $column(4)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
-          commandLine: "MegaCli -PDList -aALL -NoLog"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
+          commandLine: MegaCli -PDList -aALL -NoLog
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # status;statusinformation;deviceID;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "7,8,9"
             # Translate the first status column into a PATROL status
             # Patrolstatus;statusinformation;deviceID;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "PhysicalDiskStatusTranslationTable"
+            translationTable: PhysicalDiskStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(1)"
+          hw.status{hw.type="physical_disk"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
-          commandLine: "MegaCli -LDInfo -Lall -aALL -NoLog"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
+          commandLine: MegaCli -LDInfo -Lall -aALL -NoLog
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6"
             # Translate size into bytes
             # controllernumber;deviceID;name;raidLevel;size;
-          - type: "multiply"
+          - type: multiply
             column: 5
-            value: "1073741824"
+            value: 1073741824
       mapping:
         # InstanceTable = Source(1)
         # controllernumber;deviceID;name;raidLevel;size;
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(3)"
-          raid_level: "$column(4)"
-          hw.logical_disk.limit: "$column(5)"
-          id: "$column(2)"
-          hw.parent.type: "disk_controller"
+          __display_id: $column(3)
+          raid_level: $column(4)
+          hw.logical_disk.limit: $column(5)
+          id: $column(2)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(5))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
-          commandLine: "MegaCli -LDInfo -Lall -aALL -NoLog"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
+          commandLine: MegaCli -LDInfo -Lall -aALL -NoLog
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "3,7,8"
             # Translate the first status column into a PATROL status
             # deviceID;Patrolstatus;statusinformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LogicalDiskStatusTranslationTable"
+            translationTable: LogicalDiskStatusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # deviceID;Patrolstatus;statusinformation;
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

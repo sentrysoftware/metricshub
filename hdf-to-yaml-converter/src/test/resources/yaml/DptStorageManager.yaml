@@ -1,29 +1,29 @@
 ---
 translations:
   DiskStatusTranslationTable:
-    "11": "ok"
-    "12": "degraded"
-    "13": "ok"
-    "14": "ok"
-    "1": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "failed"
-    "5": "degraded"
-    "6": "ok"
-    "7": "ok"
-    "8": "failed"
-    "9": "ok"
-    "10": "degraded"
+    "11": ok
+    "12": degraded
+    "13": ok
+    "14": ok
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": ok
+    "7": ok
+    "8": failed
+    "9": ok
+    "10": degraded
   RAIDLevelTranslationTable:
-    default: "Unknown"
-    "3": "0"
-    "4": "1"
-    "5": "5"
-    "6": "Redirected"
-    "7": "Hot-spare"
-    "8": "jbod"
+    default: Unknown
+    "3": 0
+    "4": 1
+    "5": 5
+    "6": Redirected
+    "7": Hot-spare
+    "8": jbod
   PhysicalDiskSMARTTranslationTable:
     "1": "false"
     "2": "false"
@@ -31,36 +31,36 @@ translations:
     "4": "false"
     "5": "true"
   DiskStatusInformationTranslationTable:
-    "11": "Building"
-    "12": "Rebuilding"
-    "13": "Verify fixing"
-    "14": "Abort activity"
-    "1": "Invalid"
+    "11": Building
+    "12": Rebuilding
+    "13": Verify fixing
+    "14": Abort activity
+    "1": Invalid
     "2": ""
-    default: "Unknown Status"
-    "3": "Verifying"
-    "4": "Failed"
-    "5": "Warning"
-    "6": "Formatting"
-    "7": "Format certifying"
-    "8": "Missing"
-    "9": "Not created yet"
-    "10": "Degraded"
+    default: Unknown Status
+    "3": Verifying
+    "4": Failed
+    "5": Warning
+    "6": Formatting
+    "7": Format certifying
+    "8": Missing
+    "9": Not created yet
+    "10": Degraded
 connector:
-  displayName: "Adaptec Storage Manager (DPT)"
-  platforms: "Fujitsu-Siemens PRIMERGY"
-  reliesOn: "Adaptec Storage Manager"
-  version: "1.0"
-  information: "This connector provides disk monitoring through the Adaptec Storage Manager SNMP sub-agent which supports all DPT-based Adaptec RAID controllers."
+  displayName: Adaptec Storage Manager (DPT)
+  platforms: Fujitsu-Siemens PRIMERGY
+  reliesOn: Adaptec Storage Manager
+  version: 1.0
+  information: This connector provides disk monitoring through the Adaptec Storage Manager SNMP sub-agent which supports all DPT-based Adaptec RAID controllers.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
-    - "Linux"
+    - NT
+    - Linux
     criteria:
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.1597.1.2.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.1597.1.2.1
 monitors:
   disk_controller:
     discovery:
@@ -68,19 +68,19 @@ monitors:
         source(1):
           # Source(1) = dptScsiHba SNMP table
           # deviceID;ControllerNumber;Vendor;Model;Firmware;BiosSignature
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1597.1.2.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1597.1.2.1.1
           selectColumns: "ID,1,2,3,4,32"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(2)"
-          model: "$column(4)"
-          firmware_version: "$column(5)"
-          bios_version: "$column(6)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          controller_number: $column(2)
+          model: $column(4)
+          firmware_version: $column(5)
+          bios_version: $column(6)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(4))"
   physical_disk:
     discovery:
@@ -88,8 +88,8 @@ monitors:
         source(1):
           # Source(1) = dptScsiDevTable
           # ID;DeviceLevel;Vendor;Model;SerialNumber;Capacity;deviceType
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1597.1.4.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1597.1.4.1.1
           selectColumns: "ID,3,4,5,7,10,35"
           computes:
             # Duplicate the ID column, with this column, we will try to retrieve the
@@ -97,86 +97,86 @@ monitors:
             # 0 represents (I guess) the controller number, and the 2nd 0 represents
             # the bus number.
             # ID;ID;DeviceLevel;Vendor;Model;SerialNumber;Capacity;deviceType
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the first number, considering that it is just before a dot
             # ID;ControllerNumber;DeviceLevel;Vendor;Model;SerialNumber;Capacity;deviceType
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 1
-            subSeparators: "."
-            # Keep only device type = 1 (disk)
-          - type: "keepOnlyMatchingLines"
+            subSeparators: .
+          - _comment: Keep only device type = 1 (disk)
+            type: keepOnlyMatchingLines
             column: 8
-            valueList: "1"
+            valueList: 1
             # Keep only device level 0 (= physical disks, not logical)
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 3
-            valueList: "0"
+            valueList: 0
             # Multiply the capacity column (in MB) by 1048576 to obtain the disk size in bytes
             # ID;ControllerNumber;DeviceLevel;Vendor;Model;SerialNumber;CapacityInBytes;deviceType
-          - type: "multiply"
+          - type: multiply
             column: 7
-            value: "1048576"
+            value: 1048576
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(4)"
-          serial_number: "$column(6)"
-          hw.parent.type: "disk_controller"
+          id: $column(1)
+          vendor: $column(4)
+          serial_number: $column(6)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s)\", $column(1), $column(7))"
         metrics:
-          hw.physical_disk.size: "$column(7)"
+          hw.physical_disk.size: $column(7)
     collect:
       # Collect type is: multi-instance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the dptScsiDevTable
           # DeviceID;Status;SmartStatus
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1597.1.4.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1597.1.4.1.1
           selectColumns: "ID,8,34"
           computes:
             # Duplicate the Status column
             # DeviceID;Status;Status;SMARTStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status value into a PATROL Status
             # DeviceID;PATROLStatus;Status;SMARTStatus
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DiskStatusTranslationTable"
+            translationTable: DiskStatusTranslationTable
             # Translate the second status value into a more readable information
             # DeviceID;PATROLStatus;InformationStatus;SMARTStatus
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "DiskStatusInformationTranslationTable"
+            translationTable: DiskStatusInformationTranslationTable
             # Translate the original SMARTStatus into a true/false value that says if a failure is predicted
             # DeviceID;PATROLStatus;InformationStatus;PredictedFailure
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "PhysicalDiskSMARTTranslationTable"
+            translationTable: PhysicalDiskSMARTTranslationTable
       mapping:
-        # The collect table = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The collect table = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: "boolean($column(4))"
+          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = dptScsiDevTable
           # ID;DeviceLevel;Capacity;deviceType
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1597.1.4.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1597.1.4.1.1
           selectColumns: "ID,3,10,35"
           computes:
             # Duplicate the ID column, with this column, we will try to retrieve the
@@ -184,90 +184,90 @@ monitors:
             # 0 represents (I guess) the controller number, and the 2nd 0 represents
             # the bus number.
             # ID;ID;DeviceLevel;Capacity;deviceType
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the first number, considering that it is just before a dot
             # ID;ControllerNumber;DeviceLevel;Capacity;deviceType
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 1
-            subSeparators: "."
-            # Keep only device type = 1 (disk)
-          - type: "keepOnlyMatchingLines"
+            subSeparators: .
+          - _comment: Keep only device type = 1 (disk)
+            type: keepOnlyMatchingLines
             column: 5
-            valueList: "1"
+            valueList: 1
             # Keep only device level 1 and 2 (= logical disks, not physical)
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: "1,2"
             # Multiply the capacity column (in MB) by 1048576 to obtain the disk size in bytes
             # ID;ControllerNumber;DeviceLevel;CapacityInBytes;deviceType
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1048576"
+            value: 1048576
         source(2):
           # Source(2) = dptScsiArrTable
           # DeviceID;RAIDType
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1597.1.5.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1597.1.5.1.1
           selectColumns: "ID,1"
           computes:
-            # Keep only valid RAIDType values
-          - type: "keepOnlyMatchingLines"
+          - _comment: Keep only valid RAIDType values
+            type: keepOnlyMatchingLines
             column: 2
             valueList: "3,4,5,6,7,8"
-            # Translate the RAIDType into a RAID Level number
-          - type: "translate"
+          - _comment: Translate the RAIDType into a RAID Level number
+            type: translate
             column: 2
-            translationTable: "RAIDLevelTranslationTable"
+            translationTable: RAIDLevelTranslationTable
         source(3):
           # Source(3) = joint between source(1) (left) and source(2) (right)
           # ID;ControllerNumber;DeviceLevel;CapacityInBytes;deviceType;DeviceID;RAIDLevel
-          type: "tableJoin"
-          leftTable: "$monitors.logical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.logical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        # Instance Table = Source(3)
-        source: "$monitors.logical_disk.discovery.sources.source(3)$"
+        _comment: Instance Table = Source(3)
+        source: $monitors.logical_disk.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          hw.logical_disk.limit: "$column(4)"
-          raid_level: "$column(7)"
-          hw.parent.type: "disk_controller"
+          id: $column(1)
+          hw.logical_disk.limit: $column(4)
+          raid_level: $column(7)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(7), $column(4))"
     collect:
       # Collect type is: multi-instance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the dptScsiDevTable
           # DeviceID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1597.1.4.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1597.1.4.1.1
           selectColumns: "ID,8"
           computes:
             # Duplicate the Status column
             # DeviceID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status value into a PATROL Status
             # DeviceID;PATROLStatus;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DiskStatusTranslationTable"
+            translationTable: DiskStatusTranslationTable
             # Translate the second status value into a more readable information
             # DeviceID;PATROLStatus;InformationStatus
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "DiskStatusInformationTranslationTable"
+            translationTable: DiskStatusInformationTranslationTable
       mapping:
-        # The collect table = Source(1)
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The collect table = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

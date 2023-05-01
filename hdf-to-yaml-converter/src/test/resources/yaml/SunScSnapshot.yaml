@@ -5,60 +5,60 @@ embedded:
   EmbeddedFile(2): "showenvironment,7,8"
 translations:
   TemperatureStatusTranslationTable:
-    default: "failed"
-    faulty: "degraded"
-    ok: "ok"
+    default: failed
+    faulty: degraded
+    ok: ok
   FanStatusTranslationTable:
-    default: "failed"
-    faulty: "degraded"
-    ok: "ok"
+    default: failed
+    faulty: degraded
+    ok: ok
   VoltageStatusTranslationTable:
-    default: "failed"
-    faulty: "degraded"
-    ok: "ok"
+    default: failed
+    faulty: degraded
+    ok: ok
   PowerSupplyStatusTranslationTable:
-    default: "failed"
-    faulty: "failed"
-    ok: "ok"
+    default: failed
+    faulty: failed
+    ok: ok
   OtherDeviceStatusTranslationTable:
-    default: "failed"
-    faulty: "degraded"
-    ok: "ok"
+    default: failed
+    faulty: degraded
+    ok: ok
 connector:
-  displayName: "Oracle/Sun Solaris - Environment (ALOM-CMT snapshot)"
-  platforms: "Oracle/Sun"
-  reliesOn: "Sun Explorer and the ALOM-CMT card"
+  displayName: Oracle/Sun Solaris - Environment (ALOM-CMT snapshot)
+  platforms: Oracle/Sun
+  reliesOn: Sun Explorer and the ALOM-CMT card
   information: "Gives environmental and disk information (temperatures, fans, etc.) on Sun SPARC T1/T2 servers equipped with an ALOM card. Gathers the hardware information from the ALOM card in-band (no SSH connection over the network). Requires the SUNWexplo (Sun Explorer) package."
-  version: "1.1"
+  version: 1.1
   detection:
     connectionTypes:
-    - "remote"
-    - "local"
+    - remote
+    - local
     appliesTo:
-    - "Solaris"
+    - Solaris
     supersedes:
-    - "IpmiTool"
+    - IpmiTool
     criteria:
-      # DETECTION
-    - type: "deviceType"
+    - _comment: DETECTION
+      type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-      # Only on sun4v systems
-    - type: "osCommand"
-      commandLine: "/bin/uname -m"
-      expectedResult: "^sun4v$"
-    - type: "osCommand"
-      commandLine: "/bin/ls /opt/SUNWexplo/bin/snapshot"
-      expectedResult: "^/opt/SUNWexplo/bin/snapshot$"
-      errorMessage: "Sun Explorer's snapshot utility is not installed."
-    - type: "osCommand"
+      - SunOS
+      - Solaris
+    - _comment: Only on sun4v systems
+      type: osCommand
+      commandLine: /bin/uname -m
+      expectedResult: ^sun4v$
+    - type: osCommand
+      commandLine: /bin/ls /opt/SUNWexplo/bin/snapshot
+      expectedResult: ^/opt/SUNWexplo/bin/snapshot$
+      errorMessage: Sun Explorer's snapshot utility is not installed.
+    - type: osCommand
       forceSerialization: true
       commandLine: "while /usr/bin/pgrep \"^snapshot$\">/dev/null; do /usr/bin/sleep 1; done;/usr/bin/echo showplatform -v,13,14>/tmp/MS_HW_snapshot.test;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c /tmp/MS_HW_snapshot.test -v|/usr/bin/dos2unix -ascii -437;/usr/bin/rm -f /tmp/MS_HW_snapshot.test"
       expectedResult: "^SUNW,"
-      errorMessage: "Sun Explorer's snapshot utililty does not seem to be able to connect to the SC."
+      errorMessage: Sun Explorer's snapshot utililty does not seem to be able to connect to the SC.
 sudoCommands:
-- "/opt/SUNWexplo/bin/snapshot"
+- /opt/SUNWexplo/bin/snapshot
 monitors:
   enclosure:
     discovery:
@@ -68,460 +68,460 @@ monitors:
           # Since the prtdiag connector is now disabled for sun4v systems, this connector needs to at least
           # create the enclosure icon even though the snapshot command does not work (because Sun Explorer
           # wasn't installed, or root credentials were not provided)
-          type: "osCommand"
+          type: osCommand
           forceSerialization: true
           commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(1)%|/bin/dos2unix -ascii -437;/bin/uname -i"
           computes:
             # Reformat snapshot and uname's output through awk (see EmbeddedFile(3))
             # Model;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
-            selectColumns: "2"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
             # Replace '-' with blanks (because model is displayed as Sun-Fire-T200)
             # Model;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "-"
-            newValue: " "
+            existingValue: '-'
+            newValue: ' '
         source(2):
-          # Source(2) = Output of the showenvironment command
-          type: "osCommand"
+          _comment: Source(2) = Output of the showenvironment command
+          type: osCommand
           forceSerialization: true
           commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
           separators: " \t"
-          selectColumns: "1-"
+          selectColumns: 1-
           computes:
             # In the first column, which is supposed to contain the deviceID, replace dots (.) by slashes
             # so that we will be able to support both the Sun Fire V210, V240 and V440 line and the T1-based line
             # in the same time
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
-            newValue: "/"
+            existingValue: .
+            newValue: /
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "sun4v"
-          model: "$column(1)"
+          id: sun4v
+          model: $column(1)
           name: "sprintf(\"%s (%s)\", \"sun4v\", $column(1))"
     collect:
-      # Collect type is multi-instance (execute once)
-      type: "multiInstance"
+      _comment: Collect type is multi-instance (execute once)
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Output of the showenvironment command
-          type: "osCommand"
+          _comment: Source(1) = Output of the showenvironment command
+          type: osCommand
           forceSerialization: true
           commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
           separators: " \t"
-          selectColumns: "1-"
+          selectColumns: 1-
           computes:
             # In the first column, which is supposed to contain the deviceID, replace dots (.) by slashes
             # so that we will be able to support both the Sun Fire V210, V240 and V440 line and the T1-based line
             # in the same time
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
-            newValue: "/"
+            existingValue: .
+            newValue: /
       mapping:
-        # ValueTable = Source(1)
-        source: "sun4v"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: sun4v
+        deviceId: $column(1)
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
             # Keep only lines where the first column (the supposed fan ID) matches with ^FT[0-9] or /F[0-9]/ or ^F[0-9]/
             # FanID;status;speed;warning;alarm
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^FT[0-9]\\)\\|\\(/F[0-9]/\\)\\|\\(^F[0-9]\\)\\|\\(/FM[0-9]/F\\)"
             # Exclude things that are obviously not fans
             # FanID;status;speed;warning;alarm
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            regExp: "/T_"
+            regExp: /T_
             # Replace dashes ("-") in the thresholds by nothing
             # FanID;status;speed;warning;alarm
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "-"
+            existingValue: '-'
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "-"
+            existingValue: '-'
             newValue: ""
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(4)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(5)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
           # Yeah that's kind of weird. Fan collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep only lines where the first column (the supposed fan ID) matches with ^FT[0-9] or /F[0-9]/ or ^F[0-9]/
             # FanID;status;speed;warning;alarm
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^FT[0-9]\\)\\|\\(/F[0-9]/\\)\\|\\(^F[0-9]\\)\\|\\(/FM[0-9]/F\\)"
             # Exclude things that are obviously not fans
             # FanID;status;speed;warning;alarm
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            regExp: "/T_"
+            regExp: /T_
             # Duplicate the status column
             # FanID;status;status;speed;warning;alarm
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first column into a PATROL Status
             # FanID;PATROLStatus;status;speed;warning;alarm
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FanStatusTranslationTable"
+            translationTable: FanStatusTranslationTable
       mapping:
-        # ValueTable = Source(3)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(3)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
-          hw.fan.speed: "$column(4)"
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
             # Keep only lines where the first column (the supposed temperature ID) matches with /T_ or /TCORE
             # TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "\\(/T_\\)\\|\\(/TCORE\\)"
+            regExp: \(/T_\)\|\(/TCORE\)
             # Replace dashes ("-") in the thresholds by nothing
             # TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
-          - type: "replace"
+          - type: replace
             column: 7
-            existingValue: "-"
+            existingValue: '-'
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 8
-            existingValue: "-"
+            existingValue: '-'
             newValue: ""
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(7)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(8)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(7)
+          hw.temperature.limit{limit_type="high.critical"}: $column(8)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
           # Yeah that's kind of weird. Temperature collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep only lines where the first column (the supposed fan ID) matches with /T_ or /TCORE
             # TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "\\(/T_\\)\\|\\(/TCORE\\)"
+            regExp: \(/T_\)\|\(/TCORE\)
             # Duplicate the status column
             # TemperatureID;Status;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first column into a PATROL Status
             # TemperatureID;PATROLStatus;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "TemperatureStatusTranslationTable"
+            translationTable: TemperatureStatusTranslationTable
       mapping:
-        # ValueTable = Source(3)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(3)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="temperature"}: "$column(2)"
-          hw.temperature: "$column(4)"
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   voltage:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
             # Keep only lines where the first column (the supposed Voltage ID) matches with /V_
             # VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "/V_"
+            regExp: /V_
             # Replace dashes ("-") in the thresholds by nothing
             # VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "--"
+            existingValue: --
             newValue: ""
             # Convert volts into millivolts
             # VoltageID;Status;Voltage;LowSoft;LowWarnMilli;HighWarnMilli;HighSoft
-          - type: "multiply"
+          - type: multiply
             column: 5
-            value: "1000"
-          - type: "multiply"
+            value: 1000
+          - type: multiply
             column: 6
-            value: "1000"
+            value: 1000
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(6)"
+          hw.voltage.limit{limit_type="low.critical"}: $column(5)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
           # Yeah that's kind of weird. Voltage collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded telnet sessions.
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep only lines where the first column (the supposed Voltage ID) matches with /V_
             # VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "/V_"
+            regExp: /V_
             # Duplicate the status column
             # VoltageID;Status;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first column into a PATROL Status
             # VoltageID;Status;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "VoltageStatusTranslationTable"
+            translationTable: VoltageStatusTranslationTable
             # Convert volts into millivolts
             # VoltageID;Status;Status;VoltageMilli;LowSoft;LowWarn;HighWarn;HighSoft
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1000"
+            value: 1000
       mapping:
-        # ValueTable = Source(3)
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(3)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="voltage"}: "$column(2)"
-          hw.voltage: "$column(4)"
+          hw.status{hw.type="voltage"}: $column(2)
+          hw.voltage: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 5th column contains either "ON" or "OFF"
             # PowerSupplyID;Status;Underspeed;Overtemp;Overvolt;Undervolt;Overcurrent
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^PS[0-9]\\)\\|\\(/PS[0-9]$\\)"
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: "^O[NF]+$"
         source(2):
-          # Source(2) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          _comment: Source(2) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 2nd column is "PRESENT"
             # PowerSupplyID;Present;Status;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^PS[0-9]\\)\\|\\(/PS[0-9]$\\)"
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "^PRESENT$"
+            regExp: ^PRESENT$
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           # PowerSupplyID
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.power_supply.discovery.sources.source(1)$"
-          - "$monitors.power_supply.discovery.sources.source(2)$"
+          - $monitors.power_supply.discovery.sources.source(1)$
+          - $monitors.power_supply.discovery.sources.source(2)$
       mapping:
-        # Instance Table = Source(3)
-        source: "$monitors.power_supply.discovery.sources.source(3)$"
+        _comment: Instance Table = Source(3)
+        source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
           # Yeah that's kind of weird. PowerSupply collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 5th column contains either "ON" or "OFF"
             # PowerSupplyID;Status;Underspeed;Overtemp;Overvolt;Undervolt;Overcurrent
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^PS[0-9]\\)\\|\\(/PS[0-9]$\\)"
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: "^O[NF]+$"
             # Keep only the device ID and status columns
             # PowerSupplyID;Status;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2"
         source(2):
-          # Source(2) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Source(2) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 2nd column is "PRESENT"
             # PowerSupplyID;Present;Status;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^PS[0-9]\\)\\|\\(/PS[0-9]$\\)"
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "^PRESENT$"
+            regExp: ^PRESENT$
             # Keep only the device ID and status columns
             # PowerSupplyID;Status;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,3"
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           # PowerSupplyID;Status;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.power_supply.collect.sources.source(1)$"
-          - "$monitors.power_supply.collect.sources.source(2)$"
+          - $monitors.power_supply.collect.sources.source(1)$
+          - $monitors.power_supply.collect.sources.source(2)$
           computes:
             # Duplicate the status column
             # PowerSupplyID;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first column into a PATROL Status
             # PowerSupplyID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PowerSupplyStatusTranslationTable"
+            translationTable: PowerSupplyStatusTranslationTable
             # Translate the second status into a more readable string
             # PowerSupplyID;PATROLStatus;StatusInformation;
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: "No"
-            newValue: "No input source"
+            newValue: No input source
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
             # Keep only lines where the first column (the supposed OtherDevice ID) matches with \(/I_\)\|\(/FF_\)
             # OtherDeviceID;Status
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "\\(/I_\\)\\|\\(/FF_\\)"
+            regExp: \(/I_\)\|\(/FF_\)
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          device_type: "Current"
-          additional_label: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          device_type: Current
+          additional_label: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", \"Current\", $column(1), $column(1))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
           # Yeah that's kind of weird. OtherDevice collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep only lines where the first column (the supposed OtherDevice ID) matches with \(/I_\)\|\(/FF_\)
             # OtherDeviceID;Status;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "\\(/I_\\)\\|\\(/FF_\\)"
+            regExp: \(/I_\)\|\(/FF_\)
             # Duplicate the status column
             # OtherDeviceID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first column into a PATROL Status
             # OtherDeviceID;PATROLStatus;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "OtherDeviceStatusTranslationTable"
+            translationTable: OtherDeviceStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

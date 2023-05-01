@@ -13,73 +13,73 @@ embedded:
   EmbeddedFile(8): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"aggr-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\n  property[1] = \"uuid\"\n\tproperty[2] = \"name\"\n\tproperty[3] = \"size-total\"\n\tproperty[4] = \"is-inconsistent\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
 translations:
   PhysicalDiskTranslationTable:
-    default: "failed"
-    "false": "ok"
+    default: failed
+    "false": ok
   ServiceElectornicsTranslationTable:
-    default: "failed"
-    "false": "ok"
+    default: failed
+    "false": ok
   TemperatureStatusTranslationTable:
-    default: "failed"
-    "false": "ok"
+    default: failed
+    "false": ok
   FanStatusTranslationTable:
-    default: "failed"
-    "false": "ok"
+    default: failed
+    "false": ok
   EnclosureHealthTranslationTable:
-    normal: "ok"
-    default: "failed"
+    normal: ok
+    default: failed
   LinkStatusTranslationTable:
     ? ""
-    : "degraded"
-    no carrier: "degraded"
-    default: "degraded"
-    inactive: "degraded"
-    online: "ok"
-    link not connected: "degraded"
-    up: "ok"
-    offlined by user/system: "degraded"
+    : degraded
+    no carrier: degraded
+    default: degraded
+    inactive: degraded
+    online: ok
+    link not connected: degraded
+    up: ok
+    offlined by user/system: degraded
   PowerSupplyStatusTranslationTable:
-    default: "failed"
-    "false": "ok"
+    default: failed
+    "false": ok
   RaidStatusTranslationTable:
-    default: "failed"
-    "false": "ok"
+    default: failed
+    "false": ok
   FanStatusInformationTranslationTable:
     default: ""
-    "false": "No Error Detected"
-    "true": "Error Detected"
+    "false": No Error Detected
+    "true": Error Detected
   NetworkCardStatusTranslationTable:
     ? ""
-    : "ok"
-    no carrier: "ok"
-    default: "failed"
-    inactive: "ok"
-    online: "ok"
-    link not connected: "ok"
-    up: "ok"
-    offlined by user/system: "ok"
+    : ok
+    no carrier: ok
+    default: failed
+    inactive: ok
+    online: ok
+    link not connected: ok
+    up: ok
+    offlined by user/system: ok
   PowerSupplyStatusInformationTranslationTable:
     default: ""
-    "false": "No Errors"
-    "true": "Error Detected"
+    "false": No Errors
+    "true": Error Detected
 connector:
-  displayName: "NetApp 7-Mode Filer (REST)"
-  platforms: "NetApp"
-  reliesOn: "NetApp REST API"
-  version: "1.0"
+  displayName: NetApp 7-Mode Filer (REST)
+  platforms: NetApp
+  reliesOn: NetApp REST API
+  version: 1.0
   information: "This connector discovers the enclosure and the disks of NetApp disk arrays (filer) as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the REST API protocol."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     criteria:
-      # Check that system-get-info for partnet-system-id tag to validate 7-Mode
-    - type: "http"
-      method: "POST"
-      url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-      body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-get-info/></netapp>"
-      expectedResult: "partner-system-id"
-      errorMessage: "Credentials Incorrect / Not a NetApp 7-Mode Filer"
+    - _comment: Check that system-get-info for partnet-system-id tag to validate 7-Mode
+      type: http
+      method: POST
+      url: /servlets/netapp.servlets.admin.XMLrequest_filer
+      body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-get-info/></netapp>
+      expectedResult: partner-system-id
+      errorMessage: Credentials Incorrect / Not a NetApp 7-Mode Filer
 monitors:
   enclosure:
     discovery:
@@ -87,829 +87,829 @@ monitors:
         source(1):
           # Source(1) = Nodes
           # Get XML from REST API Call <system-get-info/>
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-get-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-get-info/></netapp>
           computes:
-            # Convert xml output to multiLine
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: Convert xml output to multiLine
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
           # Source(2) = Multi-line XML for Nodes
           # Preserve Enclosure Discovery Source 1 for use elsewhere
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Convert xml output to CSV
             # MSHW;system-id;system-name;system-model;vendor-id;system-serial-number;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
+          - type: awk
+            script: EmbeddedFile(1)
             # Add Node column to act as type
             # MSHW;type;system-id;system-name;system-model;vendor-id;system-serial-number;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";Node"
-            # Replace ID for Global to attach things more easily.
-          - type: "replace"
+            value: ;Node
+          - _comment: Replace ID for Global to attach things more easily.
+            type: replace
             column: 3
-            existingValue: "Column(3)"
-            newValue: "Global"
-            # Add empty column for parameter activation (no status for controller)
-          - type: "rightConcat"
+            existingValue: Column(3)
+            newValue: Global
+          - _comment: Add empty column for parameter activation (no status for controller)
+            type: rightConcat
             column: 7
-            value: ";"
+            value: ;
         source(3):
           # Source(3) = Storage Shelves
           # Get XML from REST API Call <storage-shelf-environment-list-info/>
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-environment-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-environment-list-info/></netapp>
           computes:
-            # Convert xml output to multiLine
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: Convert xml output to multiLine
+            type: awk
+            script: EmbeddedFile(11)
         source(4):
           # Source(4) = Multi-line XML for Shelves
           # Preserve Enclosure Discovery Source 3 for use elsewhere
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Convert xml output to CSV
             # MSHW;shelf-id;ses-product-id;ses-product-id;vendor-id;;op-status
-          - type: "awk"
-            script: "EmbeddedFile(2)"
+          - type: awk
+            script: EmbeddedFile(2)
             # Concat ";Shelf" to Column for type
             # MSHW;type;shelf;shelf-model;serial-number;;;op-status
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";Shelf"
-            # add column 7 with value for ParameterActivation
-          - type: "rightConcat"
+            value: ;Shelf
+          - _comment: add column 7 with value for ParameterActivation
+            type: rightConcat
             column: 7
-            value: ";ReportStatus"
+            value: ;ReportStatus
         source(5):
           # Source(5) = All enclosures (Nodes + Shelves)\nUnion the Nodes and Shelves tables\nTable 1 // MSHW;type; system-id;system-name;  system-model;  vendor-id;system-serial-number;\nTable 2 // MSHW;type; shelf-id;ses-product-id;ses-product-id;vendor-id;                    ;op-status\nindex   //   1;  2;     3;           4;            5;                    7;\t\t        \t\t\t\t8
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.discovery.sources.source(2)$"
-          - "$monitors.enclosure.discovery.sources.source(4)$"
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(4)$
       mapping:
         # Enclosure Instance Table
         # MSHW;type;node;model;serial;product-version;firmware;status
-        source: "$monitors.enclosure.discovery.sources.source(5)$"
+        source: $monitors.enclosure.discovery.sources.source(5)$
         attributes:
-          type: "$column(2)"
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          vendor: "$column(6)"
-          model: "$column(5)"
-          serial_number: "$column(7)"
+          type: $column(2)
+          id: $column(3)
+          __display_id: $column(4)
+          vendor: $column(6)
+          model: $column(5)
+          serial_number: $column(7)
           name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(6), $column(5), $column(2))"
     collect:
-      # Collection Type (Multi-instance)
-      type: "multiInstance"
+      _comment: Collection Type (Multi-instance)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = Nodes
           # Get XML from REST API Call <system-get-info/>
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-get-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-get-info/></netapp>
           computes:
-            # Convert xml output to multiLine
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: Convert xml output to multiLine
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
           # Source(2) = Multi-line XML for Nodes
           # Preserve Enclosure Discovery Source 1 for use elsewhere
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Convert xml output to CSV
             # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-          - type: "replace"
+          - type: awk
+            script: EmbeddedFile(1)
+          - type: replace
             column: 2
-            existingValue: "Column(2)"
-            newValue: "Global"
+            existingValue: Column(2)
+            newValue: Global
         source(3):
           # Source(3) = Shelves
           # Get XML from REST API Call <storage-shelf-environment-list-info/>
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-environment-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-environment-list-info/></netapp>
           computes:
-            # Convert xml output to multiLine
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: Convert xml output to multiLine
+            type: awk
+            script: EmbeddedFile(11)
         source(4):
           # Source(4) = Multi-line XML for Nodes
           # Preserve Enclosure Discovery Source 3 for use elsewhere
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Convert xml output to CSV
             # MSHW;shelf;shelf-model;serial-number;;;op-status
-          - type: "awk"
-            script: "EmbeddedFile(2)"
+          - type: awk
+            script: EmbeddedFile(2)
         source(5):
           # Union the Nodes and Shelves tables
           # Source(5) = All enclosures (Nodes + Shelves)
           # Table 1 // MSHW;system-id;system-name;  system-model;  vendor-id;system-serial-number;
           # Table 2 // MSHW;shelf-id;ses-product-id;ses-product-id;vendor-id;     ;op-status
           # index   //    1;   2;    3;          4;          # 5;          #   6;          #        7;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.collect.sources.source(2)$"
-          - "$monitors.enclosure.collect.sources.source(4)$"
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(4)$
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 7
             # Translate is-node-healthy to PatrolStatus
             # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
-          - type: "translate"
+          - type: translate
             column: 7
-            translationTable: "EnclosureHealthTranslationTable"
+            translationTable: EnclosureHealthTranslationTable
       mapping:
         # Enclosure Value Table
         # MSHW;shelf-id;ses-product-id;ses-product-id;vendor-id;serialNumber;op-status
-        source: "$monitors.enclosure.collect.sources.source(5)$"
-        deviceId: "$column(2)"
+        source: $monitors.enclosure.collect.sources.source(5)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(7)"
+          hw.status{hw.type="enclosure"}: $column(7)
         legacyTextParameters:
-          StatusInformation: "$column(8)"
+          StatusInformation: $column(8)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = Shelves
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Shelves
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;ps-number;shelf-id;serial-no;error;not-installed
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            # API reports ~\"not installed = true\" so we exclude those
-          - type: "excludeMatchingLines"
+          - type: awk
+            script: EmbeddedFile(3)
+          - _comment: API reports ~"not installed = true" so we exclude those
+            type: excludeMatchingLines
             column: 6
             regExp: "true"
             # Duplicate column 2 for displayID
             # MSHW;ps-number;ps-number;shelf-id;serial-no;error;not-installed
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-            # MSHW;ps-number;DisplayID;shelf-id;serial-no;error;not-installed
-          - type: "leftConcat"
+          - _comment: MSHW;ps-number;DisplayID;shelf-id;serial-no;error;not-installed
+            type: leftConcat
             column: 3
             value: "Power Supply #"
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Serial Number: "
       mapping:
         # Powersupply Instance Table
         # MSHW;ps-number;DisplayID;shelf-id;serial-no;error;not-installed
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          info: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(4)"
+          id: $column(2)
+          __display_id: $column(3)
+          info: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(4)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      # Collection Type (Multi-instance)
-      type: "multiInstance"
+      _comment: Collection Type (Multi-instance)
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Shelves
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Source(1) = Shelves
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Convert XML to CSV
             # MSHW;ps-number;shelf-id;serial-no;error;not-installed
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            # DuplicateColumn for StatusInformation
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(3)
+          - _comment: DuplicateColumn for StatusInformation
+            type: duplicateColumn
             column: 5
             # Translate status to PatrolStatus
             # MSHW;ps-number;shelf-id;serial-no;error;not-installed
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PowerSupplyStatusTranslationTable"
+            translationTable: PowerSupplyStatusTranslationTable
             # Translate status to StatusInformation
             # MSHW;ps-number;shelf-id;serial-no;PATROLStatus;error;not-installed;
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "PowerSupplyStatusInformationTranslationTable"
+            translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
         # PowerSupply Value Table
         # MSHW;ps-number;shelf-id;serial-no;error;not-installed
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(5)"
+          hw.status{hw.type="power_supply"}: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = Shelves
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Shelves
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;number;shelf-id;error;not-installed
-          - type: "awk"
-            script: "EmbeddedFile(4)"
+          - type: awk
+            script: EmbeddedFile(4)
             # API reports ~"not installed = true" so we exclude those
             # MSHW;number;shelf-id;error;not-installed
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 5
             regExp: "true"
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Fan #"
       mapping:
         # Fan Instance Table
         # MSHW;number;shelf-id;error;not-installed
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(4)"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(4)
+          name: $column(3)
     collect:
-      # Collection Type (Multi-instance)
-      type: "multiInstance"
+      _comment: Collection Type (Multi-instance)
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Nodes
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Source(1) = Nodes
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;number;shelf-id;error;not-installed
-          - type: "awk"
-            script: "EmbeddedFile(4)"
+          - type: awk
+            script: EmbeddedFile(4)
             # Duplicate Column 4 for StatusInformation
             # MSHW;number;shelf-id;error;not-installed
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Translate Fan status into PatrolStatus
             # MSHW;number;shelf-id;PatrolStatus;not-installed
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "FanStatusTranslationTable"
+            translationTable: FanStatusTranslationTable
             # Translate Fan status into StatusInformation
             # MSHW;number;shelf-id;PatrolStatus;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "FanStatusInformationTranslationTable"
+            translationTable: FanStatusInformationTranslationTable
       mapping:
         # Fan Value Table
         # MSHW;unique-id;PatrolStatus;StatusInformation
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="fan"}: "$column(4)"
+          hw.status{hw.type="fan"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   temperature:
     discovery:
       sources:
         source(1):
-          # Source(1) = Shelves
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Shelves
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;id;shelf-id;is-error;current-condition
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(5)
+          - type: duplicateColumn
             column: 2
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Temperature #"
       mapping:
         # Temperature Instance Table
         # MSHW;node;uniqueID;name;env-over-temperature
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(4)"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(4)
+          name: $column(3)
     collect:
-      # Collection Type (Multi-instance)
-      type: "multiInstance"
+      _comment: Collection Type (Multi-instance)
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Shelves
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Source(1) = Shelves
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;node;env-over-temperature
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-            # Translate status information into PatrolStatus
-          - type: "translate"
+          - type: awk
+            script: EmbeddedFile(5)
+          - _comment: Translate status information into PatrolStatus
+            type: translate
             column: 4
-            translationTable: "TemperatureStatusTranslationTable"
-          - type: "replace"
+            translationTable: TemperatureStatusTranslationTable
+          - type: replace
             column: 5
-            existingValue: "_"
-            newValue: " "
+            existingValue: _
+            newValue: ' '
       mapping:
         # Temperature Value Table
         # MSHW;unique-id;PatrolStatus;StatusInformation
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="temperature"}: "$column(4)"
+          hw.status{hw.type="temperature"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = disk-list-info
           # Get XML from REST API Call <disk-list-info/>
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><disk-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><disk-list-info/></netapp>
           computes:
-            # Convert xml output to multiLine
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: Convert xml output to multiLine
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
-          # Source(2) = Storage Shelf Info
-          type: "copy"
-          from: "$monitors.physical_disk.discovery.sources.source(1)$"
+          _comment: Source(2) = Storage Shelf Info
+          type: copy
+          from: $monitors.physical_disk.discovery.sources.source(1)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            # MSHW;shelf;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(6)
+          - _comment: MSHW;shelf;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
+            type: duplicateColumn
             column: 2
             # create uniqueID (Computes 2-3)
             # MSHW;shelf.;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "."
-            # MSHW;shelf.bay;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "rightConcat"
+            value: .
+          - _comment: MSHW;shelf.bay;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
+            type: rightConcat
             column: 2
-            value: "Column(4)"
-          - type: "leftConcat"
+            value: Column(4)
+          - type: leftConcat
             column: 9
             value: "RPM: "
         source(3):
-          type: "copy"
-          from: "$monitors.physical_disk.discovery.sources.source(2)$"
+          type: copy
+          from: $monitors.physical_disk.discovery.sources.source(2)$
           computes:
             # if Column 12 (is-prefailed) has a value, the disk is assigned.
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 12
-            regExp: "."
+            regExp: .
         source(4):
-          type: "copy"
-          from: "$monitors.physical_disk.discovery.sources.source(2)$"
+          type: copy
+          from: $monitors.physical_disk.discovery.sources.source(2)$
           computes:
             # if Column 12 (is-prefailed) has no value, the disk is un-assigned.
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 12
-            regExp: "."
-            # Add description for disks that are not assigned. No status can be provided.
-          - type: "rightConcat"
+            regExp: .
+          - _comment: Add description for disks that are not assigned. No status can be provided.
+            type: rightConcat
             column: 4
-            value: " (Unassigned - Not Monitored)"
+            value: ' (Unassigned - Not Monitored)'
         source(5):
-          # Join the Assigned and un-assigned disk tables.
-          type: "tableUnion"
+          _comment: Join the Assigned and un-assigned disk tables.
+          type: tableUnion
           tables:
-          - "$monitors.physical_disk.discovery.sources.source(3)$"
-          - "$monitors.physical_disk.discovery.sources.source(4)$"
+          - $monitors.physical_disk.discovery.sources.source(3)$
+          - $monitors.physical_disk.discovery.sources.source(4)$
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 8
             value: "Type: "
       mapping:
         # PhysicalDisk Instancce
         # MSHW;shelf.bay;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-        source: "$monitors.physical_disk.discovery.sources.source(5)$"
+        source: $monitors.physical_disk.discovery.sources.source(5)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(4)"
-          model: "$column(5)"
-          vendor: "$column(6)"
-          serial_number: "$column(7)"
-          firmware_version: "$column(10)"
+          id: $column(2)
+          __display_id: $column(4)
+          model: $column(5)
+          vendor: $column(6)
+          serial_number: $column(7)
+          firmware_version: $column(10)
           info: "join($column(9), $column(8), \" \")"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(3)"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(11))"
         metrics:
-          hw.physical_disk.size: "$column(11)"
+          hw.physical_disk.size: $column(11)
     collect:
       # Collect
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = disk-list-info
           # Get XML from REST API Call
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><disk-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><disk-list-info/></netapp>
           computes:
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - type: awk
+            script: EmbeddedFile(11)
         source(2):
-          # Source(2) = disk-list-info
-          type: "copy"
-          from: "$monitors.physical_disk.collect.sources.source(1)$"
+          _comment: Source(2) = disk-list-info
+          type: copy
+          from: $monitors.physical_disk.collect.sources.source(1)$
           computes:
             # Xml2Cvs with Awk
             # MSHW;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            # MSHW;shelf;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(6)
+          - _comment: MSHW;shelf;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
+            type: duplicateColumn
             column: 2
             # create uniqueID (Computes 2-3)
             # MSHW;shelf.;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "."
-            # MSHW;shelf.bay;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "rightConcat"
+            value: .
+          - _comment: MSHW;shelf.bay;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
+            type: rightConcat
             column: 2
-            value: "Column(4)"
-            # MSHW;shelf;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
-          - type: "duplicateColumn"
+            value: Column(4)
+          - _comment: MSHW;shelf;shelf;bay;model;vendor;serialNumber;disk-type;rpm;fw;physical-space;is-prefailed;
+            type: duplicateColumn
             column: 12
             # Translate bay-op-status into PatrolStatus
             # MSHW;shelf-id;bay-id;bay-has-disk;bay-type;PatrolStatus;
-          - type: "translate"
+          - type: translate
             column: 12
-            translationTable: "PhysicalDiskTranslationTable"
-          - type: "leftConcat"
+            translationTable: PhysicalDiskTranslationTable
+          - type: leftConcat
             column: 13
             value: "Is prefailed : "
       mapping:
         # PhysicalDisk Value Table
         # MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
-        source: "$monitors.physical_disk.collect.sources.source(2)$"
-        deviceId: "$column(2)"
+        source: $monitors.physical_disk.collect.sources.source(2)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(12)"
+          hw.status{hw.type="physical_disk"}: $column(12)
         legacyTextParameters:
-          StatusInformation: "$column(13)"
+          StatusInformation: $column(13)
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = net-config-get-active
           # Get XML from REST API Call
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-config-get-active/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-config-get-active/></netapp>
           computes:
-            # multi-line the xml response
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: multi-line the xml response
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
-          # Source(2) = NetworkCards
-          type: "copy"
-          from: "$monitors.network.discovery.sources.source(1)$"
+          _comment: Source(2) = NetworkCards
+          type: copy
+          from: $monitors.network.discovery.sources.source(1)$
           computes:
             # Xml2Cvs with Awk
             # MSHW;interface-name;mac-address;mediatype;
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
             # Add port identifying information for this source (always MAC and "Ethernet Port")
             # MSHW;interface-name;mac-address;MAC;Type;mediatype;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";MAC;Ethernet Port;"
+            value: ;MAC;Ethernet Port;
         source(3):
           # Source(3) = fcp-adapter-list-info
           # Get XML from REST API Call
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-list-info/></netapp>
           computes:
-            # multi-line the xml response
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: multi-line the xml response
+            type: awk
+            script: EmbeddedFile(11)
         source(4):
-          type: "copy"
-          from: "$monitors.network.discovery.sources.source(3)$"
+          type: copy
+          from: $monitors.network.discovery.sources.source(3)$
           computes:
             # Xml2Cvs with Awk
             # MSHW;node;adapter;port-name;state;speed;
-          - type: "awk"
-            script: "EmbeddedFile(10)"
+          - type: awk
+            script: EmbeddedFile(10)
             # Add port identifying information for this source (always WWN and "FC Port")
             # MSHW;adapter;port-name;WWN;FC;state;speed;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";WWN;FC Port"
+            value: ;WWN;FC Port
         source(5):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.discovery.sources.source(2)$"
-          - "$monitors.network.discovery.sources.source(4)$"
+          - $monitors.network.discovery.sources.source(2)$
+          - $monitors.network.discovery.sources.source(4)$
           computes:
-            # Replace auto with blank to deactivate LinkSpeed
-          - type: "replace"
+          - _comment: Replace auto with blank to deactivate LinkSpeed
+            type: replace
             column: 7
-            existingValue: "auto"
+            existingValue: auto
             newValue: ""
       mapping:
         # NetworkCard Instance Table
         # MSHW;node;uniqueId;port;link-status;health-status;mac-address;link-speed;physical-address-type;device-type
-        source: "$monitors.network.discovery.sources.source(5)$"
+        source: $monitors.network.discovery.sources.source(5)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          physical_address: "$column(3)"
-          physical_address_type: "$column(4)"
-          device_type: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Global"
+          id: $column(2)
+          __display_id: $column(2)
+          physical_address: $column(3)
+          physical_address_type: $column(4)
+          device_type: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: Global
           name: "sprintf(\"%s (%s)\", $column(2), $column(5))"
     collect:
-      # Collection type (Multi-instance)
-      type: "multiInstance"
+      _comment: Collection type (Multi-instance)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = NetworkCards
           # Get XML from REST API Call
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-config-get-active/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-config-get-active/></netapp>
           computes:
-            # xml to multi-line
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: xml to multi-line
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
-          # Source(2) = NetworkCards
-          type: "copy"
-          from: "$monitors.network.collect.sources.source(1)$"
+          _comment: Source(2) = NetworkCards
+          type: copy
+          from: $monitors.network.collect.sources.source(1)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;interface-name;mac-address;mediatype;
-          - type: "awk"
-            script: "EmbeddedFile(7)"
-            # Duplicate status column (status information)
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(7)
+          - _comment: Duplicate status column (status information)
+            type: duplicateColumn
             column: 4
-            # MSHW;interface-name;mac-address;auto;speed;duplex;link;mediaType;
-          - type: "replace"
+          - _comment: MSHW;interface-name;mac-address;auto;speed;duplex;link;mediaType;
+            type: replace
             column: 4
-            existingValue: "-"
-            newValue: ";"
-          - type: "duplicateColumn"
+            existingValue: '-'
+            newValue: ;
+          - type: duplicateColumn
             column: 7
-          - type: "translate"
+          - type: translate
             column: 7
-            translationTable: "NetworkCardStatusTranslationTable"
-            # MSHW;interface-name;mac-address;mediatype;
-          - type: "translate"
+            translationTable: NetworkCardStatusTranslationTable
+          - _comment: MSHW;interface-name;mac-address;mediatype;
+            type: translate
             column: 8
-            translationTable: "LinkStatusTranslationTable"
-            # Remove t from speed column to be used for LinkSpeed
-          - type: "replace"
+            translationTable: LinkStatusTranslationTable
+          - _comment: Remove t from speed column to be used for LinkSpeed
+            type: replace
             column: 5
-            existingValue: "t"
+            existingValue: t
             newValue: ""
         source(3):
           # Source(3) = fcp-adapter-list-info
           # Get XML from REST API Call
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-list-info/></netapp>
           computes:
-            # xml to multi-line
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: xml to multi-line
+            type: awk
+            script: EmbeddedFile(11)
         source(4):
-          # Source(2) = NetworkCards
-          type: "copy"
-          from: "$monitors.network.collect.sources.source(3)$"
+          _comment: Source(2) = NetworkCards
+          type: copy
+          from: $monitors.network.collect.sources.source(3)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;adapter;adapter-wwnn;status-admin;speed;
-          - type: "awk"
-            script: "EmbeddedFile(10)"
+          - type: awk
+            script: EmbeddedFile(10)
             # Duplicate status column (status information)
             # MSHW;adapter;adapter-wwnn;status-admin;status-admin;speed;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Duplicate status column (status information)
             # MSHW;adapter;adapter-wwnn;status-admin;status-admin;status-admin;speed;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Duplicate status column (status information)
             # MSHW;adapter;adapter-wwnn;status-admin;status-admin;status-admin;status-admin;speed;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Duplicate status column (status information)
             # MSHW;adapter;adapter-wwnn;status-admin;status-admin;status-admin;status-admin;status-admin;speed;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Translate NetworkCard Status
             # MSHW;adapter;adapter-wwnn;status-admin;status-admin;status-admin;Status;status-admin;speed;
-          - type: "translate"
+          - type: translate
             column: 7
-            translationTable: "NetworkCardStatusTranslationTable"
+            translationTable: NetworkCardStatusTranslationTable
             # Translate NetworkCard LinkStatus
             # MSHW;adapter;adapter-wwnn;status-admin;status-admin;status-admin;Status;LinkStatus;speed;
-          - type: "translate"
+          - type: translate
             column: 8
-            translationTable: "LinkStatusTranslationTable"
+            translationTable: LinkStatusTranslationTable
             # Move speed to Column 5 to match Ethernet
             # MSHW;adapter;adapter-wwnn;status-admin;speed;status-admin;Status;LinkStatus;speed;
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "Column(5)"
-            newValue: "Column(9)"
-            # Replace Gb with 000 for LinkSpeed
-          - type: "replace"
+            existingValue: Column(5)
+            newValue: Column(9)
+          - _comment: Replace Gb with 000 for LinkSpeed
+            type: replace
             column: 5
-            existingValue: "Gb"
-            newValue: "000"
+            existingValue: Gb
+            newValue: '000'
         source(5):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.collect.sources.source(2)$"
-          - "$monitors.network.collect.sources.source(4)$"
+          - $monitors.network.collect.sources.source(2)$
+          - $monitors.network.collect.sources.source(4)$
       mapping:
         # NetworkCard Value Table
         # MSHW;adapter;adapter-wwnn;status-admin;speed;status-admin;Status;LinkStatus;speed;
         # MSHW;interface-name;mac-address;statusArray;statusArray;statusArray
-        source: "$monitors.network.collect.sources.source(5)$"
-        deviceId: "$column(2)"
+        source: $monitors.network.collect.sources.source(5)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="network"}: "$column(7)"
-          hw.network.up: "legacyLinkStatus($column(8))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(5))"
+          hw.status{hw.type="network"}: $column(7)
+          hw.network.up: legacyLinkStatus($column(8))
+          hw.network.bandwidth.limit: megaBit2Bit($column(5))
         legacyTextParameters:
-          StatusInformation: "$column(9)"
+          StatusInformation: $column(9)
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = Aggregate (raid) information
           # Get XML from REST API Call
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-list-info/></netapp>
           computes:
-            # XML to multi-line xml
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: XML to multi-line xml
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
-          # Source(2) = Aggregate (raid) inforamtion
-          type: "copy"
-          from: "$monitors.logical_disk.discovery.sources.source(1)$"
+          _comment: Source(2) = Aggregate (raid) inforamtion
+          type: copy
+          from: $monitors.logical_disk.discovery.sources.source(1)$
           computes:
             # Xml2Cvs using Awk
             # MSHW;uuid;name;size;is-inconsistent
-          - type: "awk"
-            script: "EmbeddedFile(8)"
+          - type: awk
+            script: EmbeddedFile(8)
       mapping:
         # LogicalDisk Instance Table
         # MSHW;uuid;name;size;is-inconsistent
-        source: "$monitors.logical_disk.discovery.sources.source(2)$"
+        source: $monitors.logical_disk.discovery.sources.source(2)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.logical_disk.limit: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Global"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.logical_disk.limit: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: Global
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
     collect:
-      # CollectionType (Multi-instance)
-      type: "multiInstance"
+      _comment: CollectionType (Multi-instance)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = Aggregate (raid) information
           # Get XML from REST API Call
-          type: "http"
-          method: "POST"
-          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
-          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-list-info/></netapp>"
+          type: http
+          method: POST
+          url: /servlets/netapp.servlets.admin.XMLrequest_filer
+          body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-list-info/></netapp>
           computes:
-            # XML to multi-line XML
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: XML to multi-line XML
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
-          # Source(2) = Aggregate (raid) information
-          type: "copy"
-          from: "$monitors.logical_disk.collect.sources.source(1)$"
+          _comment: Source(2) = Aggregate (raid) information
+          type: copy
+          from: $monitors.logical_disk.collect.sources.source(1)$
           computes:
             # Xml2Cvs using Awk
             # MSHW;uuid;name;size;is-inconsistent
-          - type: "awk"
-            script: "EmbeddedFile(8)"
-            # MSHW;uuid;name;size;is-inconsistent
-          - type: "translate"
+          - type: awk
+            script: EmbeddedFile(8)
+          - _comment: MSHW;uuid;name;size;is-inconsistent
+            type: translate
             column: 5
-            translationTable: "RaidStatusTranslationTable"
+            translationTable: RaidStatusTranslationTable
       mapping:
         # LogicalDisk Value Table
         # MSHW;aggregate-uuid;PatrolStatus;StatusInformation;
-        source: "$monitors.logical_disk.collect.sources.source(2)$"
-        deviceId: "$column(2)"
+        source: $monitors.logical_disk.collect.sources.source(2)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(5)"
+          hw.status{hw.type="logical_disk"}: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   other_device:
     discovery:
       sources:
         source(1):
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Xml2Cvs using AWK
             # MSHW;shelf-id;es-electronics-element-no;es-electronics-is-error;es-electronics-is-reporting-element
-          - type: "awk"
-            script: "EmbeddedFile(9)"
-            # MSHW;shelf-id;es-electronics-element-no;es-electronics-element-no;es-electronics-is-error;es-electronics-is-reporting-element
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(9)
+          - _comment: MSHW;shelf-id;es-electronics-element-no;es-electronics-element-no;es-electronics-is-error;es-electronics-is-reporting-element
+            type: duplicateColumn
             column: 3
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Service Electronics #"
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 6
             regExp: "false"
       mapping:
         # LogicalDisk Instance Table
         # MSHW;shelf-id;es-electronics-element-no;es-electronics-element-no;es-electronics-is-error;es-electronics-is-reporting-element
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
-          name: "$column(4)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
     collect:
-      # Collect type
-      type: "multiInstance"
+      _comment: Collect type
+      type: multiInstance
       sources:
         source(1):
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-            # XML to multi-line XML
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - _comment: XML to multi-line XML
+            type: awk
+            script: EmbeddedFile(11)
         source(2):
-          type: "copy"
-          from: "$monitors.other_device.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.other_device.collect.sources.source(1)$
           computes:
             # Xml2Cvs using Awk
             # MSHW;shelf-id;es-electronics-element-no;es-electronics-is-error;es-electronics-is-reporting-element
-          - type: "awk"
-            script: "EmbeddedFile(9)"
+          - type: awk
+            script: EmbeddedFile(9)
             # Translate into PatrolStatus
             # MSHW;shelf-id;es-electronics-element-no;PatrolStatus;StatusDescription
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "ServiceElectornicsTranslationTable"
+            translationTable: ServiceElectornicsTranslationTable
       mapping:
         # OtherDevice Value Table
         # MSHW;shelf-id;es-electronics-element-no;PatrolStatus;StatusDescription
-        source: "$monitors.other_device.collect.sources.source(2)$"
-        deviceId: "$column(3)"
+        source: $monitors.other_device.collect.sources.source(2)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(4)"
+          hw.status{hw.type="other_device"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)

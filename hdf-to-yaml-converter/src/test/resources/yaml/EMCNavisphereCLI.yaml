@@ -1,68 +1,68 @@
 ---
 extends:
-- "EMCNavisphereCLI-header"
+- EMCNavisphereCLI-header
 connector:
-  displayName: "EMC Navisphere CLI (Local User)"
+  displayName: EMC Navisphere CLI (Local User)
   platforms: "EMC CLARiiON,EMC VNX"
-  reliesOn: "EMC naviseccli utility"
+  reliesOn: EMC naviseccli utility
   information: "This connector provides hardware monitoring through EMC Navisphere CLI (naviseccli). The naviseccli must be installed on the system where the agent is running. This connector uses naviseccli to connect to the EMC VNX controller as a local user, i.e. with \"Scope 0\"."
   detection:
     connectionTypes:
-    - "local"
-    - "remote"
+    - local
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     supersedes:
-    - "EMCuemcli"
-    - "EMCNavisphereCLIGlobal"
-    - "EMCNavisphereCLILDAP"
+    - EMCuemcli
+    - EMCNavisphereCLIGlobal
+    - EMCNavisphereCLILDAP
     criteria:
-      # naviseccli Should Exist
-    - type: "osCommand"
-      commandLine: "naviseccli -help"
-      errorMessage: "naviseccli Does not appear to be installed on this system"
-      expectedResult: "Navisphere"
+    - _comment: naviseccli Should Exist
+      type: osCommand
+      commandLine: naviseccli -help
+      errorMessage: naviseccli Does not appear to be installed on this system
+      expectedResult: Navisphere
       executeLocally: true
-      # naviseccli Should be able to connect and list systems
-    - type: "osCommand"
+    - _comment: naviseccli Should be able to connect and list systems
+      type: osCommand
       commandLine: "naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
-      errorMessage: "Unable to connect using Navisphere"
-      expectedResult: "Agent Rev:"
+      errorMessage: Unable to connect using Navisphere
+      expectedResult: 'Agent Rev:'
       executeLocally: true
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getall"
           executeLocally: true
           timeout: 600
         source(2):
-          type: "osCommand"
+          type: osCommand
           commandLine: "naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 storagepool -list"
           executeLocally: true
           timeout: 600
         source(3):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.discovery.sources.source(1)$"
-          - "$monitors.enclosure.discovery.sources.source(2)$"
-          - "$monitors.enclosure.collect.sources.source(5)$"
+          - $monitors.enclosure.discovery.sources.source(1)$
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(5)$
     collect:
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getall"
           executeLocally: true
           timeout: 600
         source(2):
-          type: "osCommand"
+          type: osCommand
           commandLine: "naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 storagepool -list"
           executeLocally: true
           timeout: 600
         source(3):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.collect.sources.source(1)$"
-          - "$monitors.enclosure.collect.sources.source(2)$"
+          - $monitors.enclosure.collect.sources.source(1)$
+          - $monitors.enclosure.collect.sources.source(2)$

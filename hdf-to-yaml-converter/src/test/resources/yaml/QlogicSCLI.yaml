@@ -3,164 +3,164 @@ embedded:
   EmbeddedFile(1): "$1 ~ /<HBA>/ {PortID=\"\";WWPN=\"\";Model=\"\";ActualDataRate=\"\";PortType=\"\";SerialNumber=\"\";}\n\n$1 ~ /HBAID/ {PortID=$0;gsub(/^.*=\"/,\"\",PortID);gsub(/\"$/,\"\",PortID);}\n\n$1 ~ /HBAModel/ {Model=$0;gsub(/^.*=\"/,\"\",Model);gsub(/\"$/,\"\",Model);}\n\n$1 ~ /WWPN/ {WWPN=$0;gsub(/^.*=\"/,\"\",WWPN);gsub(/\"$/,\"\",WWPN);gsub(/-/,\"\",WWPN);}\n\n$1 ~ /ActualDataRate/ {ActualDataRate=$0;gsub(/^.*=\"/,\"\",ActualDataRate);gsub(/ Gbps\"$/,\"\",ActualDataRate);}\n\n$1 ~ /PortType/ {PortType=$0;gsub(/^.*=\"/,\"\",PortType);gsub(/\"$/,\"\",PortType);gsub(/-/,\"\",PortType);}\n\n$1 ~ /SerialNumber/ {SerialNumber=$0;gsub(/^.*=\"/,\"\",SerialNumber);gsub(/\"$/,\"\",SerialNumber);gsub(/-/,\"\",SerialNumber);}\n\n$1 ~ /Status/ {Status=$0;gsub(/^.*=\"/,\"\",Status);gsub(/\" .>$/,\"\",Status);gsub(/-/,\"\",Status);}\n\n$1 ~ \"</HBA>\" {print (\"MSHW;\"PortID\";\"Model\";\"WWPN\";\"ActualDataRate\";\"PortType\";\"SerialNumber\";\"Status\";\")\n\t             PortID=\"\";WWPN=\"\";Model=\"\";ActualDataRate=\"\";PortType=\"\";SerialNumber=\"\";}"
 translations:
   NetworkStatusInfoTranslationTable:
-    send loop down update: "Send loop down update"
-    port update: "Port update"
-    sfp not installed: "failed"
-    send link down update: "Send link down update"
-    link up: "Link Up"
-    loop up: "Loop Up"
-    unknown: "UNKNOWN"
-    default: "UNKNOWN"
-    currently up: "Currently Up"
-    system error: "System Error"
-    alt wwn sctive: "Alt WWN sctive"
-    disable: "Disable"
-    link down: "Link Down"
+    send loop down update: Send loop down update
+    port update: Port update
+    sfp not installed: failed
+    send link down update: Send link down update
+    link up: Link Up
+    loop up: Loop Up
+    unknown: UNKNOWN
+    default: UNKNOWN
+    currently up: Currently Up
+    system error: System Error
+    alt wwn sctive: Alt WWN sctive
+    disable: Disable
+    link down: Link Down
     online: ""
-    loop down: "Loop Down"
-    lip occurred: "Lip occurred"
+    loop down: Loop Down
+    lip occurred: Lip occurred
   NetworkLinkStatusTranslationTable:
-    send loop down update: "degraded"
-    default: "UNKNOWN"
-    link down: "degraded"
-    send link down update: "degraded"
-    online: "ok"
-    loop down: "degraded"
-    link up: "ok"
-    loop up: "ok"
-    unknown: "UNKNOWN"
+    send loop down update: degraded
+    default: UNKNOWN
+    link down: degraded
+    send link down update: degraded
+    online: ok
+    loop down: degraded
+    link up: ok
+    loop up: ok
+    unknown: UNKNOWN
   NetworkStatusTranslationTable:
-    send loop down update: "ok"
-    port update: "ok"
-    sfp not installed: "failed"
-    send link down update: "ok"
-    link up: "ok"
-    loop up: "ok"
-    unknown: "UNKNOWN"
-    default: "UNKNOWN"
-    currently up: "ok"
-    system error: "ok"
-    alt wwn sctive: "ok"
-    disable: "failed"
-    link down: "ok"
-    online: "ok"
-    loop down: "ok"
-    lip occurred: "degraded"
+    send loop down update: ok
+    port update: ok
+    sfp not installed: failed
+    send link down update: ok
+    link up: ok
+    loop up: ok
+    unknown: UNKNOWN
+    default: UNKNOWN
+    currently up: ok
+    system error: ok
+    alt wwn sctive: ok
+    disable: failed
+    link down: ok
+    online: ok
+    loop down: ok
+    lip occurred: degraded
 connector:
-  displayName: "QLogic HBAs (scli)"
-  platforms: "Any system with QLogic"
-  reliesOn: "QLogic's SCLI utility"
-  information: "This connector discovers QLogic HBAs of servers running Linux using the scli utility provided with the QLogic Drivers."
-  version: "1.0"
+  displayName: QLogic HBAs (scli)
+  platforms: Any system with QLogic
+  reliesOn: QLogic's SCLI utility
+  information: This connector discovers QLogic HBAs of servers running Linux using the scli utility provided with the QLogic Drivers.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Linux"
-    - "Solaris"
+    - Linux
+    - Solaris
     supersedes:
-    - "CpqHBA"
-    - "SMISHBA"
+    - CpqHBA
+    - SMISHBA
     criteria:
-      # SCLI should be in the path
-    - type: "osCommand"
-      commandLine: "which scli"
-      expectedResult: "/scli$"
-      # Test the scli command
-    - type: "osCommand"
+    - _comment: SCLI should be in the path
+      type: osCommand
+      commandLine: which scli
+      expectedResult: /scli$
+    - _comment: Test the scli command
+      type: osCommand
       commandLine: "%{SUDO:scli} scli -g"
       expectedResult: "Total QLogic HBA(s) : [1-9]"
 sudoCommands:
-- "scli"
+- scli
 monitors:
   network:
     discovery:
       sources:
         source(1):
-          # Get the list of Ports from SCLI -i -x2
-          type: "osCommand"
+          _comment: Get the list of Ports from SCLI -i -x2
+          type: osCommand
           commandLine: "%{SUDO:scli} scli -i -x2"
           computes:
             # AWK it
             # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7,8"
             # Exclude Ports with SFP not Installed
             # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 7
             valueList: "SFP not installed,Disable"
             # Convert Speed from Gbps to Mbps (multiply by 1000)
             # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1000"
+            value: 1000
       mapping:
         # InstanceTable = Source(1)
         # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
-        source: "$monitors.network.discovery.sources.source(1)$"
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(2)"
-          serial_number: "$column(6)"
-          physical_address: "$column(3)"
-          physical_address_type: "WWN"
-          device_type: "$column(5)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(2)
+          serial_number: $column(6)
+          physical_address: $column(3)
+          physical_address_type: WWN
+          device_type: $column(5)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
     collect:
-      # The NetworkCard collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The NetworkCard collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
-          # Get the list of Ports and Status from SCLI -i -x2
-          type: "osCommand"
+          _comment: Get the list of Ports and Status from SCLI -i -x2
+          type: osCommand
           commandLine: "%{SUDO:scli} scli -i -x2"
           computes:
             # AWK it
             # PortID;Speed;Status;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,5,8"
             # Duplicate Staus Column
             # PortID;Speed;Status;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate Network Status
             # PortID;Speed;PatrolStatus;Status;Status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "NetworkStatusTranslationTable"
+            translationTable: NetworkStatusTranslationTable
             # Translate Network Status Information
             # PortID;Speed;PatrolStatus;StatusInformation;Status;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "NetworkStatusInfoTranslationTable"
+            translationTable: NetworkStatusInfoTranslationTable
             # Translate Network Status Information
             # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "NetworkLinkStatusTranslationTable"
+            translationTable: NetworkLinkStatusTranslationTable
             # Convert Speed from Gbps to Mbps (multiply by 1000)
             # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1000"
+            value: 1000
       mapping:
         # ValueTable = Source(1)
         # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.network.bandwidth.limit: "megaBit2Bit($column(2))"
-          hw.status{hw.type="network"}: "$column(3)"
-          hw.network.up: "legacyLinkStatus($column(5))"
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

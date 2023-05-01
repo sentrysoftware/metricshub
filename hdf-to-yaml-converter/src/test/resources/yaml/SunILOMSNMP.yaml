@@ -3,37 +3,37 @@ embedded:
   EmbeddedFile(1): "BEGIN { FS=\"[;]\"; ChassisFound=-1; }\nfunction AppendStatus(StatusID) {\n\tif (Status != \"\") {\n\t\tPrintArray[StatusID] = 1\n\t\tStatusArray[StatusID] = StatusArray[StatusID] \"|\" Status\n\t\tSensorArray[StatusID] = SensorArray[StatusID] \" \" Name\n\n\t\tif (Status < 7) {\n\t\t\tStatusInformation[StatusID] = StatusInformation[StatusID] \" \" Name\n\t\t}\n  }\n\t# For numeric sensors we initialize Status to ensure that the sensors are printed.\n}\n\nfunction createMSHWPRINT(MSHWCLASS,ID) {\n\t# Before we start, lets see if we can reclassify MSHW_OTHER devices by their name\n\tif (MSHWCLASS ~ /MSHW_OTHER/) {\n\n\t\t#Unwanted Sensors - Set Status to Null\n\t\tif (Name ~ /.OK2RM$/ ) { Status = \"\"}\n\n\t\t#CPU\n\t\tif ( Name ~ /MB.P[0-9]+$/ ) { MSHWCLASS = \"MSHW_CPU\" }\n\n\t\t#ENC\n\n\t\t#NETWORK\n\n\t\t#PHYDISK\n\t\tif ( Name ~ /HDD[0-9]/ ) { MSHWCLASS = \"MSHW_PHYDISK\" }\n\n\t\t#PSU\n\t\tif ( Name ~ /SYS.PS_FAULT/ ) { MSHWCLASS = \"MSHW_PSU\" }\n\t\tif ( Name ~ /SYS.PS[0-9]/ ) { MSHWCLASS = \"MSHW_PSU\" }\n\n\t\t#OTHER\n\n\t\t#FAN\n\t\tif ( Name ~ /FM[0-9]/ ) { MSHWCLASS = \"MSHW_FAN\" }\n\t\tif ( Name ~ /SYS.FAN_FAULT]/ ) { MSHWCLASS = \"MSHW_FAN\" }\n\t\tif ( Name ~ /FANBD]/ ) { MSHWCLASS = \"MSHW_FAN\" }\n\n\t\t#VOLT\n\n\t\t#TEMP\n\t\tif ( Name ~ /TEMP_FAULT/ ) { MSHWCLASS = \"MSHW_TEMP\" }\n\n\t\t#MEM\n\t\tif ( Name ~ /DIMM/ ) { MSHWCLASS = \"MSHW_MEM\" }\n\t\tif ( Name ~ /MB.P[0-9]+.D[0-9]+.SERVICE/ ) { MSHWCLASS = \"MSHW_MEM\" }\n\n\t\t#LED\n\t\tif ( Name ~ /LOCATE/ ) { MSHWCLASS = \"MSHW_LED\" }\n\t\tif ( Name ~ /^.SYS.OK$]/ ) { MSHWCLASS = \"MSHW_LED\" }\n\t}\n\n\t# Now let's reclassify troublesome sensors\n\tif (MSHWCLASS ~ /MSHW_ENC/ && Name ~ /SYS.MIDPLANE/) { MSHWCLASS = \"MSHW_OTHER\" }\n\tif (MSHWCLASS ~ /MSHW_ENC/ && Name ~ /SYS.IOCFG/) { MSHWCLASS = \"MSHW_OTHER\" }\n\t# Print by class\n\tif (MSHWCLASS ~ /MSHW_CPU/) {\n\t\tfunctionreturns = \"MSHW_CPU;\"ID\";\"Name\";\"\n\t}\n\telse if (MSHWCLASS ~ /MSHW_ENC/) {\n\t  # The model number for Enclosure is not very good, let's use the PhysDesc\n\t  Model = PhysDesc;\n\t  functionreturns = \"MSHW_ENC;\"ID\";\"Name\";\"Firmware\";\"SerialNumber\";\"Manufacturer\";\"Model\";\"\n\t}\n\telse if (MSHWCLASS ~ /MSHW_NETWORK/) { functionreturns = \"MSHW_NETWORK;\"ID\";\"Name\";\" }\n\telse if (MSHWCLASS ~ /MSHW_PHYDISK/) { functionreturns = \"MSHW_PHYDISK;\"ID\";\"Name\";\"SerialNumber\";\"Manufacturer\";\"Model\";\" }\n\telse if (MSHWCLASS ~ /MSHW_PSU/) { functionreturns = \"MSHW_PSU;\"ID\";\"Name\";\"SerialNumber\";\"Manufacturer\";\"Model\";\" }\n\telse if (MSHWCLASS ~ /MSHW_OTHER/) { functionreturns = \"MSHW_OTHER;\"PhysDesc\";\"ID\";\"Name\";\" }\n\telse if (MSHWCLASS ~ /MSHW_FAN/) { functionreturns = \"MSHW_FAN;\"ID\";\"Name\";\" }\n\telse if (MSHWCLASS ~ /MSHW_VOLT/) {\n\t  if ( LowerNC != \"\") { LowerNC = LowerNC * 1000 }\n\t  if ( UpperNC != \"\") { UpperNC = UpperNC * 1000 }\n\t  if ( CurrentValue != \"\") { CurrentValue = CurrentValue * 1000 }\n\n\t\tfunctionreturns = \"MSHW_VOLT;\"ID\";\"Name\";\"CurrentValue\";\"LowerNC\";\"UpperNC\";\"\n\t}\n\telse if (MSHWCLASS ~ /MSHW_TEMP/) { functionreturns = \"MSHW_TEMP;\"ID\";\"Name\";\"CurrentValue\";\"UpperNC\";\"UpperC\";\" }\n\telse if (MSHWCLASS ~ /MSHW_MEM/) { functionreturns = \"MSHW_MEM;\"ID\";\"Name\";\"Size\";\"SerialNumber\";\"Manufacturer\";\"Model\";\" }\n\telse if (MSHWCLASS ~ /MSHW_LED/) {}\n\telse {functionreturns = \"ERROR UNKNOWN CLASS\"}\n\treturn functionreturns\n}\n\n# MAIN AWK\n\nNF > 8 && $1 ~ /^[0-9]+$/ {\n\t# Deal with the numeric exponent\n\tExponent     = $19\n\tif (Exponent == -3) { Exponent = 0.001 }\n\telse if (Exponent == -2) { Exponent = 0.01 }\n\telse if (Exponent == -1) { Exponent = 0.1 }\n\telse if (Exponent == 0) { Exponent = 1 }\n\telse if (Exponent == 1) { Exponent = 10 }\n\telse if (Exponent == 2) { Exponent = 100 }\n\telse if (Exponent == 3) { Exponent = 1000 }\n\telse {Exponent = 1}\n\n\tSensorID     = $1\n\tPhysDesc     = $2\n\tParentID     = $3\n\tClass        = $4\n\tName         = $5\n\tFirmware     = $6\n\tSerialNumber = $7\n\tManufacturer = $8\n\tModel        = $9\n#\tSensorType   = $11\n\tSensorClass  = $12\n\tStatus       = $13\n\tCurrentValue = $14 ; CurrentValue = CurrentValue * Exponent\n\tLowerNC      = $15 ; LowerNC = LowerNC * Exponent ; if (LowerNC==0) {LowerNC = \"\"}\n\tUpperNC      = $16 ; UpperNC = UpperNC * Exponent ; if (UpperNC==0) {UpperNC = \"\"}\n\tLowerC       = $17 ; LowerC = LowerC * Exponent ; if (LowerC==0) {LowerC = \"\"}\n\tUpperC       = $18 ; UpperC = UpperC * Exponent ; if (UpperC==0) {UpperC = \"\"}\n\n\t# 1 - Other\n\tif (Class == 1) {\n\t\tif ( PhysDesc ~ /^BIOS/ ) {\n\t\t\tPhysDesc = \"BIOS\"\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_OTHER\",SensorID)\n\t\t\tAppendStatus(SensorID)\n\t\t}\n\t\telse if ( PhysDesc ~ /^Network/ ) {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_NETWORK\",SensorID)\n\t\t\tAppendStatus(SensorID)\n\t\t}\n\t\telse if ( PhysDesc ~ /^Processor/ || PhysDesc ~ /^Host Processor/ ) {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_CPU\",SensorID)\n\t\t\tAppendStatus(SensorID) ;\n\t\t}\n\t\telse if ( PhysDesc ~ /^CPU Core/ ) {\n\t\t\tAppendStatus(ParentID)\n\n\t\t\t# Create a Child ID in case the Parent is not found\n      MSHWCHILDPRINT[ParentID] = createMSHWPRINT(\"MSHW_OTHER\",ParentID)\n      coreParentID[SensorID]=ParentID\n\t\t}\n\t\telse if ( PhysDesc ~ /^L1 Bank/ ) {\n\t\t\t# add another layer of parenting\n\t\t\tcoreParentID[SensorID]=coreParentID[ParentID]\n\t\t\tAppendStatus(coreParentID[ParentID])\n\t\t}\n\t\telse if ( PhysDesc ~ /^[ID]Cache/ ) {\n\t\t\t# add another layer of parenting\n\t\t\tcoreParentID[SensorID]=coreParentID[ParentID] ;\n\t\t\tAppendStatus(coreParentID[ParentID])\n\t\t}\n\t\telse if ( PhysDesc ~ /^L[0-9]+ Bank/ ) {\n\t\t\t# add another layer of parenting\n\t\t\tcoreParentID[SensorID]=coreParentID[ParentID]  ;\n\t\t\tAppendStatus(coreParentID[ParentID]) ;\n\t\t}\n\t\telse if ( PhysDesc ~ /^Indicator/ ) {\n\t\t\t#These should be LEDs, so translate status\n      # 8=Off  9=On 10=Blinking\n      # to 2=Major 5=Warn 7=OK\n\n\t\t\tif ((Name ~ /FAULT$/) || (Name ~ /SERVICE$/) ) {\n\t\t\t\tif (Status == 8 ) { Status = 7}\n\t\t\t\tif (Status == 9 ) { Status = 2}\n\t\t\t\tif (Status == 10 ) { Status = 2}\n\t\t\t}\n\t\t\tif (Name ~ /OK$/ ) {\n\t\t\t\tif (Status == 8 ) { Status = 2}\n\t\t\t\tif (Status == 9 ) { Status = 7}\n\t\t\t\tif (Status == 10 ) { Status = 7}\n\t\t\t}\n\t\t\tif (Name ~ /OK2RM$/ ) {\n\t\t\t\tif (Status == 8 ) { Status = 7}\n\t\t\t\tif (Status == 9 ) { Status = 5}\n\t\t\t\tif (Status == 10 ) { Status = 5}\n\t\t\t}\n\t\t\tAppendStatus(ParentID)\n\t\t\t# Create a Child ID in case the Parent is not found\n\t\t\tMSHWCHILDPRINT[ParentID] = createMSHWPRINT(\"MSHW_OTHER\",ParentID)\n    }\n\t\telse {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_OTHER\",SensorID)\n\t\t\tAppendStatus(SensorID)\n\t\t}\n\t}\n\n\t# 2 - Unknown\n\tif (Class == 2) {\n\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_OTHER\",SensorID)\n\t\tAppendStatus(SensorID)\n\t}\n\n\t# 3 - Chassis\n\tif (Class == 3) {\n\t\tChassisFound = SensorID\n\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_ENC\",SensorID)\n\t\tAppendStatus(SensorID)\n\t\tPrintArray[SensorID] = 1\n\t}\n\n\t# 4 - Backplane\n\tif (Class == 4) {\n\t\tPhysDesc = \"Backplane\"\n\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_OTHER\",SensorID)\n\t\tAppendStatus(SensorID)\n\t}\n\n\t# 5 - Container\n\tif (Class == 5) {\n\t\tif ( PhysDesc ~ /Motherboard/ ) {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_OTHER\",SensorID)\n\t\t\tAppendStatus(SensorID)\n\t\t}\n\t\telse if ( PhysDesc ~ /Disk/ ) {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_PHYDISK\",SensorID)\n\t\t\tAppendStatus(SensorID)\n\t\t}\n\t\telse {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_OTHER\",SensorID)\n\t\t}\n\t}\n\n\t# 6 - PowerSupply\n\tif (Class == 6) {\n\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_PSU\",SensorID)\n\t\tAppendStatus(SensorID)\n\t}\n\n\t# 7 - Fan\n\tif (Class == 7) {\n\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_FAN\",SensorID)\n\t\tAppendStatus(SensorID)\n\t}\n\n\t# 8 - Sensor\n\tif (Class == 8) {\n\t\t# Sensors to Ignore\n\t\tif (Name == \"/SYS/PWRBS\") { next }\n\n\t\t# Chassis Consumed Power Sum\n\t\tif (Name ~ /INPUT_POWER$/) {\n\t\t\tChassisConsumedPower = ChassisConsumedPower + CurrentValue ;\n\t\t\tnext\n\t\t}\n\t\t# 1 - Other - Attach it to its parent\n\t\tif (SensorClass == 1) {\n\t\t\tAppendStatus(ParentID)\n\t\t\t# Create a Child ID in case the Parent is not found\n\t\t\tMSHWCHILDPRINT[ParentID] = createMSHWPRINT(\"MSHW_OTHER\",ParentID)\n\t\t}\n\n\t\t# 4 - Voltage\n\t\tif (SensorClass == 4) {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_VOLT\",SensorID)\n\t\t\tPrintArray[SensorID] = 1\n\t\t\tAppendStatus(SensorID)\n\t\t}\n\n\t\t# 3 - Temperature\n\t\tif (SensorClass == 3) {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_TEMP\",SensorID)\n\t\t\tPrintArray[SensorID] = 1\n\t\t\tAppendStatus(SensorID)\n\t\t}\n\n\t\t# 6 - Tachometer - Attach it to its parent - Set MSHWNUMERIC to add numeric columns to the end.\n\t\tif (SensorClass == 6) {\n\t\t\tMSHWNUMERIC[ParentID] = CurrentValue\";\"LowerNC\";\"LowerC\";\"\n\t\t\tPrintArray[ParentID] = 1\n\t\t\tAppendStatus(ParentID)\n\t\t\t# Create a Child ID in case the Parent is not found\n\t\t\tMSHWCHILDPRINT[ParentID] = createMSHWPRINT(\"MSHW_FAN\",ParentID)\n\t\t}\n\n\t\t# 12 - Presence - Attach it to its parent\n\t\tif (SensorClass == 12) {\n\t\t\t# if there is a coreParentID, then attach it to that\n\t\t\tif ( coreParentID[ParentID] != \"\" ) {\n\t\t\t\tAppendStatus(coreParentID[ParentID])\n\t\t\t}\n\t\t\telse {\n\t\t\t\tAppendStatus(ParentID)\n\t\t\t}\n\n\t\t\t# Create a Child ID in case the Parent is not found\n\t\t\tMSHWCHILDPRINT[ParentID] = createMSHWPRINT(\"MSHW_OTHER\",ParentID)\n\t\t}\n\t}\n\n\t# 9 - Module\n\tif (Class == 9) {\n\t\tif ( PhysDesc ~ /DIMM/ ) {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_MEM\",SensorID)\n\t\t\tAppendStatus(SensorID) ;\n\t\t}\n\t\telse {\n\t\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_OTHER\",SensorID)}\n\t\t}\n\n\t# 10 - Port (Not yet seen in debugs)\n\tif (Class == 10) {\n\t\tMSHWPRINT[SensorID] = createMSHWPRINT(\"MSHW_NETWORK\",SensorID)\n\t\tAppendStatus(SensorID)\n\t}\n\n\t# 11 - Stack\n\tif (Class == 11) { }\n\n\t# 12 - CPU (Not yet seen in debugs)\n\tif (Class == 12) {\n\t\tMSHWPRINT[SensorID] =  createMSHWPRINT(\"MSHW_CPU\",SensorID)\n\t\tAppendStatus(SensorID)\n\t}\n}\n\nEND {\n\tfor (ID in PrintArray) {\n\t\t# If we did not find a parent for a sensor\n\t\tif (MSHWPRINT[ID] == \"\") {\n\t\t\tMSHWPRINT[ID] = MSHWCHILDPRINT[ID]\n\t\t}\n\t\tif (ID == ChassisFound) {\n\t\t\tprint MSHWPRINT[ID] StatusArray[ID] \";Alerting Sensors: \" StatusInformation[ID] \";Sensors: \" SensorArray[ID] \";\" MSHWNUMERIC[ID] \";\" ChassisConsumedPower \";\"\n\t\t}\n\t\telse {\n\t\t\tprint MSHWPRINT[ID] StatusArray[ID] \";Alerting Sensors: \" StatusInformation[ID] \";Sensors: \" SensorArray[ID] \";\" MSHWNUMERIC[ID]\n\t\t}\n\t}\n\n\tif (ChassisFound == -1) {\n\t\tprint \"MSHW_ENC;1;/SYS;;;;;\"\n\t}\n}"
 translations:
   StatusTranslationTable:
-    "1": "failed"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
-    "5": "degraded"
-    "6": "degraded"
-    "7": "ok"
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": degraded
+    "6": degraded
+    "7": ok
   LEDStatusTranslationTable:
     "1": ""
-    "2": "8"
+    "2": 8
     default: ""
-    "3": "9"
-    "4": "10"
+    "3": 9
+    "4": 10
 connector:
-  displayName: "Oracle/Sun ILOM (SNMP)"
-  platforms: "Oracle/Sun"
-  reliesOn: "Sun/Oracle ILOM SNMP Agent"
-  version: "1.0"
-  information: "This connector provides hardware monitoring for the Sun/Oracle Blade servers with ILOM cards via SNMP"
+  displayName: Oracle/Sun ILOM (SNMP)
+  platforms: Oracle/Sun
+  reliesOn: Sun/Oracle ILOM SNMP Agent
+  version: 1.0
+  information: This connector provides hardware monitoring for the Sun/Oracle Blade servers with ILOM cards via SNMP
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "OOB"
-    - "Storage"
+    - OOB
+    - Storage
     supersedes:
-    - "SunILOMSSH"
+    - SunILOMSSH
     criteria:
-    - type: "snmpGet"
-      oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1.5.1"
+    - type: snmpGet
+      oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1.5.1
       forceSerialization: true
 monitors:
   enclosure:
@@ -42,728 +42,728 @@ monitors:
         source(1):
           # Get the Sensor Type table.
           # SensorID;SensorType;SensorClass;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.6.1
           selectColumns: "ID,1,2"
           forceSerialization: true
         source(2):
           # Get the Sensor Status table.
           # SensorID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1
           selectColumns: "ID,3"
           forceSerialization: true
         source(3):
           # Get the LED Status table.
           # SensorID;LEDState;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.12.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.12.1
           selectColumns: "ID,2"
           forceSerialization: true
           computes:
             # Translate the LEDStatus into a Normal Status
             # SensorID;LEDState;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LEDStatusTranslationTable"
+            translationTable: LEDStatusTranslationTable
             # Add Columns to match Sensor table (5)
             # SensorID;SensorType;SensorClass;SensorID;LEDState;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";;LED;"
+            value: ;;LED;
         source(4):
           # Get the Numeric Sensors table.
           # SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1
           selectColumns: "ID,4,8,9,10,11,2"
           forceSerialization: true
         source(5):
           # Let's build up tables 2,3 and 4 into a single sensor table
           # SensorID;SensorType;SensorClass;SensorID;Status;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
         source(6):
           # Combine the Status and LEDStatus tables (Sensors should only be in one, with priority to the LED table)
           # SensorID;SensorType;SensorClass;SensorID;Status;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.discovery.sources.source(3)$"
-          - "$monitors.enclosure.discovery.sources.source(5)$"
+          - $monitors.enclosure.discovery.sources.source(3)$
+          - $monitors.enclosure.discovery.sources.source(5)$
         source(7):
-          # SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(6)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          _comment: SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(6)$
+          rightTable: $monitors.enclosure.discovery.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;;;;"
+          defaultRightLine: ;;;;;;;
           computes:
             # Remove extra SensorId
             #      1        2          3         5      7           8       9       10     11     12
             # SensorID;SensorType;SensorClass;Status;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,3,5,7,8,9,10,11,12"
         source(8):
           # Get the Sensor FRU list table.
           # SensorID;PhysDesc;ParentID;Class;Name;Firmware;SerialNumber;Manufacturer;Model;
-          type: "snmpTable"
-          oid: "1.3.6.1.2.1.47.1.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.2.1.47.1.1.1.1
           selectColumns: "ID,2,4,5,7,9,11,12,13"
           forceSerialization: true
         source(9):
           # Now Attach Each Sensor to the FRU info
           # SensorID;PhysDesc;ParentID;Class;Name;Firmware;SerialNumber;Manufacturer;Model;SensorID;SensorType;SensorClass;Status;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(8)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(7)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(8)$
+          rightTable: $monitors.enclosure.discovery.sources.source(7)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;;;;;;"
+          defaultRightLine: ;;;;;;;;;
           computes:
             # Awk the table to process the Sensors
             # MSHW_CLASS;.....
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW
         source(10):
           # Make a copy for Enclosure Discovery
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;ChassisConsumedPower;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "MSHW_ENC"
-          - type: "leftConcat"
+            regExp: MSHW_ENC
+          - type: leftConcat
             column: 4
             value: "Firmware Version: "
       mapping:
         # Instance Table
         # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;ChassisConsumedPower;
-        source: "$monitors.enclosure.discovery.sources.source(10)$"
+        source: $monitors.enclosure.discovery.sources.source(10)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          vendor: "$column(6)"
-          model: "$column(7)"
-          serial_number: "$column(5)"
+          id: $column(2)
+          __display_id: $column(3)
+          vendor: $column(6)
+          model: $column(7)
+          serial_number: $column(5)
           info: "join($column(10), $column(4), \" \")"
           name: "sprintf(\"%s (%s %s)\", $column(3), $column(6), $column(7))"
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Get the Sensor Type table.
           # SensorID;SensorType;SensorClass;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.6.1
           selectColumns: "ID,1,2"
           forceSerialization: true
         source(2):
           # Get the Sensor Status table.
           # SensorID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1
           selectColumns: "ID,3"
           forceSerialization: true
         source(3):
           # Get the LED Status table.
           # SensorID;State;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.12.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.12.1
           selectColumns: "ID,2"
           forceSerialization: true
           computes:
             # Translate the LEDStatus into a Normal Status
             # SensorID;State;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LEDStatusTranslationTable"
+            translationTable: LEDStatusTranslationTable
             # Add Columns to match Sensor table (5)
             # SensorID;SensorType;SensorClass;SensorID;State;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";;LED;"
+            value: ;;LED;
         source(4):
           # Get the Numeric Sensors table.
           # SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1
           selectColumns: "ID,4,8,9,10,11,2"
           forceSerialization: true
         source(5):
           # Let's build up tables 2,3 and 4 into a single sensor table
           # SensorID;SensorType;SensorClass;SensorID;Status;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
         source(6):
           # Combine the Status and LEDStatus tables (Sensors should only be in one, with priority to the LED table)
           # SensorID;SensorType;SensorClass;SensorID;Status;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.collect.sources.source(3)$"
-          - "$monitors.enclosure.collect.sources.source(5)$"
+          - $monitors.enclosure.collect.sources.source(3)$
+          - $monitors.enclosure.collect.sources.source(5)$
         source(7):
-          # SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(6)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(4)$"
+          _comment: SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(6)$
+          rightTable: $monitors.enclosure.collect.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;;;;"
+          defaultRightLine: ;;;;;;;
           computes:
             # Remove extra SensorId
             #      1        2          3         5      7           8       9       10     11      12
             # SensorID;SensorType;SensorClass;Status;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,3,5,7,8,9,10,11,12"
         source(8):
           # Get the Sensor FRU list table.
           # SensorID;PhysDesc;ParentID;Class;Name;Firmware;SerialNumber;Manufacturer;Model;
-          type: "snmpTable"
-          oid: "1.3.6.1.2.1.47.1.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.2.1.47.1.1.1.1
           selectColumns: "ID,2,4,5,7,9,11,12,13"
           forceSerialization: true
         source(9):
           # Now Attach Each Sensor to the FRU info
           # SensorID;PhysDesc;ParentID;Class;Name;Firmware;SerialNumber;Manufacturer;Model;SensorID;SensorType;SensorClass;Status;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(8)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(7)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(8)$
+          rightTable: $monitors.enclosure.collect.sources.source(7)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;;;;;;"
+          defaultRightLine: ;;;;;;;;;
           computes:
             # Awk the table to process the Sensors
             # MSHW_CLASS;.....
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW
         source(10):
           # Make a copy for Enclosure Discovery
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "MSHW_ENC"
+            regExp: MSHW_ENC
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;PatrolStatus;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 8
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;PatrolStatus;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
-          - type: "convert"
+          - type: convert
             column: 8
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;PatrolStatus;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
-        source: "$monitors.enclosure.collect.sources.source(10)$"
-        deviceId: "$column(2)"
+        source: $monitors.enclosure.collect.sources.source(10)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(8)"
-          hw.enclosure.power: "$column(12)"
-          hw.enclosure.energy: "fakeCounter($column(12))"
+          hw.status{hw.type="enclosure"}: $column(8)
+          hw.enclosure.power: $column(12)
+          hw.enclosure.energy: fakeCounter($column(12))
         legacyTextParameters:
-          StatusInformation: "$column(9)"
+          StatusInformation: $column(9)
   temperature:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only Temperature Sensors
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_TEMP"
+            valueList: MSHW_TEMP
       mapping:
         # InstanceTable = Source(1)
         # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          info: "$column(9)"
-          hw.parent.type: "enclosure"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          info: $column(9)
+          hw.parent.type: enclosure
+          name: $column(3)
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(5)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(6)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(5)
+          hw.temperature.limit{limit_type="high.critical"}: $column(6)
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_TEMP"
+            valueList: MSHW_TEMP
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 7
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-          - type: "convert"
+          - type: convert
             column: 7
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.temperature: "$column(4)"
-          hw.status{hw.type="temperature"}: "$column(7)"
+          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $column(7)
         legacyTextParameters:
-          StatusInformation: "$column(8)"
+          StatusInformation: $column(8)
   fan:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only Fan Sensors
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_FAN"
+            valueList: MSHW_FAN
       mapping:
         # InstanceTable = Source(1)
         # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          info: "$column(6)"
-          hw.parent.type: "enclosure"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          info: $column(6)
+          hw.parent.type: enclosure
+          name: $column(3)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(8)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(9)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(8)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(9)
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_FAN"
+            valueList: MSHW_FAN
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 4
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-          - type: "convert"
+          - type: convert
             column: 4
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.fan.speed: "$column(7)"
-          hw.status{hw.type="fan"}: "$column(4)"
+          hw.fan.speed: $column(7)
+          hw.status{hw.type="fan"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only PowerSupply Sensors
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_PSU"
+            valueList: MSHW_PSU
             # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Serial Number: "
             # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model: <Model>;Status;StatusInformation;SensorList;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "Model: "
       mapping:
         # InstanceTable = Source(1)
         # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model: <Model>;Status;StatusInformation;Sensor List: <SensorList>;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
           info: "join($column(4), $column(6), $column(9), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(3))"
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_PSU"
+            valueList: MSHW_PSU
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 7
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "convert"
+          - type: convert
             column: 7
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(7)"
+          hw.status{hw.type="power_supply"}: $column(7)
         legacyTextParameters:
-          StatusInformation: "$column(8)"
+          StatusInformation: $column(8)
   voltage:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only Voltage Sensors
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_VOLT"
+            valueList: MSHW_VOLT
       mapping:
         # InstanceTable = Source(1)
         # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          info: "$column(9)"
-          hw.parent.type: "enclosure"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          info: $column(9)
+          hw.parent.type: enclosure
+          name: $column(3)
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(6)"
-          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
+          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+          hw.voltage.limit{limit_type="low.critical"}: $column(5)
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_VOLT"
+            valueList: MSHW_VOLT
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 7
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-          - type: "convert"
+          - type: convert
             column: 7
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.voltage: "$column(4)"
-          hw.status{hw.type="voltage"}: "$column(7)"
+          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $column(7)
         legacyTextParameters:
-          StatusInformation: "$column(8)"
+          StatusInformation: $column(8)
   memory:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only Memory Sensors
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_MEM"
+            valueList: MSHW_MEM
       mapping:
         # InstanceTable = Source(1)
         # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          vendor: "$column(6)"
-          serial_number: "$column(5)"
-          model: "$column(7)"
-          info: "$column(10)"
-          hw.parent.type: "enclosure"
+          id: $column(2)
+          __display_id: $column(3)
+          vendor: $column(6)
+          serial_number: $column(5)
+          model: $column(7)
+          info: $column(10)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s (%s) - %s)\", $column(3), $column(6), $column(7), $column(4))"
         metrics:
-          hw.memory.limit: "mebiByte2Byte($column(4))"
+          hw.memory.limit: mebiByte2Byte($column(4))
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_MEM"
+            valueList: MSHW_MEM
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 8
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "convert"
+          - type: convert
             column: 8
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="memory"}: "$column(8)"
+          hw.status{hw.type="memory"}: $column(8)
         legacyTextParameters:
-          StatusInformation: "$column(9)"
+          StatusInformation: $column(9)
   cpu:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only CPU Sensors
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_CPU"
+            valueList: MSHW_CPU
       mapping:
         # InstanceTable = Source(1)
         # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          info: "$column(6)"
-          hw.parent.type: "enclosure"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          info: $column(6)
+          hw.parent.type: enclosure
+          name: $column(3)
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_CPU"
+            valueList: MSHW_CPU
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 4
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "convert"
+          - type: convert
             column: 4
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="cpu"}: "$column(4)"
+          hw.status{hw.type="cpu"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   other_device:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only OtherDevice Sensors
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_OTHER"
+            valueList: MSHW_OTHER
       mapping:
         # InstanceTable = Source(1)
         # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          device_type: "$column(2)"
-          info: "$column(7)"
-          hw.parent.type: "enclosure"
+          id: $column(3)
+          __display_id: $column(4)
+          device_type: $column(2)
+          info: $column(7)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(2), $column(4))"
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_OTHER"
+            valueList: MSHW_OTHER
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 5
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-          - type: "convert"
+          - type: convert
             column: 5
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(5)"
+          hw.status{hw.type="other_device"}: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Discovery
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(9)$"
+          _comment: Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
             # Keep Only PhysicalDisk Sensors
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_PHYDISK"
+            valueList: MSHW_PHYDISK
       mapping:
         # InstanceTable = Source(1)
         # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          vendor: "$column(5)"
-          model: "$column(6)"
-          info: "$column(9)"
-          hw.parent.type: "enclosure"
+          id: $column(2)
+          __display_id: $column(3)
+          vendor: $column(5)
+          model: $column(6)
+          info: $column(9)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(9)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(9)$
           computes:
             # Keep Only Enclosure
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_PHYDISK"
+            valueList: MSHW_PHYDISK
             # Then we translate Status code into OK/WARN/ALARM (for the Status parameter)
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 7
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-          - type: "convert"
+          - type: convert
             column: 7
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
         # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(7)"
+          hw.status{hw.type="physical_disk"}: $column(7)
         legacyTextParameters:
-          StatusInformation: "$column(8)"
+          StatusInformation: $column(8)

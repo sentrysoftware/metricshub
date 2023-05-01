@@ -3,101 +3,101 @@ embedded:
   EmbeddedFile(1): "{\n\tif ($1 == \"Status\" && $3 == \"processor\")\n\t{\n\t        processorId = $4\n\t        processorStatus = \"\"\n\t        processorType = \"\"\n\t        processorSpeed = \"\"\n\t}\n\n\tif ($1 == \"Status\" && $3 == \"virtual\" && $4 == \"processor\")\n\t{\n\t\t\tprocessorId = $5\n\t\t\tprocessorStatus = \"\"\n\t\t\tprocessorType = \"\"\n\t\t\tprocessorSpeed = \"\"\n\t}\n\n\tif ($1 == \"Processor\" && $2 == \"has\" && $3 == \"been\")\n\t{\n\t        processorStatus = $4\n\t}\n\n\tif ($2 == \"since\")\n\t{\n\t\t\tprocessorStatus = $1\n\t}\n\tif ($3 == \"since\")\n\t{\n\t\t\tprocessorStatus = $1 \" \" $2\n\t}\n\n\tif ($1 == \"The\" && $3 == \"processor\" && $4 == \"operates\" && length(processorId) > 0)\n\t{\n\t        processorType = $2\n\t        processorSpeed = $6\n\n\t        print \"MSHW;\" processorId \";\" processorType \";\" processorSpeed \";\" processorStatus\n\n\t        processorId = \"\"\n\t}\n}\n"
 translations:
   cpuStatusInformationTranslationTable:
-    default: "Unknown Status"
-    faulted: "Faulted"
-    on-line: "On-line"
-    off-line: "Off-line"
-    no-intr: "Non-interruptible"
-    powered off: "Powered off"
+    default: Unknown Status
+    faulted: Faulted
+    on-line: On-line
+    off-line: Off-line
+    no-intr: Non-interruptible
+    powered off: Powered off
   cpuStatusTranslationTable:
-    default: "UNKNOWN"
-    faulted: "failed"
-    on-line: "ok"
-    off-line: "failed"
-    no-intr: "ok"
-    powered off: "failed"
+    default: UNKNOWN
+    faulted: failed
+    on-line: ok
+    off-line: failed
+    no-intr: ok
+    powered off: failed
 connector:
-  displayName: "Oracle/Sun Solaris - Processors (psrinfo)"
-  platforms: "Oracle/Sun"
+  displayName: Oracle/Sun Solaris - Processors (psrinfo)
+  platforms: Oracle/Sun
   reliesOn: "Sun Solaris system commands (psrinfo, etc.)"
-  information: "This connector discovers and monitors the processor in any Sun SPARC-based Solaris machine through the psrinfo system command."
-  version: "1.1"
+  information: This connector discovers and monitors the processor in any Sun SPARC-based Solaris machine through the psrinfo system command.
+  version: 1.1
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Solaris"
+    - Solaris
     criteria:
-      # OS should be SunOS or Solaris
-    - type: "deviceType"
+    - _comment: OS should be SunOS or Solaris
+      type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-      # psrinfo should return something
-    - type: "osCommand"
-      commandLine: "/usr/sbin/psrinfo"
-      expectedResult: "on-line"
+      - SunOS
+      - Solaris
+    - _comment: psrinfo should return something
+      type: osCommand
+      commandLine: /usr/sbin/psrinfo
+      expectedResult: on-line
 monitors:
   cpu:
     discovery:
       sources:
         source(1):
-          # Source(1) = psrinfo -v
-          type: "osCommand"
-          commandLine: "/usr/sbin/psrinfo -v"
+          _comment: Source(1) = psrinfo -v
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -v
           computes:
             # Send psrinfo'soutput through awk %EmbeddedFile(1)%
             # cpuID;cpuModel;cpuSpeed
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # Instance table = source(1)
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        _comment: Instance table = source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(3))"
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = psrinfo -v
-          type: "osCommand"
-          commandLine: "/usr/sbin/psrinfo -v"
+          _comment: Source(1) = psrinfo -v
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -v
           computes:
             # Send psrinfo's output through awk %EmbeddedFile(2)%
             # cpuID;cpuStatus
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,5"
             # Duplicate the status column
             # cpuID;cpuStatus;cpuStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROL status
             # cpuID;PATROLStatus;cpuStatus
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "cpuStatusTranslationTable"
+            translationTable: cpuStatusTranslationTable
             # Translate the second status column into a more readable string
             # cpuID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "cpuStatusInformationTranslationTable"
+            translationTable: cpuStatusInformationTranslationTable
       mapping:
-        # ValueTable = source(1)
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="cpu"}: "$column(2)"
+          hw.status{hw.type="cpu"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

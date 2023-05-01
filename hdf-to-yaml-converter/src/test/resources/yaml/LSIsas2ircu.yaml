@@ -44,306 +44,306 @@ embedded:
         }
 translations:
   PhysicalDiskTypeTranslationTable:
-    default: "Hard Disk Drive"
-    sata_ssd: "SATA solid-state drive"
-    sas_hdd: "SAS hard-disk drive"
-    sata_hdd: "SATA hard-disk drive"
-    sas_ssd: "SAS solid-state drive"
+    default: Hard Disk Drive
+    sata_ssd: SATA solid-state drive
+    sas_hdd: SAS hard-disk drive
+    sata_hdd: SATA hard-disk drive
+    sas_ssd: SAS solid-state drive
   PhysicalDiskStatusInformationTranslationTable:
-    dgd: "Degraded"
-    opt: "Optimal"
-    default: "Unknown Status"
-    hsp: "Hot Spare"
-    osy: "Out of Sync"
-    avl: "Available"
-    mis: "Missing"
-    sby: "Standby"
-    onl: "Online"
-    rbld: "Rebuilding"
-    fld: "Failed"
+    dgd: Degraded
+    opt: Optimal
+    default: Unknown Status
+    hsp: Hot Spare
+    osy: Out of Sync
+    avl: Available
+    mis: Missing
+    sby: Standby
+    onl: Online
+    rbld: Rebuilding
+    fld: Failed
   LogicalDiskStatusInformationTranslationTable:
-    dgd: "Degraded"
-    init: "Initializing"
-    default: "Unknown Status"
-    mis: "Missing"
-    onl: "Online"
-    oky: "ok"
-    fld: "Failed"
+    dgd: Degraded
+    init: Initializing
+    default: Unknown Status
+    mis: Missing
+    onl: Online
+    oky: ok
+    fld: Failed
   LogicalDiskStatusTranslationTable:
-    dgd: "failed"
-    init: "degraded"
-    default: "UNKNOWN"
-    mis: "failed"
-    onl: "ok"
-    oky: "ok"
-    fld: "failed"
+    dgd: failed
+    init: degraded
+    default: UNKNOWN
+    mis: failed
+    onl: ok
+    oky: ok
+    fld: failed
   PhysicalDiskStatusTranslationTable:
-    dgd: "failed"
-    opt: "ok"
-    default: "UNKNOWN"
-    hsp: "ok"
-    osy: "failed"
-    avl: "ok"
-    mis: "failed"
-    sby: "degraded"
-    onl: "ok"
-    rbld: "degraded"
-    fld: "failed"
+    dgd: failed
+    opt: ok
+    default: UNKNOWN
+    hsp: ok
+    osy: failed
+    avl: ok
+    mis: failed
+    sby: degraded
+    onl: ok
+    rbld: degraded
+    fld: failed
 connector:
-  displayName: "LSI sas2ircu Managed Raid Controllers"
-  platforms: "Any system with LSI sas2ircu"
-  reliesOn: "Sas2Ircu (LSI) managed RAID card"
-  information: "Gives physical disk and array status."
-  version: "1.1"
+  displayName: LSI sas2ircu Managed Raid Controllers
+  platforms: Any system with LSI sas2ircu
+  reliesOn: Sas2Ircu (LSI) managed RAID card
+  information: Gives physical disk and array status.
+  version: 1.1
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Linux"
+    - Linux
     supersedes:
-    - "Director52ServeRAIDLinux"
-    - "SmartMonLinux"
-    - "LSIUtilUNIX"
+    - Director52ServeRAIDLinux
+    - SmartMonLinux
+    - LSIUtilUNIX
     criteria:
-      # Check the utility exists
-    - type: "osCommand"
+    - _comment: Check the utility exists
+      type: osCommand
       commandLine: "%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu"
       expectedResult: "SAS2IRCU: No command specified"
-      errorMessage: "sas2ircu not installed on this server."
-      # Check there are appropriate controllers installed
-    - type: "osCommand"
+      errorMessage: sas2ircu not installed on this server.
+    - _comment: Check there are appropriate controllers installed
+      type: osCommand
       commandLine: "%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu LIST"
       expectedResult: "^[0-9].*SAS.*:.*:.*:"
-      errorMessage: "No sas2ircu managed controllers found / insufficient rights."
-      # We should find disks attached to one controller
-    - type: "osCommand"
-      commandLine: "/bin/sh %EmbeddedFile(1)%"
-      expectedResult: "Device is a"
-      errorMessage: "No sas2ircu managed physical disks found."
+      errorMessage: No sas2ircu managed controllers found / insufficient rights.
+    - _comment: We should find disks attached to one controller
+      type: osCommand
+      commandLine: /bin/sh %EmbeddedFile(1)%
+      expectedResult: Device is a
+      errorMessage: No sas2ircu managed physical disks found.
 sudoCommands:
-- "/opt/lsi/bin/sas2ircu"
+- /opt/lsi/bin/sas2ircu
 monitors:
   disk_controller:
     discovery:
       sources:
         source(1):
-          # Source(1) = Output of sas2ircu script
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          _comment: Source(1) = Output of sas2ircu script
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
-            # Reformat Source(1) output via EmbeddedFile(2)
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW"
-            separators: ";"
+          - _comment: Reformat Source(1) output via EmbeddedFile(2)
+            type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW
+            separators: ;
         source(2):
-          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          _comment: Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Keep only Controllers
             # MSHW_CTRL;ControllerID;ControllerType;BIOS;ControllerFirmware;ControllerSlot;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_CTRL"
-          - type: "leftConcat"
+            valueList: MSHW_CTRL
+          - type: leftConcat
             column: 6
             value: "Location: "
       mapping:
         # The InstanceTable
         # MSHW_CTRL;ControllerID;ControllerType;BIOS;ControllerFirmware;ControllerSlot;
-        source: "$monitors.disk_controller.discovery.sources.source(2)$"
+        source: $monitors.disk_controller.discovery.sources.source(2)$
         attributes:
-          id: "$column(2)"
-          controller_number: "$column(2)"
-          model: "$column(3)"
-          firmware_version: "$column(5)"
-          info: "$column(6)"
-          hw.parent.type: "enclosure"
+          id: $column(2)
+          controller_number: $column(2)
+          model: $column(3)
+          firmware_version: $column(5)
+          info: $column(6)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(3))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Output of sas2ircu script
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          _comment: Source(1) = Output of sas2ircu script
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
-            # Reformat Source(1) output via EmbeddedFile(2)
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW"
-            separators: ";"
+          - _comment: Reformat Source(1) output via EmbeddedFile(2)
+            type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW
+            separators: ;
         source(2):
-          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          _comment: Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Keep only Controllers
             # MSHW_CTRL;ControllerID;ControllerType;BIOS;ControllerFirmware;ControllerSlot;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_CTRL"
+            valueList: MSHW_CTRL
       mapping:
         # ValueTable = Source(1)
         # MSHW_CTRL;ControllerID;ControllerType;BIOS;ControllerFirmware;ControllerSlot;
-        source: "$monitors.disk_controller.collect.sources.source(2)$"
-        deviceId: "$column(2)"
+        source: $monitors.disk_controller.collect.sources.source(2)$
+        deviceId: $column(2)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = Discovery Instance Table
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          _comment: Source(1) = Discovery Instance Table
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Keep only PhysicalDisks
             # MSHW_PD;EnclosureSlot;State;SizeMB;Manufacturer;Model;Firmware;Serial;DriveType;Controller;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_PD"
+            valueList: MSHW_PD
             # Translate size into bytes
             # MSHW_PD;EnclosureSlot;State;Size;Manufacturer;Model;Firmware;Serial;DriveType;Controller;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1048576"
+            value: 1048576
             # Translate the Drive Type
             # MSHW_PD;EnclosureSlot;State;Size;Manufacturer;Model;Firmware;Serial;DriveType;Controller;
-          - type: "translate"
+          - type: translate
             column: 9
-            translationTable: "PhysicalDiskTypeTranslationTable"
-          - type: "leftConcat"
+            translationTable: PhysicalDiskTypeTranslationTable
+          - type: leftConcat
             column: 9
             value: "Type: "
       mapping:
         # InstanceTable = Source(1)
         # MSHW_PD;EnclosureSlot;State;Size;Manufacturer;Model;Firmware;Serial;DriveType;Controller;
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          model: "$column(6)"
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          serial_number: "$column(8)"
-          vendor: "$column(5)"
-          firmware_version: "$column(7)"
-          info: "$column(9)"
-          hw.parent.type: "disk_controller"
+          model: $column(6)
+          id: $column(2)
+          __display_id: $column(2)
+          serial_number: $column(8)
+          vendor: $column(5)
+          firmware_version: $column(7)
+          info: $column(9)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(10))"
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(4))"
         metrics:
-          hw.physical_disk.size: "$column(4)"
+          hw.physical_disk.size: $column(4)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Collect Instance Table
-          type: "copy"
-          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          _comment: Source(1) = Collect Instance Table
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
             # Keep only PhysicalDisks
             # MSHW_PD;EnclosureSlot;State;SizeMB;Manufacturer;Model;Firmware;Serial;DriveType;Controller;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_PD"
+            valueList: MSHW_PD
             # Keep only ID and State
             # EnclosureSlot;State;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,3"
             # Duplicate the state column
             # EnclosureSlot;State;State;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first state column into a PATROLStatus
             # EnclosureSlot;PATROLStatus;state
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PhysicalDiskStatusTranslationTable"
+            translationTable: PhysicalDiskStatusTranslationTable
             # Translate the second state column into a more readable string
             # EnclosureSlot;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = Discovery Instance Table
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          _comment: Source(1) = Discovery Instance Table
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Keep only LogicalDisks
             # MSHW_LD;IRVolume;VolumeID;VolumeStatus;VolumeWWID;VolumeRAIDLevel;SizeMB;ControllerID;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_LD"
+            valueList: MSHW_LD
             # Translate size into bytes
             # MSHW_LD;IRVolume;VolumeID;VolumeStatus;VolumeWWID;VolumeRAIDLevel;SizeB;ControllerID;
-          - type: "multiply"
+          - type: multiply
             column: 7
-            value: "1048576"
-          - type: "leftConcat"
+            value: 1048576
+          - type: leftConcat
             column: 5
             value: "WWID: "
       mapping:
         # InstanceTable = Source(1)
         # MSHW_LD;IRVolume;VolumeID;VolumeStatus;VolumeWWID;VolumeRAIDLevel;SizeMB;ControllerID;
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          raid_level: "$column(6)"
-          hw.logical_disk.limit: "$column(7)"
-          id: "$column(3)"
-          __display_id: "$column(2)"
-          info: "$column(5)"
-          hw.parent.type: "disk_controller"
+          raid_level: $column(6)
+          hw.logical_disk.limit: $column(7)
+          id: $column(3)
+          __display_id: $column(2)
+          info: $column(5)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(8))"
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(7))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Collect Instance Table
-          type: "copy"
-          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          _comment: Source(1) = Collect Instance Table
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
             # Keep only LogicalDisks
             # MSHW_LD;IRVolume;VolumeID;VolumeStatus;VolumeWWID;VolumeRAIDLevel;SizeMB;ControllerID;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "MSHW_LD"
+            valueList: MSHW_LD
             # Keep only ID and State
             # VolumeID;State;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "3,4"
             # Duplicate the state column
             # VolumeID;State;State;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first state column into a PATROLStatus
             # VolumeID;PATROLStatus;state
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LogicalDiskStatusTranslationTable"
+            translationTable: LogicalDiskStatusTranslationTable
             # Translate the second state column into a more readable string
             # VolumeID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "LogicalDiskStatusInformationTranslationTable"
+            translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

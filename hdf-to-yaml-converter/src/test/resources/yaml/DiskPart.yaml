@@ -3,109 +3,109 @@ embedded:
   EmbeddedFile(1): |-
     list volume
     exit
-  EmbeddedFile(3): "exit"
+  EmbeddedFile(3): exit
   EmbeddedFile(2): "BEGIN {\n\tfoundHeader = 0;\n}\n($1 == \"Volume\" && $2 == \"###\" && $3 == \"Ltr\" && $4 == \"Label\" && $5 == \"Fs\" && $6 == \"Type\" && $7 == \"Size\" && $8 == \"Status\" && $9 == \"Info\") {\n\tltrIndex = index($0, \"Ltr\")\n\tlabelIndex = index($0, \"Label\")\n\tfsIndex = index($0, \"Fs\")\n\ttypeIndex = index($0, \"Type\")\n\tsizeIndex = index($0, \"Size\")\n\tstatusIndex = index($0, \"Status\")\n\tinfoIndex = index($0, \"Info\")\n\tfoundHeader = 1;\n}\n($1 == \"Volume\" && $2 ~ /^[0-9]+$/ && foundHeader == 1) {\n\n\t# Get the fields\n\tvolumeID = $2;\n\tletter = substr($0, ltrIndex, 3);\n\tlabel = substr($0, labelIndex, fsIndex - labelIndex);\n\tfs = substr($0, fsIndex, typeIndex - fsIndex);\n\ttype = substr($0, typeIndex, sizeIndex - typeIndex);\n\tsizeT = substr($0, sizeIndex, statusIndex - sizeIndex);\n\tstatus = substr($0, statusIndex, infoIndex - statusIndex);\n\tinfo = substr($0, infoIndex, length($0) - infoIndex + 1);\n\n\t# Do some processing, remove unnecessary white spaces\n\tgsub(\" \", \"\", letter);\n\tsub(\"^ +\", \"\", label); sub(\" +$\", \"\", label);\n\tsub(\"^ +\", \"\", fs); sub(\" +$\", \"\", fs);\n\tsub(\"^ +\", \"\", type); sub(\" +$\", \"\", type);\n\tgsub(\" \", \"\", sizeT);\n\tsub(\"^ +\", \"\", status); sub(\" +$\", \"\", status);\n\tsub(\"^ +\", \"\", info); sub(\" +$\", \"\", info);\n\n\t# Convert size to bytes\n\tsize = \"\";\n\tif (substr(sizeT, length(sizeT), 1) == \"B\")\n\t{\n\t\tsize = substr(sizeT, 1, length(sizeT) - 1);\n\n\t\t# Handle unit multipliers\n\t\tif (substr(size, length(size), 1) == \"K\")\n\t\t{\n\t\t\tsize = substr(size, 1, length(size) - 1) * 1024;\n\t\t}\n\t\telse if (substr(size, length(size), 1) == \"M\")\n\t\t{\n\t\t\tsize = substr(size, 1, length(size) - 1) * 1024 * 1024;\n\t\t}\n\t\telse if (substr(size, length(size), 1) == \"G\")\n\t\t{\n\t\t\tsize = substr(size, 1, length(size) - 1) * 1024 * 1024 * 1024;\n\t\t}\n\t\telse if (substr(size, length(size), 1) == \"T\")\n\t\t{\n\t\t\tsize = substr(size, 1, length(size) - 1) * 1024 * 1024 * 1024 * 1024;\n\t\t}\n\n\t\t# Make sure we got a number\n\t\tif (size !~ /^[0-9]+$/)\n\t\t{\n\t\t\tsize = \"\";\n\t\t}\n\t}\n\n\t# Add a colon to the drive letter, if any\n\tif (letter ~ /^[A-Z]$/)\n\t{\n\t\tletter = letter \":\"\n\t}\n\n\t# Build the displayID from label and letter\n\tif (letter != \"\" && label != \"\")\n\t{\n\t\tdisplayID = letter \" - \" label;\n\t}\n\telse if (letter != \"\" && label == \"\")\n\t{\n\t\tdisplayID = letter;\n\t}\n\telse if (letter == \"\" && label != \"\")\n\t{\n\t\tdisplayID = label;\n\t}\n\telse\n\t{\n\t\tdisplayID = \"\";\n\t}\n\n\t# Replace \"Partition\" type with nothing\n\tif (type == \"Partition\")\n\t{\n\t\ttype = \"\";\n\t}\n\n\tprint \"MSHW;\" volumeID \";\" displayID \";\" letter \";\" type \";\" fs \";\" size \";\" status \";\" info \";\"\n}"
 translations:
   LogicalDiskTranslationTable:
-    rebuild: "degraded"
-    default: "UNKNOWN"
-    healthy: "ok"
-    failed redundancy: "degraded"
-    failed rd: "degraded"
-    failed: "failed"
-    regenerating: "degraded"
-    formatting: "ok"
-    resynching: "degraded"
-    unknown: "failed"
+    rebuild: degraded
+    default: UNKNOWN
+    healthy: ok
+    failed redundancy: degraded
+    failed rd: degraded
+    failed: failed
+    regenerating: degraded
+    formatting: ok
+    resynching: degraded
+    unknown: failed
 connector:
-  displayName: "Windows - DiskPart"
-  platforms: "Any system"
-  reliesOn: "The DISKPART.EXE command-line utility"
+  displayName: Windows - DiskPart
+  platforms: Any system
+  reliesOn: The DISKPART.EXE command-line utility
   information: "Discovers and monitors the logical disks in a Microsoft Windows system through the DISKPART.EXE utility, notably the software RAID volumes."
-  version: "1.0"
+  version: 1.0
   detection:
     appliesTo:
-    - "NT"
+    - NT
     criteria:
-      # OS should be Windows
-    - type: "deviceType"
+    - _comment: OS should be Windows
+      type: deviceType
       keep:
-      - "NT"
-      # Diskpart must be int he path and return something meaningful. Please note that we're using CHCP 437 to make sure the locale is English.
-    - type: "osCommand"
-      commandLine: "CHCP 437&&DISKPART.EXE /S %EmbeddedFile(3)%"
-      expectedResult: "Leaving DiskPart"
+      - NT
+    - _comment: Diskpart must be int he path and return something meaningful. Please note that we're using CHCP 437 to make sure the locale is English.
+      type: osCommand
+      commandLine: CHCP 437&&DISKPART.EXE /S %EmbeddedFile(3)%
+      expectedResult: Leaving DiskPart
       timeout: 120
 monitors:
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = DISKPART.EXE running \"list volume\" and \"exit\"
-          type: "osCommand"
-          commandLine: "CHCP 437&&DISKPART.EXE /S %EmbeddedFile(1)%"
+          _comment: Source(1) = DISKPART.EXE running "list volume" and "exit"
+          type: osCommand
+          commandLine: CHCP 437&&DISKPART.EXE /S %EmbeddedFile(1)%
           timeout: 120
           computes:
             # Run Source(1) through an AWK script
             # ID;Label;Letter;VolumeType;FileSystem;Size;Status;MoreInformation
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3,4,5,6,7,8,9"
             # Exclude DVDs and stupid stuff
             # ID;Label;Letter;VolumeType;FileSystem;Size;Status;MoreInformation
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
             valueList: "CD-ROM,DVD-ROM,Removable"
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "File System: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 8
             value: "Volume Information: "
       mapping:
-        # The InstanceTable
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        _comment: The InstanceTable
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          raid_level: "$column(4)"
-          hw.logical_disk.limit: "$column(6)"
+          id: $column(1)
+          __display_id: $column(2)
+          raid_level: $column(4)
+          hw.logical_disk.limit: $column(6)
           info: "join($column(5), $column(8), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(6))"
     collect:
-      # Collection is multi-instance
-      type: "multiInstance"
+      _comment: Collection is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = DISKPART.EXE running \"list volume\" and \"exit\"
-          type: "osCommand"
-          commandLine: "CHCP 437&&DISKPART.EXE /S %EmbeddedFile(1)%"
+          _comment: Source(1) = DISKPART.EXE running "list volume" and "exit"
+          type: osCommand
+          commandLine: CHCP 437&&DISKPART.EXE /S %EmbeddedFile(1)%
           timeout: 120
           computes:
             # Run Source(1) through an AWK script
             # ID;Status;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,8"
             # Duplicate the status column
             # ID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate Status to Patrol Status
             # status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LogicalDiskTranslationTable"
+            translationTable: LogicalDiskTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

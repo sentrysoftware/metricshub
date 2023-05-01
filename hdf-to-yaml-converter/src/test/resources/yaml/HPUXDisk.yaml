@@ -3,51 +3,51 @@ embedded:
   EmbeddedFile(1): "echo \"Retrieving disk devices\"\ndiskList=`/usr/sbin/ioscan -kfnC disk|/bin/grep -e DEVICE -e /dev|/bin/awk '{\n\tif ($1 == \"disk\")\n\t{\n\t\tdiskNumber = $2\n\t\thardwarePath = $3\n\t\trawDevicePath = \"\"\n\t}\n\tif ($2 ~ \"^/dev/rdsk/\")\n\t{\n\t\tdeviceID = substr($2, 11)\n\t\tcontrollerIndex = match(hardwarePath, \"\\.[0-9]+\\.[0-9]+$\")\n\t\tif (diskNumber != \"\" && hardwarePath != \"\" && controllerIndex > 0)\n\t\t{\n\t\t\tcontrollerID = substr(hardwarePath, 1, controllerIndex - 1)\n\t\t\tprint diskNumber \";\" controllerID \";\" deviceID\n\t\t}\n\t\tdeviceID = \"\"\n\t\tdeviceNumber = \"\"\n\t\thardwarePath = \"\"\n\t}\n}'`\n\nfor diskInformation in $diskList\ndo\ndeviceID=`/bin/echo $diskInformation|/bin/awk -F\";\" '{print $3}'`\n%{SUDO:/usr/sbin/diskinfo}/usr/sbin/diskinfo /dev/rdsk/$deviceID|/bin/awk -v diskInformation=$diskInformation '{\n\tif ($0 ~ \"^SCSI describe of /dev/rdsk\")\n\t{\n\t\tvendor = \"\"\n\t\tproductID = \"\"\n\t\ttype = \"\";\n\t\tsize = \"\";\n\t}\n\n\tif ($1 == \"vendor:\")\n\t{\n\t\tvendor = $2\n\t}\n\n\tif ($1 == \"product\" && $2 == \"id:\")\n\t{\n\t\tproductID = $3\n\t}\n\n\tif ($1 == \"type:\")\n\t{\n\t\ttype = $2 \" \" $3\n\t}\n\n\tif ($1 == \"size:\")\n\t{\n\t\tsize = $2\n\t\tif (type == \"direct access\" && vendor != \"\" && productID != \"\" && size > 0)\n\t\t{\n\t\t\tprintf(\"MSHW;%s;%s;%.0f\\n\", diskInformation, vendor \" \" productID, size*1024)\n\t\t}\n\t}\n}'\ndone"
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    available/data-spared: "Spared"
-    unavailable/standby-spare: "Unavailable spare"
-    default: "Unknown Status"
-    unavailable-: "Unavailable"
-    available/active-spare: "Active spare"
-    available/standby-spare: "Spare"
+    available/data-spared: Spared
+    unavailable/standby-spare: Unavailable spare
+    default: Unknown Status
+    unavailable-: Unavailable
+    available/active-spare: Active spare
+    available/standby-spare: Spare
     available-: ""
-    unavailable/data-spared: "Unavailable but spared"
+    unavailable/data-spared: Unavailable but spared
     unavailable/active-spare: "Dead spare: Data loss!"
   PhysicalDiskStatusTranslationTable:
-    available/data-spared: "ok"
-    unavailable/standby-spare: "degraded"
-    default: "UNKNOWN"
-    unavailable-: "failed"
-    available/active-spare: "ok"
-    available/standby-spare: "ok"
-    available-: "ok"
-    unavailable/data-spared: "degraded"
-    unavailable/active-spare: "failed"
+    available/data-spared: ok
+    unavailable/standby-spare: degraded
+    default: UNKNOWN
+    unavailable-: failed
+    available/active-spare: ok
+    available/standby-spare: ok
+    available-: ok
+    unavailable/data-spared: degraded
+    unavailable/active-spare: failed
 connector:
-  displayName: "HP-UX - Disks"
+  displayName: HP-UX - Disks
   platforms: "HP 9000,HP Integrity,HP SuperDome"
   reliesOn: "HP-UX system commands (pvdisplay, ioscan, etc.)"
-  information: "Provides hardware SCSI disks status information on HP-UX systems. Requires root privileges."
-  version: "1.0"
+  information: Provides hardware SCSI disks status information on HP-UX systems. Requires root privileges.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "HP"
+    - HP
     criteria:
       # OS should be HP (for HP-UX, whatever version)
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "HP"
+      - HP
       # STM should not be present, because in this case, we will use the HPUX-CSTM connector
-    - type: "osCommand"
-      commandLine: "if /bin/test ! -f /usr/bin/stm ; then /bin/echo \"NO STM\"; fi"
-      expectedResult: "^NO STM$"
-      # The various following tools have to be present
-    - type: "osCommand"
+    - type: osCommand
+      commandLine: if /bin/test ! -f /usr/bin/stm ; then /bin/echo "NO STM"; fi
+      expectedResult: ^NO STM$
+    - _comment: The various following tools have to be present
+      type: osCommand
       commandLine: "FIRSTRAWDEVICE=`/bin/ls /dev/rdsk|/bin/head -1`; %{SUDO:/usr/sbin/diskinfo}/usr/sbin/diskinfo /dev/rdsk/$FIRSTRAWDEVICE"
-      expectedResult: "^SCSI describe of /dev/rdsk/"
+      expectedResult: ^SCSI describe of /dev/rdsk/
 sudoCommands:
-- "/usr/sbin/diskinfo"
+- /usr/sbin/diskinfo
 monitors:
   disk_controller:
     discovery:
@@ -55,37 +55,37 @@ monitors:
         source(1):
           # Source(1) = output of EmbeddedFile(1)
           # diskNumber;controllerID;deviceID;Vendor Model;size
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(1)%
           timeout: 60
-          keep: "^MSHW;"
-          separators: ";"
+          keep: ^MSHW;
+          separators: ;
           selectColumns: "2,3,4,5,6"
         source(2):
           # Source(2) = output of ioscan -kFC ext_bus
           # DeviceID;Model
-          type: "osCommand"
-          commandLine: "/usr/sbin/ioscan -kFC ext_bus"
-          keep: ":ext_bus:"
-          separators: ":"
+          type: osCommand
+          commandLine: /usr/sbin/ioscan -kFC ext_bus
+          keep: ':ext_bus:'
+          separators: ':'
           selectColumns: "11,18"
         source(3):
           # Source(3) = table joint of Source(2) and Source(1)
           # This is to keep only disk controllers that actually have disks
           # ControllerDeviceID;Model;diskNumber;controllerID;deviceID;Vendor Model;size
-          type: "tableJoin"
-          leftTable: "$monitors.disk_controller.discovery.sources.source(2)$"
-          rightTable: "$monitors.disk_controller.discovery.sources.source(1)$"
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(2)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(1)$
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
-        # InstanceTable = Source(3)
-        source: "$monitors.disk_controller.discovery.sources.source(3)$"
+        _comment: InstanceTable = Source(3)
+        source: $monitors.disk_controller.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(1)"
-          model: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
   physical_disk:
     discovery:
@@ -93,53 +93,53 @@ monitors:
         source(1):
           # Source(1) = copy of the DiskController.Discovery.Source(1)
           # diskNumber;controllerID;deviceID;Vendor Model;size
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          vendor: "$column(4)"
-          hw.parent.type: "disk_controller"
+          id: $column(3)
+          vendor: $column(4)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
         metrics:
-          hw.physical_disk.size: "$column(5)"
+          hw.physical_disk.size: $column(5)
     collect:
-      # Collect type is \"mono-instance\"
-      type: "monoInstance"
+      _comment: Collect type is "mono-instance"
+      type: monoInstance
       sources:
         source(1):
-          # Source(1) = output of the pvdisplay command
-          type: "osCommand"
-          commandLine: "/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%"
+          _comment: Source(1) = output of the pvdisplay command
+          type: osCommand
+          commandLine: /usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%
           computes:
             # Process output of pvdisplay through a awk script
             # PV Status
-          - type: "awk"
+          - type: awk
             script: "/^PV Status/ {print \"MSHW;\" $3 \"-\" $4}"
-            keep: "^MSHW;"
-            separators: ";"
-            selectColumns: "2"
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
             # Duplicate the (single) status column
             # PV Status;PV Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate the PV status into a PATROL status
             # PATROLStatus;PV Status
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "PhysicalDiskStatusTranslationTable"
+            translationTable: PhysicalDiskStatusTranslationTable
             # Translate the second PV Status into a more readable string
             # PATROLStatus;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(1)"
+          hw.status{hw.type="physical_disk"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)

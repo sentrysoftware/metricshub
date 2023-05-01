@@ -1,16 +1,16 @@
 ---
 extends:
-- "HitachiDiskArray-header"
+- HitachiDiskArray-header
 constants:
-  HITACHI_NAMESPACE: "\"root/hitachi/smis\""
+  HITACHI_NAMESPACE: '"root/hitachi/smis"'
 connector:
-  displayName: "Hitachi SVP SMI-S Agent"
+  displayName: Hitachi SVP SMI-S Agent
   platforms: "Hitachi VSP G Series, Hitachi HUS-VM"
-  reliesOn: "Hitachi VSP SMI-S Agent"
-  version: "1.0"
+  reliesOn: Hitachi VSP SMI-S Agent
+  version: 1.0
   information: "This connector discovers the enclosure and the disks of Hitachi SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage

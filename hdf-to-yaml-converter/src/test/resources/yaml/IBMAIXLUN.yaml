@@ -3,26 +3,26 @@ embedded:
   EmbeddedFile(1): "($2 ~ /hdisk[0-9]+/ && $3 ~ /fscsi/) {\n\tif ($2 in ExpectedPaths == 0)\n\t{\n\t\tExpectedPaths[$2] = 0;\n\t\tAvailablePaths[$2] = 0;\n\t}\n\n\tExpectedPaths[$2] = ExpectedPaths[$2] + 1;\n\tif ($1 ~ /[Ee]nabled/)\n\t{\n\t\tAvailablePaths[$2] = AvailablePaths[$2] + 1;\n\t}\n}\nEND {\n\tfor (id in ExpectedPaths)\n\t{\n\t\tprint \"MSHW;\" id \";\" ExpectedPaths[id] \";\" AvailablePaths[id] \";\"\n\t}\n}"
   EmbeddedFile(2): "BEGIN {\n\tmanufacturer = \"\";\n\tmodel = \"\";\n\thardwareLocationCode = \"\";\n\twwn = \"\";\n\tdiskId = \"\";\n}\n($1 ~ /^hdisk[0-9]+$/) {\n\tif (diskId != \"\")\n\t{\n\t\tprint \"MSHW;\" diskId \";\" hardwareLocationCode \";\" manufacturer \" \" model \";\" wwn;\n\t\tmanufacturer = \"\";\n\t\tmodel = \"\";\n\t\thardwareLocationCode = \"\";\n\t\twwn = \"\";\n\t\tdiskId = \"\";\n\t}\n\n\tdiskId = $1;\n\thardwareLocationCode = $2;\n}\n/^ *Manufacturer/ {\n\tgsub(\"\\\\.+\", \" \");\n\tmanufacturer = $2;\n}\n/^ *Machine Type and Model/ {\n\tgsub(\"\\\\.+\", \" \");\n\tmodel = $5;\n\tfor (i=6 ; i<=NF ; i++) { model = model $i; }\n}\n/^ *Device Specific..Z0/ {\n\tgsub(\"\\\\.+\", \" \");\n\twwn = $4;\n}\nEND {\n\tprint \"MSHW;\" diskId \";\" hardwareLocationCode \";\" manufacturer \" \" model \";\" wwn\n}"
 connector:
-  displayName: "IBM AIX - LUN"
-  platforms: "IBM POWER"
-  reliesOn: "IBM AIX lspath system command"
-  information: "Provides LUN MPIO status information on IBM AIX systems."
-  version: "1.0"
+  displayName: IBM AIX - LUN
+  platforms: IBM POWER
+  reliesOn: IBM AIX lspath system command
+  information: Provides LUN MPIO status information on IBM AIX systems.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "RS6000"
+    - RS6000
     criteria:
-      # OS should be AIX (whatever version)
-    - type: "deviceType"
+    - _comment: OS should be AIX (whatever version)
+      type: deviceType
       keep:
-      - "RS6000"
-      # Test the lspath command
-    - type: "osCommand"
-      commandLine: "/usr/sbin/lspath"
+      - RS6000
+    - _comment: Test the lspath command
+      type: osCommand
+      commandLine: /usr/sbin/lspath
       timeout: 300
-      expectedResult: "fscsi"
+      expectedResult: fscsi
 monitors:
   lun:
     discovery:
@@ -30,82 +30,82 @@ monitors:
         source(1):
           # Source(1) = lspath output
           # Get the list of Ports from lspath
-          type: "osCommand"
-          commandLine: "/usr/sbin/lspath"
+          type: osCommand
+          commandLine: /usr/sbin/lspath
           timeout: 300
           computes:
             # AWK it
             # LunName;ExpectedPaths;AvailablePaths;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Remove '1' from ExpectedPaths to get the AvailablePathWarning threshold
             # LunName;AvailablePathWarning;AvailablePaths;
-          - type: "subtract"
+          - type: subtract
             column: 2
-            value: "1"
+            value: 1
         source(2):
-          # Source(2) = lsdev/lscfg on disks (which includes LUNs)
-          type: "osCommand"
-          commandLine: "for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`; do /usr/sbin/lscfg -vp -l $DISK; done"
+          _comment: Source(2) = lsdev/lscfg on disks (which includes LUNs)
+          type: osCommand
+          commandLine: for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`; do /usr/sbin/lscfg -vp -l $DISK; done
           computes:
             # AWK it
             # LunName;HardwareLocationCode;DiskArray;WWN;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add "Hardware Location Code: " to the 2nd column
             # LunName;HardwareLocationCode;DiskArray;WWN;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "Location: "
         source(3):
           # Source(3) = Table Joint of Source(1) and Source(2)
           # LunName;AvailablePathWarning;AvailablePaths;LunName;HardwareLocationCode;DiskArray;WWN;
-          type: "tableJoin"
-          leftTable: "$monitors.lun.discovery.sources.source(1)$"
-          rightTable: "$monitors.lun.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.lun.discovery.sources.source(1)$
+          rightTable: $monitors.lun.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
       mapping:
         # InstanceTable = Source(3)
         # LunName;AvailablePathWarning;AvailablePaths;LunName;HardwareLocationCode;DiskArray;WWN;
-        source: "$monitors.lun.discovery.sources.source(3)$"
+        source: $monitors.lun.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          array_name: "$column(6)"
-          wwn: "$column(7)"
-          info: "$column(5)"
-          hw.parent.type: "enclosure"
-          name: "$column(6)"
+          id: $column(1)
+          array_name: $column(6)
+          wwn: $column(7)
+          info: $column(5)
+          hw.parent.type: enclosure
+          name: $column(6)
         metrics:
-          hw.lun.paths.limit{limit_type="low.degraded"}: "$column(2)"
+          hw.lun.paths.limit{limit_type="low.degraded"}: $column(2)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Get the list of Ports from multipath -l
-          type: "osCommand"
-          commandLine: "/usr/sbin/lspath"
+          _comment: Get the list of Ports from multipath -l
+          type: osCommand
+          commandLine: /usr/sbin/lspath
           timeout: 300
           computes:
             # AWK it
             # LunName;NumberPaths;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
       mapping:
         # ValueTable = Source(1)
         # LunName;NumberPaths;LunStatus;LunStatusInfo;AvailablePathInformation;
-        source: "$monitors.lun.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.lun.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.lun.paths: "$column(2)"
+          hw.lun.paths: $column(2)

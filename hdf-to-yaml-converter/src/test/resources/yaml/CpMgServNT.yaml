@@ -24,172 +24,172 @@ embedded:
     }
 translations:
   TemperatureStatusTranslationTable:
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   FanStatusTranslationTable:
-    "1": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   cpuStatusInformationTranslationTable:
     "2": ""
-    default: "Unknown Status"
-    "3": "Degraded"
-    "4": "Failed"
-    "5": "Disabled"
-    "6": "Non-recoverable"
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
+    "5": Disabled
+    "6": Non-recoverable
   PowerSupplyStatusTranslationTable:
-    "11": "failed"
-    "12": "failed"
-    "13": "failed"
-    "14": "failed"
-    "15": "failed"
-    "16": "failed"
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "failed"
-    "4": "failed"
-    "5": "failed"
-    "6": "degraded"
-    "7": "failed"
-    "8": "failed"
-    "9": "failed"
-    "10": "failed"
+    "11": failed
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": failed
+    "16": failed
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": degraded
+    "7": failed
+    "8": failed
+    "9": failed
+    "10": failed
   TemperatureTypeTranslationTable:
-    "11": "Ambient"
-    "12": "Chassis"
-    "13": "Bridge Card"
+    "11": Ambient
+    "12": Chassis
+    "13": Bridge Card
     "1": ""
     "2": ""
     default: ""
-    "3": "System"
-    "4": "System Board"
-    "5": "I/O Board"
-    "6": "CPU"
-    "7": "Memory"
-    "8": "Storage"
-    "9": "Removable Media"
-    "10": "Power Supply"
+    "3": System
+    "4": System Board
+    "5": I/O Board
+    "6": CPU
+    "7": Memory
+    "8": Storage
+    "9": Removable Media
+    "10": Power Supply
   FanStatusInformationTranslationTable:
-    "1": "Other"
-    "2": "ok"
-    default: "Unknown Status"
-    "3": "Degraded"
-    "4": "Failed"
+    "1": Other
+    "2": ok
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
   FanTypeTranslationTable:
-    "11": "Ambient"
-    "12": "Chassis"
-    "13": "Bridge card"
-    "14": "Management board"
-    "15": "Backplane"
-    "16": "Network slot"
-    "17": "Blade slot"
-    "18": "Virtual"
-    "1": "Other"
-    "2": "Unknown"
+    "11": Ambient
+    "12": Chassis
+    "13": Bridge card
+    "14": Management board
+    "15": Backplane
+    "16": Network slot
+    "17": Blade slot
+    "18": Virtual
+    "1": Other
+    "2": Unknown
     default: ""
-    "3": "System"
-    "4": "System board"
-    "5": "I/O Board"
-    "6": "CPU"
-    "7": "Memory"
-    "8": "Storage"
-    "9": "Removable media"
-    "10": "Power supply"
+    "3": System
+    "4": System board
+    "5": I/O Board
+    "6": CPU
+    "7": Memory
+    "8": Storage
+    "9": Removable media
+    "10": Power supply
   PowerSupplyStatusInformationTranslationTable:
-    "11": "Voltage channel failed"
-    "12": "Orring Diode failed"
-    "13": "Brown out"
-    "14": "Giveup on startup"
-    "15": "NVRAM Invalid"
-    "16": "Calibration table invalid"
-    "1": "ok"
-    "2": "General failure"
-    default: "Unknown Status"
-    "3": "Bist failure"
-    "4": "Fan failure"
-    "5": "Temperature failure"
-    "6": "Interlock open"
-    "7": "EPROM failed"
-    "8": "VREF failed"
-    "9": "DAC failed"
-    "10": "RAM test failed"
+    "11": Voltage channel failed
+    "12": Orring Diode failed
+    "13": Brown out
+    "14": Giveup on startup
+    "15": NVRAM Invalid
+    "16": Calibration table invalid
+    "1": ok
+    "2": General failure
+    default: Unknown Status
+    "3": Bist failure
+    "4": Fan failure
+    "5": Temperature failure
+    "6": Interlock open
+    "7": EPROM failed
+    "8": VREF failed
+    "9": DAC failed
+    "10": RAM test failed
   TemperatureStatusInformationTranslationTable:
     "2": ""
-    default: "Unknown Status"
-    "3": "Degraded"
-    "4": "Failed"
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
   vendorTranslationTable:
     "1": ""
-    "2": "Intel"
+    "2": Intel
     default: ""
-    "3": "AMD"
-    "4": "Cyrix"
-    "5": "Ti"
-    "6": "Nexgen"
-    "7": "Compaq"
-    "8": "Samsung"
-    "9": "Mitsubishi"
-    "10": "Mips"
+    "3": AMD
+    "4": Cyrix
+    "5": Ti
+    "6": Nexgen
+    "7": Compaq
+    "8": Samsung
+    "9": Mitsubishi
+    "10": Mips
   cpuPredictedFailureTranslationTable:
-    default: "0"
-    "3": "1"
+    default: 0
+    "3": 1
   cpuStatusTranslationTable:
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
-    "5": "degraded"
-    "6": "failed"
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": degraded
+    "6": failed
   PowerSupplyConditionTranslationTable:
-    "1": "UNKNOWN"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
 connector:
-  displayName: "HP Insight Management Agent - Server"
-  platforms: "HP ProLiant"
-  reliesOn: "HP Insight Management Agents"
-  version: "1.4"
+  displayName: HP Insight Management Agent - Server
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents
+  version: 1.4
   information: "This connector provides hardware monitoring through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
-    - "Linux"
-    - "OSF1"
-    - "VMS"
-    - "OOB"
-    - "Solaris"
+    - NT
+    - Linux
+    - OSF1
+    - VMS
+    - OOB
+    - Solaris
     supersedes:
-    - "HPInsightwmi"
-    - "SunCediag"
-    - "SunFmadm"
-    - "SunPrtdiag"
-    - "SunPrtpicl"
-    - "SunPsrinfo"
-    - "SunPsrinfoT1"
-    - "SunScSnapshot"
-    - "IpmiTool"
-    - "VMwareESX4i"
-    - "VMwareESXi"
-    - "VMwareESXiDisksIPMI"
-    - "VMwareESXiDisksStorage"
-    - "HPInsightwbem"
+    - HPInsightwmi
+    - SunCediag
+    - SunFmadm
+    - SunPrtdiag
+    - SunPrtpicl
+    - SunPsrinfo
+    - SunPsrinfoT1
+    - SunScSnapshot
+    - IpmiTool
+    - VMwareESX4i
+    - VMwareESXi
+    - VMwareESXiDisksIPMI
+    - VMwareESXiDisksStorage
+    - HPInsightwbem
     criteria:
       # check that we got at least one CPU declared here
       # Note: we used to check that we had an enclosure declared, but HP BladeSystems have that OID too
       # so this connector was automatically activating itself on HP BladeSystem enclosures while it didn't have to
       # Let's just hope that there is no HP PRoLiant or Integrity or AlphaServer systems where no CPU
       # is declared in the SNMP tree...
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.232.1.2.2.1.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.1.2.2.1.1
 monitors:
   enclosure:
     discovery:
@@ -197,263 +197,263 @@ monitors:
         source(1):
           # Get the model name
           # ServerID;ModelName;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.2.2.4"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.2.2.4
           selectColumns: "ID,2"
         source(2):
           # Now, get some additional information
           # ServerID;ServiceNumber;ProductID;SerialNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.2.2.2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.2.2.2
           selectColumns: "ID,5,6,1"
           computes:
             # Add "Product ID: " to the ProductID column
             # ServerID;ServiceNumber;ProductID;SerialNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Part Number: "
             # Add "Service Number: " to the ServiceID column
             # ServerID;ServiceNumber;ProductID;SerialNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "Alternative Serial Number: "
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
         source(4):
           # Source(4) = cpqHePowerMeter SNMP Table
           # ServerID;Supported;Status;CurrentReading;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.15"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.15
           selectColumns: "ID,1,2,3"
           computes:
             # Keep only if Supported == 2, Status == 2 and CurrentReading is not -1
             # ServerID;Supported;Status;CurrentReading;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "2"
-          - type: "keepOnlyMatchingLines"
+            valueList: 2
+          - type: keepOnlyMatchingLines
             column: 3
-            valueList: "2"
-          - type: "excludeMatchingLines"
+            valueList: 2
+          - type: excludeMatchingLines
             column: 4
             valueList: "-1,0"
         source(5):
           # PowerConsumption - Backup Method - Calculate from Power Supply consumption
           # Source(5) = cpqHePowerMeter SNMP Table
           # ServerID;PowerSupplyCapacityUsed;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.9.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.9.3.1
           selectColumns: "1,7"
           computes:
             # Awk the results to get an overall consumed
             # ServerID;Supported;Status;CurrentReading;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Exclude if all power supplies read zero
             # ServerID;Supported;Status;CurrentReading;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            valueList: "0"
+            valueList: 0
         source(6):
           # Union the Power Consumption tables, hopefully one will match
           # ServerID;Supported;Status;CurrentReading;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.discovery.sources.source(4)$"
-          - "$monitors.enclosure.discovery.sources.source(5)$"
+          - $monitors.enclosure.discovery.sources.source(4)$
+          - $monitors.enclosure.discovery.sources.source(5)$
         source(7):
           # Source(5) = Table joint between Source(3) and Source(6)
           # ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;ServerID;Supported;Status;CurrentReading;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(3)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(6)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(6)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
       mapping:
         # InstanceTable = Source(5)
         # ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;ServerID;Supported;Status;CurrentReading;
-        source: "$monitors.enclosure.discovery.sources.source(7)$"
+        source: $monitors.enclosure.discovery.sources.source(7)$
         attributes:
-          id: "$column(1)"
-          vendor: "HP"
-          model: "$column(2)"
-          type: "Computer"
-          serial_number: "$column(6)"
+          id: $column(1)
+          vendor: HP
+          model: $column(2)
+          type: Computer
+          serial_number: $column(6)
           info: "join($column(5), $column(4), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(2), \"Computer\")"
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Get a list of Enclosures
           # ServerID
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.2.2.4"
-          selectColumns: "ID"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.2.2.4
+          selectColumns: ID
         source(2):
           # Source(2) = cpqHePowerMeter SNMP Table
           # ID;CurrentReading;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.15"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.15
           selectColumns: "ID,3"
         source(3):
           # PowerConsumption - Backup Method - Calculate from Power Supply consumption
           # Source(3) = cpqHePowerMeter SNMP Table
           # ServerID;PowerSupplyCapacityUsed;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.9.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.9.3.1
           selectColumns: "1,7"
           computes:
             # Awk the results to get an overall consumed
             # ServerID;CurrentReading;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,5"
         source(4):
           # Union the Power Consumption tables, hopefully one will match
           # ID;CurrentReading;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.collect.sources.source(2)$"
-          - "$monitors.enclosure.collect.sources.source(3)$"
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(3)$
         source(5):
           # Source(3) = Table joint between Source(1) and Source(4)
           # This is because the PowerMeter Table does not exist in early versions of the HP agent, so we collect a list of IDs from the main table to avoid "no collect value errors"
           # ID;ID;CurrentReading;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # ValueTable = Source(1)
         # ID;ID;CurrentReading;
-        source: "$monitors.enclosure.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        source: $monitors.enclosure.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.enclosure.power: "$column(3)"
-          hw.enclosure.energy: "fakeCounter($column(3))"
+          hw.enclosure.power: $column(3)
+          hw.enclosure.energy: fakeCounter($column(3))
   cpu:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqSeCpuTable SNMP table
           # ID;Name;Speed;VendorCode;SocketNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.1.2.2.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.1.2.2.1.1
           selectColumns: "ID,3,4,8,9"
           computes:
             # Remove processors whose vendor is "0" (zero)
             # because it means: no processor
             # ID;Name;Speed;VendorCode;SocketNumber;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            valueList: "0"
+            valueList: 0
             # Translate vendor number
             # ID;Name;Speed;VendorName;SocketNumber;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "vendorTranslationTable"
+            translationTable: vendorTranslationTable
             # Replace "IPF" by "Itanium" in the model string
             # ID;Name;Speed;VendorName;SocketNumber;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "IPF"
-            newValue: "Itanium"
-          - type: "replace"
+            existingValue: IPF
+            newValue: Itanium
+          - type: replace
             column: 2
-            existingValue: "Intel"
+            existingValue: Intel
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "AMD"
+            existingValue: AMD
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "(R)"
+            existingValue: (R)
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "cpu"
+            existingValue: cpu
             newValue: ""
             # Add "Socket " to the left of the SocketNumber column
             # ID;Name;Speed;VendorName;SocketNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Location: Socket Number "
             # Replace "0" by "Unknown" in the SocketNumber column
             # ID;Name;Speed;VendorName;SocketNumber;
-          - type: "replace"
+          - type: replace
             column: 5
             existingValue: "Location: Socket Number 0"
             newValue: ""
       mapping:
-        # Instance Table
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        _comment: Instance Table
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(2)"
-          vendor: "$column(4)"
-          info: "$column(5)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(2)
+          vendor: $column(4)
+          info: $column(5)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(4), $column(2), $column(3))"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(3))"
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      # Collect is multi-instance (all instances in one shot)
-      type: "multiInstance"
+      _comment: Collect is multi-instance (all instances in one shot)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqSeCpuTable SNMP table
           # ID;Speed;Status;PredictsFailure
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.1.2.2.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.1.2.2.1.1
           selectColumns: "ID,4,6,10"
           computes:
             # Duplicate status, because we will translate it two times
             # ID;Speed;Status;Status;PredictsFailure
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate Status into PATROLStatus
             # ID;Speed;PATROLStatus;Status;PredictsFailure
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "cpuStatusTranslationTable"
+            translationTable: cpuStatusTranslationTable
             # Translate second Status into more readable string
             # ID;Speed;PATROLStatus;StatusInformation;PredictsFailure
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "cpuStatusInformationTranslationTable"
+            translationTable: cpuStatusInformationTranslationTable
             # Translate the PredictsFailure code into 0 = OK or 1 = bad
             # ID;Speed;PATROLStatus;StatusInformation;PredictsFailure
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "cpuPredictedFailureTranslationTable"
+            translationTable: cpuPredictedFailureTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.cpu.speed: "megaHertz2Hertz($column(2))"
-          hw.status{hw.type="cpu"}: "$column(3)"
-          hw.status{hw.type="cpu", state="predicted_failure"}: "boolean($column(5))"
+          hw.cpu.speed: megaHertz2Hertz($column(2))
+          hw.status{hw.type="cpu"}: $column(3)
+          hw.status{hw.type="cpu", state="predicted_failure"}: boolean($column(5))
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   temperature:
     discovery:
       sources:
@@ -465,33 +465,33 @@ monitors:
           # /////////////////////////////////
           # Source(1) = temperature SNMP table
           # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.6.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.6.8.1
           selectColumns: "ID,3,4,5,7,6"
           computes:
             # Replace readings of -1 with "" to deactivate the temperature parameter
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
             # Adding a N for negative thresholds
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "-"
+            existingValue: '-'
             newValue: "N"
             # Translate the SensorLocationCode to a more human-readable string
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "translate"
-            translationTable: "TemperatureTypeTranslationTable"
+          - type: translate
+            translationTable: TemperatureTypeTranslationTable
             column: 2
             # Adding MSHW to catch invalid thresholds..
             # Using a trick method to only remove leading zeros
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
-            value: "MSHW_"
+            value: MSHW_
         source(2):
           # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           # Setting the threshold according to the threshold Type for warn
@@ -499,39 +499,39 @@ monitors:
           # The status has to be deactivated for valid thresholds
           # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           # Copy the table
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Keep only caution's threshold's type
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "9"
+            valueList: 9
             # keep only valid thresholds
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
             valueList: "MSHW_0,MSHW_N"
             # Remove MSHW_ for Valid values
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
             # Adding another threshold column to make the difference between warnthresholds and alarm threhsolds
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Adding 5 degrees to the Warningthreshold for AlarmThreshold
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "add"
+          - type: add
             column: 5
-            value: "5"
+            value: 5
             # Replace condition with "" to deactivate the status parameter
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 7
-            existingValue: "Column(7)"
+            existingValue: Column(7)
             newValue: ""
         source(3):
           # ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -539,281 +539,281 @@ monitors:
           # If threshold type = 15 it means it's an alarm threshold. WarnThreshold =  Alarmthreshold-5
           # ////////////////////////////////////////////////////////////////////////////////////////////////////
           # Copy the table
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Keep only alarms thresholdtype
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "15"
+            valueList: 15
             # Keep only valid thresholds
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
             valueList: "MSHW_0,MSHW_N"
             # Remove MSHW_ for valid thresholds
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
             # Adding another threshold column to make the difference between warnthreshold and alarm threhsold
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Substracting 5 degrees to the alarm threshold for warn Threshold
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "subtract"
+          - type: subtract
             column: 4
-            value: "5"
+            value: 5
             # Replace condition with "" to deactivate the status parameter
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 7
-            existingValue: "Column(7)"
+            existingValue: Column(7)
             newValue: ""
         source(4):
           # ////////////////////////////////////////////////////////////////////////////////////
           # Removing thresolds for non caution/critical threshold's type keep status active
           # ///////////////////////////////////////////////////////////////////////////////////
           # Copy the table
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Exclude caution/critical threshold's type
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 5
             valueList: "9,15"
             # replace by an emtpy string the threshold column
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "column(4)"
+            existingValue: column(4)
             newValue: ""
             # Adding another threshold column to make the difference between warnthreshold and alarm threhsold
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
         source(5):
           # //////////////////////////////////////////////////////////////////////////////////////////
           # Removing thresholds for unvalid caution/critical threshold's type and keep status active
           # ///////////////////////////////////////////////////////////////////////////////////////
           # Copy the table
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Exclude caution/critical threshold's type
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
             valueList: "9,15"
             # Keep only valid thresholds
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 4
             valueList: "MSHW_0,MSHW_N"
             # replace by an emtpy string the threshold column
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "column(4)"
+            existingValue: column(4)
             newValue: ""
             # Adding another threshold column to make the difference between warnthreshold and alarm threhsold
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
         source(6):
-          # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-          type: "tableUnion"
+          _comment: ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(2)$"
-          - "$monitors.temperature.discovery.sources.source(3)$"
-          - "$monitors.temperature.discovery.sources.source(4)$"
-          - "$monitors.temperature.discovery.sources.source(5)$"
+          - $monitors.temperature.discovery.sources.source(2)$
+          - $monitors.temperature.discovery.sources.source(3)$
+          - $monitors.temperature.discovery.sources.source(4)$
+          - $monitors.temperature.discovery.sources.source(5)$
       mapping:
         # InstanceTable = Source(6)
         # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-        source: "$monitors.temperature.discovery.sources.source(6)$"
+        source: $monitors.temperature.discovery.sources.source(6)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(4)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(5)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
+          hw.temperature.limit{limit_type="high.critical"}: $column(5)
     collect:
-      # Collect is multi-instance (all instances in one shot)
-      type: "multiInstance"
+      _comment: Collect is multi-instance (all instances in one shot)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = temperature SNMP table
           # ID;Temperature;Condition;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.6.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.6.8.1
           selectColumns: "ID,4,6"
           computes:
             # Duplicate status, because we will translate it two times
             # ID;Temperature;Condition;Condition;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate Status into PATROLStatus
             # ID;Temperature;PATROLStatus;Condition;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "TemperatureStatusTranslationTable"
+            translationTable: TemperatureStatusTranslationTable
             # Translate second Status into more readable string
             # ID;Temperature;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "TemperatureStatusInformationTranslationTable"
+            translationTable: TemperatureStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
-          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqHeFltTolFanTable
           # ID;LocationCode;Present
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.6.7.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.6.7.1
           selectColumns: "ID,3,4"
           computes:
             # Keep only present fans
             # ID;LocationCode;Present
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 3
-            valueList: "3"
+            valueList: 3
             # Translate LocationCode into Location
             # ID;Location;Present
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FanTypeTranslationTable"
+            translationTable: FanTypeTranslationTable
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
-      # Collect type is mono-instance
-      type: "monoInstance"
+      _comment: Collect type is mono-instance
+      type: monoInstance
       sources:
         source(1):
           # Do an SNMP get directly on the status
           # StatusCode
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.232.6.2.6.7.1.9.%Fan.Collect.DeviceID%"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.232.6.2.6.7.1.9.%Fan.Collect.DeviceID%
           computes:
             # Duplicate the StatusCode column
             # StatusCode;StatusCode;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate 1st StatusCode into PATROLSTatus
             # PATROLStatus;StatusCode;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "FanStatusTranslationTable"
+            translationTable: FanStatusTranslationTable
             # Translate second STatusCode into a more readable string
             # PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FanStatusInformationTranslationTable"
+            translationTable: FanStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
         metrics:
-          hw.status{hw.type="fan"}: "$column(1)"
+          hw.status{hw.type="fan"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqHeFltTolPowerSupplyTable SNMP table
           # DeviceID;Present;CapacityUsed;Capacity;SalePartNumber;SerialNumber;SparePartNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.9.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.9.3.1
           selectColumns: "ID,3,7,8,10,11,16"
           computes:
             # Keep only power supplies that are actually present
             # DeviceID;Present;CapacityUsed;Capacity
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "3"
+            valueList: 3
             # Replace the "0" value in CapacityUsed by an empty string
             # DeviceID;Present;CapacityUsed;Capacity;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "0"
+            existingValue: 0
             newValue: ""
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Alternative Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 7
             value: "Spare Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "SerialNumber: "
       mapping:
-        # InstanceTable...
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable...
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
+          id: $column(1)
           info: "join($column(5), $column(7), $column(6), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
-          hw.power_supply.limit: "$column(4)"
+          hw.power_supply.limit: $column(4)
     collect:
       # Source(1) = cpqHeFltTolPowerSupplyTable SNMP table
       # DeviceID;Status;CapacityUsed;condition
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.6.2.9.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.9.3.1
           selectColumns: "ID,5,7,4"
           computes:
             # Duplicate the Status column
             # DeviceID;Status;Status;CapacityUsed;condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first Status column into PATROL Status
             # DeviceID;PATROLStatus;Status;CapacityUsed;condition
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PowerSupplyStatusTranslationTable"
+            translationTable: PowerSupplyStatusTranslationTable
             # Translate Status into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PowerSupplyStatusInformationTranslationTable"
+            translationTable: PowerSupplyStatusInformationTranslationTable
             # Translate Status into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PowerSupplyConditionTranslationTable"
+            translationTable: PowerSupplyConditionTranslationTable
             # now take the worst case between condition and status
             # DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
-          - type: "awk"
-            script: "EmbeddedFile(2)"
+          - type: awk
+            script: EmbeddedFile(2)
       mapping:
-        # ValueTable
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

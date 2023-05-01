@@ -6,62 +6,62 @@ embedded:
   EmbeddedFile(4): "$1 ~ /[0-9]+:/ && $2 ~ /[Ii][Dd]/ {\n    DeviceID = $1 ;DeviceID = $1 ; gsub (/:/,\"\",DeviceID) ;\n    DisplayID[DeviceID] = $NF\n    }\n\n$1 ~ /[Hh]ealth/ && $2 ~ /[Ss]tate/ { HealthValue[DeviceID] = $NF ; gsub(/[()]/,\"\",HealthValue[DeviceID]) }\n\n$1 ~ /[Ss]peed/ && $2 ~ /=/ {\n\t  Speed[DeviceID] = $3 ;\n\t  if ($NF ~ /[Gg][Bb]/) {Speed[DeviceID] = Speed[DeviceID] * 1000}\n\t  Link[DeviceID] = \"WARN\"\n\t  if ( Speed[DeviceID] > 0 ) { Link[DeviceID] = \"OK\" }\n\t  }\n\nEND { for (DeviceID in DisplayID) {\n \t  \tif (DeviceID != \"\") {\n \t  \t  print \"MSHW;\" DeviceID \";\" DisplayID[DeviceID] \";\" HealthValue[DeviceID] \";\" Link[DeviceID] \";\"\n\t    }\n\t    }\n\t  }"
 translations:
   statusInformationTranslationTable:
-    "0": "Unknown"
-    default: "Unknown Status"
-    "25": "Critical Failure"
-    "15": "Minor Failure"
+    "0": Unknown
+    default: Unknown Status
+    "25": Critical Failure
+    "15": Minor Failure
     "5": ""
-    "7": "OK but some issue present"
-    "30": "Non-Recoverable Error"
-    "20": "Major Failure"
-    "10": "Degraded"
+    "7": OK but some issue present
+    "30": Non-Recoverable Error
+    "20": Major Failure
+    "10": Degraded
   statusTranslationTable:
-    "0": "UNKNOWN"
-    default: "UNKNOWN"
-    "25": "failed"
-    "15": "degraded"
-    "5": "ok"
-    "7": "ok"
-    "30": "failed"
-    "20": "failed"
-    "10": "degraded"
+    "0": UNKNOWN
+    default: UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    "7": ok
+    "30": failed
+    "20": failed
+    "10": degraded
 connector:
-  displayName: "EMC uemcli (VNXe)"
-  platforms: "EMC VNXe"
-  reliesOn: "uemcli"
-  version: "1.0"
-  information: "This connector provides hardware monitoring for EMC VNXe Storage Systems through the uemcli command line utility."
+  displayName: EMC uemcli (VNXe)
+  platforms: EMC VNXe
+  reliesOn: uemcli
+  version: 1.0
+  information: This connector provides hardware monitoring for EMC VNXe Storage Systems through the uemcli command line utility.
   detection:
     appliesTo:
-    - "Storage"
+    - Storage
     connectionTypes:
-    - "remote"
+    - remote
     criteria:
-      # Only for type storage
-    - type: "deviceType"
+    - _comment: Only for type storage
+      type: deviceType
       keep:
-      - "Storage"
-      # Checks that SMCLI is on the local machine - in Portal smcli is run from the RSM
-    - type: "osCommand"
-      commandLine: "uemcli -version | more"
+      - Storage
+    - _comment: Checks that SMCLI is on the local machine - in Portal smcli is run from the RSM
+      type: osCommand
+      commandLine: uemcli -version | more
       executeLocally: true
       forceSerialization: true
-      expectedResult: "Version:"
-      errorMessage: "uemcli not installed or not in path."
-      # Checks that SMCLI returns a physical disk
-    - type: "osCommand"
+      expectedResult: 'Version:'
+      errorMessage: uemcli not installed or not in path.
+    - _comment: Checks that SMCLI returns a physical disk
+      type: osCommand
       commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /sys/general show | more"
       executeLocally: true
       forceSerialization: true
-      expectedResult: "Model"
-      errorMessage: "uemcli could not connect or did not find a system."
+      expectedResult: Model
+      errorMessage: uemcli could not connect or did not find a system.
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /sys/general show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -69,30 +69,30 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # SystemID;SystemName;Model;SerialNumber;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6"
       mapping:
         # The discovery table
         # SystemID;SystemName;Model;SerialNumber;HealthValue;
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          vendor: "EMC"
-          model: "$column(3)"
-          serial_number: "$column(4)"
-          type: "Storage"
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: EMC
+          model: $column(3)
+          serial_number: $column(4)
+          type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"EMC\", $column(3), \"Storage\")"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /sys/general show | more"
           executeLocally: true
           forceSerialization: true
@@ -100,37 +100,37 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # SystemID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,6"
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate into OK/Warning/Alarm
             # SystemID;PatrolStatus;HealthValue;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The value table
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(2)"
+          hw.status{hw.type="enclosure"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   battery:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/bat show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -138,33 +138,33 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Remove BAT_ from the DeviceName
             # DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "BAT_"
+            existingValue: BAT_
             newValue: ""
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: "$monitors.battery.discovery.sources.source(1)$"
+        source: $monitors.battery.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept  /env/bat show | more"
           executeLocally: true
           forceSerialization: true
@@ -172,37 +172,37 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate into OK/Warning/Alarm
             # SystemID;PatrolStatus;HealthValue;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.battery.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The value table
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="battery"}: "$column(2)"
+          hw.status{hw.type="battery"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   memory:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/mm show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -210,33 +210,33 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Remove MM_ from the DeviceName
             # DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "MM_"
+            existingValue: MM_
             newValue: ""
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/mm show | more"
           executeLocally: true
           forceSerialization: true
@@ -244,37 +244,37 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate into OK/Warning/Alarm
             # SystemID;PatrolStatus;HealthValue;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The value table
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="memory"}: "$column(2)"
+          hw.status{hw.type="memory"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept  /env/ps show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -282,33 +282,33 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Remove POW_ from the DeviceName
             # DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "POW_"
+            existingValue: POW_
             newValue: ""
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(2))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/ps show | more"
           executeLocally: true
           forceSerialization: true
@@ -316,37 +316,37 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate into OK/Warning/Alarm
             # SystemID;PatrolStatus;HealthValue;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The value table
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/iomodule show | more"
           executeLocally: true
           forceSerialization: true
@@ -354,25 +354,25 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "IO Module;IO_"
+            value: IO Module;IO_
             # Remove IO_ from the DeviceName
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "IO_"
+            existingValue: IO_
             newValue: ""
         source(2):
-          # Source(2) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(2) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/dpe show | more"
           executeLocally: true
           forceSerialization: true
@@ -380,25 +380,25 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Disk Processor Enclosure;DPE_"
+            value: Disk Processor Enclosure;DPE_
             # Remove DPE_ from the DeviceName
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "DPE_"
+            existingValue: DPE_
             newValue: ""
         source(3):
-          # Source(3) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(3) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/sp show | more"
           executeLocally: true
           forceSerialization: true
@@ -406,25 +406,25 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Storage Processor;SP_"
+            value: Storage Processor;SP_
             # Remove SP_ from the DeviceName
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "SP_"
+            existingValue: SP_
             newValue: ""
         source(4):
-          # Source(4) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(4) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/dae show | more"
           executeLocally: true
           forceSerialization: true
@@ -432,25 +432,25 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Disk Array Enclosure;DAE_"
+            value: Disk Array Enclosure;DAE_
             # Remove DAE_ from the DeviceName
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "DAE_"
+            existingValue: DAE_
             newValue: ""
         source(5):
-          # Source(5) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(5) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/ccard show | more"
           executeLocally: true
           forceSerialization: true
@@ -458,25 +458,25 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Cache Card;EHM_"
+            value: Cache Card;EHM_
             # Remove EHM_ from the DeviceName
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "EHM_"
+            existingValue: EHM_
             newValue: ""
         source(6):
-          # Source(6) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(6) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/lcc show | more"
           executeLocally: true
           forceSerialization: true
@@ -484,54 +484,54 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Link Control Card;LCC_"
+            value: Link Control Card;LCC_
             # Remove LCC_ from the DeviceName
             # DeviceType;DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "LCC_"
+            existingValue: LCC_
             newValue: ""
         source(7):
           # Join all this into one table..
           # DeviceID;DeviceName;HealthValue;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.discovery.sources.source(1)$"
-          - "$monitors.other_device.discovery.sources.source(2)$"
-          - "$monitors.other_device.discovery.sources.source(3)$"
-          - "$monitors.other_device.discovery.sources.source(4)$"
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
+          - $monitors.other_device.discovery.sources.source(3)$
+          - $monitors.other_device.discovery.sources.source(4)$
         source(8):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.discovery.sources.source(7)$"
-          - "$monitors.other_device.discovery.sources.source(5)$"
-          - "$monitors.other_device.discovery.sources.source(6)$"
+          - $monitors.other_device.discovery.sources.source(7)$
+          - $monitors.other_device.discovery.sources.source(5)$
+          - $monitors.other_device.discovery.sources.source(6)$
       mapping:
         # The discovery table
         # DeviceType;DeviceID;DeviceName;HealthValue;
-        source: "$monitors.other_device.discovery.sources.source(8)$"
+        source: $monitors.other_device.discovery.sources.source(8)$
         attributes:
-          device_type: "$column(1)"
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
+          device_type: $column(1)
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(1), $column(3))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/iomodule show | more"
           executeLocally: true
           forceSerialization: true
@@ -539,19 +539,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Make ID unique
             # DeviceID;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "IO_"
+            value: IO_
         source(2):
-          # Source(2) = uemcli
-          type: "osCommand"
+          _comment: Source(2) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/dpe show | more"
           executeLocally: true
           forceSerialization: true
@@ -559,19 +559,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Make ID unique
             # DeviceID;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "DPE_"
+            value: DPE_
         source(3):
-          # Source(3) = uemcli
-          type: "osCommand"
+          _comment: Source(3) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/sp show | more"
           executeLocally: true
           forceSerialization: true
@@ -579,19 +579,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Make ID unique
             # DeviceID;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SP_"
+            value: SP_
         source(4):
-          # Source(4) = uemcli
-          type: "osCommand"
+          _comment: Source(4) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/dae show | more"
           executeLocally: true
           forceSerialization: true
@@ -599,19 +599,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Make ID unique
             # DeviceID;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "DAE_"
+            value: DAE_
         source(5):
-          # Source(5) = uemcli
-          type: "osCommand"
+          _comment: Source(5) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/ccard show | more"
           executeLocally: true
           forceSerialization: true
@@ -619,19 +619,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Make ID unique
             # DeviceID;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "EHM_"
+            value: EHM_
         source(6):
-          # Source(6) = uemcli
-          type: "osCommand"
+          _comment: Source(6) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/lcc show | more"
           executeLocally: true
           forceSerialization: true
@@ -639,59 +639,59 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Make ID unique
             # DeviceID;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "LCC_"
+            value: LCC_
         source(7):
           # Join all this into one table..
           # DeviceID;HealthValue;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.collect.sources.source(1)$"
-          - "$monitors.other_device.collect.sources.source(2)$"
-          - "$monitors.other_device.collect.sources.source(3)$"
-          - "$monitors.other_device.collect.sources.source(4)$"
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+          - $monitors.other_device.collect.sources.source(3)$
+          - $monitors.other_device.collect.sources.source(4)$
         source(8):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.collect.sources.source(7)$"
-          - "$monitors.other_device.collect.sources.source(5)$"
-          - "$monitors.other_device.collect.sources.source(6)$"
+          - $monitors.other_device.collect.sources.source(7)$
+          - $monitors.other_device.collect.sources.source(5)$
+          - $monitors.other_device.collect.sources.source(6)$
           computes:
-            # Duplicate the Health Value
-          - type: "duplicateColumn"
+          - _comment: Duplicate the Health Value
+            type: duplicateColumn
             column: 2
             # Now translate into OK/Warning/Alarm
             # SystemID;PatrolStatus;HealthValue;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.other_device.collect.sources.source(8)$"
-        deviceId: "$column(1)"
+        _comment: The value table
+        source: $monitors.other_device.collect.sources.source(8)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/fan show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -699,33 +699,33 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Remove Fan from the DeviceName
             # DeviceID;DeviceName;HealthValue;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "Fan_"
+            existingValue: Fan_
             newValue: ""
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/fan show | more"
           executeLocally: true
           forceSerialization: true
@@ -733,37 +733,37 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate into OK/Warning/Alarm
             # SystemID;PatrolStatus;HealthValue;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The value table
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/disk show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -771,19 +771,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
             # Convert from GB to B
             # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1073741824"
+            value: 1073741824
         source(2):
-          # Source(2) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(2) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/ssd show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -791,51 +791,51 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             #  DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
             # Convert from GB to B
             # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1073741824"
+            value: 1073741824
             # Add SSD to the ID
             # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SSD_"
+            value: SSD_
         source(3):
           # Union 1 and 2
           # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.physical_disk.discovery.sources.source(1)$"
-          - "$monitors.physical_disk.discovery.sources.source(2)$"
+          - $monitors.physical_disk.discovery.sources.source(1)$
+          - $monitors.physical_disk.discovery.sources.source(2)$
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-        source: "$monitors.physical_disk.discovery.sources.source(3)$"
+        source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          vendor: "$column(6)"
-          model: "$column(7)"
-          serial_number: "$column(9)"
-          firmware_version: "$column(10)"
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: $column(6)
+          model: $column(7)
+          serial_number: $column(9)
+          firmware_version: $column(10)
           info: "join($column(5), $column(8), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(7), $column(4))"
         metrics:
-          hw.physical_disk.size: "$column(4)"
+          hw.physical_disk.size: $column(4)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/disk show | more"
           executeLocally: true
           forceSerialization: true
@@ -843,14 +843,14 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
         source(2):
-          # Source(1) = uemcli
-          type: "osCommand"
+          _comment: Source(1) = uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /env/ssd show | more"
           executeLocally: true
           forceSerialization: true
@@ -858,51 +858,51 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Add SSD to the ID
             # DeviceID;HealthValue;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SSD_"
+            value: SSD_
         source(3):
           # Union 1 and 2
           # DeviceID;HealthValue;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.physical_disk.collect.sources.source(1)$"
-          - "$monitors.physical_disk.collect.sources.source(2)$"
+          - $monitors.physical_disk.collect.sources.source(1)$
+          - $monitors.physical_disk.collect.sources.source(2)$
           computes:
-            # Duplicate the Health Value
-          - type: "duplicateColumn"
+          - _comment: Duplicate the Health Value
+            type: duplicateColumn
             column: 2
             # Now translate into OK/Warning/Alarm
             # SystemID;PatrolStatus;HealthValue;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.physical_disk.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: The value table
+        source: $monitors.physical_disk.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   network:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /net/port/fc show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -910,19 +910,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "FC Port;FC_"
+            value: FC Port;FC_
         source(2):
-          # Source(2) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(2) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /net/port/sas show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -930,19 +930,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SAS Port;SAS_"
+            value: SAS Port;SAS_
         source(3):
-          # Source(3) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(3) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /net/port/eth show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -950,41 +950,41 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Ethernet Port;ETH_"
+            value: Ethernet Port;ETH_
         source(4):
           # Join all this into one table..
           # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.discovery.sources.source(1)$"
-          - "$monitors.network.discovery.sources.source(2)$"
-          - "$monitors.network.discovery.sources.source(3)$"
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(2)$
+          - $monitors.network.discovery.sources.source(3)$
       mapping:
         # InstanceTable = Source(7)
         # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-        source: "$monitors.network.discovery.sources.source(4)$"
+        source: $monitors.network.discovery.sources.source(4)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          device_type: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(2)
+          __display_id: $column(3)
+          device_type: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(1))"
     collect:
-      # The NetworkCard collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The NetworkCard collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(1) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /net/port/fc show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -992,19 +992,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "FC Port;FC_"
+            value: FC Port;FC_
         source(2):
-          # Source(2) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(2) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /net/port/sas show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -1012,19 +1012,19 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SAS Port;SAS_"
+            value: SAS Port;SAS_
         source(3):
-          # Source(3) = the output of uemcli
-          type: "osCommand"
+          _comment: Source(3) = the output of uemcli
+          type: osCommand
           commandLine: "uemcli -d %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD} -sslPolicy accept /net/port/eth show -detail | more"
           executeLocally: true
           forceSerialization: true
@@ -1032,45 +1032,45 @@ monitors:
           computes:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Device Type and make ID unique
             # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Ethernet Port;ETH_"
+            value: Ethernet Port;ETH_
         source(4):
           # Join all this into one table..
           # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.collect.sources.source(1)$"
-          - "$monitors.network.collect.sources.source(2)$"
-          - "$monitors.network.collect.sources.source(3)$"
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(2)$
+          - $monitors.network.collect.sources.source(3)$
           computes:
             # Duplicate the Health Value
             # DeviceType;DeviceID;DeviceName;HealthValue;HealthValue;Link;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Now translate into OK/Warning/Alarm
             # DeviceType;DeviceID;DeviceName;HealthValue;HealthValue;Link;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Now translate Status information
             # DeviceType;DeviceID;DeviceName;HealthValue;HealthValue;Link;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # The value table
-        source: "$monitors.network.collect.sources.source(4)$"
-        deviceId: "$column(2)"
+        _comment: The value table
+        source: $monitors.network.collect.sources.source(4)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="network"}: "$column(4)"
-          hw.network.up: "legacyLinkStatus($column(6))"
+          hw.status{hw.type="network"}: $column(4)
+          hw.network.up: legacyLinkStatus($column(6))
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)

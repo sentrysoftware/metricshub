@@ -2,17 +2,17 @@
 embedded:
   EmbeddedFile(3): "BEGIN {\n\tlinkSpeed = \"\";\n\tduplexMode = \"\";\n\tlinkStatus = \"\";\n\tdeviceID = \"\";\n}\n/^Settings for / {\n\tdeviceID = $3;\n\tgsub(\":\", \"\", deviceID);\n}\n/^[ \\t]+Speed: / {\n\tlinkSpeed = $2;\n\tgsub(\"Mb/s\", \"\", linkSpeed);\n}\n/^[ \\t]+Duplex: / {\n\tif ($2 == \"Full\")\n\t{\n\t\tduplexMode = \"Full\";\n\t}\n\telse\n\t{\n\t\tduplexMode = \"Half\";\n\t}\n}\n/^[ \\t]+Link detected: / {\n\tif ($3 == \"yes\")\n\t{\n\t\tlinkStatus = \"OK\";\n\t}\n\telse if ($3 == \"no\")\n\t{\n\t\tlinkStatus = \"WARN\";\n\t}\n\telse\n\t{\n\t\tlinkStatus = \"\";\n\t}\n}\nEND {\n\tif (deviceID != \"\")\n\t{\n\t\tprint \"MSHW;\" deviceID \";\" linkStatus \";\" linkSpeed \";\" duplexMode \";\"\n\t}\n}"
 sudoCommands:
-- "ethtool"
+- ethtool
 connector:
   detection:
     criteria:
-      # DETECTION
-    - type: "deviceType"
+    - _comment: DETECTION
+      type: deviceType
       keep:
-      - "Linux"
-    - type: "osCommand"
-      commandLine: "GLOBAL_COMMAND_LINE"
-      expectedResult: "LOOPBACK"
+      - Linux
+    - type: osCommand
+      commandLine: GLOBAL_COMMAND_LINE
+      expectedResult: LOOPBACK
 monitors:
   network:
     discovery:
@@ -20,74 +20,74 @@ monitors:
         source(1):
           # Discovery
           # Source(1) = output of the command ipconfig or ip
-          type: "osCommand"
-          commandLine: "GLOBAL_COMMAND_LINE"
+          type: osCommand
+          commandLine: GLOBAL_COMMAND_LINE
           computes:
             # Process the output of one of the two commands (ifconfig or ip) through an AWK script
             # DeviceID;MacAddress;IPAddress;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.network.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          physical_address: "$column(2)"
-          physical_address_type: "MAC"
-          logical_address: "$column(3)"
-          logical_address_type: "IP"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          physical_address: $column(2)
+          physical_address_type: MAC
+          logical_address: $column(3)
+          logical_address_type: IP
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
       # Collect
       # Collect type is: mono-collect
-      type: "monoInstance"
+      type: monoInstance
       sources:
         source(1):
-          # Source(1) = output of the ipconfig or ip command for this interface
-          type: "osCommand"
-          commandLine: "COLLECT_COMMAND_LINE"
+          _comment: Source(1) = output of the ipconfig or ip command for this interface
+          type: osCommand
+          commandLine: COLLECT_COMMAND_LINE
           computes:
             # Process the output of one of the two commands (ifconfig or ip) to retrieve statistics about the network interface
             # DeviceID;ReceivedPackets;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7"
         source(2):
-          # Source(2) = output of ethtool
-          type: "osCommand"
+          _comment: Source(2) = output of ethtool
+          type: osCommand
           commandLine: "%{SUDO:ethtool}/usr/sbin/ethtool %NetworkCard.Collect.DeviceID%"
           computes:
             # Process the output of ethtool through an AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
         source(3):
           # Source(3) = table joint of Source(1) and Source(2)
           # DeviceID;ReceivedPackets;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;DeviceID;LinkStatus;LinkSpeed;DuplexMode;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(1)$"
-          rightTable: "$monitors.network.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
       mapping:
-        # And here is the ValueTable
-        source: "$monitors.network.collect.sources.source(3)$"
+        _comment: And here is the ValueTable
+        source: $monitors.network.collect.sources.source(3)$
         metrics:
-          hw.network.packets{direction="receive"}: "$column(2)"
-          hw.network.packets{direction="transmit"}: "$column(3)"
-          hw.errors{hw.type="network"}: "$column(4)"
-          hw.network.io{direction="receive"}: "$column(5)"
-          hw.network.io{direction="transmit"}: "$column(6)"
-          hw.network.up: "legacyLinkStatus($column(8))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(9))"
-          hw.network.full_duplex: "legacyFullDuplex($column(10))"
+          hw.network.packets{direction="receive"}: $column(2)
+          hw.network.packets{direction="transmit"}: $column(3)
+          hw.errors{hw.type="network"}: $column(4)
+          hw.network.io{direction="receive"}: $column(5)
+          hw.network.io{direction="transmit"}: $column(6)
+          hw.network.up: legacyLinkStatus($column(8))
+          hw.network.bandwidth.limit: megaBit2Bit($column(9))
+          hw.network.full_duplex: legacyFullDuplex($column(10))

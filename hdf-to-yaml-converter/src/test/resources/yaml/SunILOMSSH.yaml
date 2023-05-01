@@ -32,589 +32,589 @@ embedded:
     END {print("MSHW;"ID";"fruName";"fruVendor";"type";"sensorValue";"upperAlarm";"upperWarn";"lowerAlarm";"lowerWarn";"numericalSensorValue";");}
 translations:
   DiskDiscreteTranslationTable:
-    default: "UNKNOWN"
+    default: UNKNOWN
     predictive failure asserted: "true"
     predictive failure deasserted: "false"
   TemperatureTranslationTable:
-    default: "UNKNOWN"
-    state deasserted: "ok"
-    state asserted: "failed"
+    default: UNKNOWN
+    state deasserted: ok
+    state asserted: failed
   IndicatorTranslationTable:
-    default: "UNKNOWN"
-    fast blink: "failed"
-    "off": "ok"
-    "on": "failed"
+    default: UNKNOWN
+    fast blink: failed
+    "off": ok
+    "on": failed
   VoltageTranslationTable:
-    default: "UNKNOWN"
-    predictive failure asserted: "failed"
-    state deasserted: "failed"
-    state asserted: "ok"
-    predictive failure deasserted: "ok"
+    default: UNKNOWN
+    predictive failure asserted: failed
+    state deasserted: failed
+    state asserted: ok
+    predictive failure deasserted: ok
 connector:
-  displayName: "Oracle/Sun ILOM (SSH)"
-  platforms: "Oracle/Sun"
-  reliesOn: "Sun/Oracle ILOM"
-  version: "1.0"
-  information: "This connector provides hardware monitoring for the Sun Blades with ILOM cards via SSH."
+  displayName: Oracle/Sun ILOM (SSH)
+  platforms: Oracle/Sun
+  reliesOn: Sun/Oracle ILOM
+  version: 1.0
+  information: This connector provides hardware monitoring for the Sun Blades with ILOM cards via SSH.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "OOB"
+    - OOB
     criteria:
-      # host should respond to Telnet/SSH the way described below
-    - type: "osCommand"
-      commandLine: "show /SYS -d properties"
-      expectedResult: "product_name"
+    - _comment: host should respond to Telnet/SSH the way described below
+      type: osCommand
+      commandLine: show /SYS -d properties
+      expectedResult: product_name
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
-          commandLine: "show /SYS -d properties -l all"
+          type: osCommand
+          commandLine: show /SYS -d properties -l all
           computes:
             #  Run the SSH output through an AWK script
             #  MSHW;ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
         source(2):
-          # Take a copy for the enclosure instance table
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Take a copy for the enclosure instance table
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the /SYS line
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "SYS$"
-            # Replace SUN MICROSYSTEMS and SUN in vendor and model
-          - type: "replace"
+            regExp: SYS$
+          - _comment: Replace SUN MICROSYSTEMS and SUN in vendor and model
+            type: replace
             column: 3
-            existingValue: "SUN MICROSYSTEMS"
-            newValue: "SUN"
-          - type: "replace"
+            existingValue: SUN MICROSYSTEMS
+            newValue: SUN
+          - type: replace
             column: 2
-            existingValue: "SUN "
+            existingValue: 'SUN '
             newValue: ""
-            # Replace Oracle Corporation and Oracle in vendor and model
-          - type: "replace"
+          - _comment: Replace Oracle Corporation and Oracle in vendor and model
+            type: replace
             column: 3
-            existingValue: "Oracle Corporation"
-            newValue: "Oracle"
-          - type: "replace"
+            existingValue: Oracle Corporation
+            newValue: Oracle
+          - type: replace
             column: 3
-            existingValue: "ORACLE CORPORATION"
-            newValue: "Oracle"
-          - type: "replace"
+            existingValue: ORACLE CORPORATION
+            newValue: Oracle
+          - type: replace
             column: 2
-            existingValue: "Oracle "
+            existingValue: 'Oracle '
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "ORACLE "
+            existingValue: 'ORACLE '
             newValue: ""
       mapping:
         # The InstanceTable
         # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-        source: "$monitors.enclosure.discovery.sources.source(2)$"
+        source: $monitors.enclosure.discovery.sources.source(2)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(3)"
-          model: "$column(2)"
+          id: $column(1)
+          vendor: $column(3)
+          model: $column(2)
           name: "sprintf(\"%s (%s %s)\", $column(1), $column(3), $column(2))"
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Main Collect via SSH
-          type: "osCommand"
-          commandLine: "show /SYS -d properties -l all"
+          _comment: Main Collect via SSH
+          type: osCommand
+          commandLine: show /SYS -d properties -l all
           computes:
             #  Run the SSH output through an AWK script
             #  MSHW;ID;type;sensorValue;numericalSensorValue;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: MSHW;
+            separators: ;
             selectColumns: "2,5,6,11"
         source(2):
-          # Take a copy for the enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Take a copy for the enclosure value table
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep Only the SERVICE line
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^SERVICE$"
+            regExp: ^SERVICE$
             # Translate Condition into a PATROL Status
             # ID;type;PATROLStatus;numericalSensorValue;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "IndicatorTranslationTable"
+            translationTable: IndicatorTranslationTable
             # Remove the /SERVICE so that is matches the discovery name
             # ID;type;PATROLStatus;numericalSensorValue;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "SERVICE"
-            newValue: "/SYS"
+            existingValue: SERVICE
+            newValue: /SYS
       mapping:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
-        source: "$monitors.enclosure.collect.sources.source(2)$"
-        deviceId: "$column(1)"
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(3)"
+          hw.status{hw.type="enclosure"}: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
           # Temperature discovery (Discrete Sensors)
           # Using the main enclosure Discovery Table
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the lines of type Temperature
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 4
-            valueList: "temperature"
+            valueList: temperature
             # Keep Only the lines that have values
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            regExp: "."
+            regExp: .
         source(2):
-          # Temperature discovery (Numerical Sensors)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Temperature discovery (Numerical Sensors)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the lines of type Temperature
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 4
-            valueList: "temperature"
+            valueList: temperature
             # Keep Only the lines that have values
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 10
-            regExp: "."
+            regExp: .
         source(3):
           # Union the Discrete and Numerical
           # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(1)$"
-          - "$monitors.temperature.discovery.sources.source(2)$"
+          - $monitors.temperature.discovery.sources.source(1)$
+          - $monitors.temperature.discovery.sources.source(2)$
       mapping:
         # InstanceTable = Source(4)
         # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-        source: "$monitors.temperature.discovery.sources.source(3)$"
+        source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(7)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(6)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(7)
+          hw.temperature.limit{limit_type="high.critical"}: $column(6)
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Take a copy for the enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Take a copy for the enclosure value table
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep Only the SERVICE line
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "temperature"
+            valueList: temperature
             # Remove the Units
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: " degree C"
+            existingValue: ' degree C'
             newValue: ""
             # Translate the Voltage Status
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "TemperatureTranslationTable"
+            translationTable: TemperatureTranslationTable
       mapping:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(4)"
-          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $column(3)
   voltage:
     discovery:
       sources:
         source(1):
           # Voltage discovery
           # Using the main enclosure Discovery Table
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the lines of type Voltage
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 4
-            valueList: "voltage"
+            valueList: voltage
             # Keep Only the lines that have values
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 10
-            regExp: "."
-            # Thresholds  Volts  to  Millivolts
-          - type: "multiply"
+            regExp: .
+          - _comment: Thresholds  Volts  to  Millivolts
+            type: multiply
             column: 6
-            value: "1000"
-          - type: "multiply"
+            value: 1000
+          - type: multiply
             column: 7
-            value: "1000"
-          - type: "multiply"
+            value: 1000
+          - type: multiply
             column: 8
-            value: "1000"
-          - type: "multiply"
+            value: 1000
+          - type: multiply
             column: 9
-            value: "1000"
+            value: 1000
         source(2):
-          # Temperature discovery (Numerical Sensors)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Temperature discovery (Numerical Sensors)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the lines of type Voltage
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 4
-            valueList: "voltage"
+            valueList: voltage
             # Keep Only the lines that have values
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            regExp: "."
+            regExp: .
         source(3):
           # Union the Discrete and Numerical
           # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.voltage.discovery.sources.source(1)$"
-          - "$monitors.voltage.discovery.sources.source(2)$"
+          - $monitors.voltage.discovery.sources.source(1)$
+          - $monitors.voltage.discovery.sources.source(2)$
       mapping:
         # InstanceTable = Source(4)
         # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-        source: "$monitors.voltage.discovery.sources.source(3)$"
+        source: $monitors.voltage.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: "$column(9)"
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(7)"
+          hw.voltage.limit{limit_type="low.critical"}: $column(9)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(7)
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Take a copy for the enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Take a copy for the enclosure value table
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep Only the SERVICE line
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "voltage"
+            valueList: voltage
             # Remove the Units
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: " Volts"
+            existingValue: ' Volts'
             newValue: ""
             # Volts to Millivolts;
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1000"
+            value: 1000
             # Translate the Voltage Status
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "VoltageTranslationTable"
+            translationTable: VoltageTranslationTable
       mapping:
         # The ValueTable
         # ID;type;PATROLStatus;
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.voltage: "$column(4)"
-          hw.status{hw.type="voltage"}: "$column(3)"
+          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $column(3)
   cpu:
     discovery:
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Name;EnclosureTableStatus;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the main CPU Line
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "^MB/P[0-9]*$"
             # Exclude the lines that have no vendor = CPU not present
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 3
-            regExp: "."
-            # Replace A and SUN in vendor and model
-          - type: "replace"
+            regExp: .
+          - _comment: Replace A and SUN in vendor and model
+            type: replace
             column: 3
-            existingValue: "ADVANCED MICRO DEVICES"
-            newValue: "AMD"
-          - type: "replace"
+            existingValue: ADVANCED MICRO DEVICES
+            newValue: AMD
+          - type: replace
             column: 2
-            existingValue: "AMD "
+            existingValue: 'AMD '
             newValue: ""
       mapping:
         # InstanceTable = Source(3)
         # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(3)"
-          model: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          vendor: $column(3)
+          model: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Take a copy for the Enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Take a copy for the Enclosure value table
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep Only the SERVICE line
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "^MB/P[0-9]*/SERVICE$"
             # Translate Condition into a PATROL Status
             # ID;type;PATROLStatus;numericalSensorValue;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "IndicatorTranslationTable"
+            translationTable: IndicatorTranslationTable
             # Remove the /SERVICE so that is matches the discovery name
             # ID;type;PATROLStatus;numericalSensorValue;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/SERVICE"
+            existingValue: /SERVICE
             newValue: ""
       mapping:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="cpu"}: "$column(3)"
+          hw.status{hw.type="cpu"}: $column(3)
   memory:
     discovery:
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Name;EnclosureTableStatus;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the main Memory Line
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^MB/P[0-9]*/D[0-9]*$\\)\\|\\(^MB/MCH/D[A-Z][0-9]*$\\)"
             # Exclude the lines that have no vendor = Memory not present
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 3
-            regExp: "."
+            regExp: .
       mapping:
         # InstanceTable = Source(3)
         # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(3)"
-          model: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          vendor: $column(3)
+          model: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s (%s))\", $column(1), $column(3), $column(2))"
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Take a copy for the Enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Take a copy for the Enclosure value table
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep Only the SERVICE line
             # ID;type;sensorValue;numericalSensorValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "\\(^MB/P[0-9]*/D[0-9]*/SERVICE$\\)\\|\\(^MB/MCH/D[A-Z][0-9]*/SERVICE$\\)"
             # Translate Condition into a PATROL Status
             # ID;type;PATROLStatus;numericalSensorValue;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "IndicatorTranslationTable"
+            translationTable: IndicatorTranslationTable
             # Remove the /SERVICE so that is matches the discovery name
             # ID;type;PATROLStatus;numericalSensorValue;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/SERVICE"
+            existingValue: /SERVICE
             newValue: ""
       mapping:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="memory"}: "$column(3)"
+          hw.status{hw.type="memory"}: $column(3)
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Name;EnclosureTableStatus;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the main PhysicalDisk Line
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "^HDD[0-9]*/SERVICE$"
             # Remove the /STATE
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/SERVICE"
+            existingValue: /SERVICE
             newValue: ""
         source(2):
-          # Take a copy for the Enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Take a copy for the Enclosure value table
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the FAIL line (Predicted Failure)
             # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "^HDD[0-9]*/FAIL$"
             # Keep only the ID column
             # ID;PFsensorValue;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,5"
             # Remove the /FAIL
             # ID;PFsensorValue;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/FAIL"
+            existingValue: /FAIL
             newValue: ""
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;ID;PFsensorValue;
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(3)
         # ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;ID;PFsensorValue;
-        source: "$monitors.physical_disk.discovery.sources.source(3)$"
+        source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Take a copy for the Enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Take a copy for the Enclosure value table
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep Only the FAIL line (Predicted Failure)
             # ID;type;PFsensorValue;NumericalValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "^HDD[0-9]*/FAIL$"
             # Translate Condition into a PATROL Status
             # ID;type;PFPATROLStatus;NumericalValue;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "DiskDiscreteTranslationTable"
+            translationTable: DiskDiscreteTranslationTable
             # Remove the /FAIL so that is matches the discovery name
             # ID;type;PFPATROLStatus;NumericalValue;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/FAIL"
+            existingValue: /FAIL
             newValue: ""
         source(2):
-          # Take another copy of the Enclosure value table
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          _comment: Take another copy of the Enclosure value table
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep Only the SERVICE line
             # ID;type;sensorValue;NumericalValue;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             regExp: "^HDD[0-9]*/SERVICE$"
             # Translate Condition into a PATROL Status
             # ID;type;PATROLStatus;NumericalValue;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "IndicatorTranslationTable"
+            translationTable: IndicatorTranslationTable
             # Remove the /SERVICE so that is matches the discovery name
             # ID;type;PATROLStatus;NumericalValue;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/SERVICE"
+            existingValue: /SERVICE
             newValue: ""
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # ID;type;PATROLStatus;NumericalValue;ID;type;PFPATROLStatus;NumericalValue;
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.collect.sources.source(2)$"
-          rightTable: "$monitors.physical_disk.collect.sources.source(1)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.collect.sources.source(2)$
+          rightTable: $monitors.physical_disk.collect.sources.source(1)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
       mapping:
         # The ValueTable
         # ID;type;PATROLStatus;ID;type;PFPATROLStatus;
-        source: "$monitors.physical_disk.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        source: $monitors.physical_disk.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(3)"
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: "boolean($column(7))"
+          hw.status{hw.type="physical_disk"}: $column(3)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(7))

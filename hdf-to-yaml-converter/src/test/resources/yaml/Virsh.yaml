@@ -14,59 +14,59 @@ embedded:
 translations:
   stateTranslationTable:
     running: "ON"
-    paused: "SUSPENDED"
+    paused: SUSPENDED
     default: "OFF"
     suspended: "OFF"
 connector:
   displayName: "KVM, QEMU, Xen and Hypervisors (virsh)"
   platforms: "KVM, QEMU, Xen, Hypervisors"
-  reliesOn: "libvirt API"
-  version: "1.0"
-  information: "This connector provides VM monitoring through the virsh command. The host requires the libvirt API installed."
+  reliesOn: libvirt API
+  version: 1.0
+  information: This connector provides VM monitoring through the virsh command. The host requires the libvirt API installed.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Linux"
+    - Linux
     criteria:
-    - type: "productRequirements"
-      kmVersion: "11.3.00"
-    - type: "osCommand"
-      commandLine: "virsh list"
-      expectedResult: "Name"
+    - type: productRequirements
+      kmVersion: 11.3.00
+    - type: osCommand
+      commandLine: virsh list
+      expectedResult: Name
 monitors:
   vm:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "virsh list | awk '{print $1}' | grep -oIE \"[0-9]*\" | while read word; do virsh dominfo ${word} ; done"
           computes:
-          - type: "awk"
-            script: "EmbeddedFile(1)"
+          - type: awk
+            script: EmbeddedFile(1)
       mapping:
-        source: "$monitors.vm.discovery.sources.source(1)$"
+        source: $monitors.vm.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          info: "$column(4)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          info: $column(4)
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "virsh list | awk '{print $1}' | grep -oIE \"[0-9]*\" | while read word; do virsh dominfo ${word} ; done"
           computes:
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-          - type: "translate"
+          - type: awk
+            script: EmbeddedFile(1)
+          - type: translate
             column: 2
-            translationTable: "stateTranslationTable"
+            translationTable: stateTranslationTable
       mapping:
-        source: "$monitors.vm.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.vm.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.vm.power_state: "$column(2)"
-          hw.vm.power_ratio: "computePowerShareRatio($column(3))"
+          hw.vm.power_state: $column(2)
+          hw.vm.power_ratio: computePowerShareRatio($column(3))

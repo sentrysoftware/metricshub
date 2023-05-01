@@ -5,78 +5,78 @@ translations:
     offcritical: "OFF"
     default: "OFF"
     "off": "OFF"
-    suspended: "SUSPENDED"
+    suspended: SUSPENDED
 connector:
-  displayName: "Hyper-V"
-  platforms: "Hyper-V Servers"
-  reliesOn: "PowerShell"
-  version: "1.0"
-  information: "This connector provides hardware monitoring through Hyper-V PowerShell cmdlets. The user requires Hyper-V Administrators membership."
+  displayName: Hyper-V
+  platforms: Hyper-V Servers
+  reliesOn: PowerShell
+  version: 1.0
+  information: This connector provides hardware monitoring through Hyper-V PowerShell cmdlets. The user requires Hyper-V Administrators membership.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
+    - NT
     criteria:
-    - type: "productRequirements"
-      kmVersion: "11.3.00"
-    - type: "osCommand"
-      commandLine: "Powershell.exe Get-VM"
-      expectedResult: "State"
+    - type: productRequirements
+      kmVersion: 11.3.00
+    - type: osCommand
+      commandLine: Powershell.exe Get-VM
+      expectedResult: State
 monitors:
   vm:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "PowerShell.exe \"Get-VM | Select-Object VMName, Id | ConvertTo-CSV -Delimiter ';'\""
           beginAtLineNumber: 3
           computes:
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "\""
+            existingValue: '"'
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "\""
+            existingValue: '"'
             newValue: ""
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "GUID: "
       mapping:
-        source: "$monitors.vm.discovery.sources.source(1)$"
+        source: $monitors.vm.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          info: "$column(2)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          info: $column(2)
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "PowerShell.exe \"Get-VM | Select-Object VMName, ProcessorCount, State | ConvertTo-CSV -Delimiter ';'\""
           beginAtLineNumber: 3
           computes:
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "\""
+            existingValue: '"'
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "\""
+            existingValue: '"'
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "\""
+            existingValue: '"'
             newValue: ""
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "stateTranslationTable"
+            translationTable: stateTranslationTable
       mapping:
-        source: "$monitors.vm.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.vm.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.vm.power_ratio: "computePowerShareRatio($column(2))"
-          hw.vm.power_state: "$column(3)"
+          hw.vm.power_ratio: computePowerShareRatio($column(2))
+          hw.vm.power_state: $column(3)

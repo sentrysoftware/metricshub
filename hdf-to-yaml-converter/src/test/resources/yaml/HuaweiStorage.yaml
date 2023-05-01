@@ -1,19 +1,19 @@
 ---
 translations:
   ControllerRoleTranslationTable:
-    "0": "Ordinary Cluster Member"
-    "1": "Cluster Master"
-    "2": "Cluster Preparation"
+    "0": Ordinary Cluster Member
+    "1": Cluster Master
+    "2": Cluster Preparation
     default: ""
   DiskTypeTranslationTable:
-    "0": "FC"
-    "1": "SAS"
-    "2": "SATA"
+    "0": FC
+    "1": SAS
+    "2": SATA
     default: ""
-    "3": "SSD"
-    "4": "NL_SAS"
-    "5": "SLC SSD"
-    "6": "MLC SSD"
+    "3": SSD
+    "4": NL_SAS
+    "5": SLC SSD
+    "6": MLC SSD
   DiskRoleTranslationTable:
     "1": "Role: Idle Disk"
     "2": "Role: Member of a Logical Disk"
@@ -21,131 +21,131 @@ translations:
     "3": "Role: Hot Spare"
     "4": "Role: Cache Disk"
   PortStatusInformationTranslationTable:
-    "0": "Link Down"
-    "1": "Link Up"
-    "2": "Missing"
+    "0": Link Down
+    "1": Link Up
+    "2": Missing
     default: ""
-    "3": "Link Bad"
-    "4": "Hardware Error"
-    "5": "Speed Does Not Match"
-    "6": "Enabled"
-    "7": "Disabled"
-    "8": "MAC Error"
-    "9": "Lane Does Not Match"
+    "3": Link Bad
+    "4": Hardware Error
+    "5": Speed Does Not Match
+    "6": Enabled
+    "7": Disabled
+    "8": MAC Error
+    "9": Lane Does Not Match
   PortTypeTranslationTable:
-    "0": "SAS"
-    "1": "FC"
-    "2": "iSCSI"
+    "0": SAS
+    "1": FC
+    "2": iSCSI
     default: ""
-    "5": "iSCSI"
-    "8": "FCoE"
+    "5": iSCSI
+    "8": FCoE
   TypeTranslationTable:
-    "22": "SVP"
-    "23": "2U 12GSAS 12 Disk Controller"
-    "24": "2U SAS 25 Disk Shelf 2.5inch"
-    "25": "4U SAS 24 Disk Shelf 3.5inch"
-    "26": "2U 12GSAS 25 Disk Controller"
-    "16": "2U SAS 12 Disk Shelf"
-    "17": "2U SAS 24 Disk Shelf"
-    "18": "4U SAS 24 Disk Shelf"
-    "19": "4U FC 24 Disk Shelf"
-    "0": "BMC Controller"
-    "1": "2U SAS 12 Disk Controller"
-    "2": "2U SAS 24 Disk Controller"
+    "22": SVP
+    "23": 2U 12GSAS 12 Disk Controller
+    "24": 2U SAS 25 Disk Shelf 2.5inch
+    "25": 4U SAS 24 Disk Shelf 3.5inch
+    "26": 2U 12GSAS 25 Disk Controller
+    "16": 2U SAS 12 Disk Shelf
+    "17": 2U SAS 24 Disk Shelf
+    "18": 4U SAS 24 Disk Shelf
+    "19": 4U FC 24 Disk Shelf
+    "0": BMC Controller
+    "1": 2U SAS 12 Disk Controller
+    "2": 2U SAS 24 Disk Controller
     default: ""
-    "96": "3U 2 Independent Controller Head"
-    "20": "1U PCIe Data Switch"
-    "97": "6U 4 Independent Controller Head"
-    "21": "4U SAS 75 Disk Shelf"
+    "96": 3U 2 Independent Controller Head
+    "20": 1U PCIe Data Switch
+    "97": 6U 4 Independent Controller Head
+    "21": 4U SAS 75 Disk Shelf
   LinkStatusTranslationTable:
-    "0": "degraded"
-    "1": "ok"
+    "0": degraded
+    "1": ok
     "2": ""
     default: ""
-    "3": "degraded"
+    "3": degraded
     "4": ""
-    "5": "degraded"
+    "5": degraded
     "6": ""
     "7": ""
     "8": ""
-    "9": "degraded"
+    "9": degraded
   StatusInformationTranslationTable:
-    "11": "No Input"
-    "12": "Low Battery"
-    "13": "Single Link Fault"
-    "14": "Invalid"
-    "15": "Write Protect"
-    "0": "Unknown Status"
+    "11": No Input
+    "12": Low Battery
+    "13": Single Link Fault
+    "14": Invalid
+    "15": Write Protect
+    "0": Unknown Status
     "1": ""
-    "2": "Fault"
-    default: "UNKNOWN"
-    "3": "Pre-Fail"
-    "4": "Partially Broken"
-    "5": "Degraded"
-    "6": "Bad Sectors Found"
-    "7": "Bit Errors Found"
-    "8": "Consistent"
-    "9": "Inconsistent"
-    "10": "Busy"
+    "2": Fault
+    default: UNKNOWN
+    "3": Pre-Fail
+    "4": Partially Broken
+    "5": Degraded
+    "6": Bad Sectors Found
+    "7": Bit Errors Found
+    "8": Consistent
+    "9": Inconsistent
+    "10": Busy
   PortStatusTranslationTable:
-    "0": "ok"
-    "1": "ok"
-    "2": "failed"
+    "0": ok
+    "1": ok
+    "2": failed
     default: ""
-    "3": "degraded"
-    "4": "failed"
-    "5": "degraded"
-    "6": "ok"
-    "7": "ok"
-    "8": "degraded"
-    "9": "degraded"
+    "3": degraded
+    "4": failed
+    "5": degraded
+    "6": ok
+    "7": ok
+    "8": degraded
+    "9": degraded
   StatusTranslationTable:
-    "11": "degraded"
-    "12": "degraded"
-    "13": "degraded"
-    "14": "degraded"
-    "15": "ok"
-    "0": "UNKNOWN"
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "degraded"
-    "5": "degraded"
-    "6": "degraded"
-    "7": "degraded"
-    "8": "ok"
-    "9": "degraded"
-    "10": "ok"
+    "11": degraded
+    "12": degraded
+    "13": degraded
+    "14": degraded
+    "15": ok
+    "0": UNKNOWN
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": degraded
+    "7": degraded
+    "8": ok
+    "9": degraded
+    "10": ok
   RoleTranslationTable:
-    "0": "Disk Shelf"
-    "1": "Controller"
-    "2": "Data Switch"
+    "0": Disk Shelf
+    "1": Controller
+    "2": Data Switch
     default: ""
-    "3": "Managed Switch"
-    "4": "Management Server"
+    "3": Managed Switch
+    "4": Management Server
   AddressTypeTranslationTable:
-    "0": "WWN"
-    "1": "WWN"
-    "2": "MAC"
+    "0": WWN
+    "1": WWN
+    "2": MAC
     default: ""
-    "5": "MAC"
-    "8": "MAC"
+    "5": MAC
+    "8": MAC
 connector:
-  displayName: "Huawei Storage System (OceanStor)"
-  platforms: "Huawei OceanStor"
-  reliesOn: "Huawei Storage System SNMP Agent"
-  version: "1.0"
+  displayName: Huawei Storage System (OceanStor)
+  platforms: Huawei OceanStor
+  reliesOn: Huawei Storage System SNMP Agent
+  version: 1.0
   information: "This connector discovers the enclosure(s) and the disks of Huawei Storage Systems as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     criteria:
-      # Verify that there is a Huawei Storage System
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.34774.4.1.23.5.6.1"
+    - _comment: Verify that there is a Huawei Storage System
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.34774.4.1.23.5.6.1
 monitors:
   enclosure:
     discovery:
@@ -153,841 +153,841 @@ monitors:
         source(1):
           # Source(1) = hwInfoEnclosureEntry
           # ID,Name,Role,Type,SerialNumber
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.6.1
           selectColumns: "ID,2,3,7,9"
           computes:
             # Translate the Role
             # ID,Name,Role,Type,SerialNumber
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "RoleTranslationTable"
+            translationTable: RoleTranslationTable
             # Translate the Type
             # ID,Name,Role,Type,SerialNumber
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "TypeTranslationTable"
-          - type: "leftConcat"
+            translationTable: TypeTranslationTable
+          - type: leftConcat
             column: 4
             value: "Role: "
       mapping:
         # Instance Table
         # ID,Name,Role,Type,SerialNumber
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          vendor: "Huawei"
-          model: "$column(3)"
-          serial_number: "$column(5)"
-          info: "$column(4)"
+          id: $column(2)
+          __display_id: $column(2)
+          vendor: Huawei
+          model: $column(3)
+          serial_number: $column(5)
+          info: $column(4)
           name: "sprintf(\"%s (%s %s)\", $column(2), \"Huawei\", $column(3))"
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoEnclosureEntry
           # Name,Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.6.1
           selectColumns: "2,4"
           computes:
             # Duplicate the Status column
             # Name;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Name;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the second status column into a more readable string
             # Name;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
         # Value Table
         # Name;PATROLStatus;StatusInformation;
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(2)"
+          hw.status{hw.type="enclosure"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.1.1
           selectColumns: "4,5,6,7,8,12,13,14,15,18"
           computes:
             # Convert Size from Mbytes to Bytes
             # Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "multiply"
+          - type: multiply
             column: 3
-            value: "1048576"
+            value: 1048576
             # Translate the Role
             # Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "DiskRoleTranslationTable"
+            translationTable: DiskRoleTranslationTable
             # Translate the DiskType
             # Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "DiskTypeTranslationTable"
+            translationTable: DiskTypeTranslationTable
             # Add "Speed: " to the Speed
             # Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Speed: "
             # Add "Logical Disk: " to the Speed
             # Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 10
             value: "Logical Disk: "
             # Duplicate the Location
             # Location;Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the Enclosure from the Location
             # Enclosure;Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Duplicate the Location
             # Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Add a dot to the Enclosure
             # Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
+            value: .
             # Remove the Enclosure from the displayid
             # Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(1)"
+            existingValue: Column(1)
             newValue: ""
             # Remove the dot from the enclosure
             # Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
+            existingValue: .
             newValue: ""
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Type: "
       mapping:
         # InstanceTable = Source(1)
         #     1        2        #  3       4         5    6     7     8       9      10         11       12
         # Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          model: "$column(8)"
-          serial_number: "$column(11)"
-          firmware_version: "$column(9)"
-          vendor: "$column(10)"
+          id: $column(2)
+          __display_id: $column(3)
+          model: $column(8)
+          serial_number: $column(11)
+          firmware_version: $column(9)
+          vendor: $column(10)
           info: "join($column(6), $column(7), $column(12), \" \")"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(8), $column(5))"
         metrics:
-          hw.physical_disk.size: "$column(5)"
+          hw.physical_disk.size: $column(5)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.1.1
           selectColumns: "4,2"
           computes:
             # Duplicate the Status column
             # Location;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Location;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;Vendor;Model;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.3.1
           selectColumns: "2,6,7"
           computes:
             # Duplicate the Location
             # Location;Location;Vendor;Model;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the Enclosure from the Location
             # Enclosure;Location;Vendor;Model;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Duplicate the Location
             # Enclosure;Location;DisplayID;Vendor;Model;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Add a dot to the Enclosure
             # Enclosure;Location;DisplayID;Vendor;Model;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
+            value: .
             # Remove the Enclosure from the displayid
             # Enclosure;Location;DisplayID;Vendor;Model;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(1)"
+            existingValue: Column(1)
             newValue: ""
             # Remove the dot from the enclosure
             # Enclosure;Location;DisplayID;Vendor;Model;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
+            existingValue: .
             newValue: ""
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Vendor: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Model: "
       mapping:
         # InstanceTable = Source(1)
         # Enclosure;Location;DisplayID;Vendor;Model;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
           info: "join($column(4), $column(5), \" \")"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.3.1
           selectColumns: "2,3"
           computes:
             # Duplicate the Status column
             # Location;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Location;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = hwInfoControllerTable
           # Location;Role;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.2.1
           selectColumns: "5,6"
           computes:
             # Translate the Role
             # Location;Role;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "ControllerRoleTranslationTable"
+            translationTable: ControllerRoleTranslationTable
             # Specify the Type
             # Location;Role;Type;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: ";Controller"
+            value: ;Controller
         source(2):
           # Source(2) = hwInfoInterfaceModuleTable
           # Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.13.1"
-          selectColumns: "2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.13.1
+          selectColumns: 2
           computes:
             # Specify the Type and add a blank Role
             # Location;Role;Type;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";;Interface Module"
+            value: ;;Interface Module
         source(3):
           # Source(3) = hwInfoExpBoardTable
           # Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.14.1"
-          selectColumns: "2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.14.1
+          selectColumns: 2
           computes:
             # Specify the Type and add a blank Role
             # Location;Role;Type;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";;Expansion Board"
+            value: ;;Expansion Board
         source(4):
           # Union 1,2 and 3
           # Location;Role;Type;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.discovery.sources.source(1)$"
-          - "$monitors.other_device.discovery.sources.source(2)$"
-          - "$monitors.other_device.discovery.sources.source(3)$"
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
+          - $monitors.other_device.discovery.sources.source(3)$
           computes:
             # Duplicate the Location
             # Location;Role;Type;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the Enclosure from the Location
             # Enclosure;Location;Role;Type;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Duplicate the Location
             # Enclosure;Location;DisplayID;Role;Type;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Add a dot to the Enclosure
             # Enclosure;Location;DisplayID;;Role;Type;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
+            value: .
             # Remove the Enclosure from the displayid
             # Enclosure;Location;DisplayID;Role;Type;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(1)"
+            existingValue: Column(1)
             newValue: ""
             # Remove the dot from the enclosure
             # Enclosure;Location;DisplayID;Role;Type;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
+            existingValue: .
             newValue: ""
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Role: "
       mapping:
         # InstanceTable = Source(1)
         # Enclosure;Location;DisplayID;Role;Type;
-        source: "$monitors.other_device.discovery.sources.source(4)$"
+        source: $monitors.other_device.discovery.sources.source(4)$
         attributes:
-          id: "$column(2)"
-          device_type: "$column(5)"
-          __display_id: "$column(3)"
-          info: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          id: $column(2)
+          device_type: $column(5)
+          __display_id: $column(3)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s: %s\", $column(5), $column(3))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoControllerTable
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.2.1
           selectColumns: "5,2"
         source(2):
           # Source(2) = hwInfoInterfaceModuleTable
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.13.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.13.1
           selectColumns: "2,3"
         source(3):
           # Source(3) = hwInfoExpBoardTable
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.14.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.14.1
           selectColumns: "2,3"
         source(4):
           # Union 1,2 and 3
           # Location;Status;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.collect.sources.source(1)$"
-          - "$monitors.other_device.collect.sources.source(2)$"
-          - "$monitors.other_device.collect.sources.source(3)$"
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+          - $monitors.other_device.collect.sources.source(3)$
           computes:
             # Duplicate the Status column
             # Location;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Location;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.other_device.collect.sources.source(4)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(4)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.4.1"
-          selectColumns: "2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.4.1
+          selectColumns: 2
           computes:
             # Duplicate the Location
             # Location;Location;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the Enclosure from the Location
             # Enclosure;Location;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Duplicate the Location
             # Enclosure;Location;DisplayID;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Add a dot to the Enclosure
             # Enclosure;Location;DisplayID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
+            value: .
             # Remove the Enclosure from the displayid
             # Enclosure;Location;DisplayID;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(1)"
+            existingValue: Column(1)
             newValue: ""
             # Remove the dot from the enclosure
             # Enclosure;Location;DisplayID;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
+            existingValue: .
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
         # Enclosure;Location;DisplayID;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
+          name: $column(3)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.4.1
           selectColumns: "2,3"
           computes:
             # Duplicate the Status column
             # Location;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Location;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   battery:
     discovery:
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.5.1"
-          selectColumns: "2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.5.1
+          selectColumns: 2
           computes:
             # Duplicate the Location
             # Location;Location;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the Enclosure from the Location
             # Enclosure;Location;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Duplicate the Location
             # Enclosure;Location;DisplayID;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Add a dot to the Enclosure
             # Enclosure;Location;DisplayID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
+            value: .
             # Remove the Enclosure from the displayid
             # Enclosure;Location;DisplayID;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(1)"
+            existingValue: Column(1)
             newValue: ""
             # Remove the dot from the enclosure
             # Enclosure;Location;DisplayID;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
+            existingValue: .
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
         # Enclosure;Location;DisplayID;
-        source: "$monitors.battery.discovery.sources.source(1)$"
+        source: $monitors.battery.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
+          name: $column(3)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.5.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.5.5.1
           selectColumns: "2,3"
           computes:
             # Duplicate the Status column
             # Location;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Location;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.battery.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="battery"}: "$column(2)"
+          hw.status{hw.type="battery"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = hwInfoDiskDomainEntry
           # Name;Capacity;Free;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.4.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.4.1.1
           selectColumns: "2,5,6"
           computes:
             # Specify the Type
             # Name;Capacity;Free;Type;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";DiskDomain"
+            value: ;DiskDomain
         source(2):
           # Source(2) = hwInfoStoragePoolTable
           # Name;Capacity;Free;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.4.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.4.2.1
           selectColumns: "2,5,9"
           computes:
             # Specify the Type
             # Name;Capacity;Free;Type;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";Storage Pool"
+            value: ;Storage Pool
         source(3):
           # Source(3) = hwInfoStorageTierTable
           # Name;Capacity;Free;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.4.3.1"
-          selectColumns: "2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.4.3.1
+          selectColumns: 2
           computes:
             # Specify the Type
             # Name;Capacity;Free;Type;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";Storage Tier"
+            value: ;Storage Tier
         source(4):
           # Union 1,2 and 3
           # Name;Capacity;Free;Type;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.logical_disk.discovery.sources.source(1)$"
-          - "$monitors.logical_disk.discovery.sources.source(2)$"
-          - "$monitors.logical_disk.discovery.sources.source(3)$"
+          - $monitors.logical_disk.discovery.sources.source(1)$
+          - $monitors.logical_disk.discovery.sources.source(2)$
+          - $monitors.logical_disk.discovery.sources.source(3)$
           computes:
             # Convert Size from Mbytes to Bytes
             # Name;Capacity;Free;Type;
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1048576"
-          - type: "leftConcat"
+            value: 1048576
+          - type: leftConcat
             column: 4
             value: "Type: "
       mapping:
         # InstanceTable = Source(1)
         # Name;Capacity;Free;Type;
-        source: "$monitors.logical_disk.discovery.sources.source(4)$"
+        source: $monitors.logical_disk.discovery.sources.source(4)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.logical_disk.limit: "$column(2)"
-          info: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "CTE0"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.logical_disk.limit: $column(2)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: CTE0
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoDiskDomainEntry
           # Location;Status;FreeSpace;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.4.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.4.1.1
           selectColumns: "2,3,6"
         source(2):
           # Source(2) = hwInfoStoragePoolTable
           # Location;Status;FreeSpace;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.4.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.4.2.1
           selectColumns: "2,5,9"
         source(3):
           # Source(3) = hwInfoStorageTierTable
           # Location;Status;FreeSpace;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.23.4.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.23.4.3.1
           selectColumns: "2,4,8"
         source(4):
           # Union 1,2 and 3
           # Location;Status;FreeSpace;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.logical_disk.collect.sources.source(1)$"
-          - "$monitors.logical_disk.collect.sources.source(2)$"
-          - "$monitors.logical_disk.collect.sources.source(3)$"
+          - $monitors.logical_disk.collect.sources.source(1)$
+          - $monitors.logical_disk.collect.sources.source(2)$
+          - $monitors.logical_disk.collect.sources.source(3)$
           computes:
             # Duplicate the Status column
             # Location;Status;Status;FreeSpace;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Location;PATROLStatus;Status;FreeSpace;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;FreeSpace;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
             # Convert Size from Mbytes to Bytes
             # DiskID;PATROLStatus;StatusInformation;FreeSpace;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1048576"
+            value: 1048576
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.logical_disk.collect.sources.source(4)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(4)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
-          hw.logical_disk.usage{state="free"}: "$column(4)"
-          hw.logical_disk.usage{state="used"}: "collectAllocatedSpace()"
+          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.logical_disk.usage{state="free"}: $column(4)
+          hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = hwStorageFrontEndHostPortEntry
           # Location;PhysicalAddress;Type;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.19.8.11.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.19.8.11.1
           selectColumns: "5,4,2,3"
           computes:
             # Duplicate the Location
             # Location;Location;PhysicalAddress;Type;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the Enclosure from the Location
             # Enclosure;Location;PhysicalAddress;Type;Status;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Duplicate the Location
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Add a dot to the Enclosure
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
+            value: .
             # Remove the Enclosure from the displayid
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(1)"
+            existingValue: Column(1)
             newValue: ""
             # Remove the dot from the enclosure
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "."
+            existingValue: .
             newValue: ""
             # Duplicate the Type
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;Type;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 5
             # Translate the Type
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PortTypeTranslationTable"
+            translationTable: PortTypeTranslationTable
             # Translate the Address Type
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "AddressTypeTranslationTable"
+            translationTable: AddressTypeTranslationTable
             # Exclude ports that do not exist
             # Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 7
-            valueList: "2"
+            valueList: 2
       mapping:
         # InstanceTable = Source(1)
         # Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
-        source: "$monitors.network.discovery.sources.source(1)$"
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          device_type: "$column(5)"
-          __display_id: "$column(3)"
-          physical_address: "$column(4)"
-          physical_address_type: "$column(6)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          id: $column(2)
+          device_type: $column(5)
+          __display_id: $column(3)
+          physical_address: $column(4)
+          physical_address_type: $column(6)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = hwInfoDiskEntry
           # Location;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.34774.4.1.19.8.11.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.34774.4.1.19.8.11.1
           selectColumns: "5,3"
           computes:
             # Duplicate the Status column
             # Location;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Duplicate the Status column
             # Location;Status;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # Location;PATROLStatus;Status;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PortStatusTranslationTable"
+            translationTable: PortStatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;Status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PortStatusInformationTranslationTable"
+            translationTable: PortStatusInformationTranslationTable
             # Translate the Third status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;LinkStatus;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "LinkStatusTranslationTable"
+            translationTable: LinkStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="network"}: "$column(2)"
-          hw.network.up: "legacyLinkStatus($column(4))"
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(4))
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

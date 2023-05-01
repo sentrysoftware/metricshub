@@ -41,938 +41,938 @@ embedded:
       }
 translations:
   BatteryStatusTranslationTable:
-    good-test: "ok"
-    good-testing: "ok"
-    default: "failed"
-    good-good: "ok"
-    ready-enabled: "ok"
-    ready-enabled-fully charged: "ok"
-    testing-good: "ok"
-    good: "ok"
+    good-test: ok
+    good-testing: ok
+    default: failed
+    good-good: ok
+    ready-enabled: ok
+    ready-enabled-fully charged: ok
+    testing-good: ok
+    good: ok
   LinkStatusTranslationTable:
-    no carrier: "degraded"
-    default: "degraded"
-    inactive: "degraded"
-    up: "ok"
+    no carrier: degraded
+    default: degraded
+    inactive: degraded
+    up: ok
   PowerSupplyStatusTranslationTable:
-    default: "failed"
-    ok: "ok"
+    default: failed
+    ok: ok
   ClusterStatusTranslationTable:
-    default: "failed"
-    ok: "ok"
+    default: failed
+    ok: ok
   CPUStatusTranslationTable:
-    normal: "ok"
-    default: "failed"
+    normal: ok
+    default: failed
   NodeStatusInformationTranslationTable:
-    d--r: "Down Read-Only"
-    "-a--": "Attention"
-    "-asr": "Attention Smartfailed Read-Only"
-    d-sr: "Down Smartfailed Read-Only"
-    d---: "Down"
-    "--sr": "Smartfailed Read-Only"
-    "-a-r": "Attention Read-Only"
-    da-r: "Down Attention Read-Only"
-    d-s-: "Down Smartfailed"
-    "--s-": "Smartfailed"
-    "---r": "Read-Only"
-    dasr: "Down Attention Smartfailed Read-Only"
-    default: "UNKNOWN"
-    da--: "Down Attention"
+    d--r: Down Read-Only
+    "-a--": Attention
+    "-asr": Attention Smartfailed Read-Only
+    d-sr: Down Smartfailed Read-Only
+    d---: Down
+    "--sr": Smartfailed Read-Only
+    "-a-r": Attention Read-Only
+    da-r: Down Attention Read-Only
+    d-s-: Down Smartfailed
+    "--s-": Smartfailed
+    "---r": Read-Only
+    dasr: Down Attention Smartfailed Read-Only
+    default: UNKNOWN
+    da--: Down Attention
     "----": ""
-    das-: "Down Attention Smartfailed"
-    "-as-": "Attention Smartfailed"
+    das-: Down Attention Smartfailed
+    "-as-": Attention Smartfailed
     ok: ""
   NodeStatusTranslationTable:
-    d--r: "failed"
-    "-a--": "degraded"
-    "-asr": "degraded"
-    d-sr: "failed"
-    d---: "failed"
-    "--sr": "degraded"
-    "-a-r": "degraded"
-    da-r: "failed"
-    d-s-: "failed"
-    "--s-": "degraded"
-    "---r": "degraded"
-    dasr: "failed"
-    default: "UNKNOWN"
-    da--: "failed"
-    "----": "ok"
-    das-: "failed"
-    "-as-": "degraded"
-    ok: "ok"
+    d--r: failed
+    "-a--": degraded
+    "-asr": degraded
+    d-sr: failed
+    d---: failed
+    "--sr": degraded
+    "-a-r": degraded
+    da-r: failed
+    d-s-: failed
+    "--s-": degraded
+    "---r": degraded
+    dasr: failed
+    default: UNKNOWN
+    da--: failed
+    "----": ok
+    das-: failed
+    "-as-": degraded
+    ok: ok
   LogicalDiskStatusTranslationTable:
-    repair: "failed"
-    default: "failed"
-    toofewnodes: "failed"
-    smartfailed: "degraded"
-    ok: "ok"
-    down: "degraded"
-    missingdrives: "failed"
+    repair: failed
+    default: failed
+    toofewnodes: failed
+    smartfailed: degraded
+    ok: ok
+    down: degraded
+    missingdrives: failed
   PhysicalDiskStatusTranslationTable:
-    new: "degraded"
-    erase: "degraded"
-    l3: "ok"
-    replace: "failed"
-    used: "degraded"
-    boot_drive: "ok"
-    wrong_type: "degraded"
-    suspended: "degraded"
-    unencrypted: "failed"
-    restripe: "degraded"
-    smartfail: "degraded"
-    not: "failed"
-    default: "failed"
-    journal: "ok"
-    preparing: "degraded"
-    healthy: "ok"
-    stalled: "ok"
-    insecure: "failed"
-    sed_error: "failed"
+    new: degraded
+    erase: degraded
+    l3: ok
+    replace: failed
+    used: degraded
+    boot_drive: ok
+    wrong_type: degraded
+    suspended: degraded
+    unencrypted: failed
+    restripe: degraded
+    smartfail: degraded
+    not: failed
+    default: failed
+    journal: ok
+    preparing: degraded
+    healthy: ok
+    stalled: ok
+    insecure: failed
+    sed_error: failed
   NetworkCardStatusTranslationTable:
-    no carrier: "ok"
-    default: "failed"
-    inactive: "ok"
-    up: "ok"
+    no carrier: ok
+    default: failed
+    inactive: ok
+    up: ok
 sudoCommands:
-- "/usr/bin/isi"
-- "/usr/bin/isi_for_array"
+- /usr/bin/isi
+- /usr/bin/isi_for_array
 connector:
   detection:
     criteria:
-      # Check that /usr/bin/isi exists
-    - type: "osCommand"
+    - _comment: Check that /usr/bin/isi exists
+      type: osCommand
       commandLine: "if [ -f /usr/bin/isi ] ; then echo ms_hw_isi_found ; fi"
-      errorMessage: "/usr/bin/isi not found"
-      expectedResult: "ms_hw_isi_found"
+      errorMessage: /usr/bin/isi not found
+      expectedResult: ms_hw_isi_found
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          # Source(1) = Run isi_hw_check
-          type: "osCommand"
+          _comment: Source(1) = Run isi_hw_check
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi_hwtools/isi_hw_check -l /tmp/MS_HW_isi_hw_check\" "
           timeout: 1200
           computes:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
             # Process the command through an AWK script
             # MSHW_CLASS;  ....
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW
+            separators: ;
         source(2):
           # Source(2) = Run isi status -v
           # NOTE:  _IsiStatusCommand is a constant (from individual connector)
-          type: "osCommand"
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} _IsiStatusCommand \" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW
+            separators: ;
         source(3):
-          # Source(3) = Run isi devices
-          type: "osCommand"
+          _comment: Source(3) = Run isi devices
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiDevicesCommand \" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
             # Process the command through an AWK script
             # MSHW_Node;nodeName;nodeNumber;
             # MSHW_PhysicalDisk;Location;Lnum;SerialNumber;Status;Status;
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW
+            separators: ;
         source(4):
           # Join the Enclosure Instance list (source 2) with the nodename to nodeid table from isi devices
           # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;MSHW_Node;nodeName;nodeNumber;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(2)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(2)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
           leftKeyColumn: 3
           rightKeyColumn: 3
-          defaultRightLine: "MSHW_Cluster;Cluster;Cluster;"
+          defaultRightLine: MSHW_Cluster;Cluster;Cluster;
         source(5):
           # Get FRU information
           # Source(5) = Run auparts
-          type: "osCommand"
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi_hwtools/isi_hw_status\" "
           timeout: 60
           computes:
             # Process through awk to get model, serial, etc.
             # MSHW;nodeName;systemSerialNumber;systemProductModel;systemRAM;
-          - type: "awk"
-            script: "EmbeddedFile(10)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(10)
+            keep: ^MSHW
+            separators: ;
         source(6):
           # Join the Main discovery with the FRU info
           # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;MSHW_Node;nodeName;nodeNumber;MSHW;nodeName;systemSerialNumber;systemProductModel;systemRAM;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(4)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(5)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(4)$
+          rightTable: $monitors.enclosure.discovery.sources.source(5)$
           leftKeyColumn: 8
           rightKeyColumn: 2
-          defaultRightLine: ";;;;;"
+          defaultRightLine: ;;;;;
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 14
             value: "Memory: "
       mapping:
         # Instance Table
         # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;MSHW_Node;nodeName;nodeNumber;MSHW;nodeName;systemSerialNumber;systemProductModel;systemRAM;
         #       1        # 2       3        4        5      6        # 7       8        # 9       10    11       12        #         # 13        #    14
-        source: "$monitors.enclosure.discovery.sources.source(6)$"
+        source: $monitors.enclosure.discovery.sources.source(6)$
         attributes:
-          id: "$column(8)"
-          __display_id: "$column(8)"
-          vendor: "EMC"
-          model: "$column(13)"
-          serial_number: "$column(12)"
-          type: "$column(2)"
-          info: "$column(14)"
+          id: $column(8)
+          __display_id: $column(8)
+          vendor: EMC
+          model: $column(13)
+          serial_number: $column(12)
+          type: $column(2)
+          info: $column(14)
           name: "sprintf(\"%s (%s %s - %s)\", $column(8), \"EMC\", $column(13), $column(2))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Run isi status -w
-          type: "osCommand"
+          _comment: Source(1) = Run isi status -w
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} _IsiStatusCommand\" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW
+            separators: ;
         source(2):
           # Take a copy of the Enclosure Collect
           # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
             # Keep only Cluster
             # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "Cluster"
+            valueList: Cluster
             # Translate the Status to Patrol Status
             # MSHW_ENCLOSURE;Class;nodeNumber;PatrolStatus;Status;IPAddress;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "ClusterStatusTranslationTable"
+            translationTable: ClusterStatusTranslationTable
             # Replace the Cluster's name (nodeNumber) with "Cluster"
             # MSHW_ENCLOSURE;Class;nodeName;PatrolStatus;Status;IPAddress;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(3)"
-            newValue: "Cluster"
+            existingValue: Column(3)
+            newValue: Cluster
         source(3):
           # Join the Source 1 collect with discovery source 3 so that we can get node names
           # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;MSHW_Node;nodeName;nodeNumber;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
           leftKeyColumn: 3
           rightKeyColumn: 3
           computes:
             # Replace the Node Number with the Node Name
             # MSHW_ENCLOSURE;Class;nodeName;Status;Status;IPAddress;MSHW_Node;nodeName;nodeNumber;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "Column(3)"
-            newValue: "Column(8)"
+            existingValue: Column(3)
+            newValue: Column(8)
             # Translate the Patrol Status
             # MSHW_ENCLOSURE;Class;nodeName;PatrolStatus;Status;IPAddress;MSHW_Node;nodeName;nodeNumber;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "NodeStatusTranslationTable"
+            translationTable: NodeStatusTranslationTable
             # Translate the Status Information
             # MSHW_ENCLOSURE;Class;nodeName;PatrolStatus;StatusInformation;IPAddress;MSHW_Node;nodeName;nodeNumber;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "NodeStatusInformationTranslationTable"
+            translationTable: NodeStatusInformationTranslationTable
             # Get rid of the unwanted columns
             # MSHW_ENCLOSURE;Class;nodeName;PatrolStatus;StatusInformation;IPAddress;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,3,4,5,6"
         source(4):
           # Union Clusters and Nodes
           # MSHW_ENCLOSURE;Class;nodeName;PatrolStatus;StatusInformation;IPAddress;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.collect.sources.source(2)$"
-          - "$monitors.enclosure.collect.sources.source(3)$"
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(3)$
         source(5):
           # Now discover information for other collects
           # Source(5) = Run auparts
-          type: "osCommand"
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi_hwtools/isi_hw_status\" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
             # Process the command through an AWK script
             # MSHW_Class;systemName;DeviceID;DisplayID;Status;Status;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW
+            separators: ;
       mapping:
         # The value table
         # MSHW_ENCLOSURE;Class;nodeName;PatrolStatus;StatusInformation;IPAddress;
-        source: "$monitors.enclosure.collect.sources.source(4)$"
-        deviceId: "$column(3)"
+        source: $monitors.enclosure.collect.sources.source(4)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(4)"
+          hw.status{hw.type="enclosure"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep only Fans
             # MSHW_FAN;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_FAN$"
+            regExp: ^MSHW_FAN$
       mapping:
         # The discovery table
         # MSHW_FAN;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
-          name: "$column(4)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
         metrics:
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(5)"
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
     collect:
       # Collect
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Enclosure Collect 1
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(5)$"
+          _comment: Source(1) = Enclosure Collect 1
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(5)$
           computes:
             # Keep only MSHW
             # MSHW;ID;Value;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW$"
+            regExp: ^MSHW$
       mapping:
         # The value table
         # MSHW;ID;Value;
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.fan.speed: "$column(3)"
+          hw.fan.speed: $column(3)
   voltage:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep only Voltages
             # MSHW_VOLTAGE;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_VOLTAGE$"
+            regExp: ^MSHW_VOLTAGE$
             # Multiply the thresholds by 1000 to get mV
             # MSHW_VOLTAGE;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-          - type: "multiply"
+          - type: multiply
             column: 5
-            value: "1000"
-          - type: "multiply"
+            value: 1000
+          - type: multiply
             column: 6
-            value: "1000"
+            value: 1000
       mapping:
         # The discovery table
         # MSHW_VOLTAGE;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
-          name: "$column(4)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(6)"
-          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
+          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+          hw.voltage.limit{limit_type="low.critical"}: $column(5)
     collect:
       # Collect
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Enclosure Collect 1
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(5)$"
+          _comment: Source(1) = Enclosure Collect 1
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(5)$
           computes:
             # Keep only MSHW
             # MSHW;ID;Value;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW$"
+            regExp: ^MSHW$
             # Multiply the voltage by 1000 to get mV
             # MSHW;ID;Value;
-          - type: "multiply"
+          - type: multiply
             column: 3
-            value: "1000"
+            value: 1000
       mapping:
         # The value table
         # MSHW;ID;Value;
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.voltage: "$column(3)"
+          hw.voltage: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep only Temperatures
             # MSHW_TEMPERATURE;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_TEMPERATURE$"
+            regExp: ^MSHW_TEMPERATURE$
       mapping:
         # The discovery table
         # MSHW_TEMPERATURE;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
-          name: "$column(4)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: "$column(6)"
+          hw.temperature.limit{limit_type="high.critical"}: $column(6)
     collect:
       # Collect
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Enclosure Collect 1
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(5)$"
+          _comment: Source(1) = Enclosure Collect 1
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(5)$
           computes:
             # Keep only MSHW
             # MSHW;ID;Value;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW$"
+            regExp: ^MSHW$
       mapping:
         # The value table
         # MSHW;ID;Value;
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.temperature: "$column(3)"
+          hw.temperature: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep only PowerSupplys
             # MSHW_POWERSUPPLY;nodeName;nodeName-Global;Global;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_POWERSUPPLY$"
+            regExp: ^MSHW_POWERSUPPLY$
       mapping:
         # The discovery table
         # MSHW_PowerSupply;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(4))"
     collect:
       # Collect
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Enclosure Collect 1
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(5)$"
+          _comment: Source(1) = Enclosure Collect 1
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(5)$
           computes:
             # Keep only MSHW
             # MSHW_POWERSUPPLY;nodeName-Global;status;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_POWERSUPPLY$"
+            regExp: ^MSHW_POWERSUPPLY$
             # Duplicate the Status Column
             # MSHW_POWERSUPPLY;nodeName-Global;status;status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate first Status into a PATROL status
             # MSHW_POWERSUPPLY;nodeName-Global;Patrolstatus;status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PowerSupplyStatusTranslationTable"
+            translationTable: PowerSupplyStatusTranslationTable
       mapping:
         # The value table
         # MSHW;ID;Value;
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(3)"
+          hw.status{hw.type="power_supply"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   cpu:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep only CPUs
             # MSHW_CPU;nodeName;nodeName-Global;Global;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_CPU$"
+            regExp: ^MSHW_CPU$
       mapping:
         # The discovery table
         # MSHW_CPU;ChassisID;DeviceID;DisplayID;LowerThresholds;UpperThreshold;
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
-          name: "$column(4)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
     collect:
       # Collect
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Enclosure Collect 1
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(5)$"
+          _comment: Source(1) = Enclosure Collect 1
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(5)$
           computes:
             # Keep only MSHW
             # MSHW_CPU;nodeName-Global;status;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_CPU$"
+            regExp: ^MSHW_CPU$
             # Duplicate the Status Column
             # MSHW_CPU;nodeName-Global;status;status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate first Status into a PATROL status
             # MSHW_CPU;nodeName-Global;Patrolstatus;status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "CPUStatusTranslationTable"
+            translationTable: CPUStatusTranslationTable
       mapping:
         # The value table
         # MSHW;ID;Value;
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="cpu"}: "$column(3)"
+          hw.status{hw.type="cpu"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   battery:
     discovery:
       sources:
         source(1):
-          # Source(1) = Run isi batterystatus
-          type: "osCommand"
+          _comment: Source(1) = Run isi batterystatus
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiBatteryCommand \" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
             # Process the command through an AWK script
             # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;status;status;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW
+            separators: ;
       mapping:
         # The discovery table
         # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;status;status;
-        source: "$monitors.battery.discovery.sources.source(1)$"
+        source: $monitors.battery.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
-          name: "$column(4)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
     collect:
-      # Collect type is MultiInstance
-      type: "multiInstance"
+      _comment: Collect type is MultiInstance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Run isi batterystatus
-          type: "osCommand"
+          _comment: Source(1) = Run isi batterystatus
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiBatteryCommand \" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
             # Process the command through an AWK script
             # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;status;status;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW
+            separators: ;
             # Translate first Status into a PATROL status
             # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;Patrolstatus;status;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "BatteryStatusTranslationTable"
+            translationTable: BatteryStatusTranslationTable
       mapping:
         # The ValueTable = Source(1)
         # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;Patrolstatus;status;
-        source: "$monitors.battery.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="battery"}: "$column(5)"
+          hw.status{hw.type="battery"}: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 3
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 3
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only PhysicalDisk
             # MSHW_PhysicalDisk;ChassisID;DeviceID;DisplayID;Lnum;SerialNumber;Status;Status;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_PhysicalDisk$"
+            regExp: ^MSHW_PhysicalDisk$
         source(2):
-          # Source(2) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Source(2) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep only PhysicalDisk
             # MSHW_PhysicalDisk;DeviceID;Manufacturer;Model;Firmware;SizeGB;SerialNumber;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_PhysicalDisk$"
+            regExp: ^MSHW_PhysicalDisk$
             # Convert GB to bytes
             # MSHW_PhysicalDisk;DeviceID;Manufacturer;Model;Firmware;SizeB;SerialNumber;
-          - type: "multiply"
+          - type: multiply
             column: 6
-            value: "1000000000"
+            value: 1000000000
         source(3):
           # Join the Status table (1) with the FRU table (2)
           # MSHW_PhysicalDisk;ChassisID;DeviceID;DisplayID;Lnum;SerialNumber;Status;Status;MSHW_PhysicalDisk;DeviceID;Manufacturer;Model;Firmware;SizeB;SerialNumber;
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
           leftKeyColumn: 3
           rightKeyColumn: 2
-          defaultRightLine: ";;;;;;;"
+          defaultRightLine: ;;;;;;;
       mapping:
         # The discovery table
         #      1        #       2         3        4       5     6        #   7      8        9        #      10        11         12      13     14    15
         # MSHW_PhysicalDisk;ChassisID;DeviceID;DisplayID;Lnum;SerialNumber;Status;Status;MSHW_PhysicalDisk;DeviceID;Manufacturer;Model;Firmware;SizeB;SerialNumber;
-        source: "$monitors.physical_disk.discovery.sources.source(3)$"
+        source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          model: "$column(12)"
-          vendor: "$column(11)"
-          firmware_version: "$column(13)"
-          serial_number: "$column(6)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(3)
+          __display_id: $column(4)
+          model: $column(12)
+          vendor: $column(11)
+          firmware_version: $column(13)
+          serial_number: $column(6)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s - %s)\", $column(4), $column(12), $column(14))"
         metrics:
-          hw.physical_disk.size: "$column(14)"
+          hw.physical_disk.size: $column(14)
     collect:
-      # Collect type is MultiInstance
-      type: "multiInstance"
+      _comment: Collect type is MultiInstance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Run isi devices
-          type: "osCommand"
+          _comment: Source(1) = Run isi devices
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiDrivesCommand \" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
             # Process the command through an AWK script
             # MSHW_PhysicalDisk;Location;Lnum;SerialNumber;Status;Status;
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW
+            separators: ;
             # Keep only PhysicalDisk
             # MSHW_PhysicalDisk;ChassisID;DeviceID;DisplayID;Lnum;SerialNumber;Status;Status;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_PhysicalDisk$"
+            regExp: ^MSHW_PhysicalDisk$
             # Translate first Status into a PATROL status
             # MSHW_PhysicalDisk;ChassisID;DeviceID;DisplayID;Lnum;SerialNumber;PatrolStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 7
-            translationTable: "PhysicalDiskStatusTranslationTable"
+            translationTable: PhysicalDiskStatusTranslationTable
       mapping:
         # The ValueTable = Source(1)
         # MSHW_PhysicalDisk;ChassisID;DeviceID;DisplayID;Lnum;SerialNumber;Status;Status;
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(7)"
+          hw.status{hw.type="physical_disk"}: $column(7)
         legacyTextParameters:
-          StatusInformation: "$column(8)"
+          StatusInformation: $column(8)
   network:
     discovery:
       sources:
         source(1):
-          # Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
-          type: "osCommand"
+          _comment: Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} _IsiNetworkCommand \" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # MSHW;NodeNumber;NICName;NICName;Interface;IPAddress;Status;
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW
+            separators: ;
         source(2):
           # Join the Enclosure Instance list (source 2) with the nodename to nodeid table from isi devices
           # MSHW;NodeNumber;NICName;NICName;Interface;IPAddress;Status;MSHW_Node;nodeName;nodeNumber;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
           leftKeyColumn: 2
           rightKeyColumn: 3
           computes:
             # Add a - and the NodeName to the NICName to make the DeviceID
             # MSHW;NodeNumber;DeviceID;DisplayID;Interface;IPAddress;Status;MSHW_Node;nodeName;nodeNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: "-"
-          - type: "leftConcat"
+            value: '-'
+          - type: leftConcat
             column: 3
-            value: "Column(9)"
+            value: Column(9)
       mapping:
         # The discovery table
         # MSHW;NodeNumber;DeviceID;DisplayID;Interface;IPAddress;Status;MSHW_Node;nodeName;nodeNumber;
-        source: "$monitors.network.discovery.sources.source(2)$"
+        source: $monitors.network.discovery.sources.source(2)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(9)"
-          name: "$column(4)"
+          id: $column(3)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
     collect:
-      # Collect type is MultiInstance
-      type: "multiInstance"
+      _comment: Collect type is MultiInstance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
-          type: "osCommand"
+          _comment: Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} _IsiNetworkCommand \" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # MSHW;NodeNumber;NICName;NICName;Interface;IPAddress;Status;
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            keep: "^MSHW"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW
+            separators: ;
         source(2):
           # Join the Enclosure Instance list (source 2) with the nodename to nodeid table from isi devices
           # MSHW;NodeNumber;NICName;NICName;Interface;IPAddress;Status;MSHW_Node;nodeName;nodeNumber;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
           leftKeyColumn: 2
           rightKeyColumn: 3
           computes:
             # Add a - and the NodeName to the NICName to make the DeviceID
             # MSHW;NodeNumber;DeviceID;DisplayID;Interface;IPAddress;Status;MSHW_Node;nodeName;nodeNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: "-"
-          - type: "leftConcat"
+            value: '-'
+          - type: leftConcat
             column: 3
-            value: "Column(9)"
+            value: Column(9)
             # Get rid of the unwanted columns
             # MSHW;DeviceID;Status;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,3,7"
             # Duplicate the Status (twice)
             # MSHW;DeviceID;Status;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate first Status into a PATROL status
             # MSHW;DeviceID;PatrolStatus;Status;Status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "NetworkCardStatusTranslationTable"
+            translationTable: NetworkCardStatusTranslationTable
             # Translate third Status into a Link status
             # MSHW;DeviceID;PatrolStatus;Status;LinkStatus;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "LinkStatusTranslationTable"
+            translationTable: LinkStatusTranslationTable
       mapping:
         # The ValueTable = Source(1)
         # MSHW;DeviceID;PatrolStatus;Status;LinkStatus;
-        source: "$monitors.network.collect.sources.source(2)$"
-        deviceId: "$column(2)"
+        source: $monitors.network.collect.sources.source(2)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="network"}: "$column(3)"
-          hw.network.up: "legacyLinkStatus($column(5))"
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = Run isi storagepool health --verbose
-          type: "osCommand"
+          _comment: Source(1) = Run isi storagepool health --verbose
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} /usr/bin/isi storagepool health --verbose\" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(8)"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
             # Keep only LogicalDisk
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW"
+            regExp: ^MSHW
         source(2):
           # Source(2) = isi storagepool list --verbose --no-header --format csv
           # ID;Nodes;Requested Protection;Type;Children;HDD Used;HDD Total;HDD % Used;SSD Used;SSD Total;SSD % Used;
-          type: "osCommand"
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} /usr/bin/isi storagepool list --verbose --no-header --format csv\" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # ID;TotalSize;
-          - type: "awk"
-            script: "EmbeddedFile(9)"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
             # Keep Columns
             # ID;HDD Total;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,3"
             # Convert to Bytes
             # ID;TotalSize;
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1073741824"
+            value: 1073741824
         source(3):
           # Join the Logical Disk information with the Size Information
           # MSHW;ID;Status;AdditionalInformation;StatusInformation;ID;TotalSize;
-          type: "tableJoin"
-          leftTable: "$monitors.logical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.logical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Protection Policy: "
       mapping:
         # The discovery table
         # MSHW;ID;Status;AdditionalInformation;StatusInformation;ID;TotalSize;
-        source: "$monitors.logical_disk.discovery.sources.source(3)$"
+        source: $monitors.logical_disk.discovery.sources.source(3)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          hw.logical_disk.limit: "$column(7)"
-          info: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Cluster"
+          id: $column(2)
+          __display_id: $column(2)
+          hw.logical_disk.limit: $column(7)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: Cluster
           name: "sprintf(\"%s (%s)\", $column(2), $column(7))"
     collect:
-      # Collect type is MultiInstance
-      type: "multiInstance"
+      _comment: Collect type is MultiInstance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Run isi devices
-          type: "osCommand"
+          _comment: Source(1) = Run isi devices
+          type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} /usr/bin/isi storagepool health --verbose\" "
           timeout: 60
           computes:
             # Process the command through an AWK script
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(8)"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
             # Keep only LogicalDisk
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW"
+            regExp: ^MSHW
             # Translate first Status into a PATROL status
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "LogicalDiskStatusTranslationTable"
+            translationTable: LogicalDiskStatusTranslationTable
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
-          - type: "convert"
+          - type: convert
             column: 3
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # The ValueTable = Source(1)
         # MSHW;ID;Status;AdditionalInformation;StatusInformation;
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(3)"
+          hw.status{hw.type="logical_disk"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)

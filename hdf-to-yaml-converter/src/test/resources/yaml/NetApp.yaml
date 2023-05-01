@@ -40,208 +40,208 @@ embedded:
 translations:
   BatteryStatusInformationTranslationTable:
     "1": ""
-    "2": "Partially Discharged"
-    default: "Unknown"
-    "3": "Fully Discharged"
-    "4": "Not Present"
-    "5": "Near End of Life"
-    "6": "At End of Life"
-    "7": "Unknown"
-    "8": "Over Charged'"
-    "9": "Fully Charged"
+    "2": Partially Discharged
+    default: Unknown
+    "3": Fully Discharged
+    "4": Not Present
+    "5": Near End of Life
+    "6": At End of Life
+    "7": Unknown
+    "8": Over Charged'
+    "9": Fully Charged
   raidPDiskStatusTranslationTable:
-    "1": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "ok"
-    "5": "ok"
-    "6": "failed"
-    "9": "degraded"
-    "10": "ok"
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": ok
+    "6": failed
+    "9": degraded
+    "10": ok
   fcpStatusInformationTranslationTable:
-    "1": "Startup"
-    "2": "Un-initialized"
-    default: "Unknown Status"
-    "3": "Initializing Firmware"
-    "4": "Link Not Connected"
-    "5": "Waiting for Link Up"
-    "6": "Online"
-    "7": "Link Disconnected"
-    "8": "Resetting"
-    "9": "Offline"
-    "10": "Offlined by User"
+    "1": Startup
+    "2": Un-initialized
+    default: Unknown Status
+    "3": Initializing Firmware
+    "4": Link Not Connected
+    "5": Waiting for Link Up
+    "6": Online
+    "7": Link Disconnected
+    "8": Resetting
+    "9": Offline
+    "10": Offlined by User
   aggrStatusTranslationTable:
-    mixed_raid_type: "ok"
-    snapmirrored: "ok"
-    needs_check: "degraded"
-    foreign: "ok"
-    mirrored: "ok"
-    growing: "ok"
-    raid0: "ok"
-    trad: "ok"
-    copying: "ok"
-    ironing: "degraded"
-    mirrordegraded: "degraded"
-    raid4: "ok"
-    redirect: "ok"
-    raid_dp: "ok"
-    verifying: "ok"
-    resyncing: "degraded"
-    reconstruct: "degraded"
-    initializing: "ok"
-    degraded: "degraded"
-    mirror_degraded: "degraded"
-    wafl_inconsistent: "failed"
-    waflinconsistent: "failed"
-    invalid: "failed"
-    aggr: "ok"
-    partial: "degraded"
-    needscheck: "degraded"
+    mixed_raid_type: ok
+    snapmirrored: ok
+    needs_check: degraded
+    foreign: ok
+    mirrored: ok
+    growing: ok
+    raid0: ok
+    trad: ok
+    copying: ok
+    ironing: degraded
+    mirrordegraded: degraded
+    raid4: ok
+    redirect: ok
+    raid_dp: ok
+    verifying: ok
+    resyncing: degraded
+    reconstruct: degraded
+    initializing: ok
+    degraded: degraded
+    mirror_degraded: degraded
+    wafl_inconsistent: failed
+    waflinconsistent: failed
+    invalid: failed
+    aggr: ok
+    partial: degraded
+    needscheck: degraded
   BatteryStatusTranslationTable:
-    "1": "ok"
-    "2": "degraded"
-    default: "UNKNOWN"
-    "3": "failed"
-    "4": "failed"
-    "5": "degraded"
-    "6": "failed"
-    "7": "UNKNOWN"
-    "8": "degraded"
-    "9": "ok"
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": degraded
+    "6": failed
+    "7": UNKNOWN
+    "8": degraded
+    "9": ok
   aggrStatusInformationTranslationTable:
     mixed_raid_type: ""
     snapmirrored: ""
-    needs_check: "Needs Check"
-    foreign: "Foreign"
+    needs_check: Needs Check
+    foreign: Foreign
     mirrored: ""
-    growing: "Growing"
+    growing: Growing
     raid0: ""
     trad: ""
-    copying: "Copying"
-    ironing: "Ironing"
-    mirrordegraded: "Mirror Degraded"
+    copying: Copying
+    ironing: Ironing
+    mirrordegraded: Mirror Degraded
     raid4: ""
-    redirect: "Redirecting"
+    redirect: Redirecting
     raid_dp: ""
-    verifying: "Verifying"
-    resyncing: "Resyncing"
-    reconstruct: "Reconstructing"
-    initializing: "Initializing"
-    degraded: "Degraded"
-    mirror_degraded: "Mirror Degraded"
-    wafl_inconsistent: "WAFL Inconsistent"
-    waflinconsistent: "WAFL Inconsistent"
-    invalid: "Invalid"
+    verifying: Verifying
+    resyncing: Resyncing
+    reconstruct: Reconstructing
+    initializing: Initializing
+    degraded: Degraded
+    mirror_degraded: Mirror Degraded
+    wafl_inconsistent: WAFL Inconsistent
+    waflinconsistent: WAFL Inconsistent
+    invalid: Invalid
     aggr: ""
-    partial: "Partial"
-    needscheck: "Needs Check"
+    partial: Partial
+    needscheck: Needs Check
   tempStatusTranslationTable:
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
+    "1": ok
+    "2": failed
+    default: UNKNOWN
   diskFailedCountTranslationTable:
-    "0": "ok"
-    default: "failed"
+    "0": ok
+    default: failed
   generalStatusTranslationTable:
-    "11": "failed"
-    "12": "failed"
-    "13": "failed"
-    "14": "failed"
-    "15": "failed"
-    "16": "failed"
-    "17": "failed"
-    "18": "failed"
-    "19": "failed"
-    "0": "ok"
-    "1": "failed"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "failed"
-    "4": "failed"
-    "5": "failed"
-    "6": "failed"
-    "7": "failed"
-    "8": "failed"
-    "9": "failed"
-    "10": "failed"
+    "11": failed
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": failed
+    "16": failed
+    "17": failed
+    "18": failed
+    "19": failed
+    "0": ok
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": failed
+    "8": failed
+    "9": failed
+    "10": failed
   spareDiskStatusInformationTranslationTable:
-    "1": "Spare"
-    "2": "Adding spare"
-    default: "Unknown Status"
-    "3": "By-passed"
-    "10": "Offline"
+    "1": Spare
+    "2": Adding spare
+    default: Unknown Status
+    "3": By-passed
+    "10": Offline
   fcpStatusTranslationTable:
-    "1": "ok"
-    "2": "degraded"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "ok"
-    "5": "ok"
-    "6": "ok"
-    "7": "ok"
-    "8": "degraded"
-    "9": "failed"
-    "10": "ok"
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": ok
+    "8": degraded
+    "9": failed
+    "10": ok
   otherDiskStatusTranslationTable:
-    "1": "failed"
-    "2": "ok"
-    default: "UNKNOWN"
+    "1": failed
+    "2": ok
+    default: UNKNOWN
   spareDiskStatusTranslationTable:
-    "1": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "ok"
-    "10": "ok"
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "10": ok
   diskPrefailedCountTranslationTable:
     "0": "False"
     default: "True"
   PortTypeTranslationTable:
-    "2": "FC Port F"
-    default: "FC Port"
-    "3": "FC Port"
-    "4": "FC Port L"
+    "2": FC Port F
+    default: FC Port
+    "3": FC Port
+    "4": FC Port L
   raidPDiskStatusInformationTranslationTable:
-    "1": "Active"
-    "2": "Reconstruction in progress"
-    default: "Unknown status"
-    "3": "Parity reconstruction in progress"
-    "4": "Parity verification in progress"
-    "5": "Scrubbing in progress"
-    "6": "Failed"
-    "9": "Predicted Failure"
-    "10": "Offline"
+    "1": Active
+    "2": Reconstruction in progress
+    default: Unknown status
+    "3": Parity reconstruction in progress
+    "4": Parity verification in progress
+    "5": Scrubbing in progress
+    "6": Failed
+    "9": Predicted Failure
+    "10": Offline
   VendorTranslationTable:
-    "1": "NetApp"
-    "2": "Dell"
-    default: "NetApp"
-    "3": "IBM"
+    "1": NetApp
+    "2": Dell
+    default: NetApp
+    "3": IBM
   otherDiskStatusInformationTranslationTable:
-    "1": "Broken"
-    "2": "By-passed"
-    default: "Unknown Status"
+    "1": Broken
+    "2": By-passed
+    default: Unknown Status
   fcpLinkStatusTranslationTable:
-    default: "ok"
-    "4": "degraded"
-    "5": "degraded"
-    "7": "degraded"
+    default: ok
+    "4": degraded
+    "5": degraded
+    "7": degraded
 connector:
-  displayName: "NetApp Filer (SNMP)"
-  platforms: "NetApp"
-  reliesOn: "NetApp SNMP Agent"
-  version: "1.2.1"
+  displayName: NetApp Filer (SNMP)
+  platforms: NetApp
+  reliesOn: NetApp SNMP Agent
+  version: 1.2.1
   information: "This connector discovers the enclosure and the disks of NetApp disk arrays (filer) as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     supersedes:
-    - "NetAppREST7Mode"
+    - NetAppREST7Mode
     criteria:
-      # Verify that the NetApp SNMP agent responds to our requests
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.789.1.1"
+    - _comment: Verify that the NetApp SNMP agent responds to our requests
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.789.1.1
 monitors:
   enclosure:
     discovery:
@@ -249,33 +249,33 @@ monitors:
         source(1):
           # Source(1) = netapp "fake" SNMP Table
           # DeviceID;productID;vendorCode;model;firmwareVersion;serialNumber
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.1
           selectColumns: "ID,3,4,5,6,9"
           computes:
             # Translate the vendorCode into a real name
             # DeviceID;productID;vendor;model;firmwareVersion;serialNumber
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "VendorTranslationTable"
+            translationTable: VendorTranslationTable
             # Concat serialNumber and productID
             # DeviceID;productID;vendor;model;firmwareVersion;serialNumber - ID
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
             value: " - ID: "
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
-            value: "Column(2)"
+            value: Column(2)
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "NetApp"
-          vendor: "$column(3)"
-          model: "$column(4)"
-          bios_version: "$column(5)"
-          serial_number: "$column(6)"
-          type: "Storage"
+          id: NetApp
+          vendor: $column(3)
+          model: $column(4)
+          bios_version: $column(5)
+          serial_number: $column(6)
+          type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", \"NetApp\", $column(3), $column(4), \"Storage\")"
   physical_disk:
     discovery:
@@ -283,621 +283,621 @@ monitors:
         source(1):
           # Source(1) = raidP SNMP Table
           # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.10.1
           selectColumns: "14,17,18,22,25,26,27,30,10,16"
         source(2):
           # Source(2) = spareDisk SNMP table
           # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.3.1
           selectColumns: "5,12,13,7,16,17,18,21,2,4"
         source(3):
           # Source(3) = otherDisk SNMP table (failed and excluded disks)
           # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.9.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.9.1
           selectColumns: "5,12,13,7,16,17,18,21,2,4"
         source(4):
           # Source(4) = RaidVentry SNMP table
           # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.2.1
           selectColumns: "6,19,20,9,26,27,28,31,2,4"
         source(5):
           # Source(4) = table union of source(1), source(2) and source(3)
           # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.physical_disk.discovery.sources.source(1)$"
-          - "$monitors.physical_disk.discovery.sources.source(2)$"
-          - "$monitors.physical_disk.discovery.sources.source(3)$"
-          - "$monitors.physical_disk.discovery.sources.source(4)$"
+          - $monitors.physical_disk.discovery.sources.source(1)$
+          - $monitors.physical_disk.discovery.sources.source(2)$
+          - $monitors.physical_disk.discovery.sources.source(3)$
+          - $monitors.physical_disk.discovery.sources.source(4)$
           computes:
             # Concat Vendor, Model and DiskType
             # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
-            value: " "
-          - type: "rightConcat"
+            value: ' '
+          - type: rightConcat
             column: 6
-            value: "Column(7)"
-          - type: "rightConcat"
+            value: Column(7)
+          - type: rightConcat
             column: 6
             value: ", "
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
-            value: "Column(8)"
+            value: Column(8)
             # Concat AdapterID, ShelfID and BayNumber
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
-          - type: "rightConcat"
+            value: Column(2)
+          - type: rightConcat
             column: 1
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 1
-            value: "Column(3)"
+            value: Column(3)
             # Convert SizeMB to bytes
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1048576"
-            # Add a Blank PredictiveFailure
-          - type: "rightConcat"
+            value: 1048576
+          - _comment: Add a Blank PredictiveFailure
+            type: rightConcat
             column: 10
-            value: ";"
+            value: ;
         source(6):
           # now creates a fake disk to monitor the unassigned disks.
           # first let's check in the oid is returned and if number of disks active disks.If so let's create this fake disk.
           # ID;Disk numbers;Active disks
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.4"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.4
           selectColumns: "ID,1,2"
           computes:
             # this awk empty the first column and returns empty info to match other disks parameters.
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;PredictedFailureactivation;
-          - type: "awk"
-            script: "EmbeddedFile(11)"
+          - type: awk
+            script: EmbeddedFile(11)
         source(7):
-          # now union source(5) and source (6)
-          type: "tableUnion"
+          _comment: now union source(5) and source (6)
+          type: tableUnion
           tables:
-          - "$monitors.physical_disk.discovery.sources.source(5)$"
-          - "$monitors.physical_disk.discovery.sources.source(6)$"
+          - $monitors.physical_disk.discovery.sources.source(5)$
+          - $monitors.physical_disk.discovery.sources.source(6)$
           computes:
             # Replace the DiskID with the DiskName
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskName;PredictedFailureactivation;
-          - type: "replace"
+          - type: replace
             column: 10
-            existingValue: "Column(10)"
-            newValue: "Column(9)"
+            existingValue: Column(10)
+            newValue: Column(9)
             # Extract the ShelfID
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;
-          - type: "extract"
+          - type: extract
             column: 10
             subColumn: 2
-            subSeparators: "."
+            subSeparators: .
         source(8):
           # Table Join the Discovery to Blade Discovery 2
           # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;AttachID;SerialNumber;AttachToType;
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(7)$"
-          rightTable: "$monitors.blade.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(7)$
+          rightTable: $monitors.blade.discovery.sources.source(2)$
           leftKeyColumn: 10
           rightKeyColumn: 2
-          defaultRightLine: "NetApp;;Enclosure;"
+          defaultRightLine: NetApp;;Enclosure;
           computes:
             # Duplicate column one for additional information.
             # Don't want to change how IDs work.
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-            # AdditionalInformation formatting
-          - type: "leftConcat"
+          - _comment: AdditionalInformation formatting
+            type: leftConcat
             column: 2
             value: "Location: "
       mapping:
         # InstanceTable = Source(6)
         # Use Diskname as DiskId because DiskID OID may be empty. Case HC-949
         # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;AttachID;SerialNumber;AttachToType;
-        source: "$monitors.physical_disk.discovery.sources.source(8)$"
+        source: $monitors.physical_disk.discovery.sources.source(8)$
         attributes:
-          id: "$column(10)"
-          __display_id: "$column(1)"
-          serial_number: "$column(6)"
-          vendor: "$column(7)"
-          info: "$column(2)"
-          hw.parent.type: "$column(15)"
-          hw.parent.id: "$column(13)"
+          id: $column(10)
+          __display_id: $column(1)
+          serial_number: $column(6)
+          vendor: $column(7)
+          info: $column(2)
+          hw.parent.type: $column(15)
+          hw.parent.id: $column(13)
           name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
         metrics:
-          hw.physical_disk.size: "$column(5)"
+          hw.physical_disk.size: $column(5)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = raidP SNMP Table
           # DiskID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.10.1
           selectColumns: "10,2"
           computes:
             # Duplicate the Status column
             # DiskID;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # DiskID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "raidPDiskStatusTranslationTable"
+            translationTable: raidPDiskStatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "raidPDiskStatusInformationTranslationTable"
+            translationTable: raidPDiskStatusInformationTranslationTable
         source(2):
           # Source(2) = spareDisk SNMP Table
           # DiskID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.3.1
           selectColumns: "2,3"
           computes:
             # Duplicate the Status column
             # DiskID;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # DiskID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "spareDiskStatusTranslationTable"
+            translationTable: spareDiskStatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "spareDiskStatusInformationTranslationTable"
+            translationTable: spareDiskStatusInformationTranslationTable
         source(3):
           # Source(3) = otherDisk SNMP Table
           # DiskID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.9.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.9.1
           selectColumns: "2,3"
           computes:
             # Duplicate the Status column
             # DiskID;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # DiskID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "otherDiskStatusTranslationTable"
+            translationTable: otherDiskStatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "otherDiskStatusInformationTranslationTable"
+            translationTable: otherDiskStatusInformationTranslationTable
         source(4):
           # Fake disk collect
           # Now check if we have in the summary table some unassigned disks flagged as failure and collect the associated message.
           # we also have to check the Predicted failure parameters.
           # ID;diskFailedCount;DiskFailedMessage;diskPrefailedCount.
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.4"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.4
           selectColumns: "ID,7,10,11"
           computes:
             # now translate the diskfailedcount: 0 by ok and if greater than 0 alarm
             # ID;PatrolStatus;DiskFailedMessage;diskPrefailedCount.
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "diskFailedCountTranslationTable"
+            translationTable: diskFailedCountTranslationTable
             # now translate the diskPrefailedCount by 0 ok and if greater than 0 alarm
             # ID;PatrolStatus;DiskFailedMessage;PredictedFailure.
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "diskPrefailedCountTranslationTable"
+            translationTable: diskPrefailedCountTranslationTable
             # Now let's add the fake disk ID
             # diskID;PatrolStatus;DiskFailedMessage;PredictedFailure.
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Unassigned Disks."
+            value: Unassigned Disks.
         source(5):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.2.1
           selectColumns: "2,3"
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # DiskID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "raidPDiskStatusTranslationTable"
+            translationTable: raidPDiskStatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "raidPDiskStatusInformationTranslationTable"
+            translationTable: raidPDiskStatusInformationTranslationTable
         source(6):
           # Source(6) = union of source(1), source(2)  source(3)  source(4) and source(5)
           # DiskID;PATROLStatus;StatusInformation;PredictedFailure.
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.physical_disk.collect.sources.source(1)$"
-          - "$monitors.physical_disk.collect.sources.source(2)$"
-          - "$monitors.physical_disk.collect.sources.source(3)$"
-          - "$monitors.physical_disk.collect.sources.source(4)$"
-          - "$monitors.physical_disk.collect.sources.source(5)$"
+          - $monitors.physical_disk.collect.sources.source(1)$
+          - $monitors.physical_disk.collect.sources.source(2)$
+          - $monitors.physical_disk.collect.sources.source(3)$
+          - $monitors.physical_disk.collect.sources.source(4)$
+          - $monitors.physical_disk.collect.sources.source(5)$
       mapping:
         # ValueTable = Source(5)
         # DiskID;PATROLStatus;StatusInformation;PredictedFailure.
-        source: "$monitors.physical_disk.collect.sources.source(6)$"
-        deviceId: "$column(1)"
+        source: $monitors.physical_disk.collect.sources.source(6)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: "boolean($column(4))"
+          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = aggrTable SNMP table
           # aggrName;aggrOptions
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.5.11.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.5.11.1
           selectColumns: "2,7"
           computes:
             # Try to extract the RAIDLevel from the aggrOptions
             # aggrName;RAIDLevel
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "raidtype="
-            newValue: "�"
-          - type: "extract"
+            existingValue: raidtype=
+            newValue: �
+          - type: extract
             column: 2
-            subSeparators: "�"
+            subSeparators: �
             subColumn: 2
-          - type: "extract"
+          - type: extract
             column: 2
             subSeparators: ","
             subColumn: 1
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "_"
+            existingValue: _
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "raid"
+            existingValue: raid
             newValue: ""
         source(2):
           # Source(2) = dfTable SNMP Table
           # dfName;dfHighTotalKBytes;dfLowTotalKBytes;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.5.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.5.4.1
           selectColumns: "2,14,15"
           computes:
             # Multiply HighTotal by 4294967296
             # dfName;dfHighTotalKBytes;dfLowTotalKBytes;
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "4294967296"
+            value: 4294967296
             # Add a blank column to the right of the table to prevent a calculation error later for non-negative dfLowTotalKBytes values
             # dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";"
+            value: ;
             # Replace the negative sign by a "4294967296;"
             # if Low >= 0   dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
             # if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "-"
-            newValue: "4294967296;-"
+            existingValue: '-'
+            newValue: 4294967296;-
             # Add 3rd & 4th column to get a real LowTotal Bytes Valus
             # if Low >= 0   dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
             # if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
-          - type: "add"
+          - type: add
             column: 3
-            value: "Column(4)"
+            value: Column(4)
             # Add High & Low to get real disk size
             # if Low >= 0   dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
             # if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
-          - type: "add"
+          - type: add
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Keep only the ID & Size
             # dfName;size;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2"
             # Convert sizeKB to bytes
             # dfName;size;
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1024"
+            value: 1024
         source(3):
           # Source(3) = Table joint of source(1) and source(2)
           # aggrName;RAIDLevel;dfName;size
-          type: "tableJoin"
-          leftTable: "$monitors.logical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.logical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
           computes:
             # Add ";Aggregate" as the last column to indicate that these instances are aggregates
             # aggrName;RAIDLevel;dfName;size;logicalDiskType;CountInCapacityReport;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 4
-            value: ";Aggregate;1"
+            value: ;Aggregate;1
         source(4):
           # Source(4) = raidP SNMP Table
           # SizeMB;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.10.1"
-          selectColumns: "22"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.10.1
+          selectColumns: 22
           computes:
             # Compute the sum of SizeMB and returns a single instance
             # corresponding fo the primordial storage pool
             # aggrName;RAIDLevel;dfName;sizeMB;logicalDiskType;CountInCapacityReport;
-          - type: "awk"
-            script: "EmbeddedFile(8)"
-            keep: "MSHW;"
+          - type: awk
+            script: EmbeddedFile(8)
+            keep: MSHW;
             selectColumns: "2,3,4,5,6,7"
-            separators: ";"
+            separators: ;
             # Convert MB to bytes
             # aggrName;RAIDLevel;dfName;size;logicalDiskType;CountInCapacityReport;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1048576"
+            value: 1048576
         source(5):
-          # Source(5) = Source(3) + Source(4)
-          type: "tableUnion"
+          _comment: Source(5) = Source(3) + Source(4)
+          type: tableUnion
           tables:
-          - "$monitors.logical_disk.discovery.sources.source(3)$"
-          - "$monitors.logical_disk.discovery.sources.source(4)$"
+          - $monitors.logical_disk.discovery.sources.source(3)$
+          - $monitors.logical_disk.discovery.sources.source(4)$
       mapping:
-        # InstanceTable = source(3)
-        source: "$monitors.logical_disk.discovery.sources.source(5)$"
+        _comment: InstanceTable = source(3)
+        source: $monitors.logical_disk.discovery.sources.source(5)$
         attributes:
-          id: "$column(1)"
-          raid_level: "$column(2)"
-          hw.logical_disk.limit: "$column(4)"
-          type: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "NetApp"
+          id: $column(1)
+          raid_level: $column(2)
+          hw.logical_disk.limit: $column(4)
+          type: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: NetApp
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(4))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the aggrTable SNMP table
           # aggrName;StatusArray
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.5.11.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.5.11.1
           selectColumns: "2,6"
           computes:
             # Remove the blanks from Status
             # aggrName;StatusArray
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Duplicate the status column
             # aggrName;StatusArray;StatusArray
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate first status array into an array of PATROL Statuses
             # aggrName;PATROLStatusArray;StatusArray
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 2
             arraySeparator: ","
-            resultSeparator: "|"
-            translationTable: "aggrStatusTranslationTable"
+            resultSeparator: '|'
+            translationTable: aggrStatusTranslationTable
             # Keep only the worst status from the PATROLStatus array
             # aggrName;PATROLStatus;statusArray;
-          - type: "convert"
+          - type: convert
             column: 2
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
             # Translate the second StatusArray into a more readable string
             # aggrName;PATROLStatus;statusInformation;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
             arraySeparator: ","
-            resultSeparator: " - "
-            translationTable: "aggrStatusInformationTranslationTable"
+            resultSeparator: ' - '
+            translationTable: aggrStatusInformationTranslationTable
         source(2):
           # Source(2) = dfTable SNMP Table
           # dfName;freeHighKb;freeLowKB;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.5.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.5.4.1
           selectColumns: "2,18,19"
           computes:
             # Multiply HighTotal by 4294967296
             # dfName;freeHighKb;freeLowKB;
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "4294967296"
+            value: 4294967296
             # Add a blank column to the right of the table to prevent a calculation error later for non-negative dfLowTotalKBytes values
             # dfName;freeHighKb;freeLowKB;BlankColumn;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";"
+            value: ;
             # Replace the negative sign by a "4294967296;"
             # if Low >= 0   dfName;freeHighKb;freeLowKB;BlankColumn;
             # if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "-"
-            newValue: "4294967296;-"
+            existingValue: '-'
+            newValue: 4294967296;-
             # Add 3rd & 4th column to get a real LowTotal Bytes Valus
             # if Low >= 0   dfName;freeHighKb;freeLowKB;BlankColumn;
             # if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
-          - type: "add"
+          - type: add
             column: 3
-            value: "Column(4)"
+            value: Column(4)
             # Add High & Low to get real disk size
             # if Low >= 0   dfName;freeHighKb;freeLowKB;BlankColumn;
             # if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
-          - type: "add"
+          - type: add
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Keep only the ID & Size
             # dfName;freeKB;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2"
             # Convert freeKB to bytes
             # dfName;free
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1024"
+            value: 1024
         source(3):
           # Source(3) = Table joint of source(1) and source(2)
           # aggrName;PATROLStatus;statusInformation;dfName;free
-          type: "tableJoin"
-          leftTable: "$monitors.logical_disk.collect.sources.source(1)$"
-          rightTable: "$monitors.logical_disk.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.logical_disk.collect.sources.source(1)$
+          rightTable: $monitors.logical_disk.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
         source(4):
           # Source(4) = raidP SNMP Table
           # UsedMB;SizeMB;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.6.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.6.10.1
           selectColumns: "20,22"
           computes:
             # Compute the sum of UsedMB and SizeMB and returns a single instance
             # corresponding fo the primordial storage pool and its unallocated space
             # aggrName;PATROLStatus;statusInformation;dfName;freeMB
-          - type: "awk"
-            script: "EmbeddedFile(7)"
-            keep: "MSHW;"
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: MSHW;
             selectColumns: "2,3,4,5,6"
-            separators: ";"
+            separators: ;
             # Convert MB to bytes
             # aggrName;PATROLStatus;statusInformation;dfName;free
-          - type: "multiply"
+          - type: multiply
             column: 5
-            value: "1048576"
+            value: 1048576
         source(5):
           # Source(5) = Union of Source(3) and Source(4)
           # aggrName;PATROLStatus;statusInformation;dfName;free
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.logical_disk.collect.sources.source(3)$"
-          - "$monitors.logical_disk.collect.sources.source(4)$"
+          - $monitors.logical_disk.collect.sources.source(3)$
+          - $monitors.logical_disk.collect.sources.source(4)$
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.logical_disk.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
-          hw.logical_disk.usage{state="free"}: "$column(5)"
-          hw.logical_disk.usage{state="used"}: "collectAllocatedSpace()"
+          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.logical_disk.usage{state="free"}: $column(5)
+          hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = fcpTargetTable SNMP table
           # ID;Name;WWNAddress;SpeedGB;PortTypeCode
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.17.17.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.17.17.1.1
           selectColumns: "ID,2,4,5,8"
           computes:
             # Remove ":" from the WWNAddress
             # ID;Name;WWNAddress;SpeedGB;PortTypeCode
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: ":"
+            existingValue: ':'
             newValue: ""
             # Convert SpeedGB to MB/s
             # ID;Name;WWNAddress;Speed;PortTypeCode
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1000"
+            value: 1000
             # Translate the PortTypeCode to a FC Port Type string
             # ID;Name;WWNAddress;Speed;PortType
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PortTypeTranslationTable"
+            translationTable: PortTypeTranslationTable
             # Add an address type column
             # ID;Name;Address;AddressType;Speed;PortType
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";wwN"
+            value: ;wwN
             # Add "FC" to the ID
             # ID;Name;Address;AddressType;Speed;PortType
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "FC"
+            value: FC
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.network.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(2)"
-          physical_address: "$column(3)"
-          physical_address_type: "$column(4)"
-          device_type: "$column(6)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "NetApp"
+          id: $column(1)
+          model: $column(2)
+          physical_address: $column(3)
+          physical_address_type: $column(4)
+          device_type: $column(6)
+          hw.parent.type: enclosure
+          hw.parent.id: NetApp
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(6), $column(2))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = fcpTargetTable SNMP table
           # ID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.17.17.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.17.17.1.1
           selectColumns: "ID,6"
           computes:
             # Duplicate Status (twice)
             # ID;Status;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first status into a PATROL Status
             # ID;PATROLStatus;Status;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "fcpStatusTranslationTable"
+            translationTable: fcpStatusTranslationTable
             # Translate the second status into a more readable string
             # ID;PATROLStatus;StatusInformation;Status
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "fcpStatusInformationTranslationTable"
+            translationTable: fcpStatusInformationTranslationTable
             # Translate the third status into a LinkStatus
             # ID;PATROLStatus;StatusInformation;LinkStatus
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "fcpLinkStatusTranslationTable"
+            translationTable: fcpLinkStatusTranslationTable
             # Add "FC" to the ID
             # ID;Name;Address;AddressType;Speed;PortType
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "FC"
+            value: FC
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="network"}: "$column(2)"
-          hw.network.up: "legacyLinkStatus($column(4))"
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(4))
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
@@ -905,158 +905,158 @@ monitors:
           # Source(1) = enclTable SNMP table
           # One column contains the list of power supplies, the other one the list of corresponding serial numbers
           # ShelfID;PowerSupplyIDList;SerialNumberList;Location;PartNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,13,14,3,61"
           computes:
             # Remove spaces from the separators
             # ShelfID;PowerSupplyIDList;SerialNumberList;Location;PartNumber;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 5
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per power supply instance
             # PowerSupplyID;SerialNumber;Location;PartNumber;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Part Number Identifier
             # PowerSupplyID;SerialNumber;Location;PartNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Part Number: "
         source(2):
           # Get the General Power Supply Failures Value
           # NumberOfFailedPSUs
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.4.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.4.0
         source(3):
           # Source (3) = Table Union of 1 & 2
           # PowerSupplyID;SerialNumber
           # NumberOfFailedPSUs
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.power_supply.discovery.sources.source(1)$"
-          - "$monitors.power_supply.discovery.sources.source(2)$"
+          - $monitors.power_supply.discovery.sources.source(1)$
+          - $monitors.power_supply.discovery.sources.source(2)$
           computes:
             # Process the union of Individual and General so that only one is returned.
             # PowerSupplyID;SerialNumber;Location;PartNumber;AttachID;AttachType;
-          - type: "awk"
-            script: "EmbeddedFile(9)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(9)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7"
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Location: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "Serial Number: "
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(3)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
+          id: $column(1)
           info: "join($column(3), $column(4), $column(2), \" \")"
-          hw.parent.type: "$column(6)"
-          hw.parent.id: "$column(5)"
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
           name: "sprintf(\"%s, $column(1))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = enclTable SNMP table (like discovery)
           # One column contains the list of power supplies, the other one the list of failed PSUs
           # ShelfID;PowerSupplyIDList;failedList;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,13,15"
           computes:
             # Remove spaces from the separators
             # ShelfID;PowerSupplyIDList;failedList;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per power supply instance
             # PowerSupplyID;PATROLStatus;StatusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
         source(2):
           # Get the General Power Supply Failures Value
           # NumberOfFailedPSUs
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.4.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.4.0
           computes:
             # Concat the Label & a TableID
             # MSHW_TableID;PowerSupplyID;NumberOfFailedPSUs;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_TableID;Global;"
+            value: MSHW_TableID;Global;
             # Translate for Patrol Status
             # MSHW_TableID;PowerSupplyID;PatrolStatus;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "generalStatusTranslationTable"
+            translationTable: generalStatusTranslationTable
         source(3):
           # Get the General Power Supply Information Value
           # StatusInformation
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.5.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.5.0
           computes:
             # Add a TableID
             # MSHW_TableID;StatusInformation
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_TableID;"
+            value: MSHW_TableID;
         source(4):
           # Joint the tables to have a single General Status
           # MSHW_TableID;PowerSupplyID;PatrolStatus;MSHW_TableID;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.power_supply.collect.sources.source(2)$"
-          rightTable: "$monitors.power_supply.collect.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.power_supply.collect.sources.source(2)$
+          rightTable: $monitors.power_supply.collect.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Remove the TableIDs
             # PowerSupplyID;PatrolStatus;StatusInformation;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,3,5"
         source(5):
           # Table Union General and Individual
           # PowerSupplyID;PatrolStatus;StatusInformation;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.power_supply.collect.sources.source(1)$"
-          - "$monitors.power_supply.collect.sources.source(4)$"
+          - $monitors.power_supply.collect.sources.source(1)$
+          - $monitors.power_supply.collect.sources.source(4)$
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
@@ -1064,142 +1064,142 @@ monitors:
           # Source(1) = enclTable SNMP table
           # One column contains the list of power supplies, the other one the list of corresponding serial numbers
           # ShelfID;FanIDList;Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,17,3"
           computes:
             # Remove spaces from the separators
             # ShelfID;FanIDList;Location;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per power supply instance
             # FanID;FanIDList;Location;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
         source(2):
           # Get the General Fan Failures Value
           # NumberOfFailedFANs
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.2.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.2.0
         source(3):
           # Source (3) = Table Union of 1 & 2
           # FanID;FanLocation
           # NumberOfFailedFANs
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.fan.discovery.sources.source(1)$"
-          - "$monitors.fan.discovery.sources.source(2)$"
+          - $monitors.fan.discovery.sources.source(1)$
+          - $monitors.fan.discovery.sources.source(2)$
           computes:
             # Process the union of Individual and General so that only one is returned.
             # FanID;;FanLocation;AttachID;AttachType;
-          - type: "awk"
-            script: "EmbeddedFile(9)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(9)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,6,7"
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Location: "
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.fan.discovery.sources.source(3)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.fan.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          info: "$column(3)"
-          hw.parent.type: "$column(5)"
-          hw.parent.id: "$column(4)"
-          name: "$column(1)"
+          id: $column(1)
+          info: $column(3)
+          hw.parent.type: $column(5)
+          hw.parent.id: $column(4)
+          name: $column(1)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = enclTable SNMP table (like discovery)
           # One column contains the list of power supplies, the other one the list of failed PSUs
           # ShelfID;FanIDList;failedList;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,17,18"
           computes:
             # Remove spaces from the separators
             # ShelfID;FanIDList;FailedList;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per power supply instance
             # FanID;PATROLStatus;StatusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
         source(2):
           # Get the General Power Supply Failures Value
           # NumberOfFailedFANs
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.2.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.2.0
           computes:
             # Concat the Label & a TableID
             # MSHW_TableID;FanID;NumberOfFailedFans;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_TableID;Global;"
+            value: MSHW_TableID;Global;
             # Translate for Patrol Status
             # MSHW_TableID;FanID;PatrolStatus;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "generalStatusTranslationTable"
+            translationTable: generalStatusTranslationTable
         source(3):
           # Get the General Power Supply Information Value
           # StatusInformation
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.3.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.3.0
           computes:
             # Add a TableID
             # MSHW_TableID;StatusInformation
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_TableID;"
+            value: MSHW_TableID;
         source(4):
           # Joint the tables to have a single General Status
           # MSHW_TableID;PowerSupplyID;PatrolStatus;MSHW_TableID;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.fan.collect.sources.source(2)$"
-          rightTable: "$monitors.fan.collect.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.fan.collect.sources.source(2)$
+          rightTable: $monitors.fan.collect.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Remove the TableIDs
             # PowerSupplyID;PatrolStatus;StatusInformation;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,3,5"
         source(5):
           # Table Union General and Individual
           # PowerSupplyID;PatrolStatus;StatusInformation;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.fan.collect.sources.source(1)$"
-          - "$monitors.fan.collect.sources.source(4)$"
+          - $monitors.fan.collect.sources.source(1)$
+          - $monitors.fan.collect.sources.source(4)$
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
@@ -1207,232 +1207,232 @@ monitors:
           # Source(1) = enclTable SNMP table
           # One column contains the list of temperature sensors, the other one the list of corresponding warning and alarm thresholds
           # ShelfID;TemperatureIDList;AlarmThresholdList;WarningThresholdList;Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,20,26,27,3"
           computes:
             # Remove spaces from the separators
             # ShelfID;TemperatureIDList;AlarmThresholdList;WarningThresholdList;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 4
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per temperature instance
             # TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7"
         source(2):
           # Get the General Temperature Value
           # OverTemp
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.1.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.1.0
         source(3):
           # Source (3) = Table Union of 1 & 2
           # TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
           # OverTemp
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(1)$"
-          - "$monitors.temperature.discovery.sources.source(2)$"
+          - $monitors.temperature.discovery.sources.source(1)$
+          - $monitors.temperature.discovery.sources.source(2)$
           computes:
             # Process the union of Individual and General so that only one is returned.
             # TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
-          - type: "awk"
-            script: "EmbeddedFile(10)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(10)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7,8,9"
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "Location: "
       mapping:
         # Instance Table = Source(3)
         # TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;BladeID;AttachementType;
-        source: "$monitors.temperature.discovery.sources.source(3)$"
+        source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          info: "$column(6)"
-          hw.parent.type: "$column(8)"
-          hw.parent.id: "$column(7)"
-          name: "$column(1)"
+          id: $column(1)
+          info: $column(6)
+          hw.parent.type: $column(8)
+          hw.parent.id: $column(7)
+          name: $column(1)
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(3)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = enclTable SNMP table (like discovery)
           # One column contains the list of temperature sensor IDs, the other one the list of actual temperatures
           # ShelfID;TemperatureIDList;temperatureList;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,20,25"
           computes:
             # Remove spaces from the separators
             # ShelfID;TemperatureIDList;SerialNumberList;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per power supply instance
             # TemperatureID;Temperature;Status;
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
         source(2):
           # Get the General Power Supply Failures Value
           # TempGeneralValue
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.1.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.1.0
           computes:
             # Concat the Label & a TableID
             # TemperatureID;Temperature;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Global;;"
+            value: Global;;
             # Translate for Patrol Status
             # TemperatureID;Temperature;PatrolStatus
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "tempStatusTranslationTable"
+            translationTable: tempStatusTranslationTable
         source(3):
           # Translate for Patrol Status
           # TemperatureID;Temperature;PatrolStatus
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.collect.sources.source(1)$"
-          - "$monitors.temperature.collect.sources.source(2)$"
+          - $monitors.temperature.collect.sources.source(1)$
+          - $monitors.temperature.collect.sources.source(2)$
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
-          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
   battery:
     discovery:
       sources:
         source(1):
           # Source(1) = NV Battery
           # Status
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.5.1.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.5.1.0
           computes:
             # Exclude lines with Status of Not Present or Unknown
             # Status
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
             valueList: "4,7"
       mapping:
         # The discovery table
         # Status
-        source: "$monitors.battery.discovery.sources.source(1)$"
+        source: $monitors.battery.discovery.sources.source(1)$
         attributes:
-          id: "NVRam Battery"
-          __display_id: "NVRam Battery"
-          hw.parent.type: "enclosure"
-          name: "NVRam Battery"
+          id: NVRam Battery
+          __display_id: NVRam Battery
+          hw.parent.type: enclosure
+          name: NVRam Battery
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = NV Battery
           # Status
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.5.1.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.5.1.0
           computes:
             # Duplicate status, because we will translate it two times
             # Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate Status into PATROLStatus
             # PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "BatteryStatusTranslationTable"
+            translationTable: BatteryStatusTranslationTable
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "BatteryStatusInformationTranslationTable"
+            translationTable: BatteryStatusInformationTranslationTable
       mapping:
         # The value table
         # ID;Status;StatusInformation;
-        source: "$monitors.battery.collect.sources.source(1)$"
-        deviceId: "NVRam Battery"
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: NVRam Battery
         metrics:
-          hw.status{hw.type="battery"}: "$column(1)"
+          hw.status{hw.type="battery"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   blade:
     discovery:
       sources:
         source(1):
           # Source(1) = enclEntry
           # ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "1,4,6,7,8,9"
           computes:
-            # Add Labels
-          - type: "leftConcat"
+          - _comment: Add Labels
+            type: leftConcat
             column: 5
             value: "Version: "
         source(2):
           # Make a copy for attaching disks
           # ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
-          type: "copy"
-          from: "$monitors.blade.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.blade.discovery.sources.source(1)$
           computes:
             # Keep only the ID
             # ShelfAddress;SerialNumber;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,6"
             # Add Attach Type
             # ShelfAddress;SerialNumber;AttachToType;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: ";Blade"
+            value: ;Blade
             # Keep only Serials that are at least 4 long (Netapp 9 or later).  Shorted IDs don't match properly
             # ShelfAddress;SerialNumber;AttachToType;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "...."
+            regExp: '....'
       mapping:
         # The discovery table
         # ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
-        source: "$monitors.blade.discovery.sources.source(1)$"
+        source: $monitors.blade.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(1)"
-          id: "$column(2)"
-          blade_name: "$column(2)"
-          model: "$column(4)"
-          serial_number: "$column(6)"
-          info: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "NetApp"
+          __display_id: $column(1)
+          id: $column(2)
+          blade_name: $column(2)
+          model: $column(4)
+          serial_number: $column(6)
+          info: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: NetApp
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(4))"
   other_device:
     discovery:
@@ -1441,151 +1441,151 @@ monitors:
           # Source(1) = enclTable SNMP table
           # One column contains the list of power supplies, the other one the list of corresponding serial numbers
           # ShelfID;OtherDeviceIDList;SerialNumberList;Location;PartNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,31,32,3,63"
           computes:
             # Remove spaces from the separators
             # ShelfID;OtherDeviceIDList;SerialNumberList;Location;PartNumber;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 5
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per power supply instance
             # OtherDeviceID;SerialNumber;Location;PartNumber;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Add Part Number Identifier
             # OtherDeviceID;SerialNumber;Location;PartNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Part Number: "
             # Process the union of Individual and General so that only one is returned.
             # OtherDeviceID;SerialNumber;Location;PartNumber;OtherDeviceID;AttachType;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 4
-            value: ";EnclosureID;Blade"
-            # Replace Column 5 with the DeviceID
-          - type: "replace"
+            value: ;EnclosureID;Blade
+          - _comment: Replace Column 5 with the DeviceID
+            type: replace
             column: 5
-            existingValue: "Column(5)"
-            newValue: "Column(1)"
+            existingValue: Column(5)
+            newValue: Column(1)
             # Extract the ShelfID from the OtherDeviceID
             # OtherDeviceID;SerialNumber;Location;PartNumber;ShelfID;AttachType;
-          - type: "extract"
+          - type: extract
             column: 5
             subColumn: 1
-            subSeparators: "-"
-          - type: "leftConcat"
+            subSeparators: '-'
+          - type: leftConcat
             column: 3
             value: "Location: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "Serial Number: "
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          device_type: "Service Electronics"
+          id: $column(1)
+          device_type: Service Electronics
           info: "join($column(3), $column(4), $column(2), \" \")"
-          hw.parent.type: "$column(6)"
-          hw.parent.id: "$column(5)"
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
           name: "sprintf(\"%s: %s\", \"Service Electronics\", $column(1))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = enclTable SNMP table (like discovery)
           # One column contains the list of power supplies, the other one the list of failed PSUs
           # ShelfID;OtherDeviceIDList;failedList;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.789.1.21.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "4,31,33"
           computes:
             # Remove spaces from the separators
             # ShelfID;OtherDeviceIDList;failedList;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: ", "
             newValue: ","
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: ", "
             newValue: ","
             # Process that weird stuff through an AWK script so that we get a real table
             # with a line per power supply instance
             # OtherDeviceID;PATROLStatus;StatusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
         source(2):
           # Get the General Power Supply Failures Value
           # NumberOfFailedPSUs
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.4.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.4.0
           computes:
             # Concat the Label & a TableID
             # MSHW_TableID;OtherDeviceID;NumberOfFailedPSUs;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_TableID;Global;"
+            value: MSHW_TableID;Global;
             # Translate for Patrol Status
             # MSHW_TableID;OtherDeviceID;PatrolStatus;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "generalStatusTranslationTable"
+            translationTable: generalStatusTranslationTable
         source(3):
           # Get the General Power Supply Information Value
           # StatusInformation
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.789.1.2.4.5.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.789.1.2.4.5.0
           computes:
             # Add a TableID
             # MSHW_TableID;StatusInformation
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_TableID;"
+            value: MSHW_TableID;
         source(4):
           # Joint the tables to have a single General Status
           # MSHW_TableID;OtherDeviceID;PatrolStatus;MSHW_TableID;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.other_device.collect.sources.source(2)$"
-          rightTable: "$monitors.other_device.collect.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.other_device.collect.sources.source(2)$
+          rightTable: $monitors.other_device.collect.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Remove the TableIDs
             # OtherDeviceID;PatrolStatus;StatusInformation;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,3,5"
         source(5):
           # Table Union General and Individual
           # OtherDeviceID;PatrolStatus;StatusInformation;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.collect.sources.source(1)$"
-          - "$monitors.other_device.collect.sources.source(4)$"
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(4)$
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.other_device.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

@@ -8,78 +8,78 @@ embedded:
   EmbeddedFile(6): "BEGIN {controllerID=\"\";logicaldriveID=\"\";logicaldriveName=\"\";status=\"\";size=\"\";raidLevel=\"\";statusInfo=\"\";\n\t    }\n$1 ~ /MSHWController/ {controllerID=$2};\n\n$1 ~ /[Ll]ogical/ && $2 ~ /([Dd]evice)|([Dd]rive)/ && $3 ~ /[Nn]umber/ {logicaldriveID=controllerID \"-\" $NF}\n\n$1 ~ /[Ll]ogical/ && $2 ~ /[Dd]evice|([Dd]rive)/ && $3 ~ /[Nn]ame/   {logicaldriveName=$NF}\n\ntolower($1) ~ /raid/ && $2 ~ /[Ll]evel/ {raidLevel=$NF}\n\n$1 ~/[Ss]tatus/ && $3 ~ /[Ll]ogical/ && $4 ~ /[Dd]evice|([Dd]rive)/ {status=tolower($6); gsub(/,/,\"\",status);\n\t                                                                   colonIndex = index($0, \":\") ;\n\t                                                                   statusInfo = substr($0, colonIndex + 2) ;\n\t                                                                  }\n\n$1 ~ /[Ss]ize/ && $NF ~ /[TtGgMm][Bb]/ {size=$(NF-1);\n\t                                      if ($NF ~ /[Mm][Bb]/) {size = size / 1024};\n                                        if ($NF ~ /[Tt][Bb]/) {size = size * 1024};\n                                        print (\"MSHW;\"controllerID\";\"logicaldriveID\";\"logicaldriveName\";\"status\";\"size\";\"raidLevel\";\"statusInfo\";\");\n                                        logicaldriveID=\"\";logicaldriveName=\"\";status=\"\";size=\"\";raidLevel=\"\";statusInfo=\"\";\n                                       }"
 translations:
   DiskStatusTranslationTable:
-    okay: "ok"
-    inaccessible: "failed"
-    raw: "ok"
-    rebuilding: "degraded"
-    failed: "failed"
-    down: "failed"
-    offline: "failed"
-    device-error: "failed"
-    default: "UNKNOWN"
-    unsupported: "failed"
-    removed: "failed"
-    ready: "ok"
-    online: "ok"
-    spare: "ok"
+    okay: ok
+    inaccessible: failed
+    raw: ok
+    rebuilding: degraded
+    failed: failed
+    down: failed
+    offline: failed
+    device-error: failed
+    default: UNKNOWN
+    unsupported: failed
+    removed: failed
+    ready: ok
+    online: ok
+    spare: ok
   ControllerBatteryStatusTranslationTable:
-    default: "UNKNOWN"
-    discharging: "ok"
-    maintenance mode: "degraded"
-    optimal: "ok"
-    over temperature: "failed"
-    charging: "ok"
-    charging disabled: "ok"
-    failed: "failed"
-    ok: "ok"
-    degraded: "degraded"
+    default: UNKNOWN
+    discharging: ok
+    maintenance mode: degraded
+    optimal: ok
+    over temperature: failed
+    charging: ok
+    charging disabled: ok
+    failed: failed
+    ok: ok
+    degraded: degraded
   DiskControllerStatusTranslationTable:
-    default: "UNKNOWN"
-    optimal: "ok"
-    warning: "degraded"
-    failed: "failed"
-    ok: "ok"
-    degraded: "degraded"
+    default: UNKNOWN
+    optimal: ok
+    warning: degraded
+    failed: failed
+    ok: ok
+    degraded: degraded
   LogicalDiskStatusTranslationTable:
-    okay: "ok"
-    inaccessible: "failed"
-    impacted: "degraded"
-    optimal: "ok"
-    standby: "ok"
-    rebuilding: "degraded"
-    partitioned: "ok"
-    failed: "failed"
-    degraded: "degraded"
-    hot: "ok"
-    logical: "degraded"
-    default: "UNKNOWN"
-    ready: "ok"
-    online: "ok"
-    suboptimal: "degraded"
-    uninitialized: "ok"
+    okay: ok
+    inaccessible: failed
+    impacted: degraded
+    optimal: ok
+    standby: ok
+    rebuilding: degraded
+    partitioned: ok
+    failed: failed
+    degraded: degraded
+    hot: ok
+    logical: degraded
+    default: UNKNOWN
+    ready: ok
+    online: ok
+    suboptimal: degraded
+    uninitialized: ok
 connector:
-  displayName: "Adaptec - StorMan - RAID"
-  platforms: "Any system with Adaptec"
-  reliesOn: "arcconf"
-  information: "Gives information about physical disks and volumes of Adaptec SAS RAID controllers through the arcconf utility."
-  version: "1.0"
+  displayName: Adaptec - StorMan - RAID
+  platforms: Any system with Adaptec
+  reliesOn: arcconf
+  information: Gives information about physical disks and volumes of Adaptec SAS RAID controllers through the arcconf utility.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Solaris"
-    - "Linux"
+    - Solaris
+    - Linux
     criteria:
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "Solaris"
-      - "SunOS"
-      - "Linux"
-      # We should find disks attached to one controller
-    - type: "osCommand"
-      commandLine: "/bin/sh %EmbeddedFile(1)%"
-      expectedResult: "Hard drive"
-      errorMessage: "No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf."
+      - Solaris
+      - SunOS
+      - Linux
+    - _comment: We should find disks attached to one controller
+      type: osCommand
+      commandLine: /bin/sh %EmbeddedFile(1)%
+      expectedResult: Hard drive
+      errorMessage: No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.
 sudoCommands:
 - "/[opt|usr]/StorMan/arcconf"
 monitors:
@@ -87,194 +87,194 @@ monitors:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(3)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(3)%
           computes:
             # Reformat Source(1) output via EmbeddedFile(4)
             # MSHW;controllerID;status;model;serial;slot;memory;firmware;driver;batteryStatus;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4,5,6,7,8,9,10"
       mapping:
         # The InstanceTable
         # controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(1)"
-          model: "$column(2)"
-          serial_number: "$column(3)"
-          firmware_version: "$column(6)"
-          driver_version: "$column(7)"
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(2)
+          serial_number: $column(3)
+          firmware_version: $column(6)
+          driver_version: $column(7)
           info: "join($column(4), $column(5), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = EF4
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(3)%"
+          _comment: Source(1) = EF4
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(3)%
           computes:
             # Reformat Source(1) output via EmbeddedFile(4)
             # MSHW;controllerID;status;model;serial;slot;memory;firmware;driver;batteryStatus;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,10"
             # Translate the Status into a PATROL status
             # controllerID;Patrolstatus;batteryStatus;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DiskControllerStatusTranslationTable"
+            translationTable: DiskControllerStatusTranslationTable
             # Translate the Status into a PATROL status
             # controllerID;Patrolstatus;PatrolBatteryStatus;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "ControllerBatteryStatusTranslationTable"
+            translationTable: ControllerBatteryStatusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # controllerID;Patrolstatus;status;PatrolBatteryStatus;batteryStatus;
-        source: "$monitors.disk_controller.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="disk_controller"}: "$column(2)"
+          hw.status{hw.type="disk_controller"}: $column(2)
   physical_disk:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;controllerID;hardDriveID;status;location;vendor;model;firmware;serialNumber;sizeGB;channel;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,5,6,7,8,9,10,11"
             # Multiply to get Bytes
             # controllerID;hardDriveID;location;vendor;model;firmware;serialNumber;sizeB;channel;
-          - type: "multiply"
+          - type: multiply
             column: 8
-            value: "1073741824"
+            value: 1073741824
       mapping:
         # The InstanceTable
         # controllerID;hardDriveID;location;vendor;model;firmware;serialNumber;sizeB;channel;
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          vendor: "$column(4)"
-          model: "$column(5)"
-          serial_number: "$column(7)"
+          id: $column(2)
+          vendor: $column(4)
+          model: $column(5)
+          serial_number: $column(7)
           info: "join($column(3), $column(9), \" \")"
-          hw.parent.type: "disk_controller"
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(8))"
         metrics:
-          hw.physical_disk.size: "$column(8)"
+          hw.physical_disk.size: $column(8)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = EF1
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          _comment: Source(1) = EF1
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;controllerID;hardDriveID;status;location;vendor;model;firmware;serialNumber;sizeGB;Channel;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "3,4"
             # Duplicate the Status column
             # hardDriveID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Remove spaces in the Statys column
             # hardDriveID;Status;Status
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Translate the Status into a PATROL status
             # hardDriveID;PATROLStatus;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DiskStatusTranslationTable"
+            translationTable: DiskStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(5)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(5)%
           computes:
             # Reformat Source(1) output via EmbeddedFile(6)
             # MSHW;controllerID;logicaldriveID;logicaldriveName;status;size;raidLevel;statusInfo;
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,6,7"
             # Multiply to get Bytes
             # controllerID;logicaldriveID;logicaldriveName;size;raidLevel;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1073741824"
+            value: 1073741824
       mapping:
         # The InstanceTable
         # controllerID;logicaldriveID;logicaldriveName;size;raidLevel;
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          hw.logical_disk.limit: "$column(4)"
-          raid_level: "$column(5)"
-          __display_id: "$column(3)"
-          hw.parent.type: "disk_controller"
+          id: $column(2)
+          hw.logical_disk.limit: $column(4)
+          raid_level: $column(5)
+          __display_id: $column(3)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(5), $column(4))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = EF5
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(5)%"
+          _comment: Source(1) = EF5
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(5)%
           computes:
             # Reformat Source(1) output via EmbeddedFile(6)
             # MSHW;controllerID;logicaldriveID;logicaldriveName;status;size;raidLevel;statusInfo;
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "3,5,8"
             # Translate the Status into a PATROL status
             # logicaldriveID;Patrolstatus;statusInfo;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LogicalDiskStatusTranslationTable"
+            translationTable: LogicalDiskStatusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # logicaldriveID;Patrolstatus;status;
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

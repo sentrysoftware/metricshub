@@ -1,231 +1,231 @@
 ---
 translations:
   StatusInformationTranslationTable:
-    "0": "Failed"
-    "1": "Good"
-    "2": "Error"
-    default: "Unknown Status"
+    "0": Failed
+    "1": Good
+    "2": Error
+    default: Unknown Status
   StatusTranslationTable:
-    "0": "failed"
-    "1": "ok"
-    "2": "failed"
-    default: "failed"
+    "0": failed
+    "1": ok
+    "2": failed
+    default: failed
 connector:
-  displayName: "Juniper Netscreen (SNMP)"
-  platforms: "Netscreen"
-  reliesOn: "Juniper SNMP Agent (NETSCREEN-CHASSIS-MIB)"
-  version: "1.0"
+  displayName: Juniper Netscreen (SNMP)
+  platforms: Netscreen
+  reliesOn: Juniper SNMP Agent (NETSCREEN-CHASSIS-MIB)
+  version: 1.0
   information: "This connector discovers the enclosure, fans, power supplies, temperatures, etc. of Juniper Netscreen Network Switches."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Network"
+    - Network
     criteria:
-      # Check that there are Juniper FRU OIDs
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.3224.21.1"
+    - _comment: Check that there are Juniper FRU OIDs
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.3224.21.1
 monitors:
   enclosure:
     discovery:
       mapping:
-        source: "Juniper"
+        source: Juniper
         attributes:
-          id: "Chassis"
-          __display_id: "Switch"
-          model: "Netscreen"
-          vendor: "Juniper"
-          type: "Switch"
+          id: Chassis
+          __display_id: Switch
+          model: Netscreen
+          vendor: Juniper
+          type: Switch
           name: "sprintf(\"%s (%s %s - %s)\", \"Switch\", \"Juniper\", \"Netscreen\", \"Switch\")"
   other_device:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.5.1
           selectColumns: "1,2,4"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Serial Number: "
       mapping:
-        # The InstanceTable
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        _comment: The InstanceTable
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          info: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Chassis"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          info: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(2)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.5.1
           selectColumns: "1,3,3"
           computes:
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
-          - type: "translate"
+            translationTable: StatusTranslationTable
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.1.1
           selectColumns: "1,3"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
-            value: "PSU "
+            value: 'PSU '
       mapping:
-        # Instance Table
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: Instance Table
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Chassis"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
           name: "sprintf(\"%s, $column(2))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.1.1
           selectColumns: "1,2,2"
           computes:
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
-          - type: "translate"
+            translationTable: StatusTranslationTable
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # Instance Table
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: Instance Table
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.2.1
           selectColumns: "1,3"
       mapping:
-        # Instance Table
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: Instance Table
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Chassis"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(2)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.2.1
           selectColumns: "1,2,2"
           computes:
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
-          - type: "translate"
+            translationTable: StatusTranslationTable
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # Instance Table
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: Instance Table
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.4.1
           selectColumns: "1,4"
       mapping:
-        # Instance Table
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: Instance Table
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Chassis"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(2)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # ID;Status;Description
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.4.1"
+          _comment: ID;Status;Description
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.4.1
           selectColumns: "1,3"
       mapping:
-        # Instance Table
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: Instance Table
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
+          hw.temperature: $column(2)
   battery:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3224.21.3"
-          selectColumns: "ID"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3224.21.3
+          selectColumns: ID
       mapping:
-        source: "$monitors.battery.discovery.sources.source(1)$"
+        source: $monitors.battery.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "battery"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Chassis"
-          name: "battery"
+          id: $column(1)
+          __display_id: battery
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: battery
     collect:
-      # Collect
-      type: "monoInstance"
+      _comment: Collect
+      type: monoInstance
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3224.21.3.%Battery.Collect.DeviceID%"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3224.21.3.%Battery.Collect.DeviceID%
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "StatusTranslationTable"
-          - type: "translate"
+            translationTable: StatusTranslationTable
+          - type: translate
             column: 2
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        source: "$monitors.battery.collect.sources.source(1)$"
+        source: $monitors.battery.collect.sources.source(1)$
         metrics:
-          hw.status{hw.type="battery"}: "$column(1)"
+          hw.status{hw.type="battery"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)

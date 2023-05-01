@@ -4,31 +4,31 @@ embedded:
 translations:
   TemperatureStatusTranslationTable:
     "1": ""
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   FanStatusTranslationTable:
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   EnclosureTypeTranslationTable:
-    "2": "Blade"
-    default: "Other"
+    "2": Blade
+    default: Other
   PowerSupplyStatusTranslationTable:
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   EnclosureStatusTranslationTable:
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   VCStatusInformationTranslationTable:
-    "2": "Absent"
-    default: "Unknown Status"
+    "2": Absent
+    default: Unknown Status
     "3": ""
   BladePowerStateTranslationTable:
     "1": ""
@@ -39,80 +39,80 @@ translations:
     "5": ""
   FanStatusInformationTranslationTable:
     "2": ""
-    default: "Unknown Status"
-    "3": "Degraded"
-    "4": "Failed"
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
   PowerSupplyStatusInformationTranslationTable:
-    "11": "Voltage Channel Failed"
-    "12": "Orring Diode Failed"
-    "13": "Brown-Out"
-    "14": "Give Up On Startup"
-    "15": "NVRAM Invalid"
-    "16": "Calibration Table Invalid"
+    "11": Voltage Channel Failed
+    "12": Orring Diode Failed
+    "13": Brown-Out
+    "14": Give Up On Startup
+    "15": NVRAM Invalid
+    "16": Calibration Table Invalid
     "1": ""
-    "2": "General Failure"
-    default: "Unknown Status"
-    "3": "Bist Failure"
-    "4": "Fan Failure"
-    "5": "Temperature Failure"
-    "6": "Interlock Open"
-    "7": "Eprom Failed"
-    "8": "VRef Failed"
-    "9": "DAC Failed"
-    "10": "RAM Test Failed"
+    "2": General Failure
+    default: Unknown Status
+    "3": Bist Failure
+    "4": Fan Failure
+    "5": Temperature Failure
+    "6": Interlock Open
+    "7": Eprom Failed
+    "8": VRef Failed
+    "9": DAC Failed
+    "10": RAM Test Failed
   BladeStatusTranslationTable:
-    "1": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   TemperatureStatusInformationTranslationTable:
     "1": ""
     "2": ""
-    default: "Unknown Status"
-    "3": "Too Hot"
-    "4": "Critically Too Hot"
+    default: Unknown Status
+    "3": Too Hot
+    "4": Critically Too Hot
   FuseStatusInformationTranslationTable:
     "2": ""
-    default: "Unknown Status"
-    "4": "Tripped"
+    default: Unknown Status
+    "4": Tripped
   FuseStatusTranslationTable:
-    "2": "ok"
-    default: "UNKNOWN"
-    "4": "failed"
+    "2": ok
+    default: UNKNOWN
+    "4": failed
   VCStatusTranslationTable:
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "ok"
+    "2": failed
+    default: UNKNOWN
+    "3": ok
   EnclosureStatusInformationTranslationTable:
     "2": ""
-    default: "Unknown Status"
-    "3": "Degraded"
-    "4": "Failed"
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
   BladeStatusInformationTranslationTable:
     "1": ""
     "2": ""
-    default: "Unknown Status"
-    "3": "Degraded"
-    "4": "Failed"
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
 connector:
-  displayName: "HP BladeSystem"
-  platforms: "HP BladeSystem"
-  reliesOn: "HP iLO / HP Insight Management Agents"
-  version: "1.0"
-  information: "This connector provides hardware monitoring for the HP BladeSystem racks through the HP Insight Management Agents."
+  displayName: HP BladeSystem
+  platforms: HP BladeSystem
+  reliesOn: HP iLO / HP Insight Management Agents
+  version: 1.0
+  information: This connector provides hardware monitoring for the HP BladeSystem racks through the HP Insight Management Agents.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "OOB"
-    - "NT"
-    - "Linux"
-    - "Solaris"
+    - OOB
+    - NT
+    - Linux
+    - Solaris
     criteria:
       # Criteria 1: Must have a cpqRackCommonEnclosureEntry entry
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.232.22.2.3.1.1.1.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.22.2.3.1.1.1.1
 monitors:
   enclosure:
     discovery:
@@ -120,632 +120,632 @@ monitors:
         source(1):
           # Get the various enclosures (server and power supply enclosures)
           # Rack;Chassis;Model;HasBlades;SerialNumber;PartNumber;SparePartNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.1.1
           selectColumns: "1,2,3,17,7,5,6"
           computes:
             # Build enclsoure ID from rack.chassis
             # DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
-            # Translate the HasBlades column into an \"EnclosureType\"
-          - type: "translate"
+            value: Column(2)
+          - _comment: Translate the HasBlades column into an "EnclosureType"
+            type: translate
             column: 4
-            translationTable: "EnclosureTypeTranslationTable"
+            translationTable: EnclosureTypeTranslationTable
             # Identify the Part Numbers
             # DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 7
             value: "Spare Part Number: "
         source(2):
           # Source(2) = cpqRackPowerSupplyTable SNMP table
           # Rack;Chassis;PowerConsumption
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.5.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.5.1.1.1
           selectColumns: "1,2,10"
           computes:
             # Compute the total power consumption "per chassis" (through a smart AWK script)
             # EnclosureID;PowerConsumption
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;EnclosureID;PowerConsumption
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";0;"
+          defaultRightLine: ;0;
       mapping:
         # The InstanceTable
         # DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;EnclosureID;PowerConsumption
-        source: "$monitors.enclosure.discovery.sources.source(3)$"
+        source: $monitors.enclosure.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          vendor: "HP"
-          model: "$column(3)"
-          type: "$column(4)"
-          serial_number: "$column(5)"
+          id: $column(1)
+          vendor: HP
+          model: $column(3)
+          type: $column(4)
+          serial_number: $column(5)
           info: "join($column(6), $column(7), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(3), $column(4))"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Get the various enclosures (server and power supply enclosures)
           # Rack;Chassis;Condition
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.1.1
           selectColumns: "1,2,16"
           computes:
             # Build enclsoure ID from rack.chassis
             # DeviceID;Chassis;Condition
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
+            value: Column(2)
             # Duplicate the condition column
             # DeviceID;Chassis;Condition;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first condition into a PATROL status
             # DeviceID;Chassis;Status;Condition
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "EnclosureStatusTranslationTable"
+            translationTable: EnclosureStatusTranslationTable
             # Translate the second condition into a more readable string
             # DeviceID;Chassis;Status;statusInformation
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "EnclosureStatusInformationTranslationTable"
+            translationTable: EnclosureStatusInformationTranslationTable
         source(2):
           # Source(2) = cpqRackPowerSupplyTable SNMP table
           # Rack;Chassis;PowerConsumption
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.5.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.5.1.1.1
           selectColumns: "1,2,10"
           computes:
             # Compute the total power consumption "per chassis" (through a smart AWK script)
             # EnclosureID;PowerConsumption
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;Chassis;Status;statusInformation;EnclosureID;PowerConsumption
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";0;"
+          defaultRightLine: ;0;
       mapping:
-        # ValueTable = Source(3)
-        source: "$monitors.enclosure.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(3)
+        source: $monitors.enclosure.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(3)"
-          hw.enclosure.power: "$column(6)"
-          hw.enclosure.energy: "fakeCounter($column(6))"
+          hw.status{hw.type="enclosure"}: $column(3)
+          hw.enclosure.power: $column(6)
+          hw.enclosure.energy: fakeCounter($column(6))
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   temperature:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureTempTable SNMP table
           # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.2.1
           selectColumns: "ID,1,2,5,6,7,8"
           computes:
             # Now, build the enclosure ID (for attachment) from Rack and Chassis
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-            # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "rightConcat"
+            value: /
+          - _comment: ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+            type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Replace a Temperature of -1 (Not Applicable) with blank
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
             # Replace a Temperature of 0 (Zeroed) with blank
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "0"
+            existingValue: 0
             newValue: ""
             # Replace a Condition of 1 (unknown) with blank
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "replace"
+          - type: replace
             column: 7
-            existingValue: "1"
+            existingValue: 1
             newValue: ""
             # Replace a WarningThreshold of -1 (Not Applicable) with blank
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "replace"
+          - type: replace
             column: 6
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
         source(2):
           # Take a copy of Source 1
           # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Keep only Sensors with a temperature and a threshold
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            regExp: "."
-          - type: "keepOnlyMatchingLines"
+            regExp: .
+          - type: keepOnlyMatchingLines
             column: 6
-            regExp: "."
+            regExp: .
             # We are now assuming this sensor has a valid numeric event generation mechanism
             # So blank the condition column to deactivate the parameter
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "replace"
+          - type: replace
             column: 7
-            existingValue: "Column(7)"
+            existingValue: Column(7)
             newValue: ""
         source(3):
           # Now filter to find sensors without a valid numeric event generation mechanism
           # Take a copy of Source 1
           # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Exclude Sensors that have a valid WarningThreshold (these will be in Source 2)
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 6
-            regExp: "."
+            regExp: .
             # keep only sensors with a valid condition
             # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 7
-            regExp: "."
+            regExp: .
         source(4):
           # Source 4 = Union of 2 (sensors with a temperature and threshold) and 3 (sensors without a threshold)
           # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(2)$"
-          - "$monitors.temperature.discovery.sources.source(3)$"
+          - $monitors.temperature.discovery.sources.source(2)$
+          - $monitors.temperature.discovery.sources.source(3)$
       mapping:
         # InstanceTable = Source(4)
         # ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
-        source: "$monitors.temperature.discovery.sources.source(4)$"
+        source: $monitors.temperature.discovery.sources.source(4)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(1)
+          temperature_type: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(6)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
     collect:
-      # Collect type is \"multi-instance\"
-      type: "multiInstance"
+      _comment: Collect type is "multi-instance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureTempTable SNMP table
           # ID;Temperature;Condition
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.2.1
           selectColumns: "ID,6,8"
           computes:
             # Duplicate the Condition column
             # ID;Temperature;Condition;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate Condition into a PATROL Status
             # ID;PATROLStatus;Condition
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "TemperatureStatusTranslationTable"
+            translationTable: TemperatureStatusTranslationTable
             # Translate the 2nd Condition column into a more readable string
             # ID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "TemperatureStatusInformationTranslationTable"
+            translationTable: TemperatureStatusInformationTranslationTable
       mapping:
-        # The ValueTable
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
-          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureFanTable SNMP table
           # ID;Rack;Chassis;Location;Present
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.3.1
           selectColumns: "ID,1,2,5,8"
           computes:
             # Keep only "present" fans
             # ID;Rack;Chassis;Location;Present
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "3"
+            valueList: 3
             # Now, build the enclosure ID (for attachment) from Rack and Chassis
             # ID;Rack.;Chassis;Location;Present
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-            # ID;EnclosureID;Chassis;Location;Present
-          - type: "rightConcat"
+            value: /
+          - _comment: ID;EnclosureID;Chassis;Location;Present
+            type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(1)
     collect:
-      # Collect type is \"multi-instance\"
-      type: "multiInstance"
+      _comment: Collect type is "multi-instance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureFanTable SNMP table
           # ID;Condition
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.3.1
           selectColumns: "ID,11"
           computes:
             # Duplicate the Condition column
             # ID;Condition;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate Condition into a PATROL Status
             # ID;PATROLStatus;Condition
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FanStatusTranslationTable"
+            translationTable: FanStatusTranslationTable
             # Translate the 2nd Condition column into a more readable string
             # ID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "FanStatusInformationTranslationTable"
+            translationTable: FanStatusInformationTranslationTable
       mapping:
-        # The ValueTable
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqRackPowerSupplyEntry SNMP table
           # ID;Rack;Chassis;PowerMax;Present
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.5.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.5.1.1.1
           selectColumns: "ID,1,2,9,16"
           computes:
             # Keep only "present" power supplies
             # ID;Rack;Chassis;PowerMax;Present
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "3"
+            valueList: 3
             # Now, build the enclosure ID (for attachment) from Rack and Chassis
             # ID;Rack.;Chassis;PowerMax;Present
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-            # ID;EnclosureID;Chassis;PowerMax;Present
-          - type: "rightConcat"
+            value: /
+          - _comment: ID;EnclosureID;Chassis;PowerMax;Present
+            type: rightConcat
             column: 2
-            value: "Column(3)"
-            # Remove \"-1\" in PowerMax column
-          - type: "replace"
+            value: Column(3)
+          - _comment: Remove "-1" in PowerMax column
+            type: replace
             column: 4
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
-          hw.power_supply.limit: "$column(4)"
+          hw.power_supply.limit: $column(4)
     collect:
-      # Collect type is \"multi-instance\"
-      type: "multiInstance"
+      _comment: Collect type is "multi-instance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqRackPowerSupplyEntry SNMP table
           # ID;PowerUsed;StatusInformationCode;Condition
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.5.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.5.1.1.1
           selectColumns: "ID,10,14,17"
           computes:
             # Translate Condition into a PATROL Status
             # ID;PowerUsed;StatusInformationCode;Status
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "PowerSupplyStatusTranslationTable"
+            translationTable: PowerSupplyStatusTranslationTable
             # Translate StatusInformationCode into a more readable string
             # ID;PowerUsed;StatusInformation;Status
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PowerSupplyStatusInformationTranslationTable"
-            # Remove \"-1\" in PowerUsed column
-          - type: "replace"
+            translationTable: PowerSupplyStatusInformationTranslationTable
+          - _comment: Remove "-1" in PowerUsed column
+            type: replace
             column: 2
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
       mapping:
-        # The ValueTable
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(4)"
+          hw.status{hw.type="power_supply"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   blade:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqRackServerBladeTable SNMP Table
           # DeviceID;Rack;Chassis;BladeName;Present;SerialNumber;Model;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.4.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.4.1.1.1
           selectColumns: "ID,1,2,4,12,16,17"
           computes:
             # Keep only present blades
             # DeviceID;Rack;Chassis;BladeName;Present;SerialNumber;Model;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "3"
+            valueList: 3
             # Concat Rack and Chassis to make up the EnclosureID
             # DeviceID;EnclosureID;Chassis;BladeName;Present;SerialNumber;Model;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.blade.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.blade.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          blade_name: "$column(4)"
-          model: "$column(7)"
-          serial_number: "$column(6)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(1)
+          blade_name: $column(4)
+          model: $column(7)
+          serial_number: $column(6)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(7))"
     collect:
-      # Collect type is \"multi-instance\"
-      type: "multiInstance"
+      _comment: Collect type is "multi-instance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cqpRackServerBladeTable SNMP Table
           # DeviceID;BladeStatus;BladePowered;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.4.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.4.1.1.1
           selectColumns: "ID,21,25"
           computes:
             # Duplicate the BladeStatus column
             # DeviceID;BladeStatus;BladeStatus;BladePowered;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first BladeStatus column into a PATROL Status
             # DeviceID;PATROLStatus;BladeStatus;BladePowered;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "BladeStatusTranslationTable"
+            translationTable: BladeStatusTranslationTable
             # Translate the second BladeStatus column into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;BladePowered;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "BladeStatusInformationTranslationTable"
+            translationTable: BladeStatusInformationTranslationTable
             # Translate the BladePowered column
             # DeviceID;PATROLStatus;StatusInformation;PowerState;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "BladePowerStateTranslationTable"
+            translationTable: BladePowerStateTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.blade.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="blade"}: "$column(2)"
-          hw.blade.power_state: "$column(4)"
+          hw.status{hw.type="blade"}: $column(2)
+          hw.blade.power_state: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureFuseTable SNMP table
           # ID;Rack;Chassis;Location;Present
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.4.1
           selectColumns: "ID,1,2,5,6"
           computes:
             # Keep only "present" fuses
             # ID;Rack;Chassis;Location;Present
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "3"
+            valueList: 3
             # Now, build the enclosure ID (for attachment) from Rack and Chassis
             # ID;Rack.;Chassis;Location;Present
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-            # ID;EnclosureID;Chassis;Location;Present
-          - type: "rightConcat"
+            value: /
+          - _comment: ID;EnclosureID;Chassis;Location;Present
+            type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Add "Fuse" before the Fuse ID (so that we won't get confused with switch objects)
             # Fuse_ID;EnclosureID;Chassis;Location;Present
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_Fuse_ID_"
+            value: MSHW_Fuse_ID_
             # Now, add "Fuse" as the device type
             # Fuse_ID;EnclosureID;Chassis;DeviceType;Location;Present
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";Fuse"
+            value: ;Fuse
             # Keep only useful columns (no "Present")
             # Fuse_ID;EnclosureID;DeviceType;AdditionalLabel;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,4,5"
         source(2):
           # Source(2) = cpqRackNetConnectorTable SNMP Table
           # ID;Rack;Chassis;Model;Present;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.6.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.6.1.1.1
           selectColumns: "ID,1,2,6,13"
           computes:
             # Keep only present switches
             # ID;Rack;Chassis;Model;Present;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "3"
+            valueList: 3
             # Now, build the enclosure ID (for attachment) from Rack and Chassis
             # ID;EnclosureID;Chassis;Model;Present;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Add "Switch" before the switch ID (so that we won't get confused with switch objects)
             # Switch_ID;EnclosureID;Chassis;Model;Present;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SW"
+            value: SW
             # Now, add "Switch" as the device type
             # Switch_ID;EnclosureID;Chassis;DeviceType;Model;Present
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";Switch"
+            value: ;Switch
             # Keep only useful columns (no "Present")
             # Switch_ID;EnclosureID;DeviceType;Model;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,4,5"
         source(3):
           # Source(3) = Table union of Source(1) and Source(2)
           # ID;EnclosureID;DeviceType;Model;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.discovery.sources.source(1)$"
-          - "$monitors.other_device.discovery.sources.source(2)$"
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
       mapping:
-        # InstanceTable = Source(3)
-        source: "$monitors.other_device.discovery.sources.source(3)$"
+        _comment: InstanceTable = Source(3)
+        source: $monitors.other_device.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          additional_label: "$column(4)"
-          device_type: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(1)
+          additional_label: $column(4)
+          device_type: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s: %s (%s)\", $column(3), $column(1), $column(4))"
     collect:
-      # Collect type is \"multi-instance\"
-      type: "multiInstance"
+      _comment: Collect type is "multi-instance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureFuseTable SNMP table
           # ID;Condition
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.3.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.3.1.4.1
           selectColumns: "ID,7"
           computes:
             # Add "Fuse" before the Fuse ID (so that we won't get confused with switch objects)
             # Fuse_ID;Condition
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW_Fuse_ID_"
+            value: MSHW_Fuse_ID_
             # Duplicate the Condition column
             # Fuse_ID;Condition;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate Condition into a PATROL Status
             # Fuse_ID;PATROLStatus;Condition
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FuseStatusTranslationTable"
+            translationTable: FuseStatusTranslationTable
             # Translate the 2nd Condition column into a more readable string
             # Fuse_ID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "FuseStatusInformationTranslationTable"
+            translationTable: FuseStatusInformationTranslationTable
         source(2):
           # Source(2) = cpqRackConnectorTable SNMP Table
           # ID;Present
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.22.2.6.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.22.2.6.1.1.1
           selectColumns: "ID,13"
           computes:
             # Add "VC" before the switch ID (so that we won't get confused with fuse objects)
             # VCID;Condition
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SW"
+            value: SW
             # Duplicate the Condition column
             # VCID;Condition;Condition
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate Condition into a PATROL Status
             # VCID;PATROLStatus;Condition
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "VCStatusTranslationTable"
+            translationTable: VCStatusTranslationTable
             # Translate the 2nd Condition column into a more readable string
             # VCID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "VCStatusInformationTranslationTable"
+            translationTable: VCStatusInformationTranslationTable
         source(3):
           # Source(3) = Table union of Source(1) and Source(2)
           # DeviceID;PATROLStatus;statusInformation
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.collect.sources.source(1)$"
-          - "$monitors.other_device.collect.sources.source(2)$"
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
       mapping:
-        # The ValueTable
-        source: "$monitors.other_device.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable
+        source: $monitors.other_device.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

@@ -9,64 +9,64 @@ embedded:
     END { for (ID in statusArray) {print ("MSHW;"ID";"statusArray[ID]";")}}
 translations:
   StatusInformationTranslationTable:
-    "1": "Critical Fault"
-    "2": "Major Fault"
-    default: "Unknown Status"
-    "3": "Minor Fault"
-    "4": "Missing (Indeterminate Status)"
-    "5": "Warning"
-    "6": "Pending"
+    "1": Critical Fault
+    "2": Major Fault
+    default: Unknown Status
+    "3": Minor Fault
+    "4": Missing (Indeterminate Status)
+    "5": Warning
+    "6": Pending
     "7": ""
   StatusTranslationTable:
-    "1": "failed"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
-    "5": "degraded"
-    "6": "degraded"
-    "7": "ok"
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": degraded
+    "6": degraded
+    "7": ok
 connector:
-  displayName: "Oracle/Sun Blade Chassis"
-  platforms: "Oracle/Sun Blade"
-  reliesOn: "Sun Blade Chassis CMM SNMP Agent"
-  version: "1.0"
-  information: "This connector provides hardware monitoring for the Sun Blade Chassis through the CMM SNMP Agent."
+  displayName: Oracle/Sun Blade Chassis
+  platforms: Oracle/Sun Blade
+  reliesOn: Sun Blade Chassis CMM SNMP Agent
+  version: 1.0
+  information: This connector provides hardware monitoring for the Sun Blade Chassis through the CMM SNMP Agent.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "OOB"
+    - OOB
     supersedes:
-    - "SunILOMSNMP"
+    - SunILOMSNMP
     criteria:
-    - type: "snmpGet"
-      oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1.5.2"
-      expectedResult: "^/CH"
+    - type: snmpGet
+      oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1.5.2
+      expectedResult: ^/CH
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1
           selectColumns: "ID,5,3"
           computes:
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "/CH/"
+            existingValue: /CH/
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "/SPEED"
+            existingValue: /SPEED
             newValue: ""
       mapping:
-        # The InstanceTable - Faked as we just want a chassis of any description.
-        source: "/CH"
+        _comment: The InstanceTable - Faked as we just want a chassis of any description.
+        source: /CH
         attributes:
-          id: "/CH"
-          vendor: "Sun"
-          model: "Blade Chassis"
+          id: /CH
+          vendor: Sun
+          model: Blade Chassis
           name: "sprintf(\"%s (%s %s)\", \"/CH\", \"Sun\", \"Blade Chassis\")"
   temperature:
     discovery:
@@ -74,517 +74,517 @@ monitors:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Sensor Type
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.6.1
           selectColumns: "ID,2"
           computes:
             # Keep Only Sensors of type 3 (Temperatures)
             # ID;Sensor Type
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "3"
+            valueList: 3
         source(2):
           # Source(2) = sunPlatNumericSensorTable
           # ID;Warn Threshold;Alarm Threshold
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1
           selectColumns: "ID,11,13"
           computes:
             # Exclude lines with Zero thresholds
             # ID;Warn Threshold;Alarm Threshold
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "0"
+            valueList: 0
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # ID;Sensor Type;ID;Warn Threshold;Alarm Threshold
-          type: "tableJoin"
-          leftTable: "$monitors.temperature.discovery.sources.source(1)$"
-          rightTable: "$monitors.temperature.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.temperature.discovery.sources.source(1)$
+          rightTable: $monitors.temperature.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;"
+          defaultRightLine: ;;;
         source(4):
           # Source(4) = Table joint of Source(1) and Source(2)
           # ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name;EnclosureTableStatus;
-          type: "tableJoin"
-          leftTable: "$monitors.temperature.discovery.sources.source(3)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: tableJoin
+          leftTable: $monitors.temperature.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(4)
         # ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name;EnclosureTableStatus;
-        source: "$monitors.temperature.discovery.sources.source(4)$"
+        source: $monitors.temperature.discovery.sources.source(4)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(7)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(7)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(7))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(4)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(5)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
+          hw.temperature.limit{limit_type="high.critical"}: $column(5)
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = sunPlatNumericSensorTable
           # ID;Temperature
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1
           selectColumns: "ID,4"
         source(2):
           # Source(2) = Table joint of Source(1) and Discovery Table
           # ID;Temperature;ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name
-          type: "tableJoin"
-          leftTable: "$monitors.temperature.collect.sources.source(1)$"
-          rightTable: "$monitors.temperature.discovery.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.temperature.collect.sources.source(1)$
+          rightTable: $monitors.temperature.discovery.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # The ValueTable
         # ID;Temperature;ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name
-        source: "$monitors.temperature.collect.sources.source(2)$"
-        deviceId: "$column(1)"
+        source: $monitors.temperature.collect.sources.source(2)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
+          hw.temperature: $column(2)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Sensor Type
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.6.1
           selectColumns: "ID,2"
           computes:
             # Keep Only Sensors of type 6 (Fans / Tachometers)
             # ID;Sensor Type
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "6"
+            valueList: 6
         source(2):
           # Source(2) = sunPlatNumericSensorTable
           # ID;Warn Threshold;Alarm Threshold;Critical Threshold
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1
           selectColumns: "ID,8,10,12"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: "MSHW_"
-          - type: "replace"
+            value: MSHW_
+          - type: replace
             column: 3
-            existingValue: "MSHW_0"
-            newValue: "Column(4)"
-          - type: "replace"
+            existingValue: MSHW_0
+            newValue: Column(4)
+          - type: replace
             column: 3
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
             # Exclude lines with Zero thresholds
             # ID;Warn Threshold;Alarm Threshold;Critical Threshold
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "0"
+            valueList: 0
             # Remove the Critical Threshold Column
             # ID;Warn Threshold;Alarm Threshold
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,3"
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
-            value: "MSHW_"
-          - type: "replace"
+            value: MSHW_
+          - type: replace
             column: 2
-            existingValue: "MSHW_0"
-            newValue: "Column(4)"
-          - type: "replace"
+            existingValue: MSHW_0
+            newValue: Column(4)
+          - type: replace
             column: 2
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # ID;Sensor Type;ID;Warn Threshold;Alarm Threshold
-          type: "tableJoin"
-          leftTable: "$monitors.fan.discovery.sources.source(1)$"
-          rightTable: "$monitors.fan.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.fan.discovery.sources.source(1)$
+          rightTable: $monitors.fan.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;"
+          defaultRightLine: ;;;
         source(4):
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the main PSU Status Line (FM[0-9]/STATUS )
             # ID;Name;EnclosureTableStatus;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: "^FM[0-9]/FAIL$"
             # Exclude lines with status of indeterminate (4)
             # ID;Name;EnclosureTableStatus;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "4"
+            valueList: 4
             # Remove the /Fail
             # ID;Name;EnclosureTableStatus;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "/FAIL"
+            existingValue: /FAIL
             newValue: ""
             # Add a few columns so that it matches Source(5)
             # ID;(Sensor Type);(ID);(Warn Threshold);(Alarm Threshold);(ID);Name;EnclosureTableStatus;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";;;;;"
+            value: ;;;;;
             # Add a column to activate the status / speed activation parameters
             # ID;(Sensor Type);(ID);(Warn Threshold);(Alarm Threshold);(ID);Name;EnclosureTableStatus;Status Activation;SpeedActivation
-          - type: "rightConcat"
+          - type: rightConcat
             column: 8
-            value: ";1;"
+            value: ;1;
         source(5):
           # Source(5) = Table joint of Source(1) and Source(2)
           # ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name;EnclosureTableStatus;
-          type: "tableJoin"
-          leftTable: "$monitors.fan.discovery.sources.source(3)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: tableJoin
+          leftTable: $monitors.fan.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
           computes:
             # Add a column to activate the status / speed activation parameters
             #  ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name;EnclosureTableStatus;Status Activation;SpeedActivation
-          - type: "rightConcat"
+          - type: rightConcat
             column: 8
-            value: ";;1"
+            value: ;;1
         source(6):
           # Source(6) = Table union of Source(4) and Source(5)
           # ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name;EnclosureTableStatus;Status Activation;SpeedActivation
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.fan.discovery.sources.source(4)$"
-          - "$monitors.fan.discovery.sources.source(5)$"
+          - $monitors.fan.discovery.sources.source(4)$
+          - $monitors.fan.discovery.sources.source(5)$
       mapping:
         # InstanceTable = Source(4)
         # ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name;EnclosureTableStatus;Status Activation;SpeedActivation
-        source: "$monitors.fan.discovery.sources.source(6)$"
+        source: $monitors.fan.discovery.sources.source(6)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(4)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(5)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
     collect:
       # COLLECT
       # Collect type is "multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           #  INDIVIDUAL FANS
           # Source(1) = sunPlatNumericSensorTable
           # ID;Speed
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1
           selectColumns: "ID,4"
         source(2):
           # Source(2) = Table joint of Source(1) and Discovery Table
           # ID;Speed;ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name;EnclosureTableStatus;
-          type: "tableJoin"
-          leftTable: "$monitors.fan.collect.sources.source(1)$"
-          rightTable: "$monitors.fan.discovery.sources.source(6)$"
+          type: tableJoin
+          leftTable: $monitors.fan.collect.sources.source(1)$
+          rightTable: $monitors.fan.discovery.sources.source(6)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,9"
             # Add Blank Status Columns
             # ID;Speed;Name;(Status);(Status Information);
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";;"
+            value: ;;
         source(3):
           #  FAN MODULES
           #  Source (3) - Main Sensor Table
           #  ID;Name;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1
           selectColumns: "ID,5,3"
         source(4):
           # Source(4) = Table joint of Source(3) and Discovery Table (4)
           # ID;Name;Status;ID;(Sensor Type);(ID);(Warn Threshold);(Alarm Threshold);(ID);Name;EnclosureTableStatus;Status Activation;SpeedActivation
-          type: "tableJoin"
-          leftTable: "$monitors.fan.collect.sources.source(3)$"
-          rightTable: "$monitors.fan.discovery.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.fan.collect.sources.source(3)$
+          rightTable: $monitors.fan.discovery.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Get rid of the Discovery information
             # ID;Name;Status;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,3"
             # Add Blank Speed Column
             # ID;(Speed);Name;Status;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";"
+            value: ;
             # Duplicate the Status column
             # ID;(Speed);Name;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Translate Condition into a PATROL Status
             # ID;(Speed);Name;PatrolStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the 2nd Condition column into a more readable string
             # ID;(Speed);Name;PatrolStatus;Status Information;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
         source(5):
-          # Source (4) Union of Source(2) Fans and Source(3) Fan Modules
-          type: "tableUnion"
+          _comment: Source (4) Union of Source(2) Fans and Source(3) Fan Modules
+          type: tableUnion
           tables:
-          - "$monitors.fan.collect.sources.source(2)$"
-          - "$monitors.fan.collect.sources.source(4)$"
+          - $monitors.fan.collect.sources.source(2)$
+          - $monitors.fan.collect.sources.source(4)$
       mapping:
         # The ValueTable
         # ID;Speed;Name
-        source: "$monitors.fan.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        source: $monitors.fan.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.fan.speed: "$column(2)"
-          hw.status{hw.type="fan"}: "$column(4)"
+          hw.fan.speed: $column(2)
+          hw.status{hw.type="fan"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Name;EnclosureTableStatus;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Keep Only the main PSU Status Line (PS[0-9]/STATUS )
             # ID;Name;EnclosureTableStatus;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: "^PS[0-9]"
             # Exclude lines with status of indeterminate (4)
             # ID;Name;EnclosureTableStatus;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "4"
+            valueList: 4
         source(2):
           # Source(2) = sunPlatSensorTable
           # ID;Sensor Type
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.6.1
           selectColumns: "ID,2"
           computes:
             # Keep Only Sensors of type 1 (Other, i.e. Discrete)
             # ID;Sensor Type
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "1"
+            valueList: 1
         source(3):
           # Source(3) = Table joint of Source(1) and Source (2)
           # ID;Name;EnclosureTableStatus;ID;Sensor Type;
-          type: "tableJoin"
-          leftTable: "$monitors.power_supply.discovery.sources.source(1)$"
-          rightTable: "$monitors.power_supply.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.power_supply.discovery.sources.source(1)$
+          rightTable: $monitors.power_supply.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Process Source (3) which is a list of all Power Supply Sensors of type "other"
             # So that only one line is returned for each Power Supply with the lowest value (i.e. most severe) status number
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            separators: ";"
-            keep: "^MSHW;"
-            selectColumns: "2"
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: 2
       mapping:
         # InstanceTable = Source(1)
         # PowerSupplyName;
-        source: "$monitors.power_supply.discovery.sources.source(3)$"
+        source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
       # COLLECT
       # Collect type is "Multi-instance"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Name;EnclosureTableStatus;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1
           selectColumns: "ID,5,3"
           computes:
-            # Getting rid of tags we don't want
-          - type: "replace"
+          - _comment: Getting rid of tags we don't want
+            type: replace
             column: 2
-            existingValue: "/CH/"
+            existingValue: /CH/
             newValue: ""
             # Keep Only the main PSU Status Line (PS[0-9]/STATUS )
             # ID;Name;EnclosureTableStatus;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: "^PS[0-9]"
             # Exclude lines with status of indeterminate (4)
             # ID;Name;EnclosureTableStatus;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "4"
+            valueList: 4
         source(2):
           # Source(2) = sunPlatSensorTable
           # ID;Sensor Type
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.6.1
           selectColumns: "ID,2"
           computes:
             # Keep Only Sensors of type 1 (Other, i.e. Discrete)
             # ID;Sensor Type
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "1"
+            valueList: 1
         source(3):
           # Source(3) = Table joint of Source(1) and Source (2)
           # ID;Name;EnclosureTableStatus;ID;Sensor Type;
-          type: "tableJoin"
-          leftTable: "$monitors.power_supply.collect.sources.source(1)$"
-          rightTable: "$monitors.power_supply.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.power_supply.collect.sources.source(1)$
+          rightTable: $monitors.power_supply.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Process Source (3) which is a list of all Power Supply Sensors of type "other"
             # So that only one line is returned for each Power Supply with the lowest value (i.e. most severe) status number
             # ID;Status;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3"
             # Duplicate the Status column
             # // ID;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate Condition into a PATROL Status
             # ID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the 2nd Condition column into a more readable string
             # ID;PATROLStatus;Status Information;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
         # The ValueTable
         # ID;PATROLStatus;Status Information;
-        source: "$monitors.power_supply.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        source: $monitors.power_supply.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   voltage:
     discovery:
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
           # ID;Sensor Type
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.6.1
           selectColumns: "ID,2"
           computes:
             # Keep Only Sensors of type 4 (Voltages)
             # ID;Sensor Type
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "4"
+            valueList: 4
         source(2):
           # Source(2) = Table joint of Source(1) and Enclosure Source (1)
           # ID;Sensor Type;ID;Name;EnclosureTableStatus;
-          type: "tableJoin"
-          leftTable: "$monitors.voltage.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(4)
         # ID;Sensor Type;ID;Name;EnclosureTableStatus;
-        source: "$monitors.voltage.discovery.sources.source(2)$"
+        source: $monitors.voltage.discovery.sources.source(2)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
     collect:
       # COLLECT
       # Collect type is "Mono-instance"
-      type: "monoInstance"
+      type: monoInstance
       sources:
         source(1):
-          # Getting each Voltage's Status
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1.3.%Voltage.Collect.DeviceID%"
+          _comment: Getting each Voltage's Status
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1.3.%Voltage.Collect.DeviceID%
           computes:
             # Add Fake ID
             # Status;ID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";ID"
+            value: ;ID
         source(2):
-          # Getting each Voltage's Voltage
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1.4.%Voltage.Collect.DeviceID%"
+          _comment: Getting each Voltage's Voltage
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1.4.%Voltage.Collect.DeviceID%
           computes:
             # Add Fake ID
             # Voltage;ID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";ID"
+            value: ;ID
         source(3):
           # Source(3) = Table joint of Source(1) and Source (2)
           # Status;ID;Voltage;ID;
-          type: "tableJoin"
-          leftTable: "$monitors.voltage.collect.sources.source(1)$"
-          rightTable: "$monitors.voltage.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.voltage.collect.sources.source(1)$
+          rightTable: $monitors.voltage.collect.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 2
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
           computes:
             # Remove the Critical Threshold Column
             # Status;Voltage
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,3"
             # Duplicate the Status column
             # Status;Status;Voltage
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate Condition into a PATROL Status
             # PATROLStatus;Status;Voltage
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate the 2nd Condition column into a more readable string
             # PATROLStatus;Status Information;Voltage
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
         # The ValueTable
         # PATROLStatus;Status Information;Voltage
-        source: "$monitors.voltage.collect.sources.source(3)$"
+        source: $monitors.voltage.collect.sources.source(3)$
         metrics:
-          hw.status{hw.type="voltage"}: "$column(1)"
-          hw.voltage: "$column(3)"
+          hw.status{hw.type="voltage"}: $column(1)
+          hw.voltage: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)

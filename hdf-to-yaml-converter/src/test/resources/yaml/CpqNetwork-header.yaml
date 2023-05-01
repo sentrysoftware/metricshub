@@ -1,316 +1,316 @@
 ---
 translations:
   PhysicalAdapterRoleTranslationTable:
-    "1": "Unknow"
-    "2": "Primary"
-    "255": "Not Applicable"
-    default: "Unknown"
-    "3": "Secondary"
-    "4": "Member"
-    "5": "TxRx"
-    "6": "Tx"
-    "7": "Standby"
-    "8": "None"
+    "1": Unknow
+    "2": Primary
+    "255": Not Applicable
+    default: Unknown
+    "3": Secondary
+    "4": Member
+    "5": TxRx
+    "6": Tx
+    "7": Standby
+    "8": None
   PhysicalAdapterStatusInformationTranslationTable:
-    "1": "Unknown"
-    "2": "ok"
-    default: "Unknown"
-    "3": "General Failure"
-    "4": "Link Failure"
+    "1": Unknown
+    "2": ok
+    default: Unknown
+    "3": General Failure
+    "4": Link Failure
   TeamNICStatusInformationTranslationTable:
-    "1": "Unknown"
+    "1": Unknown
     "2": ""
-    default: "Unknown"
-    "3": "Primary Failed"
-    "4": "Standby Failed"
-    "5": "Group Failed"
-    "6": "Redundancy Reduced"
-    "7": "Redundancy Lost"
+    default: Unknown
+    "3": Primary Failed
+    "4": Standby Failed
+    "5": Group Failed
+    "6": Redundancy Reduced
+    "7": Redundancy Lost
   DuplexModeTranslationTable:
-    "1": "1"
-    "2": "0"
-    default: "1"
-    "3": "1"
+    "1": 1
+    "2": 0
+    default: 1
+    "3": 1
   LinkStatusTranslationTable:
-    "1": "ok"
-    "2": "ok"
-    default: "ok"
-    "3": "ok"
-    "4": "degraded"
+    "1": ok
+    "2": ok
+    default: ok
+    "3": ok
+    "4": degraded
   PhysicalAdapterStatusTranslationTable:
-    "1": "UNKNOWN"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   TeamNICStatusTranslationTable:
-    "1": "UNKNOWN"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "failed"
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
   TeamNICSSwitchoverModeTranslationTable:
-    "1": "Unknown"
-    "2": "Not fault tolerant"
-    default: "Unknown"
-    "3": "Manual switch"
-    "4": "Switch On Fail"
-    "5": "Preferred Primary"
-    "6": "Auto"
-    "7": "Preference Order"
+    "1": Unknown
+    "2": Not fault tolerant
+    default: Unknown
+    "3": Manual switch
+    "4": Switch On Fail
+    "5": Preferred Primary
+    "6": Auto
+    "7": Preference Order
   TeamNICSGroupTypeTranslationTable:
-    "11": "Redundancy Set"
-    "1": "Unknown"
-    "2": "Not fault tolerant"
-    default: "Unknown"
-    "3": "Redundant Pair"
-    "4": "Network Fault Tolerance"
-    "5": "Adaptive Load Balancing"
-    "6": "Fast EtherChannel"
-    "7": "Gigabit EtherChannel"
-    "8": "IEEE802.3ad Link Aggregation"
-    "9": "Switch-assisted load balancing"
-    "10": "Transmit Load Balancing"
+    "11": Redundancy Set
+    "1": Unknown
+    "2": Not fault tolerant
+    default: Unknown
+    "3": Redundant Pair
+    "4": Network Fault Tolerance
+    "5": Adaptive Load Balancing
+    "6": Fast EtherChannel
+    "7": Gigabit EtherChannel
+    "8": IEEE802.3ad Link Aggregation
+    "9": Switch-assisted load balancing
+    "10": Transmit Load Balancing
 connector:
   detection:
     criteria:
       # Criteria(2): there must be something in the ifTable SNMP Table (NICs)
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.232.18.2.3.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.18.2.3.1
 monitors:
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = cpqNicIfLogMapTable\nFull path:\tiso(1).org(3).dod(6).internet(1).private(4).enterprises(1).compaq(232).cpqNic(18).cpqNicComponent(2).cpqNicIfLogMap(2).cpqNicIfLogMapTable(1)\nID;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;\n\"ID,21,5,4,9,20,8,11,19\"
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.18.2.2.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.18.2.2.1.1
           selectColumns: "ID,21,5,4,9,20,8,11,19,21"
           computes:
             # Keep only real Team NICs
             # ID;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
             valueList: ",0,1"
             # Add "VirtualInterface-" to the ID code in a readable string, so the Teaming is not removed
             # ID;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "VirtualInterface-"
+            value: VirtualInterface-
             # Add "DeviceType" Column (Virtual)
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";Aggregate"
+            value: ;Aggregate
             # Count Column Label
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "NICs Count: "
             # Translate the GroupType column content to a readable string
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "TeamNICSGroupTypeTranslationTable"
+            translationTable: TeamNICSGroupTypeTranslationTable
             # GroupType Column Label
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Type: "
             # Translate the SwitchoverMode column content to a readable string
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "TeamNICSSwitchoverModeTranslationTable"
+            translationTable: TeamNICSSwitchoverModeTranslationTable
             # SwitchoverMode Column Label
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "Switch over Mode: "
             # Add an empty column (Location and PartNumber)
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber
-          - type: "rightConcat"
+          - type: rightConcat
             column: 11
-            value: ";;;"
+            value: ;;;
             # Add LinkStatus and Desactivate it for Virtual NetWorkCard
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber
-          - type: "rightConcat"
+          - type: rightConcat
             column: 9
-            value: ";"
+            value: ;
         source(2):
           # Source(2) = cpqNicIfPhysAdapterEntry
           # ID;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
           # ID;3;4;14;36;39;31;32;10
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.18.2.3.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.18.2.3.1.1
           selectColumns: "ID,3,4,14,36,39,31,32,10"
           computes:
             # Replace Count and name by CountBlank and NameBlank in source(2) to match the same column number with the source(1)\nAdd \"DeviceType\" Column (Physical Adapter) as empty to match the same column number with the source(1)\nSource(1)\nID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber\nSource(2)\nTransform : ID;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;\nTo : \t   ID;DeviceType;NameBlank;CountBlank;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";Physical Adapter;;"
+            value: ;Physical Adapter;;
             # Replace SwitchoverMode and IPV6Address by SwitchoverModeBlank and IPV6AddressBlank to match the same column number with the source(1)\nID;NameBlank;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;;SpeedMbps;DisplayID;\nSource(2)\nTransform : ID;DeviceType;NameBlank;CountBlank;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;\nTo : \t   ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 5
-            value: ";;"
+            value: ;;
             # Add the word Location
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 12
             value: "Location: "
             # Add the word PartNumber
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 13
             value: "Part Number: "
             # Translate the Role column content to a readable string
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PhysicalAdapterRoleTranslationTable"
+            translationTable: PhysicalAdapterRoleTranslationTable
             # Add the word Role
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Role: "
             # Add the word port
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 14
-            value: " - Port "
+            value: ' - Port '
             # Add Port in the DeviceType
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "Column(14)"
+            value: Column(14)
             # Add LinkStatus and active it for Physical NetWorkCard
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 9
-            value: ";1"
+            value: ;1
         source(3):
           # InstanceTable = constant source
           # source(1) ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;
           # source(2) ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
           # Source(3) = Table union of Source(1) and Source(2)
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.discovery.sources.source(1)$"
-          - "$monitors.network.discovery.sources.source(2)$"
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(2)$
       mapping:
         # source(1) ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;
         # source(2) ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
-        source: "Discovery_source"
+        source: Discovery_source
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(12)"
-          device_type: "$column(2)"
-          model: "$column(3)"
-          logical_address: "$column(7)"
-          logical_address_type: "IP"
-          physical_address: "$column(8)"
-          physical_address_type: "MAC"
+          id: $column(1)
+          __display_id: $column(12)
+          device_type: $column(2)
+          model: $column(3)
+          logical_address: $column(7)
+          logical_address_type: IP
+          physical_address: $column(8)
+          physical_address_type: MAC
           info: "join($column(5), $column(13), $column(14), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(12), $column(2), $column(3))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqNicIfLogMapTable\nFull path:\tiso(1).org(3).dod(6).internet(1).private(4).enterprises(1).compaq(232).cpqNic(18).cpqNicComponent(2).cpqNicIfLogMap(2).cpqNicIfLogMapTable(1)\nID;Count;SpeedMbps;Status;Condition;\n\"ID,5,19,10,11\"
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.18.2.2.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.18.2.2.1.1
           selectColumns: "ID,5,19,11,10"
           computes:
             # Keep only real Team NICs: remove empty or 0 values
             # ID;Count;SpeedMbps;Status;Condition;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
-            regExp: "\\(^$\\)\\|\\(^0$\\)"
+            regExp: \(^$\)\|\(^0$\)
             # Keep only real Team NICs: remove empty or 0 values
             # ID;SpeedMbps;Status;Condition;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,3,4,5"
             # Add "Virtual-" to the ID code in a readable string, so the Teaming is not considered as a duplicate !!!
             # ID;SpeedMbps;Status;Condition;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "VirtualInterface-"
+            value: VirtualInterface-
             # Translate the Condition column into a PATROLStatus
             # ID;SpeedMbps;Status;PATROLStatus;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "TeamNICStatusTranslationTable"
+            translationTable: TeamNICStatusTranslationTable
             # Translate the first Status column into a StatusInformation
             # ID;SpeedMbps;StatusInformation;PATROLStatus;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "TeamNICStatusInformationTranslationTable"
+            translationTable: TeamNICStatusInformationTranslationTable
             # Translate the first Status column into a StatusInformation
             # ID;SpeedMbps;StatusInformation;PATROLStatus;RightConcat
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
         source(2):
           # Source(2) = cpqNicIfPhysAdapterTable
           # ID;SpeedMbps;Status;Condition;DuplexState;GoodTransmits;GoodReceives;BadTransmits;BadReceives;InOctets;OutOctets;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.232.18.2.3.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.18.2.3.1.1
           selectColumns: "ID,36,14,12,11,16,17,18,19,37,38"
           computes:
             # Computes TotalError ( = BadTransmits + BadReceives )
             # ID;SpeedMbps;Status;Condition;DuplexState;GoodTransmits;GoodReceives;BadTransmits;BadReceives;InOctets;OutOctets;
-          - type: "add"
+          - type: add
             column: 8
-            value: "Column(9)"
+            value: Column(9)
             # ADD LinkStatus
             # ID;SpeedMbps;StatusInformation;Condition;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Translate LinkStatus to link Plug or Unplug
             # ID;SpeedMbps;StatusInformation;Condtion;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "LinkStatusTranslationTable"
+            translationTable: LinkStatusTranslationTable
             # Translate the Condition column into a PATROLStatus
             # ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "PhysicalAdapterStatusTranslationTable"
+            translationTable: PhysicalAdapterStatusTranslationTable
             # Translate the first Status column into a StatusInformation
             # ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PhysicalAdapterStatusInformationTranslationTable"
+            translationTable: PhysicalAdapterStatusInformationTranslationTable
             # Translate duplexState to correctly duplexMode
             # ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "DuplexModeTranslationTable"
+            translationTable: DuplexModeTranslationTable
         source(3):
           # InstanceTable = constant source
           # source(1) ID;SpeedMbps;PATROLStatus;StatusInformation;
           # source(2) ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
           # Source(3) = Table union of Source(1) and Source(2)
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.collect.sources.source(1)$"
-          - "$monitors.network.collect.sources.source(2)$"
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(2)$
       mapping:
         # ValueTable = Source(&)
         # source(1) ID;SpeedMbps;StatusInformation;PATROLStatus;
         # source(2) ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
-        source: "Collect_source"
-        deviceId: "$column(1)"
+        source: Collect_source
+        deviceId: $column(1)
         metrics:
-          hw.network.bandwidth.limit: "megaBit2Bit($column(2))"
-          hw.status{hw.type="network"}: "$column(4)"
-          hw.network.up: "legacyLinkStatus($column(5))"
-          hw.network.full_duplex: "legacyFullDuplex($column(6))"
-          hw.network.packets{direction="transmit"}: "$column(7)"
-          hw.network.packets{direction="receive"}: "$column(8)"
-          hw.errors{hw.type="network"}: "$column(9)"
-          hw.network.io{direction="receive"}: "$column(11)"
-          hw.network.io{direction="transmit"}: "$column(12)"
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $column(4)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.full_duplex: legacyFullDuplex($column(6))
+          hw.network.packets{direction="transmit"}: $column(7)
+          hw.network.packets{direction="receive"}: $column(8)
+          hw.errors{hw.type="network"}: $column(9)
+          hw.network.io{direction="receive"}: $column(11)
+          hw.network.io{direction="transmit"}: $column(12)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

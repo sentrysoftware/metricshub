@@ -1,328 +1,328 @@
 ---
 translations:
   CleaningStatusTranslationTable:
-    "1": "1"
-    "2": "0"
-    default: "UNKNOWN"
-    "3": "2"
+    "1": 1
+    "2": 0
+    default: UNKNOWN
+    "3": 2
   StatusInformationTranslationTable:
     "1": ""
-    "2": "Failed"
-    default: "Unknown Status"
-    "3": "Degraded"
-    "4": "Warning"
-    "5": "Informational"
-    "6": "Unknown"
-    "7": "Invalid"
+    "2": Failed
+    default: Unknown Status
+    "3": Degraded
+    "4": Warning
+    "5": Informational
+    "6": Unknown
+    "7": Invalid
   StatusTranslationTable:
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "degraded"
-    "5": "degraded"
-    "6": "UNKNOWN"
-    "7": "failed"
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": UNKNOWN
+    "7": failed
   CleaningStatusInformationTranslationTable:
-    "1": " Cleaning Required"
+    "1": ' Cleaning Required'
     "2": ""
-    default: " Unknown Cleaning Status"
-    "3": " Immediate Cleaning Required"
+    default: ' Unknown Cleaning Status'
+    "3": ' Immediate Cleaning Required'
 connector:
-  displayName: "Quantum i40/i80 (ADIC) based Tape Libraries"
-  platforms: "Quantum i40/i80 (ADIC) Scalar Tape Library"
-  reliesOn: "Quantum SNMP Agent (ADIC-TAPE-LIBRARY-MIB)"
+  displayName: Quantum i40/i80 (ADIC) based Tape Libraries
+  platforms: Quantum i40/i80 (ADIC) Scalar Tape Library
+  reliesOn: Quantum SNMP Agent (ADIC-TAPE-LIBRARY-MIB)
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     criteria:
       # DETECTION
       # Does a get_next to see if the model OID is populated.
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.3697.1.10.10.1.6"
-  information: "Provides monitoring of i40/i80 Quantum Tape Libraries through the SNMP Agent (ADIC)."
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.3697.1.10.10.1.6
+  information: Provides monitoring of i40/i80 Quantum Tape Libraries through the SNMP Agent (ADIC).
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
           # Source(1) = \ttapeLibrarySystem SNMP table\nVendor;SerialNumber;Model;Firmware Revision
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3697.1.10.10.1
           selectColumns: "4,5,7,11"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "Quantum Library"
-          vendor: "$column(1)"
-          model: "$column(3)"
-          serial_number: "$column(2)"
-          bios_version: "$column(4)"
-          type: "Storage"
+          id: Quantum Library
+          vendor: $column(1)
+          model: $column(3)
+          serial_number: $column(2)
+          bios_version: $column(4)
+          type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", \"Quantum Library\", $column(1), $column(3), \"Storage\")"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.8.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.8.0
           computes:
             # Duplicate status, because we will translate it two times
             # Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate Status into PATROLStatus
             # PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "Quantum Library"
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: Quantum Library
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(1)"
+          hw.status{hw.type="enclosure"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   fan:
     discovery:
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.10.2.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.10.2.0
           computes:
             # Add the device ID
             # ID;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Overall Cooling Status;"
+            value: Overall Cooling Status;
             #  Only keep Overall Cooling Status if there is a valid status
             # ID;Status
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "1,2,3,4,5"
       mapping:
         # InstanceTable = Discovery.Source(1)
         # ID;Status
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Quantum Library"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: Quantum Library
+          name: $column(1)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.10.2.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.10.2.0
           computes:
             # Duplicate status, because we will translate it two times
             # Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate Status into PATROLStatus
             # PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "Overall Cooling Status"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: Overall Cooling Status
         metrics:
-          hw.status{hw.type="fan"}: "$column(1)"
+          hw.status{hw.type="fan"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   power_supply:
     discovery:
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.10.1.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.10.1.0
           computes:
             # Add the device ID
             # ID;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Overall Power Status;"
+            value: Overall Power Status;
             #  Only keep Overall Power Status if there is a valid status
             # ID;Status
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "1,2,3,4,5"
       mapping:
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          power_supply_type: "Overall Power Status"
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Quantum Library"
+          power_supply_type: Overall Power Status
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: Quantum Library
           name: "sprintf(\"%s (%s)\", $column(1), \"Overall Power Status\")"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.10.1.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.10.1.0
           computes:
             # Duplicate status, because we will translate it two times
             # Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate Status into PATROLStatus
             # PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "Overall Power Status"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: Overall Power Status
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(1)"
+          hw.status{hw.type="power_supply"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   robotics:
     discovery:
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.10.5.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.10.5.0
           computes:
             # Add the device ID
             # ID;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Overall Cassette Robotics Status;"
+            value: Overall Cassette Robotics Status;
             #  Only keep Overall Cassette Robot Status if there is a valid status
             # ID;Status
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "1,2,3,4,5"
       mapping:
         # Instance Table
         # ID;Status
-        source: "$monitors.robotics.discovery.sources.source(1)$"
+        source: $monitors.robotics.discovery.sources.source(1)$
         attributes:
-          robotic_type: "Overall Robotics Status"
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Quantum Library"
+          robotic_type: Overall Robotics Status
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: Quantum Library
           name: "sprintf(\"%s (%s)\", $column(1), \"Overall Robotics Status\")"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Get the Robotics status
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.10.5.0"
+          _comment: Get the Robotics status
+          type: snmpGet
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.10.5.0
           computes:
             # Duplicate status, because we will translate it two times
             # Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate Status into PATROLStatus
             # deviceID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate second Status into more readable string
             # deviceID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        # Value Table
-        source: "$monitors.robotics.collect.sources.source(1)$"
-        deviceId: "Overall Cassette Robotics Status"
+        _comment: Value Table
+        source: $monitors.robotics.collect.sources.source(1)$
+        deviceId: Overall Cassette Robotics Status
         metrics:
-          hw.status{hw.type="robotics"}: "$column(1)"
+          hw.status{hw.type="robotics"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   tape_drive:
     discovery:
       sources:
         source(1):
           # Source(1) = \tphysicalDriveEntry SNMP table\nphDriveSerialNumber;phDriveModel;phDriveVendor;phDriveLocation;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.6.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.6.4.1
           selectColumns: "9,3,4,2"
       mapping:
-        # phDriveSerialNumber;phDriveModel;phDriveVendor;phDriveLocation;
-        source: "$monitors.tape_drive.discovery.sources.source(1)$"
+        _comment: phDriveSerialNumber;phDriveModel;phDriveVendor;phDriveLocation;
+        source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
-          id: "$column(4)"
-          model: "$column(2)"
-          serial_number: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Quantum Library"
+          id: $column(4)
+          model: $column(2)
+          serial_number: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: Quantum Library
           name: "sprintf(\"%s (%s)\", $column(4), $column(2))"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = \tphysicalDriveEntry SNMP table\nphDriveLocation;RAS Status;Cleaning Status;Loads
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3697.1.10.10.1.15.6.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3697.1.10.10.1.15.6.4.1
           selectColumns: "2,13,15,14"
           computes:
             # Duplicate status, because we will translate it two times
             # phDriveLocation;Status;RAS Status;Cleaning Status;Loads
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate Status into PATROLStatus
             # phDriveLocation;Patrol Status;RAS Status;Cleaning Status;Loads
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate second Status into more readable string
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status;Loads
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
             # Duplicate Cleaning status, because we will translate it two times
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status;Cleaning Status;Loads
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Translate Status into PATROLStatus
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status (0,1,2);Cleaning Status;Loads
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "CleaningStatusTranslationTable"
+            translationTable: CleaningStatusTranslationTable
             # Translate second Status into more readable string
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status (0,1,2);Cleaning Status Information;Loads
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "CleaningStatusInformationTranslationTable"
+            translationTable: CleaningStatusInformationTranslationTable
             # Merge Drive Status Information and Cleaning Status Information
             # deviceID;PATROLStatus;StatusInformation (incl cleaning);Cleaning Status (0,1,2);Cleaning Status Information;Loads
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: "Column(5)"
+            value: Column(5)
       mapping:
         # Value Table
         # deviceID;PATROLStatus;Status Information (incl cleaning);Cleaning Status (0,1,2);Cleaning Status Information;Loads
-        source: "$monitors.tape_drive.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.tape_drive.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="tape_drive"}: "$column(2)"
-          hw.status{hw.type="tape_drive", state="needs_cleaning"}: "legacyNeedsCleaning($column(4))"
-          hw.tape_drive.operations{type="mount"}: "$column(6)"
+          hw.status{hw.type="tape_drive"}: $column(2)
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($column(4))
+          hw.tape_drive.operations{type="mount"}: $column(6)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

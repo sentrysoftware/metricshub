@@ -1,122 +1,122 @@
 ---
 extends:
-- "CIMProcessorFamily-header"
+- CIMProcessorFamily-header
 translations:
   DMTFOperationStatusTranslationTable:
-    "11": "degraded"
-    "12": "failed"
-    "13": "failed"
-    "14": "failed"
-    "15": "ok"
-    "16": "degraded"
-    "17": "ok"
-    "18": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "degraded"
-    "5": "degraded"
-    "6": "failed"
-    "7": "failed"
-    "8": "degraded"
-    "9": "degraded"
-    "10": "failed"
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
   memoryTypeTranslationTable:
-    "22": "BRAM"
-    "23": "FB-DIMM"
-    "24": "DDR3"
-    "25": "FBD2"
+    "22": BRAM
+    "23": FB-DIMM
+    "24": DDR3
+    "25": FBD2
     default: ""
-    "10": "ROM"
-    "11": "Flash"
-    "12": "EEPROM"
-    "13": "FEPROM"
-    "14": "EPROM"
-    "15": "CDRAM"
-    "16": "3DRAM"
-    "17": "SDRAM"
-    "18": "SGRAM"
-    "19": "RDRAM"
-    "0": "Unknown Memory Type"
-    "1": "Unknown Memory Type"
-    "2": "DRAM"
-    "3": "Synchronous DRAM"
-    "4": "Cache DRAM"
-    "5": "EDO"
-    "6": "EDRAM"
-    "7": "VRAM"
-    "8": "SRAM"
-    "9": "RAM"
-    "20": "DDR"
-    "21": "DDR-2"
+    "10": ROM
+    "11": Flash
+    "12": EEPROM
+    "13": FEPROM
+    "14": EPROM
+    "15": CDRAM
+    "16": 3DRAM
+    "17": SDRAM
+    "18": SGRAM
+    "19": RDRAM
+    "0": Unknown Memory Type
+    "1": Unknown Memory Type
+    "2": DRAM
+    "3": Synchronous DRAM
+    "4": Cache DRAM
+    "5": EDO
+    "6": EDRAM
+    "7": VRAM
+    "8": SRAM
+    "9": RAM
+    "20": DDR
+    "21": DDR-2
   DMTFOperationStatusInformationTranslationTable:
-    "11": "In Service"
-    "12": "No Contact"
-    "13": "Lost Communication"
-    "14": "Aborted"
-    "15": "Dormant"
-    "16": "Supporting Entity in Error"
-    "17": "Completed"
-    "18": "Power Mode"
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
     "2": ""
     default: ""
-    "3": "Degraded"
-    "4": "Stressed"
-    "5": "Predicted Failure"
-    "6": "Error"
-    "7": "Non-Recoverable Error"
-    "8": "Starting"
-    "9": "Stopping"
-    "10": "Stopped"
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
 connector:
-  displayName: "Fujitsu-Siemens Serverview (WBEM)"
-  platforms: "Fujitsu-Siemens PRIMERGY"
-  reliesOn: "Fujitsu-Siemens Serverview WBEM Agent"
-  version: "1.2"
-  information: "This connector provides hardware monitoring through the Fujitsu-Siemens Serverview WBEM Agent (ESX) which supports almost all Fujitsu-Siemens PRIMERGY servers."
+  displayName: Fujitsu-Siemens Serverview (WBEM)
+  platforms: Fujitsu-Siemens PRIMERGY
+  reliesOn: Fujitsu-Siemens Serverview WBEM Agent
+  version: 1.2
+  information: This connector provides hardware monitoring through the Fujitsu-Siemens Serverview WBEM Agent (ESX) which supports almost all Fujitsu-Siemens PRIMERGY servers.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Linux"
-    - "OOB"
+    - Linux
+    - OOB
     supersedes:
-    - "IpmiTool"
-    - "VMwareESX4i"
-    - "VMwareESXi"
-    - "VMwareESXiDisksIPMI"
-    - "VMwareESXiDisksStorage"
+    - IpmiTool
+    - VMwareESX4i
+    - VMwareESXi
+    - VMwareESXiDisksIPMI
+    - VMwareESXiDisksStorage
     criteria:
-      # OS must be Linux or ESX
-    - type: "deviceType"
+    - _comment: OS must be Linux or ESX
+      type: deviceType
       keep:
-      - "Linux"
-      - "OOB"
-      # The HP_ComputerSystemChassis WBEM class must be instanciated
-    - type: "wbem"
-      query: "SELECT Caption FROM SVS_PGYComputerSystem"
-      namespace: "root/SVS"
-      errorMessage: "The Fujitsu Agent seems to not be not accessible or not working properly. Please check connectivity installation of the Fujitsu Agent."
+      - Linux
+      - OOB
+    - _comment: The HP_ComputerSystemChassis WBEM class must be instanciated
+      type: wbem
+      query: SELECT Caption FROM SVS_PGYComputerSystem
+      namespace: root/SVS
+      errorMessage: The Fujitsu Agent seems to not be not accessible or not working properly. Please check connectivity installation of the Fujitsu Agent.
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          # Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
-          type: "wbem"
+          _comment: Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+          type: wbem
           query: "SELECT Manufacturer,Model,SerialNumber FROM SVS_PGYChassis"
-          namespace: "root/SVS"
+          namespace: root/SVS
       mapping:
         # InstanceTable = Source(1)
         #  Manufacturer,Model,SerialNumber
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "FujitsuServer"
-          __display_id: "FujitsuServer"
-          vendor: "$column(1)"
-          model: "$column(2)"
-          serial_number: "$column(3)"
-          type: "Computer"
+          id: FujitsuServer
+          __display_id: FujitsuServer
+          vendor: $column(1)
+          model: $column(2)
+          serial_number: $column(3)
+          type: Computer
           name: "sprintf(\"%s (%s %s - %s)\", \"FujitsuServer\", $column(1), $column(2), \"Computer\")"
   cpu:
     discovery:
@@ -124,501 +124,501 @@ monitors:
         source(1):
           # Discovery
           # Source 1 = HP_Processor Class
-          type: "wbem"
+          type: wbem
           query: "SELECT CurrentClockSpeed,DeviceID,Family,Description FROM SVS_PGYProcessor"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Copy Family number to translate vendor as well
             # CurrentClockSpeed,DeviceID,Family,Family,Description
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the Family number into a vendor
             # CurrentClockSpeed,DeviceID,Vendor,Family,Description
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "cpuVendorTranslationTable"
+            translationTable: cpuVendorTranslationTable
             # Translate the Family number into a model name
             # CurrentClockSpeed,DeviceID,Vendor,Model,Description
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "cpuFamilyTranslationTable"
+            translationTable: cpuFamilyTranslationTable
       mapping:
         # InstanceTable = Source(1)
         # CurrentClockSpeed,DeviceID,Vendor,Model,Description
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          model: "$column(4)"
-          vendor: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "FujitsuServer"
+          id: $column(2)
+          __display_id: $column(2)
+          model: $column(4)
+          vendor: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: FujitsuServer
           name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(2), $column(3), $column(4), $column(1))"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(1))"
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
           # CurrentClockSpeed,DeviceID,OperationalStatus
-          type: "wbem"
+          type: wbem
           query: "SELECT CurrentClockSpeed,DeviceID,OperationalStatus FROM SVS_PGYProcessor"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Duplicate the "OperationalStatusArray" column
             # CurrentClockSpeed,DeviceID,OperationalStatus,OperationalStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # CurrentClockSpeed,DeviceID,PATROLStatusArray,OperationalStatus
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "DMTFOperationStatusTranslationTable"
+            translationTable: DMTFOperationStatusTranslationTable
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # CurrentClockSpeed,DeviceID,PATROLStatusArray,StatusInformation
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 4
-            translationTable: "DMTFOperationStatusInformationTranslationTable"
-            resultSeparator: " - "
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-          - type: "convert"
+          - type: convert
             column: 3
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.cpu.speed: "megaHertz2Hertz($column(1))"
-          hw.status{hw.type="cpu"}: "$column(3)"
+          hw.cpu.speed: megaHertz2Hertz($column(1))
+          hw.status{hw.type="cpu"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   memory:
     discovery:
       sources:
         source(1):
-          # Source(1) SVS_PGYPhysicalMemory
-          type: "wbem"
+          _comment: Source(1) SVS_PGYPhysicalMemory
+          type: wbem
           query: "SELECT Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer FROM SVS_PGYPhysicalMemory"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Convert size to MB
             # Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
-          - type: "divide"
+          - type: divide
             column: 1
-            value: "1024"
+            value: 1024
             # Translate memory type
             # Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "memoryTypeTranslationTable"
+            translationTable: memoryTypeTranslationTable
       mapping:
         # InstanceTable = Source(1)
         # Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          serial_number: "$column(4)"
-          vendor: "$column(6)"
-          model: "$column(5)"
-          type: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "FujitsuServer"
+          id: $column(3)
+          __display_id: $column(3)
+          serial_number: $column(4)
+          vendor: $column(6)
+          model: $column(5)
+          type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: FujitsuServer
           name: "sprintf(\"%s (%s (%s) - %s - %s)\", $column(3), $column(6), $column(5), $column(2), $column(1))"
         metrics:
-          hw.memory.limit: "mebiByte2Byte($column(1))"
+          hw.memory.limit: mebiByte2Byte($column(1))
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
           # DeviceID,OperationalStatus
-          type: "wbem"
+          type: wbem
           query: "SELECT ElementName,OperationalStatus FROM SVS_PGYPhysicalMemory"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Duplicate the "OperationalStatusArray" column
             # DeviceID,OperationalStatus,OperationalStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # DeviceID,PATROLStatusArray,OperationalStatus
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 2
-            translationTable: "DMTFOperationStatusTranslationTable"
+            translationTable: DMTFOperationStatusTranslationTable
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID,PATROLStatusArray,StatusInformation
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "DMTFOperationStatusInformationTranslationTable"
-            resultSeparator: " - "
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID,PATROLStatus,StatusInformation
-          - type: "convert"
+          - type: convert
             column: 2
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="memory"}: "$column(2)"
+          hw.status{hw.type="memory"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = the SVS_PGYFan WBEM class
           # Caption,DeviceID
-          type: "wbem"
+          type: wbem
           query: "SELECT Caption,DeviceID FROM SVS_PGYFan"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Caption,DeviceID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 1
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHWMSHW"
-            newValue: "Column(2)"
+            existingValue: MSHWMSHW
+            newValue: Column(2)
             # Now get rid of any remaining MSHWs
             # Caption,DeviceID
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "FujitsuServer"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: FujitsuServer
+          name: $column(1)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
           # Caption,OperationalStatus
-          type: "wbem"
+          type: wbem
           query: "SELECT Caption,OperationalStatus,DeviceID FROM SVS_PGYFan"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Duplicate the "OperationalStatusArray" column
             # Caption,OperationalStatus,OperationalStatus,DeviceID
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # Caption,PATROLStatusArray,OperationalStatus,DeviceID
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 2
-            translationTable: "DMTFOperationStatusTranslationTable"
+            translationTable: DMTFOperationStatusTranslationTable
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # Caption,PATROLStatusArray,StatusInformation,DeviceID
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "DMTFOperationStatusInformationTranslationTable"
-            resultSeparator: " - "
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "convert"
+          - type: convert
             column: 2
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
             # Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 1
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHWMSHW"
-            newValue: "Column(4)"
+            existingValue: MSHWMSHW
+            newValue: Column(4)
             # Now get rid of any remaining MSHWs
             # Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
         # Value Table
         # DeviceID,PATROLStatus,StatusInformation,DeviceID
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = the SVS_PGYFan WBEM class
-          type: "wbem"
+          _comment: Source(1) = the SVS_PGYFan WBEM class
+          type: wbem
           query: "SELECT Caption,DeviceID FROM SVS_PGYPowerSupply"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Caption,DeviceID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 1
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHWMSHW"
-            newValue: "Column(2)"
+            existingValue: MSHWMSHW
+            newValue: Column(2)
             # Now get rid of any remaining MSHWs
             # Caption,DeviceID
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "FujitsuServer"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: FujitsuServer
           name: "sprintf(\"%s, $column(1))"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
           # DeviceID,OperationalStatus
-          type: "wbem"
+          type: wbem
           query: "SELECT Caption,OperationalStatus,DeviceID FROM SVS_PGYPowerSupply"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Duplicate the "OperationalStatusArray" column
             # Caption,OperationalStatus,OperationalStatus,DeviceID
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # Caption,PATROLStatusArray,OperationalStatus,DeviceID
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 2
-            translationTable: "DMTFOperationStatusTranslationTable"
+            translationTable: DMTFOperationStatusTranslationTable
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # Caption,PATROLStatusArray,StatusInformation,DeviceID
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "DMTFOperationStatusInformationTranslationTable"
-            resultSeparator: " - "
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "convert"
+          - type: convert
             column: 2
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
             # Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 1
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHWMSHW"
-            newValue: "Column(4)"
+            existingValue: MSHWMSHW
+            newValue: Column(4)
             # Now get rid of any remaining MSHWs
             # Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
           # DeviceID, Type
-          type: "wbem"
+          type: wbem
           query: "SELECT Caption,DeviceID,UpperThresholdCritical FROM SVS_PGYTemperatureSensor"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Caption,DeviceID,UpperThresholdCritical
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 1
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHWMSHW"
-            newValue: "Column(2)"
+            existingValue: MSHWMSHW
+            newValue: Column(2)
             # Now get rid of any remaining MSHWs
             # Caption,DeviceID,UpperThresholdCritical
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "FujitsuServer"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: FujitsuServer
+          name: $column(1)
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: "$column(3)"
+          hw.temperature.limit{limit_type="high.critical"}: $column(3)
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the SVS_PGYTemperatureSensor WBEM class
-          type: "wbem"
+          _comment: Source(1) = the SVS_PGYTemperatureSensor WBEM class
+          type: wbem
           query: "SELECT CurrentReading,Caption,DeviceID FROM SVS_PGYTemperatureSensor"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # CurrentReading,Caption,DeviceID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 2
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "MSHWMSHW"
-            newValue: "Column(3)"
+            existingValue: MSHWMSHW
+            newValue: Column(3)
             # Now get rid of any remaining MSHWs
             # CurrentReading,Caption,DeviceID
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.temperature: "$column(1)"
+          hw.temperature: $column(1)
   voltage:
     discovery:
       sources:
         source(1):
           # DeviceID, Type
-          type: "wbem"
+          type: wbem
           query: "SELECT Caption,DeviceID FROM SVS_PGYVoltageSensor"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Caption,DeviceID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 1
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHWMSHW"
-            newValue: "Column(2)"
+            existingValue: MSHWMSHW
+            newValue: Column(2)
             # Now get rid of any remaining MSHWs
             # Caption,DeviceID
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "FujitsuServer"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: FujitsuServer
+          name: $column(1)
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the HP_NumericSensor WBEM class
-          type: "wbem"
+          _comment: Source(1) = the HP_NumericSensor WBEM class
+          type: wbem
           query: "SELECT CurrentReading,Caption,OperationalStatus,DeviceID FROM SVS_PGYVoltageSensor"
-          namespace: "root/SVS"
+          namespace: root/SVS
           computes:
             # Duplicate the "OperationalStatusArray" column
             # CurrentReading,Caption,OperationalStatus,OperationalStatus,DeviceID
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # CurrentReading,Caption,PATROLStatusArray,OperationalStatus,DeviceID
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "DMTFOperationStatusTranslationTable"
+            translationTable: DMTFOperationStatusTranslationTable
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # CurrentReading,Caption,PATROLStatusArray,StatusInformation,DeviceID
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 4
-            translationTable: "DMTFOperationStatusInformationTranslationTable"
-            resultSeparator: " - "
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # CurrentReading,Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "convert"
+          - type: convert
             column: 3
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
             # CurrentReading,Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 2
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "MSHWMSHW"
-            newValue: "Column(5)"
+            existingValue: MSHWMSHW
+            newValue: Column(5)
             # Now get rid of any remaining MSHWs
             # CurrentReading,Caption,PATROLStatus,StatusInformation,DeviceID
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.voltage: "$column(1)"
-          hw.status{hw.type="voltage"}: "$column(3)"
+          hw.voltage: $column(1)
+          hw.status{hw.type="voltage"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

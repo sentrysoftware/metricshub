@@ -1,22 +1,22 @@
 ---
 extends:
-- "LinuxNetwork-header"
+- LinuxNetwork-header
 constants:
-  GLOBAL_COMMAND_LINE: "\"/sbin/ip a\""
-  COLLECT_COMMAND_LINE: "\"/sbin/ip -s link show dev %NetworkCard.Collect.DeviceID%\""
+  GLOBAL_COMMAND_LINE: '"/sbin/ip a"'
+  COLLECT_COMMAND_LINE: '"/sbin/ip -s link show dev %NetworkCard.Collect.DeviceID%"'
 embedded:
   EmbeddedFile(1): "BEGIN {\n\tdeviceID = \"\"\n}\n/^lo[0-9]* / {deviceID = \"\" }\n# ip a\n$2 ~ /^lo[0-9]*/ {deviceID = \"\" }\n$2 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {\n\tdeviceID = $2 ; gsub(\":\",\"\",deviceID)\n        ports[deviceID]=deviceID\n        if ($2 ~ /UP/ || $3 ~ /UP/ ) {portActive[deviceID] = 1}\n        }\n$1 ~ /link.ether/ {macAddress[deviceID] = $2}\n/ +inet [0-9]+/ {\n\tipAddress[deviceID] = $2\n\tgsub(\"/.*\", \"\", ipAddress[deviceID])\n}\n(/ UP / ) {portActive[deviceID] = 1}\n\nEND {\nfor (deviceID in ports) {\n    if (ports[deviceID] != \"\" && portActive[deviceID] == 1) {\n        print \"MSHW;\" deviceID \";\" macAddress[deviceID] \";\" ipAddress[deviceID] \";\"\n\t}\n    }\n}"
   EmbeddedFile(2): "BEGIN {\n\ttransmitPackets = \"\"\n\ttransmitErrors = \"\"\n\treceivePackets = \"\"\n\treceiveErrors = \"\"\n\ttransmitBytes = \"\"\n\treceiveBytes = \"\"\n}\n# ip a\n$2 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {\n\tdeviceID = $2 ; gsub(\":\",\"\",deviceID)\n}\n$1 ~ /RX:/ && $2 ~ /bytes/ && $3 ~ /packets/ {\n    getline\n    receiveBytes = $1\n    receivePackets = $2\n    receiveErrors = $3\n    }\n$1 ~ /TX:/ && $2 ~ /bytes/ && $3 ~ /packets/ {\n    getline\n    transmitBytes = $1\n    transmitPackets = $2\n    transmitErrors = $3\n    }\n\nEND {\n\t\tprint \"MSHW;\" deviceID \";\" receivePackets \";\" transmitPackets \";\" receiveErrors + transmitErrors \";\" receiveBytes \";\" transmitBytes\n}"
 connector:
-  displayName: "Linux - Network (ip)"
-  platforms: "Any system"
-  reliesOn: "Linux system commands (ip)"
-  version: "1.0"
-  information: "This connector provides the monitoring of active network cards on all Linux systems using ip command."
+  displayName: Linux - Network (ip)
+  platforms: Any system
+  reliesOn: Linux system commands (ip)
+  version: 1.0
+  information: This connector provides the monitoring of active network cards on all Linux systems using ip command.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Linux"
+    - Linux
     supersedes:
-    - "LinuxIfConfigNetwork"
+    - LinuxIfConfigNetwork

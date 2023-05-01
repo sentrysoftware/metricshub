@@ -26,285 +26,285 @@ embedded:
     }
 translations:
   statusInformationTranslationTable:
-    "0": "Good"
-    "1": "Internal Failure"
+    "0": Good
+    "1": Internal Failure
   statusTranslationTable:
-    "0": "ok"
-    "1": "failed"
+    "0": ok
+    "1": failed
 connector:
-  displayName: "Eaton PDU (SNMP)"
-  platforms: "Eaton PDU"
-  reliesOn: "PDU SNMP Enabled"
-  version: "1.0"
+  displayName: Eaton PDU (SNMP)
+  platforms: Eaton PDU
+  reliesOn: PDU SNMP Enabled
+  version: 1.0
   information: "This connector provides hardware monitoring through Eaton PDU SNMP interface. Data gathered includes temperature, inlet/outlet voltages, and power consumption."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "OOB"
+    - OOB
     criteria:
-    - type: "snmpGet"
-      oid: "1.3.6.1.4.1.534.6.6.7.1.2.1.3.0"
-      expectedResult: "."
+    - type: snmpGet
+      oid: 1.3.6.1.4.1.534.6.6.7.1.2.1.3.0
+      expectedResult: .
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.1.2.1
           selectColumns: "3,4,5,6"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Firmware Version: "
       mapping:
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(4)"
-          vendor: "Eaton"
-          model: "$column(1)"
-          serial_number: "$column(2)"
-          type: "PDU"
-          info: "$column(3)"
+          id: $column(4)
+          vendor: Eaton
+          model: $column(1)
+          serial_number: $column(2)
+          type: PDU
+          info: $column(3)
           name: "sprintf(\"%s (%s %s - %s)\", $column(4), \"Eaton\", $column(1), \"PDU\")"
     collect:
-      type: "monoInstance"
+      type: monoInstance
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.1.2.1
           selectColumns: "6,31,31"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
-          - type: "translate"
+            value: MSHW;
+          - type: translate
             column: 3
-            translationTable: "statusTranslationTable"
-          - type: "translate"
+            translationTable: statusTranslationTable
+          - type: translate
             column: 4
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
         source(2):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.534.6.6.7.3.4.1.4.0.1.1"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.534.6.6.7.3.4.1.4.0.1.1
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(3):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.6.5.1"
-          selectColumns: "3"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.6.5.1
+          selectColumns: 3
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(4):
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(2)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(2)$
+          rightTable: $monitors.enclosure.collect.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: "MSHW;;"
+          defaultRightLine: MSHW;;
           computes:
-          - type: "awk"
-            script: "EmbeddedFile(1)"
+          - type: awk
+            script: EmbeddedFile(1)
         source(5):
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        source: "$monitors.enclosure.collect.sources.source(5)$"
-        deviceId: "$column(2)"
+        source: $monitors.enclosure.collect.sources.source(5)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(3)"
-          hw.enclosure.power: "$column(6)"
-          hw.enclosure.energy: "fakeCounter($column(6))"
+          hw.status{hw.type="enclosure"}: $column(3)
+          hw.enclosure.power: $column(6)
+          hw.enclosure.energy: fakeCounter($column(6))
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   temperature:
     discovery:
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.534.6.6.7.1.2.1.6.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.534.6.6.7.1.2.1.6.0
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(2):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.7.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.7.1.1
           selectColumns: "2,8,9"
           computes:
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "10"
-          - type: "divide"
+            value: 10
+          - type: divide
             column: 3
-            value: "10"
-          - type: "leftConcat"
+            value: 10
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
-          - type: "keepOnlyMatchingLines"
+            value: MSHW;
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "."
+            regExp: .
         source(3):
-          type: "tableJoin"
-          leftTable: "$monitors.temperature.discovery.sources.source(1)$"
-          rightTable: "$monitors.temperature.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.temperature.discovery.sources.source(1)$
+          rightTable: $monitors.temperature.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        source: "$monitors.temperature.discovery.sources.source(3)$"
+        source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
-          id: "$column(4)"
-          __display_id: "$column(4)"
-          temperature_type: "enclosure"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(4)
+          __display_id: $column(4)
+          temperature_type: enclosure
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"enclosure\")"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(5)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(6)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(5)
+          hw.temperature.limit{limit_type="high.critical"}: $column(6)
     collect:
-      type: "monoInstance"
+      type: monoInstance
       sources:
         source(1):
-          # Source(1) = ID; temperature
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.7.1.1"
+          _comment: Source(1) = ID; temperature
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.7.1.1
           selectColumns: "2,4"
           computes:
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "10"
+            value: 10
       mapping:
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
+          hw.temperature: $column(2)
   voltage:
     discovery:
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.534.6.6.7.1.2.1.6.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.534.6.6.7.1.2.1.6.0
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(2):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.3.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.3.2.1
           selectColumns: "6,8"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
-          - type: "keepOnlyMatchingLines"
+            value: MSHW;
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "."
+            regExp: .
         source(3):
-          type: "tableJoin"
-          leftTable: "$monitors.voltage.discovery.sources.source(1)$"
-          rightTable: "$monitors.voltage.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(1)$
+          rightTable: $monitors.voltage.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: "MSHW;;"
+          defaultRightLine: MSHW;;
         source(4):
-          type: "copy"
-          from: "$monitors.voltage.discovery.sources.source(3)$"
+          type: copy
+          from: $monitors.voltage.discovery.sources.source(3)$
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;Inlet;"
+            value: MSHW;Inlet;
         source(5):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.6.1.1"
-          selectColumns: "3"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.6.1.1
+          selectColumns: 3
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(6):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.6.3.1"
-          selectColumns: "2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.6.3.1
+          selectColumns: 2
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(7):
-          type: "tableJoin"
-          leftTable: "$monitors.voltage.discovery.sources.source(5)$"
-          rightTable: "$monitors.voltage.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(5)$
+          rightTable: $monitors.voltage.discovery.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(8):
-          type: "tableJoin"
-          leftTable: "$monitors.voltage.discovery.sources.source(5)$"
-          rightTable: "$monitors.voltage.discovery.sources.source(6)$"
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(5)$
+          rightTable: $monitors.voltage.discovery.sources.source(6)$
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(9):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.voltage.discovery.sources.source(4)$"
-          - "$monitors.voltage.discovery.sources.source(8)$"
+          - $monitors.voltage.discovery.sources.source(4)$
+          - $monitors.voltage.discovery.sources.source(8)$
       mapping:
-        source: "$monitors.voltage.discovery.sources.source(9)$"
+        source: $monitors.voltage.discovery.sources.source(9)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(4)"
-          name: "$column(2)"
+          id: $column(2)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(4)
+          name: $column(2)
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: "$column(6)"
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(7)"
+          hw.voltage.limit{limit_type="low.critical"}: $column(6)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(7)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.534.6.6.7.3.2.1.3.0.1.1"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.534.6.6.7.3.2.1.3.0.1.1
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;Inlet;MSHW;"
+            value: MSHW;Inlet;MSHW;
         source(2):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.6.1.1"
-          selectColumns: "3"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.6.1.1
+          selectColumns: 3
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(3):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.534.6.6.7.6.1.1"
-          selectColumns: "2"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.534.6.6.7.6.1.1
+          selectColumns: 2
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "MSHW;"
+            value: MSHW;
         source(4):
-          type: "tableJoin"
-          leftTable: "$monitors.voltage.discovery.sources.source(2)$"
-          rightTable: "$monitors.voltage.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(2)$
+          rightTable: $monitors.voltage.discovery.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(5):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.voltage.collect.sources.source(1)$"
-          - "$monitors.voltage.collect.sources.source(4)$"
+          - $monitors.voltage.collect.sources.source(1)$
+          - $monitors.voltage.collect.sources.source(4)$
       mapping:
-        source: "$monitors.voltage.collect.sources.source(5)$"
-        deviceId: "$column(2)"
+        source: $monitors.voltage.collect.sources.source(5)$
+        deviceId: $column(2)
         metrics:
-          hw.voltage: "$column(4)"
+          hw.voltage: $column(4)

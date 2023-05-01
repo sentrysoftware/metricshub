@@ -1,258 +1,258 @@
 ---
 translations:
   BatteryStatusInformationTranslationTable:
-    "1": "Predicted Failure"
-    "2": "Failed"
-    "3": "Failed"
+    "1": Predicted Failure
+    "2": Failed
+    "3": Failed
     "4": ""
-    "5": "Predicted Failure"
-    "6": "Failed"
-    "7": "Failed"
+    "5": Predicted Failure
+    "6": Failed
+    "7": Failed
   ProcessorStatusInformationTranslationTable:
-    "10,1": "Throttled"
-    "0,1": "Internal Error"
-    "1,1": "Thermal Trip"
-    "5,1": "Configuration Error"
+    "10,1": Throttled
+    "0,1": Internal Error
+    "1,1": Thermal Trip
+    "5,1": Configuration Error
     "7,1": ""
-    "8,1": "Disabled"
-    "9,1": "Terminator"
+    "8,1": Disabled
+    "9,1": Terminator
   RACTypeTranslationTable:
-    default: "DRAC"
-    "3": "DracIII"
-    "4": "ERA"
-    "5": "DRAC4"
-    "6": "DRAC5"
+    default: DRAC
+    "3": DracIII
+    "4": ERA
+    "5": DRAC4
+    "6": DRAC5
   EnvironmentStatusTranslationTable:
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "degraded"
-    "5": "failed"
-    "6": "failed"
-    "7": "degraded"
-    "8": "failed"
-    "9": "failed"
-    "10": "failed"
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": degraded
+    "8": failed
+    "9": failed
+    "10": failed
   GenericStatusTranslationTable:
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "degraded"
-    "5": "failed"
-    "6": "failed"
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
   GenericStatusInformationTranslationTable:
-    default: "Unknown Status"
+    default: Unknown Status
     "3": ""
-    "4": "Non Critical"
-    "5": "Critical"
-    "6": "Unrecoverable"
+    "4": Non Critical
+    "5": Critical
+    "6": Unrecoverable
   MemoryTypeTranslationTable:
-    "11": "FEPROM"
-    "12": "EPROM"
-    "13": "CDRAM"
-    "24": "DDR3"
-    "14": "3DRAM"
-    "25": "FBD2"
-    "15": "SDRAM"
-    "26": "DDR4"
-    "16": "SGRAM"
-    "17": "RDRAM"
-    "18": "DDR"
-    "19": "DDR2"
-    "1": "Other type"
-    "2": "Unknown type"
+    "11": FEPROM
+    "12": EPROM
+    "13": CDRAM
+    "24": DDR3
+    "14": 3DRAM
+    "25": FBD2
+    "15": SDRAM
+    "26": DDR4
+    "16": SGRAM
+    "17": RDRAM
+    "18": DDR
+    "19": DDR2
+    "1": Other type
+    "2": Unknown type
     default: ""
-    "3": "DRAM"
-    "4": "EDRAM"
-    "5": "VRAM"
-    "6": "SRAM"
-    "7": "RAM"
-    "8": "ROM"
-    "9": "Flash"
-    "20": "DDR2 FB-DIMM"
-    "10": "EEPROM"
+    "3": DRAM
+    "4": EDRAM
+    "5": VRAM
+    "6": SRAM
+    "7": RAM
+    "8": ROM
+    "9": Flash
+    "20": DDR2 FB-DIMM
+    "10": EEPROM
   cpuFamilyTranslationTable:
-    "88": "UltraSPARC IIIi"
-    "190": "Core2"
-    "191": "Core2 Duo"
-    "198": "Corei7"
-    "199": "Dual Core Celeron"
-    "112": "Hobbit"
-    "96": "68040"
-    "97": "68xxx"
-    "10": "80487"
-    "98": "68000"
-    "11": "Pentium"
-    "99": "68010"
-    "12": "Pentium Pro"
-    "13": "Pentium II"
-    "14": "Pentium MMX"
-    "15": "Celeron"
-    "16": "Pentium II Xeon"
-    "17": "Pentium III"
-    "18": "Pentium III Xeon"
-    "19": "Pentium III SpeedStep"
-    "120": "Crusoe TM5000"
-    "121": "Crusoe TM3000"
-    "122": "Efficeon TM8000"
-    "3": "8086"
-    "4": "80286"
-    "5": "386"
-    "6": "486"
-    "7": "8087"
-    "128": "Weitek"
-    "8": "80287"
-    "9": "80387"
-    "20": "Itanium"
-    "21": "Xeon"
-    "22": "Pentium 4"
-    "23": "Xeon MP"
-    "24": "Itanium 2"
-    "25": "K5"
-    "26": "K6"
-    "27": "K6-2"
-    "28": "K6-3"
-    "29": "Athlon"
-    "250": "i860"
-    "251": "i960"
-    "131": "Athlon64"
-    "132": "Opteron"
-    "133": "Sempron"
-    "134": "Turion64 Mobile"
+    "88": UltraSPARC IIIi
+    "190": Core2
+    "191": Core2 Duo
+    "198": Corei7
+    "199": Dual Core Celeron
+    "112": Hobbit
+    "96": 68040
+    "97": 68xxx
+    "10": 80487
+    "98": 68000
+    "11": Pentium
+    "99": 68010
+    "12": Pentium Pro
+    "13": Pentium II
+    "14": Pentium MMX
+    "15": Celeron
+    "16": Pentium II Xeon
+    "17": Pentium III
+    "18": Pentium III Xeon
+    "19": Pentium III SpeedStep
+    "120": Crusoe TM5000
+    "121": Crusoe TM3000
+    "122": Efficeon TM8000
+    "3": 8086
+    "4": 80286
+    "5": 386
+    "6": 486
+    "7": 8087
+    "128": Weitek
+    "8": 80287
+    "9": 80387
+    "20": Itanium
+    "21": Xeon
+    "22": Pentium 4
+    "23": Xeon MP
+    "24": Itanium 2
+    "25": K5
+    "26": K6
+    "27": K6-2
+    "28": K6-3
+    "29": Athlon
+    "250": i860
+    "251": i960
+    "131": Athlon64
+    "132": Opteron
+    "133": Sempron
+    "134": Turion64 Mobile
     default: ""
-    "135": "Dual Core Opteron"
-    "136": "Athlon64 X2 Dual Core"
-    "137": "Turion64 X2 Mobile"
-    "138": "QuadCore Opteron"
-    "139": "3rd Generation Opteron"
-    "30": "2900"
-    "31": "K6-2+"
-    "32": "PowerPC"
-    "33": "PowerPC 601"
-    "34": "PowerPC 603"
-    "35": "PowerPC 603+"
-    "36": "PowerPC 604"
-    "37": "PowerPC 620"
-    "38": "PowerPC x704"
-    "39": "PowerPC 750"
-    "144": "PA-RISC"
-    "145": "PA-RISC 8500"
-    "146": "PA-RISC 8000"
-    "147": "PA-RISC 7300LC"
-    "148": "PA-RISC 7200"
-    "149": "PA-RISC 7100LC"
-    "48": "Alpha"
-    "49": "Alpha21064"
-    "150": "PA-RISC 7100"
-    "50": "Alpha21066"
-    "51": "Alpha21164"
-    "52": "Alpha21164PC"
-    "53": "Alpha21164a"
-    "54": "Alpha21264"
-    "55": "Alpha21364"
-    "160": "V30"
-    "200": "IBM390"
-    "201": "G4"
-    "202": "G5"
-    "203": "ESA390G6"
-    "204": "zArchitectur"
-    "64": "MIPS"
-    "65": "MIPS R4000"
-    "66": "MIPS R4200"
-    "67": "MIPS R4400"
-    "68": "MIPS R4600"
-    "69": "MIPS R10000"
-    "171": "Dual Core Xeon 5200"
-    "172": "Dual Core Xeon 7200"
-    "173": "Quad Core Xeon 7300"
-    "174": "Quad Core Xeon 7400"
-    "175": "MultiCore Xeon 7400"
-    "176": "M1"
-    "177": "M2"
-    "210": "VIAC7-M"
-    "211": "VIAC7-D"
-    "212": "VIAC7"
-    "213": "VIAEden"
-    "214": "MultiCore Xeon"
-    "215": "Dual Core Xeon 3xxx"
-    "216": "Quad Core Xeon 3xxx"
-    "218": "Dual Core Xeon 5xxx"
-    "219": "Quad Core Xeon 5xxx"
-    "180": "AS400"
-    "182": "AthlonXP"
-    "183": "AthlonMP"
-    "184": "Duron"
-    "185": "Pentium M"
-    "186": "Celeron D"
-    "187": "Pentium D"
-    "100": "68020"
-    "188": "Pentium Extreme"
-    "221": "Dual Core Xeon 7xxx"
-    "101": "68030"
-    "189": "Core Solo"
-    "222": "Quad Core Xeon 7xxx"
-    "223": "MultiCore Xeon 7xxx"
-    "80": "SPARC"
-    "81": "SuperSPARC"
-    "82": "microSPARC II"
-    "83": "microSPARC IIep"
-    "84": "UltraSPARC"
-    "85": "UltraSPARC II"
-    "86": "UltraSPARC IIi"
-    "87": "UltraSPARC III"
+    "135": Dual Core Opteron
+    "136": Athlon64 X2 Dual Core
+    "137": Turion64 X2 Mobile
+    "138": QuadCore Opteron
+    "139": 3rd Generation Opteron
+    "30": 2900
+    "31": K6-2+
+    "32": PowerPC
+    "33": PowerPC 601
+    "34": PowerPC 603
+    "35": PowerPC 603+
+    "36": PowerPC 604
+    "37": PowerPC 620
+    "38": PowerPC x704
+    "39": PowerPC 750
+    "144": PA-RISC
+    "145": PA-RISC 8500
+    "146": PA-RISC 8000
+    "147": PA-RISC 7300LC
+    "148": PA-RISC 7200
+    "149": PA-RISC 7100LC
+    "48": Alpha
+    "49": Alpha21064
+    "150": PA-RISC 7100
+    "50": Alpha21066
+    "51": Alpha21164
+    "52": Alpha21164PC
+    "53": Alpha21164a
+    "54": Alpha21264
+    "55": Alpha21364
+    "160": V30
+    "200": IBM390
+    "201": G4
+    "202": G5
+    "203": ESA390G6
+    "204": zArchitectur
+    "64": MIPS
+    "65": MIPS R4000
+    "66": MIPS R4200
+    "67": MIPS R4400
+    "68": MIPS R4600
+    "69": MIPS R10000
+    "171": Dual Core Xeon 5200
+    "172": Dual Core Xeon 7200
+    "173": Quad Core Xeon 7300
+    "174": Quad Core Xeon 7400
+    "175": MultiCore Xeon 7400
+    "176": M1
+    "177": M2
+    "210": VIAC7-M
+    "211": VIAC7-D
+    "212": VIAC7
+    "213": VIAEden
+    "214": MultiCore Xeon
+    "215": Dual Core Xeon 3xxx
+    "216": Quad Core Xeon 3xxx
+    "218": Dual Core Xeon 5xxx
+    "219": Quad Core Xeon 5xxx
+    "180": AS400
+    "182": AthlonXP
+    "183": AthlonMP
+    "184": Duron
+    "185": Pentium M
+    "186": Celeron D
+    "187": Pentium D
+    "100": 68020
+    "188": Pentium Extreme
+    "221": Dual Core Xeon 7xxx
+    "101": 68030
+    "189": Core Solo
+    "222": Quad Core Xeon 7xxx
+    "223": MultiCore Xeon 7xxx
+    "80": SPARC
+    "81": SuperSPARC
+    "82": microSPARC II
+    "83": microSPARC IIep
+    "84": UltraSPARC
+    "85": UltraSPARC II
+    "86": UltraSPARC IIi
+    "87": UltraSPARC III
   PowerSupplyTypeTranslationTable:
-    "11": "VRM"
+    "11": VRM
     default: ""
-    "3": "Linear"
-    "4": "Switching"
-    "5": "Battery"
-    "6": "UPS"
-    "7": "Converter"
-    "8": "Regulator"
-    "9": "AC"
-    "10": "DC"
+    "3": Linear
+    "4": Switching
+    "5": Battery
+    "6": UPS
+    "7": Converter
+    "8": Regulator
+    "9": AC
+    "10": DC
   EnvironmentStatusInformationTranslationTable:
-    default: "Unknown Status"
+    default: Unknown Status
     "3": ""
-    "4": "Non-Critical Upper"
-    "5": "Critical Upper"
-    "6": "Unrecoverable Upper"
-    "7": "Non-Critical Lower"
-    "8": "Critical Lower"
-    "9": "Unrecoverable Lower"
-    "10": "Failed"
+    "4": Non-Critical Upper
+    "5": Critical Upper
+    "6": Unrecoverable Upper
+    "7": Non-Critical Lower
+    "8": Critical Lower
+    "9": Unrecoverable Lower
+    "10": Failed
   PowerSupplyStatusInformationTranslationTable:
-    "13,1": "AC Out-of-range"
-    "12,1": "AC Lost or Out-of-range"
-    "10,1": "Predicted Failure"
-    "11,1": "AC Lost"
+    "13,1": AC Out-of-range
+    "12,1": AC Lost or Out-of-range
+    "10,1": Predicted Failure
+    "11,1": AC Lost
     "0,1": ""
-    "2,1": "Not Ready"
-    "3,1": "Fan Failure"
-    "6,1": "AC Switch On"
-    "7,1": "AC Power On"
+    "2,1": Not Ready
+    "3,1": Fan Failure
+    "6,1": AC Switch On
+    "7,1": AC Power On
     "8,1": ""
-    "9,1": "Failed"
-    "14,1": "Configuration Error"
+    "9,1": Failed
+    "14,1": Configuration Error
 connector:
-  displayName: "Dell OpenManage Server Administrator"
-  platforms: "Dell PowerEdge"
-  reliesOn: "Dell OpenManage Server Administrator"
-  version: "1.0"
-  information: "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
+  displayName: Dell OpenManage Server Administrator
+  platforms: Dell PowerEdge
+  reliesOn: Dell OpenManage Server Administrator
+  version: 1.0
+  information: This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
-    - "Linux"
+    - NT
+    - Linux
     supersedes:
-    - "IpmiTool"
-    - "VMwareESX4i"
-    - "VMwareESXi"
-    - "VMwareESXiDisksIPMI"
-    - "VMwareESXiDisksStorage"
+    - IpmiTool
+    - VMwareESX4i
+    - VMwareESXi
+    - VMwareESXiDisksIPMI
+    - VMwareESXiDisksStorage
     criteria:
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.674.10892.1.300.10.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.674.10892.1.300.10.1
 monitors:
   enclosure:
     discovery:
@@ -260,129 +260,129 @@ monitors:
         source(1):
           # Get the model code in the chassis table
           # ID;Model;ServiceTag;ServiceCode;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.300.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.300.10.1
           selectColumns: "ID,9,11,49"
           computes:
             # Keep only the first chassis, which should be (I hope!) the main system chassis entry
             # ID;Model;ServiceTag;ServiceCode;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "1"
+            valueList: 1
             # Add "Serial Number: " to the ServiceTag column
             # ID;Model;ServiceTag;ServiceCode;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Serial Number: "
             # Add "Alternative Serial Number: " to the ServiceCode column
             # ID;Model;ServiceTag;ServiceCode;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Alternative Serial Number: "
         source(2):
           # Check whether we will have the powerconsumption information
           # Source(2) = powerUsageTable SNMP Table
           # chassisIndex;systemWattage
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.60.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.60.1
           selectColumns: "1,7"
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # ID;Model;ServiceTag;ServiceCode;chassisIndex;systemWattage;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
-        # Now we have what is necessary to define the computer model
-        source: "$monitors.enclosure.discovery.sources.source(3)$"
+        _comment: Now we have what is necessary to define the computer model
+        source: $monitors.enclosure.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          vendor: "Dell"
-          model: "$column(2)"
-          type: "Computer"
+          id: $column(1)
+          vendor: Dell
+          model: $column(2)
+          type: Computer
           info: "join($column(3), $column(4), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), \"Computer\")"
     collect:
-      # Collect
-      type: "multiInstance"
+      _comment: Collect
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP Table
           # DeviceID;systemStateChassisStatus
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.300.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.300.10.1
           selectColumns: "ID,4"
           computes:
             # Duplicate systemStateChassisStatus
             # DeviceID;systemStateChassisStatus;systemStateChassisStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first systemStateChassisStatus into a PATROL status
             # DeviceID;PATROLStatus;systemStateChassisStatus
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "GenericStatusTranslationTable"
+            translationTable: GenericStatusTranslationTable
             # Translate the second systemStateChassisStatus into a more readable string
             # DeviceID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "GenericStatusInformationTranslationTable"
+            translationTable: GenericStatusInformationTranslationTable
         source(2):
           # Source(2) = intrusionTable SNMP Table
           # chassisIndex;intrusionStatus
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.300.70.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.300.70.1
           selectColumns: "1,5"
           computes:
             # Translate Dell's intrusion status into a PATROLStatus
             # chassisIndex;intrusionStatus
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "GenericStatusTranslationTable"
+            translationTable: GenericStatusTranslationTable
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;PATROLStatus;statusInformation;chassisIndex;intrusionStatus
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
         source(4):
           # Source(4) = powerUsageTable SNMP Table
           # chassisIndex;systemWattage
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.60.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.60.1
           selectColumns: "1,7"
           computes:
             # Convert Watt-hour into kilowatt-hour
             # chassisIndex;energyUsage;
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "1000"
+            value: 1000
         source(5):
           # Source(5) = Table joint of Source(3) and Source(4)
           # DeviceID;PATROLStatus;statusInformation;chassisIndex;intrusionStatus;chassisIndex;energyUsage;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(3)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(3)$
+          rightTable: $monitors.enclosure.collect.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
-        # The ValueTable = Source(5)
-        source: "$monitors.enclosure.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable = Source(5)
+        source: $monitors.enclosure.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(2)"
-          hw.status{hw.type="enclosure", state="open"}: "legacyIntrusionStatus($column(5))"
-          hw.enclosure.energy: "$column(7)"
-          hw.enclosure.power: "rate($column(7))"
+          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(5))
+          hw.enclosure.energy: $column(7)
+          hw.enclosure.power: rate($column(7))
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
@@ -390,703 +390,703 @@ monitors:
           # Source(1) = the temperatureProbeTable SNMP table
           # Temps are given in tenth of degrees celsius
           # ID;currentReading;tempLocation;alarmThreshold;warningThreshold
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.700.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.700.20.1
           selectColumns: "ID,6,8,10,11"
           computes:
             # Convert tenth of celsius to celsius
             # ID;currentReading;tempLocation;alarmThreshold;warningThreshold
-          - type: "divide"
+          - type: divide
             column: 4
-            value: "10"
-          - type: "divide"
+            value: 10
+          - type: divide
             column: 5
-            value: "10"
+            value: 10
             # Remove " Temp" from the sensor location
             # ID;currentReading;tempLocation;alarmThreshold;warningThreshold
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: " Temp"
+            existingValue: ' Temp'
             newValue: ""
             # Remove "BMC " from the sensor location
             # ID;currentReading;tempLocation;alarmThreshold;warningThreshold
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "BMC "
+            existingValue: 'BMC '
             newValue: ""
       mapping:
-        # Instance table = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: Instance table = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(5)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(5)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      # Collect type is MultiInstance
-      type: "multiInstance"
+      _comment: Collect type is MultiInstance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = temperatureProbeTable SNMP Table
           # DeviceID;temperatureProbeStatus;temperatureProbeReading
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.700.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.700.20.1
           selectColumns: "ID,5,6"
           computes:
             # Duplicate the temperatureProbeStatus column
             # DeviceID;temperatureProbeStatus;temperatureProbeStatus;temperatureProbeReading
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # The value given by OpenManage is in tenth of degrees, so convert it to degrees
             # DeviceID;temperatureProbeStatus;temperatureProbeStatus;TemperatureCelsius
-          - type: "divide"
+          - type: divide
             column: 4
-            value: "10"
+            value: 10
             # Translate first temperatureProbeStatus into a PATROL status
             # DeviceID;PATROLStatus;temperatureProbeStatus;TemperatureCelsius
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "EnvironmentStatusTranslationTable"
+            translationTable: EnvironmentStatusTranslationTable
             # Translate second temperatureProbeStatus into a more readable string
             # DeviceID;PATROLStatus;statusInformation;TemperatureCelsius
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "EnvironmentStatusInformationTranslationTable"
+            translationTable: EnvironmentStatusInformationTranslationTable
       mapping:
-        # The ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="temperature"}: "$column(2)"
-          hw.temperature: "$column(4)"
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = the coolingDeviceTable table
           # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.700.12.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.700.12.1
           selectColumns: "ID,6,8,12,13,16"
           computes:
             # Remove the word " FAN" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "fan"
+            existingValue: fan
             newValue: ""
             # Remove the word " RPM" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: " RPM"
+            existingValue: ' RPM'
             newValue: ""
             # Remove the word "BMC " from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "BMC "
+            existingValue: 'BMC '
             newValue: ""
             # Remove the word " Fan" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "fan"
+            existingValue: fan
             newValue: ""
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(4)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(5)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
     collect:
-      # Collect type = mono-instance
-      type: "multiInstance"
+      _comment: Collect type = mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = coolingDeviceTable SNMP Tabl
           # DeviceID;coolingDeviceStatus;coolingDeviceReading
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.700.12.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.700.12.1
           selectColumns: "ID,5,6"
           computes:
             # Duplicate the coolingDeviceStatus column
             # DeviceID;coolingDeviceStatus;coolingDeviceStatus;coolingDeviceReading
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first coolingDeviceStatus into a PATROL Status
             # DeviceID;PATROLStatus;coolingDeviceStatus;coolingDeviceReading
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "EnvironmentStatusTranslationTable"
+            translationTable: EnvironmentStatusTranslationTable
             # Translate the second coolingDeviceStatus into a more readable string
             # DeviceID;PATROLStatus;statusInformation;coolingDeviceReading
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "EnvironmentStatusInformationTranslationTable"
+            translationTable: EnvironmentStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
-          hw.fan.speed: "$column(4)"
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   voltage:
     discovery:
       sources:
         source(1):
           # Source(1) = voltageProbeTable SNMP Table
           # ID;VoltageReading;voltageProbeLocationName;UpperThreshold;LowerThreshold;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.20.1
           selectColumns: "ID,6,8,11,12"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(4)"
-          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
+          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
+          hw.voltage.limit{limit_type="low.critical"}: $column(5)
     collect:
-      # Collect type = mono-instance
-      type: "multiInstance"
+      _comment: Collect type = mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the voltageProbeTable
           # ID;Status;VoltageReading
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.20.1
           selectColumns: "ID,5,6"
           computes:
             # Duplicate the status column
             # ID;Status;Status;VoltageReading
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROL Status
             # ID;PATROLStatus;Status;VoltageReading
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "EnvironmentStatusTranslationTable"
+            translationTable: EnvironmentStatusTranslationTable
             # Translate the second status column into a more readable string
             # ID;PATROLStatus;statusInformation;VoltageReading
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "EnvironmentStatusInformationTranslationTable"
+            translationTable: EnvironmentStatusInformationTranslationTable
       mapping:
-        # ValueTable = source(1)
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.voltage: "$column(4)"
-          hw.status{hw.type="voltage"}: "$column(2)"
+          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = the powerSupplyTable table
           # ID;PowerSupplyPower;powerSupplyTypeCode;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.12.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.12.1
           selectColumns: "ID,6,7"
           computes:
             # Translate the power supply type
             # ID;PowerSupplyPower;powerSupplyType;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PowerSupplyTypeTranslationTable"
+            translationTable: PowerSupplyTypeTranslationTable
             # Convert the power from tenth of watts to watts
             # ID;PowerSupplyPower;powerSupplyType;
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "10"
+            value: 10
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          power_supply_type: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          power_supply_type: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
         metrics:
-          hw.power_supply.limit: "$column(2)"
+          hw.power_supply.limit: $column(2)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = powerSupplyTable SNMP table
           # DeviceID;stateSettings;Status;SensorState;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.12.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.12.1
           selectColumns: "ID,4,5,11"
           computes:
             # Translate the powerSupplyStatus into a PATROL status
             # DeviceID;stateSettings;PATROLStatus;SensorState;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "GenericStatusTranslationTable"
+            translationTable: GenericStatusTranslationTable
             # Add up stateSettings and SensorState for a per-bit translation
             # DeviceID;stateSettings+SensorState*256;PATROLStatus;SensorState;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "256"
-          - type: "add"
+            value: 256
+          - type: add
             column: 2
-            value: "Column(4)"
+            value: Column(4)
             # Translate the stateSettings+SensorState*256 into a more readable string
             # DeviceID;StatusInformation;PATROLStatus;SensorState;
-          - type: "perBitTranslation"
+          - type: perBitTranslation
             column: 2
             bitList: "0,2,3,6,7,8,9,10,11,12,13,14"
-            translationTable: "PowerSupplyStatusInformationTranslationTable"
+            translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(3)"
+          hw.status{hw.type="power_supply"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   memory:
     discovery:
       sources:
         source(1):
           # Source(1) = the physicalMemoryArrayTable snmp table
           # ID;typeCode;location;size;manufacturer;PartNumber;SerialNumber;AssetTagName;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.50.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.50.1
           selectColumns: "ID,7,8,14,21,22,23,24"
           computes:
             # Keep memory modules for which the size is known
             # ID;typeCode;location;size;manufacturer;PartNumber;SerialNumber;AssetTagName;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
             valueList: "0,2147483647"
             # Translate memory from KM in MB
             # ID;typeCode;location;sizeMB;manufacturer;PartNumber;SerialNumber;AssetTagName;
-          - type: "divide"
+          - type: divide
             column: 4
-            value: "1024"
+            value: 1024
             # Translate memory type
             # ID;type;location;sizeMB;manufacturer;PartNumber;SerialNumber;AssetTagName;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "MemoryTypeTranslationTable"
+            translationTable: MemoryTypeTranslationTable
             # Add "Location: " to the location column
             # Add "Part Number: " to the part number column
             # Add "Alternative Serial Number: " to the AssetTagName column
             # ID;type;location;sizeMB;manufacturer;PartNumber;SerialNumber;AssetTagName;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Location: Slot "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 8
             value: "Alternative Serial Number: "
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          type: "$column(2)"
-          vendor: "$column(5)"
-          serial_number: "$column(7)"
+          id: $column(1)
+          type: $column(2)
+          vendor: $column(5)
+          serial_number: $column(7)
           info: "join($column(3), $column(6), $column(8), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), $column(2), $column(4))"
         metrics:
-          hw.memory.limit: "mebiByte2Byte($column(4))"
+          hw.memory.limit: mebiByte2Byte($column(4))
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = memoryDeviceTable SNMP table
           # ID;Status;SingleBitErrorCount;MultiBitErrorCount;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.50.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.50.1
           selectColumns: "ID,5,18,19"
           computes:
             # Duplicate this status, because we will translate it two times
             # ID;Status;Status;SingleBitErrorCount;MultiBitErrorCount;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first Status into a PATROL status
             # ID;PATROLStatus;Status;SingleBitErrorCount;MultiBitErrorCount;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "GenericStatusTranslationTable"
+            translationTable: GenericStatusTranslationTable
             # Translate the second status into a more readable string
             # ID;PATROLStatus;StatusInformation;SingleBitErrorCount;MultiBitErrorCount;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "GenericStatusInformationTranslationTable"
+            translationTable: GenericStatusInformationTranslationTable
             # Sum up SingleBitErrorCount and MultiBitErrorCount
             # ID;PATROLStatus;StatusInformation;ErrorCount;MultiBitErrorCount;
-          - type: "add"
+          - type: add
             column: 4
-            value: "Column(5)"
+            value: Column(5)
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="memory"}: "$column(2)"
-          hw.errors{hw.type="memory"}: "$column(4)"
+          hw.status{hw.type="memory"}: $column(2)
+          hw.errors{hw.type="memory"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   cpu:
     discovery:
       sources:
         source(1):
           # Source(1) = the processorDeviceTable snmp table
           # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.30.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.30.1
           selectColumns: "ID,8,10,11,23"
           computes:
             # Translate the modelCode into a more readable string
             # ID;vendor;model;nominalSpeed;processorDeviceBrandName;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "cpuFamilyTranslationTable"
+            translationTable: cpuFamilyTranslationTable
             # Remove "(R)" from processorDeviceBrandName
             # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "(R)"
+            existingValue: (R)
             newValue: ""
             # Remove "AMD" from processorDeviceBrandName
             # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "AMD"
+            existingValue: AMD
             newValue: ""
             # Remove "Intel" from processorDeviceBrandName
             # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "Intel"
+            existingValue: Intel
             newValue: ""
-            # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-          - type: "leftConcat"
+          - _comment: ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
+            type: leftConcat
             column: 5
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 5
-            value: "MSHW"
+            value: MSHW
             # Replace \"MSHWMSHW\", i.e. a blank column with the modelCode.
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "MSHWMSHW"
-            newValue: "Column(3)"
+            existingValue: MSHWMSHW
+            newValue: Column(3)
             # Now get rid of any remaining MSHWs
             # Caption,DeviceID
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
         source(2):
           # Source(2) = the processorStatusDeviceTable snmp table
           # ID;Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.32.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.32.1
           selectColumns: "ID,7"
           computes:
             # Add "Location: " to the Location column
             # ID;Location;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "Location: Slot "
         source(3):
           # Source(3) = table joint of Source(1) and Source(2)
           # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;ID;Location;
-          type: "tableJoin"
-          leftTable: "$monitors.cpu.discovery.sources.source(1)$"
-          rightTable: "$monitors.cpu.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.cpu.discovery.sources.source(1)$
+          rightTable: $monitors.cpu.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
-        # InstanceTable = Source(3)
-        source: "$monitors.cpu.discovery.sources.source(3)$"
+        _comment: InstanceTable = Source(3)
+        source: $monitors.cpu.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(2)"
-          model: "$column(5)"
-          info: "$column(7)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          vendor: $column(2)
+          model: $column(5)
+          info: $column(7)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(2), $column(5), $column(4))"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(4))"
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = processorDeviceTable SNMP table
           # DeviceID;Status;Speed;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.30.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.30.1
           selectColumns: "ID,5,12"
           computes:
             # Translate the status into a PATROL Status
             # DeviceID;PATROLStatus;Speed;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "GenericStatusTranslationTable"
+            translationTable: GenericStatusTranslationTable
         source(2):
           # Source(2) = processorStatusDeviceTable SNMP table
           # DeviceID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.32.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.32.1
           selectColumns: "ID,6"
           computes:
             # Translate the second status into a more readable string
             # DeviceID;StatusInformation;
-          - type: "perBitTranslation"
+          - type: perBitTranslation
             column: 2
             bitList: "0,1,5,7,8,9,10"
-            translationTable: "ProcessorStatusInformationTranslationTable"
+            translationTable: ProcessorStatusInformationTranslationTable
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;PATROLStatus;Speed;DeviceID;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.cpu.collect.sources.source(1)$"
-          rightTable: "$monitors.cpu.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.cpu.collect.sources.source(1)$
+          rightTable: $monitors.cpu.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
-        # ValueTable = Source(3)
-        source: "$monitors.cpu.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(3)
+        source: $monitors.cpu.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="cpu"}: "$column(2)"
-          hw.cpu.speed: "megaHertz2Hertz($column(3))"
+          hw.status{hw.type="cpu"}: $column(2)
+          hw.cpu.speed: megaHertz2Hertz($column(3))
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP table
           # DeviceID;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.200.10.1"
-          selectColumns: "ID"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.200.10.1
+          selectColumns: ID
           computes:
             # Add "ESM" and "EventLog" as �nd and 3rd columns
             # DeviceID;DeviceType;AdditionalLabel
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: ";ESM;EventLog"
+            value: ;ESM;EventLog
         source(2):
           # Source(2) = remoteAccessTable SNMP table
           # DeviceID;DeviceTypeCode;AdditionalLabel
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1700.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1700.10.1
           selectColumns: "ID,3,7"
           computes:
             # Translate DeviceTypeCode into a readable DeviceType
             # DeviceID;DeviceType;AdditionalLabel
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "RACTypeTranslationTable"
+            translationTable: RACTypeTranslationTable
         source(3):
           # Source(3) = sdCardUnit SNMP table
           # DeviceID;DeviceType;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.110.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.110.1
           selectColumns: "ID,7"
           computes:
             # Make the ID Unique
             # DeviceID;DeviceType;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SDCardUnit-"
+            value: SDCardUnit-
             # Add a BlankColumn
             # DeviceID;DeviceType;AdditionalLabel;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: ";"
+            value: ;
         source(4):
           # Source(4) = sdCardDevice SNMP table
           # DeviceID;DeviceType;Size;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.112.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.112.1
           selectColumns: "ID,7,10"
           computes:
             # Make the ID Unique
             # DeviceID;DeviceType;Size;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SDCardDevice-"
+            value: SDCardDevice-
             # Add "Size : " to the Size Column
             # DeviceID;DeviceType;Size;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Size : "
             # Add "MB" to Size Column, and add a BlankColumn
             # DeviceID;DeviceType;Size;AdditionalLabel;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: " MB ;"
+            value: ' MB ;'
         source(5):
           # Source(3) = Union of Source(1) and Source(2)
           # DeviceID;DeviceType;AdditionalLabel
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.discovery.sources.source(1)$"
-          - "$monitors.other_device.discovery.sources.source(2)$"
-          - "$monitors.other_device.discovery.sources.source(3)$"
-          - "$monitors.other_device.discovery.sources.source(4)$"
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
+          - $monitors.other_device.discovery.sources.source(3)$
+          - $monitors.other_device.discovery.sources.source(4)$
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.other_device.discovery.sources.source(5)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(5)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          device_type: "$column(2)"
-          additional_label: "$column(4)"
-          info: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(1)
+          device_type: $column(2)
+          additional_label: $column(4)
+          info: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(4))"
     collect:
-      # Collect type is mono-instance
-      type: "multiInstance"
+      _comment: Collect type is mono-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP table
           # DeviceID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.200.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.200.10.1
           selectColumns: "ID,41"
         source(2):
           # Source(2) = remoteAccessTable SNMP table
           # DeviceID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1700.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1700.10.1
           selectColumns: "ID,6"
         source(3):
           # Source(3) = sdCardUnit SNMP table
           # DeviceID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.110.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.110.1
           selectColumns: "ID,8"
           computes:
             # Make the ID Unique
             # DeviceID;Status;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SDCardUnit-"
+            value: SDCardUnit-
         source(4):
           # Source(4) = sdCardUnit SNMP table
           # DeviceID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.1100.112.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.1100.112.1
           selectColumns: "ID,3"
           computes:
             # Make the ID Unique
             # DeviceID;Status;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "SDCardDevice-"
+            value: SDCardDevice-
         source(5):
           # Source(3) = Union of Source(1) and Source(2)
           # DeviceID;Status;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.collect.sources.source(1)$"
-          - "$monitors.other_device.collect.sources.source(2)$"
-          - "$monitors.other_device.collect.sources.source(3)$"
-          - "$monitors.other_device.collect.sources.source(4)$"
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+          - $monitors.other_device.collect.sources.source(3)$
+          - $monitors.other_device.collect.sources.source(4)$
           computes:
             # Duplicate the Status column
             # DeviceID;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first Status into a PATROL Status
             # DeviceID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "GenericStatusTranslationTable"
+            translationTable: GenericStatusTranslationTable
             # Translate the second Status into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "GenericStatusInformationTranslationTable"
+            translationTable: GenericStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(5)
-        source: "$monitors.other_device.collect.sources.source(5)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(5)
+        source: $monitors.other_device.collect.sources.source(5)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   battery:
     discovery:
       sources:
         source(1):
           # Source(1) = batteryTable SNMP Table
           # DeviceID;BatteryLocation;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.50.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.50.1
           selectColumns: "ID,7"
       mapping:
         # That's it!
         # InstanceTable = Source(1)
-        source: "$monitors.battery.discovery.sources.source(1)$"
+        source: $monitors.battery.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = batteryTable SNMP table
           # DeviceID;Status;Reading;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.674.10892.1.600.50.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.1.600.50.1
           selectColumns: "ID,5,6"
           computes:
             # Translate the first Status code into a PATROLStatus
             # DeviceID;PATROLStatus;Reading;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "GenericStatusTranslationTable"
+            translationTable: GenericStatusTranslationTable
             # Translate the reading value into a readable string (I mean: human-readable)
             # DeviceID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "BatteryStatusInformationTranslationTable"
+            translationTable: BatteryStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.battery.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="battery"}: "$column(2)"
+          hw.status{hw.type="battery"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

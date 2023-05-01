@@ -27,50 +27,50 @@ embedded:
   EmbeddedFile(4): "LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`\nfor VOLUME in $LOGICALDRIVELIST\n\t\tdo\n\t\t%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | egrep 'OPTIMAL|DEGRADED|FAILED|SYNCING' | awk '{print (\"MSHW;\"$1\";\"$4\";\")}'\n\t\tdone\n"
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    default: "Unknown"
-    missing: "Missing"
-    failed: "Failed"
-    good: "Good"
+    default: Unknown
+    missing: Missing
+    failed: Failed
+    good: Good
   LogicalDiskStatusInformationTranslationTable:
-    default: "Unknown"
-    optimal: "Optimal"
-    syncing: "Syncing"
-    failed: "Failed"
-    degraded: "Degraded"
+    default: Unknown
+    optimal: Optimal
+    syncing: Syncing
+    failed: Failed
+    degraded: Degraded
   PhysicalDiskStatusTranslationTable:
-    default: "UNKNOWN"
-    missing: "degraded"
-    failed: "failed"
-    good: "ok"
+    default: UNKNOWN
+    missing: degraded
+    failed: failed
+    good: ok
   LogicalDiskStatusTranslationTable:
-    default: "UNKNOWN"
-    optimal: "ok"
-    syncing: "ok"
-    failed: "failed"
-    degraded: "degraded"
+    default: UNKNOWN
+    optimal: ok
+    syncing: ok
+    failed: failed
+    degraded: degraded
 connector:
-  displayName: "Oracle/Sun Solaris - RAID Disks (raidctl)"
-  platforms: "Oracle/Sun"
-  reliesOn: "Sun Solaris system commands (raidctl)"
-  information: "This connector discovers and monitors physical disks and logical disks behind a physical RAID controller."
-  version: "1.0"
+  displayName: Oracle/Sun Solaris - RAID Disks (raidctl)
+  platforms: Oracle/Sun
+  reliesOn: Sun Solaris system commands (raidctl)
+  information: This connector discovers and monitors physical disks and logical disks behind a physical RAID controller.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Solaris"
+    - Solaris
     criteria:
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-    - type: "osCommand"
+      - SunOS
+      - Solaris
+    - type: osCommand
       commandLine: "%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S"
       expectedResult: "^[0-9]"
       forceSerialization: true
-      errorMessage: "There is no disk attached to the controller(s)."
+      errorMessage: There is no disk attached to the controller(s).
 sudoCommands:
-- "/usr/sbin/raidctl"
+- /usr/sbin/raidctl
 monitors:
   disk_controller:
     discovery:
@@ -78,44 +78,44 @@ monitors:
         source(1):
           # Source(1) = Runs shell script that takes results from raidctl -S, then runs them through raidctl -l to get controller information
           # MSHW;Controller Number;Model;Firmware
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(1)%
           forceSerialization: true
-          keep: "^MSHW;"
-          separators: ";"
+          keep: ^MSHW;
+          separators: ;
           selectColumns: "2,3,4"
         source(2):
           # Source(2) = Runs raidctl -S
           # MSHW;Controller Number;Model;Firmware
-          type: "osCommand"
+          type: osCommand
           commandLine: "%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S"
           forceSerialization: true
           computes:
             # Reformat raidctl -S output to give us a dependency table to link controllers to disks to arrays
             # MSHW;Controller Number;Array;Disk
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
         source(3):
           # Source (3) Table Join of Source (1) and Source (2) to keep only controllers that have logical disks (arrays) associated with them
           # Controller Number;Model;Firmware;Controller Number;Array;Disk
-          type: "tableJoin"
-          leftTable: "$monitors.disk_controller.discovery.sources.source(1)$"
-          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # InstanceTable = Source(3)
         # Controller Number;Model;Firmware;Controller Number;Array;Disk
-        source: "$monitors.disk_controller.discovery.sources.source(3)$"
+        source: $monitors.disk_controller.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(1)"
-          model: "$column(2)"
-          firmware_version: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(2)
+          firmware_version: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
   logical_disk:
     discovery:
@@ -124,74 +124,74 @@ monitors:
           # Discovery
           # Source(1) = List all logical drives and  info
           # MSHW;Logical disks;size;raid type
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(3)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(3)%
           forceSerialization: true
-          keep: "^MSHW;"
-          separators: ";"
+          keep: ^MSHW;
+          separators: ;
           selectColumns: "2,3,4"
           computes:
             # Translate size into bytes
             # Logical disks;size;raid type
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1073741824"
+            value: 1073741824
         source(2):
           # Source (2) Table Join of Source (1) and DiskController Source (2)
           # Logical disks;size;raid type;Controller Number;Array;Disk
-          type: "tableJoin"
-          leftTable: "$monitors.logical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
         # The InstanceTable
         # Logical disks;size;raid type;Controller Number;Array;Disk
-        source: "$monitors.logical_disk.discovery.sources.source(2)$"
+        source: $monitors.logical_disk.discovery.sources.source(2)$
         attributes:
-          id: "$column(1)"
-          hw.logical_disk.limit: "$column(2)"
-          raid_level: "$column(3)"
-          hw.parent.type: "disk_controller"
+          id: $column(1)
+          hw.logical_disk.limit: $column(2)
+          raid_level: $column(3)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
     collect:
-      # Collect type = MultiInstance
-      type: "multiInstance"
+      _comment: Collect type = MultiInstance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = List all logical drives and status of those
           # The status can be either OPTIMAL, DEGRADED, FAILED, or SYNCING.
           # MSHW;ID;Status
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(4)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(4)%
           forceSerialization: true
-          keep: "^MSHW;"
-          separators: ";"
+          keep: ^MSHW;
+          separators: ;
           selectColumns: "2,3"
           computes:
             # Duplicate the status column
             # ID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROL status
             # ID;PATROLStatus;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LogicalDiskStatusTranslationTable"
+            translationTable: LogicalDiskStatusTranslationTable
             # Translate the second status column into a more readable string
             # ID;PATROLStatus;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "LogicalDiskStatusInformationTranslationTable"
+            translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        # The ValueTable = source(1)
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable = source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   physical_disk:
     discovery:
       sources:
@@ -199,70 +199,70 @@ monitors:
           # Discovery
           # Source(1) = List all physical disks and  their status - Status: GOOD/FAILED/MISSING
           # MSHW;ID;Size;Status
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(5)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(5)%
           forceSerialization: true
-          keep: "^MSHW;"
-          separators: ";"
+          keep: ^MSHW;
+          separators: ;
           selectColumns: "2,3"
           computes:
             # Translate size into bytes
             # ID;Size
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1073741824"
+            value: 1073741824
         source(2):
           # Source (2) Table join of Physical Disks and Controller
           # ID;Size;Controller Number;Array;Disk
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 3
       mapping:
-        # The InstanceTable
-        source: "$monitors.physical_disk.discovery.sources.source(2)$"
+        _comment: The InstanceTable
+        source: $monitors.physical_disk.discovery.sources.source(2)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "disk_controller"
+          id: $column(1)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(3))"
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.physical_disk.size: "$column(2)"
+          hw.physical_disk.size: $column(2)
     collect:
-      # Collect type = MultiInstance
-      type: "multiInstance"
+      _comment: Collect type = MultiInstance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = List all physical disks and  their status
           # The status can be either GOOD, FAILED or MISSING.
           # MSHW;ID;Size;Status
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(5)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(5)%
           forceSerialization: true
-          keep: "^MSHW;"
-          separators: ";"
+          keep: ^MSHW;
+          separators: ;
           selectColumns: "2,3,4"
           computes:
             # Duplicate the status column
             # ID;Size;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first status column into a PATROL status
             # ID;Size;PATROLStatus;Status
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PhysicalDiskStatusTranslationTable"
+            translationTable: PhysicalDiskStatusTranslationTable
             # Translate the second status column into a more readable string
             # ID;Size;PATROLStatus;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        # The ValueTable = source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable = source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(3)"
+          hw.status{hw.type="physical_disk"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

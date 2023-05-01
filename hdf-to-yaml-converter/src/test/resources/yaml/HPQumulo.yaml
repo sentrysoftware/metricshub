@@ -49,35 +49,35 @@ embedded:
     }
 translations:
   LinkStatusTranslationTable:
-    connected: "ok"
-    default: "degraded"
+    connected: ok
+    default: degraded
   EnclosureStatusTranslationTable:
-    default: "degraded"
-    online: "ok"
+    default: degraded
+    online: ok
   PhysicalDiskStatusTranslationTable:
-    default: "degraded"
-    healthy: "ok"
+    default: degraded
+    healthy: ok
   NetworkCardStatusTranslationTable:
-    default: "degraded"
-    up: "ok"
+    default: degraded
+    up: ok
 connector:
-  displayName: "HP Qumulo"
-  platforms: "HP Qumulo storage systems"
-  reliesOn: "QQ CLI"
-  information: "Gives hardware information HP Qumulo storage systems."
+  displayName: HP Qumulo
+  platforms: HP Qumulo storage systems
+  reliesOn: QQ CLI
+  information: Gives hardware information HP Qumulo storage systems.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
-    - "NT"
-    - "Linux"
+    - Storage
+    - NT
+    - Linux
     criteria:
-      # Checks that QQ CLI is present on target host
-    - type: "osCommand"
-      commandLine: "qq --help"
-      expectedResult: "Qumulo CLI"
-      errorMessage: "QQ CLI not found on local host."
+    - _comment: Checks that QQ CLI is present on target host
+      type: osCommand
+      commandLine: qq --help
+      expectedResult: Qumulo CLI
+      errorMessage: QQ CLI not found on local host.
       executeLocally: true
 monitors:
   enclosure:
@@ -86,169 +86,169 @@ monitors:
         source(1):
           # Discovery
           # Source(1) = Output of the QQ CLI command through OS Commands
-          type: "osCommand"
+          type: osCommand
           commandLine: "qq --host %{HOSTNAME} nodes_list"
           timeout: 90
           executeLocally: true
           computes:
             # Parse the output of the command with an AWK script
             # ID;displayId;model;serial;uuid;status;status
-          - type: "awk"
-            script: "EmbeddedFile(1)"
+          - type: awk
+            script: EmbeddedFile(1)
       mapping:
-        # ID;displayId;model;serial;uuid;status;status
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        _comment: ID;displayId;model;serial;uuid;status;status
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          model: "$column(3)"
-          serial_number: "$column(4)"
-          vendor: "HP"
-          info: "$column(5)"
+          id: $column(1)
+          __display_id: $column(2)
+          model: $column(3)
+          serial_number: $column(4)
+          vendor: HP
+          info: $column(5)
           name: "sprintf(\"%s (%s %s)\", $column(2), \"HP\", $column(3))"
     collect:
       sources:
         source(1):
           # Collect
           # Source(1) = Output of the QQ CLI command through OS Commands
-          type: "osCommand"
+          type: osCommand
           commandLine: "qq --host %{HOSTNAME} nodes_list"
           timeout: 90
           executeLocally: true
           computes:
             # Parse the output of the command with an AWK script
             # ID;displayId;model;serial;uuid;status;status
-          - type: "awk"
-            script: "EmbeddedFile(1)"
+          - type: awk
+            script: EmbeddedFile(1)
             # Translate status
             # ID;displayId;model;serial;uuid;status;statusInformation
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "EnclosureStatusTranslationTable"
+            translationTable: EnclosureStatusTranslationTable
       mapping:
-        # ID;displayId;model;serial;uuid;status;statusInformation
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ID;displayId;model;serial;uuid;status;statusInformation
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(6)"
+          hw.status{hw.type="enclosure"}: $column(6)
         legacyTextParameters:
-          StatusInformation: "$column(7)"
+          StatusInformation: $column(7)
   physical_disk:
     discovery:
       sources:
         source(1):
           # Discovery
           # Source(1) = Output of the QQ CLI command through OS Commands
-          type: "osCommand"
+          type: osCommand
           commandLine: "qq --host %{HOSTNAME} cluster_slots"
           timeout: 90
           executeLocally: true
           computes:
             # Parse the output of the command with an AWK script
             # ID;nodeId;model;serial;slot;slotType;size;status;status
-          - type: "awk"
-            script: "EmbeddedFile(2)"
+          - type: awk
+            script: EmbeddedFile(2)
       mapping:
-        # ID;nodeId;model;serial;slot;slotType;size;status;status
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        _comment: ID;nodeId;model;serial;slot;slotType;size;status;status
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(5)"
-          model: "$column(3)"
-          serial_number: "$column(4)"
-          info: "$column(6)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(1)
+          __display_id: $column(5)
+          model: $column(3)
+          serial_number: $column(4)
+          info: $column(6)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s - %s)\", $column(5), $column(3), $column(7))"
         metrics:
-          hw.physical_disk.size: "$column(7)"
+          hw.physical_disk.size: $column(7)
     collect:
       sources:
         source(1):
           # Collect
           # Source(1) = Output of the QQ CLI command through OS Commands
-          type: "osCommand"
+          type: osCommand
           commandLine: "qq --host %{HOSTNAME} cluster_slots"
           timeout: 90
           executeLocally: true
           computes:
             # Parse the output of the command with an AWK script
             # ID;nodeId;model;serial;slot;slotType;size;status;status
-          - type: "awk"
-            script: "EmbeddedFile(2)"
+          - type: awk
+            script: EmbeddedFile(2)
             # Translate status
             # ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
-          - type: "translate"
+          - type: translate
             column: 8
-            translationTable: "PhysicalDiskStatusTranslationTable"
+            translationTable: PhysicalDiskStatusTranslationTable
       mapping:
-        # ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(8)"
+          hw.status{hw.type="physical_disk"}: $column(8)
         legacyTextParameters:
-          StatusInformation: "$column(9)"
+          StatusInformation: $column(9)
   network:
     discovery:
       sources:
         source(1):
           # Discovery
           # Source(1) = Output of the QQ CLI command through OS Commands
-          type: "osCommand"
+          type: osCommand
           commandLine: "qq --host %{HOSTNAME} network_poll"
           timeout: 90
           executeLocally: true
           computes:
             # Parse the output of the command with an AWK script
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-          - type: "awk"
-            script: "EmbeddedFile(3)"
+          - type: awk
+            script: EmbeddedFile(3)
       mapping:
-        # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-        source: "$monitors.network.discovery.sources.source(1)$"
+        _comment: ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          logical_address: "$column(3)"
-          physical_address: "$column(4)"
-          device_type: "Ethernet"
-          logical_address_type: "IP"
-          physical_address_type: "MAC"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(2)"
+          id: $column(1)
+          __display_id: $column(1)
+          logical_address: $column(3)
+          physical_address: $column(4)
+          device_type: Ethernet
+          logical_address_type: IP
+          physical_address_type: MAC
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(1), \"Ethernet\")"
     collect:
       sources:
         source(1):
           # Collect
           # Source(1) = Output of the QQ CLI command through OS Commands
-          type: "osCommand"
+          type: osCommand
           commandLine: "qq --host %{HOSTNAME} cluster_slots"
           timeout: 90
           executeLocally: true
           computes:
             # Parse the output of the command with an AWK script
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-          - type: "awk"
-            script: "EmbeddedFile(3)"
+          - type: awk
+            script: EmbeddedFile(3)
             # Translate status
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-          - type: "translate"
+          - type: translate
             column: 9
-            translationTable: "NetworkCardStatusTranslationTable"
+            translationTable: NetworkCardStatusTranslationTable
             # Translate linkStatus
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-          - type: "translate"
+          - type: translate
             column: 8
-            translationTable: "LinkStatusTranslationTable"
+            translationTable: LinkStatusTranslationTable
       mapping:
-        # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.network.io{direction="transmit"}: "$column(6)"
-          hw.network.io{direction="receive"}: "$column(7)"
-          hw.status{hw.type="network"}: "$column(8)"
+          hw.network.io{direction="transmit"}: $column(6)
+          hw.network.io{direction="receive"}: $column(7)
+          hw.status{hw.type="network"}: $column(8)
         legacyTextParameters:
-          StatusInformation: "$column(9)"
+          StatusInformation: $column(9)

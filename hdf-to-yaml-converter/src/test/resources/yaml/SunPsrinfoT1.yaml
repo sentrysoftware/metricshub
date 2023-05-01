@@ -5,232 +5,232 @@ embedded:
   EmbeddedFile(2): "BEGIN {\n\tcpuID = 0;\n}\n/physical processor has [0-9]+.* virtual processors \\([0-9\\- ,]+\\)/ {\n    gsub(\",\", \" \");\n    split($0, temporaryList, \"[\\(\\)]\");\n    coreCount = split(temporaryList[2], coreArray, \" \");\n    for (i=1; i<=coreCount; i++)\n    {\n    \tif (index(coreArray[i], \"-\") > 0)\n    \t{\n\t\t\tsplit(coreArray[i], rangeArray, \"-\");\n\t\t\tfor (coreID=rangeArray[1]; coreID<=rangeArray[2]; coreID++)\n\t\t\t{\n\t\t\t\tprintf(\"MSHW;%d;%d\\n\", coreID, cpuID);\n\t\t\t}\n    \t}\n    \telse\n    \t{\n            printf(\"MSHW;%d;%d\\n\", coreArray[i], cpuID);\n        }\n    }\n\n\tcpuID++;\n}"
 translations:
   cpuStatusInformationTranslationTable:
-    default: "Unknown Status"
-    powered: "Powered off"
-    faulted: "Faulted"
-    on-line: "On-line"
-    off-line: "Off-line"
-    no-intr: "Non-interruptible"
+    default: Unknown Status
+    powered: Powered off
+    faulted: Faulted
+    on-line: On-line
+    off-line: Off-line
+    no-intr: Non-interruptible
   cpuStatusTranslationTable:
-    default: "UNKNOWN"
-    powered: "failed"
-    faulted: "failed"
-    on-line: "ok"
-    off-line: "failed"
-    no-intr: "ok"
+    default: UNKNOWN
+    powered: failed
+    faulted: failed
+    on-line: ok
+    off-line: failed
+    no-intr: ok
 connector:
-  displayName: "Oracle/Sun Solaris - Multi-core Processors (psrinfo)"
-  platforms: "Oracle/Sun"
+  displayName: Oracle/Sun Solaris - Multi-core Processors (psrinfo)
+  platforms: Oracle/Sun
   reliesOn: "Sun Solaris system commands (psrinfo, etc.)"
   information: "This connector discovers and monitors the multi-core processors (SPARC T1, T2, T2+ and Intel Xeon) through the psrinfo system command."
-  version: "1.0"
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Solaris"
+    - Solaris
     supersedes:
-    - "SunPsrinfo"
+    - SunPsrinfo
     criteria:
-      # OS should be SunOS or Solaris
-    - type: "deviceType"
+    - _comment: OS should be SunOS or Solaris
+      type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-      # psrinfo should return that we have more than one virtual processor
-    - type: "osCommand"
-      commandLine: "/usr/sbin/psrinfo -vp"
+      - SunOS
+      - Solaris
+    - _comment: psrinfo should return that we have more than one virtual processor
+      type: osCommand
+      commandLine: /usr/sbin/psrinfo -vp
       expectedResult: "physical processor has [0-9]+.* virtual processors"
 monitors:
   cpu:
     discovery:
       sources:
         source(1):
-          # Source(1) = psrinfo -vp
-          type: "osCommand"
-          commandLine: "/usr/sbin/psrinfo -vp"
+          _comment: Source(1) = psrinfo -vp
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -vp
           computes:
             # Send psrinfo'soutput through awk %EmbeddedFile(1)%
             # cpuID;cpuModel;cpuSpeed
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # Instance table = source(1)
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        _comment: Instance table = source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(3))"
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = psrinfo -vp
-          type: "osCommand"
-          commandLine: "/usr/sbin/psrinfo -vp"
+          _comment: Source(1) = psrinfo -vp
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -vp
           computes:
             # Send psrinfo'soutput through awk %EmbeddedFile(1)%
             # cpuID;cpuModel;cpuSpeed
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # ValueTable = source(1)
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
   cpu_core:
     discovery:
       sources:
         source(1):
-          # Source(1) = psrinfo -vp
-          type: "osCommand"
-          commandLine: "/usr/sbin/psrinfo -vp"
+          _comment: Source(1) = psrinfo -vp
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -vp
           computes:
             # Send psrinfo'soutput through awk %EmbeddedFile(2)%
             # CoreID;PhysicalProcessorID;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
             # Duplicate the PhysicalProcessorID column
             # CoreID;PhysicalProcessorID;PhysicalProcessorID;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Add "Part of physical processor " to the second PhysicalProcessorID
             # CoreID;PhysicalProcessorID;AdditionalInformation;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Physical Processor ID: "
         source(2):
           # Source(1) = kstat -p cpu_info:::current_clock_Hz
           # CoreID;CurrentSpeed;
-          type: "osCommand"
-          commandLine: "/usr/bin/kstat -p cpu_info:::current_clock_Hz"
-          keep: "^cpu_info"
-          separators: ":"
+          type: osCommand
+          commandLine: /usr/bin/kstat -p cpu_info:::current_clock_Hz
+          keep: ^cpu_info
+          separators: ':'
           selectColumns: "2,4"
           computes:
             # Replace current_clock_Hz
             # CoreID;CurrentSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "current_clock_Hz"
+            existingValue: current_clock_Hz
             newValue: ""
             # Replace spaces
             # CoreID;CurrentSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Replace tabs
             # CoreID;CurrentSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "\t"
             newValue: ""
             # Convert Speed from Hz to MHz
             # CoreID;CurrentSpeed;
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "1000000"
+            value: 1000000
         source(3):
           # Join (1) and (2)  2 will only be poluated on T5, M5, M6 or later
           # CoreID;PhysicalProcessorID;AdditionalInformation;CoreID;CurrentSpeed;
-          type: "tableJoin"
-          leftTable: "$monitors.cpu_core.discovery.sources.source(1)$"
-          rightTable: "$monitors.cpu_core.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.cpu_core.discovery.sources.source(1)$
+          rightTable: $monitors.cpu_core.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # Instance table = source(3)
         # CoreID;PhysicalProcessorID;AdditionalInformation;CoreID;CurrentSpeed;
-        source: "$monitors.cpu_core.discovery.sources.source(3)$"
+        source: $monitors.cpu_core.discovery.sources.source(3)$
         attributes:
-          deviceid: "$column(1)"
-          attachedtodeviceid: "$column(2)"
-          attachedtodevicetype: "cpu"
-          additionalinformation1: "$column(3)"
-          parameteractivation.currentspeed: "$column(5)"
+          deviceid: $column(1)
+          attachedtodeviceid: $column(2)
+          attachedtodevicetype: cpu
+          additionalinformation1: $column(3)
+          parameteractivation.currentspeed: $column(5)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = psrinfo -v
-          type: "osCommand"
-          commandLine: "/usr/sbin/psrinfo"
+          _comment: Source(1) = psrinfo -v
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo
           keep: "^[0-9]+ "
           separators: " \t"
           selectColumns: "1,2"
           computes:
             # Duplicate the status column
             # CoreID;cpuStatus;cpuStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROL status
             # CoreID;PATROLStatus;cpuStatus
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "cpuStatusTranslationTable"
+            translationTable: cpuStatusTranslationTable
             # Translate the second status column into a more readable string
             # CoreID;PATROLStatus;statusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "cpuStatusInformationTranslationTable"
+            translationTable: cpuStatusInformationTranslationTable
         source(2):
           # Source(1) = kstat -p cpu_info:::current_clock_Hz
           # CoreID;CurrentSpeed;
-          type: "osCommand"
-          commandLine: "/usr/bin/kstat -p cpu_info:::current_clock_Hz"
-          keep: "^cpu_info"
-          separators: ":"
+          type: osCommand
+          commandLine: /usr/bin/kstat -p cpu_info:::current_clock_Hz
+          keep: ^cpu_info
+          separators: ':'
           selectColumns: "2,4"
           computes:
             # Replace current_clock_Hz
             # CoreID;CurrentSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "current_clock_Hz"
+            existingValue: current_clock_Hz
             newValue: ""
             # Replace spaces
             # CoreID;CurrentSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Replace tabs
             # CoreID;CurrentSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "\t"
             newValue: ""
             # Convert Speed from Hz to MHz
             # CoreID;CurrentSpeed;
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "1000000"
+            value: 1000000
         source(3):
           # Join (1) and (2)  2 will only be poluated on T5, M5, M6 or later
           # CoreID;PATROLStatus;statusInformation;CoreID;CurrentSpeed;
-          type: "tableJoin"
-          leftTable: "$monitors.cpu_core.collect.sources.source(1)$"
-          rightTable: "$monitors.cpu_core.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.cpu_core.collect.sources.source(1)$
+          rightTable: $monitors.cpu_core.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # ValueTable = source(3)
         # CoreID;PATROLStatus;statusInformation;CoreID;CurrentSpeed;
-        source: "$monitors.cpu_core.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        source: $monitors.cpu_core.collect.sources.source(3)$
+        deviceId: $column(1)

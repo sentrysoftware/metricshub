@@ -12,148 +12,148 @@ embedded:
                                         }
   EmbeddedFile(2): "BEGIN {status=\"OK\";statusInformation=\"No CPU Faults Reported by fmadm\";exitFlag=\"1\";}\n\nnextLineTrigger == \"1\" {nextLineTrigger = \"0\";\n\t                     if ($NF ~ \"://:\") {nextLineTrigger=\"1\" ;};\n                       if ($1 ~ /[Aa]ffects/) {nextLineTrigger=\"1\"};\n\t                     if (status == \"ALARM\") {status = \"ALARM\"}\n\t                     else if (tolower($1) ~ /faulted/) {status = \"ALARM\"}\n\t                     else {status = \"WARN\"}\n\t                     }\n($1 ~ /[Ff]ault/) && $2 ~ /[Cc]lass/  && ($NF ~ /\\.cpu\\./)  {nextLineTrigger=\"1\";\n                                                      statusInformation=\"Fault(s) Detected - Run fmadm faulty\" ;\n\t                                                   }\n\n($1 ~ /[Aa]ffects/) && ($NF ~ /cpu:/)  {nextLineTrigger=\"1\";\n                             statusInformation=\"Fault(s) Detected - Run fmadm faulty\" ;\n\t                          }\n\n\n\n(tolower($1) ~ /degraded/ || tolower($1) ~ /faulted/) && ($NF ~ /cpu:/)  {statusInformation=\"Fault(s) Detected - Run fmadm faulty\"\n\t                                                                      if (status == \"ALARM\") {status = \"ALARM\"}\n\t                                                                          else if (tolower($1) ~ /faulted/) {status = \"ALARM\"}\n\t                                                                          else if (tolower($1) ~ /degraded/) {status = \"WARN\"}\n\t                                                                      }\n\n$1 ~ /^errorlevel$/ {if ($2 == 0) {exitFlag=\"0\"} }\n\nEND { if (exitFlag==\"0\") {print (\"MSHW;Overall;\"status\";\"statusInformation\";\")};}"
 connector:
-  displayName: "Oracle/Sun Solaris - Fault  Manager - Memory and CPU"
-  platforms: "Oracle/Sun"
-  reliesOn: "Sun Solaris system commands (fmadm)"
-  information: "This connector parses fmadm faulty command looking for faulty memory modules"
-  version: "1.0"
+  displayName: Oracle/Sun Solaris - Fault  Manager - Memory and CPU
+  platforms: Oracle/Sun
+  reliesOn: Sun Solaris system commands (fmadm)
+  information: This connector parses fmadm faulty command looking for faulty memory modules
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Solaris"
+    - Solaris
     criteria:
-      # OS should be SunOS or Solaris
-    - type: "deviceType"
+    - _comment: OS should be SunOS or Solaris
+      type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-      # Only Solaris 10 machines
-    - type: "osCommand"
-      commandLine: "/bin/uname -r"
+      - SunOS
+      - Solaris
+    - _comment: Only Solaris 10 machines
+      type: osCommand
+      commandLine: /bin/uname -r
       expectedResult: "5\\.1[0-9]"
-      # Test the fmadm command
-    - type: "osCommand"
+    - _comment: Test the fmadm command
+      type: osCommand
       commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
-      expectedResult: "^errorlevel 0$"
-      # Ensure that the cpumem-diagnosis module is running
-    - type: "osCommand"
+      expectedResult: ^errorlevel 0$
+    - _comment: Ensure that the cpumem-diagnosis module is running
+      type: osCommand
       commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm config | grep cpumem"
-      expectedResult: "active"
+      expectedResult: active
 sudoCommands:
-- "/usr/sbin/fmadm"
+- /usr/sbin/fmadm
 monitors:
   memory:
     discovery:
       sources:
         source(1):
-          # Source(1) = psrinfo -v
-          type: "osCommand"
+          _comment: Source(1) = psrinfo -v
+          type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
             # Send fmadm'soutput through awk %EmbeddedFile(1)%
             # MSHW;Overall Memory Faults;status;statusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
-            selectColumns: "2"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
         source(2):
-          # Source (2) prtconf
-          type: "osCommand"
+          _comment: Source (2) prtconf
+          type: osCommand
           commandLine: "/usr/sbin/prtconf | /usr/bin/egrep '^SUNW,|^Memory size'"
           computes:
             # Send prtconf's output through awk %EmbeddedFile(3)%
             # MSHW;Overall;Size
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(3):
-          # Overall;Overall;Size
-          type: "tableJoin"
-          leftTable: "$monitors.memory.discovery.sources.source(1)$"
-          rightTable: "$monitors.memory.discovery.sources.source(2)$"
+          _comment: Overall;Overall;Size
+          type: tableJoin
+          leftTable: $monitors.memory.discovery.sources.source(1)$
+          rightTable: $monitors.memory.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        # Instance table = source(1)
-        source: "$monitors.memory.discovery.sources.source(3)$"
+        _comment: Instance table = source(1)
+        source: $monitors.memory.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:
-          hw.memory.limit: "mebiByte2Byte($column(3))"
+          hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = fmadm faulty
-          type: "osCommand"
+          _comment: Source(1) = fmadm faulty
+          type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
             # Send fmadm's output through awk %EmbeddedFile(1)%
             # MSHW;Overall Memory Faults;status;statusInformation
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # ValueTable = source(1)
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="memory"}: "$column(2)"
+          hw.status{hw.type="memory"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
-          # Source(1) = fmadm faulty
-          type: "osCommand"
+          _comment: Source(1) = fmadm faulty
+          type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
             # Send fmadm'soutput through awk %EmbeddedFile(2)%
             # MSHW;Overall CPU Faults;status;statusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
-            selectColumns: "2"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
       mapping:
-        # Instance table = source(1)
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        _comment: Instance table = source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          device_type: "cpu"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          device_type: cpu
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", \"cpu\", $column(1))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = fmadm faulty
-          type: "osCommand"
+          _comment: Source(1) = fmadm faulty
+          type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
             # Send fmadm's output through awk %EmbeddedFile(2)%
             # MSHW;Overall CPU Faults;status;statusInformation
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # ValueTable = source(1)
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

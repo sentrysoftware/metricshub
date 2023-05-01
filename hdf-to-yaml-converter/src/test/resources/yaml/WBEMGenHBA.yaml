@@ -3,63 +3,63 @@ embedded:
   EmbeddedFile(1): "BEGIN {\n\tFS = \"[;]\"\n\tColumn=6\n}\n{\n\tn = split($Column, PortWWN, \"|\");\n\tprintf \"MSHW;\"\n\tfor (i = 1 ; i <= NF-1 ; i++) {\n\t\tif (i == Column) {\n\t\t\tfor (j = 1 ; j <= n-1 ; j++) {\n\t\t\t\tprintf \"%02X\", PortWWN[j]\n\t\t\t}\n      printf \";\"\n    } else {\n\t\t\tprintf $i\n\t\t\tprintf \";\"\n\t\t}\n\t}\n print \"\"\n}"
 translations:
   PortStateToLinkStatusTranslationTable:
-    "2": "ok"
-    default: "UNKNOWN"
-    "6": "degraded"
+    "2": ok
+    default: UNKNOWN
+    "6": degraded
   PortStateToStatusInformationTranslationTable:
-    "1": "Unknown"
+    "1": Unknown
     "2": ""
-    default: "UNKNOWN"
-    "3": "User Offline"
-    "4": "Bypassed"
-    "5": "In diagnostics mode"
-    "6": "Link Down"
-    "7": "Port Error"
-    "8": "Loopback"
+    default: UNKNOWN
+    "3": User Offline
+    "4": Bypassed
+    "5": In diagnostics mode
+    "6": Link Down
+    "7": Port Error
+    "8": Loopback
   PortTypeTranslationTable:
-    default: "HBA FC Port"
-    "5": "HBA FC Port N"
-    "6": "HBA FC Port NL"
-    "7": "HBA FC Port F/NL"
-    "8": "HBA FC Port F"
-    "9": "HBA FC Port E"
-    "10": "HBA FC Port G"
+    default: HBA FC Port
+    "5": HBA FC Port N
+    "6": HBA FC Port NL
+    "7": HBA FC Port F/NL
+    "8": HBA FC Port F
+    "9": HBA FC Port E
+    "10": HBA FC Port G
   PortStateToStatusTranslationTable:
-    "1": "UNKNOWN"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "ok"
-    "5": "degraded"
-    "6": "ok"
-    "7": "failed"
-    "8": "degraded"
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": ok
+    "5": degraded
+    "6": ok
+    "7": failed
+    "8": degraded
 connector:
-  displayName: "WMI - HBA"
-  platforms: "Any system"
-  reliesOn: "WMI"
-  version: "0.9"
-  information: "This connector provides the monitoring of HBA cards on all Windows-based systems through the WMI layer (root/WMI namespace)."
+  displayName: WMI - HBA
+  platforms: Any system
+  reliesOn: WMI
+  version: 0.9
+  information: This connector provides the monitoring of HBA cards on all Windows-based systems through the WMI layer (root/WMI namespace).
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
+    - NT
     supersedes:
-    - "CpqHBA"
-    - "SMISHBA"
+    - CpqHBA
+    - SMISHBA
     criteria:
-      # OS must be Windows NT-derivative
-    - type: "deviceType"
+    - _comment: OS must be Windows NT-derivative
+      type: deviceType
       keep:
-      - "NT"
-      # WMI must be available
-    - type: "service"
-      name: "WINMGMT"
-      # The root\\wmi namespace must have the MSFC_FCAdapterHBAAttributes
-    - type: "wmi"
-      query: "SELECT InstanceName FROM MSFC_FCAdapterHBAAttributes"
-      namespace: "root\\wmi"
+      - NT
+    - _comment: WMI must be available
+      type: service
+      name: WINMGMT
+    - _comment: The root\wmi namespace must have the MSFC_FCAdapterHBAAttributes
+      type: wmi
+      query: SELECT InstanceName FROM MSFC_FCAdapterHBAAttributes
+      namespace: root\wmi
 monitors:
   network:
     discovery:
@@ -67,171 +67,171 @@ monitors:
         source(1):
           # Source(1) = MSFC_FibrePortHBAAttributes class  (FC Ports)
           # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Decimal;PortType;
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT Active,InstanceName,Attributes.PortWWN,Attributes.PortSpeed,Attributes.PortWWN,Attributes.PortWWN,Attributes.PortType FROM MSFC_FibrePortHBAAttributes"
           computes:
             # Keep Only Active Ports
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Decimal;PortType;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             valueList: "True"
             # Translate PortType into a more readable string
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Decimal;PortType;
-          - type: "translate"
+          - type: translate
             column: 7
-            translationTable: "PortTypeTranslationTable"
+            translationTable: PortTypeTranslationTable
             # and Remove the array pipes from the port WWN
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Decimal;PortType;
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "|"
-            newValue: "."
+            existingValue: '|'
+            newValue: .
             # Convert Speed from Gbps to Mbps (multiply by 1000)
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Decimal;PortType;
-          - type: "multiply"
+          - type: multiply
             column: 4
-            value: "1000"
+            value: 1000
             # Convert PortWWN to Hex
             #    NOTE - This script is column specific (See Column Variable), so watchout if you change the queries or duplicate columns.
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7,8"
         source(2):
           # Source(2) = MSFC_FCAdapterHBAAttributes class  (FC Adapters)
           # AdapterID;Manufacturer;Model;Serial
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT InstanceName,Manufacturer,ModelDescription,SerialNumber FROM MSFC_FCAdapterHBAAttributes"
           computes:
             # Keep only the first word of the Manufacturer name (to avoid stuff like "Corporations, Inc. and blah blah blah)
             # AdapterID;Manufacturer;Model;Serial
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 1
-            subSeparators: " "
+            subSeparators: ' '
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;AdapterID;Manufacturer;Model;Serial
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(1)$"
-          rightTable: "$monitors.network.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 1
         source(4):
           # Source (4) = MSFC_FibrePortHBAStatistics
           # InstanceName;TxFrames;RxFrames;ErrorCount
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT InstanceName,statistics.TxFrames,statistics.RxFrames,statistics.ErrorFrames FROM MSFC_FibrePortHBAStatistics"
           computes:
             # Remove all values of -1 from Tx,Rx and ErrorCount to deactivate these parameters when they are not collected
             # InstanceName;TxFrames;RxFrames;ErrorCount
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "-1"
+            existingValue: -1
             newValue: ""
         source(5):
           # Source(5) = Table joint of Source(3) and Source(4)
           # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;AdapterID;Manufacturer;Model;Serial;InstanceName;TxFrames;RxFrames;ErrorCount;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(3)$"
-          rightTable: "$monitors.network.discovery.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(3)$
+          rightTable: $monitors.network.discovery.sources.source(4)$
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
         # Changed from UniquePortID to PortWWN as device ID as it seems this UniqueID is not fixed.
         # InstanceTable = Source(3)
         # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;AdapterID;Manufacturer;Model;Serial;InstanceName;TxFrames;RxFrames;ErrorCount;
-        source: "$monitors.network.discovery.sources.source(5)$"
+        source: $monitors.network.discovery.sources.source(5)$
         attributes:
-          id: "$column(5)"
-          model: "$column(10)"
-          physical_address: "$column(6)"
-          physical_address_type: "WWN"
-          device_type: "$column(7)"
-          hw.parent.type: "enclosure"
+          id: $column(5)
+          model: $column(10)
+          physical_address: $column(6)
+          physical_address_type: WWN
+          device_type: $column(7)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(5), $column(7), $column(10))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source (1) = MSFC_FibrePortHBAAttributes
           # AdapterID;PortState;PortSpeed;PortWWN-Decimal;
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT InstanceName,Attributes.PortState,Attributes.PortSpeed,Attributes.PortWWN FROM MSFC_FibrePortHBAAttributes"
           computes:
             # Duplicate Port State Twice
             # AdapterID;PortState;PortSpeed;PortWWN-Decimal;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate PortState to Patrol Status
             # AdapterID;Status;PortState;PortState;PortSpeed;PortWWN-Decimal;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PortStateToStatusTranslationTable"
+            translationTable: PortStateToStatusTranslationTable
             # Translate PortState to Patrol Status
             # AdapterID;Status;StatusInformation;PortState;PortSpeed;PortWWN-Decimal;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PortStateToStatusInformationTranslationTable"
+            translationTable: PortStateToStatusInformationTranslationTable
             # Translate PortState to Link Status
             # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "PortStateToLinkStatusTranslationTable"
+            translationTable: PortStateToLinkStatusTranslationTable
             # Convert Speed from Gbps to Mbps (multiply by 1000)
             # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;
-          - type: "multiply"
+          - type: multiply
             column: 5
-            value: "1000"
+            value: 1000
             # Add a FC_ to the Port ID to prevent it from being identified as a Integer
             # Remove the array pipes from the port WWN
             # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;
-          - type: "replace"
+          - type: replace
             column: 6
-            existingValue: "|"
-            newValue: "."
+            existingValue: '|'
+            newValue: .
         source(2):
           # Source (2) = MSFC_FibrePortHBAStatistics
           # InstanceName;TxFrames;RxFrames;ErrorCount
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT InstanceName,statistics.TxFrames,statistics.RxFrames,statistics.ErrorFrames FROM MSFC_FibrePortHBAStatistics"
         source(3):
           # Source (3) = Table Joint of 1 & 2
           # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;InstanceName;TxFrames;RxFrames;ErrorCount;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(1)$"
-          rightTable: "$monitors.network.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # INSTANCE TABLE
         # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;InstanceName;TxFrames;RxFrames;ErrorCount;
-        source: "$monitors.network.collect.sources.source(3)$"
-        deviceId: "$column(6)"
+        source: $monitors.network.collect.sources.source(3)$
+        deviceId: $column(6)
         metrics:
-          hw.status{hw.type="network"}: "$column(2)"
-          hw.network.up: "legacyLinkStatus($column(4))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(5))"
-          hw.errors{hw.type="network"}: "$column(10)"
-          hw.network.packets{direction="transmit"}: "$column(8)"
-          hw.network.packets{direction="receive"}: "$column(9)"
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(4))
+          hw.network.bandwidth.limit: megaBit2Bit($column(5))
+          hw.errors{hw.type="network"}: $column(10)
+          hw.network.packets{direction="transmit"}: $column(8)
+          hw.network.packets{direction="receive"}: $column(9)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

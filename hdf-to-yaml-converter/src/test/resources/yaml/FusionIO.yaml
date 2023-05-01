@@ -3,298 +3,298 @@ embedded:
   EmbeddedFile(1): "BEGIN { ioDriveID=\"\"; blockDeviceID=\"\"; model=\"\"; addInfo=\"\"; physicalSize=\"\"; internalTemp=\"\"; internalVoltage=\"\"; auxVoltage=\"\"; boardTemp=\"\"; status = \"\"; statusInformation = \"\";}\n$1 ~ /fct[0-9]+/ && $2 ~ /Attached/ && $3 ~ /(as)|(to)/ {\n     ioDriveID=$1 ;\n     blockDeviceID=$4 ; gsub (/[']/,\"\",blockDeviceID)\n     }\n#'\n$0 ~ /Product Number:/ {\n     model = $0 ; gsub (/,? Product Number:.*/,\"\",model );gsub (/^ */,\"\",model )\n     addInfo = $0 ; gsub (model,\"\",addInfo);gsub (/^[ ,]*/,\"\",addInfo  )\n     }\n\n$7 ~ /GBytes/ && $8 ~ /physical/ && $9 ~ /device/ && $10 ~ /size/ {\n     physicalSize = $6\n     }\n\n$1 ~ /Internal/ && $2 ~ /temperature/ {\n     if ($3 ~ /avg/) {internalTemp = $4}\n     else {internalTemp = $3}\n     }\n\n$1 ~ /Internal/ && $2 ~ /voltage/ {\n     if ($3 ~ /avg/) {internalVoltage = $4;gsub(/[Vv,]/,\"\",internalVoltage)}\n     else {internalVoltage = $3}\n     }\n\n$1 ~ /Aux/ && $2 ~ /voltage/ {\n     if ($3 ~ /avg/) {auxVoltage = $4;gsub(/[Vv,]/,\"\",auxVoltage)}\n     else {auxVoltage = $3}\n     }\n\n# Parameter Activated as not always present:\n$1 ~ /(Board)|(Ambient)/ && $2 ~ /temperature/ {\n     if ($3 ~ /avg/) {boardTemp = $4}\n     else {boardTemp = $3}\n     }\n\n# Media Status is translated here and print done\n($1 ~ /Media/ && $2 ~ /[Ss]tatus/) || ($1 ~ /Reserve/ && $2 ~ /[Ss]pace/ && $3 ~ /[Ss]tatus/) && (ioDriveID != \"\") {\n     mediaStatus = tolower($0); gsub (/^.*status: */,\"\",mediaStatus);gsub (/;.*$/,\"\",mediaStatus);\n     if (mediaStatus ~ /healthy/) {if (status == \"\") {status = \"OK\"}}\n     else if (mediaStatus ~ /low.*metadata/ || tolower(status) ~ /reduced.write/ || tolower(status) ~ /nearing wearout/ || tolower(status) ~ /write.reduced/) {if (status != \"ALARM\") {status = \"WARN\"}; statusInformation = statusInformation \" \" mediaStatus}\n     else if (mediaStatus ~ /read.*only/) {status = \"ALARM\"; statusInformation = statusInformation \" \" mediaStatus}\n     else {if (status != \"ALARM\") {status = \"WARN\"}; statusInformation = statusInformation \" \" mediaStatus}\n\n# Print Physical Disk Information\n     gsub (/^ */,\"\",statusInformation);gsub (/  /,\"\",statusInformation)\n     print \"MSHW_PD;\" ioDriveID \";\" blockDeviceID \";\" model \";\" addInfo \";\" physicalSize \";\" status \";\" statusInformation \";\"\n# Print Internal Temperature Information (The ioDrive will start throttling write performance at 78�C. the ioDrive will shut down at 85�C.  So will alarm at 78�.\n     if (internalTemp != \"\") {print \"MSHW_TEMP;Internal \" ioDriveID \";\" internalTemp \";78;\"}\n     if (boardTemp != \"\") {print \"MSHW_TEMP;Board \" ioDriveID \";\" boardTemp \";;\"}\n     if (auxVoltage != \"\") {print \"MSHW_VOLT;Aux \" ioDriveID \";\" auxVoltage \";;\"}\n     if (internalVoltage != \"\") {print \"MSHW_VOLT;Internal \" ioDriveID \";\" internalVoltage \";;\"}\n     ioDriveID=\"\"; blockDeviceID=\"\"; model=\"\"; addInfo=\"\"; physicalSize=\"\"; internalTemp=\"\"; internalVoltage=\"\"; auxVoltage=\"\"; boardTemp=\"\"; status = \"\"; statusInformation = \"\";\n     }\n\n# Drive STATUS Collection\n# Unfortunately the Status of each IO Drive is not always in the same place so we are going to have to search every line for known error messages.\n# At least the documentation was nice enough to provide those.\ntolower($0) ~ /additional active alarm/ {status = \"ALARM\"; statusInformation = \" \" statusInformation $0}\n# Generic Catch All:\n(tolower($0) ~ /warning/) || (tolower($0) ~ /minimal mode/) {if (status != \"ALARM\") {status = \"WARN\"};\n\t                                                           statusInformation = statusInformation \" \" $0\n\t                                                           if (tolower($0) ~ /warning.*temperature is above/) {status = \"ALARM\";}\n                                                             if (tolower($0) ~ /warning.*voltage is out of range/) {status = \"ALARM\"; }\n\t                                                          }"
   EmbeddedFile(2): "$1 ~ /Adapter:/ {adapterModel = $0 ; gsub(/^Adapter: */,\"\",adapterModel)\n\t              status = \"OK\" ; statusInformation = \"\"\n\t             }\n\n# Adapter STATUS Collection\n# Unfortunately the Status of the adapter is not always in the same place so we are going to have to search every line for known error messages.\n# At least the documentation was nice enough to provide those.\n# We have to assume that if no error, status is OK\ntolower($0) ~ /external power. not connected/ {status = \"ALARM\"; statusInformation = statusInformation \" \" $0}\n\n# Generic Catch All:\ntolower($0) ~ /warning/ {if (status != \"ALARM\") {status = \"WARN\"};\n\t                        if (statusInformation == \"\") {statusInformation = statusInformation \" \" $0}\n\t                       }\n\n\n$0 ~ /Connected.*[Mm]odules:/ {adapterID=\"\";\n\t                             moduleFound=\"1\"\n\t                             getline\n\t                             while (moduleFound==\"1\") {adapterID=adapterID $1;getline;if ($1 !~ /fct[0-9]+/) {moduleFound=\"0\"}}\n\t                             gsub (/^ */,\"\",statusInformation);gsub (/  /,\"\",statusInformation)\n                               print \"MSHW_ADAPTER;\" adapterID \";\" adapterModel \";\" status \";\" statusInformation \";\"\n                              }\n\n$1 ~ /fct[0-9]+/ && $2 ~ /Attached/ && $3 ~ /(as)|(to)/ {ioDriveID=$1 ;\n\t                                                       if (statusInformation == \"\") {statusInformation = \"No Warnings Detected\"}\n\t                                                       print \"MSHW_DISK_TO_ADAPTER;\" ioDriveID \";\" adapterID \";\"\n\t                                                      }"
 connector:
-  displayName: "Fusion ioDrive (fio-status)"
-  platforms: "Any system with Fusion IO"
-  reliesOn: "fio-status CLI utility"
-  version: "1.0"
-  information: "This connector monitors the Fusion ioDrive accelerator card."
+  displayName: Fusion ioDrive (fio-status)
+  platforms: Any system with Fusion IO
+  reliesOn: fio-status CLI utility
+  version: 1.0
+  information: This connector monitors the Fusion ioDrive accelerator card.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
-    - "Linux"
-    - "Solaris"
+    - NT
+    - Linux
+    - Solaris
     criteria:
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-      - "Linux"
-      - "NT"
-    - type: "osCommand"
+      - SunOS
+      - Solaris
+      - Linux
+      - NT
+    - type: osCommand
       commandLine: "%{SUDO:fio-status} fio-status -h"
       expectedResult: "usage: fio-status"
-      errorMessage: "fio-status not installed on this server or not in the Path."
-    - type: "osCommand"
+      errorMessage: fio-status not installed on this server or not in the Path.
+    - type: osCommand
       commandLine: "%{SUDO:fio-status} fio-status"
-      expectedResult: "fct"
-      errorMessage: "No Fusion IO Controllers detected."
+      expectedResult: fct
+      errorMessage: No Fusion IO Controllers detected.
 sudoCommands:
-- "fio-status"
+- fio-status
 monitors:
   disk_controller:
     discovery:
       sources:
         source(1):
-          # Source(1) = Output of fio-status
-          type: "osCommand"
+          _comment: Source(1) = Output of fio-status
+          type: osCommand
           commandLine: "%{SUDO:fio-status} fio-status -a"
         source(2):
-          # Make a copy of the output of fio-status
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          _comment: Make a copy of the output of fio-status
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Process fio-status's output through awk see EmbeddedFile(2)
             # adapterID;adapterModel;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW_ADAPTER;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW_ADAPTER;
+            separators: ;
             selectColumns: "2,3"
       mapping:
         # Instance Table
         # adapterID;adapterModel;
-        source: "$monitors.disk_controller.discovery.sources.source(2)$"
+        source: $monitors.disk_controller.discovery.sources.source(2)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(1)"
-          __display_id: "$column(1)"
-          model: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          controller_number: $column(1)
+          __display_id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "%{SUDO:fio-status} fio-status -a"
         source(2):
-          # Make a copy of the output of fio-status
-          type: "copy"
-          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          _comment: Make a copy of the output of fio-status
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # adapterID;PatrolStatus;StatusInformation;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW_ADAPTER;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW_ADAPTER;
+            separators: ;
             selectColumns: "2,4,5"
       mapping:
         # ValueTable = Source(1)
         # adapterID;PatrolStatus;StatusInformation;
-        source: "$monitors.disk_controller.collect.sources.source(2)$"
-        deviceId: "$column(1)"
+        source: $monitors.disk_controller.collect.sources.source(2)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="disk_controller"}: "$column(2)"
+          hw.status{hw.type="disk_controller"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   physical_disk:
     discovery:
       sources:
         source(1):
           # Discovery
           # Make a copy of the output of disk controller discover (fio-status -a)
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ioDriveID;blockDeviceID;model;addInfo;physicalSize;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW_PD;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW_PD;
+            separators: ;
             selectColumns: "2,3,4,5,6"
         source(2):
-          # Make a copy of the output of disk controller discover (fio-status -a)
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          _comment: Make a copy of the output of disk controller discover (fio-status -a)
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Process fio-status's output through awk see EmbeddedFile(2)
             # ioDriveID;adapterID;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW_DISK_TO_ADAPTER;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW_DISK_TO_ADAPTER;
+            separators: ;
             selectColumns: "2,3"
         source(3):
           # Table Joint the Physical Disk Table Source (1) to the Disk to Controller table source (2)
           # ioDriveID;blockDeviceID;model;addInfo;physicalSize;ioDriveID;adapterID;
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Block Device: <blockDeviceID>
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "Block Device: "
             # Computes 2-6 Deal with column 4 (and 5) to standardize AdditionalInformation2
             # (original) Product Number:<productNumber> SN:<serialNumber>
             # Part Number: <productNumber> SN:<serialNumber>
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "Product Number:"
+            existingValue: 'Product Number:'
             newValue: "Part Number: "
             # Part Number: <productNumber>,<serialNumber>
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: " SN:"
+            existingValue: ' SN:'
             newValue: ","
             # ioDriveID;blockDeviceID;model;Part Number <productNumber>,SerialNumber;Part Number <productNumber>MSHW_SerialNumber;physicalSize;ioDriveID;adapterID;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # ioDriveID;blockDeviceID;model;Part Number <productNumber>;Part Number <productNumber>,SerialNumber;physicalSize;ioDriveID;adapterID;
-          - type: "extract"
+          - type: extract
             column: 4
             subSeparators: ","
             subColumn: 1
-            # ioDriveID;blockDeviceID;model;Part Number <productNumber>;SerialNumber;physicalSize;ioDriveID;adapterID;
-          - type: "extract"
+          - _comment: ioDriveID;blockDeviceID;model;Part Number <productNumber>;SerialNumber;physicalSize;ioDriveID;adapterID;
+            type: extract
             column: 5
             subSeparators: ","
             subColumn: 2
       mapping:
         # Physical Disk Instance Table
         # ioDriveID;blockDeviceID;model;Part Number <productNumber>;SerialNumber;physicalSize;ioDriveID;adapterID;
-        source: "$monitors.physical_disk.discovery.sources.source(3)$"
+        source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
-          model: "$column(3)"
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          serial_number: "$column(5)"
+          model: $column(3)
+          id: $column(1)
+          __display_id: $column(1)
+          serial_number: $column(5)
           info: "join($column(2), $column(4), \"Type: Fusion ioDrive\", \" \")"
-          hw.parent.type: "disk_controller"
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(8))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(6))"
         metrics:
-          hw.physical_disk.size: "$column(6)"
+          hw.physical_disk.size: $column(6)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Make a copy of the output of disk controller collect (fio-status -a)
-          type: "copy"
-          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          _comment: Make a copy of the output of disk controller collect (fio-status -a)
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # ioDriveID;PatrolStatus;StatusInformation
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW_PD;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW_PD;
+            separators: ;
             selectColumns: "2,7,8"
       mapping:
         # ValueTable = Source(1)
         # adapterID;PatrolStatus;StatusInformation;
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
           # Discovery
           # Make a copy of the output of disk controller discover (fio-status -a)
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;temperture;upperThreshold
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW_TEMP;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW_TEMP;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
         # InstanceTable = Source(1)
         # ID;temperture;upperThreshold
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: "$column(3)"
+          hw.temperature.limit{limit_type="high.critical"}: $column(3)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Make a copy of the output of disk controller discover (fio-status -a)
-          type: "copy"
-          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          _comment: Make a copy of the output of disk controller discover (fio-status -a)
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;temperture;upperThreshold
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW_TEMP;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW_TEMP;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
+          hw.temperature: $column(2)
   voltage:
     discovery:
       sources:
         source(1):
           # Discovery
           # Make a copy of the output of disk controller discover (fio-status -a)
-          type: "copy"
-          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW_VOLT;"
-            separators: ";"
-            selectColumns: "2"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW_VOLT;
+            separators: ;
+            selectColumns: 2
       mapping:
         # InstanceTable = Source(1)
         # ID;
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Make a copy of the output of disk controller discover (fio-status -a)
-          type: "copy"
-          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          _comment: Make a copy of the output of disk controller discover (fio-status -a)
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;voltage;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW_VOLT;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW_VOLT;
+            separators: ;
             selectColumns: "2,3"
             # Turn Volt into millivolt
             # ID;voltage;
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "1000"
+            value: 1000
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.voltage: "$column(2)"
+          hw.voltage: $column(2)

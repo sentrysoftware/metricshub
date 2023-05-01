@@ -1,675 +1,675 @@
 ---
 extends:
-- "CIMProcessorFamily-header"
+- CIMProcessorFamily-header
 translations:
   fanTypeTranslationTable:
-    "22": "Processor Fan"
-    "23": "Cell Fan"
-    "24": "Cooling Device"
-    "25": "Front Panel"
-    "26": "Back Panel"
-    "27": "IO Bus"
-    "28": "Peripheral Bay"
-    "29": "Device Bay"
+    "22": Processor Fan
+    "23": Cell Fan
+    "24": Cooling Device
+    "25": Front Panel
+    "26": Back Panel
+    "27": IO Bus
+    "28": Peripheral Bay
+    "29": Device Bay
     default: ""
-    "30": "Switch"
-    "10": "Ambient / External / Room"
-    "11": "Chassis"
-    "12": "Bridge Card"
-    "13": "Management board"
-    "14": "Remote Management Card"
-    "15": "Generic Backplane"
-    "16": "Infrastructure Network"
-    "17": "Blade Slot in Chassis/Infrastructure"
-    "18": "Cabinet blower"
-    "19": "Compute Cabinet I/O Fans"
-    "0": "Unknown"
-    "1": "Other"
-    "2": "System board"
-    "3": "Host System board"
-    "4": "I/O board"
-    "5": "CPU board"
-    "6": "Memory board"
-    "7": "Storage bays"
-    "8": "Removable Media Bays"
-    "9": "Power Supply Bays"
-    "20": "I/O Expansion Cabinet Utility Chassis Fan"
-    "21": "I/O Expansion Cabinet I/O Fan"
+    "30": Switch
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Cabinet blower
+    "19": Compute Cabinet I/O Fans
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": I/O Expansion Cabinet Utility Chassis Fan
+    "21": I/O Expansion Cabinet I/O Fan
   iLOLinkStatusTranslationTable:
-    "0": "UNKNOWN"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "UNKNOWN"
-    "4": "UNKNOWN"
-    "5": "degraded"
-    "6": "UNKNOWN"
+    "0": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": UNKNOWN
+    "4": UNKNOWN
+    "5": degraded
+    "6": UNKNOWN
   memoryTypeTranslationTable:
-    "22": "BRAM"
-    "23": "FB-DIMM"
-    "24": "DDR3"
-    "25": "FBD2"
+    "22": BRAM
+    "23": FB-DIMM
+    "24": DDR3
+    "25": FBD2
     default: ""
-    "10": "ROM"
-    "11": "Flash"
-    "12": "EEPROM"
-    "13": "FEPROM"
-    "14": "EPROM"
-    "15": "CDRAM"
-    "16": "3DRAM"
-    "17": "SDRAM"
-    "18": "SGRAM"
-    "19": "RDRAM"
-    "0": "Unknown Memory Type"
-    "1": "Unknown Memory Type"
-    "2": "DRAM"
-    "3": "Synchronous DRAM"
-    "4": "Cache DRAM"
-    "5": "EDO"
-    "6": "EDRAM"
-    "7": "VRAM"
-    "8": "SRAM"
-    "9": "RAM"
-    "20": "DDR"
-    "21": "DDR-2"
+    "10": ROM
+    "11": Flash
+    "12": EEPROM
+    "13": FEPROM
+    "14": EPROM
+    "15": CDRAM
+    "16": 3DRAM
+    "17": SDRAM
+    "18": SGRAM
+    "19": RDRAM
+    "0": Unknown Memory Type
+    "1": Unknown Memory Type
+    "2": DRAM
+    "3": Synchronous DRAM
+    "4": Cache DRAM
+    "5": EDO
+    "6": EDRAM
+    "7": VRAM
+    "8": SRAM
+    "9": RAM
+    "20": DDR
+    "21": DDR-2
   iLONetworkCardStatusTranslationTable:
-    "0": "UNKNOWN"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "degraded"
-    "5": "ok"
-    "6": "failed"
+    "0": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": ok
+    "6": failed
   psuTypeTranslationTable:
-    "22": "I/O Expansion Cabinet Bulk Power Supply"
-    "23": "I/O Expansion Cabinet System Backplane Power Supply"
-    "24": "I/O Expansion Cabinet I/O chassis enclosure Power Supply"
-    "25": "I/O Expansion Cabinet AC Input Line"
-    "26": "Peripheral Bay"
-    "27": "Device Bay"
-    "28": "Switch"
+    "22": I/O Expansion Cabinet Bulk Power Supply
+    "23": I/O Expansion Cabinet System Backplane Power Supply
+    "24": I/O Expansion Cabinet I/O chassis enclosure Power Supply
+    "25": I/O Expansion Cabinet AC Input Line
+    "26": Peripheral Bay
+    "27": Device Bay
+    "28": Switch
     default: ""
-    "10": "Ambient / External / Room"
-    "11": "Chassis"
-    "12": "Bridge Card"
-    "13": "Management board"
-    "14": "Remote Management Card"
-    "15": "Generic Backplane"
-    "16": "Infrastructure Network"
-    "17": "Blade Slot in Chassis/Infrastructure"
-    "18": "Computer Cabinet Bulk Power Supply"
-    "19": "Computer Cabinet System Backplane Power Supply"
-    "0": "Unknown"
-    "1": "Other"
-    "2": "System board"
-    "3": "Host System board"
-    "4": "I/O board"
-    "5": "CPU board"
-    "6": "Memory board"
-    "7": "Storage bays"
-    "8": "Removable Media Bays"
-    "9": "Power Supply Bays"
-    "20": "Computer Cabinet I/O chassis enclosure Power Supply"
-    "21": "Computer Cabinet AC Input Line"
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Computer Cabinet Bulk Power Supply
+    "19": Computer Cabinet System Backplane Power Supply
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": Computer Cabinet I/O chassis enclosure Power Supply
+    "21": Computer Cabinet AC Input Line
   sensorTypeTranslationTable:
-    "22": "Device Bay"
-    "23": "Switch"
-    "24": "Software-defined"
+    "22": Device Bay
+    "23": Switch
+    "24": Software-defined
     default: ""
-    "10": "Ambient / External / Room"
-    "11": "Chassis"
-    "12": "Bridge Card"
-    "13": "Management board"
-    "14": "Remote Management Card"
-    "15": "Generic Backplane"
-    "16": "Infrastructure Network"
-    "17": "Blade Slot in Chassis/Infrastructure"
-    "18": "Front Panel"
-    "19": "Back Panel"
-    "0": "Unknown"
-    "1": "Other"
-    "2": "System board"
-    "3": "Host System board"
-    "4": "I/O board"
-    "5": "CPU board"
-    "6": "Memory board"
-    "7": "Storage bays"
-    "8": "Removable Media Bays"
-    "9": "Power Supply Bays"
-    "20": "IO Bus"
-    "21": "Peripheral Bay"
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Front Panel
+    "19": Back Panel
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": IO Bus
+    "21": Peripheral Bay
   genStatusInformationTranslationTable:
-    "0": "Unknown"
-    default: "Unknown Status"
-    "25": "Critical Failure"
-    "15": "Minor Failure"
+    "0": Unknown
+    default: Unknown Status
+    "25": Critical Failure
+    "15": Minor Failure
     "5": ""
-    "30": "Non-recoverable Error"
-    "20": "Major Failure"
-    "10": "Degraded/Warning"
+    "30": Non-recoverable Error
+    "20": Major Failure
+    "10": Degraded/Warning
   genStatusTranslationTable:
-    "0": "UNKNOWN"
-    default: "UNKNOWN"
-    "25": "failed"
-    "15": "degraded"
-    "5": "ok"
-    ok: "ok"
-    "30": "failed"
-    "20": "failed"
-    "10": "degraded"
+    "0": UNKNOWN
+    default: UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    ok: ok
+    "30": failed
+    "20": failed
+    "10": degraded
   iLONetworkCardStatusInfoTranslationTable:
-    "0": "Unknown Status"
+    "0": Unknown Status
     "2": ""
-    default: "UNKNOWN"
-    "3": "NIC disabled"
-    "4": "NIC not in operation-alternate host NIC in use"
-    "5": "NIC in operation but disconnected"
-    "6": "Failed"
+    default: UNKNOWN
+    "3": NIC disabled
+    "4": NIC not in operation-alternate host NIC in use
+    "5": NIC in operation but disconnected
+    "6": Failed
 connector:
-  displayName: "HP Insight Management Agent - Server (WMI)"
-  platforms: "HP ProLiant"
-  reliesOn: "HP Insight Management Agents (WMI)"
-  version: "1.2"
+  displayName: HP Insight Management Agent - Server (WMI)
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents (WMI)
+  version: 1.2
   information: "This connector provides hardware monitoring through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
+    - NT
     supersedes:
-    - "IpmiTool"
+    - IpmiTool
     criteria:
-      # OS must be Windows
-    - type: "deviceType"
+    - _comment: OS must be Windows
+      type: deviceType
       keep:
-      - "NT"
+      - NT
       # // Verify that the root/hpq WBEM namespace actually exists
       # Detection.Criteria(2).Type="WMI"
       # Detection.Criteria(2).WbemNameSpace="root"
       # Detection.Criteria(2).WbemQuery="SELECT Name FROM __NAMESPACE"
       # Detection.Criteria(2).ExpectedResult="^hpq;*$"
       # The IBMPSG_ComputerSystemDetails WBEM class must be instanciated
-    - type: "wmi"
-      query: "SELECT Model FROM HP_ComputerSystemChassis"
-      namespace: "root\\hpq"
-      errorMessage: "The HP Insight Agent seems to not be working properly. Please reinstall the HP Insight Agent."
+    - type: wmi
+      query: SELECT Model FROM HP_ComputerSystemChassis
+      namespace: root\hpq
+      errorMessage: The HP Insight Agent seems to not be working properly. Please reinstall the HP Insight Agent.
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          # Source(1) = the HP_ComputerSystemChassis WBEM class
-          type: "wmi"
+          _comment: Source(1) = the HP_ComputerSystemChassis WBEM class
+          type: wmi
           query: "SELECT Model,SerialNumber FROM HP_ComputerSystemChassis"
-          namespace: "root\\hpq"
+          namespace: root\hpq
       mapping:
         # InstanceTable = Source(1)
         # Note: InstanceTable must contain only one line!
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "HPWMI"
-          __display_id: "HPWMI"
-          vendor: "HP"
-          model: "$column(1)"
-          serial_number: "$column(2)"
-          type: "Computer"
+          id: HPWMI
+          __display_id: HPWMI
+          vendor: HP
+          model: $column(1)
+          serial_number: $column(2)
+          type: Computer
           name: "sprintf(\"%s (%s %s - %s)\", \"HPWMI\", \"HP\", $column(1), \"Computer\")"
   cpu:
     discovery:
       sources:
         source(1):
-          type: "wmi"
+          type: wmi
           query: "SELECT CurrentClockSpeed,DeviceID,Family FROM HP_Processor"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Copy Family number to translate vendor as well
-          - type: "duplicateColumn"
+          - _comment: Copy Family number to translate vendor as well
+            type: duplicateColumn
             column: 3
-            # Translate the Family number into a vendor
-          - type: "translate"
+          - _comment: Translate the Family number into a vendor
+            type: translate
             column: 3
-            translationTable: "cpuVendorTranslationTable"
-            # Translate the Family number into a model name
-          - type: "translate"
+            translationTable: cpuVendorTranslationTable
+          - _comment: Translate the Family number into a model name
+            type: translate
             column: 4
-            translationTable: "cpuFamilyTranslationTable"
+            translationTable: cpuFamilyTranslationTable
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          model: "$column(4)"
-          vendor: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "HPWMI"
+          id: $column(2)
+          __display_id: $column(2)
+          model: $column(4)
+          vendor: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: HPWMI
           name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(2), $column(3), $column(4), $column(1))"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(1))"
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = The IBMPSG_Processor WBEM class
-          type: "wmi"
+          _comment: Source(1) = The IBMPSG_Processor WBEM class
+          type: wmi
           query: "SELECT CurrentClockSpeed,DeviceID,HealthState FROM HP_Processor"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "genStatusTranslationTable"
-          - type: "translate"
+            translationTable: genStatusTranslationTable
+          - type: translate
             column: 4
-            translationTable: "genStatusInformationTranslationTable"
+            translationTable: genStatusInformationTranslationTable
       mapping:
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.cpu.speed: "megaHertz2Hertz($column(1))"
-          hw.status{hw.type="cpu"}: "$column(3)"
+          hw.cpu.speed: megaHertz2Hertz($column(1))
+          hw.status{hw.type="cpu"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   memory:
     discovery:
       sources:
         source(1):
-          # Source(1)
-          type: "wmi"
+          _comment: Source(1)
+          type: wmi
           query: "SELECT Capacity,MemoryType,Name,SerialNumber FROM HP_MemoryModule"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Convert size to MB
-          - type: "divide"
+          - _comment: Convert size to MB
+            type: divide
             column: 1
-            value: "1048576"
-            # Translate memory type
-          - type: "translate"
+            value: 1048576
+          - _comment: Translate memory type
+            type: translate
             column: 2
-            translationTable: "memoryTypeTranslationTable"
+            translationTable: memoryTypeTranslationTable
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          serial_number: "$column(4)"
-          type: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "HPWMI"
+          id: $column(3)
+          __display_id: $column(3)
+          serial_number: $column(4)
+          type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: HPWMI
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(2), $column(1))"
         metrics:
-          hw.memory.limit: "mebiByte2Byte($column(1))"
+          hw.memory.limit: mebiByte2Byte($column(1))
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = The IBMPSG_Processor WBEM class
-          type: "wmi"
+          _comment: Source(1) = The IBMPSG_Processor WBEM class
+          type: wmi
           query: "SELECT HealthState,Name FROM HP_MemoryModule"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "genStatusTranslationTable"
-          - type: "translate"
+            translationTable: genStatusTranslationTable
+          - type: translate
             column: 2
-            translationTable: "genStatusInformationTranslationTable"
+            translationTable: genStatusInformationTranslationTable
       mapping:
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="memory"}: "$column(1)"
+          hw.status{hw.type="memory"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = the HP_WinFan WBEM class
-          type: "wmi"
+          _comment: Source(1) = the HP_WinFan WBEM class
+          type: wmi
           query: "SELECT DeviceID,FanType FROM HP_Fan"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Translate fan type
-          - type: "translate"
+          - _comment: Translate fan type
+            type: translate
             column: 2
-            translationTable: "fanTypeTranslationTable"
+            translationTable: fanTypeTranslationTable
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # ID, status
-          type: "wmi"
+          type: wmi
           query: "SELECT DeviceID,HealthState FROM HP_Fan"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "genStatusTranslationTable"
-          - type: "translate"
+            translationTable: genStatusTranslationTable
+          - type: translate
             column: 3
-            translationTable: "genStatusInformationTranslationTable"
+            translationTable: genStatusInformationTranslationTable
       mapping:
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # DeviceID, Type
-          type: "wmi"
+          type: wmi
           query: "SELECT DeviceID,PowerSupplyType,TotalOutputPower FROM HP_PowerSupply"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Translate power supply type
-          - type: "translate"
+          - _comment: Translate power supply type
+            type: translate
             column: 2
-            translationTable: "psuTypeTranslationTable"
+            translationTable: psuTypeTranslationTable
             # When TotalOutputPower is an information unavailable on the server, the agent returns 0.
             # Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: "MSHW_"
-            # Remove 0 value
-          - type: "replace"
+            value: MSHW_
+          - _comment: Remove 0 value
+            type: replace
             column: 3
-            existingValue: "MSHW_0"
+            existingValue: MSHW_0
             newValue: ""
-            # Remove MSHW_ for not zero values
-          - type: "replace"
+          - _comment: Remove MSHW_ for not zero values
+            type: replace
             column: 3
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          power_supply_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(1)
+          power_supply_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
         metrics:
-          hw.power_supply.limit: "$column(3)"
+          hw.power_supply.limit: $column(3)
     collect:
-      # Collect
-      type: "multiInstance"
+      _comment: Collect
+      type: multiInstance
       sources:
         source(1):
           # ID, status
-          type: "wmi"
+          type: wmi
           query: "SELECT DeviceID,HealthState FROM HP_PowerSupply"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "genStatusTranslationTable"
-          - type: "translate"
+            translationTable: genStatusTranslationTable
+          - type: translate
             column: 3
-            translationTable: "genStatusInformationTranslationTable"
+            translationTable: genStatusInformationTranslationTable
       mapping:
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
           # DeviceID, Type
-          type: "wmi"
+          type: wmi
           query: "SELECT DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal FROM HP_NumericSensor"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Only Keep Temperature Sensors (Type 2)
-          - type: "keepOnlyMatchingLines"
+          - _comment: Only Keep Temperature Sensors (Type 2)
+            type: keepOnlyMatchingLines
             column: 3
-            valueList: "2"
-            # Translate power supply type
-          - type: "translate"
+            valueList: 2
+          - _comment: Translate power supply type
+            type: translate
             column: 2
-            translationTable: "sensorTypeTranslationTable"
+            translationTable: sensorTypeTranslationTable
             # Treat the  Threshold
             # Remove Warning Thresholds of "0"
             # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
-            value: "MSHW_"
-            # Remove 0 value
-          - type: "replace"
+            value: MSHW_
+          - _comment: Remove 0 value
+            type: replace
             column: 4
-            existingValue: "MSHW_0"
+            existingValue: MSHW_0
             newValue: ""
-            # Remove MSHW_ for not zero values
-          - type: "replace"
+          - _comment: Remove MSHW_ for not zero values
+            type: replace
             column: 4
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
             # Now let's choose the Alarm Threshold
             # Blank Critical if it equals NonCritical
             # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "Column(4)"
+            existingValue: Column(4)
             newValue: ""
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 5
-            value: "MSHW"
-            # If UpperThresholdNonCritical = UpperThresholdCritical use Fatal
-          - type: "replace"
+            value: MSHW
+          - _comment: If UpperThresholdNonCritical = UpperThresholdCritical use Fatal
+            type: replace
             column: 5
-            existingValue: "MSHWMSHW"
-            newValue: "Column(6)"
-            # Otherwise remove unwanted MSHWs.
-          - type: "replace"
+            existingValue: MSHWMSHW
+            newValue: Column(6)
+          - _comment: Otherwise remove unwanted MSHWs.
+            type: replace
             column: 5
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
-            # Remove any Zero threholds that might remain
-          - type: "leftConcat"
+          - _comment: Remove any Zero threholds that might remain
+            type: leftConcat
             column: 4
-            value: "MSHW_"
-            # Remove 0 value
-          - type: "replace"
+            value: MSHW_
+          - _comment: Remove 0 value
+            type: replace
             column: 4
-            existingValue: "MSHW_0"
+            existingValue: MSHW_0
             newValue: ""
-            # Remove MSHW_ for not zero values
-          - type: "replace"
+          - _comment: Remove MSHW_ for not zero values
+            type: replace
             column: 4
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
-            # Remove any Zero threholds that might remain
-          - type: "leftConcat"
+          - _comment: Remove any Zero threholds that might remain
+            type: leftConcat
             column: 5
-            value: "MSHW_"
-            # Remove 0 value
-          - type: "replace"
+            value: MSHW_
+          - _comment: Remove 0 value
+            type: replace
             column: 5
-            existingValue: "MSHW_0"
+            existingValue: MSHW_0
             newValue: ""
-            # Remove MSHW_ for not zero values
-          - type: "replace"
+          - _comment: Remove MSHW_ for not zero values
+            type: replace
             column: 5
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          temperature_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: "$column(5)"
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(4)"
+          hw.temperature.limit{limit_type="high.critical"}: $column(5)
+          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the HP_NumericSensor WBEM class
-          type: "wmi"
+          _comment: Source(1) = the HP_NumericSensor WBEM class
+          type: wmi
           query: "SELECT CurrentReading,DeviceID,HealthState,SensorType FROM HP_NumericSensor"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Only Keep Temperature Sensors (Type 2)
-          - type: "keepOnlyMatchingLines"
+          - _comment: Only Keep Temperature Sensors (Type 2)
+            type: keepOnlyMatchingLines
             column: 4
-            valueList: "2"
-          - type: "duplicateColumn"
+            valueList: 2
+          - type: duplicateColumn
             column: 3
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "genStatusTranslationTable"
-          - type: "translate"
+            translationTable: genStatusTranslationTable
+          - type: translate
             column: 4
-            translationTable: "genStatusInformationTranslationTable"
+            translationTable: genStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.temperature: "$column(1)"
-          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: $column(1)
+          hw.status{hw.type="temperature"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = HP_ManagementProcessor
           # ID;ModelCode
-          type: "wmi"
-          query: "SELECT ElementName FROM HP_ManagementProcessor"
-          namespace: "root\\hpq"
+          type: wmi
+          query: SELECT ElementName FROM HP_ManagementProcessor
+          namespace: root\hpq
       mapping:
-        # Instance Table
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        _comment: Instance Table
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          device_type: "Management Card"
-          additional_label: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(1)
+          device_type: Management Card
+          additional_label: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", \"Management Card\", $column(1), $column(1))"
     collect:
       # Collect type is: multi-instance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "wmi"
+          type: wmi
           query: "SELECT ElementName,HealthState FROM HP_ManagementProcessor"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "genStatusTranslationTable"
-          - type: "translate"
+            translationTable: genStatusTranslationTable
+          - type: translate
             column: 3
-            translationTable: "genStatusInformationTranslationTable"
+            translationTable: genStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   network:
     discovery:
       sources:
         source(1):
-          type: "wmi"
+          type: wmi
           query: "SELECT ElementName,IPAddress,NICCondition FROM HP_ManagementProcessor"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Filter out disabled network cards  (NIC Condition = 3)
-          - type: "excludeMatchingLines"
+          - _comment: Filter out disabled network cards  (NIC Condition = 3)
+            type: excludeMatchingLines
             column: 3
-            valueList: "3"
+            valueList: 3
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.network.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          logical_address: "$column(2)"
-          logical_address_type: "IP"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          logical_address: $column(2)
+          logical_address_type: IP
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
-      # Collect type is \"multi-instance\"
-      type: "multiInstance"
+      _comment: Collect type is "multi-instance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the HP_ManagementProcessor WMI Table
           # Condition;ID
-          type: "wmi"
+          type: wmi
           query: "SELECT ElementName,NICCondition FROM HP_ManagementProcessor"
-          namespace: "root\\hpq"
+          namespace: root\hpq
           computes:
-            # Extract the first column within the NICCondition
-          - type: "extract"
+          - _comment: Extract the first column within the NICCondition
+            type: extract
             column: 2
             subColumn: 1
-            subSeparators: "|"
+            subSeparators: '|'
             # Duplicate Condition
             # ID;Condition;Condition;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Duplicate Condition
             # ID;Condition;Condition;Condition;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate first Condition into PATROLStatus
             # ID;PATROLStatus;Condition;Condition;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "iLONetworkCardStatusTranslationTable"
+            translationTable: iLONetworkCardStatusTranslationTable
             # Translate second Condition into a more readable string
             # ID;PATROLStatus;statusInformation;Condition;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "iLONetworkCardStatusInfoTranslationTable"
+            translationTable: iLONetworkCardStatusInfoTranslationTable
             # Translate second Condition into a more readable string
             # ID;PATROLStatus;statusInformation;LinkStatus;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "iLOLinkStatusTranslationTable"
+            translationTable: iLOLinkStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="network"}: "$column(2)"
-          hw.network.up: "legacyLinkStatus($column(4))"
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(4))
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

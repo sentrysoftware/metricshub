@@ -1,180 +1,180 @@
 ---
 translations:
   RoboticStatusTranslationTable:
-    "0": "ok"
-    "1": "ok"
-    "2": "degraded"
-    default: "UNKNOWN"
-    "3": "failed"
-    "4": "failed"
+    "0": ok
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
   StatusInformationTranslationTable:
-    "1": "Other Status"
-    "2": "Unknown"
-    default: "Unknown Status"
+    "1": Other Status
+    "2": Unknown
+    default: Unknown Status
     "3": ""
-    "4": "Non-Critical"
-    "5": "Critical"
-    "6": "Non-Recoverable"
+    "4": Non-Critical
+    "5": Critical
+    "6": Non-Recoverable
   StatusTranslationTable:
-    "1": "UNKNOWN"
-    "2": "UNKNOWN"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "degraded"
-    "5": "failed"
-    "6": "failed"
+    "1": UNKNOWN
+    "2": UNKNOWN
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
 connector:
   detection:
     criteria:
       # DETECTION
       # Does a get_next to see if there that the global OID table is populated.
-    - type: "snmpGetNext"
-      oid: "_ROOT_OID.2"
+    - type: snmpGetNext
+      oid: _ROOT_OID.2
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
           # Source(1) = \ttapeLibrarySystem SNMP table (3100)\nModel;LibraryType;Manufacturer;AgentVersion;
-          type: "snmpTable"
-          oid: "_ROOT_OID.1"
+          type: snmpTable
+          oid: _ROOT_OID.1
           selectColumns: "1,2,3,4"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
             value: "Part Number: "
       mapping:
         # InstanceTable = Source(1)
         # Model;LibraryType;Manufacturer;AgentVersion;
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "_LIBRARY_ID"
-          __display_id: "_LIBRARY_ID"
-          vendor: "$column(3)"
-          model: "$column(2)"
-          bios_version: "$column(4)"
-          type: "Storage"
-          info: "$column(1)"
+          id: _LIBRARY_ID
+          __display_id: _LIBRARY_ID
+          vendor: $column(3)
+          model: $column(2)
+          bios_version: $column(4)
+          type: Storage
+          info: $column(1)
           name: "sprintf(\"%s (%s %s - %s)\", \"_LIBRARY_ID\", $column(3), $column(2), \"Storage\")"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = \tibm3100StatusGlobalStatus SNMP OID\nStatus
-          type: "snmpGet"
-          oid: "_ROOT_OID.2.1.0"
+          type: snmpGet
+          oid: _ROOT_OID.2.1.0
           computes:
             # Duplicate status, because we will translate it two times
             # Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate Status into PATROLStatus
             # PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "StatusTranslationTable"
+            translationTable: StatusTranslationTable
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "StatusInformationTranslationTable"
+            translationTable: StatusInformationTranslationTable
       mapping:
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "_LIBRARY_ID"
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: _LIBRARY_ID
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(1)"
+          hw.status{hw.type="enclosure"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   robotics:
     discovery:
       sources:
         source(1):
           # Source = Get the Robotics info 3100
           # ID;Vendor;Model;FirwareVersion;SerialNumber
-          type: "snmpTable"
-          oid: "_ROOT_OID.3.1.1"
+          type: snmpTable
+          oid: _ROOT_OID.3.1.1
           selectColumns: "ID,7,8,9,10"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Firmware Version: "
       mapping:
         # Instance Table
         # ID;Vendor;Model;FirwareVersion;SerialNumber
-        source: "$monitors.robotics.discovery.sources.source(1)$"
+        source: $monitors.robotics.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(3)"
-          serial_number: "$column(5)"
-          robotic_type: "Media Transfer"
-          info: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(3)
+          serial_number: $column(5)
+          robotic_type: Media Transfer
+          info: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), \"Media Transfer\")"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Get the Robotics status 3100
           # ID;Status;
-          type: "snmpTable"
-          oid: "_ROOT_OID.3.1.1"
+          type: snmpTable
+          oid: _ROOT_OID.3.1.1
           selectColumns: "ID,23,24"
           computes:
             # Translate Status into PATROLStatus
             # deviceID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "RoboticStatusTranslationTable"
+            translationTable: RoboticStatusTranslationTable
       mapping:
-        # Value Table
-        source: "$monitors.robotics.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: Value Table
+        source: $monitors.robotics.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="robotics"}: "$column(2)"
+          hw.status{hw.type="robotics"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   tape_drive:
     discovery:
       sources:
         source(1):
           # Source(1) = \tphysicalDriveEntry SNMP table 3100\nID;Vendor;Model;Firmware;SerialNumber;
-          type: "snmpTable"
-          oid: "_ROOT_OID.3.2.1"
+          type: snmpTable
+          oid: _ROOT_OID.3.2.1
           selectColumns: "ID,7,8,9,10"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Firmware Version: "
       mapping:
         # Instance Table
         # ID;Vendor;Model;Firmware;SerialNumber;
-        source: "$monitors.tape_drive.discovery.sources.source(1)$"
+        source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(3)"
-          serial_number: "$column(5)"
-          info: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(3)
+          serial_number: $column(5)
+          info: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = \tphysicalDriveEntry SNMP table 3100\nID;Loads;HardWriteErrorCount;HardReadErrorCount;
-          type: "snmpTable"
-          oid: "_ROOT_OID.3.2.1"
+          type: snmpTable
+          oid: _ROOT_OID.3.2.1
           selectColumns: "ID,14,16,18"
           computes:
             # Add Read & Write Errors
             # ID;Loads;HardErrorCount;HardReadErrorCount;
-          - type: "add"
+          - type: add
             column: 3
-            value: "Column(4)"
+            value: Column(4)
       mapping:
         # Value Table
         # ID;Loads;HardErrorCount;HardReadErrorCount;
-        source: "$monitors.tape_drive.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.tape_drive.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.errors{hw.type="tape_drive"}: "$column(3)"
-          hw.tape_drive.operations{type="mount"}: "$column(2)"
+          hw.errors{hw.type="tape_drive"}: $column(3)
+          hw.tape_drive.operations{type="mount"}: $column(2)

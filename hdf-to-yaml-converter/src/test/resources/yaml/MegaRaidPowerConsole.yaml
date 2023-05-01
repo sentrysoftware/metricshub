@@ -1,194 +1,194 @@
 ---
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    "1": "Ready"
-    default: "Unknown Status"
-    "3": "On-line"
-    "4": "Failed"
-    "5": "Rebuild"
-    "6": "Hot-spare"
-    "20": "Non-disk"
+    "1": Ready
+    default: Unknown Status
+    "3": On-line
+    "4": Failed
+    "5": Rebuild
+    "6": Hot-spare
+    "20": Non-disk
   LogicalDiskStatusInformationTranslationTable:
-    "0": "Off-line"
-    "1": "Degraded"
+    "0": Off-line
+    "1": Degraded
     "2": ""
-    default: "Unknown Status"
-    "3": "Initializing"
-    "4": "Check consistency"
+    default: Unknown Status
+    "3": Initializing
+    "4": Check consistency
   LogicalDiskStatusTranslationTable:
-    "0": "failed"
-    "1": "degraded"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "degraded"
+    "0": failed
+    "1": degraded
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
   PhysicalDiskStatusTranslationTable:
-    "1": "ok"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "failed"
-    "5": "degraded"
-    "6": "ok"
-    "20": "ok"
+    "1": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": ok
+    "20": ok
 connector:
-  displayName: "LsiLogic MegaRAID PowerConsole"
-  platforms: "Fujitsu-Siemens PRIMERGY"
-  reliesOn: "LSI MegaRAID PowerConsole"
-  version: "1.0"
-  information: "This connector provides disk monitoring through the LsiLogic MegaRAID PowerConsole SNMP sub-agent which supports all MegaRAID-based RAID controllers."
+  displayName: LsiLogic MegaRAID PowerConsole
+  platforms: Fujitsu-Siemens PRIMERGY
+  reliesOn: LSI MegaRAID PowerConsole
+  version: 1.0
+  information: This connector provides disk monitoring through the LsiLogic MegaRAID PowerConsole SNMP sub-agent which supports all MegaRAID-based RAID controllers.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
-    - "Linux"
+    - NT
+    - Linux
     criteria:
-      # Simply check that the megaRaid MIB is populated
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.3582.1.1.1.1"
+    - _comment: Simply check that the megaRaid MIB is populated
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.3582.1.1.1.1
 monitors:
   disk_controller:
     discovery:
       sources:
         source(1):
-          # HP NetRAID controllers table
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3582.1.1.1.1"
+          _comment: HP NetRAID controllers table
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3582.1.1.1.1
           selectColumns: "ID,1,3,4,23"
         source(2):
-          # Physical disk table
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3582.1.1.3.1"
-          selectColumns: "1"
+          _comment: Physical disk table
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3582.1.1.3.1
+          selectColumns: 1
         source(3):
           # We joint the controllers and the physical disk table
           # in order to keep only controllers for which there is disks attached
-          type: "tableJoin"
-          leftTable: "$monitors.disk_controller.discovery.sources.source(1)$"
-          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
-        # The Instance table...
-        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        _comment: The Instance table...
+        source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(2)"
-          model: "$column(5)"
-          firmware_version: "$column(3)"
-          bios_version: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          controller_number: $column(2)
+          model: $column(5)
+          firmware_version: $column(3)
+          bios_version: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(5))"
   physical_disk:
     discovery:
       sources:
         source(1):
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3582.1.1.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3582.1.1.3.1
           selectColumns: "ID,1,4,6,7,8"
           computes:
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "20"
-          - type: "keepOnlyMatchingLines"
+            valueList: 20
+          - type: keepOnlyMatchingLines
             column: 5
-            valueList: "0"
-          - type: "multiply"
+            valueList: 0
+          - type: multiply
             column: 4
-            value: "1048576"
-          - type: "extract"
+            value: 1048576
+          - type: extract
             column: 6
-            subSeparators: " "
+            subSeparators: ' '
             subColumn: 1
       mapping:
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(6)"
-          hw.parent.type: "disk_controller"
+          id: $column(1)
+          vendor: $column(6)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
-          hw.physical_disk.size: "$column(4)"
+          hw.physical_disk.size: $column(4)
     collect:
-      # This is a multi-instance collect (execute the collect for each disk)
-      type: "multiInstance"
+      _comment: This is a multi-instance collect (execute the collect for each disk)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the physical disk table
           # ID;status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3582.1.1.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3582.1.1.3.1
           selectColumns: "ID,4"
           computes:
             # Duplicate the status column
             # ID;status;status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
-            # translate the snmp state into PATROL status
-          - type: "translate"
+          - _comment: translate the snmp state into PATROL status
+            type: translate
             column: 2
-            translationTable: "PhysicalDiskStatusTranslationTable"
-            # translate the snmp state into a more readable string
-          - type: "translate"
+            translationTable: PhysicalDiskStatusTranslationTable
+          - _comment: translate the snmp state into a more readable string
+            type: translate
             column: 3
-            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = the snmp logical drive table
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3582.1.1.2.1"
+          _comment: Source(1) = the snmp logical drive table
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3582.1.1.2.1
           selectColumns: "ID,1,4,5"
           computes:
-          - type: "multiply"
+          - type: multiply
             column: 3
-            value: "1048576"
+            value: 1048576
       mapping:
-        # The instance table
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        _comment: The instance table
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.logical_disk.limit: "$column(3)"
-          raid_level: "$column(4)"
-          hw.parent.type: "disk_controller"
+          id: $column(1)
+          hw.logical_disk.limit: $column(3)
+          raid_level: $column(4)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
     collect:
-      # Type = MultiInstance
-      type: "multiInstance"
+      _comment: Type = MultiInstance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the status of the drive in the logical drive snmp table
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.3582.1.1.2.1"
+          _comment: Source(1) = the status of the drive in the logical drive snmp table
+          type: snmpTable
+          oid: 1.3.6.1.4.1.3582.1.1.2.1
           selectColumns: "ID,3"
           computes:
-            # Duplicate the status column
-          - type: "duplicateColumn"
+          - _comment: Duplicate the status column
+            type: duplicateColumn
             column: 2
-            # translate the snmp status into PATROL status
-          - type: "translate"
+          - _comment: translate the snmp status into PATROL status
+            type: translate
             column: 2
-            translationTable: "LogicalDiskStatusTranslationTable"
-            # translate the snmp status into a more readable string
-          - type: "translate"
+            translationTable: LogicalDiskStatusTranslationTable
+          - _comment: translate the snmp status into a more readable string
+            type: translate
             column: 3
-            translationTable: "LogicalDiskStatusInformationTranslationTable"
+            translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

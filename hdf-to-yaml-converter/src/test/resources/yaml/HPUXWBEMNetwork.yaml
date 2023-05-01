@@ -1,61 +1,61 @@
 ---
 translations:
   DMTFOperationStatusTranslationTable:
-    "11": "degraded"
-    "12": "failed"
-    "13": "failed"
-    "14": "failed"
-    "15": "ok"
-    "16": "degraded"
-    "17": "ok"
-    "18": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "degraded"
-    "5": "degraded"
-    "6": "failed"
-    "7": "failed"
-    "8": "degraded"
-    "9": "degraded"
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
   OperationsStatusToLinkStatusTranslationTable:
-    "2": "ok"
-    "10": "degraded"
+    "2": ok
+    "10": degraded
   DMTFOperationStatusInformationTranslationTable:
-    "11": "In Service"
-    "12": "No Contact"
-    "13": "Lost Communication"
-    "14": "Aborted"
-    "15": "Dormant"
-    "16": "Supporting Entity in Error"
-    "17": "Completed"
-    "18": "Power Mode"
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
     "2": ""
     default: ""
-    "3": "Degraded"
-    "4": "Stressed"
-    "5": "Predicted Failure"
-    "6": "Error"
-    "7": "Non-Recoverable Error"
-    "8": "Starting"
-    "9": "Stopping"
-    "10": "Stopped"
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
 connector:
-  displayName: "HP-UX - Network (WBEM)"
+  displayName: HP-UX - Network (WBEM)
   platforms: "HP 9000,HP Integrity,HP SuperDome"
-  reliesOn: "HP-UX WBEM Provider"
-  information: "Provides the monitoring of the network interfaces in HP-UX servers through the HP-UX WBEM Provider."
-  version: "1.0"
+  reliesOn: HP-UX WBEM Provider
+  information: Provides the monitoring of the network interfaces in HP-UX servers through the HP-UX WBEM Provider.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "HP"
+    - HP
     criteria:
-      # Checking the version of ESXi
-    - type: "wbem"
-      namespace: "root/cimv2"
-      query: "SELECT DeviceID FROM HPUX_Processor"
+    - _comment: Checking the version of ESXi
+      type: wbem
+      namespace: root/cimv2
+      query: SELECT DeviceID FROM HPUX_Processor
 monitors:
   network:
     discovery:
@@ -63,78 +63,78 @@ monitors:
         source(1):
           # Source(1) = HPUX_EthernetPort
           # DeviceID,Speed,Description,PermanentAddress,OperationalStatus
-          type: "wbem"
+          type: wbem
           query: "SELECT DeviceID,Speed,Description,PermanentAddress,OperationalStatus FROM HPUX_EthernetPort"
-          namespace: "root/cimv2"
+          namespace: root/cimv2
           computes:
             # Convert Speed from bps to Mbps (divide by 1000000)
             # DeviceID,Speed,Description,PermanentAddress,OperationalStatus
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "1000000"
+            value: 1000000
       mapping:
         # InstanceTable = Source(1)
         # DeviceID,Speed,Description,PermanentAddress,OperationalStatus
-        source: "$monitors.network.discovery.sources.source(1)$"
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          physical_address: "$column(4)"
-          physical_address_type: "MAC"
-          model: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          model: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      # The NetworkCard collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The NetworkCard collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = HPUX_EthernetPort
           # DeviceID,Speed,OperationalStatus
-          type: "wbem"
+          type: wbem
           query: "SELECT DeviceID,Speed,OperationalStatus FROM HPUX_EthernetPort"
-          namespace: "root/cimv2"
+          namespace: root/cimv2
           computes:
             # Duplicate the "OperationalStatusArray" column
             # DeviceID,Speed,OperationalStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Duplicate the "OperationalStatusArray" column
             # DeviceID,Speed,OperationalStatus,OperationalStatus
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # DeviceID,Speed,PATROLStatusArray,OperationalStatus,OperationalStatus
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "DMTFOperationStatusTranslationTable"
+            translationTable: DMTFOperationStatusTranslationTable
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID,Speed,PATROLStatusArray,StatusInformation,OperationalStatus
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 4
-            translationTable: "DMTFOperationStatusInformationTranslationTable"
-            resultSeparator: " - "
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID,Speed,PATROLStatus,StatusInformation,OperationalStatus
-          - type: "convert"
+          - type: convert
             column: 3
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
             # Convert Speed from bps to Mbps (divide by 1000000)
             # DeviceID,Speed,PATROLStatus,StatusInformation,OperationalStatus
-          - type: "divide"
+          - type: divide
             column: 2
-            value: "1000000"
+            value: 1000000
             # Translate the Op Status to Link Status.  This only works if the card is "ok" or "stopeed".  Any other state and Link Status is unknown.
             # DeviceID,Speed,PATROLStatus,StatusInformation,LinkStatus
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 5
-            translationTable: "OperationsStatusToLinkStatusTranslationTable"
+            translationTable: OperationsStatusToLinkStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="network"}: "$column(3)"
-          hw.network.up: "legacyLinkStatus($column(5))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(2))"
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

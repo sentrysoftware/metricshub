@@ -1,6 +1,6 @@
 ---
 extends:
-- "DellCompellent-header"
+- DellCompellent-header
 embedded:
   EmbeddedFile(1): |-
     Content-Type:application/json
@@ -10,20 +10,20 @@ embedded:
     Accept: application/json
     Cookie: %{AUTHENTICATIONTOKEN}
 connector:
-  displayName: "Dell Compellent Storage Center"
-  platforms: "Dell Compellent"
-  reliesOn: "Dell Compellent Controller REST API"
-  version: "1.0"
+  displayName: Dell Compellent Storage Center
+  platforms: Dell Compellent
+  reliesOn: Dell Compellent Controller REST API
+  version: 1.0
   information: "This connector discovers the enclosures, controllers and their associated hardware components through Dell Compellent Controller REST API Version 7 and higher. IP address of the storage controller should be specified as host IP."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     criteria:
-      # Make sure it's a controller
-    - type: "http"
-      method: "POST"
-      url: "/api/rest/ApiConnection/Login"
-      header: "EmbeddedFile(1)"
-      expectedResult: "StorageCenter"
+    - _comment: Make sure it's a controller
+      type: http
+      method: POST
+      url: /api/rest/ApiConnection/Login
+      header: EmbeddedFile(1)
+      expectedResult: StorageCenter

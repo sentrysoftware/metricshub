@@ -4,47 +4,47 @@ embedded:
   EmbeddedFile(2): "BEGIN {\n\tFS = \";\"\n\tsplit(\";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\", enclosureNameArray, \";\");\n\tsplit(\";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\", enclosurePowerArray, \";\");\n\tenclosureCount = 0;\n}\n/.+;[0-9]+/ {\n\tsplit($1, pathArray, \"/\");\n\tenclosureID = pathArray[1] \"/\" pathArray[2];\n\tenclosureAlreadyListed = 0;\n\tfor (i=1 ; i<=enclosureCount ; i++)\n\t{\n\t\tif (enclosureNameArray[i] == enclosureID)\n\t\t{\n\t\t\tenclosureAlreadyListed = 1;\n\t\t\tenclosurePowerArray[i] = enclosurePowerArray[i] + $2;\n\t\t}\n\t}\n\tif (enclosureAlreadyListed == 0)\n\t{\n\t\tenclosureCount++;\n\t\tenclosureNameArray[enclosureCount] = enclosureID;\n\t\tenclosurePowerArray[enclosureCount] = $2;\n\t}\n}\nEND {\n\tfor (i=1 ; i<=enclosureCount ; i++)\n\t{\n\t\tprint \"MSHW;\" enclosureNameArray[i] \";\" enclosurePowerArray[i] \";\"\n\t}\n}"
 translations:
   faultInstSeverityTranslationTable:
-    default: "UNKNOWN"
-    minor: "ok"
-    major: "failed"
-    critical: "failed"
-    warning: "degraded"
-    cleared: "ok"
-    info: "ok"
+    default: UNKNOWN
+    minor: ok
+    major: failed
+    critical: failed
+    warning: degraded
+    cleared: ok
+    info: ok
   LinkStatusTranslationTable:
-    link-down: "degraded"
-    default: "ok"
+    link-down: degraded
+    default: ok
   EthernetTypeTranslationTable:
-    server: "Ethernet Port (Server)"
-    mgmt: "Ethernet Port (Management)"
-    default: "Ethernet Port"
-    network: "Ethernet Port (Uplink)"
+    server: Ethernet Port (Server)
+    mgmt: Ethernet Port (Management)
+    default: Ethernet Port
+    network: Ethernet Port (Uplink)
   FCTypeTranslationTable:
-    server: "FC Port (Server)"
-    mgmt: "FC Port (Management)"
-    default: "FC Port"
-    network: "FC Port (Uplink)"
+    server: FC Port (Server)
+    mgmt: FC Port (Management)
+    default: FC Port
+    network: FC Port (Uplink)
 connector:
-  displayName: "Cisco UCS Manager (Fabric Interconnect Switch)"
-  platforms: "Cisco UCS"
-  reliesOn: "Cisco UCS Manager (XML API)"
-  version: "1.0"
-  information: "This connector provides hardware monitoring for Cisco UCS Blade chassis (as well as the Cisco Fabric Interconnect Switch) through the UCS Manager (running on the Fabric Interconnect Switch)."
+  displayName: Cisco UCS Manager (Fabric Interconnect Switch)
+  platforms: Cisco UCS
+  reliesOn: Cisco UCS Manager (XML API)
+  version: 1.0
+  information: This connector provides hardware monitoring for Cisco UCS Blade chassis (as well as the Cisco Fabric Interconnect Switch) through the UCS Manager (running on the Fabric Interconnect Switch).
   detection:
     appliesTo:
-    - "OOB"
+    - OOB
     connectionTypes:
-    - "remote"
+    - remote
     criteria:
-      # Only for type storage
-    - type: "deviceType"
+    - _comment: Only for type storage
+      type: deviceType
       keep:
-      - "OOB"
-      # Checks that Cisco UCS Manager responds
-    - type: "ucs"
-      query: "SELECT dn FROM networkElement"
-      expectedResult: "^networkElement;sys/"
-      errorMessage: "Couldn't connect to UCS Manager on the Fabric Interconnect Switch."
+      - OOB
+    - _comment: Checks that Cisco UCS Manager responds
+      type: ucs
+      query: SELECT dn FROM networkElement
+      expectedResult: ^networkElement;sys/
+      errorMessage: Couldn't connect to UCS Manager on the Fabric Interconnect Switch.
 monitors:
   enclosure:
     discovery:
@@ -52,12 +52,12 @@ monitors:
         source(1):
           # Source(1) = ALL UCS queries that we will need in later discoveries
           # This is to "mutualize" the UCS connection
-          type: "ucs"
+          type: ucs
           queries:
           - "SELECT dn,model,serial FROM equipmentChassis"
           - "SELECT dn,model,serial FROM networkElement"
           - "SELECT presence,dn,model,serial,intType,tray,module,id FROM equipmentFan"
-          - "SELECT dn FROM equipmentFanStats"
+          - SELECT dn FROM equipmentFanStats
           - "SELECT presence,dn,model,vendor,serial FROM equipmentPsu"
           - "SELECT dn,fanCtrlrInlet1,fanCtrlrInlet2,fanCtrlrInlet3,fanCtrlrInlet4,mainBoardOutlet1,mainBoardOutlet2 FROM swEnvStats"
           - "SELECT dn,fmTempSenIo,fmTempSenRear FROM computeMbTempStats"
@@ -70,85 +70,85 @@ monitors:
           # Source(2) = SELECT dn,model,serial FROM equipmentChassis
           # Get that from Enclosure.Discovery.Source(1)
           # DeviceID;Model;SerialNumber;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentChassis"
-          - type: "keepColumns"
+            valueList: equipmentChassis
+          - type: keepColumns
             columnNumbers: "2,3,4"
             # Add ";Blade" after SerialNumber
             # DeviceID;Model;SerialNumber;EnclosureType;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";Blade"
+            value: ;Blade
         source(3):
           # Source(3) = SELECT dn,model,serial FROM networkElement
           # Get that from Enclosure.Discovery.Source(1)
           # DeviceID;Model;SerialNumber;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             valueList: "networkElement,equipmentFex"
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,3,4"
             # Add ";Switch" after SerialNumber
             # DeviceID;Model;SerialNumber;EnclosureType;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";Switch"
+            value: ;Switch
         source(4):
           # Source(4) = Union of Source(2) and Source(3)
           # DeviceID;Model;SerialNumber;EnclosureType;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.discovery.sources.source(2)$"
-          - "$monitors.enclosure.discovery.sources.source(3)$"
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Duplicate DeviceID to build DisplayID
             # DeviceID;DisplayID;Model;SerialNumber;EnclosureType;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Remove "sys/" from the DisplayID
             # DeviceID;DisplayID;Model;SerialNumber;EnclosureType;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "sys/"
+            existingValue: sys/
             newValue: ""
         source(5):
           # Source(5) = Copy of Source(1) = SELECT model,productName FROM equipmentBladeBiosCapProvider
           # modelCode;modelName;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentBladeBiosCapProvider"
-          - type: "keepColumns"
+            valueList: equipmentBladeBiosCapProvider
+          - type: keepColumns
             columnNumbers: "2,3"
       mapping:
-        # The discovery table = Source(4)
-        source: "$monitors.enclosure.discovery.sources.source(4)$"
+        _comment: The discovery table = Source(4)
+        source: $monitors.enclosure.discovery.sources.source(4)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          vendor: "Cisco"
-          model: "$column(3)"
-          serial_number: "$column(4)"
-          type: "$column(5)"
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: Cisco
+          model: $column(3)
+          serial_number: $column(4)
+          type: $column(5)
           name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"Cisco\", $column(3), $column(5))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = All UCS queries that we're going to make later
           # Same principle as for the discovery. This is to limit the number of connections we do.
           # Because the Cisco UCS 6120 switches are sensible things, you know.
-          type: "ucs"
+          type: ucs
           queries:
           - "SELECT dn,severity,cause FROM faultInst"
           - "SELECT dn,inputPower FROM equipmentChassisStats"
@@ -164,901 +164,901 @@ monitors:
         source(2):
           # Source(2) = SELECT dn,severity,cause FROM faultInst
           # FaultDeviceID;Severity;StatusInformation
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "faultInst"
-          - type: "keepColumns"
+            valueList: faultInst
+          - type: keepColumns
             columnNumbers: "2,3,4"
             # Extract the DeviceID from the FaultDeviceID by removing the /fault-... string
             # DeviceID;Severity;StatusInformation;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/fault-"
-            newValue: "�"
-          - type: "extract"
+            existingValue: /fault-
+            newValue: �
+          - type: extract
             column: 1
-            subSeparators: "�"
+            subSeparators: �
             subColumn: 1
             # Translate Severity into a PATROL Status
             # DeviceID;Status;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "faultInstSeverityTranslationTable"
+            translationTable: faultInstSeverityTranslationTable
             # Remove "link-down" lines, because it's not really an error
             # DeviceID;Status;StatusInformation;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "link-down"
+            valueList: link-down
         source(3):
           # Source(3) = Table joint of Enclosure.Discovery.Source(4) and Source(2)
           # DeviceID;DisplayID;Model;SerialNumber;EnclosureType;DeviceID;Status;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(4)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(4)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";OK;;"
+          defaultRightLine: ;OK;;
         source(4):
           # Source(4) = SELECT dn,inputPower FROM equipmentChassisStats
           # EnclosureID/stats;Power;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentChassisStats"
-          - type: "keepColumns"
+            valueList: equipmentChassisStats
+          - type: keepColumns
             columnNumbers: "2,3"
             # Remove the "/stats" from the EnclosureID
             # EnclosureID;Power;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/stats"
+            existingValue: /stats
             newValue: ""
         source(5):
           # Source(5) = SELECT dn,power FROM equipmentPsuInputStats
           # PsuID;Power;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentPsuInputStats"
-          - type: "keepColumns"
+            valueList: equipmentPsuInputStats
+          - type: keepColumns
             columnNumbers: "2,3"
             # Parse the result of equipmentPsuInputStats to sum up the power consumption per chassis
             # EnclosureID;Power;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(6):
           # Source(6) = Union of Source(4) and Source(5)
           # EnclosureID;Power;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.collect.sources.source(4)$"
-          - "$monitors.enclosure.collect.sources.source(5)$"
+          - $monitors.enclosure.collect.sources.source(4)$
+          - $monitors.enclosure.collect.sources.source(5)$
         source(7):
           # Source(7) = Table joint of Source(3) and Source(6)
           # DeviceID;DisplayID;Model;SerialNumber;EnclosureType;DeviceID;Status;StatusInformation;EnclosureID;Power;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.collect.sources.source(3)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(6)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(3)$
+          rightTable: $monitors.enclosure.collect.sources.source(6)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
-        # ValueTable=Source(7)
-        source: "$monitors.enclosure.collect.sources.source(7)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable=Source(7)
+        source: $monitors.enclosure.collect.sources.source(7)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(7)"
-          hw.enclosure.power: "$column(10)"
-          hw.enclosure.energy: "fakeCounter($column(10))"
+          hw.status{hw.type="enclosure"}: $column(7)
+          hw.enclosure.power: $column(10)
+          hw.enclosure.energy: fakeCounter($column(10))
         legacyTextParameters:
-          StatusInformation: "$column(8)"
+          StatusInformation: $column(8)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = SELECT dn,model FROM equipmentFan
           # DeviceID;Model;Serial;Location;Tray;Module;FanID;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentFan"
-          - type: "keepOnlyMatchingLines"
+            valueList: equipmentFan
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "equipped"
-          - type: "keepColumns"
+            valueList: equipped
+          - type: keepColumns
             columnNumbers: "3,4,5,6,7,8,9"
             # Duplicate DeviceID, twice
             # DeviceID;DeviceID;DeviceID;Model;Serial;Location;Tray;Module;FanID;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the root from the DeviceID path in column(2)
             # DeviceID;ParentID1;DeviceID;Model;Serial;Location;Tray;Module;FanID;
-          - type: "extract"
+          - type: extract
             column: 2
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 1
             # Extract the second-level element from the DeviceID path in column(3)
             # DeviceID;ParentID1;ParentID2;Model;Serial;Location;Tray;Module;FanID;
-          - type: "extract"
+          - type: extract
             column: 3
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 2
             # Concat ParentID1 "/" ParentID2 to form ParentID
             # DeviceID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Build a good looking location string from location, tray, module and fanID
             # DeviceID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
             value: ", Tray "
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
-            value: "Column(7)"
-          - type: "rightConcat"
+            value: Column(7)
+          - type: rightConcat
             column: 6
             value: ", Module "
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
-            value: "Column(8)"
-          - type: "rightConcat"
+            value: Column(8)
+          - type: rightConcat
             column: 6
             value: ", Fan "
-          - type: "rightConcat"
+          - type: rightConcat
             column: 6
-            value: "Column(9)"
+            value: Column(9)
             # Duplicate DeviceID (again) to build DisplayID
             # DeviceID;DeviceID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Remove the (useless) mention of ParentID in DeviceID, to build DisplayID
             # DeviceID;DisplayID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "Column(3)"
+            existingValue: Column(3)
             newValue: ""
             # Remove the leading "/"
             # DeviceID;DisplayID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "~"
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "~/"
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "~"
             newValue: ""
         source(2):
           # Source(2) = SELECT dn FROM equipmentFanStats
           # FanStatID;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentFanStats"
-          - type: "keepColumns"
-            columnNumbers: "2"
+            valueList: equipmentFanStats
+          - type: keepColumns
+            columnNumbers: 2
             # Remove the /stats in the FanStatID to get the FanDeviceID
             # FanDeviceID;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/stats"
+            existingValue: /stats
             newValue: ""
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # If we find a FanDeviceID (stats) in Source(2) matching with Source(1), then we activate the Speed parameter
           # DeviceID;DisplayID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;HasStats;
-          type: "tableJoin"
-          leftTable: "$monitors.fan.discovery.sources.source(1)$"
-          rightTable: "$monitors.fan.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.fan.discovery.sources.source(1)$
+          rightTable: $monitors.fan.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";"
+          defaultRightLine: ;
           computes:
             # Exclude componnent in a "rack unit" as these are components from a rack server.
             # DeviceID;DisplayID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;HasStats;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            regExp: "^sys/rack-unit"
+            regExp: ^sys/rack-unit
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;DisplayID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;HasStats;
-        source: "$monitors.fan.discovery.sources.source(3)$"
+        source: $monitors.fan.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(3)"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
+          name: $column(2)
     collect:
-      # Collect
-      type: "multiInstance"
+      _comment: Collect
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = Table joint of Fan.Discovery.Source(1) and Enclosure.Collect.Source(2)
           # DeviceID;DisplayID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;DeviceID;Status;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.fan.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.fan.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";OK;;"
+          defaultRightLine: ;OK;;
         source(2):
           # Source(2) = SELECT dn,speed FROM equipmentFanStats
           # FanStatID;Speed;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentFanStats"
-          - type: "keepColumns"
+            valueList: equipmentFanStats
+          - type: keepColumns
             columnNumbers: "2,3"
             # Remove the /stats in the FanStatID to get the FanDeviceID
             # FanDeviceID;Speed;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/stats"
+            existingValue: /stats
             newValue: ""
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;DisplayID;ParentID;ParentID2;Model;Serial;Location;Tray;Module;FanID;DeviceID;Status;StatusInformation;FanDeviceID;Speed;
-          type: "tableJoin"
-          leftTable: "$monitors.fan.collect.sources.source(1)$"
-          rightTable: "$monitors.fan.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.fan.collect.sources.source(1)$
+          rightTable: $monitors.fan.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(12)"
-          hw.fan.speed: "$column(15)"
+          hw.status{hw.type="fan"}: $column(12)
+          hw.fan.speed: $column(15)
         legacyTextParameters:
-          StatusInformation: "$column(13)"
+          StatusInformation: $column(13)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = SELECT presence,dn,model,vendor,serial FROM equipmentPsu
           # DeviceID;Model;Vendor;SerialNumber;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "equipmentPsu"
-          - type: "keepOnlyMatchingLines"
+            valueList: equipmentPsu
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "equipped"
-          - type: "keepColumns"
+            valueList: equipped
+          - type: keepColumns
             columnNumbers: "3,4,5,6"
             # Duplicate DeviceID, twice
             # DeviceID;DeviceID;DeviceID;Model;Vendor;SerialNumber;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the root from the DeviceID path in column(2)
             # DeviceID;ParentID1;DeviceID;Model;Vendor;SerialNumber;
-          - type: "extract"
+          - type: extract
             column: 2
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 1
             # Extract the second-level element from the DeviceID path in column(3)
             # DeviceID;ParentID1;ParentID2;Model;Vendor;SerialNumber;
-          - type: "extract"
+          - type: extract
             column: 3
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 2
             # Concat ParentID1 "/" ParentID2 to form ParentID
             # DeviceID;ParentID;ParentID2;Model;Vendor;SerialNumber;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Now, duplicate DeviceID to form DisplayID
             # DeviceID;DeviceID;ParentID;ParentID2;Model;Vendor;SerialNumber;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Remove mentions of ParentID in DeviceID to get DisplayID
             # DeviceID;DisplayID;ParentID;ParentID2;Model;Vendor;SerialNumber;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "Column(3)"
+            existingValue: Column(3)
             newValue: ""
             # Remove the leading "/"
             # DeviceID;DisplayID;ParentID;ParentID2;Model;Vendor;SerialNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "~"
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "~/"
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "~"
             newValue: ""
             # Exclude componnent in a "rack unit" as these are components from a rack server.
             # DeviceID;DisplayID;ParentID;ParentID2;Model;Vendor;SerialNumber;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            regExp: "^sys/rack-unit"
+            regExp: ^sys/rack-unit
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          power_supply_type: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(3)"
+          id: $column(1)
+          __display_id: $column(2)
+          power_supply_type: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s)\", $column(2), $column(5))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = Table joint of PowerSupply.Discovery.Source(1) and Enclosure.Collect.Source(2)
           # DeviceID;DisplayID;ParentID;ParentID2;Model;Vendor;SerialNumber;DeviceID;Status;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.power_supply.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.power_supply.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";OK;;"
+          defaultRightLine: ;OK;;
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(9)"
+          hw.status{hw.type="power_supply"}: $column(9)
         legacyTextParameters:
-          StatusInformation: "$column(10)"
+          StatusInformation: $column(10)
   temperature:
     discovery:
       sources:
         source(1):
           # Source(1) = SELECT dn,fanCtrlrInlet1,fanCtrlrInlet2,fanCtrlrInlet3,fanCtrlrInlet4,mainBoardOutlet1,mainBoardOutlet2 FROM swEnvStats
           # swEnvStats;swEnvStatsID;fanCtrlrInlet1;fanCtrlrInlet2;fanCtrlrInlet3;fanCtrlrInlet4;mainBoardOutlet1;mainBoardOutlet2;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "swEnvStats"
-          - type: "keepColumns"
+            valueList: swEnvStats
+          - type: keepColumns
             columnNumbers: "1,2,3,4,5,6,7,8"
         source(2):
           # Source(2) = SELECT dn,fmTempSenIo,fmTempSenRear FROM computeMbTempStats
           # computeMbTempStats;tempStatsID;fmTempSenIo;fmTempSenRear;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "computeMbTempStats"
-          - type: "keepColumns"
+            valueList: computeMbTempStats
+          - type: keepColumns
             columnNumbers: "1,2,3,4"
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "not-applicable"
-          - type: "excludeMatchingLines"
+            valueList: not-applicable
+          - type: excludeMatchingLines
             column: 4
-            valueList: "not-applicable"
+            valueList: not-applicable
         source(3):
           # Source(3) = Union of Source(1), Source(2)
           # Various formats to be processed by the awk script
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(1)$"
-          - "$monitors.temperature.discovery.sources.source(2)$"
+          - $monitors.temperature.discovery.sources.source(1)$
+          - $monitors.temperature.discovery.sources.source(2)$
           computes:
             # Process these couple lines to have one line per temperature sensor
             # TemperatureID;DisplayID;ParentID;Location;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
             # Exclude componnent in a "rack unit" as these are components from a rack server.
             # TemperatureID;DisplayID;ParentID;Location;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            regExp: "^sys/rack-unit"
+            regExp: ^sys/rack-unit
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(3)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          temperature_type: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(3)"
+          id: $column(1)
+          __display_id: $column(2)
+          temperature_type: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
     collect:
       # Collect type is: multiinstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = SELECT dn,fanCtrlrInlet1,fanCtrlrInlet2,fanCtrlrInlet3,fanCtrlrInlet4,mainBoardOutlet1,mainBoardOutlet2 FROM swEnvStats
           # SwitchEnclosureID;fanCtrlrInlet1;fanCtrlrInlet2;fanCtrlrInlet3;fanCtrlrInlet4;mainBoardOutlet1;mainBoardOutlet2;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "swEnvStats"
-          - type: "keepColumns"
+            valueList: swEnvStats
+          - type: keepColumns
             columnNumbers: "1,2,3,4,5,6,7,8"
         source(2):
           # Source(2) = SELECT dn,fmTempSenIo,fmTempSenRear FROM computeMbTempStats
           # computeMbTempStats;tempStatsID;fmTempSenIo;fmTempSenRear;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "computeMbTempStats"
-          - type: "keepColumns"
+            valueList: computeMbTempStats
+          - type: keepColumns
             columnNumbers: "1,2,3,4"
         source(3):
           # Source(3) = Union of Source(1), Source(2)
           # Various formats to be processed by the awk script
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(1)$"
-          - "$monitors.temperature.discovery.sources.source(2)$"
+          - $monitors.temperature.discovery.sources.source(1)$
+          - $monitors.temperature.discovery.sources.source(2)$
           computes:
             # Process these couple lines to have one line per temperature sensor
             # DeviceID;Temperature;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,6"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
+          hw.temperature: $column(2)
   blade:
     discovery:
       sources:
         source(1):
           # Source(1) = SELECT presence,dn,model,serial,slotId,usrLbl FROM computeBlade
           # BladeID;Model;SerialNumber;Location;usrLbl;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "computeBlade"
-          - type: "keepOnlyMatchingLines"
+            valueList: computeBlade
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "equipped"
-          - type: "keepColumns"
+            valueList: equipped
+          - type: keepColumns
             columnNumbers: "3,4,5,6,7"
             # Duplicate BladeID, twice
             # BladeID;BladeID;BladeID;Model;SerialNumber;Location;usrLbl;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the root from the BladeID path in column(2)
             # BladeID;ParentID1;BladeID;Model;SerialNumber;Location;usrLbl;
-          - type: "extract"
+          - type: extract
             column: 2
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 1
             # Extract the second-level element from the DeviceID path in column(3)
             # BladeID;ParentID1;ParentID2;Model;SerialNumber;Location;usrLbl;
-          - type: "extract"
+          - type: extract
             column: 3
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 2
             # Concat ParentID1 "/" ParentID2 to form ParentID
             # BladeID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Add "Slot " in from of the location column
             # BladeID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "Location: "
             # Duplicate BladeID to form DisplayID
             # BladeID;BladeID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Remove mentions of ParentID in BladeID to obtain DisplayID
             # BladeID;DisplayID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "Column(3)"
+            existingValue: Column(3)
             newValue: ""
             # Remove the leading "/" from DisplayID
             # BladeID;DisplayID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "/"
+            existingValue: /
             newValue: ""
         source(2):
           # Source(2) = Table Joint of Source(1) and Enclosure.Discovery.Source(5)
           # This is to retrieve the actual model name, instead of the cryptic model code
           # BladeID;DisplayID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;modelCode;modelName;
-          type: "tableJoin"
-          leftTable: "$monitors.blade.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(5)$"
+          type: tableJoin
+          leftTable: $monitors.blade.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(5)$
           leftKeyColumn: 5
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Parent ID: "
       mapping:
         # InstanceTable = Source(1)
         # BladeID;DisplayID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;modelCode;modelName;
-        source: "$monitors.blade.discovery.sources.source(2)$"
+        source: $monitors.blade.discovery.sources.source(2)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          serial_number: "$column(5)"
-          blade_name: "$column(8)"
-          model: "$column(10)"
+          id: $column(1)
+          __display_id: $column(2)
+          serial_number: $column(5)
+          blade_name: $column(8)
+          model: $column(10)
           info: "join($column(4), $column(7), \" \")"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(3)"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(8), $column(10))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = Table joint of PowerSupply.Discovery.Source(1) and Enclosure.Collect.Source(1)
           # BladeID;DisplayID;ParentID;ParentID2;Model;SerialNumber;Location;usrLbl;DeviceID;Status;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.blade.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.blade.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";OK;"
+          defaultRightLine: ;OK;
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.blade.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="blade"}: "$column(10)"
+          hw.status{hw.type="blade"}: $column(10)
         legacyTextParameters:
-          StatusInformation: "$column(11)"
+          StatusInformation: $column(11)
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = SELECT ifType,dn,ifRole,mac,operState,peerDn,portId,slotId,operSpeed FROM etherPIo
           # NetworkCardID;Type;PhysicalAddress;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "etherPIo"
-          - type: "keepOnlyMatchingLines"
+            valueList: etherPIo
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "physical"
-          - type: "excludeMatchingLines"
+            valueList: physical
+          - type: excludeMatchingLines
             column: 6
-            valueList: "sfp-not-present"
-          - type: "keepColumns"
+            valueList: sfp-not-present
+          - type: keepColumns
             columnNumbers: "3,4,5,6,7,8,9,10"
             # Translate Type into a DeviceType
             # NetworkCardID;DeviceType;PhysicalAddress;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "EthernetTypeTranslationTable"
+            translationTable: EthernetTypeTranslationTable
             # Add "MAC" as the PhysicalAddressType
             # NetworkCardID;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";MAC"
+            value: ;MAC
         source(2):
           # Source(2) = SELECT ifType,dn,ifRole,wwn,operState,peerDn,portId,slotId,operSpeed FROM fcPIo
           # NetworkCardID;Type;PhysicalAddress;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "fcPIo"
-          - type: "keepOnlyMatchingLines"
+            valueList: fcPIo
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "physical"
-          - type: "excludeMatchingLines"
+            valueList: physical
+          - type: excludeMatchingLines
             column: 6
-            valueList: "sfp-not-present"
-          - type: "keepColumns"
+            valueList: sfp-not-present
+          - type: keepColumns
             columnNumbers: "3,4,5,6,7,8,9,10"
             # Translate Type into a DeviceType
             # NetworkCardID;DeviceType;PhysicalAddress;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FCTypeTranslationTable"
+            translationTable: FCTypeTranslationTable
             # Add "WWN" as the PhysicalAddressType
             # NetworkCardID;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: ";WWN"
+            value: ;WWN
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           # NetworkCardID;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.discovery.sources.source(1)$"
-          - "$monitors.network.discovery.sources.source(2)$"
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(2)$
           computes:
             # Duplicate NetworkCardID, twice
             # NetworkCardID;NetworkCardID;NetworkCardID;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the root from the NetworkCardID path in column(2)
             # NetworkCardID;ParentID1;NetworkCardID;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "extract"
+          - type: extract
             column: 2
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 1
             # Extract the second-level element from the DeviceID path in column(3)
             # NetworkCardID;ParentID1;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "extract"
+          - type: extract
             column: 3
-            subSeparators: "/"
+            subSeparators: /
             subColumn: 2
             # Concat ParentID1 "/" ParentID2 to form ParentID
             # NetworkCardID;ParentID;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
-            value: "/"
-          - type: "rightConcat"
+            value: /
+          - type: rightConcat
             column: 2
-            value: "Column(3)"
+            value: Column(3)
             # Build a location string from PortNumber and SlotNumber
             # NetworkCardID;ParentID;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;Location;SlotNumber;Speed;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 9
             value: " - Port: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 9
-            value: "Column(10)"
-          - type: "leftConcat"
+            value: Column(10)
+          - type: leftConcat
             column: 9
             value: "Location: "
             # Duplicate NetworkCardID to build DisplayID
             # NetworkCardID;NetworkCardID;ParentID;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;Location;SlotNumber;Speed;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Remove mentions of ParentID in NetworkCardID to get DisplayID
             # NetworkCardID;DisplayID;ParentID;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;Location;SlotNumber;Speed;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "Column(3)"
+            existingValue: Column(3)
             newValue: ""
             # Remove the leading "/"
             # NetworkCardID;DisplayID;ParentID;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;Location;SlotNumber;Speed;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
             value: "~"
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "~/"
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
             existingValue: "~"
             newValue: ""
       mapping:
         # InstanceTable = Source(3)
         # NetworkCardID;DisplayID;ParentID;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;Location;SlotNumber;Speed;
-        source: "$monitors.network.discovery.sources.source(3)$"
+        source: $monitors.network.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          device_type: "$column(5)"
-          physical_address: "$column(6)"
-          physical_address_type: "$column(7)"
-          model: "$column(10)"
-          info: "$column(10)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(3)"
+          id: $column(1)
+          __display_id: $column(2)
+          device_type: $column(5)
+          physical_address: $column(6)
+          physical_address_type: $column(7)
+          model: $column(10)
+          info: $column(10)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(10))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = Table joint of NetworkCard.Discovery.Source(1) and Enclosure.Collect.Source(1)
           # NetworkCardID;DisplayIDParentID;ParentID2;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;Location;SlotNumber;Speed;DeviceID;Status;StatusInformation;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(3)$"
-          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";OK;;"
+          defaultRightLine: ;OK;;
           computes:
             # For easier reading, we're going to remove all unnecessary columns
             # NetworkCardID;Status;StatusInformation;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,14,15"
         source(2):
           # Source(2) = SELECT ifType,dn,operState,operSpeed FROM portPIo
           # NetworkCardID;State;SpeedGbps
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
             valueList: "etherPIo,fcPIo"
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "physical"
-          - type: "excludeMatchingLines"
+            valueList: physical
+          - type: excludeMatchingLines
             column: 4
-            valueList: "sfp-not-present"
-          - type: "keepColumns"
+            valueList: sfp-not-present
+          - type: keepColumns
             columnNumbers: "3,4,5"
             # Translate operState to LinkStatus
             # NetworkCardID;LinkStatus;SpeedGbps
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "LinkStatusTranslationTable"
+            translationTable: LinkStatusTranslationTable
             # Remove the "gbps" from the SpeedGbps column
             # NetworkCardID;LinkStatus;LinkSpeed;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "gbps"
-            newValue: "000"
+            existingValue: gbps
+            newValue: '000'
             # Same for "mbps", even though we haven't seen it during our tests
             # NetworkCardID;LinkStatus;LinkSpeed;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "mbps"
+            existingValue: mbps
             newValue: ""
             # Change "indeterminate" for an empty string (as we don't have anything better)
             # NetworkCardID;LinkStatus;LinkSpeed;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "indeterminate"
+            existingValue: indeterminate
             newValue: ""
         source(3):
           # Source(3) = Table Joint of Source(1) and Source(2)
           # NetworkCardID;Status;StatusInformation;NetworkCardID;LinkStatus;LinkSpeed;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(1)$"
-          rightTable: "$monitors.network.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(4):
           # Source(4) = SELECT dn,totalBytes,totalPackets FROM etherRxStats
           # NetworkCardID/rx-stats;ReceivedBytes;ReceivedPackets;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "etherRxStats"
-          - type: "keepColumns"
+            valueList: etherRxStats
+          - type: keepColumns
             columnNumbers: "2,3,4"
             # Remove the /rx-stats from the ID
             # NetworkCardID;ReceivedBytes;ReceivedPackets;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/rx-stats"
+            existingValue: /rx-stats
             newValue: ""
         source(5):
           # Source(5) = SELECT dn,totalBytes,totalPackets FROM etherTxStats
           # NetworkCardID/tx-stats;TransmittededBytes;TransmittedPackets;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "etherTxStats"
-          - type: "keepColumns"
+            valueList: etherTxStats
+          - type: keepColumns
             columnNumbers: "2,3,4"
             # Remove the /tx-stats from the ID
             # NetworkCardID;TransmittededBytes;TransmittedPackets;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/tx-stats"
+            existingValue: /tx-stats
             newValue: ""
         source(6):
           # Source(6) = Table joint of Source(4) and Source(5)
           # NetworkCardID;ReceivedBytes;ReceivedPackets;NetworkCardID;TransmittededBytes;TransmittedPackets;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(4)$"
-          rightTable: "$monitors.network.collect.sources.source(5)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(4)$
+          rightTable: $monitors.network.collect.sources.source(5)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
             # Keep only useful columns that will match with what we get from fcStats
             # NetworkCardID;ReceivedBytes;ReceivedPackets;TransmittededBytes;TransmittedPackets;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,3,5,6"
         source(7):
           # Source(7) = SELECT dn,bytesRx,packetsRx,bytesTx,packetsTx FROM fcStats
           # NetworkCardID/stats;ReceivedBytes;ReceivedPackets;TransmittededBytes;TransmittedPackets;
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(1)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            valueList: "fcStats"
-          - type: "keepColumns"
+            valueList: fcStats
+          - type: keepColumns
             columnNumbers: "2,3,4,5,6"
             # Remove the /stats from the ID
             # NetworkCardID;ReceivedBytes;ReceivedPackets;TransmittededBytes;TransmittedPackets;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: "/stats"
+            existingValue: /stats
             newValue: ""
         source(8):
           # Source(8) = Table Union of Source(6) and Source(7)
           # NetworkCardID;ReceivedBytes;ReceivedPackets;TransmittedBytes;TransmittedPackets;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.collect.sources.source(6)$"
-          - "$monitors.network.collect.sources.source(7)$"
+          - $monitors.network.collect.sources.source(6)$
+          - $monitors.network.collect.sources.source(7)$
         source(9):
           # Source(9) = Table Joint of Source(3) and Source(8)
           # NetworkCardID;Status;StatusInformation;NetworkCardID;LinkStatus;LinkSpeed;NetworkCardID;ReceivedBytes;ReceivedPackets;TransmittededBytes;TransmittedPackets;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(3)$"
-          rightTable: "$monitors.network.collect.sources.source(8)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(3)$
+          rightTable: $monitors.network.collect.sources.source(8)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        # ValueTable = Source(9)
-        source: "$monitors.network.collect.sources.source(9)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(9)
+        source: $monitors.network.collect.sources.source(9)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="network"}: "$column(2)"
-          hw.network.up: "legacyLinkStatus($column(5))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(6))"
-          hw.network.full_duplex: "legacyFullDuplex(\"full\")"
-          hw.network.io{direction="receive"}: "$column(8)"
-          hw.network.packets{direction="receive"}: "$column(9)"
-          hw.network.io{direction="transmit"}: "$column(10)"
-          hw.network.packets{direction="transmit"}: "$column(11)"
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.network.full_duplex: legacyFullDuplex("full")
+          hw.network.io{direction="receive"}: $column(8)
+          hw.network.packets{direction="receive"}: $column(9)
+          hw.network.io{direction="transmit"}: $column(10)
+          hw.network.packets{direction="transmit"}: $column(11)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

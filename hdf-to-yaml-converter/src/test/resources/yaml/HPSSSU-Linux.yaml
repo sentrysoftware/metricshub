@@ -1,6 +1,6 @@
 ---
 extends:
-- "HPSSSU-header"
+- HPSSSU-header
 embedded:
   EmbeddedFile(1): |-
     #!/bin/bash
@@ -102,41 +102,41 @@ embedded:
     )
     echo -n "End - ";date
 connector:
-  displayName: "HP StorageWorks EVA (SSSU) - Patrol Agent on Linux"
-  platforms: "HP StorageWorks EVA"
-  reliesOn: "HP StorageWorks Command View EVA SSSU "
-  information: "This connector provides hardware monitoring through the HP StorageWorks Command View EVA SSSU command line utility"
-  version: "1.1"
+  displayName: HP StorageWorks EVA (SSSU) - Patrol Agent on Linux
+  platforms: HP StorageWorks EVA
+  reliesOn: 'HP StorageWorks Command View EVA SSSU '
+  information: This connector provides hardware monitoring through the HP StorageWorks Command View EVA SSSU command line utility
+  version: 1.1
   detection:
     connectionTypes:
-    - "local"
-    - "remote"
+    - local
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     disableAutoDetection: true
     supersedes:
-    - "SMISDiskArray"
+    - SMISDiskArray
     criteria:
-      # The Patrol Agent should be on a server running Linux
-    - type: "osCommand"
-      commandLine: "uname"
-      errorMessage: "Connector only works when the Patrol Agent is installed on a server running Linux"
-      expectedResult: "Linux"
+    - _comment: The Patrol Agent should be on a server running Linux
+      type: osCommand
+      commandLine: uname
+      errorMessage: Connector only works when the Patrol Agent is installed on a server running Linux
+      expectedResult: Linux
       executeLocally: true
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "/bin/sh %EmbeddedFile(1)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 600
     collect:
       sources:
         source(1):
-          # Source(1) = the output of \"%EmbeddedFile(1)%
-          type: "osCommand"
+          _comment: Source(1) = the output of "%EmbeddedFile(1)%
+          type: osCommand
           commandLine: "/bin/sh %EmbeddedFile(1)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 600
@@ -144,14 +144,14 @@ monitors:
     discovery:
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "/bin/sh %EmbeddedFile(3)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 3600
     collect:
       sources:
         source(1):
-          type: "osCommand"
+          type: osCommand
           commandLine: "/bin/sh %EmbeddedFile(3)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 3600

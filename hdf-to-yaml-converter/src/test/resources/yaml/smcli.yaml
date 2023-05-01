@@ -1,18 +1,18 @@
 ---
 extends:
-- "LSIStorageSystem-header"
+- LSIStorageSystem-header
 constants:
-  _COMMAND: "StorageSubsystem"
+  _COMMAND: StorageSubsystem
 connector:
-  displayName: "IBM DS (LSI) Disk Arrays (smcli)"
+  displayName: IBM DS (LSI) Disk Arrays (smcli)
   platforms: "IBM DS3000,IBM DS4000,IBM DS5000"
   reliesOn: "The SMcli utility, which is part of IBM DS Storage Manager.  The version must be compatible with the system being monitored.  Multiple versions of SMcli on the same system is not supported."
-  version: "2.0"
-  information: "This connector provides hardware monitoring for IBM DS Storage Systems through the the SMCli utility."
+  version: 2.0
+  information: This connector provides hardware monitoring for IBM DS Storage Systems through the the SMCli utility.
   detection:
     appliesTo:
-    - "Storage"
+    - Storage
     connectionTypes:
-    - "remote"
+    - remote
 sudoCommands:
-- "Second_Address"
+- Second_Address

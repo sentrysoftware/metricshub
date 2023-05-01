@@ -10,125 +10,125 @@ embedded:
        }
 translations:
   WaveTypeTranslationTable:
-    "2": "LongWave Laser"
+    "2": LongWave Laser
     default: ""
-    "3": "ShortWave Laser"
-    "4": "LongWave LED"
-    "5": "Copper"
+    "3": ShortWave Laser
+    "4": LongWave LED
+    "5": Copper
   PortLinkStatusInformationTranslationTable:
-    "1": "ok"
-    "2": "degraded"
-    default: "ok"
-    "3": "degraded"
+    "1": ok
+    "2": degraded
+    default: ok
+    "3": degraded
   PortStatusInformationTranslationTable:
-    "1": "Card No Longer Present"
-    "2": "Transceiver No Longer Present"
-    default: "Unknown Status"
-    "3": "Laser Fault"
-    "4": "No Light"
-    "5": "No Sync"
+    "1": Card No Longer Present
+    "2": Transceiver No Longer Present
+    default: Unknown Status
+    "3": Laser Fault
+    "4": No Light
+    "5": No Sync
     "6": ""
-    "7": "Port Faulty"
-    "8": "Failed Diagnostics"
-    "9": "Port is Locking to Reference Signal"
+    "7": Port Faulty
+    "8": Failed Diagnostics
+    "9": Port is Locking to Reference Signal
   SensorStatusTranslationTable:
-    "1": "UNKNOWN"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "4": "ok"
-    "5": "degraded"
-    "6": "failed"
+    "1": UNKNOWN
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": ok
+    "5": degraded
+    "6": failed
   OtherDeviceTypeTT:
-    "4": "CP"
-    "5": "CP-Other"
-    "6": "SB"
-    "7": "WWN"
-    "10": "CR-SB"
+    "4": CP
+    "5": CP-Other
+    "6": SB
+    "7": WWN
+    "10": CR-SB
   PortTypeTranslationTable:
-    default: "FC Port"
-    "3": "FC Port FL"
-    "4": "FC Port F"
-    "5": "FC Port E"
-    "6": "FC Port G"
-    "7": "FC Port EX"
+    default: FC Port
+    "3": FC Port FL
+    "4": FC Port F
+    "5": FC Port E
+    "6": FC Port G
+    "7": FC Port EX
   AdminSpeedTranslationTable:
-    "1": "1000"
-    "2": "2000"
+    "1": 1000
+    "2": 2000
     default: ""
     "3": ""
-    "4": "4000"
-    "5": "8000"
-    "6": "10000"
+    "4": 4000
+    "5": 8000
+    "6": 10000
   OtherDeviceStatusInfoTT:
-    "1": "Other Status"
-    "2": "Unknown Status"
-    default: "UNKNOWN"
+    "1": Other Status
+    "2": Unknown Status
+    default: UNKNOWN
     "3": "On"
     "4": "Off"
-    "5": "Faulty"
+    "5": Faulty
   PortStatusTranslationTable:
-    "1": "failed"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "failed"
-    "4": "ok"
-    "5": "ok"
-    "6": "ok"
-    "7": "failed"
-    "8": "failed"
-    "9": "degraded"
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": failed
+    "8": failed
+    "9": degraded
   OtherDeviceStatusTT:
-    "1": "UNKNOWN"
-    "2": "UNKNOWN"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "degraded"
-    "5": "failed"
+    "1": UNKNOWN
+    "2": UNKNOWN
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
 connector:
-  displayName: "Brocade SAN Switch"
-  platforms: "Brocade SAN"
-  reliesOn: "Brocade SNMP Agent (fcSwitch)"
-  version: "1.0"
+  displayName: Brocade SAN Switch
+  platforms: Brocade SAN
+  reliesOn: Brocade SNMP Agent (fcSwitch)
+  version: 1.0
   information: "This connector discovers the enclosure and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol and supports the Brocade MIB (fcSwitch-MIB)."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     supersedes:
-    - "FibreAllianceSwitch"
-    - "GenericSwitchEnclosure"
+    - FibreAllianceSwitch
+    - GenericSwitchEnclosure
     criteria:
-      # DETECTION
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.1588.2.1.1.1.1"
+    - _comment: DETECTION
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.1588.2.1.1.1.1
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
           # Source(1) = \tconnUnitTable SNMP table\nID,Model,Manufacturer,SerialNumber
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.50.2.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.50.2.4.1
           selectColumns: "ID,5,6,8"
           computes:
             # Replace abrivitation BRD with Brocade
             # ID,Model,Manufacturer,SerialNumber
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "BRD"
-            newValue: "Brocade"
+            existingValue: BRD
+            newValue: Brocade
       mapping:
         # InstanceTable = Source(1)
         # Class;Status;ID;SupplierID;PartNumber;SerialNumber
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(3)"
-          model: "$column(2)"
-          serial_number: "$column(4)"
-          type: "Chassis"
+          id: $column(1)
+          vendor: $column(3)
+          model: $column(2)
+          serial_number: $column(4)
+          type: Chassis
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(2), \"Chassis\")"
   temperature:
     discovery:
@@ -136,502 +136,502 @@ monitors:
         source(1):
           # Source(1) = swSensorEntry
           # ID;SensorType;Status;Value;SensorDescription;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.1.22.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.1.22.1
           selectColumns: "ID,2,3,4,5"
           computes:
             # Keep only temperature sensors (Type 1)
             # ID;SensorType;Status;Value;SensorDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "1"
+            valueList: 1
             # Exclude Values of -2147483648 as these represent unknown
             # ID;SensorType;Status;Value;SensorDescription;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "-2147483648"
+            existingValue: -2147483648
             newValue: ""
             # Exclude Status Values of 6 (Absent)
             # ID;SensorType;Status;Value;SensorDescription;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "6"
+            valueList: 6
       mapping:
         # InstanceTable = Source(1)
         # ID;SensorType;Status;Value;SensorDescription;
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(5)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(5)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
           # ID;Status;Value;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.1.22.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.1.22.1
           selectColumns: "ID,3,4"
           computes:
             # Translate the first column status into a PATROLStatus
             # ID;PatrolStatus;Value;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "SensorStatusTranslationTable"
+            translationTable: SensorStatusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="temperature"}: "$column(2)"
-          hw.temperature: "$column(3)"
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(3)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = swSensorEntry
           # ID;SensorType;Status;Value;SensorDescription;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.1.22.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.1.22.1
           selectColumns: "ID,2,3,4,5"
           computes:
             # Keep only Fabs sensors (Type 2)
             # ID;SensorType;Status;Value;SensorDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "2"
+            valueList: 2
             # Exclude Values of -2147483648 as these represent unknown
             # ID;SensorType;Status;Value;SensorDescription;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "-2147483648"
+            existingValue: -2147483648
             newValue: ""
             # Exclude Status Values of 6 (Absent)
             # ID;SensorType;Status;Value;SensorDescription;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "6"
+            valueList: 6
       mapping:
         # InstanceTable = Source(1)
         # ID;SensorType;Status;Value;SensorDescription;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
           # ID;Status;Value;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.1.22.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.1.22.1
           selectColumns: "ID,3,4"
           computes:
             # Translate the first column status into a PATROLStatus
             # ID;PatrolStatus;Value;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "SensorStatusTranslationTable"
+            translationTable: SensorStatusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
-          hw.fan.speed: "$column(3)"
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = swSensorEntry
           # ID;SensorType;Status;SensorDescription;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.1.22.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.1.22.1
           selectColumns: "ID,2,3,5"
           computes:
             # Keep only Power Supply sensors (Type 3)
             # ID;SensorType;Status;SensorDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "3"
+            valueList: 3
             # Exclude Status Values of 6 (Absent)
             # ID;SensorType;Status;SensorDescription;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "6"
+            valueList: 6
       mapping:
         # InstanceTable = Source(1)
         # ID;SensorType;Status;Value;SensorDescription;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          power_supply_type: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          power_supply_type: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
           # ID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.1.22.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.1.22.1
           selectColumns: "ID,3"
           computes:
             # Translate the first column status into a PATROLStatus
             # ID;PatrolStatus;Value;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "SensorStatusTranslationTable"
+            translationTable: SensorStatusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = connUnitPortTable SNMP Table
           # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.6.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.6.2.1
           selectColumns: "1,3,7,34,35,37,39"
           computes:
             # Exclude Slots with No SFP (1= No Card, 2=No Transceiver)
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
             valueList: "1,2"
             # Translate Wave Type
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "WaveTypeTranslationTable"
+            translationTable: WaveTypeTranslationTable
             # Translate Admin Speed
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "AdminSpeedTranslationTable"
+            translationTable: AdminSpeedTranslationTable
             # Translate Port Type
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
-          - type: "translate"
+          - type: translate
             column: 7
-            translationTable: "PortTypeTranslationTable"
+            translationTable: PortTypeTranslationTable
             # Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: " 00 00 00 00 00 00 00 00"
+            existingValue: ' 00 00 00 00 00 00 00 00'
             newValue: ""
             # Remove the spaces from the WWN
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Wave Type: "
         source(2):
           # Source(2) = connUnitSnsTable SNMP Table
           # RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.7.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.7.2.1
           selectColumns: "4,13,5,6"
           computes:
             # Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
             # RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: " 00 00 00 00 00 00 00 00"
+            existingValue: ' 00 00 00 00 00 00 00 00'
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " 00 00 00 00 00 00 00 00"
+            existingValue: ' 00 00 00 00 00 00 00 00'
             newValue: ""
             # Remove the spaces from the WWN
             # RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Add decriptive to Remote Port
             # RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Remote Host: "
             # Add decriptive to Remote Node Name
             # RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Remote Node Name: "
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(1)$"
-          rightTable: "$monitors.network.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
           leftKeyColumn: 4
           rightKeyColumn: 2
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
         source(4):
           # Source(4) = connUnitPortTable SNMP Table from MIB2 (speed is not available in Brocade MIB)
           # WWN;SpeedKB;
-          type: "snmpTable"
-          oid: "1.3.6.1.3.94.1.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.3.94.1.10.1
           selectColumns: "10,15"
           computes:
             # Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
             # WWN;SpeedKB;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: " 00 00 00 00 00 00 00 00"
+            existingValue: ' 00 00 00 00 00 00 00 00'
             # Remove the spaces from the WWN
             # WWN;SpeedKB;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # WWN;SpeedMB;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(5):
           # Source(5) = Table joint of Source(3) and Source(4)
           # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName;WWN;SpeedMB;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(3)$"
-          rightTable: "$monitors.network.discovery.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(3)$
+          rightTable: $monitors.network.discovery.sources.source(4)$
           leftKeyColumn: 4
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(5)
         # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName;WWN;SpeedMB;
-        source: "$monitors.network.discovery.sources.source(5)$"
+        source: $monitors.network.discovery.sources.source(5)$
         attributes:
-          id: "$column(6)"
-          physical_address: "$column(4)"
-          physical_address_type: "WWN"
-          device_type: "$column(7)"
+          id: $column(6)
+          physical_address: $column(4)
+          physical_address_type: WWN
+          device_type: $column(7)
           info: "join($column(3), $column(10), $column(11), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(6), $column(7))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = connUnitPortTable SNMP Table
           # ID;Name;PhysicalState;LinkStatus;wwn
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.1.1.6.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.1.1.6.2.1
           selectColumns: "1,37,3,5,34"
           computes:
             # Duplicate PhysicalState
             # ID;Name;PhysicalState;PhysicalState;LinkStatus;wwn
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first column status into a PATROLStatus
             # ID;Name;PATROLStatus;PhysicalState;LinkStatus;wwn
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PortStatusTranslationTable"
+            translationTable: PortStatusTranslationTable
             # Translate the second column status into a more readable string
             # ID;Name;PATROLStatus;StatusInformation;LinkStatus;wwn
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "PortStatusInformationTranslationTable"
+            translationTable: PortStatusInformationTranslationTable
             # Translate the third column status into a LinkStatus value
             # ID;Name;PATROLStatus;StatusInformation;LinkStatus;wwn
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PortLinkStatusInformationTranslationTable"
+            translationTable: PortLinkStatusInformationTranslationTable
             # Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
             # ID;Name;PATROLStatus;StatusInformation;LinkStatus;wwn
-          - type: "replace"
+          - type: replace
             column: 6
-            existingValue: " 00 00 00 00 00 00 00 00"
+            existingValue: ' 00 00 00 00 00 00 00 00'
             newValue: ""
             # Remove the spaces from the WWN
             # ID;Name;PATROLStatus;StatusInformation;LinkStatus;wwn
-          - type: "replace"
+          - type: replace
             column: 6
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
         source(2):
           # Source(2) = connUnitPortTable SNMP Table from MIB2 (speed is not available in Brocade MIB)
           # WWN;SpeedKB;
-          type: "snmpTable"
-          oid: "1.3.6.1.3.94.1.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.3.94.1.10.1
           selectColumns: "10,15"
           computes:
             # Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
             # WWN;SpeedKB;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: " 00 00 00 00 00 00 00 00"
+            existingValue: ' 00 00 00 00 00 00 00 00'
             # Remove the spaces from the WWN
             # WWN;SpeedKB;
-          - type: "replace"
+          - type: replace
             column: 1
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # WWN;SpeedMB;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(3):
           # Source(3) = Table joint of Source(1) and Source(2)
           # ID;Name;PATROLStatus;StatusInformation;LinkStatus;WWN;WWN;SpeedMB;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(1)$"
-          rightTable: "$monitors.network.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
           leftKeyColumn: 6
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
         source(4):
           # Source(4) = connUnitPortStatTable SNMP Table
           # PortIndex;ErrorCountHex;TransmitTotalHex;ReceiveTotalHex;TransmitttedBytesHex;ReceivedBytesHex;
-          type: "snmpTable"
-          oid: "1.3.6.1.3.94.4.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.3.94.4.5.1
           selectColumns: "2,3,4,5,6,7"
           computes:
             # Convert all these values from hex to dec
             # PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
-          - type: "convert"
+          - type: convert
             column: 2
-            conversion: "hex2Dec"
-          - type: "convert"
+            conversion: hex2Dec
+          - type: convert
             column: 3
-            conversion: "hex2Dec"
-          - type: "convert"
+            conversion: hex2Dec
+          - type: convert
             column: 4
-            conversion: "hex2Dec"
-          - type: "convert"
+            conversion: hex2Dec
+          - type: convert
             column: 5
-            conversion: "hex2Dec"
-          - type: "convert"
+            conversion: hex2Dec
+          - type: convert
             column: 6
-            conversion: "hex2Dec"
+            conversion: hex2Dec
         source(5):
           # Source(5) = Table joint of Source(3) and Source(4)
           # ID;Name;PATROLStatus;StatusInformation;LinkStatus;WWN;WWN;SpeedMB;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(3)$"
-          rightTable: "$monitors.network.collect.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(3)$
+          rightTable: $monitors.network.collect.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;;;"
+          defaultRightLine: ;;;;;;
       mapping:
         # ValueTable = Source(1)
         # ID;Name;PATROLStatus;StatusInformation;LinkStatus;WWN;WWN;SpeedMB;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
-        source: "$monitors.network.collect.sources.source(5)$"
-        deviceId: "$column(2)"
+        source: $monitors.network.collect.sources.source(5)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="network"}: "$column(3)"
-          hw.network.up: "legacyLinkStatus($column(5))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(8))"
-          hw.network.full_duplex: "legacyFullDuplex(\"full\")"
-          hw.errors{hw.type="network"}: "$column(10)"
-          hw.network.packets{direction="transmit"}: "$column(11)"
-          hw.network.packets{direction="receive"}: "$column(12)"
-          hw.network.io{direction="transmit"}: "$column(13)"
-          hw.network.io{direction="receive"}: "$column(14)"
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($column(8))
+          hw.network.full_duplex: legacyFullDuplex("full")
+          hw.errors{hw.type="network"}: $column(10)
+          hw.network.packets{direction="transmit"}: $column(11)
+          hw.network.packets{direction="receive"}: $column(12)
+          hw.network.io{direction="transmit"}: $column(13)
+          hw.network.io{direction="receive"}: $column(14)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = fruTable
           # ID,DeviceType,SlotID
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.2.1.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.2.1.5.1
           selectColumns: "ID,1,3"
           computes:
             # Keep only CPs(4),CP-Other(5),SwitchBlade(6),WWN(7),CR Switching Blades(10)
             # ID,DeviceType,SlotID
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "4,5,6,7,10"
             # Add a descriptor to SlotID
             # ID,DeviceType,SlotID
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Location: "
             # Translate the DeviceType
             # ID,DeviceType,SlotID
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "OtherDeviceTypeTT"
+            translationTable: OtherDeviceTypeTT
       mapping:
         # InstanceTable = Source(1)
         # ID,DeviceType,SlotID
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          device_type: "$column(2)"
-          info: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          device_type: $column(2)
+          info: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(2), $column(1))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = fruTable
           # ID,Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.1588.2.1.2.1.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1588.2.1.2.1.5.1
           selectColumns: "ID,2"
           computes:
             # Translate the DeviceType
             # ID,Status,StatusInfo
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the DeviceType
             # ID,Status,StatusInfo
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "OtherDeviceStatusTT"
+            translationTable: OtherDeviceStatusTT
             # Translate the DeviceType
             # ID,DeviceType,SlotID
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "OtherDeviceStatusInfoTT"
+            translationTable: OtherDeviceStatusInfoTT
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

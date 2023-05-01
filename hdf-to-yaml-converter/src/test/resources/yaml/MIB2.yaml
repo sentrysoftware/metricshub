@@ -1,19 +1,19 @@
 ---
 extends:
-- "MIB2-header"
+- MIB2-header
 connector:
-  displayName: "MIB-2 Standard SNMP Agent - Network Interfaces"
-  platforms: "Any system with SNMP"
+  displayName: MIB-2 Standard SNMP Agent - Network Interfaces
+  platforms: Any system with SNMP
   detection:
     appliesTo:
-    - "Network"
-    - "OOB"
-    - "HP"
-    - "Storage"
-    - "VMS"
-    - "OSF1"
+    - Network
+    - OOB
+    - HP
+    - Storage
+    - VMS
+    - OSF1
     supersedes:
-    - "HPUXNetwork"
+    - HPUXNetwork
 monitors:
   network:
     discovery:
@@ -22,33 +22,33 @@ monitors:
           computes:
             # Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
             # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 7
-            value: "MSHW"
-          - type: "rightConcat"
+            value: MSHW
+          - type: rightConcat
             column: 7
-            value: "MSHW"
+            value: MSHW
             # Replace "MSHWMSHW", i.e. a blank column with the ifTable value.
             # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-          - type: "replace"
+          - type: replace
             column: 7
-            existingValue: "MSHWMSHW"
-            newValue: "Column(2)"
+            existingValue: MSHWMSHW
+            newValue: Column(2)
             # Now get rid of any remaining MSHWs
             # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-          - type: "replace"
+          - type: replace
             column: 7
-            existingValue: "MSHW"
+            existingValue: MSHW
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
         # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-        source: "$monitors.network.discovery.sources.source(3)$"
+        source: $monitors.network.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(7)"
-          physical_address: "$column(4)"
-          physical_address_type: "MAC"
-          device_type: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(7)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          device_type: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(7), $column(3))"

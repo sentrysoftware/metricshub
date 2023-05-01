@@ -1,6 +1,6 @@
 ---
 extends:
-- "SunEthernetDriver-header"
+- SunEthernetDriver-header
 embedded:
   EmbeddedFile(1): "BEGIN {\n\tDeviceID = \"\"\n}\n/^[a-z0-9]+: flags=/ {\n\n\tif (DeviceID != \"\")\n\t{\n\t\tprint \"MSHW;\" DeviceID \";\" macAddress \";\" ipAddress\n\t\tDeviceID = \"\"\n\t\tmacAddress = \"\"\n\t\tipAddress = \"\"\n\t}\n\n\tltIndex = index($0, \"<\")\n\tif (ltIndex != 0)\n\t{\n\t\tgtIndex = index($0, \">\")\n\t\tif (gtIndex > ltIndex)\n\t\t{\n\t\t\tflags = substr($0, ltIndex + 1, gtIndex - ltIndex - 1)\n\n\t\t\tif (index(flags, \"LOOPBACK\") == 0 && index(flags, \"OFFLINE\") == 0 && index(flags, \"UP\") > 0)\n\t\t\t{\n\t\t\t\tDeviceID = substr($1, 1, length($1) - 1)\n\t\t\t}\n\t\t}\n\t}\n}\n/^[ \\t]+inet [0-9]/ {\n\tipAddress = $2\n}\n/^[ \\t]+ether [0-9A-Za-z]/ {\n\tmacAddress = $2\n}\nEND {\n\tif (DeviceID != \"\")\n\t{\n\t\tprint \"MSHW;\" DeviceID \";\" macAddress \";\" ipAddress\n\t}\n}"
   EmbeddedFile(3): "BEGIN {\n\tdeviceID = \"\";\n\tlinkStatus = \"\";\n\tlinkDuplex = \"\";\n\tlinkSpeed = \"\";\n\treceivedPackets = \"\";\n\ttransmittedPackets = \"\";\n\tinputErrors = 0;\n\toutputErrors = 0;\n\tcollisions = 0;\n\treceivedBytes = \"\";\n\ttransmittedBytes = \"\";\n}\n($1 == \"DeviceID\") { deviceID = $2; }\n(($1 == \"link_up\" || $1 == \"link_status\") && linkStatus != \"OK\") { if ($2 == 1) { linkStatus = \"OK\"; } else { linkStatus = \"WARN\"; } }\n($1 == \"ifspeed\" || $1 == \"ifSpeed\" && linkSpeed == \"\") { linkSpeed = $2; }\n($1 == \"link_speed\") { linkSpeed = $2; }\n($1 == \"duplex\") { if ($2 == \"full\") { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; } }\n($1 == \"link_mode\") { if ($2 == 1) { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; } }\n($1 == \"link_duplex\") { if ($2 == 2) { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; } }\n($1 == \"ipackets64\") { receivedPackets = $2; }\n($1 == \"ipackets\" && receivedPackets == \"\") { receivedPackets = $2; }\n($1 == \"opackets64\") { transmittedPackets = $2; }\n($1 == \"opackets\" && transmittedPackets == \"\") { transmittedPackets = $2; }\n($1 == \"ierrors\") { inputErrors = $2; }\n($1 == \"oerrors\") { outputErrors = $2; }\n($1 == \"collisions\") { collisions = $2; }\n($1 == \"rbytes64\") { receivedBytes = $2; }\n($1 == \"rbytes\" && receivedBytes == \"\") { receivedBytes = $2; }\n($1 == \"obytes64\") { transmittedBytes = $2; }\n($1 == \"obytes\" && transmittedBytes == \"\") { transmittedBytes = $2; }\n\n\n# Solaris 10 Aggregate Section\n#\n($1 == deviceID) && ($2 ~ /[0-9]+/) && ($3 ~ /[0-9]+/) && ($4 ~ /[0-9]+/) && ($5 ~ /[0-9]+/) && ($6 ~ /[0-9]+/) && ($7 ~ /[0-9]+/) {\n \tprint deviceID\n\treceivedPackets = $2\n\treceivedBytes = $3\n\tinputErrors = $4\n\ttransmittedPackets = $5\n\ttransmittedBytes = $6\n\toutputErrors = $7\n\t}\n($1 == deviceID) && ($2 ~ /link=/) && ($3 ~ /speed=/) && ($4 ~ /duplex=/) {\n\tif ($2 ~ /up/) {linkStatus = \"OK\"} else { linkStatus = \"WARN\"; }\n  linkSpeed = $3 ; gsub (\"speed=\",\"\",linkSpeed)\n  if ($4 ~ /full/) { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; }\n}\n\nEND {\n\tif (linkSpeed == 0) \t\t\t\t{ linkSpeed = 10; }\n\telse if (linkSpeed == 1)\t\t\t{ linkSpeed = 100; }\n\telse if (linkSpeed == 10000000)\t\t{ linkSpeed = 10; }\n\telse if (linkSpeed == 100000000)\t{ linkSpeed = 100; }\n\telse if (linkSpeed == 1000000000)\t{ linkSpeed = 1000; }\n\telse if (linkSpeed == \"10000000000\")\t{ linkSpeed = 10000; }\n\n\terrors = inputErrors + outputErrors + collisions;\n\n\tprint \"MSHW;\" deviceID \";\" linkStatus \";\" linkSpeed \";\" linkDuplex \";\" receivedPackets \";\" transmittedPackets \";\" errors \";\" receivedBytes \";\" transmittedBytes \";\"\n}"
@@ -26,78 +26,78 @@ embedded:
   EmbeddedFile(6): "%{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-phys -o LINK,DEVICE -p 2>/dev/null | /usr/bin/tr ':' ';'"
 translations:
   ifconfigFlagsTranslationTable:
-    running: "ok"
-    offline: "ok"
-    default: "ok"
-    inactive: "ok"
-    standby: "ok"
-    unplumbed: "ok"
-    deprecated: "ok"
-    failed: "failed"
-    up: "ok"
+    running: ok
+    offline: ok
+    default: ok
+    inactive: ok
+    standby: ok
+    unplumbed: ok
+    deprecated: ok
+    failed: failed
+    up: ok
 connector:
-  displayName: "Oracle/Sun Solaris - Network"
-  platforms: "Oracle/Sun"
+  displayName: Oracle/Sun Solaris - Network
+  platforms: Oracle/Sun
   reliesOn: "Sun Solaris system commands (kstat, ndd, ifconfig, dladm, etc.)"
-  version: "1.3"
-  information: "This connector provides the monitoring of network cards on all Sun Solaris systems."
+  version: 1.3
+  information: This connector provides the monitoring of network cards on all Sun Solaris systems.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Solaris"
+    - Solaris
     criteria:
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-    - type: "osCommand"
-      commandLine: "/usr/sbin/ifconfig -a"
-      expectedResult: "flags="
+      - SunOS
+      - Solaris
+    - type: osCommand
+      commandLine: /usr/sbin/ifconfig -a
+      expectedResult: flags=
 sudoCommands:
-- "/usr/sbin/ndd"
-- "/usr/sbin/dladm"
+- /usr/sbin/ndd
+- /usr/sbin/dladm
 monitors:
   network:
     discovery:
       sources:
         source(1):
-          # Source(1) = output of ifconfig -a
-          type: "osCommand"
-          commandLine: "/usr/sbin/ifconfig -a"
+          _comment: Source(1) = output of ifconfig -a
+          type: osCommand
+          commandLine: /usr/sbin/ifconfig -a
           computes:
             # Process the output of ifconfig through an AWK script
             # LogicalDeviceID;MacAddress;IPAddress;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
         source(2):
           # Source(2) = output of prtconf -D or dladm show-dev
           # with only the network instances
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(5)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(5)%
           keep: "\\(network, instance #[0-9]\\)\\|\\(link:.*speed:.*duplex:\\)\\|\\(: flags=\\)\\|\\(SUNW,qfe\\)\\|\\(FJSV,pgtb\\)\\|\\(LinkID:.*DeviceID:\\)"
           computes:
             # Process the output of prtconf through an AWK script to keep only the NIC ID
             # DeviceID;Driver;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(3):
           # Source(3) = output of dladm show-phys
           # This command will only work on Solaris 11.  A blank table is expected on other versions.
           # LogicalDeviceID;PhysicalID
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(6)%"
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(6)%
           keep: "[A-Za-z].*[0-9];[A-Za-z].*[0-9]"
           computes:
             # Add a "" to column2 to force the PSL/Java close out column 2
             # LogicalDeviceID;PhysicalID;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 2
             value: ""
         source(4):
@@ -105,110 +105,110 @@ monitors:
           # Solaris 11 machines, the DeviceID from Table 2 will match the PhysicalID
           # For other versions, it will not match, so we put a marker in
           # DeviceID;Driver;LogicalDeviceID;PhysicalID;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(2)$"
-          rightTable: "$monitors.network.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(2)$
+          rightTable: $monitors.network.discovery.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 2
-          defaultRightLine: "NotSolaris11;;"
+          defaultRightLine: NotSolaris11;;
           computes:
             # For non-Solaris 11 machines, we will copy the deviceID into the PhysicalID column (where we put the marker NotSolaris11)
             # DeviceID;Driver;LogicalDeviceID;PhysicalID;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "NotSolaris11"
-            newValue: "Column(1)"
+            existingValue: NotSolaris11
+            newValue: Column(1)
         source(5):
           # Source(3) = Table joint of Source(2) and Source(1)
           # DeviceID;Driver;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(4)$"
-          rightTable: "$monitors.network.discovery.sources.source(1)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(4)$
+          rightTable: $monitors.network.discovery.sources.source(1)$
           leftKeyColumn: 3
           rightKeyColumn: 1
-          defaultRightLine: ";;;"
+          defaultRightLine: ;;;
           computes:
             # Translate the Driver column into a model name
             #  DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DriverTranslationTable"
+            translationTable: DriverTranslationTable
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
-        source: "$monitors.network.discovery.sources.source(5)$"
+        source: $monitors.network.discovery.sources.source(5)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          model: "$column(2)"
-          physical_address: "$column(6)"
-          physical_address_type: "MAC"
-          logical_address: "$column(7)"
-          logical_address_type: "IP"
-          hw.parent.type: "enclosure"
+          id: $column(3)
+          __display_id: $column(3)
+          model: $column(2)
+          physical_address: $column(6)
+          physical_address_type: MAC
+          logical_address: $column(7)
+          logical_address_type: IP
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(2))"
     collect:
       # Collect type is: mono-collect
-      type: "monoInstance"
+      type: monoInstance
       sources:
         source(1):
           # Source(1) = output of the embedded script 2 (ifconfig output)
           # DeviceID;ifconfigFlags
-          type: "osCommand"
+          type: osCommand
           commandLine: "if /usr/sbin/ifconfig %NetworkCard.Collect.DeviceID%; then /usr/bin/echo; else /usr/bin/echo \"%NetworkCard.Collect.DeviceID%: flags=00000000:UNPLUMBED\"; fi"
           keep: "^%NetworkCard.Collect.DeviceID%: flags="
-          separators: ":<>"
+          separators: :<>
           selectColumns: "1,3"
           computes:
             # Duplicate the ifconfigFlags
             # DeviceID;ifconfigFlags;ifconfigFlags;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first ifconfig flags
             # DeviceID;StatusArray;ifconfigFlags;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 2
-            translationTable: "ifconfigFlagsTranslationTable"
+            translationTable: ifconfigFlagsTranslationTable
             arraySeparator: ","
-            resultSeparator: "|"
+            resultSeparator: '|'
             # Convert StatusArray into Status
             # DeviceID;Status;StatusInformation;
-          - type: "convert"
+          - type: convert
             column: 2
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
         source(2):
-          # Source(2) = output of embedded script 4 (complicated shell script)
-          type: "osCommand"
-          commandLine: "/bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%"
+          _comment: Source(2) = output of embedded script 4 (complicated shell script)
+          type: osCommand
+          commandLine: /bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%
           computes:
             # Process the output of this script through a smart AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10"
         source(3):
           # Source(3) = table joint of Source(1) and Source(2)
           # DeviceID;Status;StatusInformation;DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(1)$"
-          rightTable: "$monitors.network.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";;;;;;;;;"
+          defaultRightLine: ;;;;;;;;;
       mapping:
-        # And here is the ValueTable
-        source: "$monitors.network.collect.sources.source(3)$"
+        _comment: And here is the ValueTable
+        source: $monitors.network.collect.sources.source(3)$
         metrics:
-          hw.status{hw.type="network"}: "$column(2)"
-          hw.network.up: "legacyLinkStatus($column(5))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(6))"
-          hw.network.full_duplex: "legacyFullDuplex($column(7))"
-          hw.network.packets{direction="receive"}: "$column(8)"
-          hw.network.packets{direction="transmit"}: "$column(9)"
-          hw.errors{hw.type="network"}: "$column(10)"
-          hw.network.io{direction="receive"}: "$column(11)"
-          hw.network.io{direction="transmit"}: "$column(12)"
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.network.full_duplex: legacyFullDuplex($column(7))
+          hw.network.packets{direction="receive"}: $column(8)
+          hw.network.packets{direction="transmit"}: $column(9)
+          hw.errors{hw.type="network"}: $column(10)
+          hw.network.io{direction="receive"}: $column(11)
+          hw.network.io{direction="transmit"}: $column(12)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

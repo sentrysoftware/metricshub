@@ -1,545 +1,545 @@
 ---
 translations:
   XsigoOperStateTranslationTable:
-    "22": "degraded"
-    "23": "degraded"
-    "24": "failed"
-    "25": "failed"
-    "26": "degraded"
-    "27": "degraded"
-    "28": "degraded"
-    "29": "ok"
-    default: "UNKNOWN"
-    "30": "ok"
-    "31": "degraded"
-    "10": "degraded"
-    "32": "ok"
-    "11": "degraded"
-    "33": "ok"
-    "12": "degraded"
-    "34": "degraded"
-    "13": "ok"
-    "35": "degraded"
-    "14": "failed"
-    "36": "ok"
-    "15": "degraded"
-    "37": "degraded"
-    "16": "failed"
-    "38": "degraded"
-    "17": "failed"
-    "39": "degraded"
-    "18": "degraded"
-    "19": "failed"
-    "1": "degraded"
-    "2": "ok"
-    "3": "ok"
-    "4": "failed"
-    "5": "degraded"
-    "6": "degraded"
-    "7": "degraded"
-    "8": "ok"
-    "9": "ok"
-    "40": "degraded"
-    "20": "failed"
-    "21": "failed"
+    "22": degraded
+    "23": degraded
+    "24": failed
+    "25": failed
+    "26": degraded
+    "27": degraded
+    "28": degraded
+    "29": ok
+    default: UNKNOWN
+    "30": ok
+    "31": degraded
+    "10": degraded
+    "32": ok
+    "11": degraded
+    "33": ok
+    "12": degraded
+    "34": degraded
+    "13": ok
+    "35": degraded
+    "14": failed
+    "36": ok
+    "15": degraded
+    "37": degraded
+    "16": failed
+    "38": degraded
+    "17": failed
+    "39": degraded
+    "18": degraded
+    "19": failed
+    "1": degraded
+    "2": ok
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": degraded
+    "7": degraded
+    "8": ok
+    "9": ok
+    "40": degraded
+    "20": failed
+    "21": failed
   PortLinkStatusInformationTranslationTable:
-    "2": "ok"
+    "2": ok
     default: ""
-    "3": "degraded"
+    "3": degraded
   PortTypeTranslationTable:
-    "121": "sanFcPort"
-    "111": "nwEthernet100Mbport"
-    "112": "nwEthernet1GbPort"
-    "123": "sanFcPort"
+    "121": sanFcPort
+    "111": nwEthernet100Mbport
+    "112": nwEthernet1GbPort
+    "123": sanFcPort
     default: ""
-    "113": "nwEthernet10GbPort"
-    "131": "ib10GbPort"
+    "113": nwEthernet10GbPort
+    "131": ib10GbPort
   XsigoOperStateInformationTranslationTable:
-    "22": "Underlying Resource InTest"
-    "23": "Underlying Resource Authenticating"
-    "24": "Underlying Resource Authentication Failed"
-    "25": "Underlying Resource Insufficient Resources"
-    "26": "Underlying Resource Initializing"
-    "27": "Underlying Resource Shuttingdown"
-    "28": "Partial Failure"
-    "29": "Standby"
-    default: "UNKNOWN"
-    "30": "Ready"
-    "31": "Resource Unavailable"
-    "10": "Resource Missing"
-    "32": "Pooled"
-    "11": "Resource Mismatch"
-    "33": "Available"
-    "12": "Test In Progress"
-    "34": "Booting"
-    "13": "TestSucceeded"
-    "35": "Host Driver Mismatch"
-    "14": "TestFailed"
-    "36": "Active"
-    "15": "Authenticating"
-    "37": "Host Control Path Down"
-    "16": "Authentication Failed"
-    "38": "Removed"
-    "17": "Insufficient Resources"
-    "39": "Unassigned"
-    "18": "Underlying Resource Down"
-    "19": "Underlying Resource Failed"
-    "1": "Indeterminate"
+    "22": Underlying Resource InTest
+    "23": Underlying Resource Authenticating
+    "24": Underlying Resource Authentication Failed
+    "25": Underlying Resource Insufficient Resources
+    "26": Underlying Resource Initializing
+    "27": Underlying Resource Shuttingdown
+    "28": Partial Failure
+    "29": Standby
+    default: UNKNOWN
+    "30": Ready
+    "31": Resource Unavailable
+    "10": Resource Missing
+    "32": Pooled
+    "11": Resource Mismatch
+    "33": Available
+    "12": Test In Progress
+    "34": Booting
+    "13": TestSucceeded
+    "35": Host Driver Mismatch
+    "14": TestFailed
+    "36": Active
+    "15": Authenticating
+    "37": Host Control Path Down
+    "16": Authentication Failed
+    "38": Removed
+    "17": Insufficient Resources
+    "39": Unassigned
+    "18": Underlying Resource Down
+    "19": Underlying Resource Failed
+    "1": Indeterminate
     "2": ""
     "3": ""
-    "4": "Failed"
-    "5": "Initializing"
-    "6": "Shuttingdown"
-    "7": "Restarting"
-    "8": "Restarted"
-    "9": "Scheduled"
-    "40": "Uninitialized"
-    "20": "Underlying Resource Missing"
-    "21": "Underlying Resource Mismatch"
+    "4": Failed
+    "5": Initializing
+    "6": Shuttingdown
+    "7": Restarting
+    "8": Restarted
+    "9": Scheduled
+    "40": Uninitialized
+    "20": Underlying Resource Missing
+    "21": Underlying Resource Mismatch
 connector:
-  displayName: "Oracle/Sun Xsigo Switch"
-  platforms: "Oracle/Sun Xsigo"
-  reliesOn: "Sun Xsigo SNMP Agent"
-  version: "1.0"
+  displayName: Oracle/Sun Xsigo Switch
+  platforms: Oracle/Sun Xsigo
+  reliesOn: Sun Xsigo SNMP Agent
+  version: 1.0
   information: "This connector discovers the enclosure and ports of the switch as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
-    - "Network"
+    - Storage
+    - Network
     supersedes:
-    - "MIB2"
-    - "GenericSwitchEnclosure"
+    - MIB2
+    - GenericSwitchEnclosure
     criteria:
-      # Need a Xsigo Chassis OID
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.24440.3.1.1.1"
+    - _comment: Need a Xsigo Chassis OID
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.24440.3.1.1.1
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
           # Source(1) = \txsigoIoDirectorChassis SNMP table\nChassisID;Vendor;Model;FirmwareVersion;ChassisName;SerialNumber;WWN;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.1
           selectColumns: "1,2,4,5,6,9,17"
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 7
             value: "WWN: "
       mapping:
         # InstanceTable = Source(1)
         # ChassisID;Vendor;Model;FirmwareVersion;ChassisName;SerialNumber;WWN;
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(5)"
-          vendor: "$column(2)"
-          model: "$column(3)"
-          serial_number: "$column(6)"
-          bios_version: "$column(4)"
-          type: "Chassis"
-          info: "$column(7)"
+          id: $column(1)
+          __display_id: $column(5)
+          vendor: $column(2)
+          model: $column(3)
+          serial_number: $column(6)
+          bios_version: $column(4)
+          type: Chassis
+          info: $column(7)
           name: "sprintf(\"%s (%s %s - %s)\", $column(5), $column(2), $column(3), \"Chassis\")"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Get the Enclosure Status
           # ChassisID;State;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.1
           selectColumns: "1,14"
           computes:
             # Duplicate the State
             # ChassisID;State;State;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first state to a Patrol Status
             # ChassisID;PatrolStatus;State;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "XsigoOperStateTranslationTable"
+            translationTable: XsigoOperStateTranslationTable
             # Translate the second state to a Status Information
             # ChassisID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "XsigoOperStateInformationTranslationTable"
+            translationTable: XsigoOperStateInformationTranslationTable
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(2)"
+          hw.status{hw.type="enclosure"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
           # Source(1) = xsigoTemperatureProbeTable
           # ID;Name;Location;Threshold;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.4.1
           selectColumns: "1,2,3,5"
           computes:
             # Add a dash to the Location
             # ID;Name;Location;Threshold;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: "-"
+            value: '-'
             # Replace underscores with dashes
             # ID;Name;Location;Threshold;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "_"
-            newValue: "-"
+            existingValue: _
+            newValue: '-'
             # Add the Location to the Name
             # ID;Name;Location;Threshold;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: "Column(2)"
+            value: Column(2)
       mapping:
         # InstanceTable = Source(1)
         # ID;Name;Location;Threshold;
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
-          name: "$column(3)"
+          id: $column(1)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          name: $column(3)
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = xsigoTemperatureProbeTable SNMP Table
           # ID;Value;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.4.1
           selectColumns: "1,4"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
+          hw.temperature: $column(2)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = xsigoFanTableEntry
           # ID;Location;ExpectedSpeed;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.3.1
           selectColumns: "1,2,6"
           computes:
             # Remove Fan- from the Location
             # ID;Location;ExpectedSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "Fan-"
+            existingValue: Fan-
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;ExpectedSpeed;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(3)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = xsigoFanTableEntry SNMP Table
           # ID;Speed;State;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.3.1
           selectColumns: "1,5,8"
           computes:
             # Duplicate the State
             # ID;Speed;State;State;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first state to a Patrol Status
             # ID;Speed;PatrolStatus;State;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "XsigoOperStateTranslationTable"
+            translationTable: XsigoOperStateTranslationTable
             # Translate the second state to a Status Information
             # ID;Speed;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "XsigoOperStateInformationTranslationTable"
+            translationTable: XsigoOperStateInformationTranslationTable
       mapping:
         # ValueTable = Source(1)
         # ID;Speed;PatrolStatus;StatusInformation;
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(3)"
-          hw.fan.speed: "$column(2)"
+          hw.status{hw.type="fan"}: $column(3)
+          hw.fan.speed: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = xsigoPowerSupplyTableEntry
           # ID;Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.5.1
           selectColumns: "1,2"
           computes:
             # Remove Fan- from the Location
             # ID;Location;ExpectedSpeed;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "PowerSupply-"
+            existingValue: PowerSupply-
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;ExpectedSpeed;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(2))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = xsigoPowerSupplyTableEntry SNMP Table
           # ID;State;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.5.1
           selectColumns: "1,7"
           computes:
             # Duplicate the State
             # ID;State;State;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first state to a Patrol Status
             # ID;PatrolStatus;State;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "XsigoOperStateTranslationTable"
+            translationTable: XsigoOperStateTranslationTable
             # Translate the second state to a Status Information
             # ID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "XsigoOperStateInformationTranslationTable"
+            translationTable: XsigoOperStateInformationTranslationTable
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = xsigoCardTableEntry
           # ID;Model;SerialNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.2.1
           selectColumns: "1,3,4"
           computes:
             # Add Serial Number: label to AdditionalInformation1
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Serial Number: "
-            # Duplicate column 2 so we can keep additonalLabel for regression
-          - type: "duplicateColumn"
+          - _comment: Duplicate column 2 so we can keep additonalLabel for regression
+            type: duplicateColumn
             column: 2
             # Add Model: label to AdditionalInformation2
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
             value: "Model: "
       mapping:
         # InstanceTable = Source(1)
         # ID;Model;SerialNumber;
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          device_type: "Slot"
-          additional_label: "$column(2)"
+          id: $column(1)
+          __display_id: $column(1)
+          device_type: Slot
+          additional_label: $column(2)
           info: "join($column(3), $column(4), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", \"Slot\", $column(1), $column(2))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = xsigoCardTableEntry SNMP Table
           # ID;State;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.2.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.2.1
           selectColumns: "1,7"
           computes:
             # Duplicate the State
             # ID;State;State;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first state to a Patrol Status
             # ID;PatrolStatus;State;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "XsigoOperStateTranslationTable"
+            translationTable: XsigoOperStateTranslationTable
             # Translate the second state to a Status Information
             # ID;PatrolStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "XsigoOperStateInformationTranslationTable"
+            translationTable: XsigoOperStateInformationTranslationTable
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = xsigoPortTableEntry
           # ID;Location;Type;WWPN;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.6.1
           selectColumns: "1,2,3,10"
           computes:
             # Translate the Port Type
             # ID;Location;Type;WWPN;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PortTypeTranslationTable"
+            translationTable: PortTypeTranslationTable
         source(2):
           # Source(2) = ifMIBObjects SNMP Table
           # See if there are 64 bit counters
           # Location;ReceivedBytes64;
-          type: "snmpTable"
-          oid: "1.3.6.1.2.1.31.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.2.1.31.1.1.1
           selectColumns: "1,6"
         source(3):
           # Join 1 and 2
           # ID;Location;Type;WWPN;Location;ReceivedBytes64;
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(1)$"
-          rightTable: "$monitors.network.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;Type;WWPN;Location;ReceivedBytes64;
-        source: "$monitors.network.discovery.sources.source(3)$"
+        source: $monitors.network.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          device_type: "$column(3)"
-          physical_address: "$column(4)"
-          physical_address_type: "WWN"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(2)
+          device_type: $column(3)
+          physical_address: $column(4)
+          physical_address_type: WWN
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = xsigoPortTableEntry SNMP Table
           # ID;Speed;State;Location;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.24440.3.1.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.24440.3.1.1.6.1
           selectColumns: "1,5,7,2"
           computes:
             # Duplicate the State (twice)
             # ID;Speed;State;State;State;Location;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first state to a Patrol Status
             # ID;Speed;PatrolStatus;State;State;Location;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "XsigoOperStateTranslationTable"
+            translationTable: XsigoOperStateTranslationTable
             # Translate the second state to a Status Information
             # ID;Speed;PatrolStatus;StatusInformation;State;Location;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "XsigoOperStateInformationTranslationTable"
+            translationTable: XsigoOperStateInformationTranslationTable
             # Translate the third state to a link status
             # ID;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PortLinkStatusInformationTranslationTable"
+            translationTable: PortLinkStatusInformationTranslationTable
         source(2):
           # Source(2) = ifMIBObjects SNMP Table
           # Location;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
-          type: "snmpTable"
-          oid: "1.3.6.1.2.1.31.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.2.1.31.1.1.1
           selectColumns: "1,15,6,7,8,9,10,11,12,13"
           computes:
             # Add MulticastPkts and BroadcastPkts to UnicastPackets
             # Location;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
-          - type: "add"
+          - type: add
             column: 4
-            value: "Column(5)"
-          - type: "add"
+            value: Column(5)
+          - type: add
             column: 4
-            value: "Column(6)"
-          - type: "add"
+            value: Column(6)
+          - type: add
             column: 8
-            value: "Column(9)"
-          - type: "add"
+            value: Column(9)
+          - type: add
             column: 8
-            value: "Column(10)"
+            value: Column(10)
             # Keep only useful columns
             # Location;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "1,2,3,4,7,8"
         source(3):
           # Join the Xsigo port information to the MIB2 statistics.
           # ID;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;Location;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(1)$"
-          rightTable: "$monitors.network.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
           leftKeyColumn: 6
           rightKeyColumn: 1
-          defaultRightLine: ";;;;;;"
+          defaultRightLine: ;;;;;;
       mapping:
         # ValueTable = Source(1)
         #  1   2        3        #     4        #      5        # 6         7     8        #  9        #     10        #        11        #         12
         # ID;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;Location;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
-        source: "$monitors.network.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        source: $monitors.network.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.network.bandwidth.limit: "megaBit2Bit($column(2))"
-          hw.status{hw.type="network"}: "$column(3)"
-          hw.network.up: "legacyLinkStatus($column(5))"
-          hw.network.packets{direction="receive"}: "$column(10)"
-          hw.network.packets{direction="transmit"}: "$column(12)"
-          hw.network.io{direction="receive"}: "$column(9)"
-          hw.network.io{direction="transmit"}: "$column(11)"
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.packets{direction="receive"}: $column(10)
+          hw.network.packets{direction="transmit"}: $column(12)
+          hw.network.io{direction="receive"}: $column(9)
+          hw.network.io{direction="transmit"}: $column(11)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

@@ -3,68 +3,68 @@ embedded:
   EmbeddedFile(1): "($0 ~ \"^rmt/[0-9]\") {\n\ttapeID = $1\n\tvendor = \"\"\n\tproduct = \"\"\n\tmodel = \"\"\n\tproductmodel = \"\"\n\tserial = \"\"\n}\n\n($0 ~ /Vendor: /) {\n\tindex1 = index($0, \"Vendor: \" ) + length(\"Vendor: \")\n\tvendor = substr($0, index1, length-index1)\n\tindex1 = index(vendor, \":\")\n\tif (index1 > 0)\n\t{\n\t\tvendor = substr(vendor, 1, index1-1)\n\t\tn = split(vendor, a, \" \")\n\t\tvendor = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tvendor = vendor a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tvendor = vendor \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Model: /) {\n\tindex1 = index($0, \"Model: \" ) + length(\"Model: \")\n\tmodel = substr($0, index1, length-index1)\n\tindex1 = index(model, \":\")\n\tif (index1 > 0)\n\t{\n\t\tmodel = substr(model, 1, index1-1)\n\t\tn = split(model, a, \" \")\n\t\tmodel = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tmodel = model a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tmodel = model \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Product: /) {\n\tindex1 = index($0, \"Product: \" ) + length(\"Product: \")\n\tproduct = substr($0, index1, length-index1)\n\tindex1 = index(product, \":\")\n\tif (index1 > 0)\n\t{\n\t\tproduct = substr(product, 1, index1-1)\n\t\tn = split(product, a, \" \")\n\t\tproduct = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tproduct = product a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tproduct = product \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Serial No: /) {\n\tindex1 = index($0, \"Serial No: \" ) + length(\"Serial No: \")\n\tserial = substr($0, index1, length-index1)\n\tindex1 = index(serial, \":\")\n\tif (index1 > 0)\n\t{\n\t\tserial = substr(serial, 1, index1-1)\n\t\tn = split(serial, a, \" \")\n\t\tserial = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tserial = serial a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tserial = serial \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Serial No:/) {\n\tif (product != \"\" && model != \"\")\n\t{\n\t\tproductmodel = product \" \" model\n\t}\n\telse\n\t{\n\t\tproductmodel = product model\n\t}\n\n\tif (tapeID != \"\")\n\t{\n\t\tprint \"MSHW;\" tapeID \";\" vendor \";\" productmodel \";\" serial\n\t}\n\n\tdisk = \"\"\n\tvendor = \"\"\n\tproduct = \"\"\n\tmodel = \"\"\n\tproductmodel = \"\"\n\tserial = \"\"\n}"
   EmbeddedFile(2): "($0 ~ \"^rmt/[0-9]\") {\n\ttapeID = $1\n\tsofterror = 0\n\tharderror = 0\n\ttransporterror = 0\n\ttotalerror = 0\n}\n\n($2 == \"Soft\" && $3 == \"Errors:\") {\n\tsofterror = $4\n}\n\n($5 == \"Hard\" && $6 == \"Errors:\") {\n\tharderror = $7\n}\n\n($8 == \"Transport\" && $9 == \"Errors:\") {\n\ttransporterror = $10\n}\n\n($0 ~ /Serial No:/) {\n\ttotalerror = transporterror + harderror\n\n\tif (tapeID != \"\")\n\t{\n\t\tprint \"MSHW;\" tapeID \";\" totalerror\n\t}\n\n\ttapeID = \"\"\n\tsofterror = 0\n\tharderror = 0\n\ttransporterror = 0\n\ttotalerror = 0\n}"
 connector:
-  displayName: "Oracle/Sun Solaris - Tape Drives"
-  platforms: "Oracle/Sun"
+  displayName: Oracle/Sun Solaris - Tape Drives
+  platforms: Oracle/Sun
   reliesOn: "Sun Solaris system commands (iostat, dd)"
-  information: "Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only official Sun disks."
-  version: "1.0"
+  information: Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only official Sun disks.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Solaris"
+    - Solaris
     criteria:
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "SunOS"
-      - "Solaris"
-    - type: "osCommand"
-      commandLine: "/usr/bin/iostat -En"
+      - SunOS
+      - Solaris
+    - type: osCommand
+      commandLine: /usr/bin/iostat -En
       expectedResult: "^rmt/.*Soft [Ee]rrors.*Hard [Ee]rrors.*Transport [Ee]rrors"
 monitors:
   tape_drive:
     discovery:
       sources:
         source(1):
-          # Source(2) = output of iostat
-          type: "osCommand"
-          commandLine: "iostat -En"
+          _comment: Source(2) = output of iostat
+          type: osCommand
+          commandLine: iostat -En
           computes:
             # Reformat iostat's output through awk (see EmbeddedFile(1))
             # DeviceID;Vendor;Model;SerialNumber
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.tape_drive.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(3)"
-          serial_number: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(3)
+          serial_number: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = output of iostat
-          type: "osCommand"
-          commandLine: "/usr/bin/iostat -En"
+          _comment: Source(1) = output of iostat
+          type: osCommand
+          commandLine: /usr/bin/iostat -En
           computes:
             # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(2))
             # DeviceID;ErrorCount;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.tape_drive.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.tape_drive.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.errors{hw.type="tape_drive"}: "$column(2)"
+          hw.errors{hw.type="tape_drive"}: $column(2)

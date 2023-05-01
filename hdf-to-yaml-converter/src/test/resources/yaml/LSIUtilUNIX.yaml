@@ -5,191 +5,191 @@ embedded:
   EmbeddedFile(2): "BEGIN {\n\tcontrollerID = \"\";\n}\n/^MSHW_Controller / {\n\tcontrollerID = $2\n}\n/^PhysDisk [0-9]/ {\n\tif (controllerID != \"\")\n\t{\n\t\tdiskID = $2\n\t\tgetline\n\t\tif ($0 ~ /PhysDisk State:/)\n\t\t{\n\t\t\tcolonIndex = index($0, \":\")\n\t\t\tstatus = substr($0, colonIndex + 3, length - colonIndex - 2)\n\t\t\tcommaIndex = index(status, \",\")\n\t\t\tif (commaIndex > 1)\n\t\t\t{\n\t\t\t\tstatus = substr(status, 1, commaIndex - 1)\n\t\t\t}\n\t\t}\n\t\tgetline\n\t\tif ($0 ~ /PhysDisk Size/)\n\t\t{\n\t\t\tdiskSize = $3\n\t\t\tsizeUnit = $4\n\t\t\tif (sizeUnit == \"MB,\") { diskSize = diskSize * 1048576 }\n\t\t\telse if (sizeUnit == \"GB,\") { diskSize = diskSize * 1048576 * 1024 }\n\t\t\telse if (sizeUnit == \"TB,\") { diskSize = diskSize * 1048576 * 1048576 }\n\t\t\tcolonIndex = index($0, \":\")\n\t\t\tif (colonIndex > 10)\n\t\t\t{\n\t\t\t\ttempDiskModel = substr($0, colonIndex + 2, length - colonIndex - 1)\n\t\t\t\tn = split(tempDiskModel, diskModelArray, \" \")\n\t\t\t\tdiskModel = \"\"\n\t\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t\t{\n\t\t\t\t\tdiskModel = diskModel diskModelArray[i] \" \"\n\t\t\t\t}\n\t\t\t\tdiskModel = diskModel diskModelArray[n]\n\t\t\t}\n\t\t\tprint \"MSHW;\" controllerID \";\"  diskID \";\" diskModel \";\" diskSize \";\" status\n\t\t\tstatus = \"\"\n\t\t\tdiskModel = \"\"\n\t\t\tdiskSize = \"\"\n\t\t}\n\t}\n}"
 translations:
   DiskStatusTranslationTable:
-    default: "UNKNOWN"
-    offlinerequested: "degraded"
-    optimal: "ok"
-    missing: "failed"
-    online: "ok"
-    initializing: "degraded"
-    failed: "failed"
-    degraded: "degraded"
-    notcompatible: "failed"
-    failedrequested: "failed"
+    default: UNKNOWN
+    offlinerequested: degraded
+    optimal: ok
+    missing: failed
+    online: ok
+    initializing: degraded
+    failed: failed
+    degraded: degraded
+    notcompatible: failed
+    failedrequested: failed
 connector:
-  displayName: "LSI Logic - LsiUtil - RAID"
-  platforms: "Any system with LSI lsiutil"
-  reliesOn: "lsiutil"
-  information: "Gives information about physical disks and volumes of LSI Logic SAS RAID controllers through the lsiutil utility."
-  version: "1.0"
+  displayName: LSI Logic - LsiUtil - RAID
+  platforms: Any system with LSI lsiutil
+  reliesOn: lsiutil
+  information: Gives information about physical disks and volumes of LSI Logic SAS RAID controllers through the lsiutil utility.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Linux"
-    - "Solaris"
+    - Linux
+    - Solaris
     criteria:
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "Linux"
-      - "Solaris"
-    - type: "osCommand"
+      - Linux
+      - Solaris
+    - type: osCommand
       commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do %{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
       expectedResult: "^PhysDisk [0-9]"
-      errorMessage: "Unable to find or execute lsiutil or no LSI Logic controller found"
+      errorMessage: Unable to find or execute lsiutil or no LSI Logic controller found
 sudoCommands:
-- "lsiutil"
+- lsiutil
 monitors:
   disk_controller:
     discovery:
       sources:
         source(1):
-          # Source(1) = output of lsiutil
-          type: "osCommand"
+          _comment: Source(1) = output of lsiutil
+          type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(1)
             # DeviceID;Vendor;Model;FirmwareVersion
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          controller_number: "$column(1)"
-          model: "$column(3)"
-          firmware_version: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(3)
+          firmware_version: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(3))"
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # ControllerNumber;diskID;model;size;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          vendor: "$column(3)"
-          hw.parent.type: "disk_controller"
+          id: $column(2)
+          vendor: $column(3)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
         metrics:
-          hw.physical_disk.size: "$column(4)"
+          hw.physical_disk.size: $column(4)
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # diskID;Status;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "3,6"
             # Duplicate the Status column
             # DiskID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Remove spaces in the Statys column
             # DiskID;Status;Status
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Translate the Status into a PATROL status
             # DiskID;PATROLStatus;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DiskStatusTranslationTable"
+            translationTable: DiskStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # ControllerNumber;diskID;size;raidType
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          hw.logical_disk.limit: "$column(3)"
-          raid_level: "$column(4)"
-          hw.parent.type: "disk_controller"
+          id: $column(2)
+          hw.logical_disk.limit: $column(3)
+          raid_level: $column(4)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(3))"
     collect:
-      # Collect type is \"all instances in one shot\"
-      type: "multiInstance"
+      _comment: Collect type is "all instances in one shot"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = lsiutil output
-          type: "osCommand"
+          _comment: Source(1) = lsiutil output
+          type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # diskID;Status;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "3,6"
             # Duplicate the Status column
             # DiskID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Remove spaces in the Statys column
             # DiskID;Status;Status
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: " "
+            existingValue: ' '
             newValue: ""
             # Translate the Status into a PATROL status
             # DiskID;PATROLStatus;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DiskStatusTranslationTable"
+            translationTable: DiskStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

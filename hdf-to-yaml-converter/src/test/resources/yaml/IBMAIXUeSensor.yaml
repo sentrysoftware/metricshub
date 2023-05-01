@@ -1,221 +1,221 @@
 ---
 translations:
   VoltageStatusTranslationTable:
-    "11": "ok"
-    default: "failed"
+    "11": ok
+    default: failed
   PowerSupplyStatusTranslationTable:
-    "11": "ok"
-    default: "failed"
+    "11": ok
+    default: failed
   VoltageStatusInformationTranslationTable:
-    "11": "Normal"
-    default: "Failed"
+    "11": Normal
+    default: Failed
   PowerSupplyStatusInformationTranslationTable:
-    "11": "Normal"
-    default: "Failed"
+    "11": Normal
+    default: Failed
 connector:
-  displayName: "IBM AIX - Environment (uesensor)"
-  platforms: "IBM POWER"
-  reliesOn: "IBM AIX system commands (uesensor)"
+  displayName: IBM AIX - Environment (uesensor)
+  platforms: IBM POWER
+  reliesOn: IBM AIX system commands (uesensor)
   information: "Provides hardware environment information (temperature sensors, voltage sensors, fans, power supplies) on IBM AIX systems."
-  version: "1.1"
+  version: 1.1
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "RS6000"
+    - RS6000
     criteria:
       # OS should be RS6000 (for AIX, whatever version)
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "RS6000"
-      # The uesensor utility have to be present
-    - type: "osCommand"
-      commandLine: "/bin/ls /usr/lpp/diagnostics/bin/uesensor"
-      expectedResult: "^/usr/lpp/diagnostics/bin/uesensor$"
-      # And uesensor must be returning something interesting
-    - type: "osCommand"
-      commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-      expectedResult: "^3 \\|^9001 \\|^9002 \\|^9004 "
+      - RS6000
+    - _comment: The uesensor utility have to be present
+      type: osCommand
+      commandLine: /bin/ls /usr/lpp/diagnostics/bin/uesensor
+      expectedResult: ^/usr/lpp/diagnostics/bin/uesensor$
+    - _comment: And uesensor must be returning something interesting
+      type: osCommand
+      commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+      expectedResult: '^3 \|^9001 \|^9002 \|^9004 '
 monitors:
   temperature:
     discovery:
       sources:
         source(1):
-          # Source(1) = uesensor -a|grep \"^3 \" (keep only temperatures)
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^3 "
-          separators: " "
+          _comment: Source(1) = uesensor -a|grep "^3 " (keep only temperatures)
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^3 '
+          separators: ' '
           selectColumns: "2,5"
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "55"
-          hw.temperature.limit{limit_type="high.critical"}: "65"
+          hw.temperature.limit{limit_type="high.degraded"}: 55
+          hw.temperature.limit{limit_type="high.critical"}: 65
     collect:
-      # Collect type = multi-instance (one pass for all temperatures)
-      type: "multiInstance"
+      _comment: Collect type = multi-instance (one pass for all temperatures)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = usensor -a, again
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^3 "
-          separators: " "
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^3 '
+          separators: ' '
           selectColumns: "2,4"
       mapping:
-        # ValueTable = Source(1) (easy enough)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1) (easy enough)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
+          hw.temperature: $column(2)
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = uesensor -a|grep \"^9001 \" (keep only fans)
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^9001 "
-          separators: " "
+          _comment: Source(1) = uesensor -a|grep "^9001 " (keep only fans)
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^9001 '
+          separators: ' '
           selectColumns: "2,5"
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "1000"
-          hw.fan.speed.limit{limit_type="low.critical"}: "100"
+          hw.fan.speed.limit{limit_type="low.degraded"}: 1000
+          hw.fan.speed.limit{limit_type="low.critical"}: 100
     collect:
-      # Collect type = multi-instance (one pass for all fans)
-      type: "multiInstance"
+      _comment: Collect type = multi-instance (one pass for all fans)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = usensor -a, again
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^9001 "
-          separators: " "
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^9001 '
+          separators: ' '
           selectColumns: "2,4"
       mapping:
-        # ValueTable = Source(1) (easy enough)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1) (easy enough)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.fan.speed: "$column(2)"
+          hw.fan.speed: $column(2)
   voltage:
     discovery:
       sources:
         source(1):
-          # Source(1) = uesensor -a|grep \"^9002 \" (keep only voltages)
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^9002 "
-          separators: " "
+          _comment: Source(1) = uesensor -a|grep "^9002 " (keep only voltages)
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^9002 '
+          separators: ' '
           selectColumns: "2,5"
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      # Collect type = multi-instance (one pass for all voltages)
-      type: "multiInstance"
+      _comment: Collect type = multi-instance (one pass for all voltages)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = usensor -a, again
           # DeviceID;StatusNumber;Voltage
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^9002 "
-          separators: " "
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^9002 '
+          separators: ' '
           selectColumns: "2,3,4"
           computes:
             # Duplicate the status column
             # DeviceID;StatusNumber;StatusNumber;Voltage
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first StatusNumber column into a PATROL Status
             # DeviceID;PATROLStatus;StatusNumber;Voltage
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "VoltageStatusTranslationTable"
+            translationTable: VoltageStatusTranslationTable
             # Translate the second StatusNumber column into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;Voltage
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "VoltageStatusInformationTranslationTable"
+            translationTable: VoltageStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1) (easy enough)
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1) (easy enough)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="voltage"}: "$column(2)"
-          hw.voltage: "$column(4)"
+          hw.status{hw.type="voltage"}: $column(2)
+          hw.voltage: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = uesensor -a|grep \"^9004 \" (keep only power supplies)
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^9004 "
-          separators: " "
+          _comment: Source(1) = uesensor -a|grep "^9004 " (keep only power supplies)
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^9004 '
+          separators: ' '
           selectColumns: "2,5"
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          power_supply_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          power_supply_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      # Collect type = multi-instance (one pass for all power supplies)
-      type: "multiInstance"
+      _comment: Collect type = multi-instance (one pass for all power supplies)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = uesensor -a, again
           # DeviceID;StatusNumber
-          type: "osCommand"
-          commandLine: "/usr/lpp/diagnostics/bin/uesensor -a"
-          keep: "^9004 "
-          separators: " "
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/uesensor -a
+          keep: '^9004 '
+          separators: ' '
           selectColumns: "2,3"
           computes:
             # Duplicate the status column
             # DeviceID;StatusNumber;StatusNumber
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first StatusNumber column into a PATROL Status
             # DeviceID;PATROLStatus;StatusNumber
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PowerSupplyStatusTranslationTable"
+            translationTable: PowerSupplyStatusTranslationTable
             # Translate the second StatusNumber column into a more readable string
             # DeviceID;PATROLStatus;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PowerSupplyStatusInformationTranslationTable"
+            translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1) (easy enough)
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1) (easy enough)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

@@ -114,7 +114,7 @@ public class JsonHelper {
 	 */
 	public static ObjectMapper buildYamlMapper() {
 		return JsonMapper
-			.builder(new YAMLFactory().disable(Feature.SPLIT_LINES))
+			.builder(new YAMLFactory().disable(Feature.SPLIT_LINES).enable(Feature.MINIMIZE_QUOTES))
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)

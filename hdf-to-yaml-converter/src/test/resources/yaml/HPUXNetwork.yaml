@@ -3,136 +3,136 @@ embedded:
   EmbeddedFile(1): "($1 == \"PPA\" && $2 == \"Number\") {\n\tdeviceID = $4\n\tmodel = \"\"\n\tbandwidth = \"\"\n\tstatus = \"\"\n\tinboundError = 0\n\toutboundError = 0\n\tinboundOctet = 0\n\toutboundOctet = 0\n\tinboundUnicastPackets = 0\n\tinbountNonUnicastPackets = 0\n\toutboundUnicastPackets = 0\n\toutboundNonUnicastPackets = 0\n\terrorCount = 0\n\tmacAddress = \"\"\n}\n\n($1 == \"Description\") {\n\tif ($3 ~ \"^lan[0-9]+\")\n\t{\n\t\tmodel = $4 \" \" $5 \" \" $6 \" \" $7\n\t}\n\telse\n\t{\n\t\tmodel = $3 \" \" $4 \" \" $5 \" \" $6\n\t}\n}\n\n($1 == \"Station\" && $2 == \"Address\" && $4 ~ /^0x[0-9a-fA-F]+$/) {\n\tmacAddress = substr($4, 3, length($4) - 2)\n}\n\n($1 == \"Speed\") {\n\tbandwidth = $3 / 1000000\n}\n\n($1 == \"Operation\" && $2 == \"Status\") {\n\tstatus = $5\n}\n\n($1 == \"Inbound\" && $2 == \"Errors\") {\n\tinboundError = $4\n}\n\n($1 == \"Inbound\" && $2 == \"Octets\") {\n\tinboundOctet = $4\n}\n\n($1 == \"Inbound\" && $2 == \"Unicast\" && $3 == \"Packets\") {\n\tinboundUnicastPackets = $5\n}\n\n($1 == \"Inbound\" && $2 == \"Non-Unicast\" && $3 == \"Packets\") {\n\tinboundNonUnicastPackets = $5\n}\n\n($1 == \"Outbound\" && $2 == \"Octets\") {\n\toutboundOctet = $4\n}\n\n($1 == \"Outbound\" && $2 == \"Unicast\" && $3 == \"Packets\") {\n\toutboundUnicastPackets = $5\n}\n\n($1 == \"Outbound\" && $2 == \"Non-Unicast\" && $3 == \"Packets\") {\n\toutboundNonUnicastPackets = $5\n}\n\n($1 == \"Outbound\" && $2 == \"Errors\") {\n\toutboundError = $4\n\n\tinboundPackets = inboundUnicastPackets + inboundNonUnicastPackets\n\toutboundPackets = outboundUnicastPackets + outboundNonUnicastPackets\n\terrorCount = inboundError + outboundError\n\n\tprintf(\"MSHW;%s;%s;%.0f;%s;%.0f;%.0f;%s;%.0f;%.0f;%.0f\\n\", deviceID, macAddress, bandwidth, status, errorCount, inboundPackets, model, outboundPackets, inboundOctet, outboundOctet)\n}"
 translations:
   NetworkCardLinkStatusTranslationTable:
-    "1": "ok"
-    "2": "degraded"
-    default: "ok"
-    "3": "ok"
-    "5": "ok"
-    "6": "ok"
-    "7": "degraded"
+    "1": ok
+    "2": degraded
+    default: ok
+    "3": ok
+    "5": ok
+    "6": ok
+    "7": degraded
   NetworkCardStatusInformationTranslationTable:
-    "1": "Up"
-    "2": "Down"
-    default: "Unknown Status"
-    "3": "Testing"
-    "5": "Dormant"
-    "6": "Not present"
-    "7": "Lower layer down"
+    "1": Up
+    "2": Down
+    default: Unknown Status
+    "3": Testing
+    "5": Dormant
+    "6": Not present
+    "7": Lower layer down
   NetworkCardStatusTranslationTable:
-    "1": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "degraded"
-    "5": "ok"
-    "6": "failed"
-    "7": "failed"
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "5": ok
+    "6": failed
+    "7": failed
 connector:
-  displayName: "HP-UX - Network"
+  displayName: HP-UX - Network
   platforms: "HP 9000,HP Integrity,HP SuperDome"
   reliesOn: "HP-UX system commands (lanscan, etc.)"
-  information: "Discovers and monitors Ethernet adapters."
-  version: "1.0"
+  information: Discovers and monitors Ethernet adapters.
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "HP"
+    - HP
     supersedes:
-    - "HPUXWBEMNetwork"
+    - HPUXWBEMNetwork
     criteria:
       # OS should be HP (for HP-UX, whatever version)
-    - type: "deviceType"
+    - type: deviceType
       keep:
-      - "HP"
-      # The various following tools have to be present
-    - type: "osCommand"
-      commandLine: "/usr/sbin/lanscan"
+      - HP
+    - _comment: The various following tools have to be present
+      type: osCommand
+      commandLine: /usr/sbin/lanscan
       expectedResult: "^[0-9]+/[0-9]+/[0-9]+"
 monitors:
   network:
     discovery:
       sources:
         source(1):
-          # Source(1) = output of EmbeddedFile(1)
-          type: "osCommand"
+          _comment: Source(1) = output of EmbeddedFile(1)
+          type: osCommand
           commandLine: "for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ \"[0-9]+/[0-9]+/[0-9]+\") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
           computes:
             # Process the output of the command through an AWK script
             # DeviceID;MacAddress;Model;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,8"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.network.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          physical_address: "$column(2)"
-          physical_address_type: "MAC"
-          model: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          physical_address: $column(2)
+          physical_address_type: MAC
+          model: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Ouput of lanadmin for all lan adapters listed by lanscan
-          type: "osCommand"
+          _comment: Source(1) = Ouput of lanadmin for all lan adapters listed by lanscan
+          type: osCommand
           commandLine: "for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ \"[0-9]+/[0-9]+/[0-9]+\") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
           computes:
             # Process the output of the command through an AWK script
             # DeviceID;MacAddress;Model;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4,5,6,7,9,10,11"
             # Extract the number of the status column
             # DeviceID;Speed; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-          - type: "extract"
+          - type: extract
             column: 3
-            subSeparators: "()"
+            subSeparators: ()
             subColumn: 2
             # Duplicate the status column
             # DeviceID;Speed; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Duplicate again the status column
             # DeviceID;Speed; Status; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first STatusNumber column into a PATROL status
             # DeviceID;Speed; Patrol Status; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "NetworkCardStatusTranslationTable"
+            translationTable: NetworkCardStatusTranslationTable
             # Translate the second StatusNumber column into a more readable string
             # DeviceID;Speed; Patrol Status; Status Information ; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "NetworkCardStatusInformationTranslationTable"
+            translationTable: NetworkCardStatusInformationTranslationTable
             # Translate the third StatusNumber column into LinkStatus
             # DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "NetworkCardLinkStatusTranslationTable"
+            translationTable: NetworkCardLinkStatusTranslationTable
       mapping:
         # Value table = Source(1)
         #     1      2        # 3        #     4        #          5        #  6        #   7        #         8        #      9        #    10
         # DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="network"}: "$column(3)"
-          hw.network.up: "legacyLinkStatus($column(5))"
-          hw.errors{hw.type="network"}: "$column(6)"
-          hw.network.packets{direction="transmit"}: "$column(8)"
-          hw.network.packets{direction="receive"}: "$column(7)"
-          hw.network.io{direction="transmit"}: "$column(10)"
-          hw.network.io{direction="receive"}: "$column(9)"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(2))"
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.errors{hw.type="network"}: $column(6)
+          hw.network.packets{direction="transmit"}: $column(8)
+          hw.network.packets{direction="receive"}: $column(7)
+          hw.network.io{direction="transmit"}: $column(10)
+          hw.network.io{direction="receive"}: $column(9)
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

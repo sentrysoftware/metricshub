@@ -1,54 +1,54 @@
 ---
 translations:
   TemperatureStatusTranslationTable:
-    high: "degraded"
-    default: "UNKNOWN"
-    too high: "failed"
-    ok: "ok"
+    high: degraded
+    default: UNKNOWN
+    too high: failed
+    ok: ok
   FanStatusTranslationTable:
-    too low: "failed"
-    default: "UNKNOWN"
-    low: "degraded"
-    ok: "ok"
+    too low: failed
+    default: UNKNOWN
+    low: degraded
+    ok: ok
   VoltageStatusTranslationTable:
-    too low: "degraded"
-    high: "degraded"
-    default: "UNKNOWN"
-    low: "degraded"
-    too high: "degraded"
-    ok: "ok"
+    too low: degraded
+    high: degraded
+    default: UNKNOWN
+    low: degraded
+    too high: degraded
+    ok: ok
   TemperatureStatusInformationTranslationTable:
-    high: "High"
-    default: "Unknown Status"
-    too high: "Too high"
+    high: High
+    default: Unknown Status
+    too high: Too high
     ok: ""
   VoltageStatusInformationTranslationTable:
-    too low: "Too low"
-    high: "High"
-    default: "Unknown Status"
-    low: "Low"
-    too high: "Too high"
+    too low: Too low
+    high: High
+    default: Unknown Status
+    low: Low
+    too high: Too high
     ok: ""
   FanStatusInformationTranslationTable:
-    too low: "Too low"
-    default: "Unknown Status"
-    low: "Low"
+    too low: Too low
+    default: Unknown Status
+    low: Low
     ok: ""
 connector:
-  displayName: "IBM Netfinity Manager 5.20.x - Basic"
-  platforms: "IBM Netfinity"
-  reliesOn: "IBM Netfinity Manager 5.20.x"
-  version: "1.0"
-  information: "This connector provides basic environment monitoring through the IBM Netfinity Manager Services SNMP sub-agent which supports almost all old IBM servers (Netfinity) under Windows."
+  displayName: IBM Netfinity Manager 5.20.x - Basic
+  platforms: IBM Netfinity
+  reliesOn: IBM Netfinity Manager 5.20.x
+  version: 1.0
+  information: This connector provides basic environment monitoring through the IBM Netfinity Manager Services SNMP sub-agent which supports almost all old IBM servers (Netfinity) under Windows.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
+    - NT
     criteria:
       # Check that there is something below the snmp OID: ...ibm(2).ibmProd(6).netFinity(71).DmiMibs(200).NetFinityServicesMIB(2).dmtfGroups(1).tNetfinityAttributeGroups(4).eNetfinityAttributeGroups(1)
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.2.6.71.200.2.1.4.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.2.6.71.200.2.1.4.1
 monitors:
   temperature:
     discovery:
@@ -56,177 +56,177 @@ monitors:
         source(1):
           # Source(1) = tNetfinityAttributesGroup
           # ID;AttributeName
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.2.6.71.200.2.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2.6.71.200.2.1.4.1
           selectColumns: "2,4"
           computes:
-            # Keep only attributes whose name contains the word \"temperature\"
-          - type: "keepOnlyMatchingLines"
+          - _comment: Keep only attributes whose name contains the word "temperature"
+            type: keepOnlyMatchingLines
             column: 2
             regExp: "[Tt]emperature"
-            # Remove the \"temperature\" word from the attribute name
-          - type: "replace"
+          - _comment: Remove the "temperature" word from the attribute name
+            type: replace
             column: 2
-            existingValue: "temperature"
+            existingValue: temperature
             newValue: ""
       mapping:
-        # Instance table = source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: Instance table = source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collect type is: multi-instance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the a4CurrentValueTextual of the tNetfinityAttributeGroups SNMP table
           # AttributeID;Textual status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.2.6.71.200.2.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2.6.71.200.2.1.4.1
           selectColumns: "2,5"
           computes:
             # Duplicate the value
             # Textual status;textual status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status into a PATROL status
             # PATROLStatus;textual status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "TemperatureStatusTranslationTable"
+            translationTable: TemperatureStatusTranslationTable
             # Translate the first status into a PATROL status
             # PATROLStatus;Status information
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "TemperatureStatusInformationTranslationTable"
+            translationTable: TemperatureStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="temperature"}: "$column(2)"
+          hw.status{hw.type="temperature"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = tNetfinityAttributesGroup
           # ID;AttributeName
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.2.6.71.200.2.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2.6.71.200.2.1.4.1
           selectColumns: "2,4"
           computes:
-            # Keep only attributes whose name contains the word \"fan\"
-          - type: "keepOnlyMatchingLines"
+          - _comment: Keep only attributes whose name contains the word "fan"
+            type: keepOnlyMatchingLines
             column: 2
             regExp: "[Ff]an"
-            # Remove the \"fan\" word from the attribute name
-          - type: "replace"
+          - _comment: Remove the "fan" word from the attribute name
+            type: replace
             column: 2
-            existingValue: "fan"
+            existingValue: fan
             newValue: ""
       mapping:
-        # Instance table = source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: Instance table = source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
     collect:
       # Collect type is: multi-instance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the tNetfinityAttributeGroups SNMP table
           # ID;Textual status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.2.6.71.200.2.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2.6.71.200.2.1.4.1
           selectColumns: "2,5"
           computes:
             # Duplicate the value
             # ID;Textual status;textual status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status into a PATROL status
             # ID;PATROLStatus;textual status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FanStatusTranslationTable"
+            translationTable: FanStatusTranslationTable
             # Translate the first status into a PATROL status
             # ID;PATROLStatus;Status information
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "FanStatusInformationTranslationTable"
+            translationTable: FanStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   voltage:
     discovery:
       sources:
         source(1):
           # Source(1) = always the tNetfinityAttributes SNMP table
           # AttributeID;AttributeName
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.2.6.71.200.2.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2.6.71.200.2.1.4.1
           selectColumns: "2,4"
           computes:
             # Keep only the voltages lines
             # That is: whose name matches the following regexp: [Vv]olt
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: "[Vv]olt"
-            # Remove the \" voltage\" word (that is not needed)
-          - type: "replace"
+          - _comment: Remove the " voltage" word (that is not needed)
+            type: replace
             column: 2
-            existingValue: "voltage"
+            existingValue: voltage
             newValue: ""
       mapping:
-        # The instance table is Source(1)
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        _comment: The instance table is Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = ...always the tNetfinityAttributesGroup SNMP table
           # AttributeID;AttributeTextualValue
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.2.6.71.200.2.1.4.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2.6.71.200.2.1.4.1
           selectColumns: "2,5"
           computes:
             # Duplicate the textual value column
             # AttributeID;AttributeTextualValue;AttributeTextualValue
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first textual value into a PATROL status
             # AttributeID;PATROLStatus;AttributeTextualValue
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "VoltageStatusTranslationTable"
+            translationTable: VoltageStatusTranslationTable
             # Translate the second textual value into a more readable string
             # AttributeID;PATROLStatus;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "VoltageStatusInformationTranslationTable"
+            translationTable: VoltageStatusInformationTranslationTable
       mapping:
-        # The ValueTable is Source(1)
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: The ValueTable is Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="voltage"}: "$column(2)"
+          hw.status{hw.type="voltage"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

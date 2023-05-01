@@ -1,21 +1,21 @@
 ---
 extends:
-- "VPLEX-header"
+- VPLEX-header
 connector:
-  displayName: "EMC VPLEX Version 6"
-  platforms: "EMC VPLEX"
-  reliesOn: "EMC VPLEX REST API Version 6 and Higher"
-  version: "1.0"
+  displayName: EMC VPLEX Version 6
+  platforms: EMC VPLEX
+  reliesOn: EMC VPLEX REST API Version 6 and Higher
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     supersedes:
-    - "VPLEX5"
+    - VPLEX5
     criteria:
       # DETECTION
       # Does a get_next to see if there that the Chassis OID is populated.
-    - type: "http"
-      method: "GET"
-      url: "/vplex/engines"
+    - type: http
+      method: GET
+      url: /vplex/engines

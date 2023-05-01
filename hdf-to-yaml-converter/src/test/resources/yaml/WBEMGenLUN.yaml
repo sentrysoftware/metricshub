@@ -6,28 +6,28 @@ embedded:
     $1 ~ /.Device.MPIO/ { print ( "MSHW;" $1 ";" toupper($2) ";") }
   EmbeddedFile(2): "BEGIN {FS=\"[;]\"}\n$3 ~ /.Device.MPIO/ { DriveLetter = $1\n\t                    DriveName = $2\n\t                    MPIOID = $3 ; gsub (\".*MPIO\",\"MPIO \",MPIOID)\n\t                    MPIOInfo[MPIOID] = MPIOInfo[MPIOID] DriveLetter \" (\" DriveName \") \"\n\t                  }\nEND { for (MPIOID in MPIOInfo) {\n          if ( MPIOInfo[MPIOID] != \"\" ) {print (\"MSHW;\" MPIOID \";\" MPIOInfo[MPIOID] \";\" ) }\n      }\n    }"
 connector:
-  displayName: "WMI - LUN"
-  platforms: "Any system"
-  reliesOn: "WMI"
-  version: "0.9"
-  information: "This connector provides the monitoring of LUNs on all Windows-based systems through the WMI layer (root/WMI namespace)."
+  displayName: WMI - LUN
+  platforms: Any system
+  reliesOn: WMI
+  version: 0.9
+  information: This connector provides the monitoring of LUNs on all Windows-based systems through the WMI layer (root/WMI namespace).
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
+    - NT
     criteria:
-      # OS must be Windows NT-derivative
-    - type: "deviceType"
+    - _comment: OS must be Windows NT-derivative
+      type: deviceType
       keep:
-      - "NT"
-      # WMI must be available
-    - type: "service"
-      name: "WINMGMT"
-      # The root\\wmi namespace must have the MPIO_DISK_INFO
-    - type: "wmi"
+      - NT
+    - _comment: WMI must be available
+      type: service
+      name: WINMGMT
+    - _comment: The root\wmi namespace must have the MPIO_DISK_INFO
+      type: wmi
       query: "SELECT NumberDrives,DriveInfo.Name FROM MPIO_DISK_INFO"
-      namespace: "root\\wmi"
+      namespace: root\wmi
       expectedResult: "^[1-9][0-9]*;[^;].*;$"
 monitors:
   lun:
@@ -36,97 +36,97 @@ monitors:
         source(1):
           # Source (1) = MPIO_DISK_INFO
           # LunIdArray;LunPathCount;LunNaaID;
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT DriveInfo.Name,DriveInfo.NumberPaths,DriveInfo.SerialNumber FROM MPIO_DISK_INFO"
           computes:
             # Take the list of volumes and associated them to the MPIO disk.
             # MPIOID;LunPathCount;NAAID;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
         source(2):
           # Source (2) = Win32_LogicalDisk
           # Win32_LogicalDisk;PartitionLetter;PartitionName;
-          type: "wmi"
-          namespace: "root\\cimv2"
+          type: wmi
+          namespace: root\cimv2
           query: "SELECT __PATH,Name,VolumeName FROM Win32_LogicalDisk"
         source(3):
           # Source (3) = Win32_LogicalDiskToPartition
           # Win32_DiskPartition;Win32_LogicalDisk;
-          type: "wmi"
-          namespace: "root\\cimv2"
+          type: wmi
+          namespace: root\cimv2
           query: "SELECT Antecedent,Dependent FROM Win32_LogicalDiskToPartition"
         source(4):
           # Source (4) = Win32_LogicalDiskToPartition
           # Win32_DiskDrive;Win32_DiskPartition;
-          type: "wmi"
-          namespace: "root\\cimv2"
+          type: wmi
+          namespace: root\cimv2
           query: "SELECT Antecedent,Dependent FROM Win32_DiskDriveToDiskPartition"
         source(5):
           # Source 5 = Win32_DiskDrive
           # Win32_DiskDrive;PhysicalDiskName;PnPAddress;
-          type: "wmi"
-          namespace: "root\\cimv2"
+          type: wmi
+          namespace: root\cimv2
           query: "SELECT __PATH,Name,PNPDeviceID FROM Win32_DiskDrive"
           computes:
             # Add a _0 to the Win32_DiskDrive PNPAddress so that it matches
             # Win32_DiskDrive;PhysicalDiskName;PnPAddress;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 3
-            value: "_0"
+            value: _0
         source(6):
           # Source 6 = MPIO_GET_DESCRIPTOR
           # LunId(WithDevice);PnPAddress;
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT DeviceName,InstanceName FROM MPIO_GET_DESCRIPTOR"
           computes:
             # To upper the PnPAddress
             # LunId(WithDevice);PnPAddress;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(7):
           # Source 7 = 2 Joined to 3 with Win32_LogicalDisk
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;
-          type: "tableJoin"
-          leftTable: "$monitors.lun.discovery.sources.source(2)$"
-          rightTable: "$monitors.lun.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.lun.discovery.sources.source(2)$
+          rightTable: $monitors.lun.discovery.sources.source(3)$
           leftKeyColumn: 1
           rightKeyColumn: 2
-          keyType: "Wbem"
+          keyType: Wbem
         source(8):
           # Source 8 = 7 Joined to 4 with Win32_DiskPartition
           #          1          #     2          # 3          #           4          #   5          #     6          #   7
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;Win32_DiskDrive;Win32_DiskPartition;
-          type: "tableJoin"
-          leftTable: "$monitors.lun.discovery.sources.source(7)$"
-          rightTable: "$monitors.lun.discovery.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.lun.discovery.sources.source(7)$
+          rightTable: $monitors.lun.discovery.sources.source(4)$
           leftKeyColumn: 4
           rightKeyColumn: 2
-          keyType: "Wbem"
+          keyType: Wbem
         source(9):
           # Source 9 = 8 Joined to 5 with Win32_DiskDrive
           #          1          #     2          # 3          #           4          #   5          #     6          #   7          #         8          #      9          10
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;Win32_DiskDrive;Win32_DiskPartition;Win32_DiskDrive;PhysicalDiskName;PnPAddress;
-          type: "tableJoin"
-          leftTable: "$monitors.lun.discovery.sources.source(8)$"
-          rightTable: "$monitors.lun.discovery.sources.source(5)$"
+          type: tableJoin
+          leftTable: $monitors.lun.discovery.sources.source(8)$
+          rightTable: $monitors.lun.discovery.sources.source(5)$
           leftKeyColumn: 6
           rightKeyColumn: 1
-          keyType: "Wbem"
+          keyType: Wbem
         source(10):
           # Source 10 = 9 Joined to 5 with PnPAddress
           #          1          #     2          # 3          #           4          #   5          #     6          #   7          #         8          #      9          10           11          #  12
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;Win32_DiskDrive;Win32_DiskPartition;Win32_DiskDrive;PhysicalDiskName;PnPAddress;LunId(WithDevice);PnPAddress;
-          type: "tableJoin"
-          leftTable: "$monitors.lun.discovery.sources.source(9)$"
-          rightTable: "$monitors.lun.discovery.sources.source(6)$"
+          type: tableJoin
+          leftTable: $monitors.lun.discovery.sources.source(9)$
+          rightTable: $monitors.lun.discovery.sources.source(6)$
           leftKeyColumn: 10
           rightKeyColumn: 2
           computes:
@@ -135,66 +135,66 @@ monitors:
             # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;Win32_DiskDrive;Win32_DiskPartition;Win32_DiskDrive;PhysicalDiskName;PnPAddress;LunId(WithDevice);PnPAddress;
             # TO
             # PartitionLetter;PartitionName;LunId(WithDevice);
-          - type: "keepColumns"
+          - type: keepColumns
             columnNumbers: "2,3,11"
             # Take the list of volumes and associated them to the MPIO disk.
             # MPIOID;VolumeList;
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(11):
           # Join the MPIO Discovered list with the Volume List
           # MPIOID;LunPathCount;NAAID;MPIOID;VolumeList;
-          type: "tableJoin"
-          leftTable: "$monitors.lun.discovery.sources.source(1)$"
-          rightTable: "$monitors.lun.discovery.sources.source(10)$"
+          type: tableJoin
+          leftTable: $monitors.lun.discovery.sources.source(1)$
+          rightTable: $monitors.lun.discovery.sources.source(10)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          defaultRightLine: ";No Volumes;"
+          defaultRightLine: ;No Volumes;
           computes:
             # Right concat " - " to the first MPIO ID
             # MPIOID;LunPathCount;NAAID;MPIOID;VolumeList;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: " - "
+            value: ' - '
             # Right concat the volume list to the first MPIO ID
             # MPIOID-VolumeList;LunPathCount;NAAID;MPIOID;VolumeList;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "Column(5)"
+            value: Column(5)
       mapping:
         # InstanceTable = Source(1)
         # MPIOID-VolumeList;LunPathCount;NAAID;MPIOID;VolumeList;
-        source: "$monitors.lun.discovery.sources.source(11)$"
+        source: $monitors.lun.discovery.sources.source(11)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(3)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(1))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source (1) = MPIO_DISK_INFO
           # LunIdArray;LunPathCount;LunNaaID;
-          type: "wmi"
-          namespace: "root\\wmi"
+          type: wmi
+          namespace: root\wmi
           query: "SELECT DriveInfo.Name,DriveInfo.NumberPaths,DriveInfo.SerialNumber FROM MPIO_DISK_INFO"
           computes:
             # Take the list of volumes and associated them to the MPIO disk.
             # MPIOID;LunPathCount;NAAID;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
       mapping:
         # ValueTable = Source(1)
         # LUNID;NumberPaths
-        source: "$monitors.lun.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.lun.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.lun.paths: "$column(2)"
+          hw.lun.paths: $column(2)

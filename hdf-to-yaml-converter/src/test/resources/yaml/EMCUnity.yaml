@@ -1,71 +1,71 @@
 ---
 constants:
-  _COMPUTERSYSTEM_DEDICATED_REGEXP: "\"\\(^3|\\)\\|\\(|3|\\)\\|\\(^12|\\)\\|\\(|12|\\)\\|\\(^15|\\)\\|\\(^16|\\)\\|\\(^24|\\)\\|\\(^25|\\)\""
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)\|\(^15|\)\|\(^16|\)\|\(^24|\)\|\(^25|\)"'
   _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
 translations:
   EthernetPortTypeTranslationTable:
-    "55": "10G BaseT"
-    "56": "10G BaseCX4"
-    default: "Ethernet Port"
-    "50": "10 BaseT"
-    "51": "10-100 BaseT"
-    "52": "100 BaseT"
-    "53": "1000 BaseT"
-    "54": "2500 BaseT"
+    "55": 10G BaseT
+    "56": 10G BaseCX4
+    default: Ethernet Port
+    "50": 10 BaseT
+    "51": 10-100 BaseT
+    "52": 100 BaseT
+    "53": 1000 BaseT
+    "54": 2500 BaseT
   statusInformationTranslationTable:
-    "0": "Unknown"
-    default: "Unknown Status"
-    "25": "Critical Failure"
-    "15": "Minor Failure"
+    "0": Unknown
+    default: Unknown Status
+    "25": Critical Failure
+    "15": Minor Failure
     "5": ""
-    "30": "Non-Recoverable Error"
-    "20": "Major Failure"
-    "10": "Degraded"
+    "30": Non-Recoverable Error
+    "20": Major Failure
+    "10": Degraded
   statusTranslationTable:
-    "0": "UNKNOWN"
-    default: "UNKNOWN"
-    "25": "failed"
-    "15": "degraded"
-    "5": "ok"
-    "30": "failed"
-    "20": "failed"
-    "10": "degraded"
+    "0": UNKNOWN
+    default: UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    "30": failed
+    "20": failed
+    "10": degraded
   PortTypeTranslationTable:
-    "11": "FC Port NL"
-    "12": "FC Port F/NL"
-    "13": "FC Port Nx"
-    default: "FC Port"
-    "14": "FC Port E"
-    "15": "FC Port F"
-    "16": "FC Port FL"
-    "17": "FC Port B"
-    "18": "FC Port G"
-    "19": "FC Port GL"
-    "10": "FC Port N"
+    "11": FC Port NL
+    "12": FC Port F/NL
+    "13": FC Port Nx
+    default: FC Port
+    "14": FC Port E
+    "15": FC Port F
+    "16": FC Port FL
+    "17": FC Port B
+    "18": FC Port G
+    "19": FC Port GL
+    "10": FC Port N
   PrimordialStoragePoolTranslationTable:
-    default: "0;Storage Pool"
-    "true": "0;Primordial Storage Pool"
+    default: 0;Storage Pool
+    "true": 0;Primordial Storage Pool
   SpeedToLinkStatusTranslationTable:
-    "0": "degraded"
+    "0": degraded
     ? ""
-    : "degraded"
-    default: "ok"
+    : degraded
+    default: ok
 connector:
-  displayName: "EMC Unity SMI-S Agent"
-  platforms: "EMC Unity"
-  reliesOn: "EMC Unity SMI-S Agent"
-  version: "1.0"
+  displayName: EMC Unity SMI-S Agent
+  platforms: EMC Unity
+  reliesOn: EMC Unity SMI-S Agent
+  version: 1.0
   information: "This connector discovers the enclosure and the disks of Unity disk arrays, as well as the storage pools. It will also discover and monitor the FC ports, network cards of the array and the various environment sensors (fans, power supplies, controllers). It relies on the array embedded SMI-S."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     criteria:
-    - type: "wbem"
-      namespace: "root/emc/smis"
-      query: "SELECT Dedicated FROM CIM_ComputerSystem"
-      expectedResult: "\\(^3|\\)\\|\\(|3|\\)\\|\\(^12|\\)\\|\\(|12|\\)\\|\\(^15|\\)\\|\\(^16|\\)\\|\\(^24|\\)\\|\\(^25|\\)"
+    - type: wbem
+      namespace: root/emc/smis
+      query: SELECT Dedicated FROM CIM_ComputerSystem
+      expectedResult: \(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)\|\(^15|\)\|\(^16|\)\|\(^24|\)\|\(^25|\)
 monitors:
   enclosure:
     discovery:
@@ -73,588 +73,588 @@ monitors:
         source(1):
           # Source(1) = EMC_VNXe_ArrayChassisLeaf
           # EMC_ArrayChassis;Model;SerialNumber
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,Model,SerialNumber FROM EMC_VNXe_ArrayChassisLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
         source(2):
           # Source(2) = EMC_VNXe_StorageSystem_ArrayChassis_SystemPackagingAssocLeaf (link between EMC_VNXe_ArrayChassisLeaf and EMC_VNXe_StorageSystemLeaf)
           # EMC_ArrayChassis;EMC_StorageSystem;
-          type: "wbem"
+          type: wbem
           query: "SELECT Antecedent,Dependent FROM EMC_VNXe_StorageSystem_ArrayChassis_SystemPackagingAssocLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
         source(3):
           # Source(3) = EMC_VNXe_StorageSystemLeaf
           # EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,ElementName,OtherIdentifyingInfo,HealthState FROM EMC_VNXe_StorageSystemLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
         source(4):
           # Source(4) = EMC_VNXe_ArrayChassisLeaf Source (1) joined to  EMC_VNXe_StorageSystem_ArrayChassis_SystemPackagingAssocLeaf (2)
           # EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          keyType: "Wbem"
-          defaultRightLine: ";;"
+          keyType: Wbem
+          defaultRightLine: ;;
         source(5):
           # Source(5) = Source (4) joined to EMC_StorageSystem Source (3)\nEMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_Storage\tSystem;EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
-          type: "tableJoin"
-          leftTable: "$monitors.enclosure.discovery.sources.source(4)$"
-          rightTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(4)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
           leftKeyColumn: 5
           rightKeyColumn: 1
-          keyType: "Wbem"
-          defaultRightLine: ";;;;"
+          keyType: Wbem
+          defaultRightLine: ;;;;
       mapping:
         # InstanceTable = Source()
         # EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
-        source: "$monitors.enclosure.discovery.sources.source(5)$"
+        source: $monitors.enclosure.discovery.sources.source(5)$
         attributes:
-          id: "$column(6)"
-          __display_id: "$column(7)"
-          vendor: "EMC"
-          model: "$column(2)"
-          serial_number: "$column(3)"
-          type: "Storage"
+          id: $column(6)
+          __display_id: $column(7)
+          vendor: EMC
+          model: $column(2)
+          serial_number: $column(3)
+          type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(7), \"EMC\", $column(2), \"Storage\")"
     collect:
-      # Collect type is multiinstance
-      type: "multiInstance"
+      _comment: Collect type is multiinstance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
           # EMC_StorageSystem;HealthState;
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,HealthState FROM EMC_VNXe_StorageSystemLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Duplicate the "HealthStateArray" column
             # EMC_StorageSystem;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # EMC_StorageSystem;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # EMC_StorageSystem;PATROLStatusArray;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(2)"
+          hw.status{hw.type="enclosure"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = CIM_FCPort
           # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_FCPort"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
             # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "_FCPORT_TYPE_VALUELIST"
+            valueList: _FCPORT_TYPE_VALUELIST
             # Keep only activated ports
             # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 5
-            valueList: "3"
+            valueList: 3
             # Translate PortType into a more readable string
             # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PortTypeTranslationTable"
+            translationTable: PortTypeTranslationTable
             # Convert Speed from bps to Mbps (divide by 1000000)
             # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
-          - type: "divide"
+          - type: divide
             column: 3
-            value: "1000000"
+            value: 1000000
         source(2):
-          # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
-          type: "wbem"
+          _comment: PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+          type: wbem
           query: "SELECT __PATH,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_EthernetPort"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Keep only activated ports
             # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 5
-            valueList: "3"
+            valueList: 3
             # Translate PortType into a more readable string
             # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "EthernetPortTypeTranslationTable"
+            translationTable: EthernetPortTypeTranslationTable
             # Convert Speed from bps to Mbps (divide by 1000000)
             # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
-          - type: "divide"
+          - type: divide
             column: 3
-            value: "1000000"
+            value: 1000000
         source(3):
-          # Merging FC port and Ethernet port
-          type: "tableUnion"
+          _comment: Merging FC port and Ethernet port
+          type: tableUnion
           tables:
-          - "$monitors.network.discovery.sources.source(1)$"
-          - "$monitors.network.discovery.sources.source(2)$"
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(2)$
       mapping:
         # InstanceTable = Source(5)
         # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName
-        source: "$monitors.network.discovery.sources.source(3)$"
+        source: $monitors.network.discovery.sources.source(3)$
         attributes:
-          __display_id: "$column(6)"
-          id: "$column(1)"
-          physical_address: "$column(4)"
-          physical_address_type: "WWN"
-          device_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          __display_id: $column(6)
+          id: $column(1)
+          physical_address: $column(4)
+          physical_address_type: WWN
+          device_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(6), $column(2))"
     collect:
-      # The NetworkCard collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The NetworkCard collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = CIM_FCPort
           # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,PortType,EnabledState,Speed,HealthState FROM CIM_FCPort"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
             # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            valueList: "_FCPORT_TYPE_VALUELIST"
+            valueList: _FCPORT_TYPE_VALUELIST
             # Keep only activated ports
             # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "3"
+            valueList: 3
             # Duplicate the "HealthStateArray" column
             # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 5
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
             # duplicate the speed into in order to check the linkstatus
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # convert the link speed into mbs
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
-          - type: "divide"
+          - type: divide
             column: 4
-            value: "1000000"
+            value: 1000000
             # Finally, we check whether we have a 'Speed' number, meaning that the link is up
             # Otherwise, if no speed, it means that the link is down
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "SpeedToLinkStatusTranslationTable"
+            translationTable: SpeedToLinkStatusTranslationTable
         source(2):
           # Source(2) = CIM_EthernetPort
           # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,PortType,EnabledState,Speed,HealthState FROM CIM_EthernetPort"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Keep only activated ports
             # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 3
-            valueList: "3"
+            valueList: 3
             # Duplicate the "HealthStateArray" column
             # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 5
             # Then we translate DMTF's HealthState code into OK/WARN/ALARM (for the Status parameter)
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
             # duplicate the speed into in order to check the linkstatus
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # convert the link speed into mbs
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
-          - type: "divide"
+          - type: divide
             column: 4
-            value: "1000000"
+            value: 1000000
             # Finally, we check whether we have a 'Speed' number, meaning that the link is up
             # Otherwise, if no speed, it means that the link is down
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "SpeedToLinkStatusTranslationTable"
+            translationTable: SpeedToLinkStatusTranslationTable
         source(3):
-          # Merging FC port and Ethernet port
-          type: "tableUnion"
+          _comment: Merging FC port and Ethernet port
+          type: tableUnion
           tables:
-          - "$monitors.network.collect.sources.source(1)$"
-          - "$monitors.network.collect.sources.source(2)$"
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(2)$
       mapping:
-        # ValueTable = Source(3)
-        source: "$monitors.network.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(3)
+        source: $monitors.network.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="network"}: "$column(5)"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(4))"
-          hw.network.up: "legacyLinkStatus($column(5))"
+          hw.status{hw.type="network"}: $column(5)
+          hw.network.bandwidth.limit: megaBit2Bit($column(4))
+          hw.network.up: legacyLinkStatus($column(5))
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = CIM_Fan
           # FanID;ElementName
-          type: "wbem"
-          namespace: "root/emc/smis"
+          type: wbem
+          namespace: root/emc/smis
           query: "SELECT __PATH, ElementName FROM CIM_Fan"
       mapping:
-        # InstanceTable = Source(2)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(2)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
-          name: "$column(2)"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
     collect:
-      # The Fan collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The Fan collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = CIM_Fan
           # FanID;HealthState;
-          type: "wbem"
-          namespace: "root/emc/smis"
+          type: wbem
+          namespace: root/emc/smis
           query: "SELECT __PATH,HealthState FROM CIM_Fan"
           computes:
             # Duplicate the "HealthStateArray" column
             # FanID;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # FanID;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # FanID;PATROLStatusArray;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = CIM_PowerSupply
           # PowerSupplyID;ElementName
-          type: "wbem"
-          namespace: "root/emc/smis"
+          type: wbem
+          namespace: root/emc/smis
           query: "SELECT __PATH, ElementName FROM CIM_PowerSupply"
       mapping:
-        # InstanceTable = Source(2)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(2)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(2))"
     collect:
-      # The PowerSupply collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The PowerSupply collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = CIM_PowerSupply
           # PowerSupplyID;HealthState;
-          type: "wbem"
-          namespace: "root/emc/smis"
+          type: wbem
+          namespace: root/emc/smis
           query: "SELECT __PATH,HealthState FROM CIM_PowerSupply"
           computes:
             # Duplicate the "HealthStateArray" column
             # PowerSupplyID;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # PowerSupplyID;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # PowerSupplyID;PATROLStatusArray;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
           # ComputerID;ClassName;ElementName;
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,ElementName FROM EMC_VNXe_StorageProcessorSystemLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
       mapping:
         # InstanceTable = Source(2)
         # ComputerID;ElementName;
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          device_type: "Controller"
-          __display_id: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          device_type: Controller
+          __display_id: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", \"Controller\", $column(2))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
           # ComputerID;HealthState;
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,HealthState FROM CIM_ComputerSystem"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Duplicate the "HealthStateArray" column
             # ComputerID;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # ComputerID;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # ComputerID;PATROLStatusArray;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = EMC_VNXe_DiskDriveLeaf
           # DiskID;DiskName
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,deviceID FROM EMC_VNXe_DiskDriveLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
         source(2):
           # Source(2) = EMC_VNXe_DiskModuleLeaf
           # DiskModuleID;SN;Model,Manufacturer
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,SerialNumber,Model,Manufacturer FROM EMC_VNXe_DiskModuleLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
         source(3):
           # //Source(3) = EMC_VNXe_DiskExtentLeaf
           # DiskExtentID;blocksize;consumableBlocks
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,blockSize,NumberOfBlocks FROM EMC_VNXe_DiskExtentLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # calculate the size of the disk
             # DiskExtentID;size;NumberOfBlocks
-          - type: "multiply"
+          - type: multiply
             column: 2
-            value: "Column(3)"
+            value: Column(3)
         source(4):
           # //let's statrt the association between the 3 tables
           # / first between DiskdriveLeaf and DiskmoduleLeaf
           # DiskmoduleID;DiskID;
-          type: "wbem"
+          type: wbem
           query: "SELECT Antecedent,Dependent FROM EMC_VNXe_DiskModule_DiskDrive_RealizesAssocLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
         source(5):
-          # /Second Between DiskDriveLeaf and DiskExtentLeaf
-          type: "wbem"
+          _comment: /Second Between DiskDriveLeaf and DiskExtentLeaf
+          type: wbem
           query: "SELECT Antecedent,Dependent FROM EMC_VNXe_DiskDrive_DiskExtent_MediaPresentAssocLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
         source(6):
           # let's do the tablejoint between source(1) and source(2)
           # DiskID;DiskName;DiskmoduleID;DiskID;
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(4)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 2
-          keyType: "Wbem"
-          defaultRightLine: ";;"
+          keyType: Wbem
+          defaultRightLine: ;;
         source(7):
           # let's do the tablejoint between source(6) and source(2)
           # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(6)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(6)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
           leftKeyColumn: 3
           rightKeyColumn: 1
-          keyType: "Wbem"
-          defaultRightLine: ";;;"
+          keyType: Wbem
+          defaultRightLine: ;;;
         source(8):
           # let's do the tablejoint between source(7) and source(5)
           # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(7)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(5)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(7)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(5)$
           leftKeyColumn: 1
           rightKeyColumn: 1
-          keyType: "Wbem"
-          defaultRightLine: ";;"
+          keyType: Wbem
+          defaultRightLine: ;;
         source(9):
           # let's do the tablejoint between source(8) and source(3)
           # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(8)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(3)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(8)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(3)$
           leftKeyColumn: 10
           rightKeyColumn: 1
-          keyType: "Wbem"
-          defaultRightLine: ";;;"
+          keyType: Wbem
+          defaultRightLine: ;;;
       mapping:
         # Finally here is the instance table...
         # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks
-        source: "$monitors.physical_disk.discovery.sources.source(9)$"
+        source: $monitors.physical_disk.discovery.sources.source(9)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(2)"
-          model: "$column(7)"
-          vendor: "$column(8)"
-          serial_number: "$column(6)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(2)
+          model: $column(7)
+          vendor: $column(8)
+          serial_number: $column(6)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(7), $column(12))"
         metrics:
-          hw.physical_disk.size: "$column(12)"
+          hw.physical_disk.size: $column(12)
     collect:
-      # The physical disk collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The physical disk collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = the only source = CIM_DiskDrive
           # DiskID;HealthStateArray
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,HealthState FROM EMC_VNXe_DiskDriveLeaf"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Duplicate the "HealthStateArray" column
             # DiskID;HealthStateArray;HealthStateArray;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
             # DiskID;PATROLStatusArray;Status
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # DiskID;PATROLStatusArray;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusInformationTranslationTable"
+            translationTable: statusInformationTranslationTable
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = CIM_StoragePool
           # PoolID;SizeBytes;Label;UnallocatedSpaceActivation;Primordial;
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,TotalManagedSpace,Name,RemainingManagedSpace,Primordial FROM CIM_StoragePool"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
           computes:
             # Do not take into account the storage pools when counting the total logical disk size
             # PoolID;SizeBytes;Label;UnallocatedSpace;LogicalDiskType;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PrimordialStoragePoolTranslationTable"
+            translationTable: PrimordialStoragePoolTranslationTable
             # However, exclude storage pools whose size is zero
             # PoolID;SizeBytes;Label;UnallocatedSpaceActivation;LogicalDiskType;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
-            valueList: "0"
+            valueList: 0
             # However, exclude storage pools whose size is zero
             # PoolID;SizeBytes;UseForCapacityReport;Label;UnallocatedSpaceActivation;LogicalDiskType;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
       mapping:
         # Here is the instance table
         # PoolID;SizeBytes;UseForCapacityReport;Label;UnallocatedSpace;LogicalDiskType;
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(4)"
-          hw.logical_disk.limit: "$column(2)"
-          type: "$column(6)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          __display_id: $column(4)
+          hw.logical_disk.limit: $column(2)
+          type: $column(6)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(4), $column(2))"
     collect:
-      # The LogicalDisk  collect is a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: The LogicalDisk  collect is a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
           # Source(2) = CIM_StoragePool
           # DiskID;UnallocatedSpace;
-          type: "wbem"
+          type: wbem
           query: "SELECT __PATH,RemainingManagedSpace FROM CIM_StoragePool"
-          namespace: "root/emc/smis"
+          namespace: root/emc/smis
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.logical_disk.usage{state="free"}: "$column(2)"
-          hw.logical_disk.usage{state="used"}: "collectAllocatedSpace()"
+          hw.logical_disk.usage{state="free"}: $column(2)
+          hw.logical_disk.usage{state="used"}: collectAllocatedSpace()

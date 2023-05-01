@@ -1,33 +1,33 @@
 ---
 translations:
   statusTranslationTable:
-    "1": "UNKNOWN"
-    "2": "UNKNOWN"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "degraded"
-    "5": "failed"
-    "6": "failed"
-    "7": "failed"
+    "1": UNKNOWN
+    "2": UNKNOWN
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": failed
 connector:
-  displayName: "Intel Base Board 5 Motherboards"
-  platforms: "Any system with Intel Base Board 5"
-  reliesOn: "Intel Server Manager 8 SNMP Agents"
-  version: "1.0"
-  information: "This connector provides hardware monitoring through the Intel Server Manager 8 SNMP Agents under Windows and Linux."
+  displayName: Intel Base Board 5 Motherboards
+  platforms: Any system with Intel Base Board 5
+  reliesOn: Intel Server Manager 8 SNMP Agents
+  version: 1.0
+  information: This connector provides hardware monitoring through the Intel Server Manager 8 SNMP Agents under Windows and Linux.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
-    - "Linux"
+    - NT
+    - Linux
     supersedes:
-    - "IpmiTool"
+    - IpmiTool
     criteria:
       # check that we got at least one CPU declared here
       # The Enclosure information is rather limited as not all OEMs populate that table.
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.343.2.10.3.5.300.10.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.343.2.10.3.5.300.10.1
 monitors:
   enclosure:
     discovery:
@@ -36,15 +36,15 @@ monitors:
           # Get the Platform Description
           # There are other informations in the MIB, but Platform Description seems to be the only one populated.
           # PlatformDescription
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.100.2.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.343.2.10.3.5.100.2.0
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "IntelMB"
-          model: "$column(1)"
-          type: "Computer"
+          id: IntelMB
+          model: $column(1)
+          type: Computer
           name: "sprintf(\"%s (%s - %s)\", \"IntelMB\", $column(1), \"Computer\")"
   cpu:
     discovery:
@@ -52,395 +52,395 @@ monitors:
         source(1):
           # Source(1) = processorDeviceTable SNMP table
           # ID;Manufacturer;Model;MaxSpeed;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.300.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.300.10.1
           selectColumns: "ID,8,10,11"
       mapping:
-        # Instance Table
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        _comment: Instance Table
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          model: "$column(3)"
-          vendor: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          model: $column(3)
+          vendor: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(2), $column(3), $column(4))"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(4))"
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
     collect:
-      # Collect is multi-instance (all instances in one shot)
-      type: "multiInstance"
+      _comment: Collect is multi-instance (all instances in one shot)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = processorDeviceTable SNMP table
           # ID;StatusInformation;Status;CurrentSpeed
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.300.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.300.10.1
           selectColumns: "ID,4,5,12"
           computes:
             # Translate Status in Patrol Status
             # ID;StatusInformation;PatrolStatus;CurrentSpeed
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Remove Status Information of "ok"
             # ID;StatusInformation;PatrolStatus;CurrentSpeed
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "ok"
+            existingValue: ok
             newValue: ""
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;PatrolStatus;CurrentSpeed
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="cpu"}: "$column(3)"
+          hw.status{hw.type="cpu"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   memory:
     discovery:
       sources:
         source(1):
           # Source(1) = PhysicalMemoryDeviceTable SNMP table
           # ID;Status;Size;Location;Bank;Speed;Type
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.500.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.500.20.1
           selectColumns: "ID,5,11,13,14,17,6"
           computes:
             # Remove Modules with Status 7 (Unsupported) as these are part of an array.
             # ID;Status;Size;Location;Bank;Speed;Type
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
-            valueList: "7"
+            valueList: 7
         source(2):
           # Source(2) = PhysicalMemoryArrayTable SNMP table
           # ID;Status;Type
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.500.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.500.10.1
           selectColumns: "ID,5,12"
           computes:
             # Add Array_ to the ID
             # ID;Status;Type
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Array_"
+            value: Array_
             # Add Size,Location,Bank,Speed Columns
             # ID;Status;(Size);(Location);(Bank);(Speed);Type
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: ";;;;"
+            value: ;;;;
         source(3):
-          # ID;Status;Size;Location;Bank;Speed;Type
-          type: "tableUnion"
+          _comment: ID;Status;Size;Location;Bank;Speed;Type
+          type: tableUnion
           tables:
-          - "$monitors.memory.discovery.sources.source(1)$"
-          - "$monitors.memory.discovery.sources.source(2)$"
+          - $monitors.memory.discovery.sources.source(1)$
+          - $monitors.memory.discovery.sources.source(2)$
           computes:
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
             value: "Location: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 5
             value: "Bank: "
       mapping:
         # Instance Table
         # ID;Status;Size;Location;Bank;Speed;Type
-        source: "$monitors.memory.discovery.sources.source(3)$"
+        source: $monitors.memory.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          type: "$column(7)"
+          id: $column(1)
+          type: $column(7)
           info: "join($column(4), $column(5), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(7), $column(3))"
         metrics:
-          hw.memory.limit: "mebiByte2Byte($column(3))"
+          hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      # Collect is multi-instance (all instances in one shot)
-      type: "multiInstance"
+      _comment: Collect is multi-instance (all instances in one shot)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqSeMemoryTable SNMP table
           # ID;StatusInformation;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.500.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.500.20.1
           selectColumns: "ID,4,5"
         source(2):
           # Source(1) = cpqSeMemoryTable SNMP table
           # ID;StatusInformation;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.500.10.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.500.10.1
           selectColumns: "ID,4,5"
           computes:
             # Add Array_ to the ID
             # ID;StatusInformation;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "Array_"
+            value: Array_
         source(3):
-          # ID;StatusInformation;Status
-          type: "tableUnion"
+          _comment: ID;StatusInformation;Status
+          type: tableUnion
           tables:
-          - "$monitors.memory.collect.sources.source(1)$"
-          - "$monitors.memory.collect.sources.source(2)$"
+          - $monitors.memory.collect.sources.source(1)$
+          - $monitors.memory.collect.sources.source(2)$
           computes:
             # Translate Status in Patrol Status
             # ID;StatusInformation;PatrolStatus;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Remove Status Information of "ok"
             # ID;StatusInformation;PatrolStatus;
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "ok"
+            existingValue: ok
             newValue: ""
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;PatrolStatus;CurrentSpeed
-        source: "$monitors.memory.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        source: $monitors.memory.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="memory"}: "$column(3)"
+          hw.status{hw.type="memory"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   temperature:
     discovery:
       sources:
         source(1):
           # Temperature discovery
           # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.600.40.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.600.40.1
           selectColumns: "ID,3,5,6,8,9"
           computes:
             # Remove Temperature Status of "7" (unsupported) with blank
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "7"
+            existingValue: 7
             newValue: ""
             # Remove Temperatures of "0" as these are not valid values.
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
-            value: "MSHW_"
-          - type: "replace"
+            value: MSHW_
+          - type: replace
             column: 4
-            existingValue: "MSHW_0"
+            existingValue: MSHW_0
             newValue: ""
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
             # Divide the Thresholds by 10.
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          - type: "divide"
+          - type: divide
             column: 5
-            value: "10"
-          - type: "divide"
+            value: 10
+          - type: divide
             column: 6
-            value: "10"
+            value: 10
         source(2):
           # Take a copy of source 1
           # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Exclude any Sensors with Negative Temperature values
             # (these are usually degrees below threshold values, but too hard to deal with, so we will only rely on the Status for monitoring
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            regExp: "^-"
+            regExp: ^-
         source(3):
           # Take another copy of source 1
           # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          type: "copy"
-          from: "$monitors.temperature.discovery.sources.source(1)$"
+          type: copy
+          from: $monitors.temperature.discovery.sources.source(1)$
           computes:
             # Include only those Sensors with Negative Temperature values
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 4
-            regExp: "^-"
+            regExp: ^-
             # Replace all the Current Readings by blank.
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "Column(4)"
+            existingValue: Column(4)
             newValue: ""
         source(4):
           # Join the sensors with negative values and those with positive current temperatures back into one table.
           # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(2)$"
-          - "$monitors.temperature.discovery.sources.source(3)$"
+          - $monitors.temperature.discovery.sources.source(2)$
+          - $monitors.temperature.discovery.sources.source(3)$
       mapping:
         # Instance Table
         # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-        source: "$monitors.temperature.discovery.sources.source(4)$"
+        source: $monitors.temperature.discovery.sources.source(4)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: "$column(5)"
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(6)"
+          hw.temperature.limit{limit_type="high.critical"}: $column(5)
+          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
     collect:
-      # Collect is multi-instance (all instances in one shot)
-      type: "multiInstance"
+      _comment: Collect is multi-instance (all instances in one shot)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = cpqSeMemoryTable SNMP table
           # ID;StatusInformation;Status;CurrentReading
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.600.40.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.600.40.1
           selectColumns: "ID,4,5,6"
           computes:
             # Divide the Current Reading by 10.
             # ID;StatusInformation;Status;CurrentReading
-          - type: "divide"
+          - type: divide
             column: 4
-            value: "10"
+            value: 10
             # Translate Status in Patrol Status
             # ID;StatusInformation;Status;CurrentReading
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Remove Status Information of "ok"
             # ID;StatusInformation;Status;CurrentReading
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "ok"
+            existingValue: ok
             newValue: ""
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="temperature"}: "$column(3)"
-          hw.temperature: "$column(4)"
+          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   fan:
     discovery:
       sources:
         source(1):
           # Fan discovery coolingDeviceTable
           # ID;Description;Status;CurrentReading;LowerCritical;LowerNonCritical;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.600.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.600.20.1
           selectColumns: "ID,3,5,6,11,10"
           computes:
             # Remove Fan Status of "7" (unsupported) with blank
             # ID;Description;Status;CurrentReading;LowerCritical;LowerNonCritical;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "7"
+            existingValue: 7
             newValue: ""
       mapping:
         # Instance Table
         # ID;Description;Status;CurrentReading;LowerCritical;LowerNonCritical;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(5)"
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(6)"
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
     collect:
-      # Collect is multi-instance (all instances in one shot)
-      type: "multiInstance"
+      _comment: Collect is multi-instance (all instances in one shot)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = coolingDeviceTable SNMP table
           # ID;StatusInformation;Status;CurrentReading
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.600.20.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.600.20.1
           selectColumns: "ID,4,5,6"
           computes:
             # Translate Status in Patrol Status
             # ID;StatusInformation;Status;CurrentReading
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Remove Status Information of "ok"
             # ID;StatusInformation;Status;CurrentReading
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "ok"
+            existingValue: ok
             newValue: ""
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(3)"
-          hw.fan.speed: "$column(4)"
+          hw.status{hw.type="fan"}: $column(3)
+          hw.fan.speed: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   voltage:
     discovery:
       sources:
         source(1):
           # Voltage discovery coolingDeviceTable
           # ID;Description;Status;CurrentReading;UpperNonCritical;LowerNonCritical;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.400.30.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.400.30.1
           selectColumns: "ID,3,5,6,9,10"
           computes:
             # Remove Voltage Status of "7" (unsupported) with blank
             # ID;Description;Status;CurrentReading;UpperNonCritical;LowerNonCritical;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "7"
+            existingValue: 7
             newValue: ""
       mapping:
         # Instance Table
         # ID;Description;Status;CurrentReading;UpperNonCritical;LowerNonCritical;
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(5)"
-          hw.voltage.limit{limit_type="low.critical"}: "$column(6)"
+          hw.voltage.limit{limit_type="high.degraded"}: $column(5)
+          hw.voltage.limit{limit_type="low.critical"}: $column(6)
     collect:
-      # Collect is multi-instance (all instances in one shot)
-      type: "multiInstance"
+      _comment: Collect is multi-instance (all instances in one shot)
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = voltageProbeTableEntry SNMP table
           # ID;StatusInformation;Status;CurrentReading
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.343.2.10.3.5.400.30.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.10.3.5.400.30.1
           selectColumns: "ID,4,5,6"
           computes:
             # Translate Status in Patrol Status
             # ID;StatusInformation;Status;CurrentReading
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # Remove Status Information of "ok"
             # ID;StatusInformation;Status;CurrentReading
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "ok"
+            existingValue: ok
             newValue: ""
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="voltage"}: "$column(3)"
-          hw.voltage: "$column(4)"
+          hw.status{hw.type="voltage"}: $column(3)
+          hw.voltage: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)

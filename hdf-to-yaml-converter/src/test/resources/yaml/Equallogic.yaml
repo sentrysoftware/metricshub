@@ -2,157 +2,157 @@
 translations:
   BatteryStatusInformationTranslationTable:
     "1": ""
-    "2": "Failed"
-    default: "Unknown"
-    "3": "Charging"
-    "4": "Low Voltage"
-    "5": "Low Voltage - Charging"
-    "6": "Missing"
+    "2": Failed
+    default: Unknown
+    "3": Charging
+    "4": Low Voltage
+    "5": Low Voltage - Charging
+    "6": Missing
   NVBatteryStatusTranslationTable:
-    "0": "failed"
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "UNKNOWN"
+    "0": failed
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN
   BatteryStatusTranslationTable:
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "ok"
-    "4": "degraded"
-    "5": "degraded"
-    "6": "failed"
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": degraded
+    "6": failed
   logicalDiskStatusTranslationTable:
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "failed"
-    "4": "failed"
-    "5": "failed"
-    "6": "failed"
-    "7": "failed"
-    "8": "failed"
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": failed
+    "8": failed
   fanStatusTranslationTable:
-    "0": "UNKNOWN"
-    "1": "ok"
-    "2": "degraded"
-    default: "UNKNOWN"
-    "3": "failed"
+    "0": UNKNOWN
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
   logicalDiskStatusInformationTranslationTable:
     "1": ""
-    "2": "Not Available"
-    default: "Unknown"
-    "3": "Not Available (Snap Reserve Met)"
-    "4": "Not Available (Members Offline)"
-    "5": "Not Available (Lost Cached Blocks)"
-    "6": "Not Available (Thin Max Growth Met)"
-    "7": "Not Available (No Space for Auto Grow)"
-    "8": "Not Available (Missing Pages)"
+    "2": Not Available
+    default: Unknown
+    "3": Not Available (Snap Reserve Met)
+    "4": Not Available (Members Offline)
+    "5": Not Available (Lost Cached Blocks)
+    "6": Not Available (Thin Max Growth Met)
+    "7": Not Available (No Space for Auto Grow)
+    "8": Not Available (Missing Pages)
   psStatusTranslationTable:
-    "1": "ok"
-    "2": "degraded"
-    default: "UNKNOWN"
-    "3": "failed"
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
   temperatureStatusTranslationTable:
-    "0": "UNKNOWN"
-    "1": "ok"
-    "2": "degraded"
-    default: "UNKNOWN"
-    "3": "failed"
+    "0": UNKNOWN
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
   diskStatusInformationTranslationTable:
-    "11": "Encrypted"
-    "12": "Not Approved"
-    "13": "Preempt-failed"
+    "11": Encrypted
+    "12": Not Approved
+    "13": Preempt-failed
     "1": ""
-    "2": "Spare"
-    default: "Unknown"
-    "3": "Failed"
-    "4": "Off-Line"
-    "5": "Altered Signature"
-    "6": "Disk Too Small"
-    "7": "Disk has a History of Failures"
-    "8": "Unsupported Drive Label Version"
-    "9": "Unhealthy"
-    "10": "Rebuilding"
+    "2": Spare
+    default: Unknown
+    "3": Failed
+    "4": Off-Line
+    "5": Altered Signature
+    "6": Disk Too Small
+    "7": Disk has a History of Failures
+    "8": Unsupported Drive Label Version
+    "9": Unhealthy
+    "10": Rebuilding
   diskStatusTranslationTable:
-    "11": "degraded"
-    "12": "failed"
-    "13": "degraded"
-    "1": "ok"
-    "2": "ok"
-    default: "UNKNOWN"
-    "3": "failed"
-    "4": "failed"
-    "5": "failed"
-    "6": "failed"
-    "7": "degraded"
-    "8": "degraded"
-    "9": "failed"
-    "10": "degraded"
+    "11": degraded
+    "12": failed
+    "13": degraded
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": degraded
+    "8": degraded
+    "9": failed
+    "10": degraded
   NVBatteryStatusInformationTranslationTable:
-    "0": "Missing"
+    "0": Missing
     "1": ""
-    "2": "Bad"
-    default: "Unknown"
-    "3": "Unknown"
+    "2": Bad
+    default: Unknown
+    "3": Unknown
   psStatusInformationTranslationTable:
     "1": ""
-    "2": "No AC Power"
-    default: "Unknown"
-    "3": "Failed or No Data"
+    "2": No AC Power
+    default: Unknown
+    "3": Failed or No Data
 connector:
-  displayName: "Dell EqualLogic PS Series"
-  platforms: "Dell EqualLogic"
-  reliesOn: "Dell EqualLogic SNMP Agent (EQLGROUP-MIB)"
-  version: "1.0"
+  displayName: Dell EqualLogic PS Series
+  platforms: Dell EqualLogic
+  reliesOn: Dell EqualLogic SNMP Agent (EQLGROUP-MIB)
+  version: 1.0
   information: "Because multiple PS Systems can be managed by the same controller, the connector can discover multiple enclosures."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     criteria:
       # DETECTION
       # Does a get_next to see if there that the Chassis OID is populated.
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.12740.2.1.11.1"
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.12740.2.1.11.1
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
           # Source(1) = \teqlMemberChassisTable SNMP table\nID;Model;SerialNumber;ServiceTag
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.2.1.11.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.2.1.11.1
           selectColumns: "ID,1,2,8"
           computes:
             # Add an "E" to avoid the ID being interpretted as a number.
             # ID;Model;SerialNumber;ServiceTag
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "E"
-          - type: "leftConcat"
+            value: E
+          - type: leftConcat
             column: 4
             value: "Alternative Serial Number: "
         source(2):
           # Source(2) = Table union of Source(1) and A "Global" Enclosure for the Logical Disks
           # ID;Model;SerialNumber;ServiceTag
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.discovery.sources.source(1)$"
-          - "Global;Global;;"
+          - $monitors.enclosure.discovery.sources.source(1)$
+          - Global;Global;;
       mapping:
         # InstanceTable = Source(1)
         # ID;Model;SerialNumber:ServiceTag
-        source: "$monitors.enclosure.discovery.sources.source(2)$"
+        source: $monitors.enclosure.discovery.sources.source(2)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          vendor: "Dell Equallogic"
-          model: "$column(2)"
-          serial_number: "$column(3)"
-          type: "Storage"
-          info: "$column(4)"
+          id: $column(1)
+          __display_id: $column(1)
+          vendor: Dell Equallogic
+          model: $column(2)
+          serial_number: $column(3)
+          type: Storage
+          info: $column(4)
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell Equallogic\", $column(2), \"Storage\")"
   fan:
     discovery:
@@ -160,673 +160,673 @@ monitors:
         source(1):
           # Source(1) = Fan Table
           # ID;Name;Value;Status;LowCritical;LowWarning;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.2.1.7.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.2.1.7.1
           selectColumns: "ID,2,3,4,7,8"
           computes:
             # Duplicate the ID column twice
             # ID;ID;ID;Name;Value;Status;LowCritical;LowWarning;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Replace Status value of 0 (Unknown) with blank
             # ID;ID;ID;Name;Value;Status;LowCritical;LowWarning;
-          - type: "replace"
+          - type: replace
             column: 6
-            existingValue: "0"
+            existingValue: 0
             newValue: ""
             # Replace a Speed Value of 0 with a blank to deactivate the parameter
             # ID;ID;ID;Name;Value;Status;LowCritical;LowWarning;
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: "0"
+            existingValue: 0
             newValue: ""
             # The next steps are to extract the Enclosure ID (the first two numbers of the ID)
             # Extract the first integer from the ID.
             # ID(Part 1);ID;ID;Name;Value;Status;LowCritical;LowWarning;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Add an "E" to avoid the ID being interpretted as a number.
             # ID(Part 1);ID;ID;Name;Value;Status;LowCritical;LowWarning;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "E"
+            value: E
             # Extract the second integer from the ID.
             # ID(Part 1);ID(Part 2);ID;Name;Value;Status;LowCritical;LowWarning;
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 2
-            subSeparators: "."
+            subSeparators: .
             # Right Concat a . and the second part of the ID to form the enclosure ID
             # EnclosureID;ID(Part 2);ID;Name;Value;Status;LowCritical;LowWarning;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
-          - type: "rightConcat"
+            value: .
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
+            value: Column(2)
       mapping:
         # The discovery table
         # EnclosureID;ID(Part 2);ID;Name;Value;Status;LowCritical;LowWarning;
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
-          name: "$column(3)"
+          id: $column(3)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
+          name: $column(3)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(8)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(7)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(8)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) =
           # ID;Value;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.2.1.7.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.2.1.7.1
           selectColumns: "ID,3,4"
           computes:
             # Now translate Status
             # ID;Value;Status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "fanStatusTranslationTable"
+            translationTable: fanStatusTranslationTable
       mapping:
         # The value table
         # ID;Value;Status;
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(3)"
-          hw.fan.speed: "$column(2)"
+          hw.status{hw.type="fan"}: $column(3)
+          hw.fan.speed: $column(2)
   temperature:
     discovery:
       sources:
         source(1):
           # Source(1) =
           # ID;Name;Value;Status;HighAlarm;HighWarning;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.2.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.2.1.6.1
           selectColumns: "ID,2,3,4,5,6"
           computes:
             # Replace Status value of 0 (Unknown) with blank
             # ID;Name;Value;Status;HighAlarm;HighWarning;
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: "0"
+            existingValue: 0
             newValue: ""
             # Replace Temperature value of 0 (Unknown) with blank to deactivate parameter
             # ID;Name;Value;Status;HighAlarm;HighWarning;
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "0"
+            existingValue: 0
             newValue: ""
             # The next steps are to extract the Enclosure ID (the first two numbers of the ID)
             # Duplicate the ID column twice
             # ID;ID;ID;Name;Value;Status;HighAlarm;HighWarning;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Extract the first integer from the ID.
             # ID(Part 1);ID;ID;Name;Value;Status;HighAlarm;HighWarning;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Add an "E" to avoid the ID being interpretted as a number.
             # ID(Part 1);ID;ID;Name;Value;Status;HighAlarm;HighWarning;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "E"
+            value: E
             # Extract the second integer from the ID.
             # ID(Part 1);ID(Part 2);ID;Name;Value;Status;HighAlarm;HighWarning;
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 2
-            subSeparators: "."
+            subSeparators: .
             # Right Concat a . and the second part of the ID to form the enclosure ID
             # EnclosureID;ID(Part 2);ID;Name;Value;Status;HighAlarm;HighWarning;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
-          - type: "rightConcat"
+            value: .
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
+            value: Column(2)
       mapping:
         # The discovery table
         # EnclosureID;ID(Part 2);ID;Name;Value;Status;LowCritical;LowWarning;
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          temperature_type: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          id: $column(3)
+          __display_id: $column(3)
+          temperature_type: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(8)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(7)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(8)
+          hw.temperature.limit{limit_type="high.critical"}: $column(7)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) =
           # ID;Value;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.2.1.6.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.2.1.6.1
           selectColumns: "ID,3,4"
           computes:
             # Now translate Status
             # ID;Value;Status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "temperatureStatusTranslationTable"
-          - type: "leftConcat"
+            translationTable: temperatureStatusTranslationTable
+          - type: leftConcat
             column: 2
-            value: "MSHW_"
-            # Remove 0 value
-          - type: "replace"
+            value: MSHW_
+          - _comment: Remove 0 value
+            type: replace
             column: 2
-            existingValue: "MSHW_0"
+            existingValue: MSHW_0
             newValue: ""
-            # Remove MSHW_ for non 0 values
-          - type: "replace"
+          - _comment: Remove MSHW_ for non 0 values
+            type: replace
             column: 2
-            existingValue: "MSHW_"
+            existingValue: MSHW_
             newValue: ""
       mapping:
         # The value table
         # ID;Value;Status;
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="temperature"}: "$column(3)"
-          hw.temperature: "$column(2)"
+          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $column(2)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = Power Supply
           # ID;Name;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.2.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.2.1.8.1
           selectColumns: "ID,2"
           computes:
             # The next steps are to extract the Enclosure ID (the first two numbers of the ID)
             # Duplicate the ID column twice
             # ID;ID;ID;Name;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Extract the first integer from the ID.
             # ID(Part 1);ID;ID;Name;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Add an "E" to avoid the ID being interpretted as a number.
             # ID(Part 1);ID;ID;Name;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "E"
+            value: E
             # Extract the second integer from the ID.
             # ID(Part 1);ID(Part 2);ID;Name;
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 2
-            subSeparators: "."
+            subSeparators: .
             # Right Concat a . and the second part of the ID to form the enclosure ID
             # EnclosureID;ID(Part 2);ID;Name;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
-          - type: "rightConcat"
+            value: .
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
+            value: Column(2)
       mapping:
         # The discovery table
         # EnclosureID;ID(Part 2);ID;Name;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          power_supply_type: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          id: $column(3)
+          __display_id: $column(3)
+          power_supply_type: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) =
           # ID;Status;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.2.1.8.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.2.1.8.1
           selectColumns: "ID,3"
           computes:
             # Duplicate Status
             # ID;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate Status
             # ID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "psStatusTranslationTable"
+            translationTable: psStatusTranslationTable
             # Now translate Status Information
             # ID;Status;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "psStatusInformationTranslationTable"
+            translationTable: psStatusInformationTranslationTable
       mapping:
         # The value table
         # ID;Value;Status;
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = PhysicalDisk
           # ID;Model;Firmware;Serial;Size;Slot;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.3.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.3.1.1.1
           selectColumns: "ID,3,4,5,6,11"
           computes:
             # The next steps are to extract the Enclosure ID (the first two numbers of the ID)
             # Duplicate the ID column twice
             # ID;ID;ID;Model;Firmware;Serial;Size;Slot;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Extract the first integer from the ID.
             # ID(Part 1);ID;ID;Model;Firmware;Serial;Size;Slot;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Add an "E" to avoid the ID being interpretted as a number.
             # ID(Part 1);ID;ID;Model;Firmware;Serial;Size;Slot;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "E"
+            value: E
             # Extract the second integer from the ID.
             # ID(Part 1);ID(Part 2);ID;Model;Firmware;Serial;Size;Slot;
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 2
-            subSeparators: "."
+            subSeparators: .
             # Right Concat a . and the second part of the ID to form the enclosure ID
             # EnclosureID;ID(Part 2);ID;Model;Firmware;Serial;Size;Slot;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
-          - type: "rightConcat"
+            value: .
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
+            value: Column(2)
             # Convert size from MB to B
             # EnclosureID;ID(Part 2);ID;Model;Firmware;Serial;Size;Slot;
-          - type: "multiply"
+          - type: multiply
             column: 7
-            value: "1048576"
+            value: 1048576
             # Add a decriptor to slot
             # ID(Part 1);ID;ID;Model;Firmware;Serial;Size;Slot;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 8
             value: "Location: "
       mapping:
         # The discovery table
         # ID(Part 1);ID;ID;Model;Firmware;Serial;Size;Slot;
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          model: "$column(4)"
-          firmware_version: "$column(5)"
-          serial_number: "$column(6)"
-          info: "$column(8)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          id: $column(3)
+          __display_id: $column(3)
+          model: $column(4)
+          firmware_version: $column(5)
+          serial_number: $column(6)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(7))"
         metrics:
-          hw.physical_disk.size: "$column(7)"
+          hw.physical_disk.size: $column(7)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) =
           # ID;Status;ErrorCount
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.3.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.3.1.1.1
           selectColumns: "ID,8,9"
           computes:
             # Duplicate Status
             # ID;Status;Status;ErrorCount;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate Status
             # ID;PATROLStatus;Status;ErrorCount;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "diskStatusTranslationTable"
+            translationTable: diskStatusTranslationTable
             # Now translate Status Information
             # ID;Status;StatusInformation;ErrorCount;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "diskStatusInformationTranslationTable"
+            translationTable: diskStatusInformationTranslationTable
       mapping:
         # The value table
         # ID;Status;StatusInformation;ErrorCount;
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = LogicalDisk
           # ID;Name;Size;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.5.1.7.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.5.1.7.1.1
           selectColumns: "ID,4,8"
           computes:
             # Convert size from MB to B
             # ID;Name;Size;
-          - type: "multiply"
+          - type: multiply
             column: 3
-            value: "1048576"
+            value: 1048576
       mapping:
         # The discovery table
         # ID;Name;Size;
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          __display_id: "$column(1)"
-          hw.logical_disk.limit: "$column(3)"
-          type: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "Global"
+          id: $column(1)
+          __display_id: $column(1)
+          hw.logical_disk.limit: $column(3)
+          type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: Global
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) =
           # ID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.5.1.7.7.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.5.1.7.7.1
           selectColumns: "ID,8"
           computes:
             # Duplicate Status
             # ID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate Status
             # ID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "logicalDiskStatusTranslationTable"
+            translationTable: logicalDiskStatusTranslationTable
             # Now translate Status Information
             # ID;Status;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "logicalDiskStatusInformationTranslationTable"
+            translationTable: logicalDiskStatusInformationTranslationTable
       mapping:
         # The value table
         # ID;Status;StatusInformation;
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   battery:
     discovery:
       sources:
         source(1):
           # Source(1) = Controller Batteries
           # ID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.4.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.4.1.1.1
           selectColumns: "ID,5"
           computes:
             # Exclude lines with Status of Missing
             # ID;Status
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
-            valueList: "6"
+            valueList: 6
             # Duplicate the ID column x 3
             # ID;ID;ID;ID;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Add an "B" to the ID to distinguish it from the NVRAM Battery
             # ID;ID;ID;ID;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: "B"
+            value: B
             # Extract the third integer from the ID. This will now become the Battery Name
             # ID;ID;ID;Name;Status
-          - type: "extract"
+          - type: extract
             column: 4
             subColumn: 3
-            subSeparators: "."
+            subSeparators: .
             # Add an "Battery " to the Name to identify it
             # ID;ID;ID;Name;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
-            value: "battery"
+            value: battery
         source(2):
           # Source(2) = NVram Batteries
           # ID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.4.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.4.1.1.1
           selectColumns: "ID,32"
           computes:
             # Exclude lines with Status of Not Present
             # ID;Status
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "1,2,3"
             # Duplicate the ID column x 3
             # ID;ID;ID;ID;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Add an "NVB" to the ID to distinguish it from the main Battery
             # ID;ID;ID;ID;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: "NVB"
+            value: NVB
             # Extract the third integer from the ID. This will now become the Battery Name
             # ID;ID;ID;Name;Status
-          - type: "extract"
+          - type: extract
             column: 4
             subColumn: 3
-            subSeparators: "."
+            subSeparators: .
             # Add an "NVRAM Battery " to the Name to identify it
             # ID;ID;ID;Name;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
-            value: "NVRAM Battery "
+            value: 'NVRAM Battery '
         source(3):
           # Source(3) = Table union of Source(1) and Source(2)
           # ID;ID;ID;Name;Status
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.battery.discovery.sources.source(1)$"
-          - "$monitors.battery.discovery.sources.source(2)$"
+          - $monitors.battery.discovery.sources.source(1)$
+          - $monitors.battery.discovery.sources.source(2)$
           computes:
             # Add an "C" to avoid the ID being interpretted as a number.
             # ControllerID;ID;ID;Name;Status;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "C"
+            value: C
       mapping:
         # The discovery table
         # ControllerID;ID;ID;Name;Status;
-        source: "$monitors.battery.discovery.sources.source(3)$"
+        source: $monitors.battery.discovery.sources.source(3)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          type: "$column(4)"
-          hw.parent.type: "disk_controller"
-          hw.parent.id: "$column(1)"
+          id: $column(3)
+          __display_id: $column(3)
+          type: $column(4)
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
           # Source(1) =
           # ID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.4.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.4.1.1.1
           selectColumns: "ID,5"
           computes:
             # Add an "B" to the ID to distinguish it from the NVRAM Battery
             # ID;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "B"
+            value: B
             # Duplicate Status
             # ID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate Status
             # ID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "BatteryStatusTranslationTable"
+            translationTable: BatteryStatusTranslationTable
             # Now translate Status Information
             # ID;Status;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "BatteryStatusInformationTranslationTable"
+            translationTable: BatteryStatusInformationTranslationTable
         source(2):
           # Source(2) =
           # ID;Status
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.4.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.4.1.1.1
           selectColumns: "ID,32"
           computes:
             # Add an "B" to the ID to distinguish it from the NVRAM Battery
             # ID;Status
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "NVB"
+            value: NVB
             # Duplicate Status
             # ID;Status;Status
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Now translate Status
             # ID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "NVBatteryStatusTranslationTable"
+            translationTable: NVBatteryStatusTranslationTable
             # Now translate Status Information
             # ID;Status;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "NVBatteryStatusInformationTranslationTable"
+            translationTable: NVBatteryStatusInformationTranslationTable
         source(3):
           # Source(3) = Table union of Source(1) and Source(2)
           # ID;Name;Status;Status Infromation;
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.battery.collect.sources.source(1)$"
-          - "$monitors.battery.collect.sources.source(2)$"
+          - $monitors.battery.collect.sources.source(1)$
+          - $monitors.battery.collect.sources.source(2)$
       mapping:
         # The value table
         # ID;Status;StatusInformation;
-        source: "$monitors.battery.collect.sources.source(3)$"
-        deviceId: "$column(1)"
+        source: $monitors.battery.collect.sources.source(3)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="battery"}: "$column(2)"
+          hw.status{hw.type="battery"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   disk_controller:
     discovery:
       sources:
         source(1):
           # Source(1) = Controller Batteries
           # ID;Model;Revision;SerialNumber;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.12740.4.1.1.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12740.4.1.1.1
           selectColumns: "ID,2,33"
           computes:
             # Duplicate the ID Twice
             # ID;ID;ID;Model;Revision;SerialNumber;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Extract the first integer from the ID.
             # ID(Part 1);ID;ID;Model;Revision;SerialNumber;
-          - type: "extract"
+          - type: extract
             column: 1
             subColumn: 1
-            subSeparators: "."
+            subSeparators: .
             # Add an "E" to avoid the ID being interpretted as a number.
             # ID(Part 1);ID;ID;Model;Revision;SerialNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 1
-            value: "E"
+            value: E
             # Extract the second integer from the ID.
             # ID(Part 1);ID(Part 2);ID;Model;Revision;SerialNumber;
-          - type: "extract"
+          - type: extract
             column: 2
             subColumn: 2
-            subSeparators: "."
+            subSeparators: .
             # Right Concat a . and the second part of the ID to form the enclosure ID
             # EnclosureID;ID(Part 2);ID;Model;Revision;SerialNumber;
-          - type: "rightConcat"
+          - type: rightConcat
             column: 1
-            value: "."
-          - type: "rightConcat"
+            value: .
+          - type: rightConcat
             column: 1
-            value: "Column(2)"
+            value: Column(2)
             # Add an "C" to avoid the ID being interpretted as a number.
             # EnclosureID;ID(Part 2);DeviceID;Model;Revision;SerialNumber;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 3
-            value: "C"
+            value: C
       mapping:
         # Instance Table
         # EnclosureID;(ID);DeviceID;Model;Revision;SerialNumber;
-        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          serial_number: "$column(6)"
-          model: "$column(4)"
-          firmware_version: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(1)"
+          id: $column(3)
+          __display_id: $column(3)
+          serial_number: $column(6)
+          model: $column(4)
+          firmware_version: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(3), $column(4))"

@@ -15,28 +15,28 @@ embedded:
   EmbeddedFile(8): "/Server Module Power Consumption Table/,/^ *$/ {\n\tif (NF == 5) { print \"MSHW;\" $2 \";\" $3 \";\" }\n}"
 translations:
   DRACStatusTranslationTable:
-    default: "UNKNOWN"
-    failure: "failed"
-    alarm: "failed"
-    warning: "degraded"
-    failed: "failed"
-    ok: "ok"
+    default: UNKNOWN
+    failure: failed
+    alarm: failed
+    warning: degraded
+    failed: failed
+    ok: ok
 connector:
-  displayName: "Dell DRAC/MC (Dell Remote Access Controller/Modular Chassis)"
-  platforms: "Dell PowerEdge"
-  reliesOn: "Dell Remote Access Controller/Modular Chassis (DRAC/MC)"
+  displayName: Dell DRAC/MC (Dell Remote Access Controller/Modular Chassis)
+  platforms: Dell PowerEdge
+  reliesOn: Dell Remote Access Controller/Modular Chassis (DRAC/MC)
   information: "Provides environmental information (temperatures, fans and power supplies) on Dell Blade servers through the Dell Remote Access Card (DRAC)"
-  version: "1.0"
+  version: 1.0
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "OOB"
+    - OOB
     criteria:
-      # Host should respond to telnet the way described below
-    - type: "osCommand"
-      commandLine: "getsysinfo"
-      expectedResult: "RAC"
+    - _comment: Host should respond to telnet the way described below
+      type: osCommand
+      commandLine: getsysinfo
+      expectedResult: RAC
 monitors:
   enclosure:
     discovery:
@@ -44,381 +44,381 @@ monitors:
         source(1):
           # Source(1) = Output of the getsysinfo command through telnet
           # Look for the "System Model=" line
-          type: "osCommand"
-          commandLine: "getsysinfo -c"
+          type: osCommand
+          commandLine: getsysinfo -c
           computes:
             # Parse the output of getsysinfo with an AWK script
             # Model;SerialNumber
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: MSHW;
+            separators: ;
             selectColumns: "2,3"
         source(2):
           # Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
-          type: "osCommand"
-          commandLine: "getsensorinfo"
+          type: osCommand
+          commandLine: getsensorinfo
         source(3):
-          type: "osCommand"
-          commandLine: "getmodinfo -A"
+          type: osCommand
+          commandLine: getmodinfo -A
         source(4):
-          type: "osCommand"
-          commandLine: "getpbinfo"
+          type: osCommand
+          commandLine: getpbinfo
         source(5):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.discovery.sources.source(2)$"
-          - "$monitors.enclosure.discovery.sources.source(3)$"
-          - "$monitors.enclosure.discovery.sources.source(4)$"
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          - $monitors.enclosure.discovery.sources.source(4)$
       mapping:
-        # The discovery table = source(1)
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        _comment: The discovery table = source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "DellBladeChassis"
-          model: "$column(1)"
-          serial_number: "$column(2)"
-          type: "blade"
+          id: DellBladeChassis
+          model: $column(1)
+          serial_number: $column(2)
+          type: blade
           name: "sprintf(\"%s (%s - %s)\", \"DellBladeChassis\", $column(1), \"blade\")"
     collect:
-      type: "monoInstance"
+      type: monoInstance
       sources:
         source(1):
           # Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
-          type: "osCommand"
-          commandLine: "getsensorinfo"
+          type: osCommand
+          commandLine: getsensorinfo
         source(2):
-          type: "osCommand"
-          commandLine: "getmodinfo -A"
+          type: osCommand
+          commandLine: getmodinfo -A
         source(3):
-          type: "osCommand"
-          commandLine: "getpbinfo"
+          type: osCommand
+          commandLine: getpbinfo
         source(4):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.enclosure.collect.sources.source(1)$"
-          - "$monitors.enclosure.collect.sources.source(2)$"
-          - "$monitors.enclosure.collect.sources.source(3)$"
+          - $monitors.enclosure.collect.sources.source(1)$
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(3)$
         source(5):
-          # Source(2) = copy of Enclosure.Collect.Source(1)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(4)$"
+          _comment: Source(2) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
           computes:
             # Retrieve the overall status of the chassis and its power consumption with a smart AWK script
             # Status;StatusInformation;PowerConsumption
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: MSHW;
+            separators: ;
             selectColumns: "2,3,4"
             # Remove the trailing "W" in the PowerConsumption value
             # Status;StatusInformation;PowerConsumption
-          - type: "replace"
+          - type: replace
             column: 3
-            existingValue: "W"
+            existingValue: W
             newValue: ""
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.enclosure.collect.sources.source(5)$"
+        _comment: ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(5)$
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(1)"
-          hw.enclosure.power: "$column(3)"
-          hw.enclosure.energy: "fakeCounter($column(3))"
+          hw.status{hw.type="enclosure"}: $column(1)
+          hw.enclosure.power: $column(3)
+          hw.enclosure.energy: fakeCounter($column(3))
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)
   temperature:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(5)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
             # Now, extract the temperatures thanks to a smart AWK script
             # TemperatureID;Location;WarningThreshold;AlarmThreshold
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(3)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3,4,5"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(2)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(3)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Collect.Source(1)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(4)$"
+          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
           computes:
             # Now, extract the temperatures thanks to a smart AWK script
             # TemperatureID;Temperature;Status;
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(3)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,6,7"
             # Duplicate the status column
             # TemperatureID;Temperature;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first status column into a PATROLStatus
             # TemperatureID;Temperature;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "DRACStatusTranslationTable"
+            translationTable: DRACStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.temperature: "$column(2)"
-          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(5)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
             # Now, extract the fans thanks to a smart AWK script
             # FanID;Location;WarningThreshold;AlarmThreshold
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3,4,5"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(3)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(4)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(4)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Collect.Source(1)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(4)$"
+          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
           computes:
             # Now, extract the fans thanks to a smart AWK script
             # FanID;Speed;Status;
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,6,7"
             # Duplicate the status column
             # FanID;Speed;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
             # Translate the first status column into a PATROLStatus
             # FanID;Speed;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "DRACStatusTranslationTable"
+            translationTable: DRACStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.fan.speed: "$column(2)"
-          hw.status{hw.type="fan"}: "$column(3)"
+          hw.fan.speed: $column(2)
+          hw.status{hw.type="fan"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(5)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
             # Now, extract the power supplies thanks to a smart AWK script
             # PowerSupplyID;PowerCapacity
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(5)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3"
             # Remove the trailing "W" in PowerCapacity
             # PowerSupplyID;PowerCapacity
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: "W"
+            existingValue: W
             newValue: ""
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
-          hw.power_supply.limit: "$column(2)"
+          hw.power_supply.limit: $column(2)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Collect.Source(1)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(4)$"
+          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
           computes:
             # Now, extract the power supplies status thanks to a smart AWK script
             # PowerSupplyID;Status;StatusInformation
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3,4"
             # Translate the status column into a PATROLStatus
             # PowerSupplyID;PATROLStatus;StatusInformation
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "DRACStatusTranslationTable"
+            translationTable: DRACStatusTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   blade:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(5)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
             # Now, extract the blades thanks to a smart AWK script
             # BladeID;BladeName;SerialNumber
-          - type: "awk"
-            script: "EmbeddedFile(7)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(7)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3,4"
         source(2):
-          # Source(1) = copy of Enclosure.Discovery.Source(2) (again)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(5)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2) (again)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
             # But now, extract the model of the blades, always thanks to a smart AWK script
             # BladeName;Model
-          - type: "awk"
-            script: "EmbeddedFile(8)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3"
         source(3):
           # Source(3) = Table joint of Source(1) and source(2)
           # BladeID;BladeName;SerialNumber;BladeName;Model
-          type: "tableJoin"
-          leftTable: "$monitors.blade.discovery.sources.source(1)$"
-          rightTable: "$monitors.blade.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.blade.discovery.sources.source(1)$
+          rightTable: $monitors.blade.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 1
-          defaultRightLine: ";;"
+          defaultRightLine: ;;
       mapping:
-        # InstanceTable = Source(3)
-        source: "$monitors.blade.discovery.sources.source(3)$"
+        _comment: InstanceTable = Source(3)
+        source: $monitors.blade.discovery.sources.source(3)$
         attributes:
-          id: "$column(1)"
-          blade_name: "$column(2)"
-          model: "$column(5)"
-          serial_number: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          blade_name: $column(2)
+          model: $column(5)
+          serial_number: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(5))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Collect.Source(1)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(4)$"
+          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
           computes:
             # Now, extract the blade status thanks to a smart AWK script
             # BladeID;Status;StatusInformation;PowerState;
-          - type: "awk"
-            script: "EmbeddedFile(7)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(7)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,5,6,7"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.blade.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="blade"}: "$column(2)"
-          hw.blade.power_state: "$column(4)"
+          hw.status{hw.type="blade"}: $column(2)
+          hw.blade.power_state: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   other_device:
     discovery:
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Discovery.Source(2)
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(5)$"
+          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
             # Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
             # OtherDeviceID;DeviceType;DeviceName
-          - type: "awk"
-            script: "EmbeddedFile(9)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,3,4"
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          device_type: "$column(2)"
-          additional_label: "$column(3)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          device_type: $column(2)
+          additional_label: $column(3)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(3))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = copy of Enclosure.Collect.Source(1)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(4)$"
+          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
           computes:
             # Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
             # OtherDeviceID;Status;StatusInformation
-          - type: "awk"
-            script: "EmbeddedFile(9)"
-            separators: ";"
-            keep: "^MSHW;"
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
             selectColumns: "2,5,6"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

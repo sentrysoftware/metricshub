@@ -57,39 +57,39 @@ embedded:
   EmbeddedFile(6): "BEGIN {FS=\";\"; }\n{ID = $1; gsub(/.*context./,\"\",ID); gsub(/..attributes.*$/,\"\",ID);}\n$2 ~ /^address/  { Address[ID] = $3 ;   }\n$2 ~ /^enabled/ && Address[ID] != 0 { Enabled[ID] = $3 ; }\n$2 ~ /^name/ {\n    Name[ID] = $3 ;\n    split($4,outputarray,\"/\")\n    Parent[ID]=outputarray[3]\n\t}\n$2 ~ /^operational-status/ { Status[ID] = $3 ; }\n$2 ~ /^port-status/  { PortStatus[ID] = $3 ;  }\n$2 ~ /^port-wwn/ { PortWWN[ID] = $3 ; }\n$2 ~ /^role/ { Role[ID] = $3 ;   }\n\n\nEND{\nfor ( ID in Name) {\n\t# if the only error is a no-link, clear the error\n\tif ( Status[ID] == \"error\" && PortStatus[ID] == \"no-link\") { Status[ID] = \"ok\" }\n    print \"MSHW;\" Address[ID] \";\" Enabled[ID] \";\" Name[ID] \";\" Status[ID] \";\" PortStatus[ID] \";\" PortWWN[ID] \";\" Role[ID] \";\" Parent[ID] \";\"\n    }\n}"
 translations:
   PhysicalDiskTranslationTable:
-    offline: "failed"
-    default: "UNKNOWN"
-    online: "ok"
+    offline: failed
+    default: UNKNOWN
+    online: ok
   PowerSupplyTranslationTable:
-    offline: "failed"
-    default: "UNKNOWN"
-    online: "ok"
+    offline: failed
+    default: UNKNOWN
+    online: ok
   LinkTranslationTable:
-    no-link: "degraded"
-    default: "degraded"
-    up: "ok"
-    down: "degraded"
+    no-link: degraded
+    default: degraded
+    up: ok
+    down: degraded
   NetworkCardTranslationTable:
-    stopped: "ok"
-    default: "UNKNOWN"
-    ok: "ok"
-    error: "failed"
+    stopped: ok
+    default: UNKNOWN
+    ok: ok
+    error: failed
   OtherStatusTranslationTable:
-    default: "UNKNOWN"
-    ko: "failed"
-    ok: "ok"
+    default: UNKNOWN
+    ko: failed
+    ok: ok
   FansTranslateTable:
-    offline: "failed"
-    default: "UNKNOWN"
-    online: "ok"
+    offline: failed
+    default: UNKNOWN
+    online: ok
   EnclosureTranslateTable:
-    offline: "failed"
-    default: "UNKNOWN"
-    online: "ok"
+    offline: failed
+    default: UNKNOWN
+    online: ok
   MemoryTranslationTable:
-    offline: "failed"
-    default: "UNKNOWN"
-    online: "ok"
+    offline: failed
+    default: UNKNOWN
+    online: ok
 connector:
   information: "It monitors the Enclosure and Physical Disks as well as the various environment sensors (fans, power supplies, Memory, Directors and Network cards)"
 monitors:
@@ -97,533 +97,533 @@ monitors:
     discovery:
       sources:
         source(1):
-          type: "http"
-          method: "GET"
-          url: "/vplex/engines/*"
-          resultContent: "body"
+          type: http
+          method: GET
+          url: /vplex/engines/*
+          resultContent: body
           forceSerialization: true
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
             # Awk Parsing
             # Enclosure
             # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
             # 1   ,2            #  ,3        , 4           ,5        , 6            #   ,7           ,  8       ,  9 , 10            #  , 11            , 12          ,13            #   ,14
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
       mapping:
         # Enclosure
         # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
         # 1   ,2        #      ,3        , 4        #  ,5        , 6        #       ,7        #  ,  8       ,  9 , 10        #      , 11        #   , 12        # ,13        #       ,14
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(9)"
-          __display_id: "$column(9)"
-          vendor: "EMC"
-          model: "$column(4)"
-          serial_number: "$column(12)"
-          type: "Storage"
+          id: $column(9)
+          __display_id: $column(9)
+          vendor: EMC
+          model: $column(4)
+          serial_number: $column(12)
+          type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(9), \"EMC\", $column(4), \"Storage\")"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Get the Enclosure Status
           # ChassisID;State;
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/engines/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/engines/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
             # Awk Parsing
             # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
             # 1   ,2            #  ,3        , 4           ,5        , 6            #   ,7           ,  8       ,  9 , 10            #  , 11            , 12          ,13            #   ,14
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+          - type: duplicateColumn
             column: 10
-          - type: "translate"
+          - type: translate
             column: 10
-            translationTable: "EnclosureTranslateTable"
+            translationTable: EnclosureTranslateTable
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "$column(9)"
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(9)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(10)"
+          hw.status{hw.type="enclosure"}: $column(10)
         legacyTextParameters:
-          StatusInformation: "$column(11)"
+          StatusInformation: $column(11)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = Fan Table
           # systemFanStatus
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/engines/*/fans/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/engines/*/fans/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value;../parent"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value;../parent
+            separator: ;
             # Awk Parsing
             # MSHW, NAME , STATUS, SPEED_THRESHOLD,parenttoCS
             #  1 ,   2,    3,      4,            #    5
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
       mapping:
-        # The discovery table
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: The discovery table
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(2)"
-          id: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(5)"
-          name: "$column(2)"
+          __display_id: $column(2)
+          id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(5)
+          name: $column(2)
     collect:
       # FANS
       # Collect
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/engines/*/fans/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/engines/*/fans/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
             # Awk Parsing
             # MSHW, NAME , STATUS, SPEED_THRESHOLD, ParentID
             #  1  ,     2,      3,            #  4,    5
-          - type: "awk"
-            script: "EmbeddedFile(2)"
-            keep: "^MSHW;"
-            separators: ";"
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+          - type: duplicateColumn
             column: 3
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "FansTranslateTable"
+            translationTable: FansTranslateTable
       mapping:
-        # The Collect table
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: The Collect table
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="fan"}: "$column(4)"
+          hw.status{hw.type="fan"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = Fan Table
           # systemFanStatus
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/engines/*/*power*/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/engines/*/*power*/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value;../parent"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value;../parent
+            separator: ;
             # Awk Parsing
             # MSHW, Marker-LED, Name, OnDC, operational-status, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #    , 6          , 7            # , 8           , 9            #             #  , 10
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
-          - type: "leftConcat"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+          - type: leftConcat
             column: 6
             value: "Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 8
             value: "Serial Number: "
       mapping:
-        # The discovery table
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: The discovery table
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(3)"
-          id: "$column(3)"
+          __display_id: $column(3)
+          id: $column(3)
           info: "join($column(6), $column(8), \" \")"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(10)"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(10)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/engines/*/*power*/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/engines/*/*power*/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
             # Awk Parsing
             # MSHW, Marker-LED, Name, OnDC, operational-status, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #    , 6          , 7            # , 8           , 9            #             #  , 10
-          - type: "awk"
-            script: "EmbeddedFile(3)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
             # Duplicate Column
             # MSHW, Marker-LED, Name, OnDC, operational-status, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #    , 6          , 7            # , 8           , 9            #             #  , 10
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 5
             # MSHW, Marker-LED, Name, OnDC, operational-status,operationalstatus, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #   , 6            #  , 7          , 8            # , 9            , 10            #             # , 11
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "PowerSupplyTranslationTable"
+            translationTable: PowerSupplyTranslationTable
       mapping:
-        # The Collect table
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        _comment: The Collect table
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(5)"
+          hw.status{hw.type="power_supply"}: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = Fan Table
           # systemFanStatus
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/engines/*/directors/*/"
-          resultContent: "body"
+          method: GET
+          url: /vplex/engines/*/directors/*/
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value;../parent"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value;../parent
+            separator: ;
             # Awk Parsing
             # MSHW, health-state, name, serial-number,sp-id,parent
             #  1   , 2          , 3   ,4             ,5    , 6
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
-            # AdditionalInformation adding Serial Number:
-          - type: "leftConcat"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+          - _comment: 'AdditionalInformation adding Serial Number:'
+            type: leftConcat
             column: 4
             value: "Serial Number: "
       mapping:
-        # The discovery table
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        _comment: The discovery table
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(3)"
-          id: "$column(3)"
-          info: "$column(4)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(6)"
-          name: "$column(3)"
+          __display_id: $column(3)
+          id: $column(3)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
+          name: $column(3)
     collect:
       # OtherDevice
       # Collect
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/engines/*/directors/*/"
-          resultContent: "body"
+          method: GET
+          url: /vplex/engines/*/directors/*/
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
             # Awk Parsing
             # MSHW, health-state, name, serial-number,sp-id,parent
             #  1   , 2          , 3   ,4             ,5    , 6
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            keep: "^MSHW;"
-            separators: ";"
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+          - type: duplicateColumn
             column: 2
             # MSHW, health-state,health-state, name, serial-number,sp-id,parent
             #  1   , 2          , 3          ,4    ,5             , 6   , 7
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "OtherStatusTranslationTable"
+            translationTable: OtherStatusTranslationTable
       mapping:
-        # The Collect table
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(4)"
+        _comment: The Collect table
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(4)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   memory:
     discovery:
       sources:
         source(1):
           # Source(1) = Fan Table
           # systemFanStatus
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/*/*/directors/*/hardware/dimms/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/*/*/directors/*/hardware/dimms/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value;../parent"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value;../parent
+            separator: ;
             # Awk Parsing
             # MSHW, name, operationnal-status, part-number, serial-number, parent
             #  1   , 2         , 3             ,4          ,5            ,  6
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
       mapping:
-        # The discovery table
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        _comment: The discovery table
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(2)"
-          id: "$column(2)"
-          serial_number: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(6)"
-          name: "$column(2)"
+          __display_id: $column(2)
+          id: $column(2)
+          serial_number: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
+          name: $column(2)
     collect:
       # Memory
       # Collect
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/*/*/directors/*/hardware/dimms/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/*/*/directors/*/hardware/dimms/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
             # Awk Parsing
             # Memory DIM
             # MSHW; NAME, Operational-status; Part-number, serial-number , parent
             # 1   ,    2,         3          , 4         , 5             , 6
-          - type: "awk"
-            script: "EmbeddedFile(5)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
             # MSHW; NAME, Operational-status, Operational-status, Part-number   , serial-number , parent
             # 1   ,    2,         3          , 4            #   , 5             , 6             ,   7
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 3
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "MemoryTranslationTable"
+            translationTable: MemoryTranslationTable
       mapping:
-        # The Collect table
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: The Collect table
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="memory"}: "$column(3)"
+          hw.status{hw.type="memory"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   network:
     discovery:
       sources:
         source(1):
-          # Source(1) = NetworkCard Table
-          type: "http"
+          _comment: Source(1) = NetworkCard Table
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/*/*/directors/*/hardware/ports/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/*/*/directors/*/hardware/ports/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value;../parent"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value;../parent
+            separator: ;
             # Awk Parsing
             # MSHW, address,enabled,name,operational-status,linkstatus,port-wwn,role,parent
             #  1  ,  2     , 3     ,4   ,5            #    ,6         ,7        ,  8, 9
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            keep: "^MSHW;"
-            separators: ";"
-            # keep only enabled fc's
-          - type: "keepOnlyMatchingLines"
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
+          - _comment: keep only enabled fc's
+            type: keepOnlyMatchingLines
             column: 3
             valueList: "true"
-          - type: "leftConcat"
+          - type: leftConcat
             column: 8
             value: "Role: "
       mapping:
         # The discovery table
         # Network
-        source: "$monitors.network.discovery.sources.source(1)$"
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(4)"
-          id: "$column(4)"
-          physical_address_type: "WWN"
-          physical_address: "$column(7)"
-          info: "$column(8)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(9)"
-          name: "$column(4)"
+          __display_id: $column(4)
+          id: $column(4)
+          physical_address_type: WWN
+          physical_address: $column(7)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
     collect:
       # Memory
       # Collect
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/*/*/directors/*/hardware/ports/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/*/*/directors/*/hardware/ports/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
-          - type: "awk"
-            script: "EmbeddedFile(6)"
-            keep: "^MSHW;"
-            separators: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
             # MSHW, address,enabled,name,operational-status,operational-status,linkstatus,port-wwn,role,parent
             #  1  ,  2     , 3     ,4   ,5            #    ,6            #    ,7         ,  8     , 9  ,10
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 5
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "NetworkCardTranslationTable"
-            # Translate the Link Status
-          - type: "translate"
+            translationTable: NetworkCardTranslationTable
+          - _comment: Translate the Link Status
+            type: translate
             column: 7
-            translationTable: "LinkTranslationTable"
+            translationTable: LinkTranslationTable
       mapping:
-        # The Collect table
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(4)"
+        _comment: The Collect table
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(4)
         metrics:
-          hw.status{hw.type="network"}: "$column(5)"
-          hw.network.up: "legacyLinkStatus($column(7))"
+          hw.status{hw.type="network"}: $column(5)
+          hw.network.up: legacyLinkStatus($column(7))
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) =  Table
-          type: "http"
+          _comment: Source(1) =  Table
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/*/*/directors/*/hardware/internal-disks/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/*/*/directors/*/hardware/internal-disks/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value;../parent"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value;../parent
+            separator: ;
             # Awk Parsing
             # Physical Disk
             # MSHW, name, operational-status, part-number, serial-number, parentid
             # 1    ,  2 ,       3            ,  4         ,   5         ,    6
-          - type: "awk"
-            script: "EmbeddedFile(7)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: ^MSHW;
+            separators: ;
       mapping:
-        # The discovery table
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        _comment: The discovery table
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          __display_id: "$column(2)"
-          id: "$column(2)"
-          serial_number: "$column(5)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(6)"
+          __display_id: $column(2)
+          id: $column(2)
+          serial_number: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
           name: "sprintf(\"%s, $column(2))"
     collect:
       # PhysicalDisk
       # Collect
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "http"
+          type: http
           forceSerialization: true
-          method: "GET"
-          url: "/vplex/*/*/directors/*/hardware/internal-disks/*"
-          resultContent: "body"
+          method: GET
+          url: /vplex/*/*/directors/*/hardware/internal-disks/*
+          resultContent: body
           computes:
-            # JSON Status
-          - type: "json2csv"
-            entryKey: "response/context/attributes"
-            properties: "/name;/value"
-            separator: ";"
+          - _comment: JSON Status
+            type: json2csv
+            entryKey: response/context/attributes
+            properties: /name;/value
+            separator: ;
             # Awk Parsing
             # Physical Disk
             # MSHW, name, operational-status, part-number, serial-number, parentid
             # 1    ,  2 ,       3            ,  4         ,   5         ,    6
-          - type: "awk"
-            script: "EmbeddedFile(7)"
-            keep: "^MSHW;"
-            separators: ";"
-          - type: "duplicateColumn"
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: ^MSHW;
+            separators: ;
+          - type: duplicateColumn
             column: 3
             # Now translate Status
             # Value,StatusInfo,Status
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PhysicalDiskTranslationTable"
+            translationTable: PhysicalDiskTranslationTable
       mapping:
-        # The Collect table
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: The Collect table
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(3)"
+          hw.status{hw.type="physical_disk"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

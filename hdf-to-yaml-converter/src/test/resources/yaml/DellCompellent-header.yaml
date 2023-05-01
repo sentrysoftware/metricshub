@@ -58,1181 +58,1181 @@ embedded:
   EmbeddedFile(8): "BEGIN {FS=\";\";}\n{\nif ($4 ~ /^ScEnclosure/)\n    {\n\t     split($2,outputarray,\".\")\n\t     enclosureID=outputarray[1]\n\t     print $0 \"true;\"enclosureID \";Enclosure\"\n    }\nelse\n        {\n    \t     split($2,outputarray,\".\")\n    \t     controllerID=outputarray[1]\".\"outputarray[2]\n           if ( $5 == 0 || $5 == \"\")\n           {\n             gsub(\"0\",\"\",$5)\n             print $0 \"true;\"controllerID\";Blade\"\n           }\n           else\n           {\n             print $0 \";\"controllerID\";Blade\"\n           }\n\n         }\n}"
 translations:
   statusTranslationTable:
-    default: "UNKNOWN"
-    up: "ok"
-    degraded: "degraded"
-    down: "failed"
+    default: UNKNOWN
+    up: ok
+    degraded: degraded
+    down: failed
 connector:
   detection:
     criteria:
       # DETECTION
       # Test if we can connect to the service and get a token
-    - type: "http"
-      method: "POST"
-      url: "/api/rest/ApiConnection/Login"
-      header: "EmbeddedFile(1)"
-      expectedResult: "sessionKey"
+    - type: http
+      method: POST
+      url: /api/rest/ApiConnection/Login
+      header: EmbeddedFile(1)
+      expectedResult: sessionKey
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          # Eclosure Discovery
-          type: "http"
-          method: "POST"
-          url: "/api/rest/ApiConnection/Login"
-          header: "EmbeddedFile(1)"
-          resultContent: "all"
+          _comment: Eclosure Discovery
+          type: http
+          method: POST
+          url: /api/rest/ApiConnection/Login
+          header: EmbeddedFile(1)
+          resultContent: all
           computes:
-            # collect AuthenticationToken
-          - type: "awk"
-            script: "EmbeddedFile(2)"
+          - _comment: collect AuthenticationToken
+            type: awk
+            script: EmbeddedFile(2)
         source(2):
-          # Now we have the token let's perform the StorageCenter Discovery
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/StorageCenter"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Now we have the token let's perform the StorageCenter Discovery
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/StorageCenter
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;serialNumber;model
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries
+            separator: ;
             # remove empty result to avoid phantoms objects
             # tableID;ID;DisplayName;serialNumber;deviceHostname;model
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
         # Enclosure
         # tableID;ID;DisplayName;serialNumber;deviceHostname;model
-        source: "$monitors.enclosure.discovery.sources.source(2)$"
+        source: $monitors.enclosure.discovery.sources.source(2)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          vendor: "Dell"
-          model: "$column(6)"
-          serial_number: "$column(4)"
-          type: "Storage"
-          device_hostname: "$column(5)"
+          id: $column(2)
+          __display_id: $column(3)
+          vendor: Dell
+          model: $column(6)
+          serial_number: $column(4)
+          type: Storage
+          device_hostname: $column(5)
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Dell\", $column(6), \"Storage\")"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # 
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/StorageCenter"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/StorageCenter
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
-          - type: "translate"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
+          - type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
-        source: "$monitors.enclosure.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(3)"
+          hw.status{hw.type="enclosure"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   blade:
     discovery:
       sources:
         source(1):
-          # Now we have the token let's perform the controller's Discovery
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScController"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Now we have the token let's perform the controller's Discovery
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScController
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;serialNumber;model;enclosureID;serviceTag
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;hardwareSerialNumber;model;scSerialNumber;serviceTag"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;hardwareSerialNumber;model;scSerialNumber;serviceTag
+            separator: ;
             # add additionnal information type
             # tableID;ID;DisplayName;serialNumber;model;enclosureID;serviceTag
-          - type: "leftConcat"
+          - type: leftConcat
             column: 7
             value: "Alternative Serial Number: "
             # remove empty output
             # tableID;ID;DisplayName;serialNumber;model;enclosureID;serviceTag
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
-        # tableID;ID;DisplayName;serialNumber;model;enclosureID;serviceTag
-        source: "$monitors.blade.discovery.sources.source(1)$"
+        _comment: tableID;ID;DisplayName;serialNumber;model;enclosureID;serviceTag
+        source: $monitors.blade.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          model: "$column(5)"
-          serial_number: "$column(4)"
-          info: "$column(7)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(6)"
+          id: $column(2)
+          __display_id: $column(3)
+          model: $column(5)
+          serial_number: $column(4)
+          info: $column(7)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
           name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # 
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScController"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScController
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
-            # ID;PatrolStatus;Value;
-          - type: "translate"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
+          - _comment: ID;PatrolStatus;Value;
+            type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
-        source: "$monitors.blade.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="blade"}: "$column(3)"
+          hw.status{hw.type="blade"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Now we have the token let's perform the PhysicalDisk's Discovery
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScDisk"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Now we have the token let's perform the PhysicalDisk's Discovery
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScDisk
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;size;enclosureID
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;instanceName;size;scSerialNumber"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;instanceName;size;scSerialNumber
+            separator: ;
             # size is returned in format size bytes
             # so lets remove " bytes" from the size field
             # tableID;ID;DisplayName;size;enclosureID
-          - type: "replace"
+          - type: replace
             column: 4
-            existingValue: " Bytes"
+            existingValue: ' Bytes'
             newValue: ""
         source(2):
-          # let's collect serialnumber vendor
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScDiskConfiguration"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: let's collect serialnumber vendor
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScDiskConfiguration
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;serialNumber;vendor;product
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;serialNumber;vendor;product"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;serialNumber;vendor;product
+            separator: ;
         source(3):
           # now joint both
           # Source(3) = TableJoint of Source(1) and Source(2)
           # tableID;ID;DisplayName;size;enclosureID;tableID;ID;serialNumber;vendor;product
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 2
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
           computes:
             # remove empty output
             # tableID;ID;DisplayName;size;enclosureID;tableID;ID;serialNumber;vendor;product
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
         # PhysicalDisk
         # tableID;ID;DisplayName;size;enclosureID;tableID;ID;serialNumber;vendor;product
-        source: "$monitors.physical_disk.discovery.sources.source(3)$"
+        source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          serial_number: "$column(8)"
-          vendor: "$column(9)"
-          model: "$column(10)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "$column(5)"
+          id: $column(2)
+          __display_id: $column(3)
+          serial_number: $column(8)
+          vendor: $column(9)
+          model: $column(10)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(5)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(10), $column(4))"
         metrics:
-          hw.physical_disk.size: "$column(4)"
+          hw.physical_disk.size: $column(4)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
           # 
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScDisk"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScDisk
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
-            # tableid;ID;PatrolStatus;Value;
-          - type: "translate"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
+          - _comment: tableid;ID;PatrolStatus;Value;
+            type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(3)"
+          hw.status{hw.type="physical_disk"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   power_supply:
     discovery:
       sources:
         source(1):
           # Now we have the token let's perform the PowerSupplies' Discovery
           # source 1 is the enclosure power supplies
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosurePowerSupply"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosurePowerSupply
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType
+            separator: ;
         source(2):
-          # source 2 is the controllers powersupplies.
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerPowerSupply"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: source 2 is the controllers powersupplies.
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerPowerSupply
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType
+            separator: ;
         source(3):
-          type: "http"
-          method: "GET"
+          type: http
+          method: GET
           executeForEachEntryOf:
-            source: "$monitors.enclosure.discovery.sources.source(2)$"
-            concatMethod: "list"
-          url: "/api/rest/StorageCenter/ScChassis/$entry.column(2)$/PowerSupplyList"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+            source: $monitors.enclosure.discovery.sources.source(2)$
+            concatMethod: list
+          url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/PowerSupplyList
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType
+            separator: ;
         source(4):
           # Source(3) = Union of Source(1) and Source(2) and "3"
           # tableID;ID;DisplayName;objectType
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.power_supply.discovery.sources.source(1)$"
-          - "$monitors.power_supply.discovery.sources.source(2)$"
-          - "$monitors.power_supply.discovery.sources.source(3)$"
+          - $monitors.power_supply.discovery.sources.source(1)$
+          - $monitors.power_supply.discovery.sources.source(2)$
+          - $monitors.power_supply.discovery.sources.source(3)$
           computes:
             # remove empty output
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
             # Now pass everything through an awk to attach the powersupply to the correct device
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
-          - type: "awk"
-            script: "EmbeddedFile(4)"
-            # remove phantoms
-          - type: "keepOnlyMatchingLines"
+          - type: awk
+            script: EmbeddedFile(4)
+          - _comment: remove phantoms
+            type: keepOnlyMatchingLines
             column: 2
-            regExp: "."
+            regExp: .
       mapping:
         # PowerSupply
         # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
-        source: "$monitors.power_supply.discovery.sources.source(4)$"
+        source: $monitors.power_supply.discovery.sources.source(4)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "$column(6)"
-          hw.parent.id: "$column(5)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # collect enclosure's power supplies
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosurePowerSupply"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect enclosure's power supplies
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosurePowerSupply
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
         source(2):
-          # collect controllers' power supplies
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerPowerSupply"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect controllers' power supplies
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerPowerSupply
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
         source(3):
-          type: "http"
-          method: "GET"
+          type: http
+          method: GET
           executeForEachEntryOf:
-            source: "$monitors.enclosure.discovery.sources.source(2)$"
-            concatMethod: "list"
-          url: "/api/rest/StorageCenter/ScChassis/$entry.column(2)$/PowerSupplyList"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+            source: $monitors.enclosure.discovery.sources.source(2)$
+            concatMethod: list
+          url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/PowerSupplyList
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
         source(4):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.power_supply.collect.sources.source(1)$"
-          - "$monitors.power_supply.collect.sources.source(2)$"
-          - "$monitors.power_supply.collect.sources.source(3)$"
+          - $monitors.power_supply.collect.sources.source(1)$
+          - $monitors.power_supply.collect.sources.source(2)$
+          - $monitors.power_supply.collect.sources.source(3)$
           computes:
-            # tableid;ID;PatrolStatus;Value;
-          - type: "translate"
+          - _comment: tableid;ID;PatrolStatus;Value;
+            type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
-        source: "$monitors.power_supply.collect.sources.source(4)$"
-        deviceId: "$column(2)"
+        source: $monitors.power_supply.collect.sources.source(4)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(3)"
+          hw.status{hw.type="power_supply"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   fan:
     discovery:
       sources:
         source(1):
           # Now we have the token let's perform the PowerSupplies' Discovery
           # source 1 is the enclosure fans
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureCoolingFanSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureCoolingFanSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
+            separator: ;
         source(2):
-          # source 2 is the controllers fans
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerFanSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: source 2 is the controllers fans
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerFanSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
+            separator: ;
         source(3):
-          # now collect from new source
-          type: "http"
-          method: "GET"
+          _comment: now collect from new source
+          type: http
+          method: GET
           executeForEachEntryOf:
-            source: "$monitors.enclosure.discovery.sources.source(2)$"
-            concatMethod: "list"
-          url: "/api/rest/StorageCenter/ScChassis/$entry.column(2)$/FanSensorList"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+            source: $monitors.enclosure.discovery.sources.source(2)$
+            concatMethod: list
+          url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/FanSensorList
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
+            separator: ;
         source(4):
           # Source(4) = Union of Source(1) and Source(2) and source 3
           # tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.fan.discovery.sources.source(1)$"
-          - "$monitors.fan.discovery.sources.source(2)$"
-          - "$monitors.fan.discovery.sources.source(3)$"
+          - $monitors.fan.discovery.sources.source(1)$
+          - $monitors.fan.discovery.sources.source(2)$
+          - $monitors.fan.discovery.sources.source(3)$
           computes:
             # remove empty output
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
             # Now pass everything through an awk to attach the Fan to the correct device
             # and activate status or fan speed parameter
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
-          - type: "awk"
-            script: "EmbeddedFile(8)"
-            # remove phantoms
-          - type: "keepOnlyMatchingLines"
+          - type: awk
+            script: EmbeddedFile(8)
+          - _comment: remove phantoms
+            type: keepOnlyMatchingLines
             column: 2
-            regExp: "."
+            regExp: .
       mapping:
         # Fan
         # tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold;statusactivation;controllerID;devicetype
-        source: "$monitors.fan.discovery.sources.source(4)$"
+        source: $monitors.fan.discovery.sources.source(4)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "$column(10)"
-          hw.parent.id: "$column(9)"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: $column(10)
+          hw.parent.id: $column(9)
+          name: $column(3)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(6)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "$column(7)"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # collect enclosure's fans
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureCoolingFanSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect enclosure's fans
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureCoolingFanSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status;speed
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status;currentRpm"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status;currentRpm
+            separator: ;
         source(2):
-          # collect controllers' fans
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerFanSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect controllers' fans
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerFanSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status;speed
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status;currentRpm"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status;currentRpm
+            separator: ;
         source(3):
-          # now collect from new source
-          type: "http"
-          method: "GET"
+          _comment: now collect from new source
+          type: http
+          method: GET
           executeForEachEntryOf:
-            source: "$monitors.enclosure.discovery.sources.source(2)$"
-            concatMethod: "list"
-          url: "/api/rest/StorageCenter/ScChassis/$entry.column(2)$/FanSensorList"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+            source: $monitors.enclosure.discovery.sources.source(2)$
+            concatMethod: list
+          url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/FanSensorList
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status;speed
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status;currentRpm"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status;currentRpm
+            separator: ;
         source(4):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.fan.collect.sources.source(1)$"
-          - "$monitors.fan.collect.sources.source(2)$"
-          - "$monitors.fan.collect.sources.source(3)$"
+          - $monitors.fan.collect.sources.source(1)$
+          - $monitors.fan.collect.sources.source(2)$
+          - $monitors.fan.collect.sources.source(3)$
           computes:
-            # tableid;ID;PatrolStatus;Value;speed
-          - type: "translate"
+          - _comment: tableid;ID;PatrolStatus;Value;speed
+            type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;Speed
-        source: "$monitors.fan.collect.sources.source(4)$"
-        deviceId: "$column(2)"
+        source: $monitors.fan.collect.sources.source(4)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="fan"}: "$column(3)"
-          hw.fan.speed: "$column(5)"
+          hw.status{hw.type="fan"}: $column(3)
+          hw.fan.speed: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   temperature:
     discovery:
       sources:
         source(1):
           # Now we have the token let's perform the PowerSupplies' Discovery
           # source 1 is the enclosure temperatures
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureTemperatureSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureTemperatureSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # we use upperCriticalThreshold and upper warning for enclosure as we don't have upperNormalThreshold as for controllers.
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;warn;alarm
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperWarningThreshold;upperCriticalThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperWarningThreshold;upperCriticalThreshold
+            separator: ;
         source(2):
-          # source 2 is the controllers temperature sensors.
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerTemperatureSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: source 2 is the controllers temperature sensors.
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerTemperatureSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;warn;alarm
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold
+            separator: ;
         source(3):
           # let's merge both sources.
           # Source(3) = Union of Source(1) and Source(2)
           # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.discovery.sources.source(1)$"
-          - "$monitors.temperature.discovery.sources.source(2)$"
+          - $monitors.temperature.discovery.sources.source(1)$
+          - $monitors.temperature.discovery.sources.source(2)$
           computes:
             # Now pass everything through an awk to attach the Temperature to the correct device
             # and extract the correct temperature
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;warning;alarm;enclosure/controllerID;devicetype
-          - type: "awk"
-            script: "EmbeddedFile(5)"
+          - type: awk
+            script: EmbeddedFile(5)
             # remove empty output
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;warning;alarm;enclosure/controllerID;devicetype
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
         # Temperature
         # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;warning;alarm;deviceType
-        source: "$monitors.temperature.discovery.sources.source(3)$"
+        source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          temperature_type: "$column(6)"
-          hw.parent.type: "$column(12)"
-          hw.parent.id: "$column(11)"
+          id: $column(2)
+          __display_id: $column(3)
+          temperature_type: $column(6)
+          hw.parent.type: $column(12)
+          hw.parent.id: $column(11)
           name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: "$column(10)"
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(9)"
+          hw.temperature.limit{limit_type="high.critical"}: $column(10)
+          hw.temperature.limit{limit_type="high.degraded"}: $column(9)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # collect enclosure's temperature
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureTemperatureSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect enclosure's temperature
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureTemperatureSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold
+            separator: ;
         source(2):
-          # collect controllers' temperature sensors
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerTemperatureSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect controllers' temperature sensors
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerTemperatureSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold
+            separator: ;
         source(3):
           # now join both
           # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.temperature.collect.sources.source(1)$"
-          - "$monitors.temperature.collect.sources.source(2)$"
+          - $monitors.temperature.collect.sources.source(1)$
+          - $monitors.temperature.collect.sources.source(2)$
           computes:
-            # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
-          - type: "awk"
-            script: "EmbeddedFile(5)"
+          - _comment: tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
+            type: awk
+            script: EmbeddedFile(5)
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
-        source: "$monitors.temperature.collect.sources.source(3)$"
-        deviceId: "$column(2)"
+        source: $monitors.temperature.collect.sources.source(3)$
+        deviceId: $column(2)
         metrics:
-          hw.temperature: "$column(5)"
+          hw.temperature: $column(5)
   voltage:
     discovery:
       sources:
         source(1):
           # Now we have the token let's perform the Volage sensors' Discovery
           # source 1 is the controllers voltage sensors
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerVoltageSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerVoltageSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerNormalThreshold
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerNormalThreshold"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerNormalThreshold
+            separator: ;
             # awk everything to have status activated if sensors!=null and deduct controller id
             # tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerCriticalThreshold;controllerID;devicetype
-          - type: "awk"
-            script: "EmbeddedFile(6)"
+          - type: awk
+            script: EmbeddedFile(6)
             # remove empty output
             # tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerCriticalThreshold;controllerID;devicetype
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
-        # tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerNormalThreshold;controllerID;devicetype
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        _comment: tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerNormalThreshold;controllerID;devicetype
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "$column(10)"
-          hw.parent.id: "$column(9)"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: $column(10)
+          hw.parent.id: $column(9)
+          name: $column(3)
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: "$column(8)"
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(7)"
+          hw.voltage.limit{limit_type="low.critical"}: $column(8)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(7)
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # source 1 is controller voltage sensors
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerVoltageSensor"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: source 1 is controller voltage sensors
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerVoltageSensor
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;instanceId;status;status;currentVoltage
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status;currentVoltage"
-            separator: ";"
-            # tableid;ID;PatrolStatus;Value;currentVoltage
-          - type: "translate"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status;currentVoltage
+            separator: ;
+          - _comment: tableid;ID;PatrolStatus;Value;currentVoltage
+            type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
             # pass the value from volt to mv
             # tableid;ID;PatrolStatus;Value;currentVoltage
-          - type: "multiply"
+          - type: multiply
             column: 5
-            value: "1000"
+            value: 1000
       mapping:
         # ValueTable = Source(1)
         # tableid;ID;PatrolStatus;Value;currentVoltage
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="voltage"}: "$column(3)"
-          hw.voltage: "$column(5)"
+          hw.status{hw.type="voltage"}: $column(3)
+          hw.voltage: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   other_device:
     discovery:
       sources:
         source(1):
           # Now we have the token let's perform the Cache cards and IoModules Discovery
           # source 1 is the enclosure IO Modules
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureIoModule"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureIoModule
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType
+            separator: ;
         source(2):
-          # source 2 is the controllers cache cards
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerCacheCard"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: source 2 is the controllers cache cards
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerCacheCard
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType
+            separator: ;
         source(3):
-          # source 2 is the enclosure audible alarms
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureAudibleAlarm"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: source 2 is the enclosure audible alarms
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureAudibleAlarm
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;objectType
+            separator: ;
         source(4):
           # Source(3) = Union of Source(1) and Source(2)
           # tableID;ID;DisplayName;objectType
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.other_device.discovery.sources.source(1)$"
-          - "$monitors.other_device.discovery.sources.source(2)$"
-          - "$monitors.other_device.discovery.sources.source(3)$"
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
+          - $monitors.other_device.discovery.sources.source(3)$
           computes:
             # Now pass everything through an awk to attach theOtherDevice to the correct device
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
-          - type: "awk"
-            script: "EmbeddedFile(4)"
+          - type: awk
+            script: EmbeddedFile(4)
             # remove empty output
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
         # OtherDevice
         # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
-        source: "$monitors.other_device.discovery.sources.source(4)$"
+        source: $monitors.other_device.discovery.sources.source(4)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          device_type: "$column(4)"
-          hw.parent.type: "$column(6)"
-          hw.parent.id: "$column(5)"
+          id: $column(2)
+          __display_id: $column(3)
+          device_type: $column(4)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
           name: "sprintf(\"%s: %s\", $column(4), $column(3))"
     collect:
-      # Collect type = multi-instance
-      type: "multiInstance"
+      _comment: Collect type = multi-instance
+      type: multiInstance
       sources:
         source(1):
-          # collect enclosure's IoModules
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureIoModule"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect enclosure's IoModules
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureIoModule
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
         source(2):
-          # collect controllers' Cache cards
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerCacheCard"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect controllers' Cache cards
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerCacheCard
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status
+            separator: ;
         source(3):
-          # collect audible alarms
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScEnclosureAudibleAlarm"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect audible alarms
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScEnclosureAudibleAlarm
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status;mutedvalue
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status;muted"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status;muted
+            separator: ;
             # add the device type to make sure we have a unique ID
             # tableID;ID;status;status;mutedvalue
-          - type: "leftConcat"
+          - type: leftConcat
             column: 2
-            value: "ScEnclosureAudibleAlarm"
+            value: ScEnclosureAudibleAlarm
             # add the muted state to the status information
             # tableID;ID;status;status;mutedvalue
-          - type: "rightConcat"
+          - type: rightConcat
             column: 4
-            value: "-"
-            # tableID;ID;status;status;mutedvalue
-          - type: "rightConcat"
+            value: '-'
+          - _comment: tableID;ID;status;status;mutedvalue
+            type: rightConcat
             column: 4
-            value: "Column(5)"
+            value: Column(5)
         source(4):
-          # now join 3 sources
-          type: "tableUnion"
+          _comment: now join 3 sources
+          type: tableUnion
           tables:
-          - "$monitors.other_device.collect.sources.source(1)$"
-          - "$monitors.other_device.collect.sources.source(2)$"
-          - "$monitors.other_device.collect.sources.source(3)$"
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+          - $monitors.other_device.collect.sources.source(3)$
           computes:
-            # tableid;ID;PatrolStatus;Value;
-          - type: "translate"
+          - _comment: tableid;ID;PatrolStatus;Value;
+            type: translate
             column: 3
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
       mapping:
         # ValueTable = Source(4)
         # tableID;ID;PatrolStatus;Value;
-        source: "$monitors.other_device.collect.sources.source(4)$"
-        deviceId: "$column(2)"
+        source: $monitors.other_device.collect.sources.source(4)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(3)"
+          hw.status{hw.type="other_device"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   network:
     discovery:
       sources:
         source(1):
           # Now we have the token let's perform the Networkcards' Discovery
           # source 1 is the controllers ports
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerPort"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerPort
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId
+            separator: ;
         source(2):
           # Now we have the token let's perform the Networkcards' Discovery
           # source 1 is the controllers ports
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerPortConfiguration"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerPortConfiguration
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;instanceId;speed;description;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;speed;description;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;speed;description;objectType
+            separator: ;
             # Now pass everything through an awk to determine the port speed.
             # tableID;instanceId;speed;description;
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
         source(3):
           # Source(3) = TableJoint of Source(1) and Source(2)
           # /tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed
-          type: "tableJoin"
-          leftTable: "$monitors.network.discovery.sources.source(1)$"
-          rightTable: "$monitors.network.discovery.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 2
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
           computes:
             # Exclude virtual cards
             # /tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 5
             valueList: "TRUE"
             # Exclude empty outputs
             # /tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
-        # tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed;description
-        source: "$monitors.network.discovery.sources.source(3)$"
+        _comment: tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed;description
+        source: $monitors.network.discovery.sources.source(3)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          device_type: "$column(4)"
-          model: "$column(12)"
-          physical_address: "$column(6)"
-          physical_address_type: "WWN"
-          hw.parent.type: "blade"
-          hw.parent.id: "$column(8)"
+          id: $column(2)
+          __display_id: $column(3)
+          device_type: $column(4)
+          model: $column(12)
+          physical_address: $column(6)
+          physical_address_type: WWN
+          hw.parent.type: blade
+          hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(12))"
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerPort"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerPort
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;instanceId;cabled;status;statusMessage;
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;cabled;status;statusMessage"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;cabled;status;statusMessage
+            separator: ;
         source(2):
           # Now we have the token let's perform the Networkcards' Collect
           # source 1 is the controllers ports
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScControllerPortConfiguration"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScControllerPortConfiguration
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;instanceId;speed;description;objectType
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;speed;description;objectType"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;speed;description;objectType
+            separator: ;
             # Now pass everything through an awk to determine the port speed.
             # tableID;instanceId;speed;description;
-          - type: "awk"
-            script: "EmbeddedFile(7)"
+          - type: awk
+            script: EmbeddedFile(7)
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-          type: "tableJoin"
-          leftTable: "$monitors.network.collect.sources.source(1)$"
-          rightTable: "$monitors.network.collect.sources.source(2)$"
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 2
-          defaultRightLine: ";;;;"
+          defaultRightLine: ;;;;
           computes:
             # now translate cabled from a boolean to a readable linkstatus
             # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-          - type: "replace"
+          - type: replace
             column: 3
             existingValue: "TRUE"
-            newValue: "OK"
-          - type: "replace"
+            newValue: OK
+          - type: replace
             column: 3
             existingValue: "FALSE"
-            newValue: "WARN"
+            newValue: WARN
             # translate the status
             # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "statusTranslationTable"
+            translationTable: statusTranslationTable
         source(4):
-          type: "copy"
-          from: "$monitors.network.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.network.collect.sources.source(3)$
           computes:
-            # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-          - type: "keepOnlyMatchingLines"
+          - _comment: tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
+            type: keepOnlyMatchingLines
             column: 3
-            valueList: "WARN"
-          - type: "replace"
+            valueList: WARN
+          - type: replace
             column: 4
-            existingValue: "Column(4)"
-            newValue: "OK"
+            existingValue: Column(4)
+            newValue: OK
         source(5):
-          type: "copy"
-          from: "$monitors.network.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.network.collect.sources.source(3)$
           computes:
-            # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-          - type: "keepOnlyMatchingLines"
+          - _comment: tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
+            type: keepOnlyMatchingLines
             column: 3
-            valueList: "OK"
+            valueList: OK
         source(6):
-          type: "tableUnion"
+          type: tableUnion
           tables:
-          - "$monitors.network.collect.sources.source(4)$"
-          - "$monitors.network.collect.sources.source(5)$"
+          - $monitors.network.collect.sources.source(4)$
+          - $monitors.network.collect.sources.source(5)$
       mapping:
         # ValueTable = Source(1)
         # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-        source: "$monitors.network.collect.sources.source(6)$"
-        deviceId: "$column(2)"
+        source: $monitors.network.collect.sources.source(6)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="network"}: "$column(4)"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(8))"
-          hw.network.up: "legacyLinkStatus($column(3))"
+          hw.status{hw.type="network"}: $column(4)
+          hw.network.bandwidth.limit: megaBit2Bit($column(8))
+          hw.network.up: legacyLinkStatus($column(3))
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   battery:
     discovery:
       sources:
         source(1):
-          # Now we have the token let's perform the UPS' Discovery
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScUps"
-          header: "EmbeddedFile(3)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: Now we have the token let's perform the UPS' Discovery
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScUps
+          header: EmbeddedFile(3)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # convert from json to Json2Csv
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;name;Type;scSerialNumber"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;name;Type;scSerialNumber
+            separator: ;
             # add device type
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
-          - type: "rightConcat"
+          - type: rightConcat
             column: 5
-            value: "enclosure"
-            # Exclude Empty IDs
-          - type: "excludeMatchingLines"
+            value: enclosure
+          - _comment: Exclude Empty IDs
+            type: excludeMatchingLines
             column: 1
-            valueList: "/"
+            valueList: /
       mapping:
         # PowerSupply
         # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
-        source: "$monitors.battery.discovery.sources.source(1)$"
+        source: $monitors.battery.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(3)"
-          hw.parent.type: "$column(6)"
-          hw.parent.id: "$column(5)"
-          name: "$column(3)"
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: $column(3)
     collect:
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # collect UPS
-          type: "http"
-          method: "GET"
-          url: "/api/rest/StorageCenter/ScUps"
-          header: "EmbeddedFile(1)"
-          resultContent: "body"
-          authenticationToken: "$monitors.enclosure.discovery.sources.source(1)$"
+          _comment: collect UPS
+          type: http
+          method: GET
+          url: /api/rest/StorageCenter/ScUps
+          header: EmbeddedFile(1)
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # JSON Status
             # tableID;ID;status;status;BatteryLife
-          - type: "json2csv"
-            entryKey: "/"
-            properties: "instanceId;status;status;BatteryLife"
-            separator: ";"
+          - type: json2csv
+            entryKey: /
+            properties: instanceId;status;status;BatteryLife
+            separator: ;
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;BatteryLife
-        source: "$monitors.battery.collect.sources.source(3)$"
-        deviceId: "$column(2)"
+        source: $monitors.battery.collect.sources.source(3)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="battery"}: "$column(3)"
-          hw.battery.time_left: "$column(5)"
+          hw.status{hw.type="battery"}: $column(3)
+          hw.battery.time_left: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)

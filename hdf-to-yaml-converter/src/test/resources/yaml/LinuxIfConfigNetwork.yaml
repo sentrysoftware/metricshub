@@ -1,20 +1,20 @@
 ---
 extends:
-- "LinuxNetwork-header"
+- LinuxNetwork-header
 constants:
-  GLOBAL_COMMAND_LINE: "\"/sbin/ifconfig -a\""
-  COLLECT_COMMAND_LINE: "\"/sbin/ifconfig -a  %NetworkCard.Collect.DeviceID%\""
+  GLOBAL_COMMAND_LINE: '"/sbin/ifconfig -a"'
+  COLLECT_COMMAND_LINE: '"/sbin/ifconfig -a  %NetworkCard.Collect.DeviceID%"'
 embedded:
   EmbeddedFile(1): "BEGIN {\n\tdeviceID = \"\"\n}\n/^lo[0-9]* / {deviceID = \"\" }\n#ifconfig\n$1 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {\n\tdeviceID = $1 ; gsub(\":\",\"\",deviceID)\n\tports[deviceID]=deviceID\n        if ($(NF-1) == \"HWaddr\")\n\t{\n\t\tmacAddress[deviceID] = $NF\n\t}\n        if ($2 ~ /UP/ || $3 ~ /UP/ ) {portActive[deviceID] = 1}\n}\n/ +inet addr:[0-9]+/ {\n\tipAddress[deviceID] = $2\n\tgsub(\"addr:\", \"\", ipAddress[deviceID])\n}\n(/ UP / ) {portActive[deviceID] = 1}\n$1 ~ /^ether$/ && $2 ~ /[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:/ {macAddress[deviceID] = $2}\n\nEND {\nfor (deviceID in ports) {\n    if (ports[deviceID] != \"\" && portActive[deviceID] == 1) {\n        print \"MSHW;\" deviceID \";\" macAddress[deviceID] \";\" ipAddress[deviceID] \";\"\n\t}\n    }\n}"
   EmbeddedFile(2): "BEGIN {\n\ttransmitPackets = \"\"\n\ttransmitErrors = \"\"\n\treceivePackets = \"\"\n\treceiveErrors = \"\"\n\ttransmitBytes = \"\"\n\treceiveBytes = \"\"\n}\n# ifconfig\n$1 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {\n\tdeviceID = $1 ; gsub(\":\",\"\",deviceID)\n}\n/^ +RX packets:/ {\n\treceivePackets = substr($2, 9, length($2) - 8)\n\treceiveErrors = substr($3, 8, length($3) - 7)\n}\n/^ +TX packets:/ {\n\ttransmitPackets = substr($2, 9, length($2) - 8)\n\ttransmitErrors = substr($3, 8, length($3) - 7)\n}\n/^ +RX bytes:.*TX bytes:/ {\n\treceiveBytes = substr($2, 7, length($2) - 6)\n\ttransmitBytes = substr($6, 7, length($6) - 6)\n}\n\n$1 == \"RX\" && $2 == \"packets\" && $4 == \"bytes\" { receivePackets = $3 ; receiveBytes = $5 }\n$1 == \"TX\" && $2 == \"packets\" && $4 == \"bytes\" { transmitPackets = $3 ; transmitBytes = $5}\n$1 == \"RX\" && $2 == \"errors\" { receiveErrors = $3 }\n$1 == \"TX\" && $2 == \"errors\" { transmitErrors = $3 }\n\nEND {\n\t\tprint \"MSHW;\" deviceID \";\" receivePackets \";\" transmitPackets \";\" receiveErrors + transmitErrors \";\" receiveBytes \";\" transmitBytes\n}"
 connector:
-  displayName: "Linux - Network (ifconfig)"
-  platforms: "Any system"
-  reliesOn: "Linux system commands (ifconfig)"
-  version: "1.0"
-  information: "This connector provides the monitoring of active network cards on all Linux systems using ifconfig command."
+  displayName: Linux - Network (ifconfig)
+  platforms: Any system
+  reliesOn: Linux system commands (ifconfig)
+  version: 1.0
+  information: This connector provides the monitoring of active network cards on all Linux systems using ifconfig command.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Linux"
+    - Linux

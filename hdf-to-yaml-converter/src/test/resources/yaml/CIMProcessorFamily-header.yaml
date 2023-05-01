@@ -1,4 +1,4 @@
 ---
 extends:
-- "CpuFamilyTranslationTable-header"
-- "CpuVendorTranslationTable-header"
+- CpuFamilyTranslationTable-header
+- CpuVendorTranslationTable-header

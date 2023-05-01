@@ -3,56 +3,56 @@ embedded:
   EmbeddedFile(1): "BEGIN { FS = \";\" }\n{\n\ttierID = $1\n\n\tdiskA = $2\n\tdiskB = $3\n\tdiskC = $4\n\tdiskD = $5\n\tdiskE = $6\n\tdiskF = $7\n\tdiskG = $8\n\tdiskH = $9\n\tdiskP = $10\n\tdiskS = $11\n\n\tprint \"MSHW;Tier \" tierID \" Disk A;Data;\" diskA\n\tprint \"MSHW;Tier \" tierID \" Disk B;Data;\" diskB\n\tprint \"MSHW;Tier \" tierID \" Disk C;Data;\" diskC\n\tprint \"MSHW;Tier \" tierID \" Disk D;Data;\" diskD\n\tprint \"MSHW;Tier \" tierID \" Disk E;Data;\" diskE\n\tprint \"MSHW;Tier \" tierID \" Disk F;Data;\" diskF\n\tprint \"MSHW;Tier \" tierID \" Disk G;Data;\" diskG\n\tprint \"MSHW;Tier \" tierID \" Disk H;Data;\" diskH\n\tprint \"MSHW;Tier \" tierID \" Disk P;Parity;\" diskP\n\tprint \"MSHW;Tier \" tierID \" Disk S;Spare;\" diskS\n\n}"
 translations:
   TemperatureStatusTranslationTable:
-    "1": "ok"
-    "2": "degraded"
-    default: "UNKNOWN"
-    "3": "failed"
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
   FanStatusTranslationTable:
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
+    "1": ok
+    "2": failed
+    default: UNKNOWN
   TemperatureStatusInformationTranslationTable:
-    "1": "Normal"
-    "2": "Warning"
-    default: "Unknown Status"
-    "3": "Critical"
+    "1": Normal
+    "2": Warning
+    default: Unknown Status
+    "3": Critical
   PowerSupplyStatusTranslationTable:
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
+    "1": ok
+    "2": failed
+    default: UNKNOWN
   FanStatusInformationTranslationTable:
-    "1": "Healthy"
-    "2": "Failed"
-    default: "Unknown Status"
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status
   diskStatusInformationTranslationTable:
-    "1": "Healthy"
-    "2": "Failed"
-    default: "Unknown Status"
-    "3": "Missing"
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status
+    "3": Missing
   diskStatusTranslationTable:
-    "1": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "failed"
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
   PowerSupplyStatusInformationTranslationTable:
-    "1": "Healthy"
-    "2": "Failed"
-    default: "Unknown Status"
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status
 connector:
-  displayName: "DataDirect Networks (DDN) Disk Array (SNMP)"
-  platforms: "DataDirect Networks (DDN)"
-  reliesOn: "DDN SNMP Agent"
-  version: "1.0"
+  displayName: DataDirect Networks (DDN) Disk Array (SNMP)
+  platforms: DataDirect Networks (DDN)
+  reliesOn: DDN SNMP Agent
+  version: 1.0
   information: "This connector discovers the enclosure and the disks of DDN (DataDirect Networks) disk arrays as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "Storage"
+    - Storage
     criteria:
-      # Verify that the DDN SNMP agent responds to our requests
-    - type: "snmpGetNext"
-      oid: "1.3.6.1.4.1.6894.1"
+    - _comment: Verify that the DDN SNMP agent responds to our requests
+      type: snmpGetNext
+      oid: 1.3.6.1.4.1.6894.1
 monitors:
   enclosure:
     discovery:
@@ -60,16 +60,16 @@ monitors:
         source(1):
           # Source(1) = Hardcoded table
           # DeviceID;Vendor;model;
-          type: "static"
-          value: "DDN;Data Direct Networks;Disk Array"
+          type: static
+          value: DDN;Data Direct Networks;Disk Array
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(2)"
-          model: "$column(3)"
-          type: "Storage"
+          id: $column(1)
+          vendor: $column(2)
+          model: $column(3)
+          type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(2), $column(3), \"Storage\")"
   physical_disk:
     discovery:
@@ -77,215 +77,215 @@ monitors:
         source(1):
           # Source(1) = tierTable SNMP Table
           # TierID;diskA;diskB;diskC;diskD;diskE;diskF;diskG;diskH;diskP;diskS
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6894.1.7.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.1.7.1
           selectColumns: "1,2,3,4,5,6,7,8,9,10,11"
           computes:
             # Process that crap through an AWK script that will generate one line per disk
             # DiskID;DiskType;Status;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,3,4"
-            # Exclude \"missing\" disks
-          - type: "excludeMatchingLines"
+          - _comment: Exclude "missing" disks
+            type: excludeMatchingLines
             column: 3
-            valueList: "3"
+            valueList: 3
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          vendor: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "DDN"
+          id: $column(1)
+          vendor: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DDN
           name: "sprintf(\"%s, $column(1))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = tierTable SNMP Table
           # TierID;diskA;diskB;diskC;diskD;diskE;diskF;diskG;diskH;diskP;diskS
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6894.1.7.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.1.7.1
           selectColumns: "1,2,3,4,5,6,7,8,9,10,11"
           computes:
             # Process that crap through an AWK script that will generate one line per disk
             # DiskID;Status;
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW;"
-            separators: ";"
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
             selectColumns: "2,4"
             # Duplicate the Status column
             # DiskID;Status;Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROLStatus
             # DiskID;PATROLStatus;Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "diskStatusTranslationTable"
+            translationTable: diskStatusTranslationTable
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "diskStatusInformationTranslationTable"
+            translationTable: diskStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = powerTable SNMP table
           # powerSupplyID;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6894.1.5.1"
-          selectColumns: "1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.1.5.1
+          selectColumns: 1
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "DDN"
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: DDN
           name: "sprintf(\"%s, $column(1))"
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = powerTable SNMP table (like discovery)
           # powerSupplyID;Status:
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6894.1.5.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.1.5.1
           selectColumns: "1,2"
           computes:
             # Duplicate the status column
             # powerSupplyID;Status:Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROL Status
             # powerSupplyID;PATROLStatus:Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "PowerSupplyStatusTranslationTable"
+            translationTable: PowerSupplyStatusTranslationTable
             # Translate the second status column into a more readable string
             # powerSupplyID;PATROLStatus:StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PowerSupplyStatusInformationTranslationTable"
+            translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(2)"
+          hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = powerTable SNMP table
           # FanID;
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6894.1.3.1"
-          selectColumns: "1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.1.3.1
+          selectColumns: 1
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "DDN"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: DDN
+          name: $column(1)
     collect:
-      # Collect type is multi-instance
-      type: "multiInstance"
+      _comment: Collect type is multi-instance
+      type: multiInstance
       sources:
         source(1):
           # Source(1) = powerTable SNMP table (like discovery)
           # FanID;Status:
-          type: "snmpTable"
-          oid: "1.3.6.1.4.1.6894.1.3.1"
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.1.3.1
           selectColumns: "1,2"
           computes:
             # Duplicate the status column
             # FanID;Status:Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 2
             # Translate the first status column into a PATROL Status
             # FanID;PATROLStatus:Status;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FanStatusTranslationTable"
+            translationTable: FanStatusTranslationTable
             # Translate the second status column into a more readable string
             # FanID;PATROLStatus:StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "FanStatusInformationTranslationTable"
+            translationTable: FanStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="fan"}: "$column(2)"
+          hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   temperature:
     discovery:
       sources:
         source(1):
           # Source(1) = Hardcoded table
           # TemperatureID;Location;
-          type: "static"
-          value: "General;General;"
+          type: static
+          value: General;General;
       mapping:
-        # Instance Table = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: Instance Table = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(2)"
-          hw.parent.type: "enclosure"
-          hw.parent.id: "DDN"
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DDN
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      # Collect type is mono-instance
-      type: "monoInstance"
+      _comment: Collect type is mono-instance
+      type: monoInstance
       sources:
         source(1):
           # Source(1) = tempLevel OID
           # Status;
-          type: "snmpGet"
-          oid: "1.3.6.1.4.1.6894.1.1.0"
+          type: snmpGet
+          oid: 1.3.6.1.4.1.6894.1.1.0
           computes:
             # Duplicate the status column
             # Status:Status;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 1
             # Translate the first status column into a PATROL Status
             # PATROLStatus:Status;
-          - type: "translate"
+          - type: translate
             column: 1
-            translationTable: "TemperatureStatusTranslationTable"
+            translationTable: TemperatureStatusTranslationTable
             # Translate the second status column into a more readable string
             # PATROLStatus:StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "TemperatureStatusInformationTranslationTable"
+            translationTable: TemperatureStatusInformationTranslationTable
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
         metrics:
-          hw.status{hw.type="temperature"}: "$column(1)"
+          hw.status{hw.type="temperature"}: $column(1)
         legacyTextParameters:
-          StatusInformation: "$column(2)"
+          StatusInformation: $column(2)

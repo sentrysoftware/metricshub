@@ -1,246 +1,246 @@
 ---
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    "0": "Empty"
-    "1": "Standby"
-    "133": "Hot Spare"
-    "254": "Reserved"
-    default: "Unknown Status"
-    "4": "Defunct Hot Spare"
-    "5": "Standby Hot Spare"
-    "137": "Online"
-    "139": "Rebuild"
-    "8": "Defunct"
-    "129": "Ready"
+    "0": Empty
+    "1": Standby
+    "133": Hot Spare
+    "254": Reserved
+    default: Unknown Status
+    "4": Defunct Hot Spare
+    "5": Standby Hot Spare
+    "137": Online
+    "139": Rebuild
+    "8": Defunct
+    "129": Ready
   VoltageTypeTranslationTable:
     "0": ""
-    "1": "+2.5a V"
-    "2": "+1.5 V"
+    "1": +2.5a V
+    "2": +1.5 V
     default: ""
-    "3": "+3.3 V"
-    "4": "+5 V"
-    "5": "+12 V"
-    "6": "-12 V"
-    "7": "-5 V"
-    "8": "VIO"
-    "9": "Vcore"
-    "10": "Bus"
+    "3": +3.3 V
+    "4": +5 V
+    "5": +12 V
+    "6": -12 V
+    "7": -5 V
+    "8": VIO
+    "9": Vcore
+    "10": Bus
   LogicalDiskStatusInformationTranslationTable:
-    "0": "Free"
-    "2": "Offline"
-    default: "Unknown Status"
+    "0": Free
+    "2": Offline
+    default: Unknown Status
     "3": ""
-    "36": "Critical System"
-    "4": "Critical"
-    "5": "Migration"
-    "6": "System"
-    "20": "Critical Migration"
+    "36": Critical System
+    "4": Critical
+    "5": Migration
+    "6": System
+    "20": Critical Migration
   TemperatureTypeTranslationTable:
-    "1": "Motherboard"
-    "2": "CPU"
+    "1": Motherboard
+    "2": CPU
     default: ""
   FanTypeTranslationTable:
-    "1": "System"
-    "2": "Power-Supply"
+    "1": System
+    "2": Power-Supply
     default: ""
-    "3": "CPU"
+    "3": CPU
   LogicalDiskStatusTranslationTable:
-    "0": "ok"
-    "2": "failed"
-    default: "UNKNOWN"
-    "3": "ok"
-    "36": "degraded"
-    "4": "degraded"
-    "5": "ok"
-    "6": "ok"
-    "20": "degraded"
+    "0": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "36": degraded
+    "4": degraded
+    "5": ok
+    "6": ok
+    "20": degraded
   PhysicalDiskStatusTranslationTable:
-    "0": "ok"
-    "1": "ok"
-    "133": "ok"
-    "254": "ok"
-    default: "UNKNOWN"
-    "4": "degraded"
-    "5": "ok"
-    "137": "ok"
-    "139": "degraded"
-    "8": "failed"
-    "129": "ok"
+    "0": ok
+    "1": ok
+    "133": ok
+    "254": ok
+    default: UNKNOWN
+    "4": degraded
+    "5": ok
+    "137": ok
+    "139": degraded
+    "8": failed
+    "129": ok
 connector:
-  displayName: "IBM Director Agent 3.x - Windows"
-  platforms: "IBM xSeries"
-  reliesOn: "IBM Director Agent 3.x"
-  version: "1.0"
-  information: "This connector provides hardware monitoring through the IBM Director Agent version 3.x which supports almost all IBM Netfinity and xSeries servers. This connector is WBEM-based."
+  displayName: IBM Director Agent 3.x - Windows
+  platforms: IBM xSeries
+  reliesOn: IBM Director Agent 3.x
+  version: 1.0
+  information: This connector provides hardware monitoring through the IBM Director Agent version 3.x which supports almost all IBM Netfinity and xSeries servers. This connector is WBEM-based.
   detection:
     connectionTypes:
-    - "remote"
+    - remote
     appliesTo:
-    - "NT"
+    - NT
     supersedes:
-    - "IpmiTool"
+    - IpmiTool
     criteria:
-      # OS must be Windows
-    - type: "deviceType"
+    - _comment: OS must be Windows
+      type: deviceType
       keep:
-      - "NT"
-      # The IBM Director Agent Service must be running (service name is TWGIPC)
-    - type: "service"
-      name: "TWGIPC"
-      # The IBM Director Agent must be in version 3.1.x
-    - type: "wmi"
-      query: "SELECT Version FROM IBMPSG_UniversalManageabilityServices"
+      - NT
+    - _comment: The IBM Director Agent Service must be running (service name is TWGIPC)
+      type: service
+      name: TWGIPC
+    - _comment: The IBM Director Agent must be in version 3.1.x
+      type: wmi
+      query: SELECT Version FROM IBMPSG_UniversalManageabilityServices
       expectedResult: "^3\\.1\\.[1-9].*"
-      # The IBMPSG_ComputerSystemDetails WBEM class must be instanciated
-    - type: "wmi"
-      query: "SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
-      errorMessage: "The IBM Director Agent seems to not be working properly. Please reinstall the IBM Director Agent."
+    - _comment: The IBMPSG_ComputerSystemDetails WBEM class must be instanciated
+      type: wmi
+      query: SELECT ProductName FROM IBMPSG_ComputerSystemDetails
+      errorMessage: The IBM Director Agent seems to not be working properly. Please reinstall the IBM Director Agent.
 monitors:
   enclosure:
     discovery:
       sources:
         source(1):
-          # Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
-          type: "wmi"
-          query: "SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+          _comment: Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+          type: wmi
+          query: SELECT ProductName FROM IBMPSG_ComputerSystemDetails
       mapping:
         # InstanceTable = Source(1)
         # Note: InstanceTable must contain only one line!
-        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
-          vendor: "IBM"
-          model: "$column(1)"
-          id: "IBM"
+          vendor: IBM
+          model: $column(1)
+          id: IBM
           name: "sprintf(\"%s (%s %s)\", \"IBM\", \"IBM\", $column(1))"
   fan:
     discovery:
       sources:
         source(1):
-          # Source(1) = the IBMPSG_Fan WBEM class
-          type: "wmi"
+          _comment: Source(1) = the IBMPSG_Fan WBEM class
+          type: wmi
           query: "SELECT DeviceID, FanType, UpperThresholdCritical FROM IBMPSG_Tachometer"
           computes:
-          - type: "translate"
+          - type: translate
             column: 2
-            translationTable: "FanTypeTranslationTable"
+            translationTable: FanTypeTranslationTable
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.fan.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
-          name: "$column(1)"
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(3)"
-          hw.fan.speed.limit{limit_type="low.critical"}: "0"
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.critical"}: 0
     collect:
-      # The collect (as all WBEM-based collects) is \"MultiInstance\"
-      type: "multiInstance"
+      _comment: The collect (as all WBEM-based collects) is "MultiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = The IBMPSG_Tachometer WBEM class
-          type: "wmi"
+          _comment: Source(1) = The IBMPSG_Tachometer WBEM class
+          type: wmi
           query: "SELECT CurrentReading,DeviceID FROM IBMPSG_Tachometer"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.fan.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.fan.speed: "$column(1)"
+          hw.fan.speed: $column(1)
   temperature:
     discovery:
       sources:
         source(1):
-          # Source(1) = The IBMPSG_TemperatureSensor WBEM class
-          type: "wmi"
+          _comment: Source(1) = The IBMPSG_TemperatureSensor WBEM class
+          type: wmi
           query: "SELECT DeviceID, LowerThresholdCritical, LowerThresholdNonCritical, TempLocation FROM IBMPSG_TemperatureSensor"
           computes:
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "TemperatureTypeTranslationTable"
+            translationTable: TemperatureTypeTranslationTable
       mapping:
-        # InstanceTable = Source(1)
-        source: "$monitors.temperature.discovery.sources.source(1)$"
+        _comment: InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          temperature_type: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          temperature_type: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: "$column(3)"
-          hw.temperature.limit{limit_type="high.critical"}: "$column(2)"
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(2)
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the IBMPSG_TemperatureSensor WBEM class
-          type: "wmi"
+          _comment: Source(1) = the IBMPSG_TemperatureSensor WBEM class
+          type: wmi
           query: "SELECT CurrentReading,DeviceID FROM IBMPSG_TemperatureSensor"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.temperature.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.temperature: "$column(1)"
+          hw.temperature: $column(1)
   voltage:
     discovery:
       sources:
         source(1):
-          # Source(1) = all the instances of the IBMPSG_VoltageSensor class
-          type: "wmi"
+          _comment: Source(1) = all the instances of the IBMPSG_VoltageSensor class
+          type: wmi
           query: "SELECT DeviceID,LowerThresholdNonCritical,UpperThresholdNonCritical,VoltageType FROM IBMPSG_VoltageSensor"
           computes:
-            # Translate the voltage type into a more readable string
-          - type: "translate"
+          - _comment: Translate the voltage type into a more readable string
+            type: translate
             column: 4
-            translationTable: "VoltageTypeTranslationTable"
+            translationTable: VoltageTypeTranslationTable
       mapping:
-        # Here is the instance table = source(1)
-        source: "$monitors.voltage.discovery.sources.source(1)$"
+        _comment: Here is the instance table = source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          voltage_type: "$column(4)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          voltage_type: $column(4)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: "$column(3)"
-          hw.voltage.limit{limit_type="low.critical"}: "$column(2)"
+          hw.voltage.limit{limit_type="high.degraded"}: $column(3)
+          hw.voltage.limit{limit_type="low.critical"}: $column(2)
     collect:
-      # It's a \"MultiInstance\" collect
-      type: "multiInstance"
+      _comment: It's a "MultiInstance" collect
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the IBMPSG_VoltageSensor class
-          type: "wmi"
+          _comment: Source(1) = the IBMPSG_VoltageSensor class
+          type: wmi
           query: "SELECT CurrentReading,DeviceID FROM IBMPSG_VoltageSensor"
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.voltage.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.voltage: "$column(1)"
+          hw.voltage: $column(1)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = The IBMPSG_PowerSupply table
-          type: "wmi"
-          query: "SELECT DeviceID FROM IBMPSG_PowerSupply"
+          _comment: Source(1) = The IBMPSG_PowerSupply table
+          type: wmi
+          query: SELECT DeviceID FROM IBMPSG_PowerSupply
       mapping:
-        # The instance table:
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        _comment: 'The instance table:'
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(1)"
-          hw.parent.type: "enclosure"
+          id: $column(1)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
       # Collect type : multi instance (one source for several instances)
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the simple IBMPSG_PowerSupply table/class
-          type: "wmi"
+          _comment: Source(1) = the simple IBMPSG_PowerSupply table/class
+          type: wmi
           query: "SELECT DeviceID,StatusInfo FROM IBMPSG_PowerSupply"
   disk_controller:
     discovery:
@@ -250,143 +250,143 @@ monitors:
           # This class includes all RAID controllers  and the more specific IBM ServerRAID controllers
           # The ControllerID property will be used to identify the controller in the PhysicalDisk and
           # LogicalDisk discoveries
-          type: "wmi"
+          type: wmi
           query: "SELECT BIOSVersion, ControllerID, DeviceID, DriverVersion, FirmwareVersion, Manufacturer, Model FROM IBMPSG_RAIDController"
       mapping:
-        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
-          model: "$column(7)"
-          id: "$column(3)"
-          bios_version: "$column(1)"
-          driver_version: "$column(4)"
-          controller_number: "$column(2)"
-          hw.parent.type: "enclosure"
+          model: $column(7)
+          id: $column(3)
+          bios_version: $column(1)
+          driver_version: $column(4)
+          controller_number: $column(2)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(3), $column(7))"
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = IBMPSG_RAIDDiskDrive table
-          type: "wmi"
+          _comment: Source(1) = IBMPSG_RAIDDiskDrive table
+          type: wmi
           query: "SELECT ControllerID,DeviceID,DiskDriveID FROM IBMPSG_RAIDDiskDrive"
           computes:
             # Replace :DiskDriveID: by :DeviceID: in the IBMPSG_RAIDDiskDrive table
-          - type: "replace"
+          - type: replace
             column: 2
-            existingValue: ":DeviceID:"
-            newValue: ":DiskDriveID:"
+            existingValue: ':DeviceID:'
+            newValue: ':DiskDriveID:'
         source(2):
-          # Source(2) = IBMPSG_PhysicalDiskDrive table
-          type: "wmi"
+          _comment: Source(2) = IBMPSG_PhysicalDiskDrive table
+          type: wmi
           query: "SELECT Capacity,Manufacturer,Model,SerialNumber,Tag FROM IBMPSG_PhysicalDiskDrive"
           computes:
             # Replace :DiskDriveID: by :DeviceID: in the IBMPSG_PhysicalDiskDrive table
             # (yes, normally it is already done, but in fact, we cannot trust the IBM Director
             # development team... ;-)
-          - type: "replace"
+          - type: replace
             column: 5
-            existingValue: ":DeviceID:"
-            newValue: ":DiskDriveID:"
+            existingValue: ':DeviceID:'
+            newValue: ':DiskDriveID:'
         source(3):
-          # Source(3) = The jointure
-          type: "tableJoin"
-          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
-          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          _comment: Source(3) = The jointure
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
           leftKeyColumn: 2
           rightKeyColumn: 5
       mapping:
         # Finally here is the instance table...
         # InstanceTable = ControllerID,DeviceID,DiskDriveID,Capacity,Manufacturer,Model,SerialNumber,Tag
-        source: "$monitors.physical_disk.discovery.sources.source(3)$"
+        source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
-          id: "$column(2)"
-          vendor: "$column(5)"
-          model: "$column(6)"
-          serial_number: "$column(7)"
-          hw.parent.type: "disk_controller"
+          id: $column(2)
+          vendor: $column(5)
+          model: $column(6)
+          serial_number: $column(7)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(4))"
         metrics:
-          hw.physical_disk.size: "$column(4)"
+          hw.physical_disk.size: $column(4)
     collect:
       # The physical disk collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all physical disks
       # Less WBEM queries gives faster results
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the only source = the IBMPSG_RAIDDiskDrive table
-          type: "wmi"
+          _comment: Source(1) = the only source = the IBMPSG_RAIDDiskDrive table
+          type: wmi
           query: "SELECT DeviceID,State FROM IBMPSG_RAIDDiskDrive"
           computes:
-            # We must duplicate the \"State\" column
-          - type: "duplicateColumn"
+          - _comment: We must duplicate the "State" column
+            type: duplicateColumn
             column: 2
-            # Then we translate the IBMPSG status code into OK/WARN/ALARM (for the Status parameter)
-          - type: "translate"
+          - _comment: Then we translate the IBMPSG status code into OK/WARN/ALARM (for the Status parameter)
+            type: translate
             column: 2
-            translationTable: "PhysicalDiskStatusTranslationTable"
+            translationTable: PhysicalDiskStatusTranslationTable
             # And finally, we translate the IBMPSG status code into a more readable status string
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
-          type: "wmi"
+          _comment: Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
+          type: wmi
           query: "SELECT ControllerID,DataSpace,DeviceID,RAIDLevel FROM IBMPSG_RAIDLogicalDrive"
           computes:
-            # Convert the DataSpace column (MB) in bytes
-          - type: "multiply"
+          - _comment: Convert the DataSpace column (MB) in bytes
+            type: multiply
             column: 2
-            value: "1048576"
+            value: 1048576
       mapping:
-        # Here is the instance table
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        _comment: Here is the instance table
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          hw.logical_disk.limit: "$column(2)"
-          raid_level: "$column(4)"
-          hw.parent.type: "disk_controller"
+          id: $column(3)
+          hw.logical_disk.limit: $column(2)
+          raid_level: $column(4)
+          hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(2))"
     collect:
       # It's a "MultiInstance" collect
       # One WBEM query will be executed in order to get the info for all the logical drives
       # Much faster!
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
-          type: "wmi"
+          _comment: Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
+          type: wmi
           query: "SELECT DeviceID,State FROM IBMPSG_RAIDLogicalDrive"
           computes:
-            # Duplicate the State column (because it'll be translated two times)
-          - type: "duplicateColumn"
+          - _comment: Duplicate the State column (because it'll be translated two times)
+            type: duplicateColumn
             column: 2
-            # Translate the IBMPSG State column (the first one) into OK/WARN/ALARM
-          - type: "translate"
+          - _comment: Translate the IBMPSG State column (the first one) into OK/WARN/ALARM
+            type: translate
             column: 2
-            translationTable: "LogicalDiskStatusTranslationTable"
-            # Translate the IBMPSG State column (the second one) into a more readable status information string
-          - type: "translate"
+            translationTable: LogicalDiskStatusTranslationTable
+          - _comment: Translate the IBMPSG State column (the second one) into a more readable status information string
+            type: translate
             column: 3
-            translationTable: "LogicalDiskStatusInformationTranslationTable"
+            translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: "$monitors.logical_disk.collect.sources.source(1)$"
-        deviceId: "$column(1)"
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
-          StatusInformation: "$column(3)"
+          StatusInformation: $column(3)

@@ -3,723 +3,723 @@ embedded:
   EmbeddedFile(1): "# ENCLOSURE\n$0 ~ /Agent.Host Information/ {Section=\"ENC\"}\nSection==\"ENC\" {\n  if ($1 ~ /Model:/)  {SystemModel = $2}\n  else if ($1 ~ /Prom/ && $2 ~ /Rev:/) {SystemFirmware = $NF}\n  else if ($1 ~ /Serial/ && $2 ~ /No:/)  {SystemSerial = $NF}\n  }\n\n# ARRAY\n$0 ~ /Array Information/ {Section=\"ARRAY\"}\nSection==\"ARRAY\" {\n  if ($1 ~ /Array/ && $2 ~ /Name:/) {ArrayName = $NF}\n  else if ( $0 ~ /^Bus [0-9]* Enclosure [0-9]*.*State:/ || $0 ~ /^SP [A-Z0-9] State:/ || $0 ~ /^Enclosure SPE.*State:/ ) {\n\t                                                         ComponentID = $0 ;\n\t                                                         gsub(/State:/,\":\",ComponentID)\n\t                                                         gsub(/ ?:.*$/,\"\",ComponentID)\n\t                                                         ComponentIDs[ComponentID] = ComponentID;\n\t                                                         Type[ComponentID] = $5 ;\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t if ($0 ~ /^SP [A-Z0-9] State:/) {Type[ComponentID] = \"SP\"};\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t if (/^Enclosure SPE.*State:/) {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   Typetemp = $0\n                                                               gsub(/Enclosure SPE /,\"\",Typetemp) ;\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   gsub(/( [^ ][^ ]?)? State:.*/,\"\",Typetemp) ;\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   gsub(/SPS? [AB] /,\"\",Typetemp) ;\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   Type[ComponentID] = Typetemp\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   }\n\t                                                         Status[ComponentID] = $0\n\t                                                         gsub(/.*: */,\"\",Status[ComponentID])\n\t                                                         gsub(/ *$/,\"\",Status[ComponentID])\n\t                                                       }\n  }\n\n# HBA\n$0 ~ /^HBA Information/ {Section=\"HBA\"}\n\n# Ports\n$0 ~ /Information about each SPPORT/ {Section=\"SPPORT\"}\nSection==\"SPPORT\" {\n  if ($1 ~ /SP/ && $2 ~ /Name:/) {SPName = $0; gsub(/.*: */,\"\",SPName);}\n  else if ($1 ~ /SP/ && $2 ~ /Port/ && $3 ~ /ID:/) {SPID = $NF ; PortID = SPName \" Port \" SPID ; Ports[PortID] = PortID ;}\n  else if ($1 ~ /Link/ && $2 ~ /Status:/) {SPLinkStatus[PortID] = $NF }\n  else if ($1 ~ /Port/ && $2 ~ /Status:/) {SPPortStatus[PortID] = $NF ; SPPortStatusInformation[PortID] = $0 ; gsub(/Status: */,\"\", SPPortStatusInformation[PortID]) }\n  else if ($1 ~ /SFP/ && $2 ~ /State:/)\t {SFState[PortID] = $NF }\n  else if ($1 ~ /Speed/ && $2 ~ /Value/)\t {SPPortSpeed[PortID] = $NF ; gsub(/[Gg]bps/,\"000\",SPPortSpeed[PortID]);gsub(/[Mm]bps/,\"\",SPPortSpeed[PortID]);gsub(/N.A/,\"\",SPPortSpeed[PortID])}\n  else if ($1 ~ /I.O/ && $2 ~ /Module/ && $3 ~ /Slot:/) {SPIOSlot[PortID] = \"IO Module \" $NF}\n  else if ($1 ~ /Physical/ && $2 ~ /Port/ && $3 ~ /ID:/) {SPPhysPortID[PortID] = \"Port ID \" $NF}\n# (removed)  else if ($1 ~ /SP/ && $2 ~ /UID:/)\t {SPUID[PortID] = \"UID: \"$NF }\n  else if ($1 ~ /SFP.Connector/ && $2 ~ /EMC/ && $3 ~ /Part/) {SPEMCPartNumber[PortID] = \"Part Number: \" $NF ; gsub (/N.A$/,\"\",SPEMCPartNumber[PortID]) }\n  else if ($1 ~ /SFP.Connector/ && $2 ~ /EMC/ && $3 ~ /Serial/) {SPEMCSerialNumber[PortID] = \"Serial Number: \" $NF ; gsub (/N.A$/,\"\",SPEMCSerialNumber[PortID])}\n  else if ($1 ~ /SFP.Connector/ && $2 ~ /Vendor/ && $3 ~ /Part/) {SPVendorPartNumber[PortID] = \"Alternative Part Number: \" $NF ; gsub (/N.A$/,\"\",SPVendorPartNumber[PortID])}\n  else if ($1 ~ /SFP.Connector/ && $2 ~ /Vendor/ && $3 ~ /Serial/) {SPVendorSerialNumber[PortID] = \"Alternative Serial Number: \" $NF ; gsub (/N.A$/,\"\",SPVendorSerialNumber[PortID])}\n  }\n# SP Information\n$0 ~ /^SP Information/ {Section=\"SP\"}\nSection==\"SP\" {\n  if ($1 ~ /System/ && $2 ~ /Fault/ && $3 ~ /LED:/) {SystemFaultLED = $NF}\n  }\n\n# PHYSICAL DISK\n$0 ~ /All Disks Information/ {Section=\"PD\"}\nSection==\"PD\" {\n  if ($0 ~ /^Bus [0-9]+ Enclosure [0-9]+ +Disk [A-Za-z0-9]+$/) {DiskID = $0; DiskIDs[DiskID]= DiskID;}\n  else if ($1 ~ /Vendor/ && $2 ~ /Id:/) {DiskVendor[DiskID] = $NF}\n  else if ($1 ~ /State/) {DiskState[DiskID] = $NF ; DiskStateInformation[DiskID] = $0 ; gsub(/.*State:? */,\"\", DiskStateInformation[DiskID])}\n  else if ($1 ~ /Capacity:/) {Size[DiskID] = $NF}\n  else if ($1 ~ /Product/ && $2 ~ /Id:/)  {DiskModel[DiskID] = $0; gsub(/.*: */,\"\",DiskModel[DiskID])}\n  else if ($1 ~ /Product/ && $2 ~ /Revision:/) {DiskRevision[DiskID] = $NF}\n  else if ($1 ~ /Clariion/ && $2 ~ /TLA/ && $3 ~ /Part/) {DiskTLAPartNumber[DiskID] =  $NF; gsub (/Number:/,\"\",DiskTLAPartNumber[DiskID]) ;\n\t                                                             gsub (/PWR$/,\"\",DiskTLAPartNumber[DiskID]) ;\n\t                                                             DiskTLAPartNumber[DiskID] = \"Alternative Part Number: \" DiskTLAPartNumber[DiskID] }\n  else if ($1 ~ /Clariion/ && $2 ~ /Part/ && $3 ~ /Number:/) {DiskPartNumber[DiskID] = \"Part Number: \"$NF}\n  }\n# Raid Group\n$0 ~ /All RAID Groups Information/ {Section=\"RG\"}\nSection==\"RG\" {\n  if ($1 ~ /RaidGroup/ && $2 ~ /ID/) {LDiskID = \"RAIDGroup-\" $NF ;LDiskIDs[LDiskID]= LDiskID; LDiskName[LDiskID] = LDiskID;}\n  else if ($1 ~ /RaidGroup/ && $2 ~ /Type/) {LDiskRaid[LDiskID] = $NF}\n  else if ($1 ~ /RaidGroup/ && $2 ~ /State/) {State = $0 ; gsub(/.*: */,\"\",State); LDiskState[LDiskID] = LDiskState[LDiskID] \"|\" State\n                                                   endofState = 0;\n                                                   while (endofState==\"0\") {getline\n                                                   \t                        if( $0 ~ /:/ ) {endofState = 1}\n                                                   \t                        else {State = $0 ; gsub(/ */,\"\",State);\n                                                   \t                        \t  LDiskState[LDiskID] = LDiskState[LDiskID] \"|\" State\n                                                   \t                             }\n                                                   \t                       }\n                                                  }\n  }\n\n# Raid Group (LUNs)\n# Get additional RG status information from its LUNs\n$0 ~/LOGICAL UNIT NUMBER/ {Section=\"LUN\"}\nSection==\"LUN\" {\n  if ($1 ~ /RAIDGroup/ && $2 ~ /ID/) { LDiskID = \"RAIDGroup-\" $NF  ;}\n  else if ($1 ~ /State/) { State = $0 ; gsub(/.*: */,\"\",State);\n\t                             # A faulted LUN Raid Group is just a degraded one\n\t                             if ( tolower(State) ~ /faulted/) { State = \"Degraded\" }\n\t                             LDiskState[LDiskID] = LDiskState[LDiskID] \"|\" State\n                                 LDiskID = \"\"\n                               }\n  }\n\n# Storage Pools\n$1 ~ /Pool/ && $2 ~ /Name:/ {Section=\"SPOOL\"; PoolName = $0 ; gsub(/.*: */,\"\",PoolName) }\nSection==\"SPOOL\" {\n  if ($1 ~ /Pool/ && $2 ~ /ID/) { LDiskID = \"StoragePool-\" $NF ; LDiskIDs[LDiskID] = LDiskID ; LDiskName[LDiskID] = PoolName }\n  else if ($1 ~ /Raid/ && $2 ~ /Type/) {LDiskRaid[LDiskID] = $NF}\n  else if ($1 ~ /State/) {LDiskState[LDiskID] = $NF}\n  }\n\n# Resume Information\n$0 ~ /Resume Information/ {Section=\"FRU\"}\n$0 !~ /:/ && Section != \"NAS\" {ComponentID=\"\"}\n#SP\nSection==\"FRU\" {\n  if ($1 ~ /SP/ && $2 ~ /[A-Z]/) { ComponentID = \"SP \" $2 ; Type[ComponentID]=\"SP\"}\n#For non-SP, set StorageProcessor\n  else if ($1 ~ /Storage/ && $2 ~ /Processor/ && $3 ~ /^[A-Z]$/) {StorageProcessor = $3}\n#For power supplies and LCC, Set the Location aswell\n  else if ($0 ~ /Bus [0-9] Enclosure [0-9]/) {Location = $0}\n  else if ($0 ~ /Enclosure SPE/) {Location = $0}\n  else if ($1 ~ /Power/ && $2 ~ /^[A-Z][A-Z0-9]?$/) {StorageProcessor = $2 ; ComponentID = Location \" Power \" StorageProcessor ; Type[ComponentID] = \"Power\"}\n  else if ($1 ~ /Standby/ && $2 ~ /Power/ && $3 ~ /Supply/) { ComponentID = \"Enclosure SPE SPS \" StorageProcessor ; Type[ComponentID] = \"SPS\" }\n  else if ($1 ~ /Management/ && $2 ~ /Module/) { ComponentID = Location \" Management Module \" $3 ; Type[ComponentID] = \"SPS\" }\n  else if ($1 ~ /Fan/ && $2 ~ /[0-9]/) { ComponentID = Location \" Fan \" $2 ; Type[ComponentID] = \"FAN\" }\n  else if ($1 ~ /LCC/ && $2 ~ /^[A-Z]$/) {StorageProcessor = $2 ; ComponentID = Location \" LCC \" StorageProcessor ; Type[ComponentID] = \"LCC\"}\n  else if ($1 ~ /ICM/ && $2 ~ /^[A-Z]$/) {StorageProcessor = $2 ; ComponentID = Location \" ICM \" StorageProcessor ; Type[ComponentID] = \"ICM\"}\n  else if ($1 ~ /CPU/ && $2 ~ /Module/) { ComponentID = \"Bus 0 Enclosure 0 CPU Module \" StorageProcessor ; Type[ComponentID] = \"CPU\"\n                                          ComponentID2 = \"Enclosure SPE CPU Module \" StorageProcessor ; Type[ComponentID] = \"CPU\"\n                                        }\n  else if ($1 ~ /I.O/ && $2 ~ /Module/) { ComponentID = \"Bus 0 Enclosure 0 SP \" StorageProcessor \" I/O Module \" $3 ; Type[ComponentID] = \"IOM\"\n                                          ComponentID2 = \"Enclosure SPE SP \" StorageProcessor \" I/O Module \" $3 ; Type[ComponentID2] = \"IOM\"\n                                        }\n  else if ($1 ~ /EMC/ && $2 ~ /Part/ && $3 ~ /Number:/) {ComponentPartNumber[ComponentID] = \"Part Number: \" $NF\n                                                         ComponentPartNumber[ComponentID2] = ComponentPartNumber[ComponentID]\n                                                        }\n  else if ($1 ~ /EMC/ && $2 ~ /Serial/ && $3 ~ /Number:/) {ComponentSerialNumber[ComponentID] = \"Serial Number: \" $NF\n                                                           ComponentSerialNumber[ComponentID2] = ComponentSerialNumber[ComponentID]\n                                                          }\n  else if ($1 ~ /EMC/ && $2 ~ /Assembly/ && $3 ~ /Revision:/) {ComponentRevision[ComponentID] = \"Version: \"$NF\n                                                               ComponentRevision[ComponentID2] = ComponentRevision[ComponentID]\n                                                              }\n  else if ($1 ~ /Assembly/ && $2 ~ /Name:/) {ComponentDescription[ComponentID] = $0; gsub(/^.*: */,\"\",ComponentDescription[ComponentID])\n                                             ComponentDescription[ComponentID2] = ComponentDescription[ComponentID]\n                                            }\n  }\n\n$0 ~ /All logical Units Information/ {Section=\"LD\"}\n$0 ~ /Snap View Information/ {Section=\"SV\"}\n\n# Process output of nas_inventory\n$0 ~ /MS_HW_NAS_INVENTORY_START/ {Section=\"NAS\"}\nSection==\"NAS\" {\n  if ($1 ~ /Component/ && $2 ~ /Name/) {\n    ComponentID  = $0 ; gsub(/.* = /,\"\",ComponentID )\n    if (ComponentID ~ /^Shelf/) {\n    \t  Bus = ComponentID\n    \t  gsub(/Shelf /,\"\",Bus)\n    \t  gsub(\"/.*\",\"\",Bus)\n    \t  Enclosure = ComponentID\n    \t  gsub(\"Shelf [0-9]+/\",\"\",Enclosure)\n    \t  gsub(\" .*\",\"\",Enclosure)\n        ComponentDetails = ComponentID\n        gsub(\"Shelf [0-9]+/[0-9]+ \",\"\",ComponentDetails)\n        ComponentID = \"Bus \" Bus \" Enclosure \" Enclosure \" \" ComponentDetails\n        }\n    if (ComponentID ~ /Power Supply/) { gsub(/Power Supply/,\"Power\",ComponentID) }\n    }\n  else if ($1 ~ /Type/) { ComponentType = $0 ; gsub(/.* = /,\"\",ComponentType )  }\n  else if ($1 ~ /Status/) { ComponentStatus = $0 ; gsub(/.* = /,\"\",ComponentStatus ) ; gsub(/[(].*/,\"\",ComponentStatus) ; gsub(/Error.*: /,\"\",ComponentStatus) }\n  else if ($1 ~ /Variant/) { Description = $0 ; gsub(/.* = /,\"\",Description )}\n  else if ($1 ~ /Version/) { Version = $0 ; gsub(/.* = /,\"\",Version )}\n  else if ($1 ~ /Serial/) { SerialNumber = $0 ; gsub(/.* = /,\"\",SerialNumber )}\n  else if ($1 ~ /Part/) { PartNumber = $0 ; gsub(/.* = /,\"\",PartNumber )}\n  else if ($0 ~ /EMC_PART_NUMBER/) { PartNumber = $0 ; gsub(/.*EMC_PART_NUMBER:/,\"\",PartNumber )}\n  else if ($0 ~ /EMC_ASSEMBLY_REVISION/) { Revision = $0 ; gsub(/.*EMC_ASSEMBLY_REVISION:/,\"\",Revision ) }\n  else if ($0 ~ /DIMM_TYPE/) { DimmType = $0 ; gsub(/.*DIMM_TYPE:/,\"\",DimmType )}\n\n  # Create a fake Logical Disk to indicate Navisphere CLI failures\n  else if ($0 ~ /MS_HW_NAS_NaviSphereCLI_Failure/) { print \"MSHW_LOGICALDISK;NaviSphere CLI Failure;ALARM;Unknown login error for block side of system, see debug;;NaviSphere CLI Failure;\"}\n  else if ($0 ~ /MS_HW_NAS_Authentication_failed/) { print \"MSHW_LOGICALDISK;NaviSphere CLI Failure;ALARM;Authentication failed for block side of system;;NaviSphere CLI Failure;\"}\n  else if ($0 ~ /MS_HW_NAS_No_SP_In_Hosts/) { print \"MSHW_LOGICALDISK;NaviSphere CLI Failure;ALARM;No SP addresses in /etc/hosts file;;NaviSphere CLI Failure;\"}\n  else if ($0 ~ /MS_HW_NAS_Authentication_blocked/) { print \"MSHW_LOGICALDISK;NaviSphere CLI Failure;ALARM;Excessive failed authentication attempts for block side of system;;NaviSphere CLI Failure;\"}\n  else if ($0 ~ /MS_HW_NAS_Not_Compatible/) { print \"MSHW_LOGICALDISK;NaviSphere CLI Failure;ALARM;Connector not compatible with this version of the KM;;NaviSphere CLI Failure;\"}\n  else if ($0 ~ /MS_HW_NAS_INVENTORY_END/ || $1 ~ /Location/) {\n    if (toupper(ComponentType) ~ /VNX/ || ComponentType ~ /Clar/ || ComponentType ~ /Celerra/) {\n        SystemModel = Description\n        SystemFirmware = Version\n        SystemSerial = SerialNumber\n        }\n    else if (ComponentType ~ /Disk/) {\n        DiskID = ComponentID\n        gsub(/ Disk/,\"  Disk\",DiskID)\n        DiskIDs[DiskID]=DiskID\n        if (DiskState[DiskID] == \"\") {DiskState[DiskID]=ComponentStatus}\n        DiskRevision[DiskID]=Version\n        DiskTLAPartNumber[DiskID]=PartNumber\n        DiskSerialNumber=SerialNumber\n        }\n    else {\n        ComponentIDs[ComponentID] = ComponentID;\n        if (ComponentType != \"\") { Type[ComponentID] = ComponentType }\n        if (PartNumber != \"\") { ComponentPartNumber[ComponentID] = PartNumber }\n        if (SerialNumber != \"\") { ComponentSerialNumber[ComponentID] = SerialNumber }\n        if (Revision != \"\") { ComponentRevision[ComponentID] = Revision }\n        if (DimmType != \"\") {\n                             if (DimmType ~ /MB$/) { DimmArraySize = split(DimmType,DimmArray,\" \")\n                                                     DimmSize = DimmArray[DimmArraySize]\n                                                     gsub(DimmSize,\"\",DimmType);\n                                                     gsub(/MB/,\"\",DimmSize)\n                                                     ComponentDimmSize[ComponentID] = DimmSize\n                                                     ComponentDimmType[ComponentID] = DimmType\n                                                   }\n                             else {ComponentDimmType[ComponentID] = DimmType }\n                            }\n        if (Description != \"\") { ComponentDescription[ComponentID] = Description }\n        if (ComponentStatus != \"\" && Status[ComponentID] == \"\") { Status[ComponentID] = ComponentStatus }\n        }\n    ComponentType = \"\"\n    ComponentStatus = \"\"\n    Description = \"\"\n    Version = \"\"\n    SerialNumber = \"\"\n    PartNumber = \"\"\n    Revision = \"\"\n    DimmType = \"\"\n    }\n  }\n# We will now process the previous discovery (if available).\n# If the status of a physical disk is removed then we will replace that disk's information with that of the previous discover\n$0 ~ /^MSHW_PHYDISK/ {\n  # Split the line (see print below to know the fields)\n  split($0,PHYDISKArray,\";\")\n  DiskID=PHYDISKArray[2]\n  if ( tolower(DiskState[DiskID]) ~ /removed/ ) {\n    # If current information is empty, replace with that of last discovery\n    if ( DiskVendor[DiskID] !~ /.../ ) { DiskVendor[DiskID] = PHYDISKArray[3] }\n    if ( DiskModel[DiskID] !~ /.../ ) { DiskModel[DiskID] = PHYDISKArray[5] }\n    if ( DiskRevision[DiskID] !~ /.../ ) { DiskRevision[DiskID] = PHYDISKArray[6] }\n    if ( DiskTLAPartNumber[DiskID] !~ /.../ ) { DiskTLAPartNumber[DiskID] = PHYDISKArray[7] }\n    if ( DiskPartNumber[DiskID] !~ /.../ ) { DiskPartNumber[DiskID] = PHYDISKArray[8] }\n    if ( Size[DiskID] !~ /.../ ) { Size[DiskID] = PHYDISKArray[9] }\n  }\n}\n\n\nEND{\n# ENCLOSURE\nprint \"MSHW_ENCLOSURE;\" SystemModel \";\" SystemSerial \";\" \"Prom Rev:\" SystemFirmware \";\" SystemFaultLED \";\"\n# PHYSICAL DISK\nfor (DiskID in DiskIDs) { if (DiskID != \"\") {\n\t  print \"MSHW_PHYDISK;\" DiskID \";\" DiskVendor[DiskID] \";\" DiskState[DiskID] \";\" DiskStateInformation[DiskID] \";\" DiskModel[DiskID] \";\" DiskRevision[DiskID] \";\" DiskTLAPartNumber[DiskID] \";\"  DiskPartNumber[DiskID] \";\" Size[DiskID] \";\"\n    }\n    }\n\n# LOGICAL DISK\nfor (LDiskID in LDiskIDs) { print \"MSHW_LOGICALDISK;\" LDiskID \";\" LDiskState[LDiskID] \";\" LDiskState[LDiskID] \";\" LDiskRaid[LDiskID] \";\" LDiskName[LDiskID] \";\"}\n\n# Components\nfor (ComponentID in ComponentIDs) { if (ComponentID != \"\" && Status[ComponentID] != \"\" ) {\n  if(Type[ComponentID] != \"DIMM\") {\n      print \"MSHW_OTHER;\" Type[ComponentID] \";\" ComponentID \";\" Status[ComponentID] \";\" ComponentPartNumber[ComponentID] \";\" ComponentSerialNumber[ComponentID] \";\" ComponentRevision[ComponentID] \";\" ComponentDescription[ComponentID] \";\"\n      }\n  else {\n      print \"MSHW_OTHER;\" Type[ComponentID] \";\" ComponentID \";\" Status[ComponentID] \";\" ComponentPartNumber[ComponentID] \";\" ComponentSerialNumber[ComponentID] \";\" ComponentRevision[ComponentID] \";\" ComponentDescription[ComponentID] \";\" ComponentDimmSize[ComponentID] \";\" ComponentDimmType[ComponentID] \";\"\n      }\n  }\n  }\n\n# Ports\nfor (PortID in Ports) { if (PortID != \"\") {\n\tFRU = \"\"\n\tif ( SPEMCPartNumber[PortID] != \"\" ) { FRU = SPEMCPartNumber[PortID] \" - \" }\n  if ( SPEMCSerialNumber[PortID] != \"\" ) { FRU = FRU SPEMCSerialNumber[PortID] \" - \" }\n  if ( SPVendorPartNumber[PortID] != \"\" ) { FRU = FRU SPVendorPartNumber[PortID] \" - \" }\n  if ( SPVendorSerialNumber[PortID] != \"\" ) { FRU = FRU SPVendorSerialNumber[PortID]}\n  gsub (/ - $/,\"\",FRU)\n  Location = \"\"\n  if (SPIOSlot[PortID] != \"\" && SPPhysPortID[PortID] != \"\") { Location = \"Location: \" SPIOSlot[PortID] \" \" SPPhysPortID[PortID] }\n  print \"MSHW_PORT;\" PortID \";\" SPLinkStatus[PortID] \";\" SPPortStatus[PortID] \";\" SPPortStatusInformation[ID] \";\" SFState[PortID] \";\"SPPortSpeed[PortID] \";\" Location \";\"   \";\" FRU \";\"\n  }\n}\n}"
 translations:
   SFPPortStatusTT:
-    default: "failed"
-    online: "ok"
-    disabled: "ok"
+    default: failed
+    online: ok
+    disabled: ok
   SPPortStatusTT:
-    default: "failed"
-    online: "ok"
-    disabled: "ok"
+    default: failed
+    online: ok
+    disabled: ok
   RaidGroupStatusInformationTranslationTable:
     expanding: ""
-    halted: "Halted"
-    valid states are invalid: "Valid States are Invalid"
+    halted: Halted
+    valid states are invalid: Valid States are Invalid
     defragmenting: ""
     valid_luns: ""
-    busy: "ok"
-    invalid: "Invalid"
+    busy: ok
+    invalid: Invalid
     explicit_remove: ""
-    degraded: "Degraded"
+    degraded: Degraded
   systemStatusTranslationTable:
-    default: "UNKNOWN"
-    "off": "ok"
-    "on": "degraded"
+    default: UNKNOWN
+    "off": ok
+    "on": degraded
   StatusTT:
-    expanding: "ok"
-    unbound: "ok"
-    rebuilding: "degraded"
-    binding: "ok"
-    no_mirror: "degraded"
-    unformatted: "degraded"
-    enabled: "ok"
-    empty: "failed"
-    valid: "ok"
-    default: "UNKNOWN"
-    '*fault*': "failed"
-    unsupported: "failed"
-    ready: "ok"
-    up: "ok"
-    power: "ok"
-    ok: "ok"
-    spare: "ok"
-    normal: "ok"
-    faulted: "failed"
-    bound: "ok"
-    fault: "failed"
-    failed: "failed"
-    degraded: "degraded"
-    "off": "failed"
-    bypass: "failed"
-    removed: "failed"
-    transitioning: "ok"
-    attention: "degraded"
-    online: "degraded"
-    alerts.: "failed"
-    present: "ok"
-    equalizing: "ok"
-    formatting: "degraded"
+    expanding: ok
+    unbound: ok
+    rebuilding: degraded
+    binding: ok
+    no_mirror: degraded
+    unformatted: degraded
+    enabled: ok
+    empty: failed
+    valid: ok
+    default: UNKNOWN
+    '*fault*': failed
+    unsupported: failed
+    ready: ok
+    up: ok
+    power: ok
+    ok: ok
+    spare: ok
+    normal: ok
+    faulted: failed
+    bound: ok
+    fault: failed
+    failed: failed
+    degraded: degraded
+    "off": failed
+    bypass: failed
+    removed: failed
+    transitioning: ok
+    attention: degraded
+    online: degraded
+    alerts.: failed
+    present: ok
+    equalizing: ok
+    formatting: degraded
   systemStatusInformationTranslationTable:
-    default: "Unknown System Fault LED Status"
-    "off": "System Fault LED OFF"
-    "on": "System Fault LED ON"
+    default: Unknown System Fault LED Status
+    "off": System Fault LED OFF
+    "on": System Fault LED ON
   SPLinkStatusTT:
-    default: "UNKNOWN"
-    up: "ok"
-    down: "degraded"
+    default: UNKNOWN
+    up: ok
+    down: degraded
   RaidGroupStatusTranslationTable:
-    expanding: "ok"
-    unbound: "ok"
-    rebuilding: "degraded"
-    no_mirror: "degraded"
-    enabled: "ok"
-    empty: "failed"
-    valid: "ok"
-    '*fault*': "failed"
-    ready: "ok"
-    busy: "ok"
-    ok: "ok"
-    halted: "failed"
-    normal: "ok"
-    faulted: "failed"
-    bound: "ok"
-    fault: "failed"
-    failed: "failed"
-    degraded: "degraded"
-    valid states are invalid: "degraded"
-    removed: "failed"
-    defragmenting: "ok"
-    valid_luns: "ok"
-    invalid: "degraded"
-    attention: "degraded"
-    online: "degraded"
-    explicit_remove: "ok"
-    present: "ok"
+    expanding: ok
+    unbound: ok
+    rebuilding: degraded
+    no_mirror: degraded
+    enabled: ok
+    empty: failed
+    valid: ok
+    '*fault*': failed
+    ready: ok
+    busy: ok
+    ok: ok
+    halted: failed
+    normal: ok
+    faulted: failed
+    bound: ok
+    fault: failed
+    failed: failed
+    degraded: degraded
+    valid states are invalid: degraded
+    removed: failed
+    defragmenting: ok
+    valid_luns: ok
+    invalid: degraded
+    attention: degraded
+    online: degraded
+    explicit_remove: ok
+    present: ok
 monitors:
   enclosure:
     discovery:
       sources:
         source(3):
           computes:
-            # Process the naviseccli command through an AWK script
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW"
-            separators: ";"
+          - _comment: Process the naviseccli command through an AWK script
+            type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW
+            separators: ;
         source(4):
-          # Enclosure Source 2 = Copy of Source 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Enclosure Source 2 = Copy of Source 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only Enclosures
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;SystemFaultLED;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_ENCLOSURE$"
+            regExp: ^MSHW_ENCLOSURE$
       mapping:
         # The discovery table
         # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;SystemFaultLED;
-        source: "$monitors.enclosure.discovery.sources.source(4)$"
+        source: $monitors.enclosure.discovery.sources.source(4)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          serial_number: "$column(3)"
-          model: "$column(2)"
-          vendor: "EMC"
-          type: "Storage"
+          id: $column(3)
+          __display_id: $column(3)
+          serial_number: $column(3)
+          model: $column(2)
+          vendor: EMC
+          type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"EMC\", $column(2), \"Storage\")"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(3):
           computes:
-            # Process the naviseccli command through an AWK script
-          - type: "awk"
-            script: "EmbeddedFile(1)"
-            keep: "^MSHW"
-            separators: ";"
+          - _comment: Process the naviseccli command through an AWK script
+            type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW
+            separators: ;
         source(4):
-          # Enclosure Source 2 = Copy of Source 1
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Enclosure Source 2 = Copy of Source 1
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only Enclosures
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;SystemFaultLED;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_ENCLOSURE$"
+            regExp: ^MSHW_ENCLOSURE$
             # Duplicate status, because we will translate it two times
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;SystemFaultLED;SystemFaultLED;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 5
             # Translate Status into PATROLStatus
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;PATROLStatus;SystemFaultLED;
-          - type: "translate"
+          - type: translate
             column: 5
-            translationTable: "systemStatusTranslationTable"
+            translationTable: systemStatusTranslationTable
             # Translate second Status into more readable string
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;PATROLStatus;StatusInformation;
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "systemStatusInformationTranslationTable"
+            translationTable: systemStatusInformationTranslationTable
         source(5):
-          # Take a copy of the last discovery for the next discovery to use
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Take a copy of the last discovery for the next discovery to use
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
       mapping:
-        # ValueTable = Source(2)
-        source: "$monitors.enclosure.collect.sources.source(4)$"
-        deviceId: "$column(3)"
+        _comment: ValueTable = Source(2)
+        source: $monitors.enclosure.collect.sources.source(4)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="enclosure"}: "$column(5)"
+          hw.status{hw.type="enclosure"}: $column(5)
         legacyTextParameters:
-          StatusInformation: "$column(6)"
+          StatusInformation: $column(6)
   physical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only PhysicalDisk
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_PHYDISK$"
+            regExp: ^MSHW_PHYDISK$
             # Convert Size from Mbytes to bytes
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-          - type: "multiply"
+          - type: multiply
             column: 10
-            value: "1048576"
+            value: 1048576
             # Exclude Empty Disk Slots
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            valueList: "Empty"
+            valueList: Empty
       mapping:
         # The discovery table
         # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStateInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
-          vendor: "$column(3)"
-          model: "$column(6)"
-          firmware_version: "$column(7)"
+          id: $column(2)
+          __display_id: $column(2)
+          vendor: $column(3)
+          model: $column(6)
+          firmware_version: $column(7)
           info: "join($column(8), $column(9), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(10))"
         metrics:
-          hw.physical_disk.size: "$column(10)"
+          hw.physical_disk.size: $column(10)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only Physical Disks
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_PHYDISK$"
+            regExp: ^MSHW_PHYDISK$
             # Now translate  into OK/Warning/Alarm
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "StatusTT"
+            translationTable: StatusTT
       mapping:
         # Value Table
         # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-        source: "$monitors.physical_disk.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="physical_disk"}: "$column(4)"
+          hw.status{hw.type="physical_disk"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Keep only "Power"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "^Power$"
+            regExp: ^Power$
             # Exclude Empty
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            valueList: "Empty"
+            valueList: Empty
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          power_supply_type: "$column(8)"
+          id: $column(3)
+          __display_id: $column(3)
+          power_supply_type: $column(8)
           info: "join($column(5), $column(6), $column(7), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(8))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only PowerSupply
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Duplicate the State
             # MSHW_OTHER;Type;ComponentID;Status;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Now translate  into OK/Warning/Alarm
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "StatusTT"
+            translationTable: StatusTT
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: "$monitors.power_supply.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="power_supply"}: "$column(4)"
+          hw.status{hw.type="power_supply"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   memory:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;Size;Type;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Keep only "DIMM"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;Size;Type;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "^DIMM$"
+            regExp: ^DIMM$
             # Exclude Empty
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;Size;Type;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            valueList: "Empty"
-          - type: "leftConcat"
+            valueList: Empty
+          - type: leftConcat
             column: 5
             value: "Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 7
             value: "Version: "
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;Size;Type;
-        source: "$monitors.memory.discovery.sources.source(1)$"
+        source: $monitors.memory.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          serial_number: "$column(6)"
-          model: "$column(8)"
-          type: "$column(10)"
+          id: $column(3)
+          __display_id: $column(3)
+          serial_number: $column(6)
+          model: $column(8)
+          type: $column(10)
           info: "join($column(5), $column(7), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s - %s)\", $column(3), $column(8), $column(10), $column(9))"
         metrics:
-          hw.memory.limit: "mebiByte2Byte($column(9))"
+          hw.memory.limit: mebiByte2Byte($column(9))
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only Memory
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Duplicate the State
             # MSHW_OTHER;Type;ComponentID;Status;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Now translate  into OK/Warning/Alarm
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "StatusTT"
+            translationTable: StatusTT
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: "$monitors.memory.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="memory"}: "$column(4)"
+          hw.status{hw.type="memory"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   cpu:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Keep only "DIMM"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "^CPU$"
+            regExp: ^CPU$
             # Exclude Empty
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            valueList: "Empty"
-          - type: "leftConcat"
+            valueList: Empty
+          - type: leftConcat
             column: 6
             value: "SerialNumber: "
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: "$monitors.cpu.discovery.sources.source(1)$"
+        source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          model: "$column(8)"
+          id: $column(3)
+          __display_id: $column(3)
+          model: $column(8)
           info: "join($column(5), $column(7), $column(6), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(8))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only CPU
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Duplicate the State
             # MSHW_OTHER;Type;ComponentID;Status;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Now translate  into OK/Warning/Alarm
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "StatusTT"
+            translationTable: StatusTT
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: "$monitors.cpu.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="cpu"}: "$column(4)"
+          hw.status{hw.type="cpu"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   other_device:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Keep only non DIMM / CPU
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
             valueList: "DIMM,CPU,Power"
             # Exclude Empty
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 4
-            valueList: "Empty"
-          - type: "leftConcat"
+            valueList: Empty
+          - type: leftConcat
             column: 5
             value: "Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 6
             value: "Serial Number: "
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: "$monitors.other_device.discovery.sources.source(1)$"
+        source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
-          id: "$column(3)"
-          __display_id: "$column(3)"
-          device_type: "$column(8)"
+          id: $column(3)
+          __display_id: $column(3)
+          device_type: $column(8)
           info: "join($column(5), $column(6), $column(7), \" \")"
-          hw.parent.type: "enclosure"
+          hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(8), $column(3))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only OtherDevice
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_OTHER$"
+            regExp: ^MSHW_OTHER$
             # Duplicate the State
             # MSHW_OTHER;Type;ComponentID;Status;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "duplicateColumn"
+          - type: duplicateColumn
             column: 4
             # Now translate  into OK/Warning/Alarm
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "StatusTT"
+            translationTable: StatusTT
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: "$monitors.other_device.collect.sources.source(1)$"
-        deviceId: "$column(3)"
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(3)
         metrics:
-          hw.status{hw.type="other_device"}: "$column(4)"
+          hw.status{hw.type="other_device"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only LogicalDisk
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_LOGICALDISK$"
+            regExp: ^MSHW_LOGICALDISK$
       mapping:
-        # Discovery Table
-        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        _comment: Discovery Table
+        source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(6)"
-          raid_level: "$column(5)"
-          hw.parent.type: "enclosure"
+          id: $column(2)
+          __display_id: $column(6)
+          raid_level: $column(5)
+          hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(6), $column(5))"
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-            # Keep only NaviSphereCLI Warnings.  These are pre-translated
-          - type: "keepOnlyMatchingLines"
+          - _comment: Keep only NaviSphereCLI Warnings.  These are pre-translated
+            type: keepOnlyMatchingLines
             column: 2
-            regExp: "^NaviSphere CLI Failure$"
+            regExp: ^NaviSphere CLI Failure$
         source(2):
-          # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only RAIDGroups
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 2
-            regExp: "^RAIDGroup-"
+            regExp: ^RAIDGroup-
             # Translate the first status array into a patrol status array
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 3
-            translationTable: "RaidGroupStatusTranslationTable"
+            translationTable: RaidGroupStatusTranslationTable
             # Translate the second status array into a status information array
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "arrayTranslate"
+          - type: arrayTranslate
             column: 4
-            translationTable: "RaidGroupStatusInformationTranslationTable"
-            resultSeparator: " - "
+            translationTable: RaidGroupStatusInformationTranslationTable
+            resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "convert"
+          - type: convert
             column: 3
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
         source(3):
-          # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep Only Logical Disks
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_LOGICALDISK$"
+            regExp: ^MSHW_LOGICALDISK$
             # Exclude RAIDGroups
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
-            regExp: "^RAIDGroup-"
+            regExp: ^RAIDGroup-
             # Exclude NaviSphereCLI Warnings.  These are pre-translated
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 2
-            regExp: "^NaviSphere CLI Failure$"
+            regExp: ^NaviSphere CLI Failure$
             # Now translate  into OK/Warning/Alarm
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "StatusTT"
+            translationTable: StatusTT
         source(4):
-          # Union 1 and 2 and 3
-          type: "tableUnion"
+          _comment: Union 1 and 2 and 3
+          type: tableUnion
           tables:
-          - "$monitors.logical_disk.collect.sources.source(1)$"
-          - "$monitors.logical_disk.collect.sources.source(2)$"
-          - "$monitors.logical_disk.collect.sources.source(3)$"
+          - $monitors.logical_disk.collect.sources.source(1)$
+          - $monitors.logical_disk.collect.sources.source(2)$
+          - $monitors.logical_disk.collect.sources.source(3)$
       mapping:
         # Value Table
         # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-        source: "$monitors.logical_disk.collect.sources.source(4)$"
-        deviceId: "$column(2)"
+        source: $monitors.logical_disk.collect.sources.source(4)$
+        deviceId: $column(2)
         metrics:
-          hw.status{hw.type="logical_disk"}: "$column(3)"
+          hw.status{hw.type="logical_disk"}: $column(3)
         legacyTextParameters:
-          StatusInformation: "$column(4)"
+          StatusInformation: $column(4)
   network:
     discovery:
       sources:
         source(1):
-          # Source(1) = Enclosure Discovery 1
-          type: "copy"
-          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          _comment: Source(1) = Enclosure Discovery 1
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
             # Keep only NetworkCards
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_PORT$"
+            regExp: ^MSHW_PORT$
             # Exclude ports with no SFP
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-          - type: "excludeMatchingLines"
+          - type: excludeMatchingLines
             column: 6
-            valueList: "None"
-          - type: "leftConcat"
+            valueList: None
+          - type: leftConcat
             column: 8
             value: "Location: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 10
             value: "Part Number: "
-          - type: "leftConcat"
+          - type: leftConcat
             column: 9
             value: "SPUID: "
       mapping:
         # The discovery table
         # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-        source: "$monitors.network.discovery.sources.source(1)$"
+        source: $monitors.network.discovery.sources.source(1)$
         attributes:
-          id: "$column(2)"
-          __display_id: "$column(2)"
+          id: $column(2)
+          __display_id: $column(2)
           info: "join($column(8), $column(10), $column(9), \" \")"
-          hw.parent.type: "enclosure"
-          name: "$column(2)"
+          hw.parent.type: enclosure
+          name: $column(2)
     collect:
       # Collect type: MultiInstance
-      type: "multiInstance"
+      type: multiInstance
       sources:
         source(1):
-          # Source(1) = Enclosure Collect 1
-          type: "copy"
-          from: "$monitors.enclosure.collect.sources.source(3)$"
+          _comment: Source(1) = Enclosure Collect 1
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
           computes:
             # Keep only DiskControllers
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-          - type: "keepOnlyMatchingLines"
+          - type: keepOnlyMatchingLines
             column: 1
-            regExp: "^MSHW_PORT$"
+            regExp: ^MSHW_PORT$
             # Now translate SPLinkStatus into OK/Warning/Alarm
             # MSHW_PORT;PortID;PATROLSPLinkStatus;SPPortStatus;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-          - type: "translate"
+          - type: translate
             column: 3
-            translationTable: "SPLinkStatusTT"
-            # Add SPPortStatus to Status Information
-          - type: "leftConcat"
+            translationTable: SPLinkStatusTT
+          - _comment: Add SPPortStatus to Status Information
+            type: leftConcat
             column: 5
-            value: "Column(4)"
+            value: Column(4)
             # Translate the Port Status
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-          - type: "translate"
+          - type: translate
             column: 4
-            translationTable: "SPPortStatusTT"
-            # Add Port Status to Status Information
-          - type: "leftConcat"
+            translationTable: SPPortStatusTT
+          - _comment: Add Port Status to Status Information
+            type: leftConcat
             column: 5
             value: "Port Status: "
-            # Add SFP State to Status Information
-          - type: "rightConcat"
+          - _comment: Add SFP State to Status Information
+            type: rightConcat
             column: 5
             value: " - SFP State: "
-            # Add SFState value to the Status Information
-          - type: "rightConcat"
+          - _comment: Add SFState value to the Status Information
+            type: rightConcat
             column: 5
-            value: "Column(6)"
+            value: Column(6)
             # Translate the Port Status
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-          - type: "translate"
+          - type: translate
             column: 6
-            translationTable: "SFPPortStatusTT"
+            translationTable: SFPPortStatusTT
             # Add the SFState to the SPPortStatus and Convert to SimpleStatus
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-          - type: "leftConcat"
+          - type: leftConcat
             column: 4
-            value: "|"
-          - type: "leftConcat"
+            value: '|'
+          - type: leftConcat
             column: 4
-            value: "Column(6)"
-          - type: "convert"
+            value: Column(6)
+          - type: convert
             column: 4
-            conversion: "array2SimpleStatus"
+            conversion: array2SimpleStatus
       mapping:
-        # ValueTable = Source(1)
-        source: "$monitors.network.collect.sources.source(1)$"
-        deviceId: "$column(2)"
+        _comment: ValueTable = Source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(2)
         metrics:
-          hw.network.up: "legacyLinkStatus($column(3))"
-          hw.network.bandwidth.limit: "megaBit2Bit($column(7))"
-          hw.status{hw.type="network"}: "$column(4)"
+          hw.network.up: legacyLinkStatus($column(3))
+          hw.network.bandwidth.limit: megaBit2Bit($column(7))
+          hw.status{hw.type="network"}: $column(4)
         legacyTextParameters:
-          StatusInformation: "$column(5)"
+          StatusInformation: $column(5)
