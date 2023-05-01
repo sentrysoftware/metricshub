@@ -44,12 +44,22 @@ class ConnectorLibraryConverterTest {
 
 			try {
 				yaml = mapper.readTree(yamlFile);
+				
+				if(yaml.findValues("_comment").size() != 0) {
+					Assertions.fail(String.format("_comment node found! in %s", yamlFile.getAbsolutePath()));
+				}
+
 			} catch (Exception e) {
 				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, yamlFile, yaml));
 			}
 
 			try {
 				expectedNode = mapper.readTree(expected);
+
+				if(expectedNode.findValues("_comment").size() != 0) {
+					Assertions.fail(String.format("_comment node found! in %s", expected.getAbsolutePath()));
+				}
+
 			} catch (Exception e) {
 				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, expected, expectedNode));
 			}
@@ -73,6 +83,11 @@ class ConnectorLibraryConverterTest {
 
 			final List<String> inputLines = Files.readAllLines(inputFile.toPath());
 			final List<String> expectedLines = Files.readAllLines(expectedFile.toPath());
+
+			// Sanity
+			if(inputLines.contains("_comment")) {
+				Assertions.fail("_comment node not processed!");
+			}
 
 			// compares line by line. includes comments
 			assertEquals(expectedLines, inputLines);
