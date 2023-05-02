@@ -162,7 +162,14 @@ public class ConnectorConverter {
 		}
 
 		final ObjectNode constants = JsonNodeFactory.instance.objectNode();
-		constantsMap.entrySet().forEach(entry -> constants.set(entry.getKey(), new TextNode(entry.getValue())));
+		constantsMap
+			.entrySet()
+			.forEach(entry -> 
+				constants.set(
+					entry.getKey(),
+					new TextNode(ConversionHelper.performValueConversions(entry.getValue()))
+				)
+			);
 		((ObjectNode) jsonNode).set("constants", constants);
 	}
 

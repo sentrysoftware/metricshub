@@ -71,3 +71,11 @@
         0: ok
         1: degraded
         2: failed
+- name: testConstantsConversion
+  input: |
+     #define Discovery_source %NetworkCard.Discovery.Source(1)%
+     #define Collect_source %NetworkCard.Collect.Source(1)%
+  expected:
+    constants:
+     Collect_source: $monitors.network.collect.sources.source(1)$
+     Discovery_source: $monitors.network.discovery.sources.source(1)$
