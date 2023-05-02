@@ -100,7 +100,39 @@ embedded:
                   }
               }
         }
-  EmbeddedFile(2): "# syscli --getstatus commoncomponent --storagearray\n$0 ~ /Component Name =/ { AttachedTo = $NF}\n\n# syscli --getstatus networkport\n$1 ~ /Name/ && $2 ~ /=/ {deviceID = $NF}\n$1 ~ /Value/ && $2 ~ /=/ { Speed[deviceID] = $3 ;\n                           if ( Speed[deviceID] ~ /NA/ ) { Speed[deviceID] = \"\"}\n                           if ( $4 ~ /[Gg][Bb]/ ) { Speed[deviceID] = Speed[deviceID] * 1000 }\n                         }\n$1 ~ /Status/ && $2 ~ /=/ { LinkStatus[deviceID] = $3 }\n\n# syscli --show netcfg\n/^eth[0-9][0-9]* |^vmnic[0-9][0-9]* |^em[0-9][0-9]* |^[Pp][0-9][0-9]*[Pp][0-9][0-9]* / {\n\tdeviceID = $1 ; MAC[deviceID] = $NF ;\n}\n/^ +RX packets:/ {\n\treceivePackets[deviceID] = substr($2, 9, length($2) - 8)\n\treceiveErrors[deviceID] = substr($3, 8, length($3) - 7)\n}\n/^ +TX packets:/ {\n\ttransmitPackets[deviceID] = substr($2, 9, length($2) - 8)\n\ttransmitErrors[deviceID] = substr($3, 8, length($3) - 7)\n}\n/^ +RX bytes:.*TX bytes:/ {\n\treceiveBytes[deviceID] = substr($2, 7, length($2) - 6)\n\ttransmitBytes[deviceID] = substr($6, 7, length($6) - 6)\n}\n\nEND { for (deviceID in Speed) {\n      print \"MSHW;\" deviceID \";\" Speed[deviceID] \";\" LinkStatus[deviceID] \";\" receivePackets[deviceID] \";\" transmitPackets[deviceID]\";\" receiveErrors[deviceID] + transmitErrors[deviceID] \";\" receiveBytes[deviceID] \";\" transmitBytes[deviceID] \";\" MAC[deviceID] \";MAC;\" AttachedTo \";\"\n      }\n    }"
+  EmbeddedFile(2): |-
+    # syscli --getstatus commoncomponent --storagearray
+    $0 ~ /Component Name =/ { AttachedTo = $NF}
+
+    # syscli --getstatus networkport
+    $1 ~ /Name/ && $2 ~ /=/ {deviceID = $NF}
+    $1 ~ /Value/ && $2 ~ /=/ { Speed[deviceID] = $3 ;
+                               if ( Speed[deviceID] ~ /NA/ ) { Speed[deviceID] = ""}
+                               if ( $4 ~ /[Gg][Bb]/ ) { Speed[deviceID] = Speed[deviceID] * 1000 }
+                             }
+    $1 ~ /Status/ && $2 ~ /=/ { LinkStatus[deviceID] = $3 }
+
+    # syscli --show netcfg
+    /^eth[0-9][0-9]* |^vmnic[0-9][0-9]* |^em[0-9][0-9]* |^[Pp][0-9][0-9]*[Pp][0-9][0-9]* / {
+        deviceID = $1 ; MAC[deviceID] = $NF ;
+    }
+    /^ +RX packets:/ {
+        receivePackets[deviceID] = substr($2, 9, length($2) - 8)
+        receiveErrors[deviceID] = substr($3, 8, length($3) - 7)
+    }
+    /^ +TX packets:/ {
+        transmitPackets[deviceID] = substr($2, 9, length($2) - 8)
+        transmitErrors[deviceID] = substr($3, 8, length($3) - 7)
+    }
+    /^ +RX bytes:.*TX bytes:/ {
+        receiveBytes[deviceID] = substr($2, 7, length($2) - 6)
+        transmitBytes[deviceID] = substr($6, 7, length($6) - 6)
+    }
+
+    END { for (deviceID in Speed) {
+          print "MSHW;" deviceID ";" Speed[deviceID] ";" LinkStatus[deviceID] ";" receivePackets[deviceID] ";" transmitPackets[deviceID]";" receiveErrors[deviceID] + transmitErrors[deviceID] ";" receiveBytes[deviceID] ";" transmitBytes[deviceID] ";" MAC[deviceID] ";MAC;" AttachedTo ";"
+          }
+        }
 translations:
   LinkTranslationTable:
     default: UNKNOWN

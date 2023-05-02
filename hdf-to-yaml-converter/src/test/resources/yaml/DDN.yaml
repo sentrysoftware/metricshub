@@ -1,6 +1,33 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN { FS = \";\" }\n{\n\ttierID = $1\n\n\tdiskA = $2\n\tdiskB = $3\n\tdiskC = $4\n\tdiskD = $5\n\tdiskE = $6\n\tdiskF = $7\n\tdiskG = $8\n\tdiskH = $9\n\tdiskP = $10\n\tdiskS = $11\n\n\tprint \"MSHW;Tier \" tierID \" Disk A;Data;\" diskA\n\tprint \"MSHW;Tier \" tierID \" Disk B;Data;\" diskB\n\tprint \"MSHW;Tier \" tierID \" Disk C;Data;\" diskC\n\tprint \"MSHW;Tier \" tierID \" Disk D;Data;\" diskD\n\tprint \"MSHW;Tier \" tierID \" Disk E;Data;\" diskE\n\tprint \"MSHW;Tier \" tierID \" Disk F;Data;\" diskF\n\tprint \"MSHW;Tier \" tierID \" Disk G;Data;\" diskG\n\tprint \"MSHW;Tier \" tierID \" Disk H;Data;\" diskH\n\tprint \"MSHW;Tier \" tierID \" Disk P;Parity;\" diskP\n\tprint \"MSHW;Tier \" tierID \" Disk S;Spare;\" diskS\n\n}"
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    {
+        tierID = $1
+
+        diskA = $2
+        diskB = $3
+        diskC = $4
+        diskD = $5
+        diskE = $6
+        diskF = $7
+        diskG = $8
+        diskH = $9
+        diskP = $10
+        diskS = $11
+
+        print "MSHW;Tier " tierID " Disk A;Data;" diskA
+        print "MSHW;Tier " tierID " Disk B;Data;" diskB
+        print "MSHW;Tier " tierID " Disk C;Data;" diskC
+        print "MSHW;Tier " tierID " Disk D;Data;" diskD
+        print "MSHW;Tier " tierID " Disk E;Data;" diskE
+        print "MSHW;Tier " tierID " Disk F;Data;" diskF
+        print "MSHW;Tier " tierID " Disk G;Data;" diskG
+        print "MSHW;Tier " tierID " Disk H;Data;" diskH
+        print "MSHW;Tier " tierID " Disk P;Parity;" diskP
+        print "MSHW;Tier " tierID " Disk S;Spare;" diskS
+
+    }
 translations:
   TemperatureStatusTranslationTable:
     "1": ok

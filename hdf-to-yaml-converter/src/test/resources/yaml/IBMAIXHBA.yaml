@@ -1,6 +1,75 @@
 ---
 embedded:
-  EmbeddedFile(1): "#!/bin/sh\n\nLSDEV=/usr/sbin/lsdev\nLSDEVARGS=\"-C -c adapter -F name\"\n\nLSCFG=/usr/sbin/lscfg\nLSCFGARGS=\"-vp -l \"\n\nFCSTAT=\"/usr/sbin/fcstat\"\nFCSTATARGS=\n\n#LSDEV=cat\n#LSDEVARGS=/tmp/lsdevfcs0\n\n#LSCFG=cat\n#LSCFGARGS=/tmp/lscfg\n\n#FCSTAT=cat\n#FCSTATARGS=/tmp/fcstat\n\nfor HBA in `$LSDEV $LSDEVARGS|/usr/bin/grep \"^fcs[0-9][0-9]*$\"`\ndo\n\tHBAMODEL=`$LSCFG $LSCFGARGS$HBA |\n\t\t\t  /bin/tr \".\" \" \" |\n\t\t\t  /usr/bin/awk '/^ *Model: / { printf $2; for (i=3 ; i<NF ; i++) { printf \" \" $i; } printf \"\\n\"; }'`\n\n\tif [ $( /usr/sbin/lsdev -p $HBA | grep fscsi | grep Avai | wc -l ) -ne 0 ]; then\n\t\tif [ $( ( /usr/sbin/lspath ) | grep $(/usr/sbin/lsdev -p $HBA -r name) | grep -v hdiskpower | grep Enab | wc -l ) -o $( ( /usr/sbin/lsdev -Cc tape ) | grep $(lsdev -p $HBA |  grep fscsi | awk '{print $3}') | grep Avai | wc -l ) -ne 0 ]; then\n\t\t\t$FCSTAT $FCSTATARGS$HBA | /usr/bin/awk -v hbaID=$HBA -v hbaModel=\"$HBAMODEL\" 'BEGIN {\n\t \t\t#SETTING THIS TO \"1\" INSTEAD OF ZERO AS A TEMPORARY FIX.\n\t\t\t\tfoundValidInformation = 1\n\t\t\t}\n\t\t\t/^FIBRE CHANNEL STATISTICS REPORT:/ {\n\t\t\t\tfoundValidInformation = 1;\n\t\t\t}\n\t\t\t/^ *Port Speed \\(running\\): +[0-9\\.]+ GBIT/ {\n\t\t\t\tspeed = $4 * 1000\n\t\t\t}\n\t\t\t/^ *Port Type: / {\n\t\t\t\tportType = $3\n\t\t\t\tfor (i=4 ; i<NF ; i++)\n\t\t\t\t{\n\t\t\t\t\tportType = portType \" \" $i\n\t\t\t\t}\n\t\t\t}\n\t\t\t/^ *Port WWN: / {\n\t\t\t\twwnAddress = $3\n\t\t\t}\n\t\t\t/^ *World Wide Port Name: / {\n\t\t\t\twwnAddress = $5\n\t\t\t}\n\t\t\t/^ *Serial Number: / {\n\t\t\t\tserialNumber = $3\n\t\t\t}\n\t\t\tEND {\n\t\t\t\tgsub(\"0x\", \"\", wwnAddress)\n\t\t\t\tgsub(\"0X\", \"\", wwnAddress)\n\t\t\t\tif (foundValidInformation == 1)\n\t\t\t\t{\n\t\t\t\t\tprint \"MSHW;\" hbaID \";\" hbaModel \";\" wwnAddress \";\" serialNumber \";\" portType \";\" speed \";\"\n\t\t\t\t}\n\t\t\t}'\n\t\telse\n    \t\t       echo \"MSHW;\"$HBA\";\"$HBAMODEL\";;;Unmonitored - No Child Devices;;\"\n    \t\tfi\n\telse\n\t\techo \"MSHW;\"$HBA\";\"$HBAMODEL\";;;Unplumbed;;\"\n\tfi\ndone"
+  EmbeddedFile(1): |-
+    #!/bin/sh
+
+    LSDEV=/usr/sbin/lsdev
+    LSDEVARGS="-C -c adapter -F name"
+
+    LSCFG=/usr/sbin/lscfg
+    LSCFGARGS="-vp -l "
+
+    FCSTAT="/usr/sbin/fcstat"
+    FCSTATARGS=
+
+    #LSDEV=cat
+    #LSDEVARGS=/tmp/lsdevfcs0
+
+    #LSCFG=cat
+    #LSCFGARGS=/tmp/lscfg
+
+    #FCSTAT=cat
+    #FCSTATARGS=/tmp/fcstat
+
+    for HBA in `$LSDEV $LSDEVARGS|/usr/bin/grep "^fcs[0-9][0-9]*$"`
+    do
+        HBAMODEL=`$LSCFG $LSCFGARGS$HBA |
+                  /bin/tr "." " " |
+                  /usr/bin/awk '/^ *Model: / { printf $2; for (i=3 ; i<NF ; i++) { printf " " $i; } printf "\n"; }'`
+
+        if [ $( /usr/sbin/lsdev -p $HBA | grep fscsi | grep Avai | wc -l ) -ne 0 ]; then
+            if [ $( ( /usr/sbin/lspath ) | grep $(/usr/sbin/lsdev -p $HBA -r name) | grep -v hdiskpower | grep Enab | wc -l ) -o $( ( /usr/sbin/lsdev -Cc tape ) | grep $(lsdev -p $HBA |  grep fscsi | awk '{print $3}') | grep Avai | wc -l ) -ne 0 ]; then
+                $FCSTAT $FCSTATARGS$HBA | /usr/bin/awk -v hbaID=$HBA -v hbaModel="$HBAMODEL" 'BEGIN {
+                 #SETTING THIS TO "1" INSTEAD OF ZERO AS A TEMPORARY FIX.
+                    foundValidInformation = 1
+                }
+                /^FIBRE CHANNEL STATISTICS REPORT:/ {
+                    foundValidInformation = 1;
+                }
+                /^ *Port Speed \(running\): +[0-9\.]+ GBIT/ {
+                    speed = $4 * 1000
+                }
+                /^ *Port Type: / {
+                    portType = $3
+                    for (i=4 ; i<NF ; i++)
+                    {
+                        portType = portType " " $i
+                    }
+                }
+                /^ *Port WWN: / {
+                    wwnAddress = $3
+                }
+                /^ *World Wide Port Name: / {
+                    wwnAddress = $5
+                }
+                /^ *Serial Number: / {
+                    serialNumber = $3
+                }
+                END {
+                    gsub("0x", "", wwnAddress)
+                    gsub("0X", "", wwnAddress)
+                    if (foundValidInformation == 1)
+                    {
+                        print "MSHW;" hbaID ";" hbaModel ";" wwnAddress ";" serialNumber ";" portType ";" speed ";"
+                    }
+                }'
+            else
+                       echo "MSHW;"$HBA";"$HBAMODEL";;;Unmonitored - No Child Devices;;"
+                fi
+        else
+            echo "MSHW;"$HBA";"$HBAMODEL";;;Unplumbed;;"
+        fi
+    done
   EmbeddedFile(2): |-
     # if [ $( ( lsdev -Cc disk; lsdev -Cc tape ) | grep $(lsdev -p $1 | grep fscsi | awk '{print $3}') | grep -v hdiskpower | grep Avai | wc -l ) -ne 0 ]; then
     FSC=$(/usr/sbin/lsdev -p $1 -r name |/usr/bin/grep fscsi )

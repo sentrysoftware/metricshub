@@ -4,7 +4,26 @@ extends:
 embedded:
   EmbeddedFile(1): nothing
   EmbeddedFile(3): MSHW;ComputerModel;<!--getscalar api="hpsmbapi" name="SMBAPI_GetSystemModel" default="unknown"-->
-  EmbeddedFile(2): "Option Explicit\nOn Error Resume Next\n\n'=== Declarations\nDim oShell\nDim sCgiBinPath\n\n'=== Get the shell object\nSet oShell = WScript.CreateObject(\"WScript.Shell\")\n\n'=== Check that Instant Top Tools is installed and get the cgi-bin folder\nsCgiBinPath = oShell.RegRead(\"HKEY_LOCAL_MACHINE\\SOFTWARE\\Hewlett-Packard\\InstantTopTools\\cgiroot\")\n\nIf sCgiBinPath = \"\" Then\n\tWScript.Echo \"HP Instant TopTools is not installed on this computer\"\n\tWScript.Quit 1\nEnd If\n\nWScript.StdOut.Write sCgiBinPath\n"
+  EmbeddedFile(2): |
+    Option Explicit
+    On Error Resume Next
+
+    '=== Declarations
+    Dim oShell
+    Dim sCgiBinPath
+
+    '=== Get the shell object
+    Set oShell = WScript.CreateObject("WScript.Shell")
+
+    '=== Check that Instant Top Tools is installed and get the cgi-bin folder
+    sCgiBinPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Hewlett-Packard\InstantTopTools\cgiroot")
+
+    If sCgiBinPath = "" Then
+        WScript.Echo "HP Instant TopTools is not installed on this computer"
+        WScript.Quit 1
+    End If
+
+    WScript.StdOut.Write sCgiBinPath
   EmbeddedFile(5): |-
     <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetFanSensorNumberOfRows" entry="HPIEPAPI_GetFanSensorTableProp" default="No manageable fan sensors are installed on this system"-->MSHW;Fan;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
     <!--endmultiple-->

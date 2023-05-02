@@ -23,8 +23,22 @@ embedded:
     $1 ~ /c[0-9]t[0-9]d[0-9]/ {logicalDrive=$1;
                                for (i=3; i<=(NF-2); i++) { if ($i ~ /[0-9]\.[0-9]\.[0-9]/) {print ("MSHW;"controller";"logicalDrive";"$i);}}
                                }
-  EmbeddedFile(5): "LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`\nfor VOLUME in $LOGICALDRIVELIST\n\t\tdo\n\t\t%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | /usr/bin/nawk '{if ($1 ~ /[0-9]\\056[0-9]\\056[0-9]/) {Size=$2;\n                                                                                        if (Size ~ /[Gg]/) {gsub (/[Gg]/,\"\",Size) ; }\n                                                                                        if (Size ~ /[Mm]/) {gsub (/[Mm]/,\"\",Size) ; Size = Size / 1024};\n                                                                                        if (Size ~ /[Tt]/) {gsub (/[Tt]/,\"\",Size) ; Size = Size * 1024};\n                                                                                        print (\"MSHW;\"$1\";\"Size\";\"$3\";\")}}'\n\t\tdone"
-  EmbeddedFile(4): "LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`\nfor VOLUME in $LOGICALDRIVELIST\n\t\tdo\n\t\t%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | egrep 'OPTIMAL|DEGRADED|FAILED|SYNCING' | awk '{print (\"MSHW;\"$1\";\"$4\";\")}'\n\t\tdone\n"
+  EmbeddedFile(5): |-
+    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
+    for VOLUME in $LOGICALDRIVELIST
+            do
+            %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | /usr/bin/nawk '{if ($1 ~ /[0-9]\056[0-9]\056[0-9]/) {Size=$2;
+                                                                                            if (Size ~ /[Gg]/) {gsub (/[Gg]/,"",Size) ; }
+                                                                                            if (Size ~ /[Mm]/) {gsub (/[Mm]/,"",Size) ; Size = Size / 1024};
+                                                                                            if (Size ~ /[Tt]/) {gsub (/[Tt]/,"",Size) ; Size = Size * 1024};
+                                                                                            print ("MSHW;"$1";"Size";"$3";")}}'
+            done
+  EmbeddedFile(4): |
+    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
+    for VOLUME in $LOGICALDRIVELIST
+            do
+            %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | egrep 'OPTIMAL|DEGRADED|FAILED|SYNCING' | awk '{print ("MSHW;"$1";"$4";")}'
+            done
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     default: Unknown

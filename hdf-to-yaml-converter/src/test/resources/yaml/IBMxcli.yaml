@@ -1,6 +1,81 @@
 ---
 embedded:
-  EmbeddedFile(1): "$1 ~ /</ && $2 ~ /id=/ {\n    type=$1\n    gsub(/</,\"\",type)\n    }\n\n$1 ~ /</ && $2 ~ /value=/ {\n    field= $1\n    gsub(/</,\"\",field)\n    value = $0\n    gsub(/.*value=\"/,\"\",value)\n    gsub(/\".>/,\"\",value)\n    if ($1 ~ /component_id/) {\n        ID = value\n        typeArray[ID] = type\n        }\n    if ($1 ~ /name/ && type == \"config\") {\n        typeArray[\"system\"] = type\n        ID = \"system\"\n        }\n    if (ID != \"\") {\n        fullArray[ID,field] = value\n        }\n    # Override if in config section\n    if (type == \"config\") {\n        name = fullArray[\"system\",\"name\"]\n        fullArray[\"system\",name] = value\n        }\n    }\n\nEND {\n\n\n    for (ID in typeArray) {\n        split(ID,enclosureArray,\":\")\n        enclosureID = enclosureArray[3]\n        if (tolower(typeArray[ID]) == \"ats\") {\n            print \"MSHW;OTHER;\" enclosureID \";\" ID \";ATS; Model: \" fullArray[ID,\"model\"] \";\" \";\" \";\"\n            }\n        if (tolower(typeArray[ID]) == \"module\") {\n            print \"MSHW;ENCLOSURE;\" enclosureID \";\" ID \";\" fullArray[ID,\"serial\"] \";\" fullArray[ID,\"part_number\"] \";\" fullArray[ID,\"bios_version\"] \";Module Part Number: \" fullArray[ID,\"part_number\"] \";System Model: \" fullArray[\"system\",\"machine_type\"] fullArray[\"system\",\"machine_model\"] \";System Name: \" fullArray[\"system\",\"system_name\"] \";\"\n            }\n        if (tolower(typeArray[ID]) == \"ups\") {\n            print \"MSHW;ENCLOSURE;\" ID \";\" ID \";\" fullArray[ID,\"serial\"] \";\"                             \";AOS Version: \" fullArray[ID,\"aos_version\"] \";\"                                     \";\"                                                                                          \";\"                                                                                                                        \";\"\n        # UPS-NMC No useful info, but need to attach it to the UPS, print one for each UPS found\n            print \"MSHW;OTHER;\" ID \";\" \"1:UPS_NMC: \" enclosureID \";UPS_NMC\" \";\" \";\" \";\" \";\"\n            }\n\t\t# Physical Disks - Part Number Often Missing\n        if (tolower(typeArray[ID]) == \"disk\") {\n            print \"MSHW;PHYS_DISK;\" enclosureID \";\" ID \";\" fullArray[ID,\"size\"] \";\" fullArray[ID,\"model\"] \";\" fullArray[ID,\"serial\"] \";\" fullArray[ID,\"firmware\"] \";\" fullArray[ID,\"part_number\"] \";\"\n            }\n        if (tolower(typeArray[ID]) == \"switch\") {\n            print \"MSHW;ENCLOSURE;\" ID \";\" ID \";\" fullArray[ID,\"serial\"] \";\" \";\" fullArray[ID,\"current_active_version\"] \";\" \";\" \";\" \";\"\n            }\n        # Management Modules - Part and Serial often missing\n        if (tolower(typeArray[ID]) == \"mm\") {\n            print \"MSHW;OTHER;\" enclosureID \";\" ID \";MM;Part Number: \" fullArray[ID,\"part_number\"] \";Serial Number: \" fullArray[ID,\"serial\"] \";IP: \" fullArray[ID,\"ip_1\"] \" / \" fullArray[ID,\"ip_2\"] \";\"\n            }\n        # Fans (no useful info for now)\n        if (tolower(typeArray[ID]) == \"fan\") {\n            print \"MSHW;FAN;\" enclosureID \";\" ID \";\" \";\" \";\" \";\"\n            }\n        # ATS (no useful info - will default to other)\n        # Ethernet-Cables (exclude - network discovery will be done seperately)\n        # PSU - FRU information often missing\n        if (tolower(typeArray[ID]) == \"psu\") {\n            print \"MSHW;PSU;\" enclosureID \";\" ID \"; \" \"Serial Number: \" fullArray[ID,\"serial\"] \";\" \"Firmware: \" fullArray[ID,\"firmware_version\"] \";\"  \"Part Number: \" fullArray[ID,\"part_number\"] \";\"\n            }\n        if (tolower(typeArray[ID]) == \"dimm\") {\n            print \"MSHW;MEMORY;\" enclosureID \";\" ID \"; \" fullArray[ID,\"serial\"] \";\" fullArray[ID,\"manufacturer\"] \";Part Number: \" fullArray[ID,\"part_number\"] \";\" \"Channel: \"fullArray[ID,\"channel\"] \" - Bank: \"fullArray[ID,\"bank\"] \";\" \"Speed: \"fullArray[ID,\"speed\"] \";\" fullArray[ID,\"size\"] \";\"\n            }\n        if (tolower(typeArray[ID]) == \"cf\") {\n            print \"MSHW;OTHER;\" enclosureID \";\" ID \";CompactFlash;Device Name: \" fullArray[ID,\"device_name\"] \";Serial Number: \" fullArray[ID,\"serial\"] \";Part Number: \" fullArray[ID,\"part_number\"] \";\"\n            }\n        }\n    }"
+  EmbeddedFile(1): |-
+    $1 ~ /</ && $2 ~ /id=/ {
+        type=$1
+        gsub(/</,"",type)
+        }
+
+    $1 ~ /</ && $2 ~ /value=/ {
+        field= $1
+        gsub(/</,"",field)
+        value = $0
+        gsub(/.*value="/,"",value)
+        gsub(/".>/,"",value)
+        if ($1 ~ /component_id/) {
+            ID = value
+            typeArray[ID] = type
+            }
+        if ($1 ~ /name/ && type == "config") {
+            typeArray["system"] = type
+            ID = "system"
+            }
+        if (ID != "") {
+            fullArray[ID,field] = value
+            }
+        # Override if in config section
+        if (type == "config") {
+            name = fullArray["system","name"]
+            fullArray["system",name] = value
+            }
+        }
+
+    END {
+
+
+        for (ID in typeArray) {
+            split(ID,enclosureArray,":")
+            enclosureID = enclosureArray[3]
+            if (tolower(typeArray[ID]) == "ats") {
+                print "MSHW;OTHER;" enclosureID ";" ID ";ATS; Model: " fullArray[ID,"model"] ";" ";" ";"
+                }
+            if (tolower(typeArray[ID]) == "module") {
+                print "MSHW;ENCLOSURE;" enclosureID ";" ID ";" fullArray[ID,"serial"] ";" fullArray[ID,"part_number"] ";" fullArray[ID,"bios_version"] ";Module Part Number: " fullArray[ID,"part_number"] ";System Model: " fullArray["system","machine_type"] fullArray["system","machine_model"] ";System Name: " fullArray["system","system_name"] ";"
+                }
+            if (tolower(typeArray[ID]) == "ups") {
+                print "MSHW;ENCLOSURE;" ID ";" ID ";" fullArray[ID,"serial"] ";"                             ";AOS Version: " fullArray[ID,"aos_version"] ";"                                     ";"                                                                                          ";"                                                                                                                        ";"
+            # UPS-NMC No useful info, but need to attach it to the UPS, print one for each UPS found
+                print "MSHW;OTHER;" ID ";" "1:UPS_NMC: " enclosureID ";UPS_NMC" ";" ";" ";" ";"
+                }
+            # Physical Disks - Part Number Often Missing
+            if (tolower(typeArray[ID]) == "disk") {
+                print "MSHW;PHYS_DISK;" enclosureID ";" ID ";" fullArray[ID,"size"] ";" fullArray[ID,"model"] ";" fullArray[ID,"serial"] ";" fullArray[ID,"firmware"] ";" fullArray[ID,"part_number"] ";"
+                }
+            if (tolower(typeArray[ID]) == "switch") {
+                print "MSHW;ENCLOSURE;" ID ";" ID ";" fullArray[ID,"serial"] ";" ";" fullArray[ID,"current_active_version"] ";" ";" ";" ";"
+                }
+            # Management Modules - Part and Serial often missing
+            if (tolower(typeArray[ID]) == "mm") {
+                print "MSHW;OTHER;" enclosureID ";" ID ";MM;Part Number: " fullArray[ID,"part_number"] ";Serial Number: " fullArray[ID,"serial"] ";IP: " fullArray[ID,"ip_1"] " / " fullArray[ID,"ip_2"] ";"
+                }
+            # Fans (no useful info for now)
+            if (tolower(typeArray[ID]) == "fan") {
+                print "MSHW;FAN;" enclosureID ";" ID ";" ";" ";" ";"
+                }
+            # ATS (no useful info - will default to other)
+            # Ethernet-Cables (exclude - network discovery will be done seperately)
+            # PSU - FRU information often missing
+            if (tolower(typeArray[ID]) == "psu") {
+                print "MSHW;PSU;" enclosureID ";" ID "; " "Serial Number: " fullArray[ID,"serial"] ";" "Firmware: " fullArray[ID,"firmware_version"] ";"  "Part Number: " fullArray[ID,"part_number"] ";"
+                }
+            if (tolower(typeArray[ID]) == "dimm") {
+                print "MSHW;MEMORY;" enclosureID ";" ID "; " fullArray[ID,"serial"] ";" fullArray[ID,"manufacturer"] ";Part Number: " fullArray[ID,"part_number"] ";" "Channel: "fullArray[ID,"channel"] " - Bank: "fullArray[ID,"bank"] ";" "Speed: "fullArray[ID,"speed"] ";" fullArray[ID,"size"] ";"
+                }
+            if (tolower(typeArray[ID]) == "cf") {
+                print "MSHW;OTHER;" enclosureID ";" ID ";CompactFlash;Device Name: " fullArray[ID,"device_name"] ";Serial Number: " fullArray[ID,"serial"] ";Part Number: " fullArray[ID,"part_number"] ";"
+                }
+            }
+        }
   EmbeddedFile(3): |-
     $1 ~ /</ && $2 ~ /id=/ {
         type=$1

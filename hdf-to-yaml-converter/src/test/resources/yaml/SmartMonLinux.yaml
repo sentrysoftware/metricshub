@@ -1,10 +1,151 @@
 ---
 embedded:
-  EmbeddedFile(1): "#!/bin/sh\nSMARTD=$1\nSMARTCTL=$2\nTMPFILE=/tmp/MS_HW_smartmontoolsHDF_$$\n\n$SMARTD -c>$TMPFILE\n$SMARTD -q onecheck>>$TMPFILE\n\nDISKIDLIST=`cat $TMPFILE|awk '/^Device: .* is SMART capable/ {\n\tdeviceID = $2;\n\tif (substr(deviceID, length(deviceID), 1) == \",\")\n\t{\n\t\tdeviceID = substr(deviceID, 1, length(deviceID)-1);\n\t}\n\tprint deviceID\n}'`\n\n/bin/rm -f $TMPFILE\n\nfor DISKID in $DISKIDLIST\ndo\n\t$SMARTCTL -a $DISKID|awk -v deviceID=$DISKID 'BEGIN {\n\t\tvendor = \"\";\n\t\tserialNumber = \"\";\n\t}\n\t{\n\t\tif ($1 == \"Device:\")\n\t\t{\n\t\t\tif ($5 == \"Version:\") { vendor = $2 \" \" $3 \" \" $4; }\n\t\t\telse if ($4 == \"Version:\") { vendor = $2 \" \" $3; }\n\t\t\telse { vendor = $2; }\n\t\t}\n\n\t\tif ($1 == \"Device\" && $2 == \"Model:\")\n\t\t{\n\t\t\tvendor = $3;\n\t\t}\n\n\t\tif ($0 ~ /^Serial [Nn]umber: /)\n\t\t{\n\t\t\tserialNumber = $3;\n\t\t}\n\t}\n\tEND {\n\t\tprint \"MSHW;\" deviceID \";\" vendor \";\" serialNumber\n\t}'\ndone"
-  EmbeddedFile(3): "{\n\tif ($0 ~ /Current Drive Temperature: *[0-9]* C$/)\n\t{\n\t\tprint \"MSHW;\" $4\n\t\texit;\n\t}\n\n\tif ($1 == \"194\" && $10 ~ /[0-9]+/)\n\t{\n\t  print \"MSHW;\" $10\n\t  exit;\n\t}\n}"
-  EmbeddedFile(2): "#!/bin/sh\nSMARTD=$1\nSMARTCTL=$2\nTMPFILE=/tmp/MS_HW_smartmontoolsHDF_$$\n\n$SMARTD -c>$TMPFILE\n$SMARTD -q onecheck>>$TMPFILE\n\nDISKIDLIST=`cat $TMPFILE|awk '/^Device: .* is SMART capable/ {\n\tdeviceID = $2;\n\tif (substr(deviceID, length(deviceID), 1) == \",\")\n\t{\n\t\tdeviceID = substr(deviceID, 1, length(deviceID)-1);\n\t}\n\tprint deviceID\n}'`\n\n/bin/rm -f $TMPFILE\n\nfor DISKID in $DISKIDLIST\ndo\n\t$SMARTCTL -a $DISKID|awk -v deviceID=$DISKID 'BEGIN {\n\t\tfoundTemperature = 0;\n\t\twarningThreshold = \"\";\n\t}\n\t{\n\t\tif ($0 ~ /^Current Drive Temperature: *[0-9]* C$/)\n\t\t{\n\t\t\tfoundTemperature = 1;\n\t\t}\n\n\t\tif ($1 == \"194\" && $10 ~ /[0-9]+/)\n\t\t{\n\t\t  foundTemperature = 1;\n\t\t  warningThreshold = 53;\n\t\t}\n\n\t\tif ($0 ~ /^Drive Trip Temperature: /)\n\t\t{\n\t\t\twarningThreshold = $4;\n\t\t}\n\t}\n\tEND {\n\t\tif (foundTemperature == 1)\n\t\t{\n\t\t\tprint \"MSHW;\" deviceID \";\" warningThreshold\n\t\t}\n\t}'\ndone"
-  EmbeddedFile(5): "#!/bin/sh\nERRORMESSAGE=`%{SUDO:/bin/dd}/bin/dd if=$1 of=/dev/null count=20 2>&1`\nif [ \"$?\" = \"0\" ]; then\n\t/bin/echo \"MSHW;1;OK;Working\";\nelse\n\tERRORMESSAGE=`/bin/echo $ERRORMESSAGE|/bin/awk -F: '($4 !~ /denied/ && $4 !~ /[Nn]o such file/) {print $4}'`\n\tif [ -z \"$ERRORMESSAGE\" ]; then\n\t\t/bin/echo \"MSHW;1;UNKNOWN;Unknown Status\";\n\telse\n\t\t/bin/echo \"MSHW;1;ALARM;$ERRORMESSAGE\";\n\tfi\nfi"
-  EmbeddedFile(4): "{\n\tif ($0 ~ /^SMART Sense: /)\n\t{\n\t\tprint \"MSHW;\" $3\n\t\texit;\n\t}\n\n\tif ($0 ~ /^SMART Health Status: /)\n\t{\n\t\tprint \"MSHW;\" $4\n\t\texit;\n\t}\n\n\tif ($0 ~ /^SMART overall-health self-assessment test result: /)\n\t{\n\t\tprint \"MSHW;\" $6\n\t\texit;\n\t}\n\n}"
+  EmbeddedFile(1): |-
+    #!/bin/sh
+    SMARTD=$1
+    SMARTCTL=$2
+    TMPFILE=/tmp/MS_HW_smartmontoolsHDF_$$
+
+    $SMARTD -c>$TMPFILE
+    $SMARTD -q onecheck>>$TMPFILE
+
+    DISKIDLIST=`cat $TMPFILE|awk '/^Device: .* is SMART capable/ {
+        deviceID = $2;
+        if (substr(deviceID, length(deviceID), 1) == ",")
+        {
+            deviceID = substr(deviceID, 1, length(deviceID)-1);
+        }
+        print deviceID
+    }'`
+
+    /bin/rm -f $TMPFILE
+
+    for DISKID in $DISKIDLIST
+    do
+        $SMARTCTL -a $DISKID|awk -v deviceID=$DISKID 'BEGIN {
+            vendor = "";
+            serialNumber = "";
+        }
+        {
+            if ($1 == "Device:")
+            {
+                if ($5 == "Version:") { vendor = $2 " " $3 " " $4; }
+                else if ($4 == "Version:") { vendor = $2 " " $3; }
+                else { vendor = $2; }
+            }
+
+            if ($1 == "Device" && $2 == "Model:")
+            {
+                vendor = $3;
+            }
+
+            if ($0 ~ /^Serial [Nn]umber: /)
+            {
+                serialNumber = $3;
+            }
+        }
+        END {
+            print "MSHW;" deviceID ";" vendor ";" serialNumber
+        }'
+    done
+  EmbeddedFile(3): |-
+    {
+        if ($0 ~ /Current Drive Temperature: *[0-9]* C$/)
+        {
+            print "MSHW;" $4
+            exit;
+        }
+
+        if ($1 == "194" && $10 ~ /[0-9]+/)
+        {
+          print "MSHW;" $10
+          exit;
+        }
+    }
+  EmbeddedFile(2): |-
+    #!/bin/sh
+    SMARTD=$1
+    SMARTCTL=$2
+    TMPFILE=/tmp/MS_HW_smartmontoolsHDF_$$
+
+    $SMARTD -c>$TMPFILE
+    $SMARTD -q onecheck>>$TMPFILE
+
+    DISKIDLIST=`cat $TMPFILE|awk '/^Device: .* is SMART capable/ {
+        deviceID = $2;
+        if (substr(deviceID, length(deviceID), 1) == ",")
+        {
+            deviceID = substr(deviceID, 1, length(deviceID)-1);
+        }
+        print deviceID
+    }'`
+
+    /bin/rm -f $TMPFILE
+
+    for DISKID in $DISKIDLIST
+    do
+        $SMARTCTL -a $DISKID|awk -v deviceID=$DISKID 'BEGIN {
+            foundTemperature = 0;
+            warningThreshold = "";
+        }
+        {
+            if ($0 ~ /^Current Drive Temperature: *[0-9]* C$/)
+            {
+                foundTemperature = 1;
+            }
+
+            if ($1 == "194" && $10 ~ /[0-9]+/)
+            {
+              foundTemperature = 1;
+              warningThreshold = 53;
+            }
+
+            if ($0 ~ /^Drive Trip Temperature: /)
+            {
+                warningThreshold = $4;
+            }
+        }
+        END {
+            if (foundTemperature == 1)
+            {
+                print "MSHW;" deviceID ";" warningThreshold
+            }
+        }'
+    done
+  EmbeddedFile(5): |-
+    #!/bin/sh
+    ERRORMESSAGE=`%{SUDO:/bin/dd}/bin/dd if=$1 of=/dev/null count=20 2>&1`
+    if [ "$?" = "0" ]; then
+        /bin/echo "MSHW;1;OK;Working";
+    else
+        ERRORMESSAGE=`/bin/echo $ERRORMESSAGE|/bin/awk -F: '($4 !~ /denied/ && $4 !~ /[Nn]o such file/) {print $4}'`
+        if [ -z "$ERRORMESSAGE" ]; then
+            /bin/echo "MSHW;1;UNKNOWN;Unknown Status";
+        else
+            /bin/echo "MSHW;1;ALARM;$ERRORMESSAGE";
+        fi
+    fi
+  EmbeddedFile(4): |-
+    {
+        if ($0 ~ /^SMART Sense: /)
+        {
+            print "MSHW;" $3
+            exit;
+        }
+
+        if ($0 ~ /^SMART Health Status: /)
+        {
+            print "MSHW;" $4
+            exit;
+        }
+
+        if ($0 ~ /^SMART overall-health self-assessment test result: /)
+        {
+            print "MSHW;" $6
+            exit;
+        }
+
+    }
 translations:
   PhysicalDiskPredictedFailureTranslationTable:
     default: 1;true

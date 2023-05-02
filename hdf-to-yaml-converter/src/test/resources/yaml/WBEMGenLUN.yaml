@@ -1,10 +1,29 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {FS=\"[;]\"}\n\t{split($1,LunIdArray,\"[|]\") ;\n\t split($2,LunPathCountArray,\"[|]\") ;\n\t split($3,LunNaaIDArray,\"[|]\") ;\n\t}\n\nEND {for (MPIOID in LunIdArray)\n        if ( LunIdArray[MPIOID] != \"\" ) {print (\"MSHW;\" LunIdArray[MPIOID] \";\" LunPathCountArray[MPIOID] \";\" \"naa.\" LunNaaIDArray[MPIOID] \";\" ) }\n        }"
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+        {split($1,LunIdArray,"[|]") ;
+         split($2,LunPathCountArray,"[|]") ;
+         split($3,LunNaaIDArray,"[|]") ;
+        }
+
+    END {for (MPIOID in LunIdArray)
+            if ( LunIdArray[MPIOID] != "" ) {print ("MSHW;" LunIdArray[MPIOID] ";" LunPathCountArray[MPIOID] ";" "naa." LunNaaIDArray[MPIOID] ";" ) }
+            }
   EmbeddedFile(3): |-
     BEGIN {FS="[;]"}
     $1 ~ /.Device.MPIO/ { print ( "MSHW;" $1 ";" toupper($2) ";") }
-  EmbeddedFile(2): "BEGIN {FS=\"[;]\"}\n$3 ~ /.Device.MPIO/ { DriveLetter = $1\n\t                    DriveName = $2\n\t                    MPIOID = $3 ; gsub (\".*MPIO\",\"MPIO \",MPIOID)\n\t                    MPIOInfo[MPIOID] = MPIOInfo[MPIOID] DriveLetter \" (\" DriveName \") \"\n\t                  }\nEND { for (MPIOID in MPIOInfo) {\n          if ( MPIOInfo[MPIOID] != \"\" ) {print (\"MSHW;\" MPIOID \";\" MPIOInfo[MPIOID] \";\" ) }\n      }\n    }"
+  EmbeddedFile(2): |-
+    BEGIN {FS="[;]"}
+    $3 ~ /.Device.MPIO/ { DriveLetter = $1
+                            DriveName = $2
+                            MPIOID = $3 ; gsub (".*MPIO","MPIO ",MPIOID)
+                            MPIOInfo[MPIOID] = MPIOInfo[MPIOID] DriveLetter " (" DriveName ") "
+                          }
+    END { for (MPIOID in MPIOInfo) {
+              if ( MPIOInfo[MPIOID] != "" ) {print ("MSHW;" MPIOID ";" MPIOInfo[MPIOID] ";" ) }
+          }
+        }
 connector:
   displayName: WMI - LUN
   platforms: Any system

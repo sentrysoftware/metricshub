@@ -1,9 +1,84 @@
 ---
 embedded:
-  EmbeddedFile(1): "#!/bin/sh\nfor DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`\ndo\n\t/usr/sbin/lscfg -vp -l $DISK|/bin/tr \".\" \" \"|/usr/bin/awk -v diskId=$DISK 'BEGIN {\n\t\tmanufacturer = \"\";\n\t\tfruNumber = \"\";\n\t\tserialNumber = \"\";\n\t}\n\t/.*/ {\n\t\tif ($1 == \"Manufacturer\")\n\t\t{\n\t\t\tmanufacturer = $2;\n\t\t}\n\n\t\tif ($1 == \"FRU\" && $2 == \"Number\")\n\t\t{\n\t\t\tfruNumber = $3;\n\t\t}\n\n\t\tif ($1 == \"Serial\" && $2 == \"Number\")\n\t\t{\n\t\t\tserialNumber = $3;\n\t\t}\n\t}\n\tEND {\n\t\tprint \"MSHW;\" diskId \";\" manufacturer \";\" serialNumber \" (FRU: \" fruNumber \")\"\n\t}'\ndone"
-  EmbeddedFile(3): "#!/bin/sh\nLANG=C\nexport LANG\n\nERRORMESSAGE=`%{SUDO:/usr/bin/dd}/usr/bin/dd if=/dev/r$1 of=/dev/null count=20 2>&1`\nif /usr/bin/test \"$?\" = \"0\" ; then\n\tSTATUS=\"OK;Working\"\nelse\n\tSTATUS=`/usr/bin/echo $ERRORMESSAGE|/usr/bin/awk -F: '{\n\t\t\tif ($3 ~ /ermission/)\n\t\t\t{\n\t\t\t\tprint \"UNKNOWN;Insufficient privileges\"\n\t\t\t}\n\t\t\telse if ($3 ~ /o such file/)\n\t\t\t{\n\t\t\t\tprint \"UNKNOWN;\" $3\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tprint \"ALARM;\" $3\n\t\t\t}\n\t\t}'`\nfi\nTODAY=`/usr/bin/date +%m%d0000%y`\nERRORCOUNT=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/tail -n +2|/usr/bin/wc -l|/usr/bin/awk '{print $1}'`\nif /usr/bin/test $ERRORCOUNT -gt 0 ; then\n\tLASTERROR=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/head -n 2|/usr/bin/tail -n 1|/usr/bin/awk '{printf $1 \" (\"; for (i=6 ; i<NF ; i++) { printf $i \" \" } print $NF \")\"}'`\nfi\n/usr/bin/echo \"MSHW;$STATUS;$ERRORCOUNT;$LASTERROR\"\nexit\n\n"
-  EmbeddedFile(2): "#!/bin/sh\nfor DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`\ndo\n\tSIZE=`/usr/sbin/lscfg -vp -l $DISK|/usr/bin/awk -F \"[() ]\" '/hdisk.*[0-9]+ MB)/ { print $(NF-2) }'`\n\t/bin/echo \"MSHW;$DISK;$SIZE\"\ndone"
-  EmbeddedFile(4): "#!/bin/sh\nLANG=C\nexport LANG\nTODAY=`/usr/bin/date +%m%d0000%y`\nERRORCOUNT=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/tail -n +2|/usr/bin/wc -l|/usr/bin/awk '{print $1}'`\nif /usr/bin/test $ERRORCOUNT -gt 0 ; then\n\tLASTERROR=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/head -n 2|/usr/bin/tail -n 1|/usr/bin/awk '{printf $1 \" (\"; for (i=6 ; i<NF ; i++) { printf $i \" \" } print $NF \")\"}'`\nfi\n/usr/bin/echo \"MSHW;$ERRORCOUNT;$LASTERROR\"\nexit"
+  EmbeddedFile(1): |-
+    #!/bin/sh
+    for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`
+    do
+        /usr/sbin/lscfg -vp -l $DISK|/bin/tr "." " "|/usr/bin/awk -v diskId=$DISK 'BEGIN {
+            manufacturer = "";
+            fruNumber = "";
+            serialNumber = "";
+        }
+        /.*/ {
+            if ($1 == "Manufacturer")
+            {
+                manufacturer = $2;
+            }
+
+            if ($1 == "FRU" && $2 == "Number")
+            {
+                fruNumber = $3;
+            }
+
+            if ($1 == "Serial" && $2 == "Number")
+            {
+                serialNumber = $3;
+            }
+        }
+        END {
+            print "MSHW;" diskId ";" manufacturer ";" serialNumber " (FRU: " fruNumber ")"
+        }'
+    done
+  EmbeddedFile(3): |+
+    #!/bin/sh
+    LANG=C
+    export LANG
+
+    ERRORMESSAGE=`%{SUDO:/usr/bin/dd}/usr/bin/dd if=/dev/r$1 of=/dev/null count=20 2>&1`
+    if /usr/bin/test "$?" = "0" ; then
+        STATUS="OK;Working"
+    else
+        STATUS=`/usr/bin/echo $ERRORMESSAGE|/usr/bin/awk -F: '{
+                if ($3 ~ /ermission/)
+                {
+                    print "UNKNOWN;Insufficient privileges"
+                }
+                else if ($3 ~ /o such file/)
+                {
+                    print "UNKNOWN;" $3
+                }
+                else
+                {
+                    print "ALARM;" $3
+                }
+            }'`
+    fi
+    TODAY=`/usr/bin/date +%m%d0000%y`
+    ERRORCOUNT=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/tail -n +2|/usr/bin/wc -l|/usr/bin/awk '{print $1}'`
+    if /usr/bin/test $ERRORCOUNT -gt 0 ; then
+        LASTERROR=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/head -n 2|/usr/bin/tail -n 1|/usr/bin/awk '{printf $1 " ("; for (i=6 ; i<NF ; i++) { printf $i " " } print $NF ")"}'`
+    fi
+    /usr/bin/echo "MSHW;$STATUS;$ERRORCOUNT;$LASTERROR"
+    exit
+
+  EmbeddedFile(2): |-
+    #!/bin/sh
+    for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`
+    do
+        SIZE=`/usr/sbin/lscfg -vp -l $DISK|/usr/bin/awk -F "[() ]" '/hdisk.*[0-9]+ MB)/ { print $(NF-2) }'`
+        /bin/echo "MSHW;$DISK;$SIZE"
+    done
+  EmbeddedFile(4): |-
+    #!/bin/sh
+    LANG=C
+    export LANG
+    TODAY=`/usr/bin/date +%m%d0000%y`
+    ERRORCOUNT=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/tail -n +2|/usr/bin/wc -l|/usr/bin/awk '{print $1}'`
+    if /usr/bin/test $ERRORCOUNT -gt 0 ; then
+        LASTERROR=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/head -n 2|/usr/bin/tail -n 1|/usr/bin/awk '{printf $1 " ("; for (i=6 ; i<NF ; i++) { printf $i " " } print $NF ")"}'`
+    fi
+    /usr/bin/echo "MSHW;$ERRORCOUNT;$LASTERROR"
+    exit
 translations:
   ErrorcounttoStatusTranslationTable:
     "0": ok

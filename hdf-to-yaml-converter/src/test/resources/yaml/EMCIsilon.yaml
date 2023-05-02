@@ -8,9 +8,37 @@ constants:
   _IsiBatteryCommand: /usr/bin/isi batterystatus
   _IsiStatusCommand: /usr/bin/isi status -w
 embedded:
-  EmbeddedFile(3): "{nodeName = $1 ; gsub (/:/,\"\",nodeName);}\nNF > 4 {\n\tif ($2 ~ /battery/ && $(NF-2) ~ /:/) {ID = $0; gsub (/ :[^:]*$/,\"\",ID); gsub (/^[^:]*: /,\"\",ID);\n                            status = $(NF-1)\n                            print \"MSHW_BATTERY;\" nodeName \";\" nodeName\"-\"ID \";\" ID \";\" status\";\"status\";\"\n                           }\n\t}"
-  EmbeddedFile(5): "{nodeName = $1 ; gsub (/:/,\"\",nodeName);}\n\n$2 ~ /^Node$/ { nodeNumber = $3 ; gsub (/,/,\"\",nodeNumber);\n\t              print \"MSHW_Node;\" nodeName \";\" nodeNumber \";\"\n\t            }\n\n$2 ~ /^Bay$/  { Location = $3 ; Location = \"Bay-\" Location\n\t              Lnum = $5 ; Lnum = \"Lnum-\" Lnum\n\t              Status = $6 ; gsub(/\\].*$/,\"\",Status);gsub(/^.*\\[/,\"\",Status);\n\t              SerialNumber = $7 ; gsub (/^SN:/,\"\",SerialNumber)\n\t              if ( Status != \"EMPTY\" ) {\n\t                 print \"MSHW_PhysicalDisk;\" nodeName \";\" nodeName \"-\" Location \";\" Location \";\" Lnum \";\" SerialNumber \";\" Status \";\" Status \";\"\n\t                }\n\t            }"
-  EmbeddedFile(6): "$1 ~ /^Node/ {NodeNumber = $NF}\n$1 ~ /^Interface/ {Interface = $NF }\n$1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}\n$1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,\"\",Status) ; gsub (/ +$/,\"\",Status) }\n$1 ~ /^IP/ && $2 ~ /Addrs/ {IPAddress = $NF\n\t                          print \"MSHW;\" NodeNumber \";\" NICName \";\" NICName \";\" Interface \";\" IPAddress \";\" Status \";\"\n\t                         }"
+  EmbeddedFile(3): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+    NF > 4 {
+        if ($2 ~ /battery/ && $(NF-2) ~ /:/) {ID = $0; gsub (/ :[^:]*$/,"",ID); gsub (/^[^:]*: /,"",ID);
+                                status = $(NF-1)
+                                print "MSHW_BATTERY;" nodeName ";" nodeName"-"ID ";" ID ";" status";"status";"
+                               }
+        }
+  EmbeddedFile(5): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+
+    $2 ~ /^Node$/ { nodeNumber = $3 ; gsub (/,/,"",nodeNumber);
+                      print "MSHW_Node;" nodeName ";" nodeNumber ";"
+                    }
+
+    $2 ~ /^Bay$/  { Location = $3 ; Location = "Bay-" Location
+                      Lnum = $5 ; Lnum = "Lnum-" Lnum
+                      Status = $6 ; gsub(/\].*$/,"",Status);gsub(/^.*\[/,"",Status);
+                      SerialNumber = $7 ; gsub (/^SN:/,"",SerialNumber)
+                      if ( Status != "EMPTY" ) {
+                         print "MSHW_PhysicalDisk;" nodeName ";" nodeName "-" Location ";" Location ";" Lnum ";" SerialNumber ";" Status ";" Status ";"
+                        }
+                    }
+  EmbeddedFile(6): |-
+    $1 ~ /^Node/ {NodeNumber = $NF}
+    $1 ~ /^Interface/ {Interface = $NF }
+    $1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}
+    $1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,"",Status) ; gsub (/ +$/,"",Status) }
+    $1 ~ /^IP/ && $2 ~ /Addrs/ {IPAddress = $NF
+                                  print "MSHW;" NodeNumber ";" NICName ";" NICName ";" Interface ";" IPAddress ";" Status ";"
+                                 }
   EmbeddedFile(9): |-
     BEGIN { FS="[,]" }
     NF >= 8 &&  $(NF-1) ~ /^[0-9]/ && $(NF-4) ~ /^[0-9]/ {

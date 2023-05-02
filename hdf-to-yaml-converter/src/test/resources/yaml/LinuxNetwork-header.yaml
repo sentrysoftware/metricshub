@@ -1,6 +1,50 @@
 ---
 embedded:
-  EmbeddedFile(3): "BEGIN {\n\tlinkSpeed = \"\";\n\tduplexMode = \"\";\n\tlinkStatus = \"\";\n\tdeviceID = \"\";\n}\n/^Settings for / {\n\tdeviceID = $3;\n\tgsub(\":\", \"\", deviceID);\n}\n/^[ \\t]+Speed: / {\n\tlinkSpeed = $2;\n\tgsub(\"Mb/s\", \"\", linkSpeed);\n}\n/^[ \\t]+Duplex: / {\n\tif ($2 == \"Full\")\n\t{\n\t\tduplexMode = \"Full\";\n\t}\n\telse\n\t{\n\t\tduplexMode = \"Half\";\n\t}\n}\n/^[ \\t]+Link detected: / {\n\tif ($3 == \"yes\")\n\t{\n\t\tlinkStatus = \"OK\";\n\t}\n\telse if ($3 == \"no\")\n\t{\n\t\tlinkStatus = \"WARN\";\n\t}\n\telse\n\t{\n\t\tlinkStatus = \"\";\n\t}\n}\nEND {\n\tif (deviceID != \"\")\n\t{\n\t\tprint \"MSHW;\" deviceID \";\" linkStatus \";\" linkSpeed \";\" duplexMode \";\"\n\t}\n}"
+  EmbeddedFile(3): |-
+    BEGIN {
+        linkSpeed = "";
+        duplexMode = "";
+        linkStatus = "";
+        deviceID = "";
+    }
+    /^Settings for / {
+        deviceID = $3;
+        gsub(":", "", deviceID);
+    }
+    /^[ \t]+Speed: / {
+        linkSpeed = $2;
+        gsub("Mb/s", "", linkSpeed);
+    }
+    /^[ \t]+Duplex: / {
+        if ($2 == "Full")
+        {
+            duplexMode = "Full";
+        }
+        else
+        {
+            duplexMode = "Half";
+        }
+    }
+    /^[ \t]+Link detected: / {
+        if ($3 == "yes")
+        {
+            linkStatus = "OK";
+        }
+        else if ($3 == "no")
+        {
+            linkStatus = "WARN";
+        }
+        else
+        {
+            linkStatus = "";
+        }
+    }
+    END {
+        if (deviceID != "")
+        {
+            print "MSHW;" deviceID ";" linkStatus ";" linkSpeed ";" duplexMode ";"
+        }
+    }
 sudoCommands:
 - ethtool
 connector:

@@ -1,6 +1,24 @@
 ---
 embedded:
-  EmbeddedFile(1): "$1 ~ /<HBA>/ {PortID=\"\";WWPN=\"\";Model=\"\";ActualDataRate=\"\";PortType=\"\";SerialNumber=\"\";}\n\n$1 ~ /HBAID/ {PortID=$0;gsub(/^.*=\"/,\"\",PortID);gsub(/\"$/,\"\",PortID);}\n\n$1 ~ /HBAModel/ {Model=$0;gsub(/^.*=\"/,\"\",Model);gsub(/\"$/,\"\",Model);}\n\n$1 ~ /WWPN/ {WWPN=$0;gsub(/^.*=\"/,\"\",WWPN);gsub(/\"$/,\"\",WWPN);gsub(/-/,\"\",WWPN);}\n\n$1 ~ /ActualDataRate/ {ActualDataRate=$0;gsub(/^.*=\"/,\"\",ActualDataRate);gsub(/ Gbps\"$/,\"\",ActualDataRate);}\n\n$1 ~ /PortType/ {PortType=$0;gsub(/^.*=\"/,\"\",PortType);gsub(/\"$/,\"\",PortType);gsub(/-/,\"\",PortType);}\n\n$1 ~ /SerialNumber/ {SerialNumber=$0;gsub(/^.*=\"/,\"\",SerialNumber);gsub(/\"$/,\"\",SerialNumber);gsub(/-/,\"\",SerialNumber);}\n\n$1 ~ /Status/ {Status=$0;gsub(/^.*=\"/,\"\",Status);gsub(/\" .>$/,\"\",Status);gsub(/-/,\"\",Status);}\n\n$1 ~ \"</HBA>\" {print (\"MSHW;\"PortID\";\"Model\";\"WWPN\";\"ActualDataRate\";\"PortType\";\"SerialNumber\";\"Status\";\")\n\t             PortID=\"\";WWPN=\"\";Model=\"\";ActualDataRate=\"\";PortType=\"\";SerialNumber=\"\";}"
+  EmbeddedFile(1): |-
+    $1 ~ /<HBA>/ {PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
+
+    $1 ~ /HBAID/ {PortID=$0;gsub(/^.*="/,"",PortID);gsub(/"$/,"",PortID);}
+
+    $1 ~ /HBAModel/ {Model=$0;gsub(/^.*="/,"",Model);gsub(/"$/,"",Model);}
+
+    $1 ~ /WWPN/ {WWPN=$0;gsub(/^.*="/,"",WWPN);gsub(/"$/,"",WWPN);gsub(/-/,"",WWPN);}
+
+    $1 ~ /ActualDataRate/ {ActualDataRate=$0;gsub(/^.*="/,"",ActualDataRate);gsub(/ Gbps"$/,"",ActualDataRate);}
+
+    $1 ~ /PortType/ {PortType=$0;gsub(/^.*="/,"",PortType);gsub(/"$/,"",PortType);gsub(/-/,"",PortType);}
+
+    $1 ~ /SerialNumber/ {SerialNumber=$0;gsub(/^.*="/,"",SerialNumber);gsub(/"$/,"",SerialNumber);gsub(/-/,"",SerialNumber);}
+
+    $1 ~ /Status/ {Status=$0;gsub(/^.*="/,"",Status);gsub(/" .>$/,"",Status);gsub(/-/,"",Status);}
+
+    $1 ~ "</HBA>" {print ("MSHW;"PortID";"Model";"WWPN";"ActualDataRate";"PortType";"SerialNumber";"Status";")
+                     PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
 translations:
   NetworkStatusInfoTranslationTable:
     send loop down update: Send loop down update

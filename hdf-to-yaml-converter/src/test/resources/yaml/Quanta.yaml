@@ -1,7 +1,23 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {FS=\";\";}\n{\n\tif($3 < 0) AlarmThreshold = \"\"; else AlarmThreshold = $3;\n\tif($4 < 0) WarningThreshold = \"\"; else WarningThreshold = $4;\n\tif($5 < 0) SensorReading = \"\"; else SensorReading = $5;\n\tif(AlarmThreshold == \"\" && WarningThreshold == \"\" || SensorReading == \"\") StatusActivation=1;\n\tprint $1\";\"$2\";\"AlarmThreshold\";\"WarningThreshold\";\"SensorReading\";\"$6\";\"StatusActivation\";\"\n}"
-  EmbeddedFile(2): "BEGIN {FS=\";\";}\n{\n\tif ($3 < 0 ) UpperThreshold = \"\"; else UpperThreshold = $3;\n\tif ($4 < 0 ) LowerThreshold = \"\"; else LowerThreshold = $4;\n\tif ($5 < 0 ) SensorReading = \"\"; else SensorReading = $5;\n\tif (UpperThreshold == \"\" && LowerThreshold == \"\" || SensorReading == \"\") StatusActivation=1;\n\tprint $1\";\"$2\";\"UpperThreshold\";\"LowerThreshold\";\"SensorReading\";\"$6\";\"StatusActivation\";\"\n}"
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+        if($3 < 0) AlarmThreshold = ""; else AlarmThreshold = $3;
+        if($4 < 0) WarningThreshold = ""; else WarningThreshold = $4;
+        if($5 < 0) SensorReading = ""; else SensorReading = $5;
+        if(AlarmThreshold == "" && WarningThreshold == "" || SensorReading == "") StatusActivation=1;
+        print $1";"$2";"AlarmThreshold";"WarningThreshold";"SensorReading";"$6";"StatusActivation";"
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS=";";}
+    {
+        if ($3 < 0 ) UpperThreshold = ""; else UpperThreshold = $3;
+        if ($4 < 0 ) LowerThreshold = ""; else LowerThreshold = $4;
+        if ($5 < 0 ) SensorReading = ""; else SensorReading = $5;
+        if (UpperThreshold == "" && LowerThreshold == "" || SensorReading == "") StatusActivation=1;
+        print $1";"$2";"UpperThreshold";"LowerThreshold";"SensorReading";"$6";"StatusActivation";"
+    }
 translations:
   enclosureStatusInformationTranslationTable:
     "1": Power ON

@@ -1,11 +1,189 @@
 ---
 embedded:
-  EmbeddedFile(1): "# Awk (or nawk)\nif [ -f /usr/xpg4/bin/awk ]; then\n\tAWK=\"/usr/xpg4/bin/awk\";\nelif [ -f /usr/bin/nawk ]; then\n\tAWK=\"/usr/bin/nawk\";\nelse\n\tAWK=\"awk\";\nfi\nif [ -f /opt/StorMan/arcconf ]; then\n       STORMAN=\"/opt/StorMan\";\nelif [ -f /usr/StorMan/arcconf ]; then\n       STORMAN=\"/usr/StorMan\";\nelse\n\techo No Storman Installed; exit;\nfi\nDEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\nfor CTRL in $DEVICES\n                do\n                echo MSHWController $CTRL\n                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n                done"
-  EmbeddedFile(3): "# Awk (or nawk)\nif [ -f /usr/xpg4/bin/awk ]; then\n\tAWK=\"/usr/xpg4/bin/awk\";\nelif [ -f /usr/bin/nawk ]; then\n\tAWK=\"/usr/bin/nawk\";\nelse\n\tAWK=\"awk\";\nfi\nif [ -f /opt/StorMan/arcconf ]; then\n       STORMAN=\"/opt/StorMan\";\nelif [ -f /usr/StorMan/arcconf ]; then\n       STORMAN=\"/usr/StorMan\";\nelse\n\techo No Storman Installed; exit;\nfi\nDEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\nfor CTRL in $DEVICES\n                do\n                echo MSHWController $CTRL\n                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL AD\n                done"
-  EmbeddedFile(2): "BEGIN {controllerID=\"\";deviceID=\"\";hardDriveID=\"\";status=\"\";location=\"\";vendor=\"\";model=\"\";firmware=\"\";serialNumber=\"\";size=\"\";channel=\"\";}\n $1 ~ /MSHWController/ {controllerID=$2};\n\n$1 ~/[Dd]evice/ && $2 ~ /#[0-9]/ {deviceID=(controllerID\"-\"$2);gsub(/#/,\"\",deviceID);\n\t                                getline;\n\t                                if ( $(NF-1) ~ /[Hh]ard/ && $NF ~ /[Dd]rive/ ) {hardDriveID = deviceID};\n\t                               }\n\n$1 ~ /[Ss]tate/ && hardDriveID != \"\" {status=tolower($3)}\n\n$1 ~ /[Ss]upported/ && hardDriveID != \"\" && $NF ~ /[Nn]o/ {status=\"Unsupported\"}\n\n$1 ~ /[Rr]eported/ && $2 ~ /[Ll]ocation/ {colonIndex = index($0, \":\") ;\n\t                                        location = (\"Controller: \"controllerID\",\"substr($0, colonIndex + 1)) ;\n\t                                       }\n\n$1 ~ /[Rr]eported/ && $2 ~ /[Ee]nclosure/ {colonIndex = index($0, \":\") ;\n\t                                         enclosureSlot = substr($0, colonIndex + 2) ;\n\t                                         commaIndex = index(enclosureSlot, \",\") ;\n\t                                         enclosure = substr(enclosureSlot,1,commaIndex-1) ;\n\t                                         slot = substr(enclosureSlot,commaIndex + 1) ;\n\t                                         location = (\"Enclosure: \" enclosure \" - Location: \" slot) ;\n\t                                        }\n\n$1 ~ /[Rr]eported/ && $2 ~ /[Cc]hannel/ {  fullLine=$0 ;\n                                           gsub(\"\\(T:L\\)\",\"\",fullLine);\n                                            colonIndex = index(fullLine, \":\") ;\n\t                                        channelDevice = substr(fullLine, colonIndex + 2) ;\n\t                                        commaIndex = index(channelDevice, \",\") ;\n\t                                        channel = substr(channelDevice,1,commaIndex-1) ;\n\t                                        device = substr(channelDevice,commaIndex + 1) ;\n\t                                        channel = (\"Channel: \" channel \" - Device: \" device) ;\n\t                                       }\n\n$1 ~ /[Vv]endor/ {colonIndex = index($0, \":\") ;\n\t                vendor = substr($0, colonIndex + 2) ;\n\t               }\n\n$1 ~ /[Mm]odel/  {colonIndex = index($0, \":\") ;\n\t                model = substr($0, colonIndex + 2) ;\n\t               }\n\n$1 ~ /[Ff]irmware/  {colonIndex = index($0, \":\") ;\n\t                   firmware = substr($0, colonIndex + 2) ;\n\t                  }\n\n$1 ~ /[Ss]erial/ && $2 ~ /[Nn]umber/ {colonIndex = index($0, \":\") ;\n\t                                    serialNumber = substr($0, colonIndex + 2) ;\n\t                                   }\n\n($1 ~ /^[Ss]ize/ || $1 ~ /^Total/) && $NF ~ /[TtGgMm][Bb]/ && hardDriveID != \"\" {size=$(NF-1);\n\tif ($NF ~ /[Mm][Bb]/) {size = size / 1024};\n  if ($NF ~ /[Tt][Bb]/) {size = size * 1024};\n\tprint(\"MSHW;\"controllerID\";\"hardDriveID\";\"status\";\"location\";\"vendor\";\"model\";\"firmware\";\"serialNumber\";\"size\";\"channel\";\");\n\tdeviceID=\"\";hardDriveID=\"\";status=\"\";location=\"\";vendor=\"\";model=\"\";firmware=\"\";serialNumber=\"\";size=\"\";channel=\"\";\n\t                                                           }"
-  EmbeddedFile(5): "# Awk (or nawk)\nif [ -f /usr/xpg4/bin/awk ]; then\n\tAWK=\"/usr/xpg4/bin/awk\";\nelif [ -f /usr/bin/nawk ]; then\n\tAWK=\"/usr/bin/nawk\";\nelse\n\tAWK=\"awk\";\nfi\nif [ -f /opt/StorMan/arcconf ]; then\n       STORMAN=\"/opt/StorMan\";\nelif [ -f /usr/StorMan/arcconf ]; then\n       STORMAN=\"/usr/StorMan\";\nelse\n\techo No Storman Installed; exit;\nfi\nDEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\nfor CTRL in $DEVICES\n                do\n                echo MSHWController $CTRL\n                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL LD\n                done"
-  EmbeddedFile(4): "BEGIN {controllerID=\"\";status=\"\";model=\"\";serial=\"\";memory=\"\";firmware=\"\";driver=\"\";batteryStatus=\"\";}\n$1 ~ /MSHWController/ {if (controllerID != \"\") {print (\"MSHW;\"controllerID\";\"status\";\"model\";\"serial\";\"slot\";\"memory\";\"firmware\";\"driver\";\"batteryStatus\";\");\n\t                                              controllerID=\"\";status=\"\";model=\"\";serial=\"\";memory=\"\";firmware=\"\";driver=\"\";batteryStatus=\"\";\n\t                                             }\n\t                     controllerID=$2};\n\n$1 ~ /[Cc]ontroller/ && $2 ~ /[Ss]tatus/ {status=tolower($4);if (NF > 4) {status=status \" \" tolower($5) }}\n\n$1 ~ /[Cc]ontroller/ && $2 ~ /[Mm]odel/  {colonIndex = index($0, \":\") ;\n\t                                        model = substr($0, colonIndex + 2) ;\n\t                                       }\n\n$1 ~ /[Cc]ontroller/ && $2 ~ /[Ss]erial/ {colonIndex = index($0, \":\") ;\n\t                                        serial = substr($0, colonIndex + 2) ;\n\t                                       }\n\n$1 ~ /[Pp]hysical/ && $2 ~ /[Ss]lot/     {slot = \"Location: \" $NF}\n\n$1 ~ /[Ii]nstalled/ && $2 ~ /[Mm]emory/  {colonIndex = index($0, \":\") ;\n\t                                        memory = \"Memory: \" substr($0, colonIndex + 2) ;\n\t                                       }\n\n$1 ~ /[Ff]irmware/ {colonIndex = index($0, \":\") ;\n\t                  firmware = substr($0, colonIndex + 2) ;\n\t                 }\n\n$1 ~ /[Dd]river/   {colonIndex = index($0, \":\") ;\n\t                  driver = substr($0, colonIndex + 2) ;\n\t                 }\n\n$1 ~ /[Ss]tatus/   {batteryStatus=tolower($3);\n\t                  if (NF > 3) {batteryStatus=batteryStatus \" \" tolower($4) };\n\t                  if (batteryStatus ~ /not installed/) {batteryStatus=\"\"};\n\t                  getline;\n\t                  if ($1 ~ /[Oo]ver/ && $2 ~ /[Tt]emperature/ && $NF ~ /[Yy]es/ && batteryStatus!=\"\") {batteryStatus=\"over temperature\";}\n\t                 }\n\nEND {print (\"MSHW;\"controllerID\";\"status\";\"model\";\"serial\";\"slot\";\"memory\";\"firmware\";\"driver\";\"batteryStatus\";\");}"
-  EmbeddedFile(6): "BEGIN {controllerID=\"\";logicaldriveID=\"\";logicaldriveName=\"\";status=\"\";size=\"\";raidLevel=\"\";statusInfo=\"\";\n\t    }\n$1 ~ /MSHWController/ {controllerID=$2};\n\n$1 ~ /[Ll]ogical/ && $2 ~ /([Dd]evice)|([Dd]rive)/ && $3 ~ /[Nn]umber/ {logicaldriveID=controllerID \"-\" $NF}\n\n$1 ~ /[Ll]ogical/ && $2 ~ /[Dd]evice|([Dd]rive)/ && $3 ~ /[Nn]ame/   {logicaldriveName=$NF}\n\ntolower($1) ~ /raid/ && $2 ~ /[Ll]evel/ {raidLevel=$NF}\n\n$1 ~/[Ss]tatus/ && $3 ~ /[Ll]ogical/ && $4 ~ /[Dd]evice|([Dd]rive)/ {status=tolower($6); gsub(/,/,\"\",status);\n\t                                                                   colonIndex = index($0, \":\") ;\n\t                                                                   statusInfo = substr($0, colonIndex + 2) ;\n\t                                                                  }\n\n$1 ~ /[Ss]ize/ && $NF ~ /[TtGgMm][Bb]/ {size=$(NF-1);\n\t                                      if ($NF ~ /[Mm][Bb]/) {size = size / 1024};\n                                        if ($NF ~ /[Tt][Bb]/) {size = size * 1024};\n                                        print (\"MSHW;\"controllerID\";\"logicaldriveID\";\"logicaldriveName\";\"status\";\"size\";\"raidLevel\";\"statusInfo\";\");\n                                        logicaldriveID=\"\";logicaldriveName=\"\";status=\"\";size=\"\";raidLevel=\"\";statusInfo=\"\";\n                                       }"
+  EmbeddedFile(1): |-
+    # Awk (or nawk)
+    if [ -f /usr/xpg4/bin/awk ]; then
+        AWK="/usr/xpg4/bin/awk";
+    elif [ -f /usr/bin/nawk ]; then
+        AWK="/usr/bin/nawk";
+    else
+        AWK="awk";
+    fi
+    if [ -f /opt/StorMan/arcconf ]; then
+           STORMAN="/opt/StorMan";
+    elif [ -f /usr/StorMan/arcconf ]; then
+           STORMAN="/usr/StorMan";
+    else
+        echo No Storman Installed; exit;
+    fi
+    DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,"",controller);print(controller)}'`
+    for CTRL in $DEVICES
+                    do
+                    echo MSHWController $CTRL
+                    %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD
+                    done
+  EmbeddedFile(3): |-
+    # Awk (or nawk)
+    if [ -f /usr/xpg4/bin/awk ]; then
+        AWK="/usr/xpg4/bin/awk";
+    elif [ -f /usr/bin/nawk ]; then
+        AWK="/usr/bin/nawk";
+    else
+        AWK="awk";
+    fi
+    if [ -f /opt/StorMan/arcconf ]; then
+           STORMAN="/opt/StorMan";
+    elif [ -f /usr/StorMan/arcconf ]; then
+           STORMAN="/usr/StorMan";
+    else
+        echo No Storman Installed; exit;
+    fi
+    DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,"",controller);print(controller)}'`
+    for CTRL in $DEVICES
+                    do
+                    echo MSHWController $CTRL
+                    %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL AD
+                    done
+  EmbeddedFile(2): |-
+    BEGIN {controllerID="";deviceID="";hardDriveID="";status="";location="";vendor="";model="";firmware="";serialNumber="";size="";channel="";}
+     $1 ~ /MSHWController/ {controllerID=$2};
+
+    $1 ~/[Dd]evice/ && $2 ~ /#[0-9]/ {deviceID=(controllerID"-"$2);gsub(/#/,"",deviceID);
+                                        getline;
+                                        if ( $(NF-1) ~ /[Hh]ard/ && $NF ~ /[Dd]rive/ ) {hardDriveID = deviceID};
+                                       }
+
+    $1 ~ /[Ss]tate/ && hardDriveID != "" {status=tolower($3)}
+
+    $1 ~ /[Ss]upported/ && hardDriveID != "" && $NF ~ /[Nn]o/ {status="Unsupported"}
+
+    $1 ~ /[Rr]eported/ && $2 ~ /[Ll]ocation/ {colonIndex = index($0, ":") ;
+                                                location = ("Controller: "controllerID","substr($0, colonIndex + 1)) ;
+                                               }
+
+    $1 ~ /[Rr]eported/ && $2 ~ /[Ee]nclosure/ {colonIndex = index($0, ":") ;
+                                                 enclosureSlot = substr($0, colonIndex + 2) ;
+                                                 commaIndex = index(enclosureSlot, ",") ;
+                                                 enclosure = substr(enclosureSlot,1,commaIndex-1) ;
+                                                 slot = substr(enclosureSlot,commaIndex + 1) ;
+                                                 location = ("Enclosure: " enclosure " - Location: " slot) ;
+                                                }
+
+    $1 ~ /[Rr]eported/ && $2 ~ /[Cc]hannel/ {  fullLine=$0 ;
+                                               gsub("\(T:L\)","",fullLine);
+                                                colonIndex = index(fullLine, ":") ;
+                                                channelDevice = substr(fullLine, colonIndex + 2) ;
+                                                commaIndex = index(channelDevice, ",") ;
+                                                channel = substr(channelDevice,1,commaIndex-1) ;
+                                                device = substr(channelDevice,commaIndex + 1) ;
+                                                channel = ("Channel: " channel " - Device: " device) ;
+                                               }
+
+    $1 ~ /[Vv]endor/ {colonIndex = index($0, ":") ;
+                        vendor = substr($0, colonIndex + 2) ;
+                       }
+
+    $1 ~ /[Mm]odel/  {colonIndex = index($0, ":") ;
+                        model = substr($0, colonIndex + 2) ;
+                       }
+
+    $1 ~ /[Ff]irmware/  {colonIndex = index($0, ":") ;
+                           firmware = substr($0, colonIndex + 2) ;
+                          }
+
+    $1 ~ /[Ss]erial/ && $2 ~ /[Nn]umber/ {colonIndex = index($0, ":") ;
+                                            serialNumber = substr($0, colonIndex + 2) ;
+                                           }
+
+    ($1 ~ /^[Ss]ize/ || $1 ~ /^Total/) && $NF ~ /[TtGgMm][Bb]/ && hardDriveID != "" {size=$(NF-1);
+        if ($NF ~ /[Mm][Bb]/) {size = size / 1024};
+      if ($NF ~ /[Tt][Bb]/) {size = size * 1024};
+        print("MSHW;"controllerID";"hardDriveID";"status";"location";"vendor";"model";"firmware";"serialNumber";"size";"channel";");
+        deviceID="";hardDriveID="";status="";location="";vendor="";model="";firmware="";serialNumber="";size="";channel="";
+                                                                   }
+  EmbeddedFile(5): |-
+    # Awk (or nawk)
+    if [ -f /usr/xpg4/bin/awk ]; then
+        AWK="/usr/xpg4/bin/awk";
+    elif [ -f /usr/bin/nawk ]; then
+        AWK="/usr/bin/nawk";
+    else
+        AWK="awk";
+    fi
+    if [ -f /opt/StorMan/arcconf ]; then
+           STORMAN="/opt/StorMan";
+    elif [ -f /usr/StorMan/arcconf ]; then
+           STORMAN="/usr/StorMan";
+    else
+        echo No Storman Installed; exit;
+    fi
+    DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,"",controller);print(controller)}'`
+    for CTRL in $DEVICES
+                    do
+                    echo MSHWController $CTRL
+                    %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL LD
+                    done
+  EmbeddedFile(4): |-
+    BEGIN {controllerID="";status="";model="";serial="";memory="";firmware="";driver="";batteryStatus="";}
+    $1 ~ /MSHWController/ {if (controllerID != "") {print ("MSHW;"controllerID";"status";"model";"serial";"slot";"memory";"firmware";"driver";"batteryStatus";");
+                                                      controllerID="";status="";model="";serial="";memory="";firmware="";driver="";batteryStatus="";
+                                                     }
+                             controllerID=$2};
+
+    $1 ~ /[Cc]ontroller/ && $2 ~ /[Ss]tatus/ {status=tolower($4);if (NF > 4) {status=status " " tolower($5) }}
+
+    $1 ~ /[Cc]ontroller/ && $2 ~ /[Mm]odel/  {colonIndex = index($0, ":") ;
+                                                model = substr($0, colonIndex + 2) ;
+                                               }
+
+    $1 ~ /[Cc]ontroller/ && $2 ~ /[Ss]erial/ {colonIndex = index($0, ":") ;
+                                                serial = substr($0, colonIndex + 2) ;
+                                               }
+
+    $1 ~ /[Pp]hysical/ && $2 ~ /[Ss]lot/     {slot = "Location: " $NF}
+
+    $1 ~ /[Ii]nstalled/ && $2 ~ /[Mm]emory/  {colonIndex = index($0, ":") ;
+                                                memory = "Memory: " substr($0, colonIndex + 2) ;
+                                               }
+
+    $1 ~ /[Ff]irmware/ {colonIndex = index($0, ":") ;
+                          firmware = substr($0, colonIndex + 2) ;
+                         }
+
+    $1 ~ /[Dd]river/   {colonIndex = index($0, ":") ;
+                          driver = substr($0, colonIndex + 2) ;
+                         }
+
+    $1 ~ /[Ss]tatus/   {batteryStatus=tolower($3);
+                          if (NF > 3) {batteryStatus=batteryStatus " " tolower($4) };
+                          if (batteryStatus ~ /not installed/) {batteryStatus=""};
+                          getline;
+                          if ($1 ~ /[Oo]ver/ && $2 ~ /[Tt]emperature/ && $NF ~ /[Yy]es/ && batteryStatus!="") {batteryStatus="over temperature";}
+                         }
+
+    END {print ("MSHW;"controllerID";"status";"model";"serial";"slot";"memory";"firmware";"driver";"batteryStatus";");}
+  EmbeddedFile(6): |-
+    BEGIN {controllerID="";logicaldriveID="";logicaldriveName="";status="";size="";raidLevel="";statusInfo="";
+            }
+    $1 ~ /MSHWController/ {controllerID=$2};
+
+    $1 ~ /[Ll]ogical/ && $2 ~ /([Dd]evice)|([Dd]rive)/ && $3 ~ /[Nn]umber/ {logicaldriveID=controllerID "-" $NF}
+
+    $1 ~ /[Ll]ogical/ && $2 ~ /[Dd]evice|([Dd]rive)/ && $3 ~ /[Nn]ame/   {logicaldriveName=$NF}
+
+    tolower($1) ~ /raid/ && $2 ~ /[Ll]evel/ {raidLevel=$NF}
+
+    $1 ~/[Ss]tatus/ && $3 ~ /[Ll]ogical/ && $4 ~ /[Dd]evice|([Dd]rive)/ {status=tolower($6); gsub(/,/,"",status);
+                                                                           colonIndex = index($0, ":") ;
+                                                                           statusInfo = substr($0, colonIndex + 2) ;
+                                                                          }
+
+    $1 ~ /[Ss]ize/ && $NF ~ /[TtGgMm][Bb]/ {size=$(NF-1);
+                                              if ($NF ~ /[Mm][Bb]/) {size = size / 1024};
+                                            if ($NF ~ /[Tt][Bb]/) {size = size * 1024};
+                                            print ("MSHW;"controllerID";"logicaldriveID";"logicaldriveName";"status";"size";"raidLevel";"statusInfo";");
+                                            logicaldriveID="";logicaldriveName="";status="";size="";raidLevel="";statusInfo="";
+                                           }
 translations:
   DiskStatusTranslationTable:
     okay: ok

@@ -2,13 +2,212 @@
 extends:
 - IBMAIXModels-header
 embedded:
-  EmbeddedFile(1): "$2 ~ /hdisk[0-9]+/ && $3 ~ /fscsi/ {if ($2 in LUN == 0) {LUN[$2] = 0}\n\t                                  if ($1 ~ /[Ee]nabled/) {LUN[$2] = LUN[$2] + 1}\n\t                                 }\nEND {for (id in LUN) {print \"MSHW;\" id \";\" LUN[id] \";\"} }"
-  EmbeddedFile(3): "($1 ~ /hdisk[0-9]/) {\n\tID=$1;\n\tsize = $(NF-1);\n\tgsub(\"[^0-9.]\", \"\", size);\n\tif ($NF ~ /MB/) { size = size / 1024; }\n\tif ($NF ~ /TB/) { size = size * 1024; }\n}\n\n(ID != \"\" && $1 ~ /Manufacturer/) { make = $1; gsub (\".+\\\\.\", \"\", make); }\n\n(ID != \"\" && $1 ~ /Machine/ && $2 ~ /Type/) { model = $NF; gsub(\".+\\\\.\", \"\", model); }\n\n(ID != \"\" && $1 ~ /FRU/ && $2 ~ /Number/) { FRU = $NF; gsub(\".+\\\\.\", \"\", FRU); }\n\n(ID != \"\" && $1 ~ /Serial/ && $2 ~ /Number/) {\n\tSerial = $NF;\n\tgsub(\".+\\\\.\", \"\", Serial);\n\tif (FRU != \"\")\n\t{\n\t\tprint (\"MSHW;\" ID \";\" size \";\" make \"-\" model \" FRU: \" FRU \";\" Serial \";\");\n\t}\n\tID=\"\"; size=\"\"; make=\"\"; model=\"\"; FRU=\"\"; Serial=\"\";\n}"
-  EmbeddedFile(2): "BEGIN {\n\tnicUp = 0;\n\tnicSpeed = \"\";\n}\n/^Driver Flags:.*Up/ {\n\tnicUp = 1;\n}\n\n/^Media Speed Running: +[0-9]+ / {\n\tnicSpeed = $4;\n}\n\n/^Hardware Address:/ {\n\taddress = $3;\n}\n\nEND {\n\tif (nicUp == 1)\n\t{\n\t\tprint \"MSHW;\" nicId \";\" nicSpeed \";\" address \";\"\n\t}\n}"
-  EmbeddedFile(5): "/^ETHERNET STATISTICS/ { nicdevice = $3; gsub (/[\\050\\051]/,\"\",nicdevice); nicdevices[nicdevice]=nicdevice }\n\n/^Device Type:/ {\n                 if ( ($3 ~ /EtherChannel/ || $3 ~ /Virtual/) || ($0 ~ /Shared Ethernet Adapter/) || ($0 ~ /Link Aggregation/) || ($0 ~ /VLAN/)) { EtherT[nicdevice] = \"Logical\"; lastLogical = nicdevice }\n                    else { EtherT[nicdevice] = \"Physical\" }\n                }\n\n/^Driver Flags:/ {\n                  if ($0 ~ /Running/) { nicStatus[nicdevice] = \"OK\";}\n                  else {\n                        nicStatus[nicdevice] = \"ALARM\";\n                        getline\n                        if ($0 ~ /Running/) { nicStatus[nicdevice] = \"OK\";}\n                       }\n                 }\n\n$1 == \"Hardware\" && $2 == \"Address:\" { mac[nicdevice] = $3 ; gsub (/:/,\"\",mac[nicdevice])}\n\n# Link\n/Physical Port Link Stat/ {\n                           if ($NF == \"up\" || $NF == \"Up\" || $NF == \"UP\") {\n                                                                           linkStatus[nicdevice] = \"OK\";\n                                                                           if ( linkStatus[lastLogical] == \"WARN\" ) { linkStatus[lastLogical] = \"OK\" ; nicStatus[lastLogical] = \"WARN\" ; }\n                                                                          }\n                              else {\n                                    linkStatus[nicdevice] = \"WARN\"; nicStatus[nicdevice] = \"OK\";\n                                    if (linkStatus[lastLogical] == \"OK\") { nicStatus[lastLogical] = \"WARN\" }\n                                    if (linkStatus[lastLogical] == \"\") { linkStatus[lastLogical] = \"WARN\" ; nicStatus[lastLogical] = \"ALARM\" }\n                                   }\n                          }\n\n$1 == \"Link\" && $2 == \"Status\" { if ($4 == \"up\" || $4 == \"Up\" || $4 == \"UP\") { linkStatus[nicdevice] = \"OK\"; }\n                                      else {linkStatus[nicdevice] = \"WARN\"; nicStatus[nicdevice] = \"OK\";}\n                                 }\n\n$1 == \"Link\" && $2 == \"Status:\" { if ($3 == \"up\" || $3 == \"Up\" || $3 == \"UP\") { linkStatus[nicdevice] = \"OK\";}\n                                       else { linkStatus[nicdevice] = \"WARN\"; nicStatus[nicdevice] = \"OK\"; }\n                                  }\n\n# Speed\n$0 ~ /Media Speed Running:/ || $0 ~ /Physical Port Speed:/ {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tif ($4 ~ /^[0-9]+$/) {linkSpeed[nicdevice] = $4 $5; gsub(/Gbps/,\"000\",linkSpeed[nicdevice]);gsub(/Mbps/,\"\",linkSpeed[nicdevice]);}\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\telse {linkSpeed[nicdevice] = $4; gsub(/Gbps/,\"000\",linkSpeed[nicdevice]);gsub(/Mbps/,\"\",linkSpeed[nicdevice]);}\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t if ($0 ~ /[Hh]alf [Dd]uplex/) { duplexMode[nicdevice] = \"half\"; }\n                                    else { duplexMode[nicdevice] = \"full\"; }\n                                 }\n\n# Statistics\n$1 == \"Packets:\" && $3 == \"Packets:\" { transmitPackets[nicdevice] = $2; receivePackets[nicdevice] = $4; }\n\n$1 == \"Bytes:\" && $3 == \"Bytes:\" {transmitBytes[nicdevice] = $2;receiveBytes[nicdevice] = $4; }\n\n$1 == \"Transmit\" && $2 == \"Errors:\" && $4 == \"Receive\" && $5 == \"Errors:\" { transmitErrors[nicdevice] = $3; receiveErrors[nicdevice] = $6; totalErrors[nicdevice] = transmitErrors[nicdevice] + receiveErrors[nicdevice] ; }\n\nEND { for (nic in nicdevices) {\n          if (EtherT[nic] == \"Logical\") {\n             printf(\"MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;;;%s;;\\n\", nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],\"Logical\");\n             }\n             else {printf(\"MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;%s;%s;%s;%s;\\n\",nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],linkSpeed[nic],duplexMode[nic],\"Physical\", mac[nic]);\n                  }\n\n          }\n    }"
-  EmbeddedFile(4): "BEGIN { portID = \"\"; WWPN = \"\"; linkStatus = \"WARN\"; TxPackets = \"\"; RxPackets = \"\"; TxBytes = \"\"; RxBytes = \"\"; ErrorCountFrames = \"\"; PortType = \"\"; speed = \"\"; SerialNumber = \"\"; }\n\n($1 == \"FIBRE\" && $2 == \"CHANNEL\" && $3 == \"STATISTICS\") {\n\n\t# If portID != \"\", it means we're starting the section for a new port, so report the one that we've just processed\n  \tif (portID != \"\") { print(\"MSHW;\" portID \";\"  \";\" linkStatus \";\" ErrorCountFrames \";\" TxPackets \";\" RxPackets \";\" TxBytes \";\" RxBytes \";\" speed \";Full;\" PortType \";\" WWPN \";WWN;\"  SerialNumber \";\" ); }\n    portID = \"\"; WWPN = \"\"; linkStatus = \"WARN\"; TxPackets = \"\"; RxPackets = \"\"; TxBytes = \"\"; RxBytes = \"\"; ErrorCountFrames = \"\"; PortType = \"\"; speed = \"\"; SerialNumber = \"\";\n\n\tportID = $NF;\n}\n\n($1 == \"World\" && $2 == \"Wide\" && $3 == \"Port\") { WWPN = $NF; gsub(/^0x/, \"\" , WWPN); }\n($1 == \"Port\" && $2 == \"WWN\") { WWPN=$NF; gsub(/^0x/, \"\" , WWPN); }\n\n$0 ~ /[Aa]ttention.*[Tt]ype.*[Ll]ink.*[Uu]p/ {linkStatus = \"OK\"}\n$0 ~ /[Aa]ttention.*[Tt]ype.*[Ll]ink.*[Dd]own/ {linkStatus = \"WARN\"}\n($1 == \"Port\" && $2 == \"Speed\" && $3 ~ /running/) { speed = $(NF-1); speed = speed * 1000; linkStatus = \"OK\"; }\n\n($1 == \"Port\" && $2 == \"Type:\") { PortType = \"HBA FC Port (\" $3 \")\"; }\n\n($1 == \"Serial\" && $2 == \"Number:\") { SerialNumber = $NF; }\n\n($1 ~ /^Frames/ && $2 ~ /^[0-9]+$/ && $3 ~ /^[0-9]+$/) { TxPackets = $2; RxPackets = $3; }\n($1 ~ /^Frames/ && $2 ~ /^[0-9]+$/ && $3 ~ /^Frames/ && $4 ~ /^[0-9]+$/) { TxPackets = $2; RxPackets = $4; }\n\n($1 ~ /Error/ && $2 ~ /Frames/ && $3 ~ /^[0-9]+$/) { if (ErrorCountFrames == \"\") { ErrorCountFrames = $3; } else { ErrorCountFrames = ErrorCountFrames + $3;} }\n\n($1 ~ /Dumped/ && $2 ~ /Frames/ && $3 ~ /^[0-9]+$/) { if (ErrorCountFrames == \"\") { ErrorCountFrames = $3; } else { ErrorCountFrames = ErrorCountFrames + $3;} }\n\n($1 ~ /Input/ && $2 ~ /Bytes/ && $3 ~ /^[0-9]+$/) { if (RxBytes == \"\") { RxBytes = $3; } else { RxBytes = RxBytes + $3;} }\n\n($1 ~ /Output/ && $2 ~ /Bytes/ && $3 ~ /^[0-9]+$/) { if (TxBytes == \"\") { TxBytes = $3; } else { TxBytes = TxBytes + $3;} }\n\nEND {\n\tif (portID != \"\") { print(\"MSHW;\" portID \";\"  \";\" linkStatus \";\" ErrorCountFrames \";\" TxPackets \";\" RxPackets \";\" TxBytes \";\" RxBytes \";\" speed \";Full;\" PortType \";\" WWPN \";WWN;\"  SerialNumber \";\" ); }\n}"
-  EmbeddedFile(7): "$1 ~ /MSHW_DATE[0-9]+/ {mmdd = substr($1,10,4) ; yy = substr ($1,18,2)}\n# Match the date\nsubstr($2,1,4) == mmdd &&  substr($2,9,2) == yy { if ($5 in DeviceErrorCount == 0) {DeviceErrorCount[$5] = 1}\n\t                                                else {DeviceErrorCount[$5] = DeviceErrorCount[$5] + 1 }\n\t                                               }\nEND {for (id in DeviceErrorCount) {print \"MSHW;\" id \";\" DeviceErrorCount[id] \";\"} }"
-  EmbeddedFile(6): "BEGIN {\n\tMemoryObject = 0;\n\tDeviceID = \"\";\n\tSize = \"\";\n\tSerialNumber = \"\";\n\tPartNumber = \"\";\n}\n/Memory [DS]IMM:/ {\n\tMemoryObject = 1;\n}\n\n/Size\\.+/ {\n\tSize = $0;\n\tgsub(\" +Size\\\\.+\", \"\", Size);\n}\n/Serial Number\\.+/ {\n\tSerialNumber = $0;\n\tgsub(\" +Serial Number\\\\.+\", \"\", SerialNumber);\n}\n/Part Number\\.+/ {\n\tPartNumber = $0;\n\tgsub(\" +Part Number\\\\.+\", \"\", PartNumber);\n}\n/Physical Location:/ {\n\tif (MemoryObject == 1)\n\t{\n\t\tDeviceID = $3;\n\n\t\tif (Size == 0)\n\t\t{\n\t\t\tStatus = \"ALARM\";\n\t\t\tStatusInformation = \"Failed\";\n\t\t}\n\t\telse\n\t\t{\n\t\t\tStatus = \"OK\";\n\t\t\tStatusInformation = \"\";\n\t\t}\n\t\tprint \"MSHW;\" DeviceID \";\" Size \";\" SerialNumber \" - FRU: \" PartNumber \";\" Status \";\" StatusInformation \";\"\n\t}\n\tDeviceID = \"\";\n\tMemoryObject = 0;\n\tSerialNumber = \"\";\n\tPartNumber = \"\";\n}"
+  EmbeddedFile(1): |-
+    $2 ~ /hdisk[0-9]+/ && $3 ~ /fscsi/ {if ($2 in LUN == 0) {LUN[$2] = 0}
+                                          if ($1 ~ /[Ee]nabled/) {LUN[$2] = LUN[$2] + 1}
+                                         }
+    END {for (id in LUN) {print "MSHW;" id ";" LUN[id] ";"} }
+  EmbeddedFile(3): |-
+    ($1 ~ /hdisk[0-9]/) {
+        ID=$1;
+        size = $(NF-1);
+        gsub("[^0-9.]", "", size);
+        if ($NF ~ /MB/) { size = size / 1024; }
+        if ($NF ~ /TB/) { size = size * 1024; }
+    }
+
+    (ID != "" && $1 ~ /Manufacturer/) { make = $1; gsub (".+\\.", "", make); }
+
+    (ID != "" && $1 ~ /Machine/ && $2 ~ /Type/) { model = $NF; gsub(".+\\.", "", model); }
+
+    (ID != "" && $1 ~ /FRU/ && $2 ~ /Number/) { FRU = $NF; gsub(".+\\.", "", FRU); }
+
+    (ID != "" && $1 ~ /Serial/ && $2 ~ /Number/) {
+        Serial = $NF;
+        gsub(".+\\.", "", Serial);
+        if (FRU != "")
+        {
+            print ("MSHW;" ID ";" size ";" make "-" model " FRU: " FRU ";" Serial ";");
+        }
+        ID=""; size=""; make=""; model=""; FRU=""; Serial="";
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        nicUp = 0;
+        nicSpeed = "";
+    }
+    /^Driver Flags:.*Up/ {
+        nicUp = 1;
+    }
+
+    /^Media Speed Running: +[0-9]+ / {
+        nicSpeed = $4;
+    }
+
+    /^Hardware Address:/ {
+        address = $3;
+    }
+
+    END {
+        if (nicUp == 1)
+        {
+            print "MSHW;" nicId ";" nicSpeed ";" address ";"
+        }
+    }
+  EmbeddedFile(5): |-
+    /^ETHERNET STATISTICS/ { nicdevice = $3; gsub (/[\050\051]/,"",nicdevice); nicdevices[nicdevice]=nicdevice }
+
+    /^Device Type:/ {
+                     if ( ($3 ~ /EtherChannel/ || $3 ~ /Virtual/) || ($0 ~ /Shared Ethernet Adapter/) || ($0 ~ /Link Aggregation/) || ($0 ~ /VLAN/)) { EtherT[nicdevice] = "Logical"; lastLogical = nicdevice }
+                        else { EtherT[nicdevice] = "Physical" }
+                    }
+
+    /^Driver Flags:/ {
+                      if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK";}
+                      else {
+                            nicStatus[nicdevice] = "ALARM";
+                            getline
+                            if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK";}
+                           }
+                     }
+
+    $1 == "Hardware" && $2 == "Address:" { mac[nicdevice] = $3 ; gsub (/:/,"",mac[nicdevice])}
+
+    # Link
+    /Physical Port Link Stat/ {
+                               if ($NF == "up" || $NF == "Up" || $NF == "UP") {
+                                                                               linkStatus[nicdevice] = "OK";
+                                                                               if ( linkStatus[lastLogical] == "WARN" ) { linkStatus[lastLogical] = "OK" ; nicStatus[lastLogical] = "WARN" ; }
+                                                                              }
+                                  else {
+                                        linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK";
+                                        if (linkStatus[lastLogical] == "OK") { nicStatus[lastLogical] = "WARN" }
+                                        if (linkStatus[lastLogical] == "") { linkStatus[lastLogical] = "WARN" ; nicStatus[lastLogical] = "ALARM" }
+                                       }
+                              }
+
+    $1 == "Link" && $2 == "Status" { if ($4 == "up" || $4 == "Up" || $4 == "UP") { linkStatus[nicdevice] = "OK"; }
+                                          else {linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK";}
+                                     }
+
+    $1 == "Link" && $2 == "Status:" { if ($3 == "up" || $3 == "Up" || $3 == "UP") { linkStatus[nicdevice] = "OK";}
+                                           else { linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK"; }
+                                      }
+
+    # Speed
+    $0 ~ /Media Speed Running:/ || $0 ~ /Physical Port Speed:/ {
+                                                                        if ($4 ~ /^[0-9]+$/) {linkSpeed[nicdevice] = $4 $5; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);}
+                                                                            else {linkSpeed[nicdevice] = $4; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);}
+                                                                     if ($0 ~ /[Hh]alf [Dd]uplex/) { duplexMode[nicdevice] = "half"; }
+                                        else { duplexMode[nicdevice] = "full"; }
+                                     }
+
+    # Statistics
+    $1 == "Packets:" && $3 == "Packets:" { transmitPackets[nicdevice] = $2; receivePackets[nicdevice] = $4; }
+
+    $1 == "Bytes:" && $3 == "Bytes:" {transmitBytes[nicdevice] = $2;receiveBytes[nicdevice] = $4; }
+
+    $1 == "Transmit" && $2 == "Errors:" && $4 == "Receive" && $5 == "Errors:" { transmitErrors[nicdevice] = $3; receiveErrors[nicdevice] = $6; totalErrors[nicdevice] = transmitErrors[nicdevice] + receiveErrors[nicdevice] ; }
+
+    END { for (nic in nicdevices) {
+              if (EtherT[nic] == "Logical") {
+                 printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;;;%s;;\n", nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],"Logical");
+                 }
+                 else {printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;%s;%s;%s;%s;\n",nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],linkSpeed[nic],duplexMode[nic],"Physical", mac[nic]);
+                      }
+
+              }
+        }
+  EmbeddedFile(4): |-
+    BEGIN { portID = ""; WWPN = ""; linkStatus = "WARN"; TxPackets = ""; RxPackets = ""; TxBytes = ""; RxBytes = ""; ErrorCountFrames = ""; PortType = ""; speed = ""; SerialNumber = ""; }
+
+    ($1 == "FIBRE" && $2 == "CHANNEL" && $3 == "STATISTICS") {
+
+        # If portID != "", it means we're starting the section for a new port, so report the one that we've just processed
+          if (portID != "") { print("MSHW;" portID ";"  ";" linkStatus ";" ErrorCountFrames ";" TxPackets ";" RxPackets ";" TxBytes ";" RxBytes ";" speed ";Full;" PortType ";" WWPN ";WWN;"  SerialNumber ";" ); }
+        portID = ""; WWPN = ""; linkStatus = "WARN"; TxPackets = ""; RxPackets = ""; TxBytes = ""; RxBytes = ""; ErrorCountFrames = ""; PortType = ""; speed = ""; SerialNumber = "";
+
+        portID = $NF;
+    }
+
+    ($1 == "World" && $2 == "Wide" && $3 == "Port") { WWPN = $NF; gsub(/^0x/, "" , WWPN); }
+    ($1 == "Port" && $2 == "WWN") { WWPN=$NF; gsub(/^0x/, "" , WWPN); }
+
+    $0 ~ /[Aa]ttention.*[Tt]ype.*[Ll]ink.*[Uu]p/ {linkStatus = "OK"}
+    $0 ~ /[Aa]ttention.*[Tt]ype.*[Ll]ink.*[Dd]own/ {linkStatus = "WARN"}
+    ($1 == "Port" && $2 == "Speed" && $3 ~ /running/) { speed = $(NF-1); speed = speed * 1000; linkStatus = "OK"; }
+
+    ($1 == "Port" && $2 == "Type:") { PortType = "HBA FC Port (" $3 ")"; }
+
+    ($1 == "Serial" && $2 == "Number:") { SerialNumber = $NF; }
+
+    ($1 ~ /^Frames/ && $2 ~ /^[0-9]+$/ && $3 ~ /^[0-9]+$/) { TxPackets = $2; RxPackets = $3; }
+    ($1 ~ /^Frames/ && $2 ~ /^[0-9]+$/ && $3 ~ /^Frames/ && $4 ~ /^[0-9]+$/) { TxPackets = $2; RxPackets = $4; }
+
+    ($1 ~ /Error/ && $2 ~ /Frames/ && $3 ~ /^[0-9]+$/) { if (ErrorCountFrames == "") { ErrorCountFrames = $3; } else { ErrorCountFrames = ErrorCountFrames + $3;} }
+
+    ($1 ~ /Dumped/ && $2 ~ /Frames/ && $3 ~ /^[0-9]+$/) { if (ErrorCountFrames == "") { ErrorCountFrames = $3; } else { ErrorCountFrames = ErrorCountFrames + $3;} }
+
+    ($1 ~ /Input/ && $2 ~ /Bytes/ && $3 ~ /^[0-9]+$/) { if (RxBytes == "") { RxBytes = $3; } else { RxBytes = RxBytes + $3;} }
+
+    ($1 ~ /Output/ && $2 ~ /Bytes/ && $3 ~ /^[0-9]+$/) { if (TxBytes == "") { TxBytes = $3; } else { TxBytes = TxBytes + $3;} }
+
+    END {
+        if (portID != "") { print("MSHW;" portID ";"  ";" linkStatus ";" ErrorCountFrames ";" TxPackets ";" RxPackets ";" TxBytes ";" RxBytes ";" speed ";Full;" PortType ";" WWPN ";WWN;"  SerialNumber ";" ); }
+    }
+  EmbeddedFile(7): |-
+    $1 ~ /MSHW_DATE[0-9]+/ {mmdd = substr($1,10,4) ; yy = substr ($1,18,2)}
+    # Match the date
+    substr($2,1,4) == mmdd &&  substr($2,9,2) == yy { if ($5 in DeviceErrorCount == 0) {DeviceErrorCount[$5] = 1}
+                                                        else {DeviceErrorCount[$5] = DeviceErrorCount[$5] + 1 }
+                                                       }
+    END {for (id in DeviceErrorCount) {print "MSHW;" id ";" DeviceErrorCount[id] ";"} }
+  EmbeddedFile(6): |-
+    BEGIN {
+        MemoryObject = 0;
+        DeviceID = "";
+        Size = "";
+        SerialNumber = "";
+        PartNumber = "";
+    }
+    /Memory [DS]IMM:/ {
+        MemoryObject = 1;
+    }
+
+    /Size\.+/ {
+        Size = $0;
+        gsub(" +Size\\.+", "", Size);
+    }
+    /Serial Number\.+/ {
+        SerialNumber = $0;
+        gsub(" +Serial Number\\.+", "", SerialNumber);
+    }
+    /Part Number\.+/ {
+        PartNumber = $0;
+        gsub(" +Part Number\\.+", "", PartNumber);
+    }
+    /Physical Location:/ {
+        if (MemoryObject == 1)
+        {
+            DeviceID = $3;
+
+            if (Size == 0)
+            {
+                Status = "ALARM";
+                StatusInformation = "Failed";
+            }
+            else
+            {
+                Status = "OK";
+                StatusInformation = "";
+            }
+            print "MSHW;" DeviceID ";" Size ";" SerialNumber " - FRU: " PartNumber ";" Status ";" StatusInformation ";"
+        }
+        DeviceID = "";
+        MemoryObject = 0;
+        SerialNumber = "";
+        PartNumber = "";
+    }
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     stopped: Stopped

@@ -1,8 +1,120 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {\n\tcontrollerID = \"\";\n}\n/^MSHW_Controller / {\n\tcontrollerID = $2\n\tmodel = \"\"\n\tfirmware = \"\"\n}\n(($1 == controllerID \".\") && (NF > 6) && ($(NF-6) == \"LSI\") && ($(NF-5) == \"Logic\")) {\n\tmodel = $(NF-4)\n\tfirmware = $(NF-1)\n}\n/^PhysDisk [0-9]/ {\n\tif (controllerID != \"\" && model != \"\")\n\t{\n\t\tprint \"MSHW;\" controllerID \";LSI Logic;\" model \";\" firmware\n\t\tcontrollerID = \"\"\n\t\tmodel = \"\"\n\t}\n}"
-  EmbeddedFile(3): "BEGIN {\n\tcontrollerID = \"\";\n}\n/^MSHW_Controller / {\n\tcontrollerID = $2\n}\n/^Volume [0-9] is / {\n\tvolumeID = $2\n\traidType = $9\n\tenabled = 0\n\tdiskSize = \"\"\n}\n/Volume State:/ {\n\tif ($0 ~ /[Dd]isabled/)\n\t{\n\t\tenabled = 0\n\t}\n\telse\n\t{\n\t\tenabled = 1\n\t}\n\n\tcolonIndex = index($0, \":\")\n\tstatus = substr($0, colonIndex + 3, length - colonIndex - 2)\n\tcommaIndex = index(status, \",\")\n\tif (commaIndex > 1)\n\t{\n\t\tstatus = substr(status, 1, commaIndex - 1)\n\t}\n}\n/Volume Size/ {\n\tdiskSize = $3\n\tsizeUnit = $4\n\tif (sizeUnit == \"MB,\") { diskSize = diskSize * 1048576 }\n\telse if (sizeUnit == \"GB,\") { diskSize = diskSize * 1048576 * 1024 }\n\telse if (sizeUnit == \"TB,\") { diskSize = diskSize * 1048576 * 1048576 }\n}\n/^ *$/ {\n\tif (controllerID != \"\" && volumeID != \"\" && enabled == 1)\n\t{\n\t\tprint \"MSHW;\" controllerID \";\" volumeID \";\" diskSize \";\" raidType \";\" status\n\t\tvolumeID = \"\"\n\t}\n}"
-  EmbeddedFile(2): "BEGIN {\n\tcontrollerID = \"\";\n}\n/^MSHW_Controller / {\n\tcontrollerID = $2\n}\n/^PhysDisk [0-9]/ {\n\tif (controllerID != \"\")\n\t{\n\t\tdiskID = $2\n\t\tgetline\n\t\tif ($0 ~ /PhysDisk State:/)\n\t\t{\n\t\t\tcolonIndex = index($0, \":\")\n\t\t\tstatus = substr($0, colonIndex + 3, length - colonIndex - 2)\n\t\t\tcommaIndex = index(status, \",\")\n\t\t\tif (commaIndex > 1)\n\t\t\t{\n\t\t\t\tstatus = substr(status, 1, commaIndex - 1)\n\t\t\t}\n\t\t}\n\t\tgetline\n\t\tif ($0 ~ /PhysDisk Size/)\n\t\t{\n\t\t\tdiskSize = $3\n\t\t\tsizeUnit = $4\n\t\t\tif (sizeUnit == \"MB,\") { diskSize = diskSize * 1048576 }\n\t\t\telse if (sizeUnit == \"GB,\") { diskSize = diskSize * 1048576 * 1024 }\n\t\t\telse if (sizeUnit == \"TB,\") { diskSize = diskSize * 1048576 * 1048576 }\n\t\t\tcolonIndex = index($0, \":\")\n\t\t\tif (colonIndex > 10)\n\t\t\t{\n\t\t\t\ttempDiskModel = substr($0, colonIndex + 2, length - colonIndex - 1)\n\t\t\t\tn = split(tempDiskModel, diskModelArray, \" \")\n\t\t\t\tdiskModel = \"\"\n\t\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t\t{\n\t\t\t\t\tdiskModel = diskModel diskModelArray[i] \" \"\n\t\t\t\t}\n\t\t\t\tdiskModel = diskModel diskModelArray[n]\n\t\t\t}\n\t\t\tprint \"MSHW;\" controllerID \";\"  diskID \";\" diskModel \";\" diskSize \";\" status\n\t\t\tstatus = \"\"\n\t\t\tdiskModel = \"\"\n\t\t\tdiskSize = \"\"\n\t\t}\n\t}\n}"
+  EmbeddedFile(1): |-
+    BEGIN {
+        controllerID = "";
+    }
+    /^MSHW_Controller / {
+        controllerID = $2
+        model = ""
+        firmware = ""
+    }
+    (($1 == controllerID ".") && (NF > 6) && ($(NF-6) == "LSI") && ($(NF-5) == "Logic")) {
+        model = $(NF-4)
+        firmware = $(NF-1)
+    }
+    /^PhysDisk [0-9]/ {
+        if (controllerID != "" && model != "")
+        {
+            print "MSHW;" controllerID ";LSI Logic;" model ";" firmware
+            controllerID = ""
+            model = ""
+        }
+    }
+  EmbeddedFile(3): |-
+    BEGIN {
+        controllerID = "";
+    }
+    /^MSHW_Controller / {
+        controllerID = $2
+    }
+    /^Volume [0-9] is / {
+        volumeID = $2
+        raidType = $9
+        enabled = 0
+        diskSize = ""
+    }
+    /Volume State:/ {
+        if ($0 ~ /[Dd]isabled/)
+        {
+            enabled = 0
+        }
+        else
+        {
+            enabled = 1
+        }
+
+        colonIndex = index($0, ":")
+        status = substr($0, colonIndex + 3, length - colonIndex - 2)
+        commaIndex = index(status, ",")
+        if (commaIndex > 1)
+        {
+            status = substr(status, 1, commaIndex - 1)
+        }
+    }
+    /Volume Size/ {
+        diskSize = $3
+        sizeUnit = $4
+        if (sizeUnit == "MB,") { diskSize = diskSize * 1048576 }
+        else if (sizeUnit == "GB,") { diskSize = diskSize * 1048576 * 1024 }
+        else if (sizeUnit == "TB,") { diskSize = diskSize * 1048576 * 1048576 }
+    }
+    /^ *$/ {
+        if (controllerID != "" && volumeID != "" && enabled == 1)
+        {
+            print "MSHW;" controllerID ";" volumeID ";" diskSize ";" raidType ";" status
+            volumeID = ""
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        controllerID = "";
+    }
+    /^MSHW_Controller / {
+        controllerID = $2
+    }
+    /^PhysDisk [0-9]/ {
+        if (controllerID != "")
+        {
+            diskID = $2
+            getline
+            if ($0 ~ /PhysDisk State:/)
+            {
+                colonIndex = index($0, ":")
+                status = substr($0, colonIndex + 3, length - colonIndex - 2)
+                commaIndex = index(status, ",")
+                if (commaIndex > 1)
+                {
+                    status = substr(status, 1, commaIndex - 1)
+                }
+            }
+            getline
+            if ($0 ~ /PhysDisk Size/)
+            {
+                diskSize = $3
+                sizeUnit = $4
+                if (sizeUnit == "MB,") { diskSize = diskSize * 1048576 }
+                else if (sizeUnit == "GB,") { diskSize = diskSize * 1048576 * 1024 }
+                else if (sizeUnit == "TB,") { diskSize = diskSize * 1048576 * 1048576 }
+                colonIndex = index($0, ":")
+                if (colonIndex > 10)
+                {
+                    tempDiskModel = substr($0, colonIndex + 2, length - colonIndex - 1)
+                    n = split(tempDiskModel, diskModelArray, " ")
+                    diskModel = ""
+                    for (i=1 ; i<n ; i++)
+                    {
+                        diskModel = diskModel diskModelArray[i] " "
+                    }
+                    diskModel = diskModel diskModelArray[n]
+                }
+                print "MSHW;" controllerID ";"  diskID ";" diskModel ";" diskSize ";" status
+                status = ""
+                diskModel = ""
+                diskSize = ""
+            }
+        }
+    }
 translations:
   DiskStatusTranslationTable:
     default: UNKNOWN

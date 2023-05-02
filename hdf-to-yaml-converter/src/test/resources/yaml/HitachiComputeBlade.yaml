@@ -1,6 +1,15 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {FS=\"[;]\"}\n$1 ~ /P-[0-9]/ {Partition = $1 ; SlotNum = $2 ; BladeID = $3\n                if (members[Partition] != \"\") { members[Partition] = members[Partition] \" - \" }\n                members[Partition] = members[Partition] \"(Blade-\" BladeID \"/Slot-\" SlotNum \")\"\n\t             }\nEND { for (Partition in members) {\n\t         print \"MSHW;\" Partition \";Members = \" members[Partition] \";\"\n\t        }\n\t  }"
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+    $1 ~ /P-[0-9]/ {Partition = $1 ; SlotNum = $2 ; BladeID = $3
+                    if (members[Partition] != "") { members[Partition] = members[Partition] " - " }
+                    members[Partition] = members[Partition] "(Blade-" BladeID "/Slot-" SlotNum ")"
+                     }
+    END { for (Partition in members) {
+                 print "MSHW;" Partition ";Members = " members[Partition] ";"
+                }
+          }
 translations:
   bladeStatusTranslationTable:
     "1": ok

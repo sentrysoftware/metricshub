@@ -1,6 +1,26 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {\n\tFS = \"[;]\"\n\tColumn=6\n}\n{\n\tn = split($Column, PortWWN, \"|\");\n\tprintf \"MSHW;\"\n\tfor (i = 1 ; i <= NF-1 ; i++) {\n\t\tif (i == Column) {\n\t\t\tfor (j = 1 ; j <= n-1 ; j++) {\n\t\t\t\tprintf \"%02X\", PortWWN[j]\n\t\t\t}\n      printf \";\"\n    } else {\n\t\t\tprintf $i\n\t\t\tprintf \";\"\n\t\t}\n\t}\n print \"\"\n}"
+  EmbeddedFile(1): |-
+    BEGIN {
+        FS = "[;]"
+        Column=6
+    }
+    {
+        n = split($Column, PortWWN, "|");
+        printf "MSHW;"
+        for (i = 1 ; i <= NF-1 ; i++) {
+            if (i == Column) {
+                for (j = 1 ; j <= n-1 ; j++) {
+                    printf "%02X", PortWWN[j]
+                }
+          printf ";"
+        } else {
+                printf $i
+                printf ";"
+            }
+        }
+     print ""
+    }
 translations:
   PortStateToLinkStatusTranslationTable:
     "2": ok

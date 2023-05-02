@@ -7,7 +7,16 @@ embedded:
     Content-Type: application/json
     Accept: application/json
     Cookie: %{AUTHENTICATIONTOKEN}
-  EmbeddedFile(2): "BEGIN {FS=\":\";}\n{\nif ($1 == \"Set-Cookie\")\n    {\n\t     split($2,outputarray,\";\")\n\t     AuthenticationToken=outputarray[1]\n\t     print AuthenticationToken\n    }\n}"
+  EmbeddedFile(2): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "Set-Cookie")
+        {
+             split($2,outputarray,";")
+             AuthenticationToken=outputarray[1]
+             print AuthenticationToken
+        }
+    }
   EmbeddedFile(5): |-
     BEGIN {FS=";";}
     {

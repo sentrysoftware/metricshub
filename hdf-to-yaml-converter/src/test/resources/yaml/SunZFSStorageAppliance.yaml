@@ -1,6 +1,61 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {valid=\"\";chassis=\"\";primarychassis=\"\";typeStart=\"\"}\n# Get Chassis\n$1 ~ /chassis-[0-9]+/ { chassis = $1}\n\n#Find the Primary Chassis (the one with CPUs)\n$1 ~ /cpu-[0-9]+/ {primarychassis = chassis};\n\n# Process instances\nvalid != \"\" && NF > 4 && chassis != \"\" {\n    if ( $1 ~ /^chassis/ ) { id = $1}\n       else {id = chassis \"-\" $1}\n    name = substr($0,nameStart,nameLength) ; gsub(/ +$/,\"\",name);\n    state = substr($0,stateStart,stateLength) ; gsub(/ +$/,\"\",state );\n    manufacturer = substr($0,manufacturerStart,manufacturerLength ) ; gsub(/ +$/,\"\",manufacturer );\n    model = substr($0,modelStart,modelLength) ; gsub(/ +$/,\"\",model );\n    if (valid==\"withoutRPM\") {serialLength = length ($0) - serialStart }\n       else {if (typeStart == 0){rpm = substr($0,rpmStart) ; gsub(/ +$/,\"\",rpm ); gsub(/^ +/,\"\",rpm );} else {rpm = substr($0,rpmStart,rpmLength) ; gsub(/ +$/,\"\",rpm ); gsub(/^ +/,\"\",rpm );}}\n    serial = substr($0,serialStart,serialLength ) ; gsub(/ +$/,\"\",serial );\n    print \"MSHW;\" chassis \";\" id \";\" name \";\" state \";\" state \";\" manufacturer \";\" model \";\" serial \";\" rpm \";\"\n    }\n\n# Check for header with RPM\n$0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *RPM */ {\n     valid=\"withRPM\"\n     nameStart = index($0,\"NAME\")\n     stateStart = index($0,\"STATE\")\n     manufacturerStart = index($0,\"MANUFACTURER\")\n     modelStart = index($0,\"MODEL\")\n     serialStart = index($0,\"SERIAL\")\n     rpmStart = index($0,\"RPM\")\n\t typeStart = index($0,\"TYPE\")\n     nameLength = stateStart - nameStart - 1\n     stateLength = manufacturerStart - stateStart - 1\n     manufacturerLength = modelStart - manufacturerStart - 1\n     modelLength = serialStart - modelStart - 1\n     serialLength = rpmStart - serialStart - 1\n\t rpmLength = typeStart - rpmStart - 1\n    };\n\n# Check for header without RPM\n$0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *$/ {\n     valid=\"withoutRPM\"\n     nameStart = index($0,\"NAME\")\n     stateStart = index($0,\"STATE\")\n     manufacturerStart = index($0,\"MANUFACTURER\")\n     modelStart = index($0,\"MODEL\")\n     serialStart = index($0,\"SERIAL\")\n     nameLength = stateStart - nameStart - 1\n     stateLength = manufacturerStart - stateStart - 1\n     manufacturerLength = modelStart - manufacturerStart - 1\n     modelLength = serialStart - modelStart - 1\n     serialLength = rpmStart - serialStart - 1\n    };\n\nEND {print \"MSHW;PrimaryChassis;\"primarychassis\";\"}"
+  EmbeddedFile(1): |-
+    BEGIN {valid="";chassis="";primarychassis="";typeStart=""}
+    # Get Chassis
+    $1 ~ /chassis-[0-9]+/ { chassis = $1}
+
+    #Find the Primary Chassis (the one with CPUs)
+    $1 ~ /cpu-[0-9]+/ {primarychassis = chassis};
+
+    # Process instances
+    valid != "" && NF > 4 && chassis != "" {
+        if ( $1 ~ /^chassis/ ) { id = $1}
+           else {id = chassis "-" $1}
+        name = substr($0,nameStart,nameLength) ; gsub(/ +$/,"",name);
+        state = substr($0,stateStart,stateLength) ; gsub(/ +$/,"",state );
+        manufacturer = substr($0,manufacturerStart,manufacturerLength ) ; gsub(/ +$/,"",manufacturer );
+        model = substr($0,modelStart,modelLength) ; gsub(/ +$/,"",model );
+        if (valid=="withoutRPM") {serialLength = length ($0) - serialStart }
+           else {if (typeStart == 0){rpm = substr($0,rpmStart) ; gsub(/ +$/,"",rpm ); gsub(/^ +/,"",rpm );} else {rpm = substr($0,rpmStart,rpmLength) ; gsub(/ +$/,"",rpm ); gsub(/^ +/,"",rpm );}}
+        serial = substr($0,serialStart,serialLength ) ; gsub(/ +$/,"",serial );
+        print "MSHW;" chassis ";" id ";" name ";" state ";" state ";" manufacturer ";" model ";" serial ";" rpm ";"
+        }
+
+    # Check for header with RPM
+    $0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *RPM */ {
+         valid="withRPM"
+         nameStart = index($0,"NAME")
+         stateStart = index($0,"STATE")
+         manufacturerStart = index($0,"MANUFACTURER")
+         modelStart = index($0,"MODEL")
+         serialStart = index($0,"SERIAL")
+         rpmStart = index($0,"RPM")
+         typeStart = index($0,"TYPE")
+         nameLength = stateStart - nameStart - 1
+         stateLength = manufacturerStart - stateStart - 1
+         manufacturerLength = modelStart - manufacturerStart - 1
+         modelLength = serialStart - modelStart - 1
+         serialLength = rpmStart - serialStart - 1
+         rpmLength = typeStart - rpmStart - 1
+        };
+
+    # Check for header without RPM
+    $0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *$/ {
+         valid="withoutRPM"
+         nameStart = index($0,"NAME")
+         stateStart = index($0,"STATE")
+         manufacturerStart = index($0,"MANUFACTURER")
+         modelStart = index($0,"MODEL")
+         serialStart = index($0,"SERIAL")
+         nameLength = stateStart - nameStart - 1
+         stateLength = manufacturerStart - stateStart - 1
+         manufacturerLength = modelStart - manufacturerStart - 1
+         modelLength = serialStart - modelStart - 1
+         serialLength = rpmStart - serialStart - 1
+        };
+
+    END {print "MSHW;PrimaryChassis;"primarychassis";"}
   EmbeddedFile(3): |-
     function sizeConvert(size)
     {

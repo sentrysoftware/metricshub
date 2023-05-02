@@ -1,6 +1,25 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {FS=\";\";}\n{\n       gsub(\"^0.?0*$\",\"\",$4)\n       if ($4 == \"\" || $4 <= 0)\n       {\n        print  $1\";\"\";\"\";\"\";\"$5\n       }\n       else\n       {\n\t\t\tif ($2 == \"N/A\" && $3 == \"N/A\" || $2 == \"\" && $3 == \"\" )\n\t\t\t{\n\t\t\tprint $1\";\"\";\"\";\"\";\"$5\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\tprint $1\";\"$2\";\"$3\";\"$4\";\"\"NoCurrentReading\"\n\t\t\t}\n\t\t}\n}"
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+           gsub("^0.?0*$","",$4)
+           if ($4 == "" || $4 <= 0)
+           {
+            print  $1";"";"";"";"$5
+           }
+           else
+           {
+                if ($2 == "N/A" && $3 == "N/A" || $2 == "" && $3 == "" )
+                {
+                print $1";"";"";"";"$5
+                }
+                else
+                {
+                print $1";"$2";"$3";"$4";""NoCurrentReading"
+                }
+            }
+    }
 translations:
   enclosureStatusInformationTranslationTable:
     "0": nonRecoverable
