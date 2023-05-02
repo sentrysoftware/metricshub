@@ -1,4 +1,42 @@
-- name: test1
+- name: testModelOnlyWithDisplayId
+  input: |
+    // The InstanceTable
+    // controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+    DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+    DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(9)
+    DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(10)
+    DiskController.Discovery.Instance.Model=InstanceTable.Column(2)
+    DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+    DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+    DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
+    DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(7)
+    DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+    DiskController.Discovery.Instance.BiosVersion="testbios"
+  expected:
+    monitors:
+      disk_controller:
+        discovery:
+          mapping:
+            _comment: |-
+              The InstanceTable
+              controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+            source: $monitors.disk_controller.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(9)
+              controller_number: $column(10)
+              model: $column(2)
+              serial_number: $column(3)
+              firmware_version: $column(6)
+              driver_version: $column(7)
+              bios_version: testbios
+              info: join($column(4), $column(5), " ")
+              hw.parent.type: enclosure
+              hw.parent.id: $column(8)
+              name: "sprintf(\"Disk Controller: %s (%s)\", $column(9), $column(2))"
+- name: testModelOnly
   input: |
     // The InstanceTable
     // controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
@@ -33,4 +71,112 @@
               info: join($column(4), $column(5), " ")
               hw.parent.type: enclosure
               hw.parent.id: $column(8)
-              name: sprintf("%s %s (%s)"), "Disk Controller", $column(1), $column(2))
+              name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+- name: testVendorOnly
+  input: |
+    // The InstanceTable
+    // controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+    DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+    DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.Vendor=InstanceTable.Column(2)
+    DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+    DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+    DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
+    DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(7)
+    DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+    DiskController.Discovery.Instance.BiosVersion="testbios"
+  expected:
+    monitors:
+      disk_controller:
+        discovery:
+          mapping:
+            _comment: |-
+              The InstanceTable
+              controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+            source: $monitors.disk_controller.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              controller_number: $column(1)
+              vendor: $column(2)
+              serial_number: $column(3)
+              firmware_version: $column(6)
+              driver_version: $column(7)
+              bios_version: testbios
+              info: join($column(4), $column(5), " ")
+              hw.parent.type: enclosure
+              hw.parent.id: $column(8)
+              name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+- name: testNoModelNoVendor
+  input: |
+    // The InstanceTable
+    // controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+    DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+    DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+    DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+    DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
+    DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(7)
+    DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+    DiskController.Discovery.Instance.BiosVersion="testbios"
+  expected:
+    monitors:
+      disk_controller:
+        discovery:
+          mapping:
+            _comment: |-
+              The InstanceTable
+              controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+            source: $monitors.disk_controller.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              controller_number: $column(1)
+              serial_number: $column(3)
+              firmware_version: $column(6)
+              driver_version: $column(7)
+              bios_version: testbios
+              info: join($column(4), $column(5), " ")
+              hw.parent.type: enclosure
+              hw.parent.id: $column(8)
+              name: "sprintf(\"Disk Controller: %s\", $column(1))"
+- name: testVendorAndModelPresent
+  input: |
+    // The InstanceTable
+    // controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+    DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+    DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+    DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+    DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
+    DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(7)
+    DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+    DiskController.Discovery.Instance.BiosVersion="testbios"
+    DiskController.Discovery.Instance.Model=InstanceTable.Column(2)
+    DiskController.Discovery.Instance.Vendor=InstanceTable.Column(9)
+  expected:
+    monitors:
+      disk_controller:
+        discovery:
+          mapping:
+            _comment: |-
+              The InstanceTable
+              controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+            source: $monitors.disk_controller.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              controller_number: $column(1)
+              serial_number: $column(3)
+              firmware_version: $column(6)
+              driver_version: $column(7)
+              bios_version: testbios
+              info: join($column(4), $column(5), " ")
+              hw.parent.type: enclosure
+              hw.parent.id: $column(8)
+              model: $column(2)
+              vendor: $column(9)
+              name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(9), $column(2))"

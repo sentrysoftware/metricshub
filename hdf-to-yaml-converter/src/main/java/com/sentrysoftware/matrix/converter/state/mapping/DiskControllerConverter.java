@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BIOS_VERSION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CONTROLLER_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CONTROLLER_STATUS;
@@ -12,6 +12,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BIOS_VERSION;
@@ -25,6 +26,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +39,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -49,6 +50,7 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
+		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_CONTROLLER_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_CONTROLLER_NUMBER));
 		attributesMap.put(HDF_BIOS_VERSION, IMappingKey.of(ATTRIBUTES, YAML_BIOS_VERSION));
 		attributesMap.put(HDF_FIRMWARE_VERSION, IMappingKey.of(ATTRIBUTES, YAML_FIRMWARE_VERSION));
@@ -84,76 +86,78 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 			throw new IllegalStateException(String.format("%s cannot be null.", HDF_DEVICE_ID));
 		}
 
-		JsonNode firstDisplayArgument = JsonNodeFactory.instance.textNode("Disk Controller");
-
 		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
 		if (displayId != null) {
 			deviceId = displayId;
+		} else {
+			final JsonNode controllerNumber = existingAttributes.get(HDF_CONTROLLER_NUMBER);
+			if (controllerNumber != null) {
+				deviceId = controllerNumber;
+			}
 		}
 
+		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode(
-						buildNameValue(firstDisplayArgument, deviceId, model)
-						)
-				);
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(deviceId, vendor, model)
+			)
+		);
 	}
 
 	/**
 	 * Joins the given non-empty text nodes to build the disk controller name value
 	 *
-	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param displayId            {@link JsonNode} representing the displayId
-	 * @param model                {@link JsonNode} representing the model
+	 * @param firstDisplayArgument {@link JsonNode} representing the display name. Never null
+	 * @param vendorAndModel       {@link JsonNode} array representing vendor and model
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId, final JsonNode model) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode... vendorAndModel) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (displayId == null && model == null) {
-			return firstArg;
-		}
 
 		// Create the function with the first format for the first argument
-		final StringBuilder format = new StringBuilder("sprintf(\"%s");
+		final StringBuilder format = new StringBuilder("sprintf(\"Disk Controller: %s");
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
-				Stream
-				.of(displayId, model)
+			Stream
+				.of(vendorAndModel)
 				.filter(Objects::nonNull)
 				.map(JsonNode::asText)
 				.toList()
-				);
+		);
 
-		if (displayId != null) {
-			format.append(SPACE).append("%s");
+		// Means vendor or model are not null
+		if (!sprintfArgs.isEmpty()) {
+			format.append(
+				sprintfArgs
+					.stream()
+					.map(v -> "%s")
+					.collect(Collectors.joining(" ", " (", ")"))
+			);
 		}
-
-		if (model != null) {
-			format.append(SPACE).append(OPENING_PARENTHESIS).append("%s").append(CLOSING_PARENTHESIS);
-		}
-		format.append("\")");
 
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)
-		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
+		// Join the arguments, example: $column(1), $column(2), $column(3)
+		// Append the result to our format variable in order to get something like
+		// sprintf("Disk Controller: %s (%s %s)", $column(1), $column(2), $column(3))
 		return format
-				.append(", ") // Here we will have a string like sprintf("%s %s (%s)"),
-				.append(
-						sprintfArgs
-						.stream()
-						.map(this::getFunctionArgument)
-						.collect(Collectors.joining(", ", "", ")"))
-						)
-				.toString();
+			.append("\", ") // Here we will have a string like sprintf("Disk Controller: %s (%s %s)", 
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")"))
+			)
+			.toString();
+
 	}
 
 	@Override
