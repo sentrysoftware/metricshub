@@ -272,13 +272,14 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
+          vendor: $column(5)
           model: $column(3)
           serial_number: $column(4)
           firmware_version: $column(6)
           controller_number: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(3))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(5), $column(3))"
     collect:
       # Collect type is MultiInstance
       type: multiInstance

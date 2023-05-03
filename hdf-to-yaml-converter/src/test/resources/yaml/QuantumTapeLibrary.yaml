@@ -235,7 +235,7 @@ monitors:
           firmware_version: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
-          name: "sprintf(\"%s %s\"), \"Disk Controller\", $column(1))"
+          name: "sprintf(\"Disk Controller: %s\", $column(1))"
     collect:
       type: multiInstance
       sources:

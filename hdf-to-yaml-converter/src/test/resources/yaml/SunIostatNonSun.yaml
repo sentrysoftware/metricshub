@@ -473,7 +473,7 @@ monitors:
           controller_number: $column(1)
           model: ""
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), \"\")"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), \"\")"
   physical_disk:
     discovery:
       sources:

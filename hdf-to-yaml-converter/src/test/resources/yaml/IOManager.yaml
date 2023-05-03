@@ -88,8 +88,9 @@ monitors:
           id: $column(1)
           controller_number: $column(1)
           model: $column(2)
+          vendor: Adaptec
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), \"Adaptec\", $column(2))"
   physical_disk:
     discovery:
       sources:

@@ -529,7 +529,7 @@ monitors:
           controller_number: $column(4)
           model: $column(3)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(3))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(4), $column(3))"
     collect:
       # Collect type = multi-instance
       type: multiInstance

@@ -149,7 +149,7 @@ monitors:
           model: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(4))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(4))"
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance

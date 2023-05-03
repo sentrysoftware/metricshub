@@ -451,12 +451,13 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
+          vendor: $column(3)
           model: $column(4)
           serial_number: $column(5)
           info: "join($column(7), $column(6), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(4))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(3), $column(4))"
     collect:
       # Collection type
       type: multiInstance

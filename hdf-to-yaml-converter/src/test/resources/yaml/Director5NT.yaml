@@ -554,6 +554,7 @@ monitors:
         # The Instance table
         source: $monitors.disk_controller.discovery.sources.source(5)$
         attributes:
+          vendor: $column(5)
           model: $column(6)
           id: $column(2)
           bios_version: $column(1)
@@ -561,7 +562,7 @@ monitors:
           controller_number: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(6))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(5), $column(6))"
   physical_disk:
     discovery:
       sources:

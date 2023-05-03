@@ -175,7 +175,7 @@ monitors:
           __display_id: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
-          name: "sprintf(\"%s %s\"), \"Disk Controller\", $column(6))"
+          name: "sprintf(\"Disk Controller: %s\", $column(6))"
   memory:
     discovery:
       sources:

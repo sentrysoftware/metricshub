@@ -2,8 +2,8 @@
 extends:
 - CpqNetwork-header
 constants:
-  Collect_source: '%NetworkCard.Collect.Source(1)%'
-  Discovery_source: '%NetworkCard.Discovery.Source(1)%'
+  Collect_source: $monitors.network.collect.sources.source(1)$
+  Discovery_source: $monitors.network.discovery.sources.source(1)$
 connector:
   displayName: HP Insight Management Agent - Network
   platforms: HP ProLiant

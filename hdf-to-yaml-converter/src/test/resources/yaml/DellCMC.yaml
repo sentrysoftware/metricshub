@@ -2,8 +2,8 @@
 extends:
 - DellCMC-header
 constants:
-  ENCLO_SOURCE_DISCO: '"%Enclosure.Discovery.Source(11)%"'
-  ENCLO_SOURCE_COL: '"%Enclosure.Collect.Source(10)%"'
+  ENCLO_SOURCE_DISCO: '"$monitors.enclosure.discovery.sources.source(11)$"'
+  ENCLO_SOURCE_COL: '"$monitors.enclosure.collect.sources.source(10)$"'
 connector:
   displayName: Dell CMC (Dell Chassis Management Controller)
   platforms: Dell M1000E

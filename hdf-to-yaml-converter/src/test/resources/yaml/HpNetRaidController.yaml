@@ -74,11 +74,12 @@ monitors:
         attributes:
           id: $column(1)
           controller_number: $column(2)
+          vendor: HP
           model: $column(5)
           firmware_version: $column(3)
           bios_version: $column(4)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(5))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), \"HP\", $column(5))"
   physical_disk:
     discovery:
       sources:

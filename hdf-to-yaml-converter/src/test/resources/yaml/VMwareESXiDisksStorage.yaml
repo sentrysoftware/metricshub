@@ -68,7 +68,7 @@ monitors:
           controller_number: $column(3)
           model: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(3), $column(1))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(3), $column(1))"
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers

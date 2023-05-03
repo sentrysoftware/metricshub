@@ -180,7 +180,7 @@ monitors:
           serial_number: $column(7)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(4), $column(6))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(4), $column(6))"
     collect:
       # Collection
       type: multiInstance

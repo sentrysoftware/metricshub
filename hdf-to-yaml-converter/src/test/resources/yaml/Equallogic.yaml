@@ -829,4 +829,4 @@ monitors:
           firmware_version: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(3), $column(4))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(3), $column(4))"

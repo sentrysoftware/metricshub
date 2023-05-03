@@ -362,13 +362,14 @@ monitors:
           id: $column(2)
           __display_id: $column(2)
           controller_number: $column(1)
+          vendor: $column(3)
           model: $column(4)
           serial_number: $column(5)
           bios_version: $column(6)
           firmware_version: $column(7)
           driver_version: $column(8)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(4))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(3), $column(4))"
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers

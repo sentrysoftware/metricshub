@@ -2,8 +2,8 @@
 extends:
 - CpqNetwork-header
 constants:
-  Collect_source: '%NetworkCard.Collect.Source(3)%'
-  Discovery_source: '%NetworkCard.Discovery.Source(3)%'
+  Collect_source: $monitors.network.collect.sources.source(3)$
+  Discovery_source: $monitors.network.discovery.sources.source(3)$
 connector:
   displayName: HP Integrated Lights-Out Management Card - Network
   platforms: HP ProLiant

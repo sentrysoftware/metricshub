@@ -125,8 +125,9 @@ monitors:
           controller_number: $column(1)
           firmware_version: $column(3)
           model: $column(2)
+          vendor: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(1), $column(2))"
     collect:
       # Collect type: MultiInstance
       type: multiInstance

@@ -747,7 +747,7 @@ monitors:
           info: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(9)
-          name: "sprintf(\"%s %s\"), \"Disk Controller\", $column(4))"
+          name: "sprintf(\"Disk Controller: %s\", $column(4))"
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance

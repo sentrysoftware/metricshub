@@ -77,11 +77,12 @@ monitors:
         attributes:
           id: $column(1)
           controller_number: $column(2)
+          vendor: $column(3)
           model: $column(4)
           firmware_version: $column(5)
           bios_version: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(4))"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(3), $column(4))"
   physical_disk:
     discovery:
       sources:

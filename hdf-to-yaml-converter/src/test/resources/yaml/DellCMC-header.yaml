@@ -677,7 +677,7 @@ monitors:
           model: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DellBladeChassis
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
     collect:
       # Collect type is multi-instance
       type: multiInstance

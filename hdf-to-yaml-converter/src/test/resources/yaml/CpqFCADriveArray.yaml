@@ -319,7 +319,7 @@ monitors:
           model: $column(3)
           hw.parent.type: ""
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(3))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(3))"
     collect:
       type: multiInstance
       sources:

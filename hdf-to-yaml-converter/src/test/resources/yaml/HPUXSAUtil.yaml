@@ -213,7 +213,7 @@ monitors:
           model: $column(2)
           firmware_version: $column(5)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(4), $column(2))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
   physical_disk:
     discovery:
       sources:

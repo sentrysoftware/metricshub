@@ -640,7 +640,7 @@ monitors:
           info: "join($column(9), $column(6), \" \")"
           hw.parent.type: blade
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(5), $column(6))"
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(5), $column(6))"
     collect:
       # Collect
       type: multiInstance

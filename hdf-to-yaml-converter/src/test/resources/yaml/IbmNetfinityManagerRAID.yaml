@@ -61,11 +61,12 @@ monitors:
         # InstanceTable = Source(1)
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
+          vendor: IBM
           model: ServeRAID
           controller_number: $column(2)
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), \"ServeRAID\")"
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), \"IBM\", \"ServeRAID\")"
   physical_disk:
     discovery:
       sources:
