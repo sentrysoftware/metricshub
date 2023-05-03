@@ -29,6 +29,7 @@ class ConnectorConverterTest extends AbstractConnectorPropertyConverterTest {
 		testConversion("testManyEmbeddedFiles");
 		testConversion("getTranslationTables");
 		testConversion("testManyTranslationTables");
+		testConversion("testConstantsConversion");
 
 		testAll();
 	}
