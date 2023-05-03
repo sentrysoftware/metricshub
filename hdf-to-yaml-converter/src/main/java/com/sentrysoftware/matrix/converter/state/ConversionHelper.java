@@ -111,7 +111,7 @@ public class ConversionHelper {
 	);
 
 	/**
-	 * A compile representation of the HDF instance table reference regular expression.
+	 * A compiled representation of the HDF instance table reference regular expression.
 	 * We attempt to match input like "InstanceTable.Column(2)" or "ValueTable.Column(2)"
 	 */
 	private static final Pattern INSTANCE_REF_PATTERN = Pattern.compile(
@@ -119,6 +119,10 @@ public class ConversionHelper {
 		Pattern.CASE_INSENSITIVE
 	);
 
+	/**
+	 * A compiled representation of an EmbeddedFile reference regular expression.
+	 * We attempt to match input like "%EmbeddedFile(1)%" while preserving anything before or after.
+	 */
 	private static final Pattern EMBEDDED_FILE_PATTERN = Pattern.compile(
 		"(.*)%(EmbeddedFile\\(\\d+\\))%(.*)",
 		Pattern.CASE_INSENSITIVE
