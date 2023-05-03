@@ -1,210 +1,6 @@
 ---
 extends:
 - CIMProcessorFamily-header
-translations:
-  fanTypeTranslationTable:
-    "22": Processor Fan
-    "23": Cell Fan
-    "24": Cooling Device
-    "25": Front Panel
-    "26": Back Panel
-    "27": IO Bus
-    "28": Peripheral Bay
-    "29": Device Bay
-    default: ""
-    "30": Switch
-    "10": Ambient / External / Room
-    "11": Chassis
-    "12": Bridge Card
-    "13": Management board
-    "14": Remote Management Card
-    "15": Generic Backplane
-    "16": Infrastructure Network
-    "17": Blade Slot in Chassis/Infrastructure
-    "18": Cabinet blower
-    "19": Compute Cabinet I/O Fans
-    "0": Unknown
-    "1": Other
-    "2": System board
-    "3": Host System board
-    "4": I/O board
-    "5": CPU board
-    "6": Memory board
-    "7": Storage bays
-    "8": Removable Media Bays
-    "9": Power Supply Bays
-    "20": I/O Expansion Cabinet Utility Chassis Fan
-    "21": I/O Expansion Cabinet I/O Fan
-  DMTFOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": degraded
-    "16": degraded
-    "17": ok
-    "18": ok
-    "0": ok
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": ok
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  iLOLinkStatusTranslationTable:
-    default: ok
-    "5": degraded
-  DMTFOperationToLinkStatusTranslationTable:
-    "2": ok
-    default: ""
-    "6": degraded
-  memoryTypeTranslationTable:
-    "22": BRAM
-    "23": FB-DIMM
-    "24": DDR3
-    "25": FBD2
-    default: ""
-    "10": ROM
-    "11": Flash
-    "12": EEPROM
-    "13": FEPROM
-    "14": EPROM
-    "15": CDRAM
-    "16": 3DRAM
-    "17": SDRAM
-    "18": SGRAM
-    "19": RDRAM
-    "0": Unknown Memory Type
-    "1": Unknown Memory Type
-    "2": DRAM
-    "3": Synchronous DRAM
-    "4": Cache DRAM
-    "5": EDO
-    "6": EDRAM
-    "7": VRAM
-    "8": SRAM
-    "9": RAM
-    "20": DDR
-    "21": DDR-2
-  iLONetworkCardStatusTranslationTable:
-    "0": UNKNOWN
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": ok
-    "6": failed
-  psuTypeTranslationTable:
-    "22": I/O Expansion Cabinet Bulk Power Supply
-    "23": I/O Expansion Cabinet System Backplane Power Supply
-    "24": I/O Expansion Cabinet I/O chassis enclosure Power Supply
-    "25": I/O Expansion Cabinet AC Input Line
-    "26": Peripheral Bay
-    "27": Device Bay
-    "28": Switch
-    default: ""
-    "10": Ambient / External / Room
-    "11": Chassis
-    "12": Bridge Card
-    "13": Management board
-    "14": Remote Management Card
-    "15": Generic Backplane
-    "16": Infrastructure Network
-    "17": Blade Slot in Chassis/Infrastructure
-    "18": Computer Cabinet Bulk Power Supply
-    "19": Computer Cabinet System Backplane Power Supply
-    "0": Unknown
-    "1": Other
-    "2": System board
-    "3": Host System board
-    "4": I/O board
-    "5": CPU board
-    "6": Memory board
-    "7": Storage bays
-    "8": Removable Media Bays
-    "9": Power Supply Bays
-    "20": Computer Cabinet I/O chassis enclosure Power Supply
-    "21": Computer Cabinet AC Input Line
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "0": ""
-    "1": ""
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": ""
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
-  sensorTypeTranslationTable:
-    "22": Device Bay
-    "23": Switch
-    "24": Software-defined
-    default: ""
-    "10": Ambient / External / Room
-    "11": Chassis
-    "12": Bridge Card
-    "13": Management board
-    "14": Remote Management Card
-    "15": Generic Backplane
-    "16": Infrastructure Network
-    "17": Blade Slot in Chassis/Infrastructure
-    "18": Front Panel
-    "19": Back Panel
-    "0": Unknown
-    "1": Other
-    "2": System board
-    "3": Host System board
-    "4": I/O board
-    "5": CPU board
-    "6": Memory board
-    "7": Storage bays
-    "8": Removable Media Bays
-    "9": Power Supply Bays
-    "20": IO Bus
-    "21": Peripheral Bay
-  genStatusInformationTranslationTable:
-    "0": Unknown
-    default: Unknown Status
-    "25": Critical Failure
-    "15": Minor Failure
-    "5": ""
-    "30": Non-recoverable Error
-    "20": Major Failure
-    "10": Degraded/Warning
-  genStatusTranslationTable:
-    "0": UNKNOWN
-    default: UNKNOWN
-    "25": failed
-    "15": degraded
-    "5": ok
-    ok: ok
-    "30": failed
-    "20": failed
-    "10": degraded
-  iLONetworkCardStatusInfoTranslationTable:
-    "0": Unknown Status
-    "2": ""
-    default: UNKNOWN
-    "3": NIC disabled
-    "4": NIC not in operation-alternate host NIC in use
-    "5": NIC in operation but disconnected
-    "6": Failed
 connector:
   displayName: HP Insight Management Agent - Server (WBEM)
   platforms: HP ProLiant
@@ -1133,3 +929,207 @@ monitors:
           hw.network.io{direction="transmit"}: $column(9)
         legacyTextParameters:
           StatusInformation: $column(5)
+translations:
+  fanTypeTranslationTable:
+    "22": Processor Fan
+    "23": Cell Fan
+    "24": Cooling Device
+    "25": Front Panel
+    "26": Back Panel
+    "27": IO Bus
+    "28": Peripheral Bay
+    "29": Device Bay
+    default: ""
+    "30": Switch
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Cabinet blower
+    "19": Compute Cabinet I/O Fans
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": I/O Expansion Cabinet Utility Chassis Fan
+    "21": I/O Expansion Cabinet I/O Fan
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": degraded
+    "16": degraded
+    "17": ok
+    "18": ok
+    "0": ok
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": ok
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  iLOLinkStatusTranslationTable:
+    default: ok
+    "5": degraded
+  DMTFOperationToLinkStatusTranslationTable:
+    "2": ok
+    default: ""
+    "6": degraded
+  memoryTypeTranslationTable:
+    "22": BRAM
+    "23": FB-DIMM
+    "24": DDR3
+    "25": FBD2
+    default: ""
+    "10": ROM
+    "11": Flash
+    "12": EEPROM
+    "13": FEPROM
+    "14": EPROM
+    "15": CDRAM
+    "16": 3DRAM
+    "17": SDRAM
+    "18": SGRAM
+    "19": RDRAM
+    "0": Unknown Memory Type
+    "1": Unknown Memory Type
+    "2": DRAM
+    "3": Synchronous DRAM
+    "4": Cache DRAM
+    "5": EDO
+    "6": EDRAM
+    "7": VRAM
+    "8": SRAM
+    "9": RAM
+    "20": DDR
+    "21": DDR-2
+  iLONetworkCardStatusTranslationTable:
+    "0": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": ok
+    "6": failed
+  psuTypeTranslationTable:
+    "22": I/O Expansion Cabinet Bulk Power Supply
+    "23": I/O Expansion Cabinet System Backplane Power Supply
+    "24": I/O Expansion Cabinet I/O chassis enclosure Power Supply
+    "25": I/O Expansion Cabinet AC Input Line
+    "26": Peripheral Bay
+    "27": Device Bay
+    "28": Switch
+    default: ""
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Computer Cabinet Bulk Power Supply
+    "19": Computer Cabinet System Backplane Power Supply
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": Computer Cabinet I/O chassis enclosure Power Supply
+    "21": Computer Cabinet AC Input Line
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "0": ""
+    "1": ""
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": ""
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
+  sensorTypeTranslationTable:
+    "22": Device Bay
+    "23": Switch
+    "24": Software-defined
+    default: ""
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Front Panel
+    "19": Back Panel
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": IO Bus
+    "21": Peripheral Bay
+  genStatusInformationTranslationTable:
+    "0": Unknown
+    default: Unknown Status
+    "25": Critical Failure
+    "15": Minor Failure
+    "5": ""
+    "30": Non-recoverable Error
+    "20": Major Failure
+    "10": Degraded/Warning
+  genStatusTranslationTable:
+    "0": UNKNOWN
+    default: UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    ok: ok
+    "30": failed
+    "20": failed
+    "10": degraded
+  iLONetworkCardStatusInfoTranslationTable:
+    "0": Unknown Status
+    "2": ""
+    default: UNKNOWN
+    "3": NIC disabled
+    "4": NIC not in operation-alternate host NIC in use
+    "5": NIC in operation but disconnected
+    "6": Failed

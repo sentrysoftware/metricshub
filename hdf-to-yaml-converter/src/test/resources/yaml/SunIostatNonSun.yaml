@@ -1,4 +1,139 @@
 ---
+connector:
+  displayName: Oracle/Sun Solaris - Non-Sun Disks
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (iostat, dd)"
+  information: Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only non-Sun official disks.
+  version: 1.7
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    criteria:
+    # Solaris only
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    # iostat must return something
+    - type: osCommand
+      commandLine: /usr/bin/iostat -En
+      expectedResult: "Soft [Ee]rrors.*Hard [Ee]rrors.*Transport [Ee]rrors"
+      errorMessage: iostat seems to not work as expected. Please check the output of 'iostat -En'
+sudoCommands:
+- /usr/bin/dd
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of iostat reformatted by the awk (see EmbeddedFile(1))
+          # DeviceID
+          type: osCommand
+          commandLine: /usr/bin/iostat -En|/usr/bin/awk -f $embedded.EmbeddedFile(1)$|/usr/bin/uniq
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: 2
+        source(2):
+          # Source(2) = output of iostat
+          type: osCommand
+          commandLine: iostat -En
+          computes:
+            # Reformat iostat's output through awk (see EmbeddedFile(2))
+            # DeviceID;ControllerNumber;Size;VendorModel;SerialNumber
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+        source(3):
+          # Source(3) = Table Joint of source(1) and source(2)
+          # this is to remove disk controllers which don't have physical disks attached to
+          # DeviceID;DiskDeviceID;ControllerNumber;Size;VendorModel;SerialNumber
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+      mapping:
+        # InstanceTable = Source(3)
+        source: $monitors.disk_controller.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          controller_number: $column(1)
+          model: ""
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), \"\")"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of DiskController.Discovery.Source(2)
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(2)$
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          vendor: $column(4)
+          serial_number: $column(5)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.physical_disk.size: $column(3)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of iostat
+          type: osCommand
+          commandLine: /usr/bin/iostat -En
+          computes:
+            # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(3))
+            # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11"
+        source(2):
+          # Source(2) = output of the shell script based on the format command
+          # DeviceID;Status;StatusInformation
+          type: osCommand
+          commandLine: /usr/bin/sh $embedded.EmbeddedFile(4)$
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4"
+        source(3):
+          # Source(3) = Table joint of Source(1) and Source(2)
+          # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure;DeviceID;Status;StatusInformation
+          type: tableJoin
+          leftTable: $monitors.physical_disk.collect.sources.source(1)$
+          rightTable: $monitors.physical_disk.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # ValueTable = Source(3)
+        source: $monitors.physical_disk.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $column(3)
+          hw.errors{hw.type="physical_disk", hw.error.type="media"}: $column(4)
+          hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $column(5)
+          hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $column(6)
+          hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $column(7)
+          hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $column(8)
+          hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $column(9)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(10))
+          hw.status{hw.type="physical_disk"}: $column(12)
+        legacyTextParameters:
+          StatusInformation: $column(13)
 embedded:
   EmbeddedFile(1): |-
     {
@@ -407,138 +542,3 @@ embedded:
             fi
         fi
     done
-connector:
-  displayName: Oracle/Sun Solaris - Non-Sun Disks
-  platforms: Oracle/Sun
-  reliesOn: "Sun Solaris system commands (iostat, dd)"
-  information: Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only non-Sun official disks.
-  version: 1.7
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Solaris
-    criteria:
-    # Solaris only
-    - type: deviceType
-      keep:
-      - SunOS
-      - Solaris
-    # iostat must return something
-    - type: osCommand
-      commandLine: /usr/bin/iostat -En
-      expectedResult: "Soft [Ee]rrors.*Hard [Ee]rrors.*Transport [Ee]rrors"
-      errorMessage: iostat seems to not work as expected. Please check the output of 'iostat -En'
-sudoCommands:
-- /usr/bin/dd
-monitors:
-  disk_controller:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of iostat reformatted by the awk (see EmbeddedFile(1))
-          # DeviceID
-          type: osCommand
-          commandLine: /usr/bin/iostat -En|/usr/bin/awk -f $embedded.EmbeddedFile(1)$|/usr/bin/uniq
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: 2
-        source(2):
-          # Source(2) = output of iostat
-          type: osCommand
-          commandLine: iostat -En
-          computes:
-            # Reformat iostat's output through awk (see EmbeddedFile(2))
-            # DeviceID;ControllerNumber;Size;VendorModel;SerialNumber
-          - type: awk
-            script: EmbeddedFile(2)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5,6"
-        source(3):
-          # Source(3) = Table Joint of source(1) and source(2)
-          # this is to remove disk controllers which don't have physical disks attached to
-          # DeviceID;DiskDeviceID;ControllerNumber;Size;VendorModel;SerialNumber
-          type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
-          leftKeyColumn: 1
-          rightKeyColumn: 2
-      mapping:
-        # InstanceTable = Source(3)
-        source: $monitors.disk_controller.discovery.sources.source(3)$
-        attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          controller_number: $column(1)
-          model: ""
-          hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), \"\")"
-  physical_disk:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = copy of DiskController.Discovery.Source(2)
-          type: copy
-          from: $monitors.disk_controller.discovery.sources.source(2)$
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          vendor: $column(4)
-          serial_number: $column(5)
-          hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
-        metrics:
-          hw.physical_disk.size: $column(3)
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = output of iostat
-          type: osCommand
-          commandLine: /usr/bin/iostat -En
-          computes:
-            # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(3))
-            # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure
-          - type: awk
-            script: EmbeddedFile(3)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5,6,7,8,9,10,11"
-        source(2):
-          # Source(2) = output of the shell script based on the format command
-          # DeviceID;Status;StatusInformation
-          type: osCommand
-          commandLine: /usr/bin/sh $embedded.EmbeddedFile(4)$
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: "2,3,4"
-        source(3):
-          # Source(3) = Table joint of Source(1) and Source(2)
-          # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure;DeviceID;Status;StatusInformation
-          type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.physical_disk.collect.sources.source(2)$
-          leftKeyColumn: 1
-          rightKeyColumn: 1
-      mapping:
-        # ValueTable = Source(3)
-        source: $monitors.physical_disk.collect.sources.source(3)$
-        deviceId: $column(1)
-        metrics:
-          hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $column(3)
-          hw.errors{hw.type="physical_disk", hw.error.type="media"}: $column(4)
-          hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $column(5)
-          hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $column(6)
-          hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $column(7)
-          hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $column(8)
-          hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $column(9)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(10))
-          hw.status{hw.type="physical_disk"}: $column(12)
-        legacyTextParameters:
-          StatusInformation: $column(13)

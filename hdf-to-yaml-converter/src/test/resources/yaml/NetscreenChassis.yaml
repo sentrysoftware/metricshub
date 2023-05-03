@@ -1,15 +1,4 @@
 ---
-translations:
-  StatusInformationTranslationTable:
-    "0": Failed
-    "1": Good
-    "2": Error
-    default: Unknown Status
-  StatusTranslationTable:
-    "0": failed
-    "1": ok
-    "2": failed
-    default: failed
 connector:
   displayName: Juniper Netscreen (SNMP)
   platforms: Netscreen
@@ -229,3 +218,14 @@ monitors:
           hw.status{hw.type="battery"}: $column(1)
         legacyTextParameters:
           StatusInformation: $column(2)
+translations:
+  StatusInformationTranslationTable:
+    "0": Failed
+    "1": Good
+    "2": Error
+    default: Unknown Status
+  StatusTranslationTable:
+    "0": failed
+    "1": ok
+    "2": failed
+    default: failed

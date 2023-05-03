@@ -1,60 +1,4 @@
 ---
-translations:
-  DMTFOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": degraded
-    "16": degraded
-    "17": ok
-    "18": ok
-    "0": ok
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": ok
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": ok
-  DMTFOperationToLinkStatusTranslationTable:
-    "1": degraded
-    default: ""
-  PortTypeTranslationTable:
-    "11": HBA FC Port NL
-    "12": HBA FC Port F/NL
-    default: HBA FC Port
-    "10": HBA FC Port N
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "0": ""
-    "1": ""
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": ""
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
-  SpeedToLinkStatusTranslationTable:
-    "0": degraded
-    ? ""
-    : degraded
-    default: ok
 connector:
   displayName: SMI-S Compliant HBAs
   platforms: "Any system with Emulex,Any system with QLogic"
@@ -440,3 +384,59 @@ monitors:
           hw.network.io{direction="transmit"}: $column(12)
         legacyTextParameters:
           StatusInformation: $column(7)
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": degraded
+    "16": degraded
+    "17": ok
+    "18": ok
+    "0": ok
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": ok
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": ok
+  DMTFOperationToLinkStatusTranslationTable:
+    "1": degraded
+    default: ""
+  PortTypeTranslationTable:
+    "11": HBA FC Port NL
+    "12": HBA FC Port F/NL
+    default: HBA FC Port
+    "10": HBA FC Port N
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "0": ""
+    "1": ""
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": ""
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
+  SpeedToLinkStatusTranslationTable:
+    "0": degraded
+    ? ""
+    : degraded
+    default: ok

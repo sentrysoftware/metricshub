@@ -1,109 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |
-    # Awk (or nawk)
-    if [ -f /usr/xpg4/bin/awk ]; then
-        AWK="/usr/xpg4/bin/awk";
-    elif [ -f /usr/bin/nawk ]; then
-        AWK="/usr/bin/nawk";
-    else
-        AWK="awk";
-    fi
-    CONTROLLERLIST=`%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu LIST | $AWK '$1~/^[0-9]+$/{print $1}'`
-    for CONTROLLER in $CONTROLLERLIST
-        do
-        echo MS_HW_CONTROLLER_START $CONTROLLER
-        %{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu $CONTROLLER DISPLAY
-        echo MS_HW_CONTROLLER_END $CONTROLLER
-        done
-  EmbeddedFile(2): |-
-    BEGIN {DriveCounter = 0}
-    #CONTROLLER
-    $1 ~ /MS_HW_CONTROLLER_START/ {ControllerID = $2}
-    $0 ~ /^ *Controller type *:/ {ControllerType = $4}
-    $0 ~ /^ *BIOS version *:/ {BIOS = $4}
-    $0 ~ /^ *Firmware version *:/ {ControllerFirmware = $4}
-    $1 ~ /^ *Slot/ && $2 ~ /:/ {ControllerSlot = $3}
-    $1 ~ /MS_HW_CONTROLLER_END/ && ControllerType !- "" {
-             print "MSHW_CTRL;" ControllerID ";" ControllerType  ";" BIOS  ";" ControllerFirmware ";" ControllerSlot ";"
-             ControllerType = ""
-             }
-
-    #LOGICAL DISK
-    $0 ~ /^ *IR volume [0-9]/ { IRVolume = $NF }
-    $0 ~ /^ *Volume ID *:/ {VolumeID = $NF}
-    $0 ~ /^ *Status of volume *:/ { VolumeStatus = $NF ; gsub ("[()]","",VolumeStatus) }
-    $0 ~ /^ *Volume wwid *:/ { VolumeWWID = $NF }
-    $0 ~ /^ *RAID level *:/ {VolumeRAIDLevel = $NF}
-    $0 ~ /^ *Size/ && IRVolume != "" {SizeMB = $NF
-                           print "MSHW_LD;" IRVolume ";" VolumeID ";" VolumeStatus ";" VolumeWWID ";" VolumeRAIDLevel ";" SizeMB ";" ControllerID ";"
-                           IRVolume = ""
-                          }
-
-    #PHYSICAL DISK
-    $0 ~ /^ *Device is a/ {DriveCounter = DriveCounter +1 }
-    $0 ~ /^ *Enclosure # *:/  {Enclosure[DriveCounter] = $NF
-                              Controller[DriveCounter] = ControllerID
-                             }
-    $0 ~ /^ *Slot # *:/ {Slot[DriveCounter] = $NF}
-    $0 ~ /^ *State *:/ {State[DriveCounter] = $NF  ; gsub ("[()]","",State[DriveCounter])}
-    $0 ~ /^ *Size.*in MB.*in sectors.*:/ {Size[DriveCounter] = $NF ; gsub ("/.*","",Size[DriveCounter]) }
-    $0 ~ /^ *Manufacturer *:/ {Manufacturer[DriveCounter] = $NF}
-    $0 ~ /^ *Model Number *:/ {Model[DriveCounter] = $NF}
-    $0 ~ /^ *Firmware Revision *:/ {Firmware[DriveCounter] = $NF}
-    $0 ~ /^ *Serial No *:/ {Serial[DriveCounter] = $NF}
-    $0 ~ /^ *Drive Type *:/ {DriveType[DriveCounter] = $NF}
-
-    END { for (I in Enclosure)
-          print ("MSHW_PD;Enclosure " Enclosure[I] " Slot " Slot[I] ";" State[I] ";" Size[I] ";" Manufacturer[I] ";" Model[I] ";" Firmware[I] ";" Serial[I] ";" DriveType[I] ";" Controller[I] ";" )
-        }
-translations:
-  PhysicalDiskTypeTranslationTable:
-    default: Hard Disk Drive
-    sata_ssd: SATA solid-state drive
-    sas_hdd: SAS hard-disk drive
-    sata_hdd: SATA hard-disk drive
-    sas_ssd: SAS solid-state drive
-  PhysicalDiskStatusInformationTranslationTable:
-    dgd: Degraded
-    opt: Optimal
-    default: Unknown Status
-    hsp: Hot Spare
-    osy: Out of Sync
-    avl: Available
-    mis: Missing
-    sby: Standby
-    onl: Online
-    rbld: Rebuilding
-    fld: Failed
-  LogicalDiskStatusInformationTranslationTable:
-    dgd: Degraded
-    init: Initializing
-    default: Unknown Status
-    mis: Missing
-    onl: Online
-    oky: ok
-    fld: Failed
-  LogicalDiskStatusTranslationTable:
-    dgd: failed
-    init: degraded
-    default: UNKNOWN
-    mis: failed
-    onl: ok
-    oky: ok
-    fld: failed
-  PhysicalDiskStatusTranslationTable:
-    dgd: failed
-    opt: ok
-    default: UNKNOWN
-    hsp: ok
-    osy: failed
-    avl: ok
-    mis: failed
-    sby: degraded
-    onl: ok
-    rbld: degraded
-    fld: failed
 connector:
   displayName: LSI sas2ircu Managed Raid Controllers
   platforms: Any system with LSI sas2ircu
@@ -362,3 +257,108 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |
+    # Awk (or nawk)
+    if [ -f /usr/xpg4/bin/awk ]; then
+        AWK="/usr/xpg4/bin/awk";
+    elif [ -f /usr/bin/nawk ]; then
+        AWK="/usr/bin/nawk";
+    else
+        AWK="awk";
+    fi
+    CONTROLLERLIST=`%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu LIST | $AWK '$1~/^[0-9]+$/{print $1}'`
+    for CONTROLLER in $CONTROLLERLIST
+        do
+        echo MS_HW_CONTROLLER_START $CONTROLLER
+        %{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu $CONTROLLER DISPLAY
+        echo MS_HW_CONTROLLER_END $CONTROLLER
+        done
+  EmbeddedFile(2): |-
+    BEGIN {DriveCounter = 0}
+    #CONTROLLER
+    $1 ~ /MS_HW_CONTROLLER_START/ {ControllerID = $2}
+    $0 ~ /^ *Controller type *:/ {ControllerType = $4}
+    $0 ~ /^ *BIOS version *:/ {BIOS = $4}
+    $0 ~ /^ *Firmware version *:/ {ControllerFirmware = $4}
+    $1 ~ /^ *Slot/ && $2 ~ /:/ {ControllerSlot = $3}
+    $1 ~ /MS_HW_CONTROLLER_END/ && ControllerType !- "" {
+             print "MSHW_CTRL;" ControllerID ";" ControllerType  ";" BIOS  ";" ControllerFirmware ";" ControllerSlot ";"
+             ControllerType = ""
+             }
+
+    #LOGICAL DISK
+    $0 ~ /^ *IR volume [0-9]/ { IRVolume = $NF }
+    $0 ~ /^ *Volume ID *:/ {VolumeID = $NF}
+    $0 ~ /^ *Status of volume *:/ { VolumeStatus = $NF ; gsub ("[()]","",VolumeStatus) }
+    $0 ~ /^ *Volume wwid *:/ { VolumeWWID = $NF }
+    $0 ~ /^ *RAID level *:/ {VolumeRAIDLevel = $NF}
+    $0 ~ /^ *Size/ && IRVolume != "" {SizeMB = $NF
+                           print "MSHW_LD;" IRVolume ";" VolumeID ";" VolumeStatus ";" VolumeWWID ";" VolumeRAIDLevel ";" SizeMB ";" ControllerID ";"
+                           IRVolume = ""
+                          }
+
+    #PHYSICAL DISK
+    $0 ~ /^ *Device is a/ {DriveCounter = DriveCounter +1 }
+    $0 ~ /^ *Enclosure # *:/  {Enclosure[DriveCounter] = $NF
+                              Controller[DriveCounter] = ControllerID
+                             }
+    $0 ~ /^ *Slot # *:/ {Slot[DriveCounter] = $NF}
+    $0 ~ /^ *State *:/ {State[DriveCounter] = $NF  ; gsub ("[()]","",State[DriveCounter])}
+    $0 ~ /^ *Size.*in MB.*in sectors.*:/ {Size[DriveCounter] = $NF ; gsub ("/.*","",Size[DriveCounter]) }
+    $0 ~ /^ *Manufacturer *:/ {Manufacturer[DriveCounter] = $NF}
+    $0 ~ /^ *Model Number *:/ {Model[DriveCounter] = $NF}
+    $0 ~ /^ *Firmware Revision *:/ {Firmware[DriveCounter] = $NF}
+    $0 ~ /^ *Serial No *:/ {Serial[DriveCounter] = $NF}
+    $0 ~ /^ *Drive Type *:/ {DriveType[DriveCounter] = $NF}
+
+    END { for (I in Enclosure)
+          print ("MSHW_PD;Enclosure " Enclosure[I] " Slot " Slot[I] ";" State[I] ";" Size[I] ";" Manufacturer[I] ";" Model[I] ";" Firmware[I] ";" Serial[I] ";" DriveType[I] ";" Controller[I] ";" )
+        }
+translations:
+  PhysicalDiskTypeTranslationTable:
+    default: Hard Disk Drive
+    sata_ssd: SATA solid-state drive
+    sas_hdd: SAS hard-disk drive
+    sata_hdd: SATA hard-disk drive
+    sas_ssd: SAS solid-state drive
+  PhysicalDiskStatusInformationTranslationTable:
+    dgd: Degraded
+    opt: Optimal
+    default: Unknown Status
+    hsp: Hot Spare
+    osy: Out of Sync
+    avl: Available
+    mis: Missing
+    sby: Standby
+    onl: Online
+    rbld: Rebuilding
+    fld: Failed
+  LogicalDiskStatusInformationTranslationTable:
+    dgd: Degraded
+    init: Initializing
+    default: Unknown Status
+    mis: Missing
+    onl: Online
+    oky: ok
+    fld: Failed
+  LogicalDiskStatusTranslationTable:
+    dgd: failed
+    init: degraded
+    default: UNKNOWN
+    mis: failed
+    onl: ok
+    oky: ok
+    fld: failed
+  PhysicalDiskStatusTranslationTable:
+    dgd: failed
+    opt: ok
+    default: UNKNOWN
+    hsp: ok
+    osy: failed
+    avl: ok
+    mis: failed
+    sby: degraded
+    onl: ok
+    rbld: degraded
+    fld: failed

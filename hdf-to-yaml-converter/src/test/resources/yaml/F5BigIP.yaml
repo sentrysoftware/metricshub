@@ -1,22 +1,4 @@
 ---
-translations:
-  SensorStatusTranslationTable:
-    "0": failed
-    "1": ok
-    default: UNKNOWN
-  LinkStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": degraded
-    default: degraded
-    "3": degraded
-    "4": degraded
-    "5": degraded
-  DuplexStatusTranslationTable:
-    "0": ""
-    "1": half
-    "2": full
-    default: ""
 connector:
   displayName: F5 BigIP Switch
   platforms: F5 BigIP
@@ -361,3 +343,21 @@ monitors:
           hw.network.packets{direction="receive"}: $column(6)
           hw.network.io{direction="transmit"}: $column(9)
           hw.network.io{direction="receive"}: $column(7)
+translations:
+  SensorStatusTranslationTable:
+    "0": failed
+    "1": ok
+    default: UNKNOWN
+  LinkStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": degraded
+    default: degraded
+    "3": degraded
+    "4": degraded
+    "5": degraded
+  DuplexStatusTranslationTable:
+    "0": ""
+    "1": half
+    "2": full
+    default: ""

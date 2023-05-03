@@ -1,65 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |
-    BEGIN {FS = ": |,"}
-
-    /"id"/ {id = $2}
-    /"node_name"/ {displayId = $2}
-    /"model_number"/ {model = $2}
-    /"serial_number"/ {serial = $2}
-    /"node_status"/ {status = $2}
-    /"uuid"/ {
-      uuid = $2;
-      result = id ";" displayId ";" model ";" serial ";UUID: " uuid ";" status ";" status;
-      gsub(/"/, "", result);
-      print result
-    }
-  EmbeddedFile(3): |
-    BEGIN {FS = ": |,"}
-
-    /"interface_id"/ {id = Interface $2}
-    /"address"/ {ip = $2}
-    /"mac_address"/ {mac = $2}
-    /"interface_status": "/ {status = $2}
-    /"cable_status"/ {linkStatus = $2}
-    /"speed"/ {speed = $2}
-    /"bytes_received"/ {bytesReceived = $2}
-    /"bytes_sent"/ {bytesSent = $2}
-    /"node_id"/ {
-      nodeId = $2;
-      result = nodeId "-" id ";" nodeId ";" ip ";" mac ";" speed ";" bytesSent ";" bytesReceived ";" linkStatus ";" status ";" status;
-      gsub(/"/, "", result);
-      print result
-    }
-  EmbeddedFile(2): |
-    BEGIN {FS = ": |,"}
-
-    /"id"/ {id = $2}
-    /"node_id"/ {nodeId = $2}
-    /"disk_model"/ {model = $2}
-    /"disk_serial_number"/ {serial = $2}
-    /"slot"/ {slot = "Drive Bay: " $2}
-    /"slot_type"/ {slotType = "Slot Type: " $2}
-    /"raw_capacity"/ {size = $2}
-    /"state"/ {
-      status = $2;
-      result = id ";" nodeId ";" model ";" serial ";" slot ";" slotType ";" size ";" status ";" status;
-      gsub(/"/, "", result);
-      print result
-    }
-translations:
-  LinkStatusTranslationTable:
-    connected: ok
-    default: degraded
-  EnclosureStatusTranslationTable:
-    default: degraded
-    online: ok
-  PhysicalDiskStatusTranslationTable:
-    default: degraded
-    healthy: ok
-  NetworkCardStatusTranslationTable:
-    default: degraded
-    up: ok
 connector:
   displayName: HP Qumulo
   platforms: HP Qumulo storage systems
@@ -252,3 +191,64 @@ monitors:
           hw.status{hw.type="network"}: $column(8)
         legacyTextParameters:
           StatusInformation: $column(9)
+embedded:
+  EmbeddedFile(1): |
+    BEGIN {FS = ": |,"}
+
+    /"id"/ {id = $2}
+    /"node_name"/ {displayId = $2}
+    /"model_number"/ {model = $2}
+    /"serial_number"/ {serial = $2}
+    /"node_status"/ {status = $2}
+    /"uuid"/ {
+      uuid = $2;
+      result = id ";" displayId ";" model ";" serial ";UUID: " uuid ";" status ";" status;
+      gsub(/"/, "", result);
+      print result
+    }
+  EmbeddedFile(3): |
+    BEGIN {FS = ": |,"}
+
+    /"interface_id"/ {id = Interface $2}
+    /"address"/ {ip = $2}
+    /"mac_address"/ {mac = $2}
+    /"interface_status": "/ {status = $2}
+    /"cable_status"/ {linkStatus = $2}
+    /"speed"/ {speed = $2}
+    /"bytes_received"/ {bytesReceived = $2}
+    /"bytes_sent"/ {bytesSent = $2}
+    /"node_id"/ {
+      nodeId = $2;
+      result = nodeId "-" id ";" nodeId ";" ip ";" mac ";" speed ";" bytesSent ";" bytesReceived ";" linkStatus ";" status ";" status;
+      gsub(/"/, "", result);
+      print result
+    }
+  EmbeddedFile(2): |
+    BEGIN {FS = ": |,"}
+
+    /"id"/ {id = $2}
+    /"node_id"/ {nodeId = $2}
+    /"disk_model"/ {model = $2}
+    /"disk_serial_number"/ {serial = $2}
+    /"slot"/ {slot = "Drive Bay: " $2}
+    /"slot_type"/ {slotType = "Slot Type: " $2}
+    /"raw_capacity"/ {size = $2}
+    /"state"/ {
+      status = $2;
+      result = id ";" nodeId ";" model ";" serial ";" slot ";" slotType ";" size ";" status ";" status;
+      gsub(/"/, "", result);
+      print result
+    }
+translations:
+  LinkStatusTranslationTable:
+    connected: ok
+    default: degraded
+  EnclosureStatusTranslationTable:
+    default: degraded
+    online: ok
+  PhysicalDiskStatusTranslationTable:
+    default: degraded
+    healthy: ok
+  NetworkCardStatusTranslationTable:
+    default: degraded
+    up: ok

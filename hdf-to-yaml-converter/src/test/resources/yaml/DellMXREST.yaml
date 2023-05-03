@@ -1,35 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): Accept:application/json
-translations:
-  TypeTranslationTable:
-    "8000": Storage IOM
-    "4000": NETWORK IO Module
-    "1000": Server
-    "2000": Chassis
-    "3000": Storage
-    disabled: Ethernet;MAC
-    enabled: FC;WWN
-  FcLinkStatusTranslationTable:
-    default: degraded
-    up: ok
-  StatusInformationTranslationTable:
-    default: failed
-    "5000": The device/group does not have a valid status.
-    "4000": The device is in critical state.
-    "1000": The device is running normal.
-    "2000": Status is not determined.
-    "3000": The device has warning state.
-  StatusTranslationTable:
-    default: failed
-    "5000": UNKNOWN
-    "4000": failed
-    "1000": ok
-    "2000": UNKNOWN
-    "3000": degraded
-  LinkSpeedDeactivationTranslationTable:
-    "0": ""
-    default: "True"
 connector:
   displayName: Dell MX Chassis and Blades (REST)
   platforms: Dell MX7000
@@ -1116,3 +1085,34 @@ monitors:
         metrics:
           hw.network.up: legacyLinkStatus($column(4))
           hw.network.bandwidth.limit: megaBit2Bit($column(3))
+embedded:
+  EmbeddedFile(1): Accept:application/json
+translations:
+  TypeTranslationTable:
+    "8000": Storage IOM
+    "4000": NETWORK IO Module
+    "1000": Server
+    "2000": Chassis
+    "3000": Storage
+    disabled: Ethernet;MAC
+    enabled: FC;WWN
+  FcLinkStatusTranslationTable:
+    default: degraded
+    up: ok
+  StatusInformationTranslationTable:
+    default: failed
+    "5000": The device/group does not have a valid status.
+    "4000": The device is in critical state.
+    "1000": The device is running normal.
+    "2000": Status is not determined.
+    "3000": The device has warning state.
+  StatusTranslationTable:
+    default: failed
+    "5000": UNKNOWN
+    "4000": failed
+    "1000": ok
+    "2000": UNKNOWN
+    "3000": degraded
+  LinkSpeedDeactivationTranslationTable:
+    "0": ""
+    default: "True"

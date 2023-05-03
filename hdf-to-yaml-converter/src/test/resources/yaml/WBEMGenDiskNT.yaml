@@ -1,19 +1,4 @@
 ---
-translations:
-  PhysicalDiskInformationStatusTranslationTable:
-    default: Unknown
-    service: Service
-    ok: ""
-    error: Error
-    degraded: Degraded
-    pred fail: Predicted Failure
-  PhysicalDiskStatusTranslationTable:
-    default: UNKNWON
-    service: degraded
-    ok: ok
-    error: failed
-    degraded: degraded
-    pred fail: degraded
 connector:
   displayName: WMI - Disks
   platforms: Any system
@@ -228,3 +213,18 @@ monitors:
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(8))
         legacyTextParameters:
           StatusInformation: $column(4)
+translations:
+  PhysicalDiskInformationStatusTranslationTable:
+    default: Unknown
+    service: Service
+    ok: ""
+    error: Error
+    degraded: Degraded
+    pred fail: Predicted Failure
+  PhysicalDiskStatusTranslationTable:
+    default: UNKNWON
+    service: degraded
+    ok: ok
+    error: failed
+    degraded: degraded
+    pred fail: degraded

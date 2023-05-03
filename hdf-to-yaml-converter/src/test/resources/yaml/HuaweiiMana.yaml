@@ -1,19 +1,4 @@
 ---
-translations:
-  StatusInformationTranslationTable:
-    "1": ""
-    "2": Minor Fault
-    default: Unknown Status
-    "3": Major Fault
-    "4": Critical Fault
-    "5": Device Missing
-  StatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
 connector:
   displayName: Huawei Servers - Management Card
   platforms: Huawei
@@ -626,3 +611,18 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  StatusInformationTranslationTable:
+    "1": ""
+    "2": Minor Fault
+    default: Unknown Status
+    "3": Major Fault
+    "4": Critical Fault
+    "5": Device Missing
+  StatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed

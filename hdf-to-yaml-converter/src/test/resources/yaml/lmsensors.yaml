@@ -1,78 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {
-            FS=":" ; Manufacturer="" ; Type=""
-    }
-    {
-    if ( $1 ~  /Manufacturer/ )  { Manufacturer = $2; }
-    if  ($1 ~ /Product Name/ ) { Type = $2 }
-    if ($1 ~ /Serial Number/ ) {SN = $2 ;  print ("MSHW;"Manufacturer";"Type";"SN";" ); }
-    }
-  EmbeddedFile(3): |-
-    BEGIN {
-            Name="" ; Type="" ; Sensor=""; Value="";Max="";Critical=""; TEMP=0
-    }
-    {
-    if(NF == 1 && $0 !~ /:/)  {Name = $1}
-    if(NF == 1 && $0 ~ /:/ && TEMP == 1 ) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP =0 }
-    if(NF == 1 && $0 ~ /:/ && TEMP == 0) {Type = $0; gsub(/:/,"",Type)}
-    if(NF == 2 && $2 ~ /:/ && TEMP == 1) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical = ""; TEMP=0}
-    if(NF == 2 && $2 ~ /:/ && TEMP == 0) {Type = $0; gsub(/:/,"",Type); gsub(" ","",Type)}
-    if(NF == 2 && $1 ~ /temp/) { Sensor = $1 ; gsub(/:/,"",Sensor) ;
-            if ($1 ~ /temp[0-9]_input:/ || $1 ~ /temp[0-9][0-9]_input:/) { Value = $2; TEMP=1 }
-            if ($1 ~ /temp[0-9]_max:/ || $1 ~ /temp[0-9][0-9]_max:/) { Max = $2; if (Max <=0) {Max=""}}
-            if ($1 ~ /temp[0-9]_crit:/ || $1 ~ /temp[0-9][0-9]_crit:/&& length($1) == 11 ) { Critical = $2 ; if (Critical <=0) {Critical = ""};
-                    if ( Max == Value && Value == Critical) { Max = ""; Critical = ""}
-                    if ( Max == Critical && Max > 0) { Max = Max - Critical/10 }
-                    if ( Max == 0 && Critical > 0 ) { Max = Critical - Critical/10 }
-                    print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical ="" ; TEMP=0}
-         }
-    if(NF == 1 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
-    if(NF == 0 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
-    if(NF >= 3 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
-    if(NF >= 3 && $0 !~ /temp/)  {Type = $0; gsub(/:/,"",Type)}
-    }
-    END { if (TEMP == 1) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0} }
-  EmbeddedFile(2): |-
-    BEGIN {
-            FS=":" ; Vendor="" ; Version =""; Date=""
-    }
-    {
-    if ( $1 ~  /Vendor/ ) { Vendor = $2; }
-    if  ($1 ~ /Version/ ) { Version = $2 ; }
-    if  ($1 ~ /Release Date/ ) { Date = $2 ; print("MSHW;""Vendor:"Vendor " Version:" Version " Date:" Date) }
-    }
-  EmbeddedFile(5): |-
-    BEGIN {
-
-             DName="" ;  FName="" ; Value=""; Min=""; Max=""; Alarm=""
-    }
-    {
-    if(NF == 1 && $1 !~ /:/)  {DName = $1}
-    if(NF == 1 && $1 ~ /fan/ && $1 ~ /:/)  {FName = $1 ; gsub(/:/,"",FName)}
-    if(NF == 2) {
-            if ($1 ~ /fan[0-9]_input/) { Value = $2 ; if (Value <= 0) {Value=""}}
-            if ($1 ~ /fan[0-9]_min/ ) { Min = $2 ; if (Min <= 0) {Min=""}}
-            if ($1 ~ /fan[0-9]_max/ ) { Max = $2 ; if (Max <= 0) {Max=""}}
-            if ($1 ~ /fan[0-9]_alarm/) { Alarm = $2 ; if (Alarm <= 0) {Alarm =""}}
-            if ($1 ~ /fan[0-9]_pulses/  ) {
-                    print ("MSHW;"DName"-"FName";"Value";"Min";"Max";"Alarm";")}
-         }
-    }
-  EmbeddedFile(4): |-
-    BEGIN {
-            FS=" " ; Name="" ; Type="" ; Unit=""; Value=""; Lower=""; Upper=""
-    }
-    {
-    if(NF == 1 && $0 !~ /:/) {Name = $1}
-
-    if ($3 ~ /V/ ) {Value= $2 ; Unit= $3 ; if (Unit == "V") { Value=Value*1000}
-             Lower=$6; gsub(/\+/,"",Lower); if (Lower == 0) {Lower=""};
-             Upper=$10; gsub(/\+/,"",Upper); if (Upper == 0) {Upper=""} else {Upper = Upper*1000};
-             {Type = $1; gsub(/:/,"",Type)};
-              print ("MSHW;"Name"-"Type";"Type";" Value ";"Lower";"Upper";")}
-    }
 connector:
   displayName: lm_sensors
   platforms: Any system
@@ -270,3 +196,77 @@ monitors:
         deviceId: $column(2)
         metrics:
           hw.fan.speed: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+            FS=":" ; Manufacturer="" ; Type=""
+    }
+    {
+    if ( $1 ~  /Manufacturer/ )  { Manufacturer = $2; }
+    if  ($1 ~ /Product Name/ ) { Type = $2 }
+    if ($1 ~ /Serial Number/ ) {SN = $2 ;  print ("MSHW;"Manufacturer";"Type";"SN";" ); }
+    }
+  EmbeddedFile(3): |-
+    BEGIN {
+            Name="" ; Type="" ; Sensor=""; Value="";Max="";Critical=""; TEMP=0
+    }
+    {
+    if(NF == 1 && $0 !~ /:/)  {Name = $1}
+    if(NF == 1 && $0 ~ /:/ && TEMP == 1 ) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP =0 }
+    if(NF == 1 && $0 ~ /:/ && TEMP == 0) {Type = $0; gsub(/:/,"",Type)}
+    if(NF == 2 && $2 ~ /:/ && TEMP == 1) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical = ""; TEMP=0}
+    if(NF == 2 && $2 ~ /:/ && TEMP == 0) {Type = $0; gsub(/:/,"",Type); gsub(" ","",Type)}
+    if(NF == 2 && $1 ~ /temp/) { Sensor = $1 ; gsub(/:/,"",Sensor) ;
+            if ($1 ~ /temp[0-9]_input:/ || $1 ~ /temp[0-9][0-9]_input:/) { Value = $2; TEMP=1 }
+            if ($1 ~ /temp[0-9]_max:/ || $1 ~ /temp[0-9][0-9]_max:/) { Max = $2; if (Max <=0) {Max=""}}
+            if ($1 ~ /temp[0-9]_crit:/ || $1 ~ /temp[0-9][0-9]_crit:/&& length($1) == 11 ) { Critical = $2 ; if (Critical <=0) {Critical = ""};
+                    if ( Max == Value && Value == Critical) { Max = ""; Critical = ""}
+                    if ( Max == Critical && Max > 0) { Max = Max - Critical/10 }
+                    if ( Max == 0 && Critical > 0 ) { Max = Critical - Critical/10 }
+                    print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical ="" ; TEMP=0}
+         }
+    if(NF == 1 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
+    if(NF == 0 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
+    if(NF >= 3 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
+    if(NF >= 3 && $0 !~ /temp/)  {Type = $0; gsub(/:/,"",Type)}
+    }
+    END { if (TEMP == 1) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0} }
+  EmbeddedFile(2): |-
+    BEGIN {
+            FS=":" ; Vendor="" ; Version =""; Date=""
+    }
+    {
+    if ( $1 ~  /Vendor/ ) { Vendor = $2; }
+    if  ($1 ~ /Version/ ) { Version = $2 ; }
+    if  ($1 ~ /Release Date/ ) { Date = $2 ; print("MSHW;""Vendor:"Vendor " Version:" Version " Date:" Date) }
+    }
+  EmbeddedFile(5): |-
+    BEGIN {
+
+             DName="" ;  FName="" ; Value=""; Min=""; Max=""; Alarm=""
+    }
+    {
+    if(NF == 1 && $1 !~ /:/)  {DName = $1}
+    if(NF == 1 && $1 ~ /fan/ && $1 ~ /:/)  {FName = $1 ; gsub(/:/,"",FName)}
+    if(NF == 2) {
+            if ($1 ~ /fan[0-9]_input/) { Value = $2 ; if (Value <= 0) {Value=""}}
+            if ($1 ~ /fan[0-9]_min/ ) { Min = $2 ; if (Min <= 0) {Min=""}}
+            if ($1 ~ /fan[0-9]_max/ ) { Max = $2 ; if (Max <= 0) {Max=""}}
+            if ($1 ~ /fan[0-9]_alarm/) { Alarm = $2 ; if (Alarm <= 0) {Alarm =""}}
+            if ($1 ~ /fan[0-9]_pulses/  ) {
+                    print ("MSHW;"DName"-"FName";"Value";"Min";"Max";"Alarm";")}
+         }
+    }
+  EmbeddedFile(4): |-
+    BEGIN {
+            FS=" " ; Name="" ; Type="" ; Unit=""; Value=""; Lower=""; Upper=""
+    }
+    {
+    if(NF == 1 && $0 !~ /:/) {Name = $1}
+
+    if ($3 ~ /V/ ) {Value= $2 ; Unit= $3 ; if (Unit == "V") { Value=Value*1000}
+             Lower=$6; gsub(/\+/,"",Lower); if (Lower == 0) {Lower=""};
+             Upper=$10; gsub(/\+/,"",Upper); if (Upper == 0) {Upper=""} else {Upper = Upper*1000};
+             {Type = $1; gsub(/:/,"",Type)};
+              print ("MSHW;"Name"-"Type";"Type";" Value ";"Lower";"Upper";")}
+    }

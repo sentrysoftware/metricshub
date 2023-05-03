@@ -1,50 +1,4 @@
 ---
-translations:
-  BatteryStatusTranslationTable:
-    "11": Partially Charged
-    "1": Discharging
-    "2": On AC
-    "3": Fully Charged
-    "4": Low Battery
-    "5": Critically Low Battery
-    "6": Charging
-    "7": Charging and High
-    "8": Charging and Low
-    "9": Charging and Critical
-    "10": ""
-  ChemistryTranslationTable:
-    "1": ""
-    "2": ""
-    "3": Lead Acid
-    "4": Nickel Cadmium
-    "5": Nickel Metal Hydride
-    "6": Lithium-ion
-    "7": Zinc Air
-    "8": Lithium Polymer
-  StatusInformationTranslationTable:
-    default: 'Unknown '
-    stressed: 'Stressed '
-    nonrecover: 'Non Recoverable Error '
-    stopping: ""
-    service: 'Service '
-    no contact: 'No Contact '
-    lost comm: 'Lost Communication '
-    ok: ""
-    error: 'Error '
-    degraded: 'Degraded '
-    starting: ""
-  StatusTranslationTable:
-    default: UNKNOWN
-    stressed: degraded
-    nonrecover: failed
-    stopping: ok
-    service: degraded
-    no contact: degraded
-    lost comm: degraded
-    ok: ok
-    error: failed
-    degraded: degraded
-    starting: ok
 connector:
   displayName: WMI - Battery
   platforms: Any system
@@ -133,3 +87,49 @@ monitors:
           hw.battery.time_left: $column(4)
         legacyTextParameters:
           StatusInformation: $column(6)
+translations:
+  BatteryStatusTranslationTable:
+    "11": Partially Charged
+    "1": Discharging
+    "2": On AC
+    "3": Fully Charged
+    "4": Low Battery
+    "5": Critically Low Battery
+    "6": Charging
+    "7": Charging and High
+    "8": Charging and Low
+    "9": Charging and Critical
+    "10": ""
+  ChemistryTranslationTable:
+    "1": ""
+    "2": ""
+    "3": Lead Acid
+    "4": Nickel Cadmium
+    "5": Nickel Metal Hydride
+    "6": Lithium-ion
+    "7": Zinc Air
+    "8": Lithium Polymer
+  StatusInformationTranslationTable:
+    default: 'Unknown '
+    stressed: 'Stressed '
+    nonrecover: 'Non Recoverable Error '
+    stopping: ""
+    service: 'Service '
+    no contact: 'No Contact '
+    lost comm: 'Lost Communication '
+    ok: ""
+    error: 'Error '
+    degraded: 'Degraded '
+    starting: ""
+  StatusTranslationTable:
+    default: UNKNOWN
+    stressed: degraded
+    nonrecover: failed
+    stopping: ok
+    service: degraded
+    no contact: degraded
+    lost comm: degraded
+    ok: ok
+    error: failed
+    degraded: degraded
+    starting: ok

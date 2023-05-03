@@ -1,141 +1,6 @@
 ---
 extends:
 - CpuFamilyTranslationTable-header
-embedded:
-  EmbeddedFile(1): nothing
-  EmbeddedFile(3): MSHW;ComputerModel;<!--getscalar api="hpsmbapi" name="SMBAPI_GetSystemModel" default="unknown"-->
-  EmbeddedFile(2): |
-    Option Explicit
-    On Error Resume Next
-
-    '=== Declarations
-    Dim oShell
-    Dim sCgiBinPath
-
-    '=== Get the shell object
-    Set oShell = WScript.CreateObject("WScript.Shell")
-
-    '=== Check that Instant Top Tools is installed and get the cgi-bin folder
-    sCgiBinPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Hewlett-Packard\InstantTopTools\cgiroot")
-
-    If sCgiBinPath = "" Then
-        WScript.Echo "HP Instant TopTools is not installed on this computer"
-        WScript.Quit 1
-    End If
-
-    WScript.StdOut.Write sCgiBinPath
-  EmbeddedFile(5): |-
-    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetFanSensorNumberOfRows" entry="HPIEPAPI_GetFanSensorTableProp" default="No manageable fan sensors are installed on this system"-->MSHW;Fan;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
-    <!--endmultiple-->
-  EmbeddedFile(4): |-
-    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetTemperatureSensorNumberOfRows" entry="HPIEPAPI_GetTemperatureSensorTableProp" default="No manageable temperature sensors are installed on this system"-->MSHW;Temperature;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
-    <!--endmultiple-->
-  EmbeddedFile(7): |-
-    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetPowerSupplyNumberOfRows" entry="HPIEPAPI_GetPowerSupplyTableProp" default="No manageable power supplies are installed on this system"-->MSHW;PowerSupply;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Status" default="unknown"-->;<!--getprop name="Present" default="unknown"-->
-    <!--endmultiple-->
-  EmbeddedFile(6): |-
-    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetVoltageSensorNumberOfRows" entry="HPIEPAPI_GetVoltageSensorTableProp" default="No manageable voltage sensors are installed on this system"-->MSHW;Voltage;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
-    <!--endmultiple-->
-  EmbeddedFile(8): |-
-    <!--getmultiple api="hpsmbapi" name="SMBAPI_GetNumberOfMemMod" default="No modules found"-->MSHW;Memory;<!--getrow-->;<!--getprop altapi="hpmadapi" name="GetMemoryModuleStatus" default="N/A"-->;<!--getprop name="SMBAPI_GetModInstalledSize" default="unknown"-->;<!--getprop name="SMBAPI_GetModType" translate default="unknown"-->
-    <!--endmultiple-->
-translations:
-  VoltageUpperThresholdTranslationTable:
-    sys bd +5v: 5500
-    sys bd +12v: 13200
-    default: ""
-    sys bd -5v: -4500
-    pri proc core: 2200
-    sys bd -12v: -10800
-    sec proc core: 2200
-    sys bd +3.3v: 3600
-  FanStatusTranslationTable:
-    "22": failed
-    "23": ok
-    default: UNKNOWN
-    "20": ok
-    "21": degraded
-  VoltageStatusTranslationTable:
-    "22": failed
-    "23": ok
-    default: UNKNOWN
-    "20": ok
-    "21": degraded
-  cpuStatusInformationTranslationTable:
-    stopped: Stopped
-    error: Error
-    degraded: Degraded
-    default: Unknown Status
-    stressed: Stressed
-    nonrecover: Non Recover
-    stopping: Stopping
-    service: Service
-    no contact: No Contact
-    lost comm: Lost Communication
-    ok: ""
-    starting: Starting
-    pred fail: Predicted Failure
-  PowerSupplyStatusTranslationTable:
-    "22": failed
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "20": ok
-    "21": degraded
-  VoltageStatusInformationTranslationTable:
-    "22": Critical
-    "23": Not available
-    default: Unknown Status
-    "20": ""
-    "21": Warning
-  cpuStatusTranslationTable:
-    stopped: ok
-    error: failed
-    degraded: degraded
-    default: UNKNOWN
-    stressed: degraded
-    nonrecover: failed
-    stopping: degraded
-    service: degraded
-    no contact: degraded
-    lost comm: degraded
-    ok: ok
-    starting: degraded
-    pred fail: degraded
-  FanStatusInformationTranslationTable:
-    "22": Critical
-    "23": Not available
-    default: Unknown Status
-    "20": ""
-    "21": Warning
-  memoryStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": failed
-    default: UNKNOWN
-    "8": ok
-  VoltageLowerThresholdTranslationTable:
-    sys bd +5v: 4500
-    sys bd +12v: 10800
-    default: ""
-    sys bd -5v: -5500
-    pri proc core: 1800
-    sys bd -12v: -13200
-    sec proc core: 1800
-    sys bd +3.3v: 3000
-  memoryStatusInformationTranslationTable:
-    "0": ""
-    "1": Warning
-    "2": Critical
-    default: Unknown Status
-    "8": ""
-  PowerSupplyStatusInformationTranslationTable:
-    "22": Critical
-    default: Unknown Status
-    "3": ""
-    "4": Critical
-    "20": ""
-    "21": Warning
 connector:
   displayName: HP TopTools Agent
   platforms: HP NetServer
@@ -526,3 +391,138 @@ monitors:
           hw.status{hw.type="cpu"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): nothing
+  EmbeddedFile(3): MSHW;ComputerModel;<!--getscalar api="hpsmbapi" name="SMBAPI_GetSystemModel" default="unknown"-->
+  EmbeddedFile(2): |
+    Option Explicit
+    On Error Resume Next
+
+    '=== Declarations
+    Dim oShell
+    Dim sCgiBinPath
+
+    '=== Get the shell object
+    Set oShell = WScript.CreateObject("WScript.Shell")
+
+    '=== Check that Instant Top Tools is installed and get the cgi-bin folder
+    sCgiBinPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Hewlett-Packard\InstantTopTools\cgiroot")
+
+    If sCgiBinPath = "" Then
+        WScript.Echo "HP Instant TopTools is not installed on this computer"
+        WScript.Quit 1
+    End If
+
+    WScript.StdOut.Write sCgiBinPath
+  EmbeddedFile(5): |-
+    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetFanSensorNumberOfRows" entry="HPIEPAPI_GetFanSensorTableProp" default="No manageable fan sensors are installed on this system"-->MSHW;Fan;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
+    <!--endmultiple-->
+  EmbeddedFile(4): |-
+    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetTemperatureSensorNumberOfRows" entry="HPIEPAPI_GetTemperatureSensorTableProp" default="No manageable temperature sensors are installed on this system"-->MSHW;Temperature;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
+    <!--endmultiple-->
+  EmbeddedFile(7): |-
+    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetPowerSupplyNumberOfRows" entry="HPIEPAPI_GetPowerSupplyTableProp" default="No manageable power supplies are installed on this system"-->MSHW;PowerSupply;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Status" default="unknown"-->;<!--getprop name="Present" default="unknown"-->
+    <!--endmultiple-->
+  EmbeddedFile(6): |-
+    <!--getmultiple api="hpiepapi" name="HPIEPAPI_GetVoltageSensorNumberOfRows" entry="HPIEPAPI_GetVoltageSensorTableProp" default="No manageable voltage sensors are installed on this system"-->MSHW;Voltage;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
+    <!--endmultiple-->
+  EmbeddedFile(8): |-
+    <!--getmultiple api="hpsmbapi" name="SMBAPI_GetNumberOfMemMod" default="No modules found"-->MSHW;Memory;<!--getrow-->;<!--getprop altapi="hpmadapi" name="GetMemoryModuleStatus" default="N/A"-->;<!--getprop name="SMBAPI_GetModInstalledSize" default="unknown"-->;<!--getprop name="SMBAPI_GetModType" translate default="unknown"-->
+    <!--endmultiple-->
+translations:
+  VoltageUpperThresholdTranslationTable:
+    sys bd +5v: 5500
+    sys bd +12v: 13200
+    default: ""
+    sys bd -5v: -4500
+    pri proc core: 2200
+    sys bd -12v: -10800
+    sec proc core: 2200
+    sys bd +3.3v: 3600
+  FanStatusTranslationTable:
+    "22": failed
+    "23": ok
+    default: UNKNOWN
+    "20": ok
+    "21": degraded
+  VoltageStatusTranslationTable:
+    "22": failed
+    "23": ok
+    default: UNKNOWN
+    "20": ok
+    "21": degraded
+  cpuStatusInformationTranslationTable:
+    stopped: Stopped
+    error: Error
+    degraded: Degraded
+    default: Unknown Status
+    stressed: Stressed
+    nonrecover: Non Recover
+    stopping: Stopping
+    service: Service
+    no contact: No Contact
+    lost comm: Lost Communication
+    ok: ""
+    starting: Starting
+    pred fail: Predicted Failure
+  PowerSupplyStatusTranslationTable:
+    "22": failed
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "20": ok
+    "21": degraded
+  VoltageStatusInformationTranslationTable:
+    "22": Critical
+    "23": Not available
+    default: Unknown Status
+    "20": ""
+    "21": Warning
+  cpuStatusTranslationTable:
+    stopped: ok
+    error: failed
+    degraded: degraded
+    default: UNKNOWN
+    stressed: degraded
+    nonrecover: failed
+    stopping: degraded
+    service: degraded
+    no contact: degraded
+    lost comm: degraded
+    ok: ok
+    starting: degraded
+    pred fail: degraded
+  FanStatusInformationTranslationTable:
+    "22": Critical
+    "23": Not available
+    default: Unknown Status
+    "20": ""
+    "21": Warning
+  memoryStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": failed
+    default: UNKNOWN
+    "8": ok
+  VoltageLowerThresholdTranslationTable:
+    sys bd +5v: 4500
+    sys bd +12v: 10800
+    default: ""
+    sys bd -5v: -5500
+    pri proc core: 1800
+    sys bd -12v: -13200
+    sec proc core: 1800
+    sys bd +3.3v: 3000
+  memoryStatusInformationTranslationTable:
+    "0": ""
+    "1": Warning
+    "2": Critical
+    default: Unknown Status
+    "8": ""
+  PowerSupplyStatusInformationTranslationTable:
+    "22": Critical
+    default: Unknown Status
+    "3": ""
+    "4": Critical
+    "20": ""
+    "21": Warning

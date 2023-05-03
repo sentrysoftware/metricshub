@@ -1,53 +1,4 @@
 ---
-translations:
-  cpuStatusInformationTranslationTable:
-    "1": ""
-    "2": Disabled by User
-    default: Unknown Status
-    "3": Disabled by BIOS (POST Error)
-    "4": Idle
-    ok: ""
-  PowerSupplyStatusTranslationTable:
-    stopped: ok
-    error: failed
-    degraded: degraded
-    default: UNKNOWN
-    stressed: degraded
-    nonrecover: failed
-    stopping: degraded
-    service: degraded
-    no contact: degraded
-    lost comm: degraded
-    ok: ok
-    starting: degraded
-    pred fail: degraded
-  cpuStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": ok
-    ok: ok
-  memoryStatusTranslationTable:
-    "0": ok
-    "1": failed
-    default: UNKNOWN
-    "false": ok
-    "true": failed
-  PowerSupplyStatusInformationTranslationTable:
-    stopped: Stopped
-    error: Error
-    degraded: Degraded
-    default: Unknown Status
-    stressed: Stressed
-    nonrecover: Non Recover
-    stopping: Stopping
-    service: Service
-    no contact: No Contact
-    lost comm: Lost Communication
-    ok: ""
-    starting: Starting
-    pred fail: Predicted Failure
 connector:
   displayName: IBM Director Agent 6 - Windows
   platforms: IBM xSeries
@@ -509,3 +460,52 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  cpuStatusInformationTranslationTable:
+    "1": ""
+    "2": Disabled by User
+    default: Unknown Status
+    "3": Disabled by BIOS (POST Error)
+    "4": Idle
+    ok: ""
+  PowerSupplyStatusTranslationTable:
+    stopped: ok
+    error: failed
+    degraded: degraded
+    default: UNKNOWN
+    stressed: degraded
+    nonrecover: failed
+    stopping: degraded
+    service: degraded
+    no contact: degraded
+    lost comm: degraded
+    ok: ok
+    starting: degraded
+    pred fail: degraded
+  cpuStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    ok: ok
+  memoryStatusTranslationTable:
+    "0": ok
+    "1": failed
+    default: UNKNOWN
+    "false": ok
+    "true": failed
+  PowerSupplyStatusInformationTranslationTable:
+    stopped: Stopped
+    error: Error
+    degraded: Degraded
+    default: Unknown Status
+    stressed: Stressed
+    nonrecover: Non Recover
+    stopping: Stopping
+    service: Service
+    no contact: No Contact
+    lost comm: Lost Communication
+    ok: ""
+    starting: Starting
+    pred fail: Predicted Failure

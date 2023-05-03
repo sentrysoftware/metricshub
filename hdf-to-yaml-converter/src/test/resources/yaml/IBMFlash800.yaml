@@ -1,37 +1,4 @@
 ---
-translations:
-  rpmTranslationTable:
-    default: ""
-    rpm: speedActivated
-  percentTranslationTable:
-    default: ""
-    percent: speedPercentActivated
-  temperatureTranslationTable:
-    default: ""
-    c: temperatureActivation
-  linkTranslationTable:
-    offline: degraded
-    default: ""
-    no light: degraded
-    online: ok
-    disabled: degraded
-    none: UNKNOWN
-  StatusInformationTranslationTable:
-    notpresent: Missing
-    default: Status not recognized
-    test: In Test Mode
-    commerror: Communication Error
-    warning: Warning
-    error: Error
-    good: ""
-  StatusTranslationTable:
-    notpresent: degraded
-    default: failed
-    test: degraded
-    commerror: UNKNOWN
-    warning: degraded
-    error: degraded
-    good: ok
 connector:
   displayName: IBM FlashSystem 700/800
   platforms: IBM FlashSystem
@@ -705,3 +672,36 @@ monitors:
         metrics:
           hw.network.up: legacyLinkStatus($column(2))
           hw.network.bandwidth.limit: megaBit2Bit($column(3))
+translations:
+  rpmTranslationTable:
+    default: ""
+    rpm: speedActivated
+  percentTranslationTable:
+    default: ""
+    percent: speedPercentActivated
+  temperatureTranslationTable:
+    default: ""
+    c: temperatureActivation
+  linkTranslationTable:
+    offline: degraded
+    default: ""
+    no light: degraded
+    online: ok
+    disabled: degraded
+    none: UNKNOWN
+  StatusInformationTranslationTable:
+    notpresent: Missing
+    default: Status not recognized
+    test: In Test Mode
+    commerror: Communication Error
+    warning: Warning
+    error: Error
+    good: ""
+  StatusTranslationTable:
+    notpresent: degraded
+    default: failed
+    test: degraded
+    commerror: UNKNOWN
+    warning: degraded
+    error: degraded
+    good: ok

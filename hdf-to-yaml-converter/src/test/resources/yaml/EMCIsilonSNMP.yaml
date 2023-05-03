@@ -1,144 +1,4 @@
 ---
-translations:
-  VoltageThresholdTranslationTable:
-    bb +1.2v p1vcc: 570;1440
-    "1.0vsfc": 950;1050
-    v12.0: 11020;12960
-    bb +5.0v: 4630;5350
-    v5.0_nvram: 4600;5400
-    "3.3vsfc": 3030;3560
-    v12.0_bb_a: 11020;12960
-    vacps2: ;
-    v5.0_stby: 4600;5400
-    vacps1: ;
-    vcc_5v0_cbl: 4600;5400
-    v5.0_fp_x: 4600;5400
-    bb +12.0v: 2490;
-    bb +1.1v stby: 1060;1150
-    vcc_1v8: 1660;1940
-    "3.3vsb": 3170;3440
-    bb +3.3v aux: 3070;3510
-    v3.3_stby: 3030;3560
-    vcc_5v0: 4600;5400
-    "1.5v": 1440;1560
-    vcc_3v3: 3030;3560
-    "3.3v": 3070;3510
-    "1.8vsfc": 1710;1890
-    bb 1.5v p1ddr cd: 1410;1590
-    vcc_1v0: 920;1080
-    vcc_12v0: 11020;12960
-    v1.8: 1660;1940
-    v3.3: 3030;3560
-    nv2vcur: 2490;
-    bb 1.5v p2ddr ab: 1410;1590
-    ps in volt 2: ;
-    ps in volt 1: ;
-    v5.0: 4600;5400
-    vcore0: 510;1590
-    nv1vcur: 2490;
-    bb -12.0v: -13230;-10640
-    bb +1.2v vccp1: 570;1440
-    v1.0: 920;1080
-    "5vsfc": 4600;5400
-    "12vsfc": 11020;12960
-    bb +1.35 p2lv cd: 570;1440
-    default: ;
-    bb +5.0v stby: 4630;5350
-    bb +1.35 p1lv ab: 570;1440
-    bb +1.8v aux: 1730;1870
-    v3.3_cmd: 3030;3560
-    bb +1.2v p2vcc: 570;1440
-    "5v": 4600;5400
-    "5vsb": 4670;5330
-    bb 1.5v p1ddr ab: 1410;1590
-    ps out volt 2: 11400;12800
-    ps out volt 1: 11400;12800
-    bb +3.3v: 3070;3510
-    vdcps2: 11400;12800
-    vdcps1: 11400;12800
-    vcc_5v0_sb: 4600;5400
-    "12v": 11020;12960
-    bb 1.5v p2ddr cd: 1410;1590
-    v12.0_fan3: 11020;12960
-    v12.0_mb0: 11020;12960
-    "5vfpf": 4600;5400
-    v12.0_fan2: 11020;12960
-    v12.0_mb1: 11020;12960
-    v12.0_fan1: 11020;12960
-    bb +3.0v vbat: 2490;
-    vdimmcpu0: 1170;1620
-  TemperatureThresholdTranslationTable:
-    p1 therm margin: 0;10
-    dimm thrm mrgn 3: 0;5
-    dimm thrm mrgn 2: 0;5
-    dimm thrm mrgn 4: 0;5
-    bb bmc temp: ;100
-    dimm thrm mrgn 1: 0;5
-    p1 dts therm mgn: 0;10
-    bb mem vr temp: ;115
-    tsystem: ;62
-    tutcpu0: ;73
-    bb edge temp: ;65
-    default: ;
-    lsi core temp: ;73
-    tutcpu1: ;73
-    p2 dts therm mgn: 0;10
-    temp sensor 2: ;50
-    temp sensor 1: ;50
-    tps1: ;98
-    tsfc1: ;50
-    tsfc2: ;50
-    ps temp 2: ;95
-    ps temp 1: ;95
-    ssb temp: ;95
-    bb p1 vr temp: ;115
-    tfp: ;38
-    bb p2 vr temp: ;115
-    p2 therm margin: 0;10
-  FanThresholdTranslationTable:
-    fan tac sensor 3: 6300;
-    fan tac sensor 4: 6300;
-    fan tac sensor 1: 6300;
-    fan tac sensor 2: 6300;
-    ps fan speed 2: ;0
-    ps fan speed 1: ;0
-    ps fan speed 4: ;0
-    default: ;0
-    ps fan speed 3: ;0
-    fisi3: 6300;
-    fisi4: 6300;
-    fisi1: 6300;
-    fisi2: 6300;
-    fps11: ;0
-    fps22: ;0
-    fps21: ;0
-    fps12: ;0
-  PhysicalDiskStatusTranslationTable:
-    new: degraded
-    erase: degraded
-    l3: ok
-    replace: failed
-    used: degraded
-    boot_drive: ok
-    wrong_type: degraded
-    suspended: degraded
-    unencrypted: failed
-    restripe: degraded
-    smartfail: degraded
-    not: failed
-    default: failed
-    journal: ok
-    preparing: degraded
-    healthy: ok
-    stalled: ok
-    insecure: failed
-    sed_error: failed
-  enclosureStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": failed
-    default: UNKNOWN
-    "3": UNKNOWN
 connector:
   displayName: EMC Isilon - Node (SNMP)
   platforms: EMC Isilon
@@ -506,3 +366,143 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.voltage: $column(2)
+translations:
+  VoltageThresholdTranslationTable:
+    bb +1.2v p1vcc: 570;1440
+    "1.0vsfc": 950;1050
+    v12.0: 11020;12960
+    bb +5.0v: 4630;5350
+    v5.0_nvram: 4600;5400
+    "3.3vsfc": 3030;3560
+    v12.0_bb_a: 11020;12960
+    vacps2: ;
+    v5.0_stby: 4600;5400
+    vacps1: ;
+    vcc_5v0_cbl: 4600;5400
+    v5.0_fp_x: 4600;5400
+    bb +12.0v: 2490;
+    bb +1.1v stby: 1060;1150
+    vcc_1v8: 1660;1940
+    "3.3vsb": 3170;3440
+    bb +3.3v aux: 3070;3510
+    v3.3_stby: 3030;3560
+    vcc_5v0: 4600;5400
+    "1.5v": 1440;1560
+    vcc_3v3: 3030;3560
+    "3.3v": 3070;3510
+    "1.8vsfc": 1710;1890
+    bb 1.5v p1ddr cd: 1410;1590
+    vcc_1v0: 920;1080
+    vcc_12v0: 11020;12960
+    v1.8: 1660;1940
+    v3.3: 3030;3560
+    nv2vcur: 2490;
+    bb 1.5v p2ddr ab: 1410;1590
+    ps in volt 2: ;
+    ps in volt 1: ;
+    v5.0: 4600;5400
+    vcore0: 510;1590
+    nv1vcur: 2490;
+    bb -12.0v: -13230;-10640
+    bb +1.2v vccp1: 570;1440
+    v1.0: 920;1080
+    "5vsfc": 4600;5400
+    "12vsfc": 11020;12960
+    bb +1.35 p2lv cd: 570;1440
+    default: ;
+    bb +5.0v stby: 4630;5350
+    bb +1.35 p1lv ab: 570;1440
+    bb +1.8v aux: 1730;1870
+    v3.3_cmd: 3030;3560
+    bb +1.2v p2vcc: 570;1440
+    "5v": 4600;5400
+    "5vsb": 4670;5330
+    bb 1.5v p1ddr ab: 1410;1590
+    ps out volt 2: 11400;12800
+    ps out volt 1: 11400;12800
+    bb +3.3v: 3070;3510
+    vdcps2: 11400;12800
+    vdcps1: 11400;12800
+    vcc_5v0_sb: 4600;5400
+    "12v": 11020;12960
+    bb 1.5v p2ddr cd: 1410;1590
+    v12.0_fan3: 11020;12960
+    v12.0_mb0: 11020;12960
+    "5vfpf": 4600;5400
+    v12.0_fan2: 11020;12960
+    v12.0_mb1: 11020;12960
+    v12.0_fan1: 11020;12960
+    bb +3.0v vbat: 2490;
+    vdimmcpu0: 1170;1620
+  TemperatureThresholdTranslationTable:
+    p1 therm margin: 0;10
+    dimm thrm mrgn 3: 0;5
+    dimm thrm mrgn 2: 0;5
+    dimm thrm mrgn 4: 0;5
+    bb bmc temp: ;100
+    dimm thrm mrgn 1: 0;5
+    p1 dts therm mgn: 0;10
+    bb mem vr temp: ;115
+    tsystem: ;62
+    tutcpu0: ;73
+    bb edge temp: ;65
+    default: ;
+    lsi core temp: ;73
+    tutcpu1: ;73
+    p2 dts therm mgn: 0;10
+    temp sensor 2: ;50
+    temp sensor 1: ;50
+    tps1: ;98
+    tsfc1: ;50
+    tsfc2: ;50
+    ps temp 2: ;95
+    ps temp 1: ;95
+    ssb temp: ;95
+    bb p1 vr temp: ;115
+    tfp: ;38
+    bb p2 vr temp: ;115
+    p2 therm margin: 0;10
+  FanThresholdTranslationTable:
+    fan tac sensor 3: 6300;
+    fan tac sensor 4: 6300;
+    fan tac sensor 1: 6300;
+    fan tac sensor 2: 6300;
+    ps fan speed 2: ;0
+    ps fan speed 1: ;0
+    ps fan speed 4: ;0
+    default: ;0
+    ps fan speed 3: ;0
+    fisi3: 6300;
+    fisi4: 6300;
+    fisi1: 6300;
+    fisi2: 6300;
+    fps11: ;0
+    fps22: ;0
+    fps21: ;0
+    fps12: ;0
+  PhysicalDiskStatusTranslationTable:
+    new: degraded
+    erase: degraded
+    l3: ok
+    replace: failed
+    used: degraded
+    boot_drive: ok
+    wrong_type: degraded
+    suspended: degraded
+    unencrypted: failed
+    restripe: degraded
+    smartfail: degraded
+    not: failed
+    default: failed
+    journal: ok
+    preparing: degraded
+    healthy: ok
+    stalled: ok
+    insecure: failed
+    sed_error: failed
+  enclosureStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN

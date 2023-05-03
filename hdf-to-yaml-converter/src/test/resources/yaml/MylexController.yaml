@@ -1,119 +1,4 @@
 ---
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    "0": Dead
-    "2": Rebuilding
-    default: Unknown Status
-    "3": ""
-    "4": Installation Abort
-    "5": ""
-    "16": Hot spare
-    "6": Not present
-    "130": Rebuild Cancelled
-  LogicalDiskStatusInformationTranslationTable:
-    "255": Off-line
-    default: Unknown Status
-    "3": ""
-    "4": Critical
-    "128": Not present
-  MylexControllerTranslationTable:
-    "192": BT930
-    "193": BT932
-    "150": BT-757
-    "194": BT950
-    "151": BT-757d
-    "195": BT952
-    "152": BT-757s
-    "153": BT-757cd
-    "154": BT-75xc
-    "155": BT-747c
-    "156": BT-757c
-    "96": DAC960s
-    "97": DAC960su
-    "98": DAC960sx
-    "99": DAC960sf
-    "16": DAC960pd
-    "17": DAC960pl
-    "18": DAC960pdu
-    "19": DAC960pe
-    "160": BT-540
-    "161": BT-540c
-    "162": BT-542
-    "163": BT-542b
-    "164": BT-542c
-    "165": BT-542d
-    "1": DAC960e
-    "166": BT-545
-    "167": BT-545c
-    "168": BT-545s
-    "169": BT-54xc
-    "8": DAC960m
-    "129": BT-440
-    "20": DAC960pg
-    "21": DAC960pj
-    "22": DAC960ptl0
-    "23": DAC960pr
-    "24": DAC960prl
-    "25": DAC960pt
-    "26": DAC1164p
-    "27": DAC960ptl1
-    "28": ExtremeRaid2000
-    "29": ExtremeRaid3000
-    "130": BT-440c
-    "131": BT-445
-    "132": BT-445c
-    "176": BT-946
-    "133": BT-44xc
-    "177": BT-946c
-    "134": BT-445s
-    "178": BT-948
-    default: ""
-    "179": BT-948c
-    "136": BT-640
-    "137": BT-640a
-    "138": BT-646
-    "139": BT-646d
-    "30": AcceleRaid352
-    "31": AcceleRaid170
-    "32": AcceleRaid160
-    "180": BT-956
-    "181": BT-956c
-    "182": BT-958
-    "183": BT-958c
-    "140": BT-646s
-    "184": BT-958d
-    "185": BT-956cd
-    "186": BT-958cd
-    "100": DAC960ss
-    "144": BT-742
-    "101": DAC960fl
-    "145": BT-742a
-    "102": DAC960ll
-    "146": BT-747
-    "103": DAC960ff
-    "147": BT-747d
-    "104": FC Array
-    "148": BT-747s
-    "105": DAC960mfl
-    "149": BT-74xc
-    "106": DAC960mff
-    "107": DAC960ffx
-  LogicalDiskStatusTranslationTable:
-    "255": failed
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "128": degraded
-  PhysicalDiskStatusTranslationTable:
-    "0": failed
-    "2": degraded
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-    "5": ok
-    "16": ok
-    "6": degraded
-    "130": degraded
 connector:
   displayName: LSI/Mylex GAM Server
   platforms: Fujitsu-Siemens PRIMERGY
@@ -254,3 +139,118 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    "0": Dead
+    "2": Rebuilding
+    default: Unknown Status
+    "3": ""
+    "4": Installation Abort
+    "5": ""
+    "16": Hot spare
+    "6": Not present
+    "130": Rebuild Cancelled
+  LogicalDiskStatusInformationTranslationTable:
+    "255": Off-line
+    default: Unknown Status
+    "3": ""
+    "4": Critical
+    "128": Not present
+  MylexControllerTranslationTable:
+    "192": BT930
+    "193": BT932
+    "150": BT-757
+    "194": BT950
+    "151": BT-757d
+    "195": BT952
+    "152": BT-757s
+    "153": BT-757cd
+    "154": BT-75xc
+    "155": BT-747c
+    "156": BT-757c
+    "96": DAC960s
+    "97": DAC960su
+    "98": DAC960sx
+    "99": DAC960sf
+    "16": DAC960pd
+    "17": DAC960pl
+    "18": DAC960pdu
+    "19": DAC960pe
+    "160": BT-540
+    "161": BT-540c
+    "162": BT-542
+    "163": BT-542b
+    "164": BT-542c
+    "165": BT-542d
+    "1": DAC960e
+    "166": BT-545
+    "167": BT-545c
+    "168": BT-545s
+    "169": BT-54xc
+    "8": DAC960m
+    "129": BT-440
+    "20": DAC960pg
+    "21": DAC960pj
+    "22": DAC960ptl0
+    "23": DAC960pr
+    "24": DAC960prl
+    "25": DAC960pt
+    "26": DAC1164p
+    "27": DAC960ptl1
+    "28": ExtremeRaid2000
+    "29": ExtremeRaid3000
+    "130": BT-440c
+    "131": BT-445
+    "132": BT-445c
+    "176": BT-946
+    "133": BT-44xc
+    "177": BT-946c
+    "134": BT-445s
+    "178": BT-948
+    default: ""
+    "179": BT-948c
+    "136": BT-640
+    "137": BT-640a
+    "138": BT-646
+    "139": BT-646d
+    "30": AcceleRaid352
+    "31": AcceleRaid170
+    "32": AcceleRaid160
+    "180": BT-956
+    "181": BT-956c
+    "182": BT-958
+    "183": BT-958c
+    "140": BT-646s
+    "184": BT-958d
+    "185": BT-956cd
+    "186": BT-958cd
+    "100": DAC960ss
+    "144": BT-742
+    "101": DAC960fl
+    "145": BT-742a
+    "102": DAC960ll
+    "146": BT-747
+    "103": DAC960ff
+    "147": BT-747d
+    "104": FC Array
+    "148": BT-747s
+    "105": DAC960mfl
+    "149": BT-74xc
+    "106": DAC960mff
+    "107": DAC960ffx
+  LogicalDiskStatusTranslationTable:
+    "255": failed
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "128": degraded
+  PhysicalDiskStatusTranslationTable:
+    "0": failed
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": ok
+    "16": ok
+    "6": degraded
+    "130": degraded

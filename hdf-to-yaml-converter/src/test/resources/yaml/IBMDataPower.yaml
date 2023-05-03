@@ -1,107 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";";}
-    {
-      Status = $1;
-      Found = "nok";
-      if (Status == 1)
-        {
-          print "PowerSupply1;OK;OK"
-          print "PowerSupply2;OK;OK"
-          Found = "ok";
-        }
-      if (Status == 2)
-        {
-          print "PowerSupply1;ALARM;power-1-failure"
-          print "PowerSupply2;OK;OK"
-          Found = "ok";
-        }
-      if (Status == 3)
-        {
-          print "PowerSupply1;OK;OK"
-          print "PowerSupply2;ALARM;power-2-failure"
-          Found = "ok";
-        }
-      if (Status == 4)
-        {
-          print "PowerSupply1;ALARM;power-1-ac-lost"
-          print "PowerSupply2;OK;OK"
-          Found = "ok";
-        }
-      if (Status == 5)
-        {
-          print "PowerSupply1;OK;OK"
-          print "PowerSupply2;ALARM;power-2-ac-lost"
-          Found = "ok";
-        }
-    if (Found == "nok")
-        {
-          print "PowerSupply1;UNKNOWN;UNKNOWN"
-          print "PowerSupply2;UNKNOWN;UNKNOWN"
-        }
-
-    }
-translations:
-  diskLocationTranslationTable:
-    "1": HDD0
-    "2": HDD1
-    "3": HDD2
-    "4": HDD3
-    "5": Undefined
-  diskStatusInformationTranslationTable:
-    "11": System
-    "12": Undefined Status
-    "1": Unconfigured Good
-    "2": Unconfigured Good Foreign
-    default: Unknown Status
-    "3": Unconfigured Bad
-    "4": Unconfigured Bad Foreign
-    "5": Hot Spare
-    "6": Offline
-    "7": Failed
-    "8": Rebuild
-    "9": Online
-    "10": Copy Back
-  diskStatusTranslationTable:
-    "11": ok
-    "12": failed
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": ok
-    "6": degraded
-    "7": failed
-    "8": degraded
-    "9": ok
-    "10": degraded
-  fanLocationTranslationTable:
-    "11": Fan-Tray-1-Fan-1
-    "22": Fan-Tray-3-Fan-4
-    "12": Fan-Tray-1-Fan-2
-    "23": Hard-Disk-Tray-Fan-1
-    "13": Fan-Tray-1-Fan-3
-    "24": Hard-Disk-Tray-Fan-2
-    "14": Fan-Tray-1-Fan-4
-    "15": Fan-Tray-2-Fan-1
-    "16": Fan-Tray-2-Fan-2
-    "17": Fan-Tray-2-Fan-3
-    "18": Fan-Tray-2-Fan-4
-    "19": Fan-Tray-3-Fan-1
-    "1": CPU-1
-    "2": CPU-2
-    "3": Chassis-1
-    "4": Chassis-2
-    "5": Chassis-3
-    "6": Chassis-4
-    "7": Chassis-5
-    "8": Chassis-6
-    "9": Chassis-7
-    "20": Fan-Tray-3-Fan-2
-    "10": Chassis-8
-    "21": Fan-Tray-3-Fan-3
 connector:
   displayName: IBM DataPower (SNMP)
   platforms: IBM DataPower
@@ -423,3 +320,106 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+      Status = $1;
+      Found = "nok";
+      if (Status == 1)
+        {
+          print "PowerSupply1;OK;OK"
+          print "PowerSupply2;OK;OK"
+          Found = "ok";
+        }
+      if (Status == 2)
+        {
+          print "PowerSupply1;ALARM;power-1-failure"
+          print "PowerSupply2;OK;OK"
+          Found = "ok";
+        }
+      if (Status == 3)
+        {
+          print "PowerSupply1;OK;OK"
+          print "PowerSupply2;ALARM;power-2-failure"
+          Found = "ok";
+        }
+      if (Status == 4)
+        {
+          print "PowerSupply1;ALARM;power-1-ac-lost"
+          print "PowerSupply2;OK;OK"
+          Found = "ok";
+        }
+      if (Status == 5)
+        {
+          print "PowerSupply1;OK;OK"
+          print "PowerSupply2;ALARM;power-2-ac-lost"
+          Found = "ok";
+        }
+    if (Found == "nok")
+        {
+          print "PowerSupply1;UNKNOWN;UNKNOWN"
+          print "PowerSupply2;UNKNOWN;UNKNOWN"
+        }
+
+    }
+translations:
+  diskLocationTranslationTable:
+    "1": HDD0
+    "2": HDD1
+    "3": HDD2
+    "4": HDD3
+    "5": Undefined
+  diskStatusInformationTranslationTable:
+    "11": System
+    "12": Undefined Status
+    "1": Unconfigured Good
+    "2": Unconfigured Good Foreign
+    default: Unknown Status
+    "3": Unconfigured Bad
+    "4": Unconfigured Bad Foreign
+    "5": Hot Spare
+    "6": Offline
+    "7": Failed
+    "8": Rebuild
+    "9": Online
+    "10": Copy Back
+  diskStatusTranslationTable:
+    "11": ok
+    "12": failed
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": ok
+    "6": degraded
+    "7": failed
+    "8": degraded
+    "9": ok
+    "10": degraded
+  fanLocationTranslationTable:
+    "11": Fan-Tray-1-Fan-1
+    "22": Fan-Tray-3-Fan-4
+    "12": Fan-Tray-1-Fan-2
+    "23": Hard-Disk-Tray-Fan-1
+    "13": Fan-Tray-1-Fan-3
+    "24": Hard-Disk-Tray-Fan-2
+    "14": Fan-Tray-1-Fan-4
+    "15": Fan-Tray-2-Fan-1
+    "16": Fan-Tray-2-Fan-2
+    "17": Fan-Tray-2-Fan-3
+    "18": Fan-Tray-2-Fan-4
+    "19": Fan-Tray-3-Fan-1
+    "1": CPU-1
+    "2": CPU-2
+    "3": Chassis-1
+    "4": Chassis-2
+    "5": Chassis-3
+    "6": Chassis-4
+    "7": Chassis-5
+    "8": Chassis-6
+    "9": Chassis-7
+    "20": Fan-Tray-3-Fan-2
+    "10": Chassis-8
+    "21": Fan-Tray-3-Fan-3

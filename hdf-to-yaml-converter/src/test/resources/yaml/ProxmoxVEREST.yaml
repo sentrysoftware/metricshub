@@ -1,18 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    Content-Type: application/json
-    Cookie: PVEAuthCookie=%{AUTHENTICATIONTOKEN}
-  EmbeddedFile(2): |-
-    {
-      "password":"%{PASSWORD}",
-      "username":"%{USERNAME}"
-    }
-translations:
-  StatusTranslationTable:
-    running: "ON"
-    stopped: "OFF"
-    running (paused): SUSPENDED
 connector:
   displayName: Promox Virtual Environment (REST)
   platforms: Proxmox Hypervisors
@@ -130,3 +116,17 @@ monitors:
         metrics:
           hw.vm.power_ratio: computePowerShareRatio($column(3))
           hw.vm.power_state: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    Content-Type: application/json
+    Cookie: PVEAuthCookie=%{AUTHENTICATIONTOKEN}
+  EmbeddedFile(2): |-
+    {
+      "password":"%{PASSWORD}",
+      "username":"%{USERNAME}"
+    }
+translations:
+  StatusTranslationTable:
+    running: "ON"
+    stopped: "OFF"
+    running (paused): SUSPENDED

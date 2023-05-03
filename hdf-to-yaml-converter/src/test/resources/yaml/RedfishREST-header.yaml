@@ -1,73 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    authorization: Basic %{BASIC_AUTH_BASE64}
-    Accept:application/json
-translations:
-  NetworkCardStatusInformationTranslationTable:
-    standbyoffline: StandbyOffline
-    offline: Offline
-    default: Unknown Status
-    "null": None
-    critical: Failed
-    none: None
-    up: Up
-    failed: Failed
-    ok: ok
-    down: Administratively Down
-    enabled: Enabled
-  LinkStatusTranslationTable:
-    ? ""
-    : degraded
-    offline: degraded
-    standbyoffline: degraded
-    default: UNKNOWN
-    linkup: ok
-    "null": degraded
-    none: degraded
-    up: ok
-    failed: failed
-    down: degraded
-    enabled: ok
-  StatusInformationTranslationTable:
-    optimal: The device is running normal.
-    critical: The device is in critical state.
-    degraded: The device needs attention.
-    error: The device is in a critical state.
-    good: The device is running normal.
-    unknown: The device is not reporting a status.
-    needsattn: The device needs attention.
-    default: The device is not reporting a status
-    "null": The device is not reporting a status.
-    warning: The device is in a warning state.
-    goodinuse: The device is running normal.
-    ok: The device is running normal.
-    maintenancecharging: The device is performing routine maintenance.
-  StatusTranslationTable:
-    needsattn: degraded
-    default: UNKNOWN
-    optimal: ok
-    "null": UNKNOWN
-    critical: failed
-    warning: degraded
-    goodinuse: ok
-    ok: ok
-    degraded: degraded
-    error: failed
-    maintenancecharging: ok
-    unknown: degraded
-  NetworkCardStatusTranslationTable:
-    standbyoffline: ok
-    offline: ok
-    default: UNKNOWN
-    "null": UNKNOWN
-    critical: failed
-    none: ok
-    up: ok
-    failed: failed
-    ok: ok
-    down: ok
-    enabled: ok
 monitors:
   enclosure:
     discovery:
@@ -859,3 +790,72 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(5)
         legacyTextParameters:
           StatusInformation: $column(6)
+embedded:
+  EmbeddedFile(1): |-
+    authorization: Basic %{BASIC_AUTH_BASE64}
+    Accept:application/json
+translations:
+  NetworkCardStatusInformationTranslationTable:
+    standbyoffline: StandbyOffline
+    offline: Offline
+    default: Unknown Status
+    "null": None
+    critical: Failed
+    none: None
+    up: Up
+    failed: Failed
+    ok: ok
+    down: Administratively Down
+    enabled: Enabled
+  LinkStatusTranslationTable:
+    ? ""
+    : degraded
+    offline: degraded
+    standbyoffline: degraded
+    default: UNKNOWN
+    linkup: ok
+    "null": degraded
+    none: degraded
+    up: ok
+    failed: failed
+    down: degraded
+    enabled: ok
+  StatusInformationTranslationTable:
+    optimal: The device is running normal.
+    critical: The device is in critical state.
+    degraded: The device needs attention.
+    error: The device is in a critical state.
+    good: The device is running normal.
+    unknown: The device is not reporting a status.
+    needsattn: The device needs attention.
+    default: The device is not reporting a status
+    "null": The device is not reporting a status.
+    warning: The device is in a warning state.
+    goodinuse: The device is running normal.
+    ok: The device is running normal.
+    maintenancecharging: The device is performing routine maintenance.
+  StatusTranslationTable:
+    needsattn: degraded
+    default: UNKNOWN
+    optimal: ok
+    "null": UNKNOWN
+    critical: failed
+    warning: degraded
+    goodinuse: ok
+    ok: ok
+    degraded: degraded
+    error: failed
+    maintenancecharging: ok
+    unknown: degraded
+  NetworkCardStatusTranslationTable:
+    standbyoffline: ok
+    offline: ok
+    default: UNKNOWN
+    "null": UNKNOWN
+    critical: failed
+    none: ok
+    up: ok
+    failed: failed
+    ok: ok
+    down: ok
+    enabled: ok

@@ -1,6 +1,60 @@
 ---
 extends:
 - HPSSSU-header
+connector:
+  displayName: HP StorageWorks EVA (SSSU) - Patrol Agent on Linux
+  platforms: HP StorageWorks EVA
+  reliesOn: 'HP StorageWorks Command View EVA SSSU '
+  information: This connector provides hardware monitoring through the HP StorageWorks Command View EVA SSSU command line utility
+  version: 1.1
+  detection:
+    connectionTypes:
+    - local
+    - remote
+    appliesTo:
+    - Storage
+    disableAutoDetection: true
+    supersedes:
+    - SMISDiskArray
+    criteria:
+    # The Patrol Agent should be on a server running Linux
+    - type: osCommand
+      commandLine: uname
+      errorMessage: Connector only works when the Patrol Agent is installed on a server running Linux
+      expectedResult: Linux
+      executeLocally: true
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(1)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          executeLocally: true
+          timeout: 600
+    collect:
+      sources:
+        source(1):
+          # Source(1) = the output of "$embedded.EmbeddedFile(1)$
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(1)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          executeLocally: true
+          timeout: 600
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(3)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          executeLocally: true
+          timeout: 3600
+    collect:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(3)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          executeLocally: true
+          timeout: 3600
 embedded:
   EmbeddedFile(1): |-
     #!/bin/bash
@@ -101,57 +155,3 @@ embedded:
     fi
     )
     echo -n "End - ";date
-connector:
-  displayName: HP StorageWorks EVA (SSSU) - Patrol Agent on Linux
-  platforms: HP StorageWorks EVA
-  reliesOn: 'HP StorageWorks Command View EVA SSSU '
-  information: This connector provides hardware monitoring through the HP StorageWorks Command View EVA SSSU command line utility
-  version: 1.1
-  detection:
-    connectionTypes:
-    - local
-    - remote
-    appliesTo:
-    - Storage
-    disableAutoDetection: true
-    supersedes:
-    - SMISDiskArray
-    criteria:
-    # The Patrol Agent should be on a server running Linux
-    - type: osCommand
-      commandLine: uname
-      errorMessage: Connector only works when the Patrol Agent is installed on a server running Linux
-      expectedResult: Linux
-      executeLocally: true
-monitors:
-  enclosure:
-    discovery:
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: "/bin/sh $embedded.EmbeddedFile(1)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
-          executeLocally: true
-          timeout: 600
-    collect:
-      sources:
-        source(1):
-          # Source(1) = the output of "$embedded.EmbeddedFile(1)$
-          type: osCommand
-          commandLine: "/bin/sh $embedded.EmbeddedFile(1)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
-          executeLocally: true
-          timeout: 600
-  logical_disk:
-    discovery:
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: "/bin/sh $embedded.EmbeddedFile(3)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
-          executeLocally: true
-          timeout: 3600
-    collect:
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: "/bin/sh $embedded.EmbeddedFile(3)$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
-          executeLocally: true
-          timeout: 3600

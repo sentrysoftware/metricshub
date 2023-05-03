@@ -1,23 +1,4 @@
 ---
-translations:
-  LinkStateTranslationTable:
-    "1": degraded
-    "2": ok
-    default: ""
-    "3": ok
-    "4": ok
-  SpeedTranslationTable:
-    "1": 2500
-    "2": 5000
-    default: ""
-    "4": 10000
-    "8": 30000
-  WidthActiveTranslationTable:
-    "1": IB Port 1x
-    "2": IB Port 4x
-    default: ""
-    "4": IB Port 8x
-    "8": IB Port 12x
 connector:
   displayName: Oracle/Sun InfiniBand DCS Switch (Ports)
   platforms: Oracle/Sun Infiniband DCS
@@ -100,3 +81,22 @@ monitors:
         metrics:
           hw.network.up: legacyLinkStatus($column(3))
           hw.network.bandwidth.limit: megaBit2Bit($column(4))
+translations:
+  LinkStateTranslationTable:
+    "1": degraded
+    "2": ok
+    default: ""
+    "3": ok
+    "4": ok
+  SpeedTranslationTable:
+    "1": 2500
+    "2": 5000
+    default: ""
+    "4": 10000
+    "8": 30000
+  WidthActiveTranslationTable:
+    "1": IB Port 1x
+    "2": IB Port 4x
+    default: ""
+    "4": IB Port 8x
+    "8": IB Port 12x

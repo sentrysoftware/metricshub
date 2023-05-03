@@ -1,173 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";";}
-    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
-    $2 ~ /^cluster-ip-seed/ { ClusterIPSeed[ID] = $3 ;   }
-    $2 ~ /^enclosure-id/ { EnclosureID[ID] = $3 ; }
-    $2 ~ /^engine-family/ { EngineFamily[ID] = $3 ;  }
-    $2 ~ /^engine-id/ { EngineID[ID] = $3 ; }
-    $2 ~ /^health-indications/ { HealthIndications[ID] = $3 ; }
-    $2 ~ /^health-state/ { HealthState[ID] = $3 ; }
-    $2 ~ /^marker-led/ {MarkerLED[ID] = $3 ; }
-    $2 ~ /^name/ {Name[ID] = $3 ; }
-    $2 ~ /^operational-status/ { Status[ID] = $3 ;}
-    $2 ~ /^revision-number/ { RevNumber[ID] = $3 ; }
-    $2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
-    $2 ~ /^top-level-assembly/ {TopLevelAssembly[ID] = $3;}
-    $2 ~ /^wwn-seed/ {  WWNSeed[ID] = $3 }
-    END{
-        for (ID in Name) {
-            print "MSHW;" ClusterIPSeed[ID] ";" EnclosureID[ID] ";" EngineFamily[ID] ";" EngineID[ID] ";" HealthIndications[ID] ";" HealthState[ID] ";" MarkerLED[ID] ";" Name[ID] ";" Status[ID] ";" RevNumber[ID] ";" SerialNumber[ID] ";" TopLevelAssembly[ID] ";" WWNSeed[ID] ";"
-        }
-    }
-  EmbeddedFile(3): |-
-    BEGIN {FS=";";ID =""}
-    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
-    $2 ~ /^marker-led/  { MarkerLED[ID] = $3 ;}
-    $2 ~ /^name/  {
-        Name[ID] = $3 ;
-        split($4,outputarray,"/")
-        Parent[ID]=outputarray[3]
-        }
-    $2 ~ /^onDC/ { OnDC[ID] = $3 ;}
-    $2 ~ /^operational-status/ { Status[ID] = $3 ;}
-    $2 ~ /^part-number/ { PartNumber[ID] = $3 ;}
-    $2 ~ /^revision-number/ { RevNumber[ID] = $3 ;}
-    $2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
-    $2 ~ /^temperature-threshold-exceeded/ { TemperatureThresholdExceeded[ID] = $3 ;}
-
-    END{
-    for ( ID in Name){
-        print "MSHW;" MarkerLED[ID] ";" Name[ID] ";" OnDC[ID] ";" Status[ID] ";" PartNumber[ID] ";" RevNumber[ID] ";" SerialNumber[ID] ";" TemperatureThresholdExceeded[ID] ";" Parent[ID] ";"
-        }
-    }
-  EmbeddedFile(2): |-
-    BEGIN {FS=";";}
-    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
-    $2 ~ /^name/  {
-        Name[ID] = $3 ;
-        split($4,outputarray,"/")
-        Parent[ID]=outputarray[3]
-        }
-    $2 ~ /^operational-status/  { OS[ID] = $3 ; }
-    $2 ~ /^speed-threshold-exceeded/ { SpeedThresholdExceeded[ID] = $3 ; }
-
-    END{
-    for ( ID in Name)
-        {
-        print "MSHW;" Name[ID] ";" OS[ID] ";" SpeedThresholdExceeded[ID] ";" Parent[ID] ";"
-        }
-    }
-  EmbeddedFile(5): |-
-    BEGIN {FS=";";}
-    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
-    $2 ~ /^name/ && $3 ~ /^dimm/ {
-        Name[ID] = $3 ;
-        split($4,outputarray,"/")
-        Parent[ID]=outputarray[3]
-        }
-    $2 ~ /^operational-status/  { Status[ID] = $3 ; }
-    $2 ~ /^part-number/ { PartNumber[ID] = $3 ;}
-    $2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
-
-    END{
-    for ( ID in Name) {
-        print "MSHW;" Name[ID] ";" Status[ID] ";" PartNumber[ID] ";" SerialNumber[ID] ";" Parent[ID] ";"
-        }
-    }
-  EmbeddedFile(4): |-
-    BEGIN {FS=";";}
-    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
-    $2 ~ /^health-state/ { HealthState[ID] = $3 ;}
-    $2 ~ /^name/  {
-        Name[ID] = $3 ;
-        split($4,outputarray,"/")
-        Parent[ID]=outputarray[3]
-        }
-    $2 ~ /^serial-number/  { SerialNumber[ID] = $3 ; }
-    $2 ~ /^sp-id/  { SPID[ID] = $3 ; }
-
-    END{
-    for ( ID in Name) {
-        print "MSHW;" HealthState[ID] ";" Name[ID] ";" SerialNumber[ID] ";" SPID[ID] ";" Parent[ID] ";"
-        }
-    }
-  EmbeddedFile(7): |-
-    BEGIN {FS=";";}
-    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
-    $2 ~ /^name/  {
-        Name[ID] = $3 ;
-        split($4,outputarray,"/")
-        Parent[ID]=outputarray[3]
-        }
-    $2 ~ /^operational-status/ && Name[ID] != 0 { Status[ID] = $3 ; }
-    $2 ~ /^part-number/ && Name[ID] != 0  { PartNumber[ID] = $3 ;  }
-    $2 ~ /^serial-number/ && Name[ID] != 0 { SerialNumber[ID] = $3 ; }
-
-    END{
-    for ( ID in Name) {
-        print "MSHW;" Name[ID] ";" Status[ID] ";" PartNumber[ID] ";" SerialNumber[ID] ";" Parent[ID] ";"
-        }
-    }
-  EmbeddedFile(6): |-
-    BEGIN {FS=";"; }
-    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
-    $2 ~ /^address/  { Address[ID] = $3 ;   }
-    $2 ~ /^enabled/ && Address[ID] != 0 { Enabled[ID] = $3 ; }
-    $2 ~ /^name/ {
-        Name[ID] = $3 ;
-        split($4,outputarray,"/")
-        Parent[ID]=outputarray[3]
-        }
-    $2 ~ /^operational-status/ { Status[ID] = $3 ; }
-    $2 ~ /^port-status/  { PortStatus[ID] = $3 ;  }
-    $2 ~ /^port-wwn/ { PortWWN[ID] = $3 ; }
-    $2 ~ /^role/ { Role[ID] = $3 ;   }
-
-
-    END{
-    for ( ID in Name) {
-        # if the only error is a no-link, clear the error
-        if ( Status[ID] == "error" && PortStatus[ID] == "no-link") { Status[ID] = "ok" }
-        print "MSHW;" Address[ID] ";" Enabled[ID] ";" Name[ID] ";" Status[ID] ";" PortStatus[ID] ";" PortWWN[ID] ";" Role[ID] ";" Parent[ID] ";"
-        }
-    }
-translations:
-  PhysicalDiskTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    online: ok
-  PowerSupplyTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    online: ok
-  LinkTranslationTable:
-    no-link: degraded
-    default: degraded
-    up: ok
-    down: degraded
-  NetworkCardTranslationTable:
-    stopped: ok
-    default: UNKNOWN
-    ok: ok
-    error: failed
-  OtherStatusTranslationTable:
-    default: UNKNOWN
-    ko: failed
-    ok: ok
-  FansTranslateTable:
-    offline: failed
-    default: UNKNOWN
-    online: ok
-  EnclosureTranslateTable:
-    offline: failed
-    default: UNKNOWN
-    online: ok
-  MemoryTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    online: ok
 connector:
   information: "It monitors the Enclosure and Physical Disks as well as the various environment sensors (fans, power supplies, Memory, Directors and Network cards)"
 monitors:
@@ -705,3 +536,172 @@ monitors:
           hw.status{hw.type="physical_disk"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+    $2 ~ /^cluster-ip-seed/ { ClusterIPSeed[ID] = $3 ;   }
+    $2 ~ /^enclosure-id/ { EnclosureID[ID] = $3 ; }
+    $2 ~ /^engine-family/ { EngineFamily[ID] = $3 ;  }
+    $2 ~ /^engine-id/ { EngineID[ID] = $3 ; }
+    $2 ~ /^health-indications/ { HealthIndications[ID] = $3 ; }
+    $2 ~ /^health-state/ { HealthState[ID] = $3 ; }
+    $2 ~ /^marker-led/ {MarkerLED[ID] = $3 ; }
+    $2 ~ /^name/ {Name[ID] = $3 ; }
+    $2 ~ /^operational-status/ { Status[ID] = $3 ;}
+    $2 ~ /^revision-number/ { RevNumber[ID] = $3 ; }
+    $2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
+    $2 ~ /^top-level-assembly/ {TopLevelAssembly[ID] = $3;}
+    $2 ~ /^wwn-seed/ {  WWNSeed[ID] = $3 }
+    END{
+        for (ID in Name) {
+            print "MSHW;" ClusterIPSeed[ID] ";" EnclosureID[ID] ";" EngineFamily[ID] ";" EngineID[ID] ";" HealthIndications[ID] ";" HealthState[ID] ";" MarkerLED[ID] ";" Name[ID] ";" Status[ID] ";" RevNumber[ID] ";" SerialNumber[ID] ";" TopLevelAssembly[ID] ";" WWNSeed[ID] ";"
+        }
+    }
+  EmbeddedFile(3): |-
+    BEGIN {FS=";";ID =""}
+    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+    $2 ~ /^marker-led/  { MarkerLED[ID] = $3 ;}
+    $2 ~ /^name/  {
+        Name[ID] = $3 ;
+        split($4,outputarray,"/")
+        Parent[ID]=outputarray[3]
+        }
+    $2 ~ /^onDC/ { OnDC[ID] = $3 ;}
+    $2 ~ /^operational-status/ { Status[ID] = $3 ;}
+    $2 ~ /^part-number/ { PartNumber[ID] = $3 ;}
+    $2 ~ /^revision-number/ { RevNumber[ID] = $3 ;}
+    $2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
+    $2 ~ /^temperature-threshold-exceeded/ { TemperatureThresholdExceeded[ID] = $3 ;}
+
+    END{
+    for ( ID in Name){
+        print "MSHW;" MarkerLED[ID] ";" Name[ID] ";" OnDC[ID] ";" Status[ID] ";" PartNumber[ID] ";" RevNumber[ID] ";" SerialNumber[ID] ";" TemperatureThresholdExceeded[ID] ";" Parent[ID] ";"
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS=";";}
+    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+    $2 ~ /^name/  {
+        Name[ID] = $3 ;
+        split($4,outputarray,"/")
+        Parent[ID]=outputarray[3]
+        }
+    $2 ~ /^operational-status/  { OS[ID] = $3 ; }
+    $2 ~ /^speed-threshold-exceeded/ { SpeedThresholdExceeded[ID] = $3 ; }
+
+    END{
+    for ( ID in Name)
+        {
+        print "MSHW;" Name[ID] ";" OS[ID] ";" SpeedThresholdExceeded[ID] ";" Parent[ID] ";"
+        }
+    }
+  EmbeddedFile(5): |-
+    BEGIN {FS=";";}
+    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+    $2 ~ /^name/ && $3 ~ /^dimm/ {
+        Name[ID] = $3 ;
+        split($4,outputarray,"/")
+        Parent[ID]=outputarray[3]
+        }
+    $2 ~ /^operational-status/  { Status[ID] = $3 ; }
+    $2 ~ /^part-number/ { PartNumber[ID] = $3 ;}
+    $2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
+
+    END{
+    for ( ID in Name) {
+        print "MSHW;" Name[ID] ";" Status[ID] ";" PartNumber[ID] ";" SerialNumber[ID] ";" Parent[ID] ";"
+        }
+    }
+  EmbeddedFile(4): |-
+    BEGIN {FS=";";}
+    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+    $2 ~ /^health-state/ { HealthState[ID] = $3 ;}
+    $2 ~ /^name/  {
+        Name[ID] = $3 ;
+        split($4,outputarray,"/")
+        Parent[ID]=outputarray[3]
+        }
+    $2 ~ /^serial-number/  { SerialNumber[ID] = $3 ; }
+    $2 ~ /^sp-id/  { SPID[ID] = $3 ; }
+
+    END{
+    for ( ID in Name) {
+        print "MSHW;" HealthState[ID] ";" Name[ID] ";" SerialNumber[ID] ";" SPID[ID] ";" Parent[ID] ";"
+        }
+    }
+  EmbeddedFile(7): |-
+    BEGIN {FS=";";}
+    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+    $2 ~ /^name/  {
+        Name[ID] = $3 ;
+        split($4,outputarray,"/")
+        Parent[ID]=outputarray[3]
+        }
+    $2 ~ /^operational-status/ && Name[ID] != 0 { Status[ID] = $3 ; }
+    $2 ~ /^part-number/ && Name[ID] != 0  { PartNumber[ID] = $3 ;  }
+    $2 ~ /^serial-number/ && Name[ID] != 0 { SerialNumber[ID] = $3 ; }
+
+    END{
+    for ( ID in Name) {
+        print "MSHW;" Name[ID] ";" Status[ID] ";" PartNumber[ID] ";" SerialNumber[ID] ";" Parent[ID] ";"
+        }
+    }
+  EmbeddedFile(6): |-
+    BEGIN {FS=";"; }
+    {ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+    $2 ~ /^address/  { Address[ID] = $3 ;   }
+    $2 ~ /^enabled/ && Address[ID] != 0 { Enabled[ID] = $3 ; }
+    $2 ~ /^name/ {
+        Name[ID] = $3 ;
+        split($4,outputarray,"/")
+        Parent[ID]=outputarray[3]
+        }
+    $2 ~ /^operational-status/ { Status[ID] = $3 ; }
+    $2 ~ /^port-status/  { PortStatus[ID] = $3 ;  }
+    $2 ~ /^port-wwn/ { PortWWN[ID] = $3 ; }
+    $2 ~ /^role/ { Role[ID] = $3 ;   }
+
+
+    END{
+    for ( ID in Name) {
+        # if the only error is a no-link, clear the error
+        if ( Status[ID] == "error" && PortStatus[ID] == "no-link") { Status[ID] = "ok" }
+        print "MSHW;" Address[ID] ";" Enabled[ID] ";" Name[ID] ";" Status[ID] ";" PortStatus[ID] ";" PortWWN[ID] ";" Role[ID] ";" Parent[ID] ";"
+        }
+    }
+translations:
+  PhysicalDiskTranslationTable:
+    offline: failed
+    default: UNKNOWN
+    online: ok
+  PowerSupplyTranslationTable:
+    offline: failed
+    default: UNKNOWN
+    online: ok
+  LinkTranslationTable:
+    no-link: degraded
+    default: degraded
+    up: ok
+    down: degraded
+  NetworkCardTranslationTable:
+    stopped: ok
+    default: UNKNOWN
+    ok: ok
+    error: failed
+  OtherStatusTranslationTable:
+    default: UNKNOWN
+    ko: failed
+    ok: ok
+  FansTranslateTable:
+    offline: failed
+    default: UNKNOWN
+    online: ok
+  EnclosureTranslateTable:
+    offline: failed
+    default: UNKNOWN
+    online: ok
+  MemoryTranslationTable:
+    offline: failed
+    default: UNKNOWN
+    online: ok

@@ -4,6 +4,17 @@ extends:
 constants:
   GLOBAL_COMMAND_LINE: '"/sbin/ifconfig -a"'
   COLLECT_COMMAND_LINE: '"/sbin/ifconfig -a  %NetworkCard.Collect.DeviceID%"'
+connector:
+  displayName: Linux - Network (ifconfig)
+  platforms: Any system
+  reliesOn: Linux system commands (ifconfig)
+  version: 1.0
+  information: This connector provides the monitoring of active network cards on all Linux systems using ifconfig command.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Linux
 embedded:
   EmbeddedFile(1): |-
     BEGIN {
@@ -68,14 +79,3 @@ embedded:
     END {
             print "MSHW;" deviceID ";" receivePackets ";" transmitPackets ";" receiveErrors + transmitErrors ";" receiveBytes ";" transmitBytes
     }
-connector:
-  displayName: Linux - Network (ifconfig)
-  platforms: Any system
-  reliesOn: Linux system commands (ifconfig)
-  version: 1.0
-  information: This connector provides the monitoring of active network cards on all Linux systems using ifconfig command.
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Linux

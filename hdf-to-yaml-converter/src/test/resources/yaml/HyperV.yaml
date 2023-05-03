@@ -1,11 +1,4 @@
 ---
-translations:
-  stateTranslationTable:
-    running: "ON"
-    offcritical: "OFF"
-    default: "OFF"
-    "off": "OFF"
-    suspended: SUSPENDED
 connector:
   displayName: Hyper-V
   platforms: Hyper-V Servers
@@ -80,3 +73,10 @@ monitors:
         metrics:
           hw.vm.power_ratio: computePowerShareRatio($column(2))
           hw.vm.power_state: $column(3)
+translations:
+  stateTranslationTable:
+    running: "ON"
+    offcritical: "OFF"
+    default: "OFF"
+    "off": "OFF"
+    suspended: SUSPENDED

@@ -1,32 +1,4 @@
 ---
-translations:
-  enclosureStatusInformationTranslationTable:
-    "1": Low Load
-    "2": Normal
-    "3": Near Overload
-    "4": Overload
-  powerStatusInformationTranslationTable:
-    "1": Normal
-    "2": failed
-    "3": Not Installed
-  powerStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: ok
-    "3": failed
-  tempStatusTranslationTable:
-    "1": Not Present
-    "2": Below Minimum Threshold
-    default: ok
-    "3": Below Low Threshold
-    "4": Within Normal Threshold
-    "5": Above High Threshold
-    "6": Above Max Threshold
-  enclosureStatusTranslationTable:
-    "1": ok
-    "2": ok
-    "3": WARNING
-    "4": failed
 connector:
   displayName: APC PDU (SNMP)
   platforms: APC PDU
@@ -310,3 +282,31 @@ monitors:
           hw.status{hw.type="temperature"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+translations:
+  enclosureStatusInformationTranslationTable:
+    "1": Low Load
+    "2": Normal
+    "3": Near Overload
+    "4": Overload
+  powerStatusInformationTranslationTable:
+    "1": Normal
+    "2": failed
+    "3": Not Installed
+  powerStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: ok
+    "3": failed
+  tempStatusTranslationTable:
+    "1": Not Present
+    "2": Below Minimum Threshold
+    default: ok
+    "3": Below Low Threshold
+    "4": Within Normal Threshold
+    "5": Above High Threshold
+    "6": Above Max Threshold
+  enclosureStatusTranslationTable:
+    "1": ok
+    "2": ok
+    "3": WARNING
+    "4": failed

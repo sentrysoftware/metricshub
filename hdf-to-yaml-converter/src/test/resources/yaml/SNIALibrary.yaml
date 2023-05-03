@@ -1,55 +1,4 @@
 ---
-translations:
-  CleaningStatusTranslationTable:
-    "1": 1
-    "2": 0
-    default: UNKNOWN
-  StatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity In Error
-    "17": Completed
-    "18": Power Mode
-    "19": dMTFReserved
-    "0": unknown
-    "1": Other (Unknown)
-    "2": ""
-    default: UNKNOWN
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": Error
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "32768": Unspecified Vendor Specific Status
-    "10": Stopped
-  StatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": degraded
-    "16": degraded
-    "17": ok
-    "18": ok
-    "19": UNKNOWN
-    "0": UNKNOWN
-    "1": failed
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "32768": UNKNOWN
-    "10": failed
 connector:
   displayName: SNIA Compliant Tape Libraries (SNMP)
   platforms: "IBM 3584,IBM TS3000 Tape Libraries"
@@ -232,3 +181,54 @@ monitors:
           hw.status{hw.type="robotics"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  CleaningStatusTranslationTable:
+    "1": 1
+    "2": 0
+    default: UNKNOWN
+  StatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity In Error
+    "17": Completed
+    "18": Power Mode
+    "19": dMTFReserved
+    "0": unknown
+    "1": Other (Unknown)
+    "2": ""
+    default: UNKNOWN
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "32768": Unspecified Vendor Specific Status
+    "10": Stopped
+  StatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": degraded
+    "16": degraded
+    "17": ok
+    "18": ok
+    "19": UNKNOWN
+    "0": UNKNOWN
+    "1": failed
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "32768": UNKNOWN
+    "10": failed

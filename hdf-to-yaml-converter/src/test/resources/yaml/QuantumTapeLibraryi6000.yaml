@@ -1,67 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS="[;]"}
-    $1 ~ /^[0-9.]+$/ {split($1,ID,".");
-                        deviceID = $1
-                        displayID = ID[12] "," ID[13] "," ID[14] "," ID[15] "," ID[16] "," ID[17]
-                        location = "Location: Aisle: " ID[12] " Frame: " ID[13] " Rack: " ID[14] " Section: " ID[15] " Col: " ID[16] " Row: " ID[17]
-                        print "MSHW;" $0 displayID ";" location ";"
-                       }
-  EmbeddedFile(2): |-
-    BEGIN {FS=";";}
-    {
-        if ($3 != 0 && $4 !=0)
-        {
-            print $0
-        }
-    }
-translations:
-  CleaningStatusTranslationTable:
-    "1": 1
-    "2": 0
-    default: UNKNOWN
-    "3": 2
-  EnclosureStatusTranslationTable:
-    "1": degraded
-    "2": UNKNOWN
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  StatusInformationTranslationTable:
-    "1": ""
-    "2": Failed
-    default: Unknown Status
-    "3": Degraded
-    "4": Warning
-    "5": Informational
-    "6": Unknown
-    "7": Invalid
-  StatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": UNKNOWN
-    "7": failed
-  EnclosureStatusInformationTranslationTable:
-    "1": Reporting status of 'Other'
-    "2": Unknown
-    default: Unknown Status
-    "3": ""
-    "4": Non-Critical
-    "5": Critical
-    "6": Non-Recoverable
-  CleaningStatusInformationTranslationTable:
-    "0": ""
-    "1": ' Cleaning Required'
-    "2": ""
-    default: ' Unknown Cleaning Status'
-    "3": ' Immediate Cleaning Required'
 connector:
   displayName: Quantum (ADIC) Enterprise Level Tape Libraries
   platforms: "Quantum Scalar i2000,Quantum Scalar i6000"
@@ -804,3 +741,66 @@ monitors:
           hw.status{hw.type="fan"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+    $1 ~ /^[0-9.]+$/ {split($1,ID,".");
+                        deviceID = $1
+                        displayID = ID[12] "," ID[13] "," ID[14] "," ID[15] "," ID[16] "," ID[17]
+                        location = "Location: Aisle: " ID[12] " Frame: " ID[13] " Rack: " ID[14] " Section: " ID[15] " Col: " ID[16] " Row: " ID[17]
+                        print "MSHW;" $0 displayID ";" location ";"
+                       }
+  EmbeddedFile(2): |-
+    BEGIN {FS=";";}
+    {
+        if ($3 != 0 && $4 !=0)
+        {
+            print $0
+        }
+    }
+translations:
+  CleaningStatusTranslationTable:
+    "1": 1
+    "2": 0
+    default: UNKNOWN
+    "3": 2
+  EnclosureStatusTranslationTable:
+    "1": degraded
+    "2": UNKNOWN
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  StatusInformationTranslationTable:
+    "1": ""
+    "2": Failed
+    default: Unknown Status
+    "3": Degraded
+    "4": Warning
+    "5": Informational
+    "6": Unknown
+    "7": Invalid
+  StatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": UNKNOWN
+    "7": failed
+  EnclosureStatusInformationTranslationTable:
+    "1": Reporting status of 'Other'
+    "2": Unknown
+    default: Unknown Status
+    "3": ""
+    "4": Non-Critical
+    "5": Critical
+    "6": Non-Recoverable
+  CleaningStatusInformationTranslationTable:
+    "0": ""
+    "1": ' Cleaning Required'
+    "2": ""
+    default: ' Unknown Cleaning Status'
+    "3": ' Immediate Cleaning Required'

@@ -1,34 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    #!/bin/sh
-
-    # First of all, make sure the thing speaks english
-    LANG=C
-    export LANG
-
-    LunList=`%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu | grep /dev/rdsk/`
-    for Lun in $LunList; do
-         %{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm show lu $Lun
-         done
-  EmbeddedFile(3): |-
-    $1 ~ "/dev/rdsk" {LUNID = $1}
-    $0 ~ /Total Path Count/ {TotalPathCount = $NF }
-    $0 ~ /Operational Path Count/ {OperationalPathCount = $NF
-                                   PathCountInformation = OperationalPathCount " out of " TotalPathCount " operational. "
-    #                                  MSHW;LUNID;OperationalPathCount;PathCountInformation;
-                                   print "MSHW;" LUNID ";" OperationalPathCount ";" PathCountInformation ";"
-                                  }
-  EmbeddedFile(2): |-
-    tolower($0) ~ /^logical unit:/ {LUNID = $NF}
-    $1 ~ /Vendor:/ {Vendor = $0 ; gsub (/ +Vendor: +/,"",Vendor ) ; ArrayName = Vendor }
-    $1 ~ /Product:/ {Product= $0 ; gsub (/ +Product: +/,"",Product) ; ArrayName = ArrayName " " Product}
-    $1 ~ /Revision:/ {Revision= $0 ; gsub (/ +Revision: +/,"",Revision) ; ArrayName = ArrayName " " Revision}
-    $1 ~ /Name:/ && LUNID != "" {NAAID = $NF
-    #                                     MSHW;LUNID;ArrayName;NAAID;
-                                print "MSHW;" LUNID ";" ArrayName ";" NAAID ";"
-                                LUNID = "" ; NAAID = "" ;
-                                }
 connector:
   displayName: Oracle/Sun Solaris - mpathadm
   platforms: Any system with mpathadm
@@ -106,3 +76,33 @@ monitors:
           hw.lun.paths: $column(2)
         legacyTextParameters:
           AvailablePathInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    #!/bin/sh
+
+    # First of all, make sure the thing speaks english
+    LANG=C
+    export LANG
+
+    LunList=`%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu | grep /dev/rdsk/`
+    for Lun in $LunList; do
+         %{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm show lu $Lun
+         done
+  EmbeddedFile(3): |-
+    $1 ~ "/dev/rdsk" {LUNID = $1}
+    $0 ~ /Total Path Count/ {TotalPathCount = $NF }
+    $0 ~ /Operational Path Count/ {OperationalPathCount = $NF
+                                   PathCountInformation = OperationalPathCount " out of " TotalPathCount " operational. "
+    #                                  MSHW;LUNID;OperationalPathCount;PathCountInformation;
+                                   print "MSHW;" LUNID ";" OperationalPathCount ";" PathCountInformation ";"
+                                  }
+  EmbeddedFile(2): |-
+    tolower($0) ~ /^logical unit:/ {LUNID = $NF}
+    $1 ~ /Vendor:/ {Vendor = $0 ; gsub (/ +Vendor: +/,"",Vendor ) ; ArrayName = Vendor }
+    $1 ~ /Product:/ {Product= $0 ; gsub (/ +Product: +/,"",Product) ; ArrayName = ArrayName " " Product}
+    $1 ~ /Revision:/ {Revision= $0 ; gsub (/ +Revision: +/,"",Revision) ; ArrayName = ArrayName " " Revision}
+    $1 ~ /Name:/ && LUNID != "" {NAAID = $NF
+    #                                     MSHW;LUNID;ArrayName;NAAID;
+                                print "MSHW;" LUNID ";" ArrayName ";" NAAID ";"
+                                LUNID = "" ; NAAID = "" ;
+                                }

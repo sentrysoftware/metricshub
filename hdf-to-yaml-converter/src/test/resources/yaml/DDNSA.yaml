@@ -1,24 +1,4 @@
 ---
-translations:
-  TemperatureStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  PSUandFANStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-  diskStatusInformationTranslationTable:
-    "1": Healthy
-    "2": Failed
-    default: Unknown Status
-    "3": Predicted Failure
-  diskStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": degraded
 connector:
   displayName: DataDirect Networks (DDN) Storage Appliance (SNMP)
   platforms: DataDirect Networks (DDN)
@@ -326,3 +306,23 @@ monitors:
         deviceId: $column(2)
         metrics:
           hw.status{hw.type="temperature"}: $column(3)
+translations:
+  TemperatureStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  PSUandFANStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  diskStatusInformationTranslationTable:
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status
+    "3": Predicted Failure
+  diskStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": degraded

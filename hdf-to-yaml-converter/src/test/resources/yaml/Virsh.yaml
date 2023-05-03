@@ -1,22 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |
-    BEGIN { FS = ": "; vmName = ""; UUID = ""; powerState = ""; powerShare = ""}
-
-    /Name/ {vmName = $2; gsub(/ /,"",vmName)}
-    /UUID/ {uuid = $2; gsub(/ /,"",uuid)}
-    /State/ {powerState = $2; gsub(/ /,"",powerState)}
-    /CPU\(s\)/ {
-      powerShare = $2; gsub(/ /,"",powerShare);
-      print vmName ";" powerState ";" powerShare ";UUID: " uuid;
-      vmName = ""; powerState = ""; powerShare = ""; uuid = "";
-    }
-translations:
-  stateTranslationTable:
-    running: "ON"
-    paused: SUSPENDED
-    default: "OFF"
-    suspended: "OFF"
 connector:
   displayName: "KVM, QEMU, Xen and Hypervisors (virsh)"
   platforms: "KVM, QEMU, Xen, Hypervisors"
@@ -70,3 +52,21 @@ monitors:
         metrics:
           hw.vm.power_state: $column(2)
           hw.vm.power_ratio: computePowerShareRatio($column(3))
+embedded:
+  EmbeddedFile(1): |
+    BEGIN { FS = ": "; vmName = ""; UUID = ""; powerState = ""; powerShare = ""}
+
+    /Name/ {vmName = $2; gsub(/ /,"",vmName)}
+    /UUID/ {uuid = $2; gsub(/ /,"",uuid)}
+    /State/ {powerState = $2; gsub(/ /,"",powerState)}
+    /CPU\(s\)/ {
+      powerShare = $2; gsub(/ /,"",powerShare);
+      print vmName ";" powerState ";" powerShare ";UUID: " uuid;
+      vmName = ""; powerState = ""; powerShare = ""; uuid = "";
+    }
+translations:
+  stateTranslationTable:
+    running: "ON"
+    paused: SUSPENDED
+    default: "OFF"
+    suspended: "OFF"

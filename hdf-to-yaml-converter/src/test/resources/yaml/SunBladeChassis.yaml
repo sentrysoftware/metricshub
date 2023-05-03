@@ -1,31 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS="[;]"}
-    $1 ~ /^[0-9]+$/ && NF > 4  {ID=$2;gsub(/\057.*/,"",ID)
-                                if (statusArray[ID] == "") {statusArray[ID]=$3}
-                                if ((statusArray[ID] != "") && ($3 < statusArray[ID])) {statusArray[ID]=$3}
-                               }
-    END { for (ID in statusArray) {print ("MSHW;"ID";"statusArray[ID]";")}}
-translations:
-  StatusInformationTranslationTable:
-    "1": Critical Fault
-    "2": Major Fault
-    default: Unknown Status
-    "3": Minor Fault
-    "4": Missing (Indeterminate Status)
-    "5": Warning
-    "6": Pending
-    "7": ""
-  StatusTranslationTable:
-    "1": failed
-    "2": failed
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-    "5": degraded
-    "6": degraded
-    "7": ok
 connector:
   displayName: Oracle/Sun Blade Chassis
   platforms: Oracle/Sun Blade
@@ -588,3 +561,30 @@ monitors:
           hw.voltage: $column(3)
         legacyTextParameters:
           StatusInformation: $column(2)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+    $1 ~ /^[0-9]+$/ && NF > 4  {ID=$2;gsub(/\057.*/,"",ID)
+                                if (statusArray[ID] == "") {statusArray[ID]=$3}
+                                if ((statusArray[ID] != "") && ($3 < statusArray[ID])) {statusArray[ID]=$3}
+                               }
+    END { for (ID in statusArray) {print ("MSHW;"ID";"statusArray[ID]";")}}
+translations:
+  StatusInformationTranslationTable:
+    "1": Critical Fault
+    "2": Major Fault
+    default: Unknown Status
+    "3": Minor Fault
+    "4": Missing (Indeterminate Status)
+    "5": Warning
+    "6": Pending
+    "7": ""
+  StatusTranslationTable:
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": degraded
+    "6": degraded
+    "7": ok

@@ -1,27 +1,4 @@
 ---
-translations:
-  SizeUnitsTranslationTable:
-    default: 1
-    mb: 1048576
-    gb: 1073741824
-    tb: 1099511627776
-  statusTranslationTable:
-    normal: ok
-    default: degraded
-    critical: failed
-    optimal: ok
-    operational: ok
-    online: ok
-    unconfigured good: ok
-    unknown: UNKNOWN
-  LEDColorTranslationTable:
-    green: OK;OK;ALARM
-    blue: OK;OK;OK
-    yellow: ALARM;ALARM;OK
-  LEDStateTranslationTable:
-    "0": "Off"
-    "1": "On"
-    "2": Blinking
 connector:
   displayName: Lenovo IMM (SNMP)
   platforms: Lenovo
@@ -1063,3 +1040,26 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($column(2))
+translations:
+  SizeUnitsTranslationTable:
+    default: 1
+    mb: 1048576
+    gb: 1073741824
+    tb: 1099511627776
+  statusTranslationTable:
+    normal: ok
+    default: degraded
+    critical: failed
+    optimal: ok
+    operational: ok
+    online: ok
+    unconfigured good: ok
+    unknown: UNKNOWN
+  LEDColorTranslationTable:
+    green: OK;OK;ALARM
+    blue: OK;OK;OK
+    yellow: ALARM;ALARM;OK
+  LEDStateTranslationTable:
+    "0": "Off"
+    "1": "On"
+    "2": Blinking

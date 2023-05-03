@@ -1,45 +1,4 @@
 ---
-translations:
-  memoryECCStatusTranslationTable:
-    "0": ok
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-  memoryTypeTranslationTable:
-    "11": 'SRIMM '
-    "12": 'FB-DIMM '
-    "13": 'DIMM-DDR '
-    "14": 'DIMM-DDR2 '
-    "15": 'DIMM-DDR3 '
-    "16": 'DIMM-FBD2 '
-    "17": 'FB-DIMM-DDR2 '
-    "18": 'FB-DIMM-DDR3 '
-    "1": ""
-    "2": 'Board '
-    "3": 'Single-width '
-    "4": 'Double-width '
-    "5": 'SIMM '
-    "6": 'PCMCIA '
-    "7": 'Compaq-specific '
-    "8": 'DIMM '
-    "9": 'DIMM (small outline) '
-    "10": 'RIMM '
-  memoryECCStatusInformationTranslationTable:
-    "0": ""
-    "1": ""
-    "2": ""
-    default: Unknown Status
-    "3": Too many ECC errors
-    "4": Too many ECC errors
-  memoryTechnologyTranslationTable:
-    "1": ""
-    "2": Fast-page
-    "3": EDO
-    "4": Burst-EDO
-    "5": Synchronous
-    "6": RDRAM
 connector:
   displayName: HP Insight Management Agent (v8.20 or lower) - Memory
   platforms: HP ProLiant
@@ -133,3 +92,44 @@ monitors:
           hw.status{hw.type="memory"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  memoryECCStatusTranslationTable:
+    "0": ok
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+  memoryTypeTranslationTable:
+    "11": 'SRIMM '
+    "12": 'FB-DIMM '
+    "13": 'DIMM-DDR '
+    "14": 'DIMM-DDR2 '
+    "15": 'DIMM-DDR3 '
+    "16": 'DIMM-FBD2 '
+    "17": 'FB-DIMM-DDR2 '
+    "18": 'FB-DIMM-DDR3 '
+    "1": ""
+    "2": 'Board '
+    "3": 'Single-width '
+    "4": 'Double-width '
+    "5": 'SIMM '
+    "6": 'PCMCIA '
+    "7": 'Compaq-specific '
+    "8": 'DIMM '
+    "9": 'DIMM (small outline) '
+    "10": 'RIMM '
+  memoryECCStatusInformationTranslationTable:
+    "0": ""
+    "1": ""
+    "2": ""
+    default: Unknown Status
+    "3": Too many ECC errors
+    "4": Too many ECC errors
+  memoryTechnologyTranslationTable:
+    "1": ""
+    "2": Fast-page
+    "3": EDO
+    "4": Burst-EDO
+    "5": Synchronous
+    "6": RDRAM

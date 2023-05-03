@@ -1,59 +1,4 @@
 ---
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Degraded
-    "5": Critical
-    "6": Non-recoverable
-    "7": Exercising
-    "8": Verifying
-    "9": Verifying with Replace
-    "10": Zeroing
-  PhysicalDiskSMARTTranslationTable:
-    "1": "false"
-    "2": "false"
-    default: "false"
-    "3": "false"
-    "4": "true"
-  LogicalDiskStatusInformationTranslationTable:
-    "11": Rebuilding
-    "12": Scrubbing
-    "13": Updating snapshot
-    "14": Zeroing
-    default: Unknown Status
-    "3": ""
-    "4": Degraded
-    "5": Critical
-    "6": Non-recoverable
-    "7": Copying
-    "8": Formatting
-    "9": Creating
-    "10": Reconfiguring
-  LogicalDiskStatusTranslationTable:
-    "11": degraded
-    "12": degraded
-    "13": ok
-    "14": ok
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-    "7": ok
-    "8": ok
-    "9": ok
-    "10": ok
-  PhysicalDiskStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-    "7": ok
-    "8": ok
-    "9": ok
-    "10": ok
 connector:
   displayName: Adaptec Storage Manager Web Edition (AAC)
   platforms: Fujitsu-Siemens PRIMERGY
@@ -217,3 +162,58 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Degraded
+    "5": Critical
+    "6": Non-recoverable
+    "7": Exercising
+    "8": Verifying
+    "9": Verifying with Replace
+    "10": Zeroing
+  PhysicalDiskSMARTTranslationTable:
+    "1": "false"
+    "2": "false"
+    default: "false"
+    "3": "false"
+    "4": "true"
+  LogicalDiskStatusInformationTranslationTable:
+    "11": Rebuilding
+    "12": Scrubbing
+    "13": Updating snapshot
+    "14": Zeroing
+    default: Unknown Status
+    "3": ""
+    "4": Degraded
+    "5": Critical
+    "6": Non-recoverable
+    "7": Copying
+    "8": Formatting
+    "9": Creating
+    "10": Reconfiguring
+  LogicalDiskStatusTranslationTable:
+    "11": degraded
+    "12": degraded
+    "13": ok
+    "14": ok
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": ok
+    "8": ok
+    "9": ok
+    "10": ok
+  PhysicalDiskStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": ok
+    "8": ok
+    "9": ok
+    "10": ok

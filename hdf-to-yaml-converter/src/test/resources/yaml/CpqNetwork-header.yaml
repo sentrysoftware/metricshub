@@ -1,76 +1,4 @@
 ---
-translations:
-  PhysicalAdapterRoleTranslationTable:
-    "1": Unknow
-    "2": Primary
-    "255": Not Applicable
-    default: Unknown
-    "3": Secondary
-    "4": Member
-    "5": TxRx
-    "6": Tx
-    "7": Standby
-    "8": None
-  PhysicalAdapterStatusInformationTranslationTable:
-    "1": Unknown
-    "2": ok
-    default: Unknown
-    "3": General Failure
-    "4": Link Failure
-  TeamNICStatusInformationTranslationTable:
-    "1": Unknown
-    "2": ""
-    default: Unknown
-    "3": Primary Failed
-    "4": Standby Failed
-    "5": Group Failed
-    "6": Redundancy Reduced
-    "7": Redundancy Lost
-  DuplexModeTranslationTable:
-    "1": 1
-    "2": 0
-    default: 1
-    "3": 1
-  LinkStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: ok
-    "3": ok
-    "4": degraded
-  PhysicalAdapterStatusTranslationTable:
-    "1": UNKNOWN
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  TeamNICStatusTranslationTable:
-    "1": UNKNOWN
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  TeamNICSSwitchoverModeTranslationTable:
-    "1": Unknown
-    "2": Not fault tolerant
-    default: Unknown
-    "3": Manual switch
-    "4": Switch On Fail
-    "5": Preferred Primary
-    "6": Auto
-    "7": Preference Order
-  TeamNICSGroupTypeTranslationTable:
-    "11": Redundancy Set
-    "1": Unknown
-    "2": Not fault tolerant
-    default: Unknown
-    "3": Redundant Pair
-    "4": Network Fault Tolerance
-    "5": Adaptive Load Balancing
-    "6": Fast EtherChannel
-    "7": Gigabit EtherChannel
-    "8": IEEE802.3ad Link Aggregation
-    "9": Switch-assisted load balancing
-    "10": Transmit Load Balancing
 connector:
   detection:
     criteria:
@@ -314,3 +242,75 @@ monitors:
           hw.network.io{direction="transmit"}: $column(12)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  PhysicalAdapterRoleTranslationTable:
+    "1": Unknow
+    "2": Primary
+    "255": Not Applicable
+    default: Unknown
+    "3": Secondary
+    "4": Member
+    "5": TxRx
+    "6": Tx
+    "7": Standby
+    "8": None
+  PhysicalAdapterStatusInformationTranslationTable:
+    "1": Unknown
+    "2": ok
+    default: Unknown
+    "3": General Failure
+    "4": Link Failure
+  TeamNICStatusInformationTranslationTable:
+    "1": Unknown
+    "2": ""
+    default: Unknown
+    "3": Primary Failed
+    "4": Standby Failed
+    "5": Group Failed
+    "6": Redundancy Reduced
+    "7": Redundancy Lost
+  DuplexModeTranslationTable:
+    "1": 1
+    "2": 0
+    default: 1
+    "3": 1
+  LinkStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: ok
+    "3": ok
+    "4": degraded
+  PhysicalAdapterStatusTranslationTable:
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  TeamNICStatusTranslationTable:
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  TeamNICSSwitchoverModeTranslationTable:
+    "1": Unknown
+    "2": Not fault tolerant
+    default: Unknown
+    "3": Manual switch
+    "4": Switch On Fail
+    "5": Preferred Primary
+    "6": Auto
+    "7": Preference Order
+  TeamNICSGroupTypeTranslationTable:
+    "11": Redundancy Set
+    "1": Unknown
+    "2": Not fault tolerant
+    default: Unknown
+    "3": Redundant Pair
+    "4": Network Fault Tolerance
+    "5": Adaptive Load Balancing
+    "6": Fast EtherChannel
+    "7": Gigabit EtherChannel
+    "8": IEEE802.3ad Link Aggregation
+    "9": Switch-assisted load balancing
+    "10": Transmit Load Balancing

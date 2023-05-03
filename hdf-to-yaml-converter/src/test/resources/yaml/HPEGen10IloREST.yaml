@@ -11,14 +11,6 @@ constants:
   _MEMORY_SIZE_PARAMETER: VolatileSizeMiB
   _OEM_SPECIFIC: '""'
   _FAN_LOCATION: Oem/Hpe/Location
-translations:
-  EthernetInterfacesLinkSpeedDeactivationTable:
-    standbyoffline: ""
-    default: "True"
-    "null": ""
-  LinkSpeedDeactivationTranslationTable:
-    "0": ""
-    default: "True"
 connector:
   displayName: HP iLO Gen 10 (REST)
   platforms: HP iLO Gen 10 REST
@@ -384,3 +376,11 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
         legacyTextParameters:
           StatusInformation: $column(5)
+translations:
+  EthernetInterfacesLinkSpeedDeactivationTable:
+    standbyoffline: ""
+    default: "True"
+    "null": ""
+  LinkSpeedDeactivationTranslationTable:
+    "0": ""
+    default: "True"

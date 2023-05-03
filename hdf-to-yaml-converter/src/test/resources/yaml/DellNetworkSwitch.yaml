@@ -1,36 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { FS = ";"; PowerConsumption = ""; }
-    $1 ~ /MSHW/ {sum += $3; PowerConsumption=sum}
-    END {print "MSHW;"PowerConsumption";"}
-translations:
-  EnclosureStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-  StatusInformationTranslationTable:
-    "1": normal
-    "2": Non-Critical
-    default: Unknown Status
-    "3": Critical
-    "4": Shutdown
-    "5": Not Present
-    "6": Not Functioning
-  StatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": degraded
-    "5": failed
-    "6": failed
-  EnclosureStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ok
-    "4": Non-Critical
-    "5": Critical
 connector:
   displayName: DELL PowerSwitch S-Series
   platforms: DELL PowerSwitch S4000 Series
@@ -294,3 +262,35 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";"; PowerConsumption = ""; }
+    $1 ~ /MSHW/ {sum += $3; PowerConsumption=sum}
+    END {print "MSHW;"PowerConsumption";"}
+translations:
+  EnclosureStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+  StatusInformationTranslationTable:
+    "1": normal
+    "2": Non-Critical
+    default: Unknown Status
+    "3": Critical
+    "4": Shutdown
+    "5": Not Present
+    "6": Not Functioning
+  StatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": degraded
+    "5": failed
+    "6": failed
+  EnclosureStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ok
+    "4": Non-Critical
+    "5": Critical

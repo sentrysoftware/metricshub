@@ -1,34 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): "showplatform -v,13,14"
-  EmbeddedFile(3): |-
-    BEGIN { FS=","; }
-    /^SUNW,/ {
-        print "MSHW;" $2
-        exit
-    }
-  EmbeddedFile(2): "showenvironment,7,8"
-translations:
-  TemperatureStatusTranslationTable:
-    default: failed
-    faulty: degraded
-    ok: ok
-  FanStatusTranslationTable:
-    default: failed
-    faulty: degraded
-    ok: ok
-  VoltageStatusTranslationTable:
-    default: failed
-    faulty: degraded
-    ok: ok
-  PowerSupplyStatusTranslationTable:
-    default: failed
-    faulty: failed
-    ok: ok
-  OtherDeviceStatusTranslationTable:
-    default: failed
-    faulty: degraded
-    ok: ok
 connector:
   displayName: Oracle/Sun Solaris - Environment (ALOM-CMT snapshot)
   platforms: Oracle/Sun
@@ -530,3 +500,33 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): "showplatform -v,13,14"
+  EmbeddedFile(3): |-
+    BEGIN { FS=","; }
+    /^SUNW,/ {
+        print "MSHW;" $2
+        exit
+    }
+  EmbeddedFile(2): "showenvironment,7,8"
+translations:
+  TemperatureStatusTranslationTable:
+    default: failed
+    faulty: degraded
+    ok: ok
+  FanStatusTranslationTable:
+    default: failed
+    faulty: degraded
+    ok: ok
+  VoltageStatusTranslationTable:
+    default: failed
+    faulty: degraded
+    ok: ok
+  PowerSupplyStatusTranslationTable:
+    default: failed
+    faulty: failed
+    ok: ok
+  OtherDeviceStatusTranslationTable:
+    default: failed
+    faulty: degraded
+    ok: ok

@@ -1,70 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { FS = ";" }
-    {
-        tierID = $1
-
-        diskA = $2
-        diskB = $3
-        diskC = $4
-        diskD = $5
-        diskE = $6
-        diskF = $7
-        diskG = $8
-        diskH = $9
-        diskP = $10
-        diskS = $11
-
-        print "MSHW;Tier " tierID " Disk A;Data;" diskA
-        print "MSHW;Tier " tierID " Disk B;Data;" diskB
-        print "MSHW;Tier " tierID " Disk C;Data;" diskC
-        print "MSHW;Tier " tierID " Disk D;Data;" diskD
-        print "MSHW;Tier " tierID " Disk E;Data;" diskE
-        print "MSHW;Tier " tierID " Disk F;Data;" diskF
-        print "MSHW;Tier " tierID " Disk G;Data;" diskG
-        print "MSHW;Tier " tierID " Disk H;Data;" diskH
-        print "MSHW;Tier " tierID " Disk P;Parity;" diskP
-        print "MSHW;Tier " tierID " Disk S;Spare;" diskS
-
-    }
-translations:
-  TemperatureStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  FanStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-  TemperatureStatusInformationTranslationTable:
-    "1": Normal
-    "2": Warning
-    default: Unknown Status
-    "3": Critical
-  PowerSupplyStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-  FanStatusInformationTranslationTable:
-    "1": Healthy
-    "2": Failed
-    default: Unknown Status
-  diskStatusInformationTranslationTable:
-    "1": Healthy
-    "2": Failed
-    default: Unknown Status
-    "3": Missing
-  diskStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": failed
-  PowerSupplyStatusInformationTranslationTable:
-    "1": Healthy
-    "2": Failed
-    default: Unknown Status
 connector:
   displayName: DataDirect Networks (DDN) Disk Array (SNMP)
   platforms: DataDirect Networks (DDN)
@@ -316,3 +250,69 @@ monitors:
           hw.status{hw.type="temperature"}: $column(1)
         legacyTextParameters:
           StatusInformation: $column(2)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    {
+        tierID = $1
+
+        diskA = $2
+        diskB = $3
+        diskC = $4
+        diskD = $5
+        diskE = $6
+        diskF = $7
+        diskG = $8
+        diskH = $9
+        diskP = $10
+        diskS = $11
+
+        print "MSHW;Tier " tierID " Disk A;Data;" diskA
+        print "MSHW;Tier " tierID " Disk B;Data;" diskB
+        print "MSHW;Tier " tierID " Disk C;Data;" diskC
+        print "MSHW;Tier " tierID " Disk D;Data;" diskD
+        print "MSHW;Tier " tierID " Disk E;Data;" diskE
+        print "MSHW;Tier " tierID " Disk F;Data;" diskF
+        print "MSHW;Tier " tierID " Disk G;Data;" diskG
+        print "MSHW;Tier " tierID " Disk H;Data;" diskH
+        print "MSHW;Tier " tierID " Disk P;Parity;" diskP
+        print "MSHW;Tier " tierID " Disk S;Spare;" diskS
+
+    }
+translations:
+  TemperatureStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  FanStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  TemperatureStatusInformationTranslationTable:
+    "1": Normal
+    "2": Warning
+    default: Unknown Status
+    "3": Critical
+  PowerSupplyStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  FanStatusInformationTranslationTable:
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status
+  diskStatusInformationTranslationTable:
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status
+    "3": Missing
+  diskStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+  PowerSupplyStatusInformationTranslationTable:
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status

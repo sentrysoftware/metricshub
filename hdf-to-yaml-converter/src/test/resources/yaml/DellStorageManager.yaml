@@ -1,205 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";"}
-    $1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/ {
-        ID = $1
-        DiskNumber = $2
-        DiskName = $3
-        Vendor = $4 ; gsub ("\\(tm\\)","",Vendor);
-        Model = $5
-        Serial = $6
-        Size = $7
-        BusType = $8
-        NexusID = $9 ; gsub ("\\\\\\\\","\\",NexusID);
-        PartNumber = $10 ; PartNumber = "Part Number: " PartNumber
-        PredictedFailure = $11
-    #    DiskNumber = $12
-        ControllerNumber = $13
-
-        Model = "Model: " Model " " BusType
-
-        if ( NexusID ~ "^\\\\0" ) { EnclosureID = "" }
-            else { EnclosureID = NexusID ; gsub("\\\\[0-9]+$","",EnclosureID);
-                     ControllerNumber = ""
-                   }
-        DisplayID = NexusID ; gsub("^\\\\[0-9]+\\\\","",DisplayID) ; gsub("\\\\",":",DisplayID);
-
-        print "MSHW;" EnclosureID ";" DisplayID ";" DiskName ";" Vendor ";" Model ";" Serial ";" Size ";" BusType ";" NexusID ";" PartNumber ";" PredictedFailure ";" ControllerNumber ";"
-    }
-  EmbeddedFile(2): |-
-    BEGIN {FS=";"}
-    $1 ~ "^\\\\" { NexusID = $1 ; gsub ("\\\\\\\\","\\",NexusID)
-                     EnclosureID = NexusID ; gsub("\\\\[0-9]+$","",EnclosureID);
-                     print "MSHW;" EnclosureID ";" $0
-                   }
-translations:
-  BatteryStatusInformationTranslationTable:
-    "1": Ready
-    "12": Charging
-    "2": Failed
-    default: Unknown Status
-    "36": Learning
-    "6": Degraded
-    "7": Reconditioning
-    "9": High
-    "10": Low Power
-    "21": Missing
-  PhysicalDiskPredictedFailureTranslationTable:
-    "2": "TRUE"
-    default: "FALSE"
-  TypeTranslationTable:
-    "0": ""
-    "1": EMM
-    "2": Termination Card
-    default: ""
-  EnclosureStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "6": degraded
-  GenericStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  ComponentStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  LogicalDiskStatusTranslationTable:
-    "24": degraded
-    "35": ok
-    "36": ok
-    "15": degraded
-    "26": ok
-    "38": ok
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "6": degraded
-    "52": failed
-    "32": degraded
-    "54": degraded
-  PhysicalDiskStatusTranslationTable:
-    "11": failed
-    "22": degraded
-    "23": degraded
-    "34": degraded
-    "56": ok
-    "13": ok
-    "24": ok
-    "35": ok
-    "14": failed
-    "25": failed
-    "15": ok
-    "26": ok
-    "28": ok
-    "39": degraded
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "6": degraded
-    "7": degraded
-    "40": ok
-    "41": failed
-    "53": failed
-  PhysicalDiskBusTypeTranslationTable:
-    "1": SCSI
-    "2": IDE
-    default: ""
-    "3": FC
-    "4": SSA
-    "6": USB
-    "7": SATA
-    "8": SAS
-  RAIDLevelTranslationTable:
-    "11": 30
-    "12": 50
-    "13": Add Spares
-    "14": Delete Logical
-    "15": Transform Logical
-    "18": 0+1
-    "1": Concatenated
-    "2": 0
-    default: ""
-    "3": 1
-    "4": 2
-    "5": 3
-    "6": 4
-    "7": 5
-    "8": 6
-    "9": 7
-    "10": 10
-  PhysicalDiskStatusInformationTranslationTable:
-    "11": Removed
-    "22": Replacing
-    "23": Spinning Down
-    "34": Predicted Failure
-    "56": Read Only
-    "13": Non-RAID
-    "24": Rebuilding
-    "35": Initializing
-    "14": Not REady
-    "25": No media
-    "15": Resynching
-    "26": Formatting
-    "28": Diagnosing
-    "39": Foreign
-    "1": Ready
-    "2": Failed
-    default: Unknown Status
-    "3": Online
-    "4": Offline
-    "6": Degraded
-    "7": Recovering
-    "40": Clear
-    "41": Unsupported
-    "53": Incompatible
-  ComponentStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Non-Critical Fault
-    "5": Critical Fault
-    "6": Non-Recoverable Fault
-  LogicalDiskStatusInformationTranslationTable:
-    "24": Rebuilding
-    "35": Initializing
-    "36": Background Initialization
-    "15": Resynching
-    "26": Formatting
-    "38": Resynching Paused
-    "1": Ready
-    "2": Failed
-    default: Unknown Status
-    "3": Online
-    "4": Offline
-    "6": Degraded
-    "52": Permanently Degraded
-    "32": Reconstructing
-    "54": Degraded Redundancy
-  EnclosureStatusInformationTranslationTable:
-    "1": Ready
-    "2": Failed
-    default: Unknown Status
-    "3": Online
-    "4": Offline
-    "6": Degraded
-  GenericStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Non-Critical
-    "5": Critical
-    "6": Unrecoverable
 connector:
   displayName: Dell OpenManage Storage Manager
   platforms: Dell PowerEdge
@@ -952,3 +751,204 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";"}
+    $1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/ {
+        ID = $1
+        DiskNumber = $2
+        DiskName = $3
+        Vendor = $4 ; gsub ("\\(tm\\)","",Vendor);
+        Model = $5
+        Serial = $6
+        Size = $7
+        BusType = $8
+        NexusID = $9 ; gsub ("\\\\\\\\","\\",NexusID);
+        PartNumber = $10 ; PartNumber = "Part Number: " PartNumber
+        PredictedFailure = $11
+    #    DiskNumber = $12
+        ControllerNumber = $13
+
+        Model = "Model: " Model " " BusType
+
+        if ( NexusID ~ "^\\\\0" ) { EnclosureID = "" }
+            else { EnclosureID = NexusID ; gsub("\\\\[0-9]+$","",EnclosureID);
+                     ControllerNumber = ""
+                   }
+        DisplayID = NexusID ; gsub("^\\\\[0-9]+\\\\","",DisplayID) ; gsub("\\\\",":",DisplayID);
+
+        print "MSHW;" EnclosureID ";" DisplayID ";" DiskName ";" Vendor ";" Model ";" Serial ";" Size ";" BusType ";" NexusID ";" PartNumber ";" PredictedFailure ";" ControllerNumber ";"
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS=";"}
+    $1 ~ "^\\\\" { NexusID = $1 ; gsub ("\\\\\\\\","\\",NexusID)
+                     EnclosureID = NexusID ; gsub("\\\\[0-9]+$","",EnclosureID);
+                     print "MSHW;" EnclosureID ";" $0
+                   }
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": Ready
+    "12": Charging
+    "2": Failed
+    default: Unknown Status
+    "36": Learning
+    "6": Degraded
+    "7": Reconditioning
+    "9": High
+    "10": Low Power
+    "21": Missing
+  PhysicalDiskPredictedFailureTranslationTable:
+    "2": "TRUE"
+    default: "FALSE"
+  TypeTranslationTable:
+    "0": ""
+    "1": EMM
+    "2": Termination Card
+    default: ""
+  EnclosureStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "6": degraded
+  GenericStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  ComponentStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  LogicalDiskStatusTranslationTable:
+    "24": degraded
+    "35": ok
+    "36": ok
+    "15": degraded
+    "26": ok
+    "38": ok
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "6": degraded
+    "52": failed
+    "32": degraded
+    "54": degraded
+  PhysicalDiskStatusTranslationTable:
+    "11": failed
+    "22": degraded
+    "23": degraded
+    "34": degraded
+    "56": ok
+    "13": ok
+    "24": ok
+    "35": ok
+    "14": failed
+    "25": failed
+    "15": ok
+    "26": ok
+    "28": ok
+    "39": degraded
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "6": degraded
+    "7": degraded
+    "40": ok
+    "41": failed
+    "53": failed
+  PhysicalDiskBusTypeTranslationTable:
+    "1": SCSI
+    "2": IDE
+    default: ""
+    "3": FC
+    "4": SSA
+    "6": USB
+    "7": SATA
+    "8": SAS
+  RAIDLevelTranslationTable:
+    "11": 30
+    "12": 50
+    "13": Add Spares
+    "14": Delete Logical
+    "15": Transform Logical
+    "18": 0+1
+    "1": Concatenated
+    "2": 0
+    default: ""
+    "3": 1
+    "4": 2
+    "5": 3
+    "6": 4
+    "7": 5
+    "8": 6
+    "9": 7
+    "10": 10
+  PhysicalDiskStatusInformationTranslationTable:
+    "11": Removed
+    "22": Replacing
+    "23": Spinning Down
+    "34": Predicted Failure
+    "56": Read Only
+    "13": Non-RAID
+    "24": Rebuilding
+    "35": Initializing
+    "14": Not REady
+    "25": No media
+    "15": Resynching
+    "26": Formatting
+    "28": Diagnosing
+    "39": Foreign
+    "1": Ready
+    "2": Failed
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "6": Degraded
+    "7": Recovering
+    "40": Clear
+    "41": Unsupported
+    "53": Incompatible
+  ComponentStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non-Critical Fault
+    "5": Critical Fault
+    "6": Non-Recoverable Fault
+  LogicalDiskStatusInformationTranslationTable:
+    "24": Rebuilding
+    "35": Initializing
+    "36": Background Initialization
+    "15": Resynching
+    "26": Formatting
+    "38": Resynching Paused
+    "1": Ready
+    "2": Failed
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "6": Degraded
+    "52": Permanently Degraded
+    "32": Reconstructing
+    "54": Degraded Redundancy
+  EnclosureStatusInformationTranslationTable:
+    "1": Ready
+    "2": Failed
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "6": Degraded
+  GenericStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non-Critical
+    "5": Critical
+    "6": Unrecoverable

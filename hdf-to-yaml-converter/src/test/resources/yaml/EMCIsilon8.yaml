@@ -7,6 +7,23 @@ constants:
   _IsiNetworkCommand: /usr/bin/isi network interfaces list --verbose --show-inactive
   _IsiBatteryCommand: /usr/bin/isi batterystatus list
   _IsiStatusCommand: /usr/bin/isi status -v
+connector:
+  displayName: EMC Isilon 8 (SSH)
+  platforms: EMC Isilon
+  reliesOn: EMC Isilon SSH interface
+  version: 1.0
+  information: This connector discovers the status of an EMC Isilon Storage Cluster 8
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    # Check that sudo is working by running /usr/bin/isi status -v
+    - type: osCommand
+      commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -v\" "
+      errorMessage: Unable to run /usr/bin/isi status -v.  Check rights / sudo status.
+      expectedResult: 'Cluster Name:'
 embedded:
   EmbeddedFile(3): |-
     {nodeName = $1 ; gsub (/:/,"",nodeName);}
@@ -50,20 +67,3 @@ embedded:
     {
         print $1 $3;
     }
-connector:
-  displayName: EMC Isilon 8 (SSH)
-  platforms: EMC Isilon
-  reliesOn: EMC Isilon SSH interface
-  version: 1.0
-  information: This connector discovers the status of an EMC Isilon Storage Cluster 8
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Storage
-    criteria:
-    # Check that sudo is working by running /usr/bin/isi status -v
-    - type: osCommand
-      commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -v\" "
-      errorMessage: Unable to run /usr/bin/isi status -v.  Check rights / sudo status.
-      expectedResult: 'Cluster Name:'

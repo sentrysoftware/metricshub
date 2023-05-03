@@ -1,14 +1,4 @@
 ---
-translations:
-  statusTranslationTable:
-    "1": UNKNOWN
-    "2": UNKNOWN
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-    "7": failed
 connector:
   displayName: Intel Base Board 5 Motherboards
   platforms: Any system with Intel Base Board 5
@@ -444,3 +434,13 @@ monitors:
           hw.voltage: $column(4)
         legacyTextParameters:
           StatusInformation: $column(2)
+translations:
+  statusTranslationTable:
+    "1": UNKNOWN
+    "2": UNKNOWN
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": failed

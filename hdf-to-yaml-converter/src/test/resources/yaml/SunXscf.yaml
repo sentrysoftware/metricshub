@@ -1,381 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {
-        path = "";
-    }
-    {
-        gsub("[ ;:\*]", " ");
-
-        if ($1 == "SPARC" || $1 == "+")
-        {
-            gsub(" +", " ");
-            print $0;
-        }
-        else if (NF > 0)
-        {
-            name = $1;
-
-            depth = (index($0, name) - 1) / 4;
-            if (depth < 0) { indent = 0; }
-
-            split(path, pathArray, "/");
-            path = "";
-            for (i=1 ; i<depth ; i++)
-            {
-                path = path pathArray[i] "/";
-            }
-            path = path name;
-
-            gsub(" +", " ");
-
-            ioxIndex = index(path, "IOX@");
-            if (ioxIndex > 0)
-            {
-                print substr(path, ioxIndex, length(path) - ioxIndex + 1) " " $0
-            }
-            else
-            {
-                print path " " $0 " "
-            }
-        }
-    }
-  EmbeddedFile(3): |-
-    BEGIN { MotherBoardID = ""; }
-    ($2 ~ /^CPUM#[0-9]+-CHIP#[0-9]+$/) {
-        cpuID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3;
-        getline;
-        Speed = $3 * 1000;
-        getline;
-        CoreCount = $3;
-        if (CoreCount == 4)
-        {
-            PowerConsumption = 135;
-        }
-        else
-        {
-            PowerConsumption = 120;
-        }
-        print "MSHW;" cpuID ";" cpuID " - " CoreCount "-core SPARC64;" Speed ";" SerialNumber ";" FruPartNumber ";" status ";" PowerConsumption
-    }
-  EmbeddedFile(2): |-
-    BEGIN { ioxList = ";"; }
-    (NR == 1) { ServerModel = $0 }
-    (NR == 2) { SerialNumber = $3 ; print "MSHW;Main;Computer;;" ServerModel ";" SerialNumber ";;;" ; }
-    ($2 ~ /^IOX@/ && $3 == "Status") {
-        DeviceID = $2;
-        if (index(ioxList, ";" DeviceID ";") == 0)
-        {
-            ioxList = ioxList DeviceID ";";
-            Name = DeviceID " I/O Expansion Unit";
-            status = $4;
-            SerialNumber = $6;
-            getline;
-            FruNumber = $3 " " $4;
-            print "MSHW;" DeviceID ";Enclosure;;" Name ";" SerialNumber ";" FruNumber ";" status ;
-        }
-    }
-  EmbeddedFile(5): |-
-    ($2 ~ /^PSU#[0-9]+$/) {
-        powersupplyID = $1;
-        status = $4;
-        SerialNumber = $6;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        getline;
-        if ($2 ~ /Power_Status/ && $3 ~ /[Ii]nput/ && $4 ~ /[Ff]ail/ && status == "Normal") {status = "Input Fail"};
-        print "MSHW;" powersupplyID ";;" SerialNumber ";FRU: " FruPartNumber ";" status
-    }
-    ($2 ~ /^PS[0-9]$/ && $3 == "Status") {
-        powersupplyID = $1;
-        status = $4;
-        SerialNumber = $6;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        if (index(powersupplyID, "/") > 0)
-        {
-            parentID = substr(powersupplyID, 1, index(powersupplyID, "/") - 1)
-        }
-        else
-        {
-            parentID = "Main";
-        }
-        print "MSHW;" powersupplyID ";" parentID ";" SerialNumber ";" FruPartNumber ";" status
-    }
-  EmbeddedFile(4): |-
-    ($2 ~ /^MEM#[0-9A-Za-z]+$/) {
-        memoryID = $1;
-        status = $4;
-        getline;
-        SerialNumber = $3;
-        getline;
-        Size = $5
-        SizeUnit = $6
-        if (SizeUnit == "GB") { Size = Size * 1024; }
-        print "MSHW;" memoryID ";" memoryID ";" Size ";" SerialNumber ";" status
-    }
-  EmbeddedFile(7): |-
-    ($2 ~ /^FAN_[0-9A-Za-z#_]+$/) {
-        fanID = $1;
-        status = $4;
-        print "MSHW;" fanID ";" fanID ";" status
-    }
-  EmbeddedFile(6): |-
-    BEGIN { GroupID = ""; SubDeviceID = ""; }
-    {
-        if ($1 ~ /^CPUM/ || $1 ~ /^MEMB/)
-        {
-            SubDeviceID = $1;
-        }
-        else if ($1 !~ /^-?[0-9\.]+V[#L]?[0-9]?$/)
-        {
-            GroupID = $1;
-            if (GroupID !~ /^MBU_[A-Z0-9a-z]+$/ && GroupID !~ /^CMU#[0-9]+$/)
-            {
-                SubDeviceID = "";
-            }
-        }
-        else if ($0 ~ /[0-9\.]+V#?[0-9]? Power Supply Group:-?[0-9\.]+V/)
-        {
-            if ((GroupID ~ /^MBU_[A-Z0-9a-z]+$/ || GroupID ~ /^CMU#[0-9]+$/) && SubDeviceID != "")
-            {
-                VoltageID = GroupID "/" SubDeviceID "/" $1
-                VoltageType = GroupID "/" SubDeviceID " - " $1
-            }
-            else
-            {
-                VoltageID = GroupID "/" $1
-                VoltageType = GroupID " - " $1
-            }
-            gsub("[.]","_",VoltageID)
-            NominalVoltage = substr($1, 1, length($1) - 1)
-            UpperThreshold = NominalVoltage * 1.1 * 1000;
-            LowerThreshold = NominalVoltage * 0.9 * 1000;
-            CurrentVoltage = substr($4, 7, length($4) - 7);
-            CurrentVoltage = CurrentVoltage * 1000;
-            print "MSHW;" VoltageID ";" VoltageType ";" LowerThreshold ";" UpperThreshold ";" CurrentVoltage
-        }
-    }
-  EmbeddedFile(10): |-
-    BEGIN { GroupID = ""; SensorID = ""; FS=":";}
-    $1 ~ /Temperature/ {
-                          Temp = $2 ; gsub(/[^0-9\.]/,"",Temp);
-                          Warn = "40"; Alarm = "45" ;
-                          print ("MSHW;Ambient Temperature;" Temp ";" Warn ";" Alarm ";")
-                         }
-    $1 ~ /CMU#[0-9]/ {
-                        GroupID = $1; gsub(/ /,"",GroupID);
-                      Temp = $2 ; gsub(/[^0-9\.]/,"",Temp);
-                      Warn = "55"; Alarm = "60" ;
-                        print ("MSHW;" GroupID ";" Temp ";" Warn ";" Alarm ";")
-                       }
-
-    $1 ~ /CPUM#[0-9]/ {
-                        SensorID = $1; gsub(/ /,"",SensorID); SensorID = GroupID "/" SensorID ;
-                        Temp = $2 ; gsub(/[^0-9\.]/,"",Temp);
-                      Warn = "85"; Alarm = "100" ;
-                        print ("MSHW;" SensorID ";" Temp ";" Warn ";" Alarm ";")
-                       }
-  EmbeddedFile(9): |-
-    BEGIN {
-        XSCFUList = ";";
-        IOUList = "";
-    }
-    ($2 ~ /^IOU#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        IOUList = IOUList "�MSHW;I/O Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";Power:"
-    }
-    ($1 ~ "^IOU#[0-9]+/PCI#[0-9]+$" && $NF != "DownLink") {
-        IOUList = IOUList "W";
-    }
-    ($2 ~ /^XSCFU$/ || $2 ~ /^XSCFU_[A-Z]#[0-9]$/) {
-        DeviceID = $1;
-        if (index(XSCFUList, ";" DeviceID ";") > 0)
-        {
-            DeviceID = DeviceID "b";
-        }
-        else
-        {
-            XSCFUList = XSCFUList DeviceID ";";
-        }
-        status = $4;
-        if (index(status, ",") > 1) { status = substr(status, 1, index(status, ",") - 1); }
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;XSCF Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";30"
-    }
-    ($2 ~ /^OPNL$/ || $2 ~ /^OPNL#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;Operator Panel;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";2"
-    }
-    ($2 ~ /^CMU#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;CPU/Memory Board Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";80"
-    }
-    ($2 ~ /^MEMB#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;Memory Board;" DeviceID ";Main;" DeviceID ";" SerialNumber ";" FruPartNumber ";" status ";50"
-    }
-    ($2 ~ /^MBU_[A-Z0-9]$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;Motherboard Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";80"
-    }
-    ($2 ~ /BP_[A-Z]#[0-9]$/ || $2 ~ /BP#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;Backplane;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";25"
-    }
-    ($2 ~ /^DDC_[A-Z]#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        print "MSHW;DC-to-DC Converter;" DeviceID ";Main;" DeviceID ";" SerialNumber ";;" status ";5"
-    }
-    ($2 ~ /^DDCR$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        print "MSHW;DC-to-DC Converter;" DeviceID ";Main;" DeviceID ";" SerialNumber ";;" status ";5"
-    }
-    ($NF == "DownLink" && $3 == "Status") {
-        DeviceID = $1;
-        status = $4;
-        getline;
-        SerialNumber = $5;
-        getline;
-        Connection = $3;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;DownLink Card;" DeviceID ";Main;to " Connection ";" SerialNumber ";" FruPartNumber ";" status ";35"
-    }
-    ($2 ~ /^IOB[0-9]+$/ && $3 == "Status") {
-        DeviceID = $1;
-        ShortName = $2;
-        status = $4;
-        SerialNumber = $6;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5
-        if (index(DeviceID, "/") > 0)
-        {
-            parentID = substr(DeviceID, 1, index(DeviceID, "/") - 1);
-        }
-        else
-        {
-            parentID = "Main";
-        }
-        IOBList = IOBList "�MSHW;I/O Board;" DeviceID ";" parentID ";" ShortName ";" SerialNumber ";" FruPartNumber ";" status ";Power:"
-    }
-    ($1 ~ "^IOX@[A-Z0-9]+/IOB[0-9]+/SLOT[0-9]+$") {
-        IOBList = IOBList "w";
-    }
-    ($2 == "LINK" && $3 == "Status") {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        split(DeviceID, PathArray, "/");
-        parentID = PathArray[1];
-        ShortName = PathArray[2];
-        print "MSHW;UpLink Card;" DeviceID ";" parentID ";" ShortName ";" SerialNumber ";" FruPartNumber ";" status ";35"
-    }
-    ($2 ~ /^XBU_[A-Z]#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;Crossbar Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";80"
-    }
-    ($2 ~ /^CLKU_[A-Z]#[0-9]+$/) {
-        DeviceID = $1;
-        status = $4;
-        SerialNumber = $8;
-        getline;
-        FruPartNumber = $3 " " $4 " " $5;
-        print "MSHW;Clock Control Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";4"
-    }
-    END {
-        IOUCount = split(IOUList, IOUArray, "�");
-        for (i=2; i<=IOUCount; i++)
-        {
-            powerIndex = index(IOUArray[i], ";Power:");
-            PowerConsumption = (length(IOUArray[i]) - powerIndex - 6) * 20;
-            if (PowerConsumption < 0) { PowerConsumption = 20; }
-            PowerConsumption = PowerConsumption + 40;
-            print substr(IOUArray[i], 1, powerIndex) PowerConsumption
-        }
-        IOBCount = split(IOBList, IOBArray, "�");
-        for (i=2; i<=IOBCount; i++)
-        {
-            powerIndex = index(IOBArray[i], ";Power:");
-            PowerConsumption = (length(IOBArray[i]) - powerIndex - 6) * 20;
-            if (PowerConsumption < 0) { PowerConsumption = 20; }
-            PowerConsumption = PowerConsumption + 40;
-            print substr(IOBArray[i], 1, powerIndex) PowerConsumption
-        }
-    }
-  EmbeddedFile(8): |-
-    /^ *[0-9A-Z]+ / {
-        if ($1 != "DID" && $2 != "-")
-        {
-            printf("MSHW;Domain;%s;Main;;;;", $1);
-            for (i=2 ; i<NF ; i++)
-            {
-                printf("%s ", $i);
-            }
-            if (NF > 1)
-            {
-                printf("%s\n", $NF);
-            }
-        }
-    }
-translations:
-  ShowHardConfStatusTranslationTable:
-    deconfigured: degraded
-    normal: ok
-    default: UNKNOWN
-    faulted: failed
-    degraded: degraded
-    input fail: failed
-    maintenance: ok
-  DomainStatusTranslationTable:
-    openboot execution completed: ok
-    running: ok
-    initialization phase: ok
-    default: UNKNOWN
-    booting/openboot prom prompt: ok
-    shutdown started: ok
-    panic state: failed
-    powered off: ok
 connector:
   displayName: Oracle/Sun Enterprise Mx000 (XSCF)
   platforms: Oracle/Sun Enterprise Mx000
@@ -935,3 +558,380 @@ monitors:
           hw.energy{hw.type="other_device"}: fakeCounter($column(4))
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        path = "";
+    }
+    {
+        gsub("[ ;:\*]", " ");
+
+        if ($1 == "SPARC" || $1 == "+")
+        {
+            gsub(" +", " ");
+            print $0;
+        }
+        else if (NF > 0)
+        {
+            name = $1;
+
+            depth = (index($0, name) - 1) / 4;
+            if (depth < 0) { indent = 0; }
+
+            split(path, pathArray, "/");
+            path = "";
+            for (i=1 ; i<depth ; i++)
+            {
+                path = path pathArray[i] "/";
+            }
+            path = path name;
+
+            gsub(" +", " ");
+
+            ioxIndex = index(path, "IOX@");
+            if (ioxIndex > 0)
+            {
+                print substr(path, ioxIndex, length(path) - ioxIndex + 1) " " $0
+            }
+            else
+            {
+                print path " " $0 " "
+            }
+        }
+    }
+  EmbeddedFile(3): |-
+    BEGIN { MotherBoardID = ""; }
+    ($2 ~ /^CPUM#[0-9]+-CHIP#[0-9]+$/) {
+        cpuID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3;
+        getline;
+        Speed = $3 * 1000;
+        getline;
+        CoreCount = $3;
+        if (CoreCount == 4)
+        {
+            PowerConsumption = 135;
+        }
+        else
+        {
+            PowerConsumption = 120;
+        }
+        print "MSHW;" cpuID ";" cpuID " - " CoreCount "-core SPARC64;" Speed ";" SerialNumber ";" FruPartNumber ";" status ";" PowerConsumption
+    }
+  EmbeddedFile(2): |-
+    BEGIN { ioxList = ";"; }
+    (NR == 1) { ServerModel = $0 }
+    (NR == 2) { SerialNumber = $3 ; print "MSHW;Main;Computer;;" ServerModel ";" SerialNumber ";;;" ; }
+    ($2 ~ /^IOX@/ && $3 == "Status") {
+        DeviceID = $2;
+        if (index(ioxList, ";" DeviceID ";") == 0)
+        {
+            ioxList = ioxList DeviceID ";";
+            Name = DeviceID " I/O Expansion Unit";
+            status = $4;
+            SerialNumber = $6;
+            getline;
+            FruNumber = $3 " " $4;
+            print "MSHW;" DeviceID ";Enclosure;;" Name ";" SerialNumber ";" FruNumber ";" status ;
+        }
+    }
+  EmbeddedFile(5): |-
+    ($2 ~ /^PSU#[0-9]+$/) {
+        powersupplyID = $1;
+        status = $4;
+        SerialNumber = $6;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        getline;
+        if ($2 ~ /Power_Status/ && $3 ~ /[Ii]nput/ && $4 ~ /[Ff]ail/ && status == "Normal") {status = "Input Fail"};
+        print "MSHW;" powersupplyID ";;" SerialNumber ";FRU: " FruPartNumber ";" status
+    }
+    ($2 ~ /^PS[0-9]$/ && $3 == "Status") {
+        powersupplyID = $1;
+        status = $4;
+        SerialNumber = $6;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        if (index(powersupplyID, "/") > 0)
+        {
+            parentID = substr(powersupplyID, 1, index(powersupplyID, "/") - 1)
+        }
+        else
+        {
+            parentID = "Main";
+        }
+        print "MSHW;" powersupplyID ";" parentID ";" SerialNumber ";" FruPartNumber ";" status
+    }
+  EmbeddedFile(4): |-
+    ($2 ~ /^MEM#[0-9A-Za-z]+$/) {
+        memoryID = $1;
+        status = $4;
+        getline;
+        SerialNumber = $3;
+        getline;
+        Size = $5
+        SizeUnit = $6
+        if (SizeUnit == "GB") { Size = Size * 1024; }
+        print "MSHW;" memoryID ";" memoryID ";" Size ";" SerialNumber ";" status
+    }
+  EmbeddedFile(7): |-
+    ($2 ~ /^FAN_[0-9A-Za-z#_]+$/) {
+        fanID = $1;
+        status = $4;
+        print "MSHW;" fanID ";" fanID ";" status
+    }
+  EmbeddedFile(6): |-
+    BEGIN { GroupID = ""; SubDeviceID = ""; }
+    {
+        if ($1 ~ /^CPUM/ || $1 ~ /^MEMB/)
+        {
+            SubDeviceID = $1;
+        }
+        else if ($1 !~ /^-?[0-9\.]+V[#L]?[0-9]?$/)
+        {
+            GroupID = $1;
+            if (GroupID !~ /^MBU_[A-Z0-9a-z]+$/ && GroupID !~ /^CMU#[0-9]+$/)
+            {
+                SubDeviceID = "";
+            }
+        }
+        else if ($0 ~ /[0-9\.]+V#?[0-9]? Power Supply Group:-?[0-9\.]+V/)
+        {
+            if ((GroupID ~ /^MBU_[A-Z0-9a-z]+$/ || GroupID ~ /^CMU#[0-9]+$/) && SubDeviceID != "")
+            {
+                VoltageID = GroupID "/" SubDeviceID "/" $1
+                VoltageType = GroupID "/" SubDeviceID " - " $1
+            }
+            else
+            {
+                VoltageID = GroupID "/" $1
+                VoltageType = GroupID " - " $1
+            }
+            gsub("[.]","_",VoltageID)
+            NominalVoltage = substr($1, 1, length($1) - 1)
+            UpperThreshold = NominalVoltage * 1.1 * 1000;
+            LowerThreshold = NominalVoltage * 0.9 * 1000;
+            CurrentVoltage = substr($4, 7, length($4) - 7);
+            CurrentVoltage = CurrentVoltage * 1000;
+            print "MSHW;" VoltageID ";" VoltageType ";" LowerThreshold ";" UpperThreshold ";" CurrentVoltage
+        }
+    }
+  EmbeddedFile(10): |-
+    BEGIN { GroupID = ""; SensorID = ""; FS=":";}
+    $1 ~ /Temperature/ {
+                          Temp = $2 ; gsub(/[^0-9\.]/,"",Temp);
+                          Warn = "40"; Alarm = "45" ;
+                          print ("MSHW;Ambient Temperature;" Temp ";" Warn ";" Alarm ";")
+                         }
+    $1 ~ /CMU#[0-9]/ {
+                        GroupID = $1; gsub(/ /,"",GroupID);
+                      Temp = $2 ; gsub(/[^0-9\.]/,"",Temp);
+                      Warn = "55"; Alarm = "60" ;
+                        print ("MSHW;" GroupID ";" Temp ";" Warn ";" Alarm ";")
+                       }
+
+    $1 ~ /CPUM#[0-9]/ {
+                        SensorID = $1; gsub(/ /,"",SensorID); SensorID = GroupID "/" SensorID ;
+                        Temp = $2 ; gsub(/[^0-9\.]/,"",Temp);
+                      Warn = "85"; Alarm = "100" ;
+                        print ("MSHW;" SensorID ";" Temp ";" Warn ";" Alarm ";")
+                       }
+  EmbeddedFile(9): |-
+    BEGIN {
+        XSCFUList = ";";
+        IOUList = "";
+    }
+    ($2 ~ /^IOU#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        IOUList = IOUList "�MSHW;I/O Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";Power:"
+    }
+    ($1 ~ "^IOU#[0-9]+/PCI#[0-9]+$" && $NF != "DownLink") {
+        IOUList = IOUList "W";
+    }
+    ($2 ~ /^XSCFU$/ || $2 ~ /^XSCFU_[A-Z]#[0-9]$/) {
+        DeviceID = $1;
+        if (index(XSCFUList, ";" DeviceID ";") > 0)
+        {
+            DeviceID = DeviceID "b";
+        }
+        else
+        {
+            XSCFUList = XSCFUList DeviceID ";";
+        }
+        status = $4;
+        if (index(status, ",") > 1) { status = substr(status, 1, index(status, ",") - 1); }
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;XSCF Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";30"
+    }
+    ($2 ~ /^OPNL$/ || $2 ~ /^OPNL#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;Operator Panel;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";2"
+    }
+    ($2 ~ /^CMU#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;CPU/Memory Board Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";80"
+    }
+    ($2 ~ /^MEMB#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;Memory Board;" DeviceID ";Main;" DeviceID ";" SerialNumber ";" FruPartNumber ";" status ";50"
+    }
+    ($2 ~ /^MBU_[A-Z0-9]$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;Motherboard Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";80"
+    }
+    ($2 ~ /BP_[A-Z]#[0-9]$/ || $2 ~ /BP#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;Backplane;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";25"
+    }
+    ($2 ~ /^DDC_[A-Z]#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        print "MSHW;DC-to-DC Converter;" DeviceID ";Main;" DeviceID ";" SerialNumber ";;" status ";5"
+    }
+    ($2 ~ /^DDCR$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        print "MSHW;DC-to-DC Converter;" DeviceID ";Main;" DeviceID ";" SerialNumber ";;" status ";5"
+    }
+    ($NF == "DownLink" && $3 == "Status") {
+        DeviceID = $1;
+        status = $4;
+        getline;
+        SerialNumber = $5;
+        getline;
+        Connection = $3;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;DownLink Card;" DeviceID ";Main;to " Connection ";" SerialNumber ";" FruPartNumber ";" status ";35"
+    }
+    ($2 ~ /^IOB[0-9]+$/ && $3 == "Status") {
+        DeviceID = $1;
+        ShortName = $2;
+        status = $4;
+        SerialNumber = $6;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5
+        if (index(DeviceID, "/") > 0)
+        {
+            parentID = substr(DeviceID, 1, index(DeviceID, "/") - 1);
+        }
+        else
+        {
+            parentID = "Main";
+        }
+        IOBList = IOBList "�MSHW;I/O Board;" DeviceID ";" parentID ";" ShortName ";" SerialNumber ";" FruPartNumber ";" status ";Power:"
+    }
+    ($1 ~ "^IOX@[A-Z0-9]+/IOB[0-9]+/SLOT[0-9]+$") {
+        IOBList = IOBList "w";
+    }
+    ($2 == "LINK" && $3 == "Status") {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        split(DeviceID, PathArray, "/");
+        parentID = PathArray[1];
+        ShortName = PathArray[2];
+        print "MSHW;UpLink Card;" DeviceID ";" parentID ";" ShortName ";" SerialNumber ";" FruPartNumber ";" status ";35"
+    }
+    ($2 ~ /^XBU_[A-Z]#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;Crossbar Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";80"
+    }
+    ($2 ~ /^CLKU_[A-Z]#[0-9]+$/) {
+        DeviceID = $1;
+        status = $4;
+        SerialNumber = $8;
+        getline;
+        FruPartNumber = $3 " " $4 " " $5;
+        print "MSHW;Clock Control Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";4"
+    }
+    END {
+        IOUCount = split(IOUList, IOUArray, "�");
+        for (i=2; i<=IOUCount; i++)
+        {
+            powerIndex = index(IOUArray[i], ";Power:");
+            PowerConsumption = (length(IOUArray[i]) - powerIndex - 6) * 20;
+            if (PowerConsumption < 0) { PowerConsumption = 20; }
+            PowerConsumption = PowerConsumption + 40;
+            print substr(IOUArray[i], 1, powerIndex) PowerConsumption
+        }
+        IOBCount = split(IOBList, IOBArray, "�");
+        for (i=2; i<=IOBCount; i++)
+        {
+            powerIndex = index(IOBArray[i], ";Power:");
+            PowerConsumption = (length(IOBArray[i]) - powerIndex - 6) * 20;
+            if (PowerConsumption < 0) { PowerConsumption = 20; }
+            PowerConsumption = PowerConsumption + 40;
+            print substr(IOBArray[i], 1, powerIndex) PowerConsumption
+        }
+    }
+  EmbeddedFile(8): |-
+    /^ *[0-9A-Z]+ / {
+        if ($1 != "DID" && $2 != "-")
+        {
+            printf("MSHW;Domain;%s;Main;;;;", $1);
+            for (i=2 ; i<NF ; i++)
+            {
+                printf("%s ", $i);
+            }
+            if (NF > 1)
+            {
+                printf("%s\n", $NF);
+            }
+        }
+    }
+translations:
+  ShowHardConfStatusTranslationTable:
+    deconfigured: degraded
+    normal: ok
+    default: UNKNOWN
+    faulted: failed
+    degraded: degraded
+    input fail: failed
+    maintenance: ok
+  DomainStatusTranslationTable:
+    openboot execution completed: ok
+    running: ok
+    initialization phase: ok
+    default: UNKNOWN
+    booting/openboot prom prompt: ok
+    shutdown started: ok
+    panic state: failed
+    powered off: ok

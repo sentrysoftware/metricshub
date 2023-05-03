@@ -1,4 +1,70 @@
 ---
+connector:
+  displayName: Oracle/Sun Solaris - Tape Drives
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (iostat, dd)"
+  information: Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only official Sun disks.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    criteria:
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    - type: osCommand
+      commandLine: /usr/bin/iostat -En
+      expectedResult: "^rmt/.*Soft [Ee]rrors.*Hard [Ee]rrors.*Transport [Ee]rrors"
+monitors:
+  tape_drive:
+    discovery:
+      sources:
+        source(1):
+          # Source(2) = output of iostat
+          type: osCommand
+          commandLine: iostat -En
+          computes:
+            # Reformat iostat's output through awk (see EmbeddedFile(1))
+            # DeviceID;Vendor;Model;SerialNumber
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.tape_drive.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(3)
+          serial_number: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of iostat
+          type: osCommand
+          commandLine: /usr/bin/iostat -En
+          computes:
+            # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(2))
+            # DeviceID;ErrorCount;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.tape_drive.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.errors{hw.type="tape_drive"}: $column(2)
 embedded:
   EmbeddedFile(1): |-
     ($0 ~ "^rmt/[0-9]") {
@@ -139,69 +205,3 @@ embedded:
         transporterror = 0
         totalerror = 0
     }
-connector:
-  displayName: Oracle/Sun Solaris - Tape Drives
-  platforms: Oracle/Sun
-  reliesOn: "Sun Solaris system commands (iostat, dd)"
-  information: Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only official Sun disks.
-  version: 1.0
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Solaris
-    criteria:
-    - type: deviceType
-      keep:
-      - SunOS
-      - Solaris
-    - type: osCommand
-      commandLine: /usr/bin/iostat -En
-      expectedResult: "^rmt/.*Soft [Ee]rrors.*Hard [Ee]rrors.*Transport [Ee]rrors"
-monitors:
-  tape_drive:
-    discovery:
-      sources:
-        source(1):
-          # Source(2) = output of iostat
-          type: osCommand
-          commandLine: iostat -En
-          computes:
-            # Reformat iostat's output through awk (see EmbeddedFile(1))
-            # DeviceID;Vendor;Model;SerialNumber
-          - type: awk
-            script: EmbeddedFile(1)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4"
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.tape_drive.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          model: $column(3)
-          serial_number: $column(4)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = output of iostat
-          type: osCommand
-          commandLine: /usr/bin/iostat -En
-          computes:
-            # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(2))
-            # DeviceID;ErrorCount;
-          - type: awk
-            script: EmbeddedFile(2)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3"
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.tape_drive.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.errors{hw.type="tape_drive"}: $column(2)

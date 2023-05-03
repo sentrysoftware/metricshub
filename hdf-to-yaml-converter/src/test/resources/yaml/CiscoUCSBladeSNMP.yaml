@@ -1,145 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |
-    BEGIN {FS="[/]"}
-    {
-    print $1 "/" $2 "/" $3 ";" $0
-    }
-translations:
-  bladeStatusTranslationTable:
-    "29": degraded
-    "210": ok
-    "211": degraded
-    default: Unknown Status
-    "212": degraded
-    "50": failed
-    "30": degraded
-    "31": degraded
-    "10": ok
-    "32": degraded
-    "11": ok
-    "33": failed
-    "12": ok
-    "34": failed
-    "13": ok
-    "35": failed
-    "14": ok
-    "36": ok
-    "15": ok
-    "0": UNKNOWN
-    "1": degraded
-    "101": ok
-    "201": ok
-    "202": ok
-    "203": ok
-    "204": failed
-    "60": degraded
-    "61": degraded
-    "40": degraded
-    "62": degraded
-    "41": degraded
-    "63": failed
-    "20": ok
-    "21": ok
-  statusInformationTranslationTable:
-    default: Unknown Status
-    "51": Fabric Conn Problem
-    "52": Fabric Unsupported Conn
-    "10": Accessibility Problem
-    "11": Identity Unestablishable
-    "12": Bios Post Timeout
-    "13": Disabled
-    "14": Malformed FRU
-    "0": Unknown
-    "1": Operable
-    "100": Not Supported
-    "2": Inoperable
-    "101": Discovery
-    "3": Degraded
-    "102": Discovery Failed
-    "4": Powered Off
-    "103": Identify
-    "5": Power Problem
-    "104": Post Failure
-    "6": Removed
-    "105": Upgrade Problem
-    "7": Voltage Problem
-    "106": Peer Comm Problem
-    "8": Thermal Problem
-    "107": Auto Upgrade
-    "9": Performance Problem
-    "81": Config
-    "108": Link Activate Blocked
-    "82": Equipment Problem
-    "83": Decommissioning
-    "84": Chassis Limit Exceeded
-  statusTranslationTable:
-    default: Unknown Status
-    "51": degraded
-    "52": degraded
-    "10": degraded
-    "11": degraded
-    "12": failed
-    "13": degraded
-    "14": degraded
-    "0": UNKNOWN
-    "1": ok
-    "100": degraded
-    "2": degraded
-    "101": degraded
-    "3": degraded
-    "102": failed
-    "4": degraded
-    "103": ok
-    "5": degraded
-    "104": failed
-    "6": failed
-    "105": degraded
-    "7": degraded
-    "106": degraded
-    "8": degraded
-    "107": degraded
-    "9": degraded
-    "81": degraded
-    "108": degraded
-    "82": degraded
-    "83": ok
-    "84": degraded
-  bladeStatusInformationTranslationTable:
-    "29": Compute Mismatch
-    "210": Pending Reboot
-    "211": Pending Reassociation
-    default: Unknown Status
-    "212": Svnic Not Present
-    "50": Inaccessible
-    "30": Compute Failed
-    "31": Degraded
-    "10": ok
-    "32": Discovery Failed
-    "11": Discovery
-    "33": Config Failure
-    "12": Config
-    "34": Unconfig Failed
-    "13": Unconfig
-    "35": Test Failed
-    "14": PowerOff
-    "36": Maintenance Failed
-    "15": Restart
-    "0": Indeterminate
-    "1": Unassociated
-    "101": Decommissioning
-    "201": Bios Restore
-    "202": Cmos Reset
-    "203": Diagnostics
-    "204": Diagnostics Failed
-    "60": Thermal Problem
-    "61": Power Problem
-    "40": Removed
-    "62": Voltage Problem
-    "41": Disabled
-    "63": Inoperable
-    "20": Maintenance
-    "21": Test
 connector:
   displayName: Cisco UCS B-Series (SNMP)
   platforms: Cisco B-Series Servers
@@ -637,3 +496,144 @@ monitors:
           hw.status{hw.type="memory"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |
+    BEGIN {FS="[/]"}
+    {
+    print $1 "/" $2 "/" $3 ";" $0
+    }
+translations:
+  bladeStatusTranslationTable:
+    "29": degraded
+    "210": ok
+    "211": degraded
+    default: Unknown Status
+    "212": degraded
+    "50": failed
+    "30": degraded
+    "31": degraded
+    "10": ok
+    "32": degraded
+    "11": ok
+    "33": failed
+    "12": ok
+    "34": failed
+    "13": ok
+    "35": failed
+    "14": ok
+    "36": ok
+    "15": ok
+    "0": UNKNOWN
+    "1": degraded
+    "101": ok
+    "201": ok
+    "202": ok
+    "203": ok
+    "204": failed
+    "60": degraded
+    "61": degraded
+    "40": degraded
+    "62": degraded
+    "41": degraded
+    "63": failed
+    "20": ok
+    "21": ok
+  statusInformationTranslationTable:
+    default: Unknown Status
+    "51": Fabric Conn Problem
+    "52": Fabric Unsupported Conn
+    "10": Accessibility Problem
+    "11": Identity Unestablishable
+    "12": Bios Post Timeout
+    "13": Disabled
+    "14": Malformed FRU
+    "0": Unknown
+    "1": Operable
+    "100": Not Supported
+    "2": Inoperable
+    "101": Discovery
+    "3": Degraded
+    "102": Discovery Failed
+    "4": Powered Off
+    "103": Identify
+    "5": Power Problem
+    "104": Post Failure
+    "6": Removed
+    "105": Upgrade Problem
+    "7": Voltage Problem
+    "106": Peer Comm Problem
+    "8": Thermal Problem
+    "107": Auto Upgrade
+    "9": Performance Problem
+    "81": Config
+    "108": Link Activate Blocked
+    "82": Equipment Problem
+    "83": Decommissioning
+    "84": Chassis Limit Exceeded
+  statusTranslationTable:
+    default: Unknown Status
+    "51": degraded
+    "52": degraded
+    "10": degraded
+    "11": degraded
+    "12": failed
+    "13": degraded
+    "14": degraded
+    "0": UNKNOWN
+    "1": ok
+    "100": degraded
+    "2": degraded
+    "101": degraded
+    "3": degraded
+    "102": failed
+    "4": degraded
+    "103": ok
+    "5": degraded
+    "104": failed
+    "6": failed
+    "105": degraded
+    "7": degraded
+    "106": degraded
+    "8": degraded
+    "107": degraded
+    "9": degraded
+    "81": degraded
+    "108": degraded
+    "82": degraded
+    "83": ok
+    "84": degraded
+  bladeStatusInformationTranslationTable:
+    "29": Compute Mismatch
+    "210": Pending Reboot
+    "211": Pending Reassociation
+    default: Unknown Status
+    "212": Svnic Not Present
+    "50": Inaccessible
+    "30": Compute Failed
+    "31": Degraded
+    "10": ok
+    "32": Discovery Failed
+    "11": Discovery
+    "33": Config Failure
+    "12": Config
+    "34": Unconfig Failed
+    "13": Unconfig
+    "35": Test Failed
+    "14": PowerOff
+    "36": Maintenance Failed
+    "15": Restart
+    "0": Indeterminate
+    "1": Unassociated
+    "101": Decommissioning
+    "201": Bios Restore
+    "202": Cmos Reset
+    "203": Diagnostics
+    "204": Diagnostics Failed
+    "60": Thermal Problem
+    "61": Power Problem
+    "40": Removed
+    "62": Voltage Problem
+    "41": Disabled
+    "63": Inoperable
+    "20": Maintenance
+    "21": Test

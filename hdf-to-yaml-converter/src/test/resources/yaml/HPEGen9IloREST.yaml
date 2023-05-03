@@ -11,12 +11,6 @@ constants:
   _MEMORY_SIZE_PARAMETER: SizeMB
   _OEM_SPECIFIC: OEM/HP/Links
   _FAN_LOCATION: Oem/Hp/Location
-translations:
-  LinkSpeedDeactivationTable:
-    "0": ""
-    standbyoffline: ""
-    default: "True"
-    "null": ""
 connector:
   displayName: HP iLO Gen 9 (REST)
   platforms: HP iLO Gen 9 REST
@@ -203,3 +197,9 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
         legacyTextParameters:
           StatusInformation: $column(5)
+translations:
+  LinkSpeedDeactivationTable:
+    "0": ""
+    standbyoffline: ""
+    default: "True"
+    "null": ""

@@ -1,28 +1,4 @@
 ---
-translations:
-  LinkStatusTranslationTable:
-    default: degraded
-    none: degraded
-    up: ok
-    failed: failed
-    down: degraded
-  StatusTranslationTable:
-    needsattn: degraded
-    default: failed
-    optimal: ok
-    maintenancecharging: ok
-  LinkSpeedParameterTranslationTable:
-    default: degraded
-    none: ""
-    up: ok
-    failed: ""
-    down: ""
-  NetworkCardStatusTranslationTable:
-    default: failed
-    none: ok
-    up: ok
-    failed: failed
-    down: ok
 connector:
   displayName: NetApp E-Series
   platforms: NetApp E-Series
@@ -945,3 +921,27 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+translations:
+  LinkStatusTranslationTable:
+    default: degraded
+    none: degraded
+    up: ok
+    failed: failed
+    down: degraded
+  StatusTranslationTable:
+    needsattn: degraded
+    default: failed
+    optimal: ok
+    maintenancecharging: ok
+  LinkSpeedParameterTranslationTable:
+    default: degraded
+    none: ""
+    up: ok
+    failed: ""
+    down: ""
+  NetworkCardStatusTranslationTable:
+    default: failed
+    none: ok
+    up: ok
+    failed: failed
+    down: ok

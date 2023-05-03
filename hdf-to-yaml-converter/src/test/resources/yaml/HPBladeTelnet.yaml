@@ -1,133 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN                  { FS = ":"; model = ""; serialNumber = ""; }
-    $1 ~ /Enclosure Type/  { model = $2; }
-    $1 ~ /Serial Number/   { serialNumber = $2; }
-    END                    { print "MSHW;" model ";" serialNumber; }
-  EmbeddedFile(3): |-
-    BEGIN  {powerSupplyID = ""; status ="" ; powerCapacity ="" ; lastLine=$0 }
-    {skip=1}
-    /show enclosure powersupply all/,/show enclosure fan all/ {skip = 0}
-    skip == 1 {next}
-    $0 ~ /^Power Supply #[0-9]/ { powerSupplyID = $0 ; status ="" ; powerCapacity ="" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",powerSupplyID) ; gsub (/#/,"",powerSupplyID) ;}
-    ( lastLine ~ /^Power Supply #/ && $0 ~ /Status/ ) { status = $2}
-    $1 ~ /^Capacity:/ { powerCapacity = $2 }
-    $1 ~ /^Current/ { powerCurrent = $4 }
-    $1 ~ /^Spare/ && (powerSupplyID != "") { sparePartNumber = $4 ;
-                 print ("MSHW;" powerSupplyID ";" status ";" powerCapacity ";" powerCurrent ";" );
-                 powerSupplyID = "" ; }
-    { lastLine = $0 }
-  EmbeddedFile(2): |-
-    BEGIN  { powerConsumption = ""; status = "" ; lastLine = "" ;}
-
-    ( lastLine ~ /Enclosure/ && $0 ~ /Status/ ) { status = $2 }
-    ( $0 ~ /Present Power/ ) { powerConsumption = $3    }
-    { lastLine = $0}
-
-    END  { print "MSHW;" status ";" powerConsumption ";"}
-  EmbeddedFile(5): |-
-    BEGIN  {IDlength="";BayNumFound=0}
-    /show/,/show enclosure temp/ {next}
-    $0 ~ /Bay #/ {BayNumFound=1}
-    ($1 ~ /^-+$/ && $2 ~ /^-+$/ && $3 ~ /^-+$/ && $4 ~ /^-+$/ && $5 ~ /^-+$/ ) { IDlength = length($1)
-                                                                                        if (BayNumFound==1) {IDlength = IDlength + 1 + length($2)}
-                                                                                      }
-    NF < 5 { next }
-    {tempSensorID = ""}
-    { if ($NF == "---" && $(NF-3) ~ /C/) { tempStatus = $(NF-4) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
-            else if ($NF == "---" ) { tempStatus = $(NF-3) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
-            else if ($NF ~ /C/ && $(NF-2) ~ /C/)  {tempStatus = $(NF-3) ; temp = $(NF-2) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
-            else if ($NF ~ /C/ && $(NF-3) ~ /C/)  {tempStatus = $(NF-4) ; temp = $(NF-3) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
-            else {next}
-            }
-    { if ( tempStatus  ~ /^[nN].?[aA]/ ) { statusActivate=""}
-              else { statusActivate = "2" }
-          }
-    { tempSensorID = substr($0,1,IDlength) }
-
-    #{ print ( "MSHWDB;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
-
-    { gsub (/ /,"",tempSensorID) }
-    { gsub ("[ C/]","",temp) }
-    { gsub (/[ C]/,"",tempCaution) }
-    { gsub (/[ C]/,"",tempCritical) }
-    { gsub (/[oO]nboard[aA]dministrator/,"OA",tempSensorID) }
-    { gsub (/[iI]nterconnect[mM]odule/,"IC",tempSensorID) }
-
-    (statusActivate != "" || temperatureActivate != "" ){ print ( "MSHW;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
-  EmbeddedFile(4): |-
-    BEGIN  {fanID = ""; status ="" ; fanSpeedPercent ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; lastLine=$0 }
-    {skip=1}
-    /show enclosure fan all/,/show enclosure temp/ {skip = 0}
-    skip == 1 {next}
-
-    $0 ~ /^Fan #[0-9]/ { fanID = $0 ; status ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",fanID) ; gsub (/#/,"",fanID)}
-    ( lastLine ~ /^Fan #/ && $0 ~ /Status/ ) { status = $2}
-    $1 ~ /^Speed/ {fanSpeedPercent = $2 }
-    $1 ~ /^Maximum/ { fanMax = $3 }
-    $1 ~ /^Minimum/ { fanMin = $3 }
-    ($1 ~ /^Spare/) && (fanID != "") { sparePartNumber = $4  ;
-                 print ( "MSHW;" fanID ";" status ";" fanSpeedPercent ";" fanMin ";" fanMax ";" ) ;
-                 fanID = "" ;}
-
-    { lastLine = $0 }
-  EmbeddedFile(7): |-
-    {skip=1}
-    /show server status all/,/show enclosure powersupply all/ {skip = 0}
-    skip == 1 {next}
-
-    $0 ~ /^Blade #[0-9]/ { bladeID = $2 ; gsub (/#/,"",bladeID) ; }
-    $1 ~ /^Power/ && $2 ~ /^Off/ { bladePower = tolower($2) }
-    $1 ~ /^Power/ && $2 ~ /^On/ { bladePower = tolower($2) }
-    $1 ~ /^Health/ { bladeStatus = $2 ;
-                     print ( "MSHW;" bladeID ";" bladeStatus ";" bladeStatus ";" bladePower ";") ;
-                     bladeID = "" ; bladeOff = "" ; }
-  EmbeddedFile(6): |-
-    {skip=1}
-    /show server info all/,/show enclosure powersupply all/ {skip = 0}
-    skip == 1 {next}
-
-    $0 ~ /^Server Blade #[0-9]/ { bladeID = $3 ; bladeName = "" ; serialNumber ="" ; gsub (/#/,"",bladeID) ; }
-    $1 ~ /^Product/ { bladeModel = $0 ; gsub (/Product Name:/,"",bladeModel) ; gsub (/\t/,"",bladeModel)}
-    $1 ~ /^Physical/ { serialNumber = $6 ; }
-    ($1 ~ /Server/ && $2 ~ /Name/) { serverName = $3 ;
-                  print ( "MSHW;" bladeID ";" serverName ";" bladeModel ";" serialNumber ";") ;
-                 }
-  EmbeddedFile(9): |-
-    BEGIN { lastLine = "" }
-    { skip=1 }
-    /show interconnect status all/,/show server status all/ { skip = 0 }
-    (skip == 1) { next }
-    ($1 ~ /^Interconnect/) { otherDeviceID = $3 ; gsub(/#/, "", otherDeviceID) ; }
-    ($1 ~ /tatus/ && lastLine ~ /Interconnect/ ) {
-      status = $NF
-      print "MSHW;" otherDeviceID ";" status ";" status ";"
-      otherDeviceID = ""
-    }
-    { lastLine = $0 }
-  EmbeddedFile(8): |-
-    {skip=1}
-    /show interconnect info all/,/show server info all/ {skip = 0}
-    skip == 1 {next}
-
-    ( $1 ~ /^[0-9]/ && $1 ~ /.$/ ) { otherDeviceID = $1 ; deviceType = $2 ; gsub (/\./,"",otherDeviceID) ; }
-    $1 ~ /^Product/ { deviceName = $0 ; gsub (/Product Name: /,"",deviceName) ; gsub (/\t/,"",deviceName)
-                      print ( "MSHW;" otherDeviceID ";IC Switch - " deviceType ";" deviceName ";" ) ;
-                      otherDeviceID = "" ; }
-translations:
-  OKDegradedFailedStatusInformationTranslationTable:
-    n/a: ""
-    default: Unknown Status
-    failed: Failed
-    ok: ""
-    degraded: Degraded
-  OKDegradedFailedTranslationTable:
-    n/a: ok
-    default: UNKNOWN
-    failed: failed
-    ok: ok
-    degraded: degraded
 connector:
   displayName: HP BladeSystem (SSH)
   platforms: HP BladeSystem
@@ -504,3 +375,132 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN                  { FS = ":"; model = ""; serialNumber = ""; }
+    $1 ~ /Enclosure Type/  { model = $2; }
+    $1 ~ /Serial Number/   { serialNumber = $2; }
+    END                    { print "MSHW;" model ";" serialNumber; }
+  EmbeddedFile(3): |-
+    BEGIN  {powerSupplyID = ""; status ="" ; powerCapacity ="" ; lastLine=$0 }
+    {skip=1}
+    /show enclosure powersupply all/,/show enclosure fan all/ {skip = 0}
+    skip == 1 {next}
+    $0 ~ /^Power Supply #[0-9]/ { powerSupplyID = $0 ; status ="" ; powerCapacity ="" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",powerSupplyID) ; gsub (/#/,"",powerSupplyID) ;}
+    ( lastLine ~ /^Power Supply #/ && $0 ~ /Status/ ) { status = $2}
+    $1 ~ /^Capacity:/ { powerCapacity = $2 }
+    $1 ~ /^Current/ { powerCurrent = $4 }
+    $1 ~ /^Spare/ && (powerSupplyID != "") { sparePartNumber = $4 ;
+                 print ("MSHW;" powerSupplyID ";" status ";" powerCapacity ";" powerCurrent ";" );
+                 powerSupplyID = "" ; }
+    { lastLine = $0 }
+  EmbeddedFile(2): |-
+    BEGIN  { powerConsumption = ""; status = "" ; lastLine = "" ;}
+
+    ( lastLine ~ /Enclosure/ && $0 ~ /Status/ ) { status = $2 }
+    ( $0 ~ /Present Power/ ) { powerConsumption = $3    }
+    { lastLine = $0}
+
+    END  { print "MSHW;" status ";" powerConsumption ";"}
+  EmbeddedFile(5): |-
+    BEGIN  {IDlength="";BayNumFound=0}
+    /show/,/show enclosure temp/ {next}
+    $0 ~ /Bay #/ {BayNumFound=1}
+    ($1 ~ /^-+$/ && $2 ~ /^-+$/ && $3 ~ /^-+$/ && $4 ~ /^-+$/ && $5 ~ /^-+$/ ) { IDlength = length($1)
+                                                                                        if (BayNumFound==1) {IDlength = IDlength + 1 + length($2)}
+                                                                                      }
+    NF < 5 { next }
+    {tempSensorID = ""}
+    { if ($NF == "---" && $(NF-3) ~ /C/) { tempStatus = $(NF-4) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+            else if ($NF == "---" ) { tempStatus = $(NF-3) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+            else if ($NF ~ /C/ && $(NF-2) ~ /C/)  {tempStatus = $(NF-3) ; temp = $(NF-2) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+            else if ($NF ~ /C/ && $(NF-3) ~ /C/)  {tempStatus = $(NF-4) ; temp = $(NF-3) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+            else {next}
+            }
+    { if ( tempStatus  ~ /^[nN].?[aA]/ ) { statusActivate=""}
+              else { statusActivate = "2" }
+          }
+    { tempSensorID = substr($0,1,IDlength) }
+
+    #{ print ( "MSHWDB;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
+
+    { gsub (/ /,"",tempSensorID) }
+    { gsub ("[ C/]","",temp) }
+    { gsub (/[ C]/,"",tempCaution) }
+    { gsub (/[ C]/,"",tempCritical) }
+    { gsub (/[oO]nboard[aA]dministrator/,"OA",tempSensorID) }
+    { gsub (/[iI]nterconnect[mM]odule/,"IC",tempSensorID) }
+
+    (statusActivate != "" || temperatureActivate != "" ){ print ( "MSHW;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
+  EmbeddedFile(4): |-
+    BEGIN  {fanID = ""; status ="" ; fanSpeedPercent ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; lastLine=$0 }
+    {skip=1}
+    /show enclosure fan all/,/show enclosure temp/ {skip = 0}
+    skip == 1 {next}
+
+    $0 ~ /^Fan #[0-9]/ { fanID = $0 ; status ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",fanID) ; gsub (/#/,"",fanID)}
+    ( lastLine ~ /^Fan #/ && $0 ~ /Status/ ) { status = $2}
+    $1 ~ /^Speed/ {fanSpeedPercent = $2 }
+    $1 ~ /^Maximum/ { fanMax = $3 }
+    $1 ~ /^Minimum/ { fanMin = $3 }
+    ($1 ~ /^Spare/) && (fanID != "") { sparePartNumber = $4  ;
+                 print ( "MSHW;" fanID ";" status ";" fanSpeedPercent ";" fanMin ";" fanMax ";" ) ;
+                 fanID = "" ;}
+
+    { lastLine = $0 }
+  EmbeddedFile(7): |-
+    {skip=1}
+    /show server status all/,/show enclosure powersupply all/ {skip = 0}
+    skip == 1 {next}
+
+    $0 ~ /^Blade #[0-9]/ { bladeID = $2 ; gsub (/#/,"",bladeID) ; }
+    $1 ~ /^Power/ && $2 ~ /^Off/ { bladePower = tolower($2) }
+    $1 ~ /^Power/ && $2 ~ /^On/ { bladePower = tolower($2) }
+    $1 ~ /^Health/ { bladeStatus = $2 ;
+                     print ( "MSHW;" bladeID ";" bladeStatus ";" bladeStatus ";" bladePower ";") ;
+                     bladeID = "" ; bladeOff = "" ; }
+  EmbeddedFile(6): |-
+    {skip=1}
+    /show server info all/,/show enclosure powersupply all/ {skip = 0}
+    skip == 1 {next}
+
+    $0 ~ /^Server Blade #[0-9]/ { bladeID = $3 ; bladeName = "" ; serialNumber ="" ; gsub (/#/,"",bladeID) ; }
+    $1 ~ /^Product/ { bladeModel = $0 ; gsub (/Product Name:/,"",bladeModel) ; gsub (/\t/,"",bladeModel)}
+    $1 ~ /^Physical/ { serialNumber = $6 ; }
+    ($1 ~ /Server/ && $2 ~ /Name/) { serverName = $3 ;
+                  print ( "MSHW;" bladeID ";" serverName ";" bladeModel ";" serialNumber ";") ;
+                 }
+  EmbeddedFile(9): |-
+    BEGIN { lastLine = "" }
+    { skip=1 }
+    /show interconnect status all/,/show server status all/ { skip = 0 }
+    (skip == 1) { next }
+    ($1 ~ /^Interconnect/) { otherDeviceID = $3 ; gsub(/#/, "", otherDeviceID) ; }
+    ($1 ~ /tatus/ && lastLine ~ /Interconnect/ ) {
+      status = $NF
+      print "MSHW;" otherDeviceID ";" status ";" status ";"
+      otherDeviceID = ""
+    }
+    { lastLine = $0 }
+  EmbeddedFile(8): |-
+    {skip=1}
+    /show interconnect info all/,/show server info all/ {skip = 0}
+    skip == 1 {next}
+
+    ( $1 ~ /^[0-9]/ && $1 ~ /.$/ ) { otherDeviceID = $1 ; deviceType = $2 ; gsub (/\./,"",otherDeviceID) ; }
+    $1 ~ /^Product/ { deviceName = $0 ; gsub (/Product Name: /,"",deviceName) ; gsub (/\t/,"",deviceName)
+                      print ( "MSHW;" otherDeviceID ";IC Switch - " deviceType ";" deviceName ";" ) ;
+                      otherDeviceID = "" ; }
+translations:
+  OKDegradedFailedStatusInformationTranslationTable:
+    n/a: ""
+    default: Unknown Status
+    failed: Failed
+    ok: ""
+    degraded: Degraded
+  OKDegradedFailedTranslationTable:
+    n/a: ok
+    default: UNKNOWN
+    failed: failed
+    ok: ok
+    degraded: degraded

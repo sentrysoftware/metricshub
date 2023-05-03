@@ -1,117 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";";}
-    {
-        if($3 < 0) AlarmThreshold = ""; else AlarmThreshold = $3;
-        if($4 < 0) WarningThreshold = ""; else WarningThreshold = $4;
-        if($5 < 0) SensorReading = ""; else SensorReading = $5;
-        if(AlarmThreshold == "" && WarningThreshold == "" || SensorReading == "") StatusActivation=1;
-        print $1";"$2";"AlarmThreshold";"WarningThreshold";"SensorReading";"$6";"StatusActivation";"
-    }
-  EmbeddedFile(2): |-
-    BEGIN {FS=";";}
-    {
-        if ($3 < 0 ) UpperThreshold = ""; else UpperThreshold = $3;
-        if ($4 < 0 ) LowerThreshold = ""; else LowerThreshold = $4;
-        if ($5 < 0 ) SensorReading = ""; else SensorReading = $5;
-        if (UpperThreshold == "" && LowerThreshold == "" || SensorReading == "") StatusActivation=1;
-        print $1";"$2";"UpperThreshold";"LowerThreshold";"SensorReading";"$6";"StatusActivation";"
-    }
-translations:
-  enclosureStatusInformationTranslationTable:
-    "1": Power ON
-    "2": Power OverLoad
-    "3": Interlock
-    "4": Power at Fault
-    "5": Power Control Fault
-  TemperatureStatusTranslationTable:
-    "1": degraded
-    "2": degraded
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  FanStatusTranslationTable:
-    "1": degraded
-    "2": degraded
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  VoltageStatusTranslationTable:
-    "1": degraded
-    "2": degraded
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  cpuStatusInformationTranslationTable:
-    "0": Processor Not Present
-    "1": Processor Present
-    default: Unknown Status
-  PowerSupplyStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "4": failed
-    "16": failed
-    "8": failed
-    "32": failed
-  VoltageStatusInformationTranslationTable:
-    "1": Other
-    "2": Unknown
-    default: Unknown Status
-    "3": ok
-    "4": Non Critical
-    "5": Critical
-    "6": Non Recoverable
-  FanStatusInformationTranslationTable:
-    "1": Other
-    "2": Unknown
-    default: Unknown Status
-    "3": ok
-    "4": Non Critical
-    "5": Critical
-    "6": Non Recoverable
-  memoryStatusTranslationTable:
-    "0": failed
-    "1": ok
-    default: UNKNOWN
-  PowerSupplyStatusInformationTranslationTable:
-    "1": Present
-    "2": Failure Dectected
-    default: Unknown Status
-    "4": Predictive Failure
-    "16": PowerSupply Lost Or Out Of Range
-    "8": PowerSupply Input Lost
-    "32": PowerSupply Out Of Range
-  TemperatureStatusInformationTranslationTable:
-    "1": Other
-    "2": Unknown
-    default: Unknown Status
-    "3": ok
-    "4": Non Critical
-    "5": Critical
-    "6": Non Recoverable
-  cpuStatusTranslationTable:
-    "0": failed
-    "1": ok
-    default: UNKNOWN
-  memoryStatusInformationTranslationTable:
-    "0": Memory Not Present
-    "1": Memory Present
-    default: Unknown Status
-  enclosureStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-    "5": degraded
 connector:
   displayName: Quanta Rack Mount Server Unit
   platforms: Quanta Server
@@ -644,3 +531,116 @@ monitors:
           hw.status{hw.type="voltage"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+        if($3 < 0) AlarmThreshold = ""; else AlarmThreshold = $3;
+        if($4 < 0) WarningThreshold = ""; else WarningThreshold = $4;
+        if($5 < 0) SensorReading = ""; else SensorReading = $5;
+        if(AlarmThreshold == "" && WarningThreshold == "" || SensorReading == "") StatusActivation=1;
+        print $1";"$2";"AlarmThreshold";"WarningThreshold";"SensorReading";"$6";"StatusActivation";"
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS=";";}
+    {
+        if ($3 < 0 ) UpperThreshold = ""; else UpperThreshold = $3;
+        if ($4 < 0 ) LowerThreshold = ""; else LowerThreshold = $4;
+        if ($5 < 0 ) SensorReading = ""; else SensorReading = $5;
+        if (UpperThreshold == "" && LowerThreshold == "" || SensorReading == "") StatusActivation=1;
+        print $1";"$2";"UpperThreshold";"LowerThreshold";"SensorReading";"$6";"StatusActivation";"
+    }
+translations:
+  enclosureStatusInformationTranslationTable:
+    "1": Power ON
+    "2": Power OverLoad
+    "3": Interlock
+    "4": Power at Fault
+    "5": Power Control Fault
+  TemperatureStatusTranslationTable:
+    "1": degraded
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  FanStatusTranslationTable:
+    "1": degraded
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  VoltageStatusTranslationTable:
+    "1": degraded
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  cpuStatusInformationTranslationTable:
+    "0": Processor Not Present
+    "1": Processor Present
+    default: Unknown Status
+  PowerSupplyStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "4": failed
+    "16": failed
+    "8": failed
+    "32": failed
+  VoltageStatusInformationTranslationTable:
+    "1": Other
+    "2": Unknown
+    default: Unknown Status
+    "3": ok
+    "4": Non Critical
+    "5": Critical
+    "6": Non Recoverable
+  FanStatusInformationTranslationTable:
+    "1": Other
+    "2": Unknown
+    default: Unknown Status
+    "3": ok
+    "4": Non Critical
+    "5": Critical
+    "6": Non Recoverable
+  memoryStatusTranslationTable:
+    "0": failed
+    "1": ok
+    default: UNKNOWN
+  PowerSupplyStatusInformationTranslationTable:
+    "1": Present
+    "2": Failure Dectected
+    default: Unknown Status
+    "4": Predictive Failure
+    "16": PowerSupply Lost Or Out Of Range
+    "8": PowerSupply Input Lost
+    "32": PowerSupply Out Of Range
+  TemperatureStatusInformationTranslationTable:
+    "1": Other
+    "2": Unknown
+    default: Unknown Status
+    "3": ok
+    "4": Non Critical
+    "5": Critical
+    "6": Non Recoverable
+  cpuStatusTranslationTable:
+    "0": failed
+    "1": ok
+    default: UNKNOWN
+  memoryStatusInformationTranslationTable:
+    "0": Memory Not Present
+    "1": Memory Present
+    default: Unknown Status
+  enclosureStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": degraded

@@ -1,76 +1,4 @@
 ---
-translations:
-  DiskControllerStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-  RAIDLevelTranslationTable:
-    "2": 0
-    default: ""
-    "3": 1
-    "4": 4
-    "5": 5
-    "6": 1E
-  PhysicalDiskStatusInformationTranslationTable:
-    "11": Missing
-    "12": Hard error
-    "2": ""
-    default: Unknown Status
-    "3": Failed
-    "4": Not configured
-    "5": Bad cable
-    "6": Missing
-    "7": Missing
-    "8": Predicted failure
-    "9": Missing
-    "10": Offline
-  DiskControllerStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Failed
-  PhysicalDiskSMARTStatusTranslationTable:
-    "11": "TRUE"
-    default: "FALSE"
-    "6": "TRUE"
-    "7": "TRUE"
-    "9": "TRUE"
-  LogicalDiskStatusInformationTranslationTable:
-    "11": Disabled
-    "2": ""
-    default: Unknown Status
-    "3": Failed
-    "4": Unconfigured
-    "5": Recovering
-    "6": Ready for rebuild
-    "7": Rebuilding
-    "8": Wrong drive
-    "9": Bad connect
-    "10": Degraded
-  LogicalDiskStatusTranslationTable:
-    "11": degraded
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": ok
-    "5": degraded
-    "6": ok
-    "7": degraded
-    "8": failed
-    "9": failed
-    "10": degraded
-  PhysicalDiskStatusTranslationTable:
-    "11": failed
-    "12": failed
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": degraded
-    "5": failed
-    "6": failed
-    "7": failed
-    "8": ok
-    "9": failed
-    "10": degraded
 connector:
   displayName: HP Insight Management Agent - SCSI Storage
   platforms: HP ProLiant
@@ -335,3 +263,75 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  DiskControllerStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+  RAIDLevelTranslationTable:
+    "2": 0
+    default: ""
+    "3": 1
+    "4": 4
+    "5": 5
+    "6": 1E
+  PhysicalDiskStatusInformationTranslationTable:
+    "11": Missing
+    "12": Hard error
+    "2": ""
+    default: Unknown Status
+    "3": Failed
+    "4": Not configured
+    "5": Bad cable
+    "6": Missing
+    "7": Missing
+    "8": Predicted failure
+    "9": Missing
+    "10": Offline
+  DiskControllerStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Failed
+  PhysicalDiskSMARTStatusTranslationTable:
+    "11": "TRUE"
+    default: "FALSE"
+    "6": "TRUE"
+    "7": "TRUE"
+    "9": "TRUE"
+  LogicalDiskStatusInformationTranslationTable:
+    "11": Disabled
+    "2": ""
+    default: Unknown Status
+    "3": Failed
+    "4": Unconfigured
+    "5": Recovering
+    "6": Ready for rebuild
+    "7": Rebuilding
+    "8": Wrong drive
+    "9": Bad connect
+    "10": Degraded
+  LogicalDiskStatusTranslationTable:
+    "11": degraded
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": degraded
+    "6": ok
+    "7": degraded
+    "8": failed
+    "9": failed
+    "10": degraded
+  PhysicalDiskStatusTranslationTable:
+    "11": failed
+    "12": failed
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": failed
+    "8": ok
+    "9": failed
+    "10": degraded

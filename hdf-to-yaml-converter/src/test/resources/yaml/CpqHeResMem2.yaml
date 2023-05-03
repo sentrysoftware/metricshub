@@ -1,53 +1,4 @@
 ---
-translations:
-  errorCountConditionTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  memoryTypeTranslationTable:
-    "11": SRIMM
-    "12": FB-DIMM
-    "13": DIMM-DDR
-    "14": DIMM-DDR2
-    "15": DIMM-DDR3
-    "16": DIMM-FBD2
-    "17": FB-DIMM-DDR2
-    "18": FB-DIMM-DDR3
-    "1": ""
-    "2": Board
-    "3": Single-width
-    "4": Double-width
-    "5": SIMM
-    "6": PCMCIA
-    "7": Compaq-specific
-    "8": DIMM
-    "9": DIMM (small outline)
-    "10": RIMM
-  memoryStatusTranslationTable:
-    "11": degraded
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-    "5": ok
-    "6": ok
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  memoryStatusInformationTranslationTable:
-    "11": Too many ECC errors
-    "2": Not Present or Uninitialized
-    default: Unknown Status
-    "3": Not in use
-    "4": Good
-    "5": "Just added, not in use"
-    "6": "Just upgraded, not in use"
-    "7": Missing!
-    "8": Does not match other modules
-    "9": Not supported
-    "10": Bad configuration
 connector:
   displayName: HP Insight Management Agent (v8.25 or higher) - Memory
   platforms: HP ProLiant
@@ -187,3 +138,52 @@ monitors:
           hw.status{hw.type="memory"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  errorCountConditionTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  memoryTypeTranslationTable:
+    "11": SRIMM
+    "12": FB-DIMM
+    "13": DIMM-DDR
+    "14": DIMM-DDR2
+    "15": DIMM-DDR3
+    "16": DIMM-FBD2
+    "17": FB-DIMM-DDR2
+    "18": FB-DIMM-DDR3
+    "1": ""
+    "2": Board
+    "3": Single-width
+    "4": Double-width
+    "5": SIMM
+    "6": PCMCIA
+    "7": Compaq-specific
+    "8": DIMM
+    "9": DIMM (small outline)
+    "10": RIMM
+  memoryStatusTranslationTable:
+    "11": degraded
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  memoryStatusInformationTranslationTable:
+    "11": Too many ECC errors
+    "2": Not Present or Uninitialized
+    default: Unknown Status
+    "3": Not in use
+    "4": Good
+    "5": "Just added, not in use"
+    "6": "Just upgraded, not in use"
+    "7": Missing!
+    "8": Does not match other modules
+    "9": Not supported
+    "10": Bad configuration

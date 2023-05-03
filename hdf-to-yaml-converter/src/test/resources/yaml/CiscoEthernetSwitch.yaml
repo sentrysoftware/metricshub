@@ -1,21 +1,4 @@
 ---
-translations:
-  SensorStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
-    "6": failed
-  SensorStatusInformationTranslationTable:
-    "1": ""
-    "2": Warning
-    default: Unknown Status
-    "3": Critical
-    "4": Shutdown
-    "5": No Longer Present
-    "6": Not Functioning
 connector:
   displayName: Cisco Ethernet Switch
   platforms: Cisco
@@ -311,3 +294,20 @@ monitors:
           device_type: $column(3)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+translations:
+  SensorStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+  SensorStatusInformationTranslationTable:
+    "1": ""
+    "2": Warning
+    default: Unknown Status
+    "3": Critical
+    "4": Shutdown
+    "5": No Longer Present
+    "6": Not Functioning

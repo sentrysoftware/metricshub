@@ -1,66 +1,4 @@
 ---
-translations:
-  RAIDLevelTranslationTable:
-    "11": 30
-    "12": 50
-    "13": Add Spares
-    "14": Delete Logical
-    "15": Transform Logical
-    "18": 0+1
-    "1": Concatenated
-    "2": 0
-    default: ""
-    "3": 1
-    "4": 2
-    "5": 3
-    "6": 4
-    "7": 5
-    "8": 6
-    "9": 7
-    "10": 10
-  PhysicalDiskStatusInformationTranslationTable:
-    "11": Formatting
-    "12": Diagnosing
-    "13": Initializing
-    "1": Ready
-    "2": Failed
-    default: Unknown Status
-    "3": Online
-    "4": Offline
-    "5": Degraded
-    "6": Recovering
-    "7": Removed
-    "8": Resynching
-    "9": Rebuilding
-    "10": No media
-  LogicalDiskStatusInformationTranslationTable:
-    "1": Ready
-    "2": Failed
-    "24": Rebuilding
-    "35": Initializing
-    default: Unknown Status
-    "3": Online
-    "4": Offline
-    "15": Resynching
-    "26": Formatting
-    "6": Degraded
-  LogicalDiskStatusTranslationTable:
-    "1": ok
-    "2": failed
-    "24": degraded
-    "35": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "15": degraded
-    "26": ok
-    "6": degraded
-  PhysicalDiskStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": failed
-    default: UNKNOWN
-    "3": failed
 connector:
   displayName: Dell OpenManage Array Manager
   platforms: Dell PowerEdge
@@ -361,3 +299,65 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(1)
         legacyTextParameters:
           StatusInformation: $column(2)
+translations:
+  RAIDLevelTranslationTable:
+    "11": 30
+    "12": 50
+    "13": Add Spares
+    "14": Delete Logical
+    "15": Transform Logical
+    "18": 0+1
+    "1": Concatenated
+    "2": 0
+    default: ""
+    "3": 1
+    "4": 2
+    "5": 3
+    "6": 4
+    "7": 5
+    "8": 6
+    "9": 7
+    "10": 10
+  PhysicalDiskStatusInformationTranslationTable:
+    "11": Formatting
+    "12": Diagnosing
+    "13": Initializing
+    "1": Ready
+    "2": Failed
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "5": Degraded
+    "6": Recovering
+    "7": Removed
+    "8": Resynching
+    "9": Rebuilding
+    "10": No media
+  LogicalDiskStatusInformationTranslationTable:
+    "1": Ready
+    "2": Failed
+    "24": Rebuilding
+    "35": Initializing
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "15": Resynching
+    "26": Formatting
+    "6": Degraded
+  LogicalDiskStatusTranslationTable:
+    "1": ok
+    "2": failed
+    "24": degraded
+    "35": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "15": degraded
+    "26": ok
+    "6": degraded
+  PhysicalDiskStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": failed
+    default: UNKNOWN
+    "3": failed

@@ -1,35 +1,4 @@
 ---
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    "0": Unconfigured
-    "1": Failed (Unconfigured)
-    "2": Hotspare
-    "24": ""
-    default: Unknown Status
-    "16": Offline
-    "17": Failed
-    "20": Rebuilding
-  LogicalDiskStatusInformationTranslationTable:
-    "0": Offline
-    "1": Partially Degraded
-    "2": Degraded
-    default: Unknown Status
-    "3": ""
-  LogicalDiskStatusTranslationTable:
-    "0": failed
-    "1": degraded
-    "2": degraded
-    default: UNKNOWN
-    "3": ok
-  PhysicalDiskStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": ok
-    "24": ok
-    default: UNKNOWN
-    "16": degraded
-    "17": failed
-    "20": degraded
 connector:
   displayName: LsiLogic MegaRAID SAS (Newer Controllers)
   platforms: Fujitsu-Siemens PRIMERGY
@@ -206,3 +175,34 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    "0": Unconfigured
+    "1": Failed (Unconfigured)
+    "2": Hotspare
+    "24": ""
+    default: Unknown Status
+    "16": Offline
+    "17": Failed
+    "20": Rebuilding
+  LogicalDiskStatusInformationTranslationTable:
+    "0": Offline
+    "1": Partially Degraded
+    "2": Degraded
+    default: Unknown Status
+    "3": ""
+  LogicalDiskStatusTranslationTable:
+    "0": failed
+    "1": degraded
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+  PhysicalDiskStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": ok
+    "24": ok
+    default: UNKNOWN
+    "16": degraded
+    "17": failed
+    "20": degraded

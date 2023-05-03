@@ -1,62 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |
-    {
-        if ($1 == "Status" && $3 == "processor")
-        {
-                processorId = $4
-                processorStatus = ""
-                processorType = ""
-                processorSpeed = ""
-        }
-
-        if ($1 == "Status" && $3 == "virtual" && $4 == "processor")
-        {
-                processorId = $5
-                processorStatus = ""
-                processorType = ""
-                processorSpeed = ""
-        }
-
-        if ($1 == "Processor" && $2 == "has" && $3 == "been")
-        {
-                processorStatus = $4
-        }
-
-        if ($2 == "since")
-        {
-                processorStatus = $1
-        }
-        if ($3 == "since")
-        {
-                processorStatus = $1 " " $2
-        }
-
-        if ($1 == "The" && $3 == "processor" && $4 == "operates" && length(processorId) > 0)
-        {
-                processorType = $2
-                processorSpeed = $6
-
-                print "MSHW;" processorId ";" processorType ";" processorSpeed ";" processorStatus
-
-                processorId = ""
-        }
-    }
-translations:
-  cpuStatusInformationTranslationTable:
-    default: Unknown Status
-    faulted: Faulted
-    on-line: On-line
-    off-line: Off-line
-    no-intr: Non-interruptible
-    powered off: Powered off
-  cpuStatusTranslationTable:
-    default: UNKNOWN
-    faulted: failed
-    on-line: ok
-    off-line: failed
-    no-intr: ok
-    powered off: failed
 connector:
   displayName: Oracle/Sun Solaris - Processors (psrinfo)
   platforms: Oracle/Sun
@@ -140,3 +82,61 @@ monitors:
           hw.status{hw.type="cpu"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |
+    {
+        if ($1 == "Status" && $3 == "processor")
+        {
+                processorId = $4
+                processorStatus = ""
+                processorType = ""
+                processorSpeed = ""
+        }
+
+        if ($1 == "Status" && $3 == "virtual" && $4 == "processor")
+        {
+                processorId = $5
+                processorStatus = ""
+                processorType = ""
+                processorSpeed = ""
+        }
+
+        if ($1 == "Processor" && $2 == "has" && $3 == "been")
+        {
+                processorStatus = $4
+        }
+
+        if ($2 == "since")
+        {
+                processorStatus = $1
+        }
+        if ($3 == "since")
+        {
+                processorStatus = $1 " " $2
+        }
+
+        if ($1 == "The" && $3 == "processor" && $4 == "operates" && length(processorId) > 0)
+        {
+                processorType = $2
+                processorSpeed = $6
+
+                print "MSHW;" processorId ";" processorType ";" processorSpeed ";" processorStatus
+
+                processorId = ""
+        }
+    }
+translations:
+  cpuStatusInformationTranslationTable:
+    default: Unknown Status
+    faulted: Faulted
+    on-line: On-line
+    off-line: Off-line
+    no-intr: Non-interruptible
+    powered off: Powered off
+  cpuStatusTranslationTable:
+    default: UNKNOWN
+    faulted: failed
+    on-line: ok
+    off-line: failed
+    no-intr: ok
+    powered off: failed

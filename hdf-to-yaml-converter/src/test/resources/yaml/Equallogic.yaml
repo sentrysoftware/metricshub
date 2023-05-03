@@ -1,105 +1,4 @@
 ---
-translations:
-  BatteryStatusInformationTranslationTable:
-    "1": ""
-    "2": Failed
-    default: Unknown
-    "3": Charging
-    "4": Low Voltage
-    "5": Low Voltage - Charging
-    "6": Missing
-  NVBatteryStatusTranslationTable:
-    "0": failed
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": UNKNOWN
-  BatteryStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": degraded
-    "6": failed
-  logicalDiskStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
-    "6": failed
-    "7": failed
-    "8": failed
-  fanStatusTranslationTable:
-    "0": UNKNOWN
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  logicalDiskStatusInformationTranslationTable:
-    "1": ""
-    "2": Not Available
-    default: Unknown
-    "3": Not Available (Snap Reserve Met)
-    "4": Not Available (Members Offline)
-    "5": Not Available (Lost Cached Blocks)
-    "6": Not Available (Thin Max Growth Met)
-    "7": Not Available (No Space for Auto Grow)
-    "8": Not Available (Missing Pages)
-  psStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  temperatureStatusTranslationTable:
-    "0": UNKNOWN
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  diskStatusInformationTranslationTable:
-    "11": Encrypted
-    "12": Not Approved
-    "13": Preempt-failed
-    "1": ""
-    "2": Spare
-    default: Unknown
-    "3": Failed
-    "4": Off-Line
-    "5": Altered Signature
-    "6": Disk Too Small
-    "7": Disk has a History of Failures
-    "8": Unsupported Drive Label Version
-    "9": Unhealthy
-    "10": Rebuilding
-  diskStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": degraded
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
-    "6": failed
-    "7": degraded
-    "8": degraded
-    "9": failed
-    "10": degraded
-  NVBatteryStatusInformationTranslationTable:
-    "0": Missing
-    "1": ""
-    "2": Bad
-    default: Unknown
-    "3": Unknown
-  psStatusInformationTranslationTable:
-    "1": ""
-    "2": No AC Power
-    default: Unknown
-    "3": Failed or No Data
 connector:
   displayName: Dell EqualLogic PS Series
   platforms: Dell EqualLogic
@@ -830,3 +729,104 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
           name: "sprintf(\"Disk Controller: %s (%s)\", $column(3), $column(4))"
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": ""
+    "2": Failed
+    default: Unknown
+    "3": Charging
+    "4": Low Voltage
+    "5": Low Voltage - Charging
+    "6": Missing
+  NVBatteryStatusTranslationTable:
+    "0": failed
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN
+  BatteryStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": degraded
+    "6": failed
+  logicalDiskStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": failed
+    "8": failed
+  fanStatusTranslationTable:
+    "0": UNKNOWN
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  logicalDiskStatusInformationTranslationTable:
+    "1": ""
+    "2": Not Available
+    default: Unknown
+    "3": Not Available (Snap Reserve Met)
+    "4": Not Available (Members Offline)
+    "5": Not Available (Lost Cached Blocks)
+    "6": Not Available (Thin Max Growth Met)
+    "7": Not Available (No Space for Auto Grow)
+    "8": Not Available (Missing Pages)
+  psStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  temperatureStatusTranslationTable:
+    "0": UNKNOWN
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  diskStatusInformationTranslationTable:
+    "11": Encrypted
+    "12": Not Approved
+    "13": Preempt-failed
+    "1": ""
+    "2": Spare
+    default: Unknown
+    "3": Failed
+    "4": Off-Line
+    "5": Altered Signature
+    "6": Disk Too Small
+    "7": Disk has a History of Failures
+    "8": Unsupported Drive Label Version
+    "9": Unhealthy
+    "10": Rebuilding
+  diskStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": degraded
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": degraded
+    "8": degraded
+    "9": failed
+    "10": degraded
+  NVBatteryStatusInformationTranslationTable:
+    "0": Missing
+    "1": ""
+    "2": Bad
+    default: Unknown
+    "3": Unknown
+  psStatusInformationTranslationTable:
+    "1": ""
+    "2": No AC Power
+    default: Unknown
+    "3": Failed or No Data

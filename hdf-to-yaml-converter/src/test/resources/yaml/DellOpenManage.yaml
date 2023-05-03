@@ -1,237 +1,4 @@
 ---
-translations:
-  BatteryStatusInformationTranslationTable:
-    "1": Predicted Failure
-    "2": Failed
-    "3": Failed
-    "4": ""
-    "5": Predicted Failure
-    "6": Failed
-    "7": Failed
-  ProcessorStatusInformationTranslationTable:
-    "10,1": Throttled
-    "0,1": Internal Error
-    "1,1": Thermal Trip
-    "5,1": Configuration Error
-    "7,1": ""
-    "8,1": Disabled
-    "9,1": Terminator
-  RACTypeTranslationTable:
-    default: DRAC
-    "3": DracIII
-    "4": ERA
-    "5": DRAC4
-    "6": DRAC5
-  EnvironmentStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-    "7": degraded
-    "8": failed
-    "9": failed
-    "10": failed
-  GenericStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  GenericStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Non Critical
-    "5": Critical
-    "6": Unrecoverable
-  MemoryTypeTranslationTable:
-    "11": FEPROM
-    "12": EPROM
-    "13": CDRAM
-    "24": DDR3
-    "14": 3DRAM
-    "25": FBD2
-    "15": SDRAM
-    "26": DDR4
-    "16": SGRAM
-    "17": RDRAM
-    "18": DDR
-    "19": DDR2
-    "1": Other type
-    "2": Unknown type
-    default: ""
-    "3": DRAM
-    "4": EDRAM
-    "5": VRAM
-    "6": SRAM
-    "7": RAM
-    "8": ROM
-    "9": Flash
-    "20": DDR2 FB-DIMM
-    "10": EEPROM
-  cpuFamilyTranslationTable:
-    "88": UltraSPARC IIIi
-    "190": Core2
-    "191": Core2 Duo
-    "198": Corei7
-    "199": Dual Core Celeron
-    "112": Hobbit
-    "96": 68040
-    "97": 68xxx
-    "10": 80487
-    "98": 68000
-    "11": Pentium
-    "99": 68010
-    "12": Pentium Pro
-    "13": Pentium II
-    "14": Pentium MMX
-    "15": Celeron
-    "16": Pentium II Xeon
-    "17": Pentium III
-    "18": Pentium III Xeon
-    "19": Pentium III SpeedStep
-    "120": Crusoe TM5000
-    "121": Crusoe TM3000
-    "122": Efficeon TM8000
-    "3": 8086
-    "4": 80286
-    "5": 386
-    "6": 486
-    "7": 8087
-    "128": Weitek
-    "8": 80287
-    "9": 80387
-    "20": Itanium
-    "21": Xeon
-    "22": Pentium 4
-    "23": Xeon MP
-    "24": Itanium 2
-    "25": K5
-    "26": K6
-    "27": K6-2
-    "28": K6-3
-    "29": Athlon
-    "250": i860
-    "251": i960
-    "131": Athlon64
-    "132": Opteron
-    "133": Sempron
-    "134": Turion64 Mobile
-    default: ""
-    "135": Dual Core Opteron
-    "136": Athlon64 X2 Dual Core
-    "137": Turion64 X2 Mobile
-    "138": QuadCore Opteron
-    "139": 3rd Generation Opteron
-    "30": 2900
-    "31": K6-2+
-    "32": PowerPC
-    "33": PowerPC 601
-    "34": PowerPC 603
-    "35": PowerPC 603+
-    "36": PowerPC 604
-    "37": PowerPC 620
-    "38": PowerPC x704
-    "39": PowerPC 750
-    "144": PA-RISC
-    "145": PA-RISC 8500
-    "146": PA-RISC 8000
-    "147": PA-RISC 7300LC
-    "148": PA-RISC 7200
-    "149": PA-RISC 7100LC
-    "48": Alpha
-    "49": Alpha21064
-    "150": PA-RISC 7100
-    "50": Alpha21066
-    "51": Alpha21164
-    "52": Alpha21164PC
-    "53": Alpha21164a
-    "54": Alpha21264
-    "55": Alpha21364
-    "160": V30
-    "200": IBM390
-    "201": G4
-    "202": G5
-    "203": ESA390G6
-    "204": zArchitectur
-    "64": MIPS
-    "65": MIPS R4000
-    "66": MIPS R4200
-    "67": MIPS R4400
-    "68": MIPS R4600
-    "69": MIPS R10000
-    "171": Dual Core Xeon 5200
-    "172": Dual Core Xeon 7200
-    "173": Quad Core Xeon 7300
-    "174": Quad Core Xeon 7400
-    "175": MultiCore Xeon 7400
-    "176": M1
-    "177": M2
-    "210": VIAC7-M
-    "211": VIAC7-D
-    "212": VIAC7
-    "213": VIAEden
-    "214": MultiCore Xeon
-    "215": Dual Core Xeon 3xxx
-    "216": Quad Core Xeon 3xxx
-    "218": Dual Core Xeon 5xxx
-    "219": Quad Core Xeon 5xxx
-    "180": AS400
-    "182": AthlonXP
-    "183": AthlonMP
-    "184": Duron
-    "185": Pentium M
-    "186": Celeron D
-    "187": Pentium D
-    "100": 68020
-    "188": Pentium Extreme
-    "221": Dual Core Xeon 7xxx
-    "101": 68030
-    "189": Core Solo
-    "222": Quad Core Xeon 7xxx
-    "223": MultiCore Xeon 7xxx
-    "80": SPARC
-    "81": SuperSPARC
-    "82": microSPARC II
-    "83": microSPARC IIep
-    "84": UltraSPARC
-    "85": UltraSPARC II
-    "86": UltraSPARC IIi
-    "87": UltraSPARC III
-  PowerSupplyTypeTranslationTable:
-    "11": VRM
-    default: ""
-    "3": Linear
-    "4": Switching
-    "5": Battery
-    "6": UPS
-    "7": Converter
-    "8": Regulator
-    "9": AC
-    "10": DC
-  EnvironmentStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Non-Critical Upper
-    "5": Critical Upper
-    "6": Unrecoverable Upper
-    "7": Non-Critical Lower
-    "8": Critical Lower
-    "9": Unrecoverable Lower
-    "10": Failed
-  PowerSupplyStatusInformationTranslationTable:
-    "13,1": AC Out-of-range
-    "12,1": AC Lost or Out-of-range
-    "10,1": Predicted Failure
-    "11,1": AC Lost
-    "0,1": ""
-    "2,1": Not Ready
-    "3,1": Fan Failure
-    "6,1": AC Switch On
-    "7,1": AC Power On
-    "8,1": ""
-    "9,1": Failed
-    "14,1": Configuration Error
 connector:
   displayName: Dell OpenManage Server Administrator
   platforms: Dell PowerEdge
@@ -1090,3 +857,236 @@ monitors:
           hw.status{hw.type="battery"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": Predicted Failure
+    "2": Failed
+    "3": Failed
+    "4": ""
+    "5": Predicted Failure
+    "6": Failed
+    "7": Failed
+  ProcessorStatusInformationTranslationTable:
+    "10,1": Throttled
+    "0,1": Internal Error
+    "1,1": Thermal Trip
+    "5,1": Configuration Error
+    "7,1": ""
+    "8,1": Disabled
+    "9,1": Terminator
+  RACTypeTranslationTable:
+    default: DRAC
+    "3": DracIII
+    "4": ERA
+    "5": DRAC4
+    "6": DRAC5
+  EnvironmentStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": degraded
+    "8": failed
+    "9": failed
+    "10": failed
+  GenericStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  GenericStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non Critical
+    "5": Critical
+    "6": Unrecoverable
+  MemoryTypeTranslationTable:
+    "11": FEPROM
+    "12": EPROM
+    "13": CDRAM
+    "24": DDR3
+    "14": 3DRAM
+    "25": FBD2
+    "15": SDRAM
+    "26": DDR4
+    "16": SGRAM
+    "17": RDRAM
+    "18": DDR
+    "19": DDR2
+    "1": Other type
+    "2": Unknown type
+    default: ""
+    "3": DRAM
+    "4": EDRAM
+    "5": VRAM
+    "6": SRAM
+    "7": RAM
+    "8": ROM
+    "9": Flash
+    "20": DDR2 FB-DIMM
+    "10": EEPROM
+  cpuFamilyTranslationTable:
+    "88": UltraSPARC IIIi
+    "190": Core2
+    "191": Core2 Duo
+    "198": Corei7
+    "199": Dual Core Celeron
+    "112": Hobbit
+    "96": 68040
+    "97": 68xxx
+    "10": 80487
+    "98": 68000
+    "11": Pentium
+    "99": 68010
+    "12": Pentium Pro
+    "13": Pentium II
+    "14": Pentium MMX
+    "15": Celeron
+    "16": Pentium II Xeon
+    "17": Pentium III
+    "18": Pentium III Xeon
+    "19": Pentium III SpeedStep
+    "120": Crusoe TM5000
+    "121": Crusoe TM3000
+    "122": Efficeon TM8000
+    "3": 8086
+    "4": 80286
+    "5": 386
+    "6": 486
+    "7": 8087
+    "128": Weitek
+    "8": 80287
+    "9": 80387
+    "20": Itanium
+    "21": Xeon
+    "22": Pentium 4
+    "23": Xeon MP
+    "24": Itanium 2
+    "25": K5
+    "26": K6
+    "27": K6-2
+    "28": K6-3
+    "29": Athlon
+    "250": i860
+    "251": i960
+    "131": Athlon64
+    "132": Opteron
+    "133": Sempron
+    "134": Turion64 Mobile
+    default: ""
+    "135": Dual Core Opteron
+    "136": Athlon64 X2 Dual Core
+    "137": Turion64 X2 Mobile
+    "138": QuadCore Opteron
+    "139": 3rd Generation Opteron
+    "30": 2900
+    "31": K6-2+
+    "32": PowerPC
+    "33": PowerPC 601
+    "34": PowerPC 603
+    "35": PowerPC 603+
+    "36": PowerPC 604
+    "37": PowerPC 620
+    "38": PowerPC x704
+    "39": PowerPC 750
+    "144": PA-RISC
+    "145": PA-RISC 8500
+    "146": PA-RISC 8000
+    "147": PA-RISC 7300LC
+    "148": PA-RISC 7200
+    "149": PA-RISC 7100LC
+    "48": Alpha
+    "49": Alpha21064
+    "150": PA-RISC 7100
+    "50": Alpha21066
+    "51": Alpha21164
+    "52": Alpha21164PC
+    "53": Alpha21164a
+    "54": Alpha21264
+    "55": Alpha21364
+    "160": V30
+    "200": IBM390
+    "201": G4
+    "202": G5
+    "203": ESA390G6
+    "204": zArchitectur
+    "64": MIPS
+    "65": MIPS R4000
+    "66": MIPS R4200
+    "67": MIPS R4400
+    "68": MIPS R4600
+    "69": MIPS R10000
+    "171": Dual Core Xeon 5200
+    "172": Dual Core Xeon 7200
+    "173": Quad Core Xeon 7300
+    "174": Quad Core Xeon 7400
+    "175": MultiCore Xeon 7400
+    "176": M1
+    "177": M2
+    "210": VIAC7-M
+    "211": VIAC7-D
+    "212": VIAC7
+    "213": VIAEden
+    "214": MultiCore Xeon
+    "215": Dual Core Xeon 3xxx
+    "216": Quad Core Xeon 3xxx
+    "218": Dual Core Xeon 5xxx
+    "219": Quad Core Xeon 5xxx
+    "180": AS400
+    "182": AthlonXP
+    "183": AthlonMP
+    "184": Duron
+    "185": Pentium M
+    "186": Celeron D
+    "187": Pentium D
+    "100": 68020
+    "188": Pentium Extreme
+    "221": Dual Core Xeon 7xxx
+    "101": 68030
+    "189": Core Solo
+    "222": Quad Core Xeon 7xxx
+    "223": MultiCore Xeon 7xxx
+    "80": SPARC
+    "81": SuperSPARC
+    "82": microSPARC II
+    "83": microSPARC IIep
+    "84": UltraSPARC
+    "85": UltraSPARC II
+    "86": UltraSPARC IIi
+    "87": UltraSPARC III
+  PowerSupplyTypeTranslationTable:
+    "11": VRM
+    default: ""
+    "3": Linear
+    "4": Switching
+    "5": Battery
+    "6": UPS
+    "7": Converter
+    "8": Regulator
+    "9": AC
+    "10": DC
+  EnvironmentStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non-Critical Upper
+    "5": Critical Upper
+    "6": Unrecoverable Upper
+    "7": Non-Critical Lower
+    "8": Critical Lower
+    "9": Unrecoverable Lower
+    "10": Failed
+  PowerSupplyStatusInformationTranslationTable:
+    "13,1": AC Out-of-range
+    "12,1": AC Lost or Out-of-range
+    "10,1": Predicted Failure
+    "11,1": AC Lost
+    "0,1": ""
+    "2,1": Not Ready
+    "3,1": Fan Failure
+    "6,1": AC Switch On
+    "7,1": AC Power On
+    "8,1": ""
+    "9,1": Failed
+    "14,1": Configuration Error

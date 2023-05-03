@@ -1,95 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS="[;]"}
-    {RemoteWWN = $7
-     gsub(/^.*<portname>/,"",RemoteWWN)
-     gsub(/<\057portname>.*$/,"",RemoteWWN)
-     gsub(/:/,"",RemoteWWN)
-     print ("MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" $6 ";" RemoteWWN ";" $8 ";" $9 ";" $10 ";" $11 ";")
-    }
-translations:
-  DMTFOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": degraded
-    "17": ok
-    "18": ok
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  PortTypeTranslationTable:
-    "110": Ethernet Port
-    default: Unknown Network Port Type
-    "50": Ethernet Port
-    "51": Ethernet Port
-    "52": Ethernet Port
-    "53": Ethernet Port
-    "10": HBA FC Port N (Node)
-    "54": Ethernet Port
-    "11": HBA FC Port NL (Node/Loop)
-    "55": Ethernet Port
-    "12": HBA FC Port F/NL (Node/Loop/Fabric)
-    "56": Ethernet Port
-    "14": FC Port E
-    "15": FC Port F
-    "16": FC Port FL
-    "17": FC Port B
-    "18": FC Port G
-    "0": Unknown Network Port Type
-    "1": Other Network Port Type
-    "100": Ethernet Port
-    "101": Ethernet Port
-    "102": Ethernet Port
-    "103": Ethernet Port
-    "104": Ethernet Port
-    "105": Ethernet Port
-    "106": Ethernet Port
-    "107": Ethernet Port
-    "108": Ethernet Port
-    "109": Ethernet Port
-  EnabledStateStatusTranslationTable:
-    "2": ok
-    default: degraded
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": degraded
-    "7": degraded
-    "8": degraded
-    "9": degraded
-    "10": degraded
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "1": Dormant
-    "2": ""
-    default: ""
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": Error
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
 connector:
   displayName: Brocade SAN Switch SMI Agent
   platforms: Brocade SAN
@@ -1350,3 +1259,94 @@ monitors:
           hw.status{hw.type="temperature"}: $column(4)
         legacyTextParameters:
           StatusInformation: $column(5)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+    {RemoteWWN = $7
+     gsub(/^.*<portname>/,"",RemoteWWN)
+     gsub(/<\057portname>.*$/,"",RemoteWWN)
+     gsub(/:/,"",RemoteWWN)
+     print ("MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" $6 ";" RemoteWWN ";" $8 ";" $9 ";" $10 ";" $11 ";")
+    }
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  PortTypeTranslationTable:
+    "110": Ethernet Port
+    default: Unknown Network Port Type
+    "50": Ethernet Port
+    "51": Ethernet Port
+    "52": Ethernet Port
+    "53": Ethernet Port
+    "10": HBA FC Port N (Node)
+    "54": Ethernet Port
+    "11": HBA FC Port NL (Node/Loop)
+    "55": Ethernet Port
+    "12": HBA FC Port F/NL (Node/Loop/Fabric)
+    "56": Ethernet Port
+    "14": FC Port E
+    "15": FC Port F
+    "16": FC Port FL
+    "17": FC Port B
+    "18": FC Port G
+    "0": Unknown Network Port Type
+    "1": Other Network Port Type
+    "100": Ethernet Port
+    "101": Ethernet Port
+    "102": Ethernet Port
+    "103": Ethernet Port
+    "104": Ethernet Port
+    "105": Ethernet Port
+    "106": Ethernet Port
+    "107": Ethernet Port
+    "108": Ethernet Port
+    "109": Ethernet Port
+  EnabledStateStatusTranslationTable:
+    "2": ok
+    default: degraded
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": degraded
+    "7": degraded
+    "8": degraded
+    "9": degraded
+    "10": degraded
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "1": Dormant
+    "2": ""
+    default: ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped

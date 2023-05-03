@@ -1,33 +1,4 @@
 ---
-translations:
-  CleaningStatusTranslationTable:
-    "1": 1
-    "2": 0
-    default: UNKNOWN
-    "3": 2
-  StatusInformationTranslationTable:
-    "1": ""
-    "2": Failed
-    default: Unknown Status
-    "3": Degraded
-    "4": Warning
-    "5": Informational
-    "6": Unknown
-    "7": Invalid
-  StatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": UNKNOWN
-    "7": failed
-  CleaningStatusInformationTranslationTable:
-    "1": ' Cleaning Required'
-    "2": ""
-    default: ' Unknown Cleaning Status'
-    "3": ' Immediate Cleaning Required'
 connector:
   displayName: Quantum i40/i80 (ADIC) based Tape Libraries
   platforms: Quantum i40/i80 (ADIC) Scalar Tape Library
@@ -326,3 +297,32 @@ monitors:
           hw.tape_drive.operations{type="mount"}: $column(6)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  CleaningStatusTranslationTable:
+    "1": 1
+    "2": 0
+    default: UNKNOWN
+    "3": 2
+  StatusInformationTranslationTable:
+    "1": ""
+    "2": Failed
+    default: Unknown Status
+    "3": Degraded
+    "4": Warning
+    "5": Informational
+    "6": Unknown
+    "7": Invalid
+  StatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": UNKNOWN
+    "7": failed
+  CleaningStatusInformationTranslationTable:
+    "1": ' Cleaning Required'
+    "2": ""
+    default: ' Unknown Cleaning Status'
+    "3": ' Immediate Cleaning Required'

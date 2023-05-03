@@ -1,148 +1,4 @@
 ---
-translations:
-  TemperatureStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": degraded
-    "6": degraded
-    "7": failed
-    "8": ok
-    "9": degraded
-  FanStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": degraded
-    "6": degraded
-    "7": degraded
-    "8": failed
-  EnclosureTypeTranslationTable:
-    "11": Systemboard In Partition
-    "22": Virtual Server Xen
-    "23": Virtual Server Pan
-    "2": Computer
-    default: Computer
-    "3": Storage Extension
-    "4": Blade Server Chassis
-    "5": Blade Server
-    "6": Cluster Node
-    "7": Multi Node Chassis
-    "8": Multi Node Service
-    "9": Virtual Server
-    "20": Virtual Server Vmware
-    "10": Virtual Partition
-    "21": Virtual Server HyperV
-  VoltageStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": failed
-    "6": failed
-    "7": degraded
-  PowerSupplyStatusTranslationTable:
-    "11": failed
-    "12": failed
-    "13": failed
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": failed
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  SC2CSSSensorTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": failed
-    "6": failed
-  VoltageStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Below Lower Threshold
-    "5": Above Upper Threshold
-    "6": Out of Normal Range
-    "7": Warning (e.g. Battery failure predicted)
-  CPUStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-    "5": failed
-    "6": failed
-    "7": degraded
-    "8": degraded
-  MemoryModuleStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Disabled in BIOS
-    "5": Error but still in use
-    "6": Failed and disabled
-    "7": Failure Predicted (Error count exceeded)
-  FanStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Failed
-    "5": Predicted Failure
-    "6": Failed Redundancy
-    "7": Not Manageable
-    "8": Not Present
-  PowerSupplyStatusInformationTranslationTable:
-    "11": Power Safe Mode
-    "12": Non-redundant DC Failure
-    "13": Non-redundant AC Failure
-    default: Unknown Status
-    "3": ""
-    "4": Failed
-    "5": AC Failure
-    "6": DC Failure
-    "7": Critical Temperature
-    "8": Not Manageable
-    "9": Fan Failure Predicted
-    "10": Fan Failed
-  MemoryModuleStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-    "5": failed
-    "6": failed
-    "7": degraded
-  TemperatureStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Temperature Sensor Failure
-    "5": Temperature Failure
-    "6": "Warning: Temperature High"
-    "7": "Critical: Temperature Exceeds Tolerance"
-    "8": ""
-    "9": Warning
-  IntrusionCodeTranslationTable:
-    "11": degraded
-    "2": degraded
-    default: ok
-    "14": degraded
-    "6": degraded
-    "8": degraded
-    "9": degraded
-    "10": degraded
-  SC2CSSSensorInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Identify LED ON
-    "4": Predicted Failure
-    "5": Failed
-    "6": Removed
-  CPUStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Disabled
-    "5": Error
-    "6": Failed
-    "7": Missing Termination
-    "8": Failure predicted
 connector:
   displayName: Fujitsu-Siemens Serverview - Agent (v8 or higher)
   platforms: Fujitsu-Siemens PRIMERGY
@@ -935,3 +791,147 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  TemperatureStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": degraded
+    "6": degraded
+    "7": failed
+    "8": ok
+    "9": degraded
+  FanStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": degraded
+    "7": degraded
+    "8": failed
+  EnclosureTypeTranslationTable:
+    "11": Systemboard In Partition
+    "22": Virtual Server Xen
+    "23": Virtual Server Pan
+    "2": Computer
+    default: Computer
+    "3": Storage Extension
+    "4": Blade Server Chassis
+    "5": Blade Server
+    "6": Cluster Node
+    "7": Multi Node Chassis
+    "8": Multi Node Service
+    "9": Virtual Server
+    "20": Virtual Server Vmware
+    "10": Virtual Partition
+    "21": Virtual Server HyperV
+  VoltageStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": degraded
+  PowerSupplyStatusTranslationTable:
+    "11": failed
+    "12": failed
+    "13": failed
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  SC2CSSSensorTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": failed
+    "6": failed
+  VoltageStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Below Lower Threshold
+    "5": Above Upper Threshold
+    "6": Out of Normal Range
+    "7": Warning (e.g. Battery failure predicted)
+  CPUStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": failed
+    "6": failed
+    "7": degraded
+    "8": degraded
+  MemoryModuleStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Disabled in BIOS
+    "5": Error but still in use
+    "6": Failed and disabled
+    "7": Failure Predicted (Error count exceeded)
+  FanStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Failed
+    "5": Predicted Failure
+    "6": Failed Redundancy
+    "7": Not Manageable
+    "8": Not Present
+  PowerSupplyStatusInformationTranslationTable:
+    "11": Power Safe Mode
+    "12": Non-redundant DC Failure
+    "13": Non-redundant AC Failure
+    default: Unknown Status
+    "3": ""
+    "4": Failed
+    "5": AC Failure
+    "6": DC Failure
+    "7": Critical Temperature
+    "8": Not Manageable
+    "9": Fan Failure Predicted
+    "10": Fan Failed
+  MemoryModuleStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": failed
+    "6": failed
+    "7": degraded
+  TemperatureStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Temperature Sensor Failure
+    "5": Temperature Failure
+    "6": "Warning: Temperature High"
+    "7": "Critical: Temperature Exceeds Tolerance"
+    "8": ""
+    "9": Warning
+  IntrusionCodeTranslationTable:
+    "11": degraded
+    "2": degraded
+    default: ok
+    "14": degraded
+    "6": degraded
+    "8": degraded
+    "9": degraded
+    "10": degraded
+  SC2CSSSensorInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Identify LED ON
+    "4": Predicted Failure
+    "5": Failed
+    "6": Removed
+  CPUStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Disabled
+    "5": Error
+    "6": Failed
+    "7": Missing Termination
+    "8": Failure predicted

@@ -1,185 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |
-    #Collection related values and informative fields.
-
-    BEGIN {FS=";";OFS=";"}
-    gsub(/.*good/,"Good",$2)
-    {print $0}
-translations:
-  SmartFailedTranslateTable:
-    default: ""
-    "true": SmartFailed
-  VoltageThresholdTranslationTable:
-    bb +1.2v p1vcc: 570;1440
-    bb -12.0v: -13230;-10640
-    bb +1.2v vccp1: 570;1440
-    v1.0: 920;1080
-    v12.0: 11020;12960
-    bb +5.0v: 4630;5350
-    bb +1.35 p2lv cd: 570;1440
-    v5.0_nvram: 4600;5400
-    default: ;
-    v12.0_bb_a: 11020;12960
-    v5.0_stby: 4600;5400
-    bb +5.0v stby: 4630;5350
-    vcc_5v0_cbl: 4600;5400
-    v5.0_fp_x: 4600;5400
-    bb +1.35 p1lv ab: 570;1440
-    bb +1.8v aux: 1730;1870
-    bb +12.0v: 11050;12870
-    v3.3_cmd: 3030;3560
-    bb +1.1v stby: 1060;1150
-    bb +1.2v p2vcc: 570;1440
-    vcc_1v8: 1660;1940
-    bb +3.3v aux: 3070;3510
-    v3.3_stby: 3030;3560
-    vcc_5v0: 4600;5400
-    vcc_3v3: 3030;3560
-    bb 1.5v p1ddr ab: 1410;1590
-    bb 1.5v p1ddr cd: 1410;1590
-    vcc_1v0: 920;1080
-    ps out volt 2: 11400;12800
-    ps out volt 1: 11400;12800
-    bb +3.3v: 3070;3510
-    vcc_12v0: 11020;12960
-    v1.8: 1660;1940
-    v3.3: 3030;3560
-    vcc_5v0_sb: 4600;5400
-    bb 1.5v p2ddr ab: 1410;1590
-    bb 1.5v p2ddr cd: 1410;1590
-    ps in volt 2: ;
-    ps in volt 1: ;
-    v5.0: 4600;5400
-    v12.0_fan3: 11020;12960
-    v12.0_mb0: 11020;12960
-    v12.0_fan2: 11020;12960
-    v12.0_mb1: 11020;12960
-    v12.0_fan1: 11020;12960
-    bb +3.0v vbat: 2240;
-  BatteryStatusTranslationTable:
-    good-test: ok
-    good-testing: ok
-    default: failed
-    good-good: ok
-    ready and enabled: ok
-    testing-good: ok
-    passed: ok
-    ready, enabled, and fully charged: ok
-    good: ok
-  PowerSupplyStatusTranslationTable:
-    default: failed
-    good: ok
-  HealthFlagsTranslationTable:
-    missing_drives: degraded
-    default: UNKNOWN
-    waiting_repair: degraded
-    default_ok: ok
-    devices_smartfailed: degraded
-    underprovisioned: degraded
-    devices_down: degraded
-  ReadOnlyTranslateTable:
-    default: ""
-    "true": ReadOnly
-  CPUStatusTranslationTable:
-    normal: ok
-    default: failed
-  NodeStatusInformationTranslationTable:
-    notincluster: NotInCluster
-    default: ""
-    readonly: ReadOnly
-    smartfailed: SmartFailed
-    incluster: InCluster
-    dead: Dead
-    down: Down
-    shutdownreadonly: ShutDownReadOnly
-  NodeStatusTranslationTable:
-    notincluster: degraded
-    default: ok
-    readonly: degraded
-    smartfailed: failed
-    incluster: ok
-    dead: failed
-    down: failed
-    shutdownreadonly: degraded
-  ShutDownReadOnlyTranslateTable:
-    default: ""
-    "true": ShutDownReadOnly
-  PhysicalDiskStatusTranslationTable:
-    new: degraded
-    erase: degraded
-    l3: ok
-    replace: failed
-    used: degraded
-    boot_drive: ok
-    wrong_type: degraded
-    suspended: degraded
-    unencrypted: failed
-    empty: degraded
-    restripe: degraded
-    smartfail: degraded
-    not: failed
-    default: failed
-    journal: ok
-    preparing: degraded
-    healthy: ok
-    stalled: ok
-    insecure: failed
-    sed_error: failed
-  NetworkCardStatusTranslationTable:
-    no carrier: ok
-    default: failed
-    inactive: ok
-    up: ok
-  InclusterTranslateTable:
-    default: ""
-    "true": InCluster
-    "false": NotInCluster
-  TemperatureThresholdTranslationTable:
-    dimm thrm mrgn 3: 0;5
-    p1 therm margin: 0;10
-    dimm thrm mrgn 2: 0;5
-    p2 dts therm mgn: 0;10
-    dimm thrm mrgn 4: 0;5
-    bb bmc temp: ;100
-    dimm thrm mrgn 1: 0;5
-    temp sensor 2: ;50
-    p1 dts therm mgn: 0;10
-    temp sensor 1: ;50
-    bb mem vr temp: ;115
-    ps temp 2: ;95
-    ps temp 1: ;95
-    bb edge temp: ;65
-    default: ;
-    ssb temp: ;95
-    lsi core temp: ;73
-    bb p1 vr temp: ;115
-    lan nic temp: ;115
-    p2 therm margin: 0;10
-  HealthFlagsDescriptionTranslationTable:
-    missing_drives: Missing Drives
-    default: ""
-    waiting_repair: Waiting Repair
-    devices_smartfailed: Devices Smartfailed
-    underprovisioned: Underprovisioned
-    devices_down: Devices Down
-  LinkStatusTranslationTable:
-    no carrier: degraded
-    default: degraded
-    inactive: degraded
-    up: ok
-  DownTranslateTable:
-    "true": Down
-  FanThresholdTranslationTable:
-    fan tac sensor 3: ;800
-    default: ;
-    fan tac sensor 1: ;800
-    fan tac sensor 2: ;800
-    ps fan speed 2: ;800
-    ps fan speed 1: ;800
-  DeadTranslateTable:
-    default: ""
-    "true": Dead
 connector:
   displayName: EMC Isilon Cluster (REST)
   platforms: EMC Isilon
@@ -1058,3 +877,184 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |
+    #Collection related values and informative fields.
+
+    BEGIN {FS=";";OFS=";"}
+    gsub(/.*good/,"Good",$2)
+    {print $0}
+translations:
+  SmartFailedTranslateTable:
+    default: ""
+    "true": SmartFailed
+  VoltageThresholdTranslationTable:
+    bb +1.2v p1vcc: 570;1440
+    bb -12.0v: -13230;-10640
+    bb +1.2v vccp1: 570;1440
+    v1.0: 920;1080
+    v12.0: 11020;12960
+    bb +5.0v: 4630;5350
+    bb +1.35 p2lv cd: 570;1440
+    v5.0_nvram: 4600;5400
+    default: ;
+    v12.0_bb_a: 11020;12960
+    v5.0_stby: 4600;5400
+    bb +5.0v stby: 4630;5350
+    vcc_5v0_cbl: 4600;5400
+    v5.0_fp_x: 4600;5400
+    bb +1.35 p1lv ab: 570;1440
+    bb +1.8v aux: 1730;1870
+    bb +12.0v: 11050;12870
+    v3.3_cmd: 3030;3560
+    bb +1.1v stby: 1060;1150
+    bb +1.2v p2vcc: 570;1440
+    vcc_1v8: 1660;1940
+    bb +3.3v aux: 3070;3510
+    v3.3_stby: 3030;3560
+    vcc_5v0: 4600;5400
+    vcc_3v3: 3030;3560
+    bb 1.5v p1ddr ab: 1410;1590
+    bb 1.5v p1ddr cd: 1410;1590
+    vcc_1v0: 920;1080
+    ps out volt 2: 11400;12800
+    ps out volt 1: 11400;12800
+    bb +3.3v: 3070;3510
+    vcc_12v0: 11020;12960
+    v1.8: 1660;1940
+    v3.3: 3030;3560
+    vcc_5v0_sb: 4600;5400
+    bb 1.5v p2ddr ab: 1410;1590
+    bb 1.5v p2ddr cd: 1410;1590
+    ps in volt 2: ;
+    ps in volt 1: ;
+    v5.0: 4600;5400
+    v12.0_fan3: 11020;12960
+    v12.0_mb0: 11020;12960
+    v12.0_fan2: 11020;12960
+    v12.0_mb1: 11020;12960
+    v12.0_fan1: 11020;12960
+    bb +3.0v vbat: 2240;
+  BatteryStatusTranslationTable:
+    good-test: ok
+    good-testing: ok
+    default: failed
+    good-good: ok
+    ready and enabled: ok
+    testing-good: ok
+    passed: ok
+    ready, enabled, and fully charged: ok
+    good: ok
+  PowerSupplyStatusTranslationTable:
+    default: failed
+    good: ok
+  HealthFlagsTranslationTable:
+    missing_drives: degraded
+    default: UNKNOWN
+    waiting_repair: degraded
+    default_ok: ok
+    devices_smartfailed: degraded
+    underprovisioned: degraded
+    devices_down: degraded
+  ReadOnlyTranslateTable:
+    default: ""
+    "true": ReadOnly
+  CPUStatusTranslationTable:
+    normal: ok
+    default: failed
+  NodeStatusInformationTranslationTable:
+    notincluster: NotInCluster
+    default: ""
+    readonly: ReadOnly
+    smartfailed: SmartFailed
+    incluster: InCluster
+    dead: Dead
+    down: Down
+    shutdownreadonly: ShutDownReadOnly
+  NodeStatusTranslationTable:
+    notincluster: degraded
+    default: ok
+    readonly: degraded
+    smartfailed: failed
+    incluster: ok
+    dead: failed
+    down: failed
+    shutdownreadonly: degraded
+  ShutDownReadOnlyTranslateTable:
+    default: ""
+    "true": ShutDownReadOnly
+  PhysicalDiskStatusTranslationTable:
+    new: degraded
+    erase: degraded
+    l3: ok
+    replace: failed
+    used: degraded
+    boot_drive: ok
+    wrong_type: degraded
+    suspended: degraded
+    unencrypted: failed
+    empty: degraded
+    restripe: degraded
+    smartfail: degraded
+    not: failed
+    default: failed
+    journal: ok
+    preparing: degraded
+    healthy: ok
+    stalled: ok
+    insecure: failed
+    sed_error: failed
+  NetworkCardStatusTranslationTable:
+    no carrier: ok
+    default: failed
+    inactive: ok
+    up: ok
+  InclusterTranslateTable:
+    default: ""
+    "true": InCluster
+    "false": NotInCluster
+  TemperatureThresholdTranslationTable:
+    dimm thrm mrgn 3: 0;5
+    p1 therm margin: 0;10
+    dimm thrm mrgn 2: 0;5
+    p2 dts therm mgn: 0;10
+    dimm thrm mrgn 4: 0;5
+    bb bmc temp: ;100
+    dimm thrm mrgn 1: 0;5
+    temp sensor 2: ;50
+    p1 dts therm mgn: 0;10
+    temp sensor 1: ;50
+    bb mem vr temp: ;115
+    ps temp 2: ;95
+    ps temp 1: ;95
+    bb edge temp: ;65
+    default: ;
+    ssb temp: ;95
+    lsi core temp: ;73
+    bb p1 vr temp: ;115
+    lan nic temp: ;115
+    p2 therm margin: 0;10
+  HealthFlagsDescriptionTranslationTable:
+    missing_drives: Missing Drives
+    default: ""
+    waiting_repair: Waiting Repair
+    devices_smartfailed: Devices Smartfailed
+    underprovisioned: Underprovisioned
+    devices_down: Devices Down
+  LinkStatusTranslationTable:
+    no carrier: degraded
+    default: degraded
+    inactive: degraded
+    up: ok
+  DownTranslateTable:
+    "true": Down
+  FanThresholdTranslationTable:
+    fan tac sensor 3: ;800
+    default: ;
+    fan tac sensor 1: ;800
+    fan tac sensor 2: ;800
+    ps fan speed 2: ;800
+    ps fan speed 1: ;800
+  DeadTranslateTable:
+    default: ""
+    "true": Dead

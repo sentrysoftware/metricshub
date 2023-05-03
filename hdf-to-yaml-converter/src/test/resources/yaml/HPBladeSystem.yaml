@@ -1,111 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { FS = ";" }
-    {
-        enclosureID = $1 "/" $2
-        power[enclosureID] += $3
-    }
-    END {
-        for (enclosureID in power)
-        {
-            print "MSHW;" enclosureID ";" power[enclosureID]
-        }
-    }
-translations:
-  TemperatureStatusTranslationTable:
-    "1": ""
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  FanStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  EnclosureTypeTranslationTable:
-    "2": Blade
-    default: Other
-  PowerSupplyStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  EnclosureStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  VCStatusInformationTranslationTable:
-    "2": Absent
-    default: Unknown Status
-    "3": ""
-  BladePowerStateTranslationTable:
-    "1": ""
-    "2": "on"
-    default: ""
-    "3": "off"
-    "4": "off"
-    "5": ""
-  FanStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
-  PowerSupplyStatusInformationTranslationTable:
-    "11": Voltage Channel Failed
-    "12": Orring Diode Failed
-    "13": Brown-Out
-    "14": Give Up On Startup
-    "15": NVRAM Invalid
-    "16": Calibration Table Invalid
-    "1": ""
-    "2": General Failure
-    default: Unknown Status
-    "3": Bist Failure
-    "4": Fan Failure
-    "5": Temperature Failure
-    "6": Interlock Open
-    "7": Eprom Failed
-    "8": VRef Failed
-    "9": DAC Failed
-    "10": RAM Test Failed
-  BladeStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  TemperatureStatusInformationTranslationTable:
-    "1": ""
-    "2": ""
-    default: Unknown Status
-    "3": Too Hot
-    "4": Critically Too Hot
-  FuseStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "4": Tripped
-  FuseStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "4": failed
-  VCStatusTranslationTable:
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-  EnclosureStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
-  BladeStatusInformationTranslationTable:
-    "1": ""
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
 connector:
   displayName: HP BladeSystem
   platforms: HP BladeSystem
@@ -760,3 +653,110 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    {
+        enclosureID = $1 "/" $2
+        power[enclosureID] += $3
+    }
+    END {
+        for (enclosureID in power)
+        {
+            print "MSHW;" enclosureID ";" power[enclosureID]
+        }
+    }
+translations:
+  TemperatureStatusTranslationTable:
+    "1": ""
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  FanStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  EnclosureTypeTranslationTable:
+    "2": Blade
+    default: Other
+  PowerSupplyStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  EnclosureStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  VCStatusInformationTranslationTable:
+    "2": Absent
+    default: Unknown Status
+    "3": ""
+  BladePowerStateTranslationTable:
+    "1": ""
+    "2": "on"
+    default: ""
+    "3": "off"
+    "4": "off"
+    "5": ""
+  FanStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
+  PowerSupplyStatusInformationTranslationTable:
+    "11": Voltage Channel Failed
+    "12": Orring Diode Failed
+    "13": Brown-Out
+    "14": Give Up On Startup
+    "15": NVRAM Invalid
+    "16": Calibration Table Invalid
+    "1": ""
+    "2": General Failure
+    default: Unknown Status
+    "3": Bist Failure
+    "4": Fan Failure
+    "5": Temperature Failure
+    "6": Interlock Open
+    "7": Eprom Failed
+    "8": VRef Failed
+    "9": DAC Failed
+    "10": RAM Test Failed
+  BladeStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  TemperatureStatusInformationTranslationTable:
+    "1": ""
+    "2": ""
+    default: Unknown Status
+    "3": Too Hot
+    "4": Critically Too Hot
+  FuseStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "4": Tripped
+  FuseStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "4": failed
+  VCStatusTranslationTable:
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+  EnclosureStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
+  BladeStatusInformationTranslationTable:
+    "1": ""
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed

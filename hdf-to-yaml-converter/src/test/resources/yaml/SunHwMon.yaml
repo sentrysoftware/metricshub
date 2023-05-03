@@ -1,182 +1,4 @@
 ---
-translations:
-  LEDStateInformationTranslationTable:
-    "1": Unknown
-    "2": Other
-    "3": "Off"
-    "4": "On"
-    "5": Standby
-    "6": Slow Blinking
-    "7": Fast Blinking
-  DiskTypeTranslationTable:
-    "1": HDD
-    "2": SDD
-    default: ""
-  DiskUnitsTranslationTable:
-    "1": 1048576
-    "2": 1073741824
-    "3": 1099511627776
-  DiskCapacityUnitTranslationTable:
-    "1": 1048576
-    "2": 1073741824
-    default: 1
-    "3": 1099511627776
-  VoltageUnitTranslationTable:
-    "0": 1000
-    default: 1000
-    "-1": 100
-    "-2": 10
-    "-3": 1
-  OtherDeviceTypeTranslationTable:
-    "88": PciExpressInterface
-    "89": PciSwitch
-    "110": Ready
-    "111": RearFan
-    "112": RearFanBoard
-    "113": RearLEDBoard
-    "114": RiserBoard
-    "115": SasController
-    "116": SerialConnector
-    "90": PciTray
-    "117": ServiceProcessor
-    "91": PciXModule
-    "118": Slot
-    "92": PdbFan
-    "119": SlotId
-    "93": PhysicalSecurity
-    "94": PowerConditions
-    "95": PowerDistributionBoard
-    "97": PowerPCCPU
-    "98": PowerState
-    "15": CpuBoardMemoryBranch
-    "16": CpuBoardMemoryChannel
-    "17": CpuCMP
-    "19": CpuMemoryControllerChannel
-    "120": SpBoardModule
-    "122": StreamingProcessorUnit
-    "2": Other
-    "123": SystemFan
-    "124": Temperature
-    "125": ThermalConditions
-    "126": ToggleSwitch
-    "127": Tty
-    "7": Bios
-    "128": UsbBoard
-    "8": Blade
-    "129": UsbConnector
-    "20": CpuThread
-    "22": DataMMU
-    "23": DCache
-    "25": DiskBackplane
-    "26": Display
-    "27": DriveSlot
-    "29": Dvrm1V5Converter
-    "130": UsbPort
-    "131": Vibration
-    "132": Video
-    "133": Voltage
-    "134": XauiBoard
-    default: ""
-    "30": Dvrm3V3Converter
-    "31": DvrmCoreConverter
-    "32": DvrmFBDIMMConverter
-    "33": DvrmPLXConverter
-    "34": DvrmZambeziConverter
-    "35": DvrmZambeziPLXConverter
-    "37": ExpressModule
-    "38": FabricExpansionModule
-    "39": Fan
-    "40": FanModule
-    "41": FanTray
-    "43": FloatingPointUnit
-    "44": FrontFan
-    "45": FrontFanBoard
-    "46": FrontLEDBoard
-    "48": HddFan
-    "50": HotswapController
-    "52": iCache
-    "55": InfrastructureManager
-    "57": instructionMMU
-    "58": IoBoard
-    "59": IoBoat
-    "60": IoExpansionUnit
-    "61": L2bank
-    "62": L3bank
-    "63": LinkCard
-    "64": Memory
-    "65": MemoryBoard
-    "66": MemoryBoardMemoryBranch
-    "67": MemoryBoardMemoryChannel
-    "68": MemoryBranch
-    "69": MemoryBranchOnMemoryRiser
-    "70": MemoryChannelOnMemoryRiser
-    "71": MemoryCMP
-    "72": MemoryController
-    "73": MemoryRank
-    "74": MemoryRiser
-    "75": MicroCore
-    "76": MotherBoard
-    "77": NemState
-    "78": NetworkConfiguration
-    "79": NetworkExpressModule
-    "100": PowerSupplyExternalConditions
-    "101": PowerSupplyInternalSide
-    "102": PowerSupplyStatus
-    "103": PowerUnit
-    "104": Presence
-    "106": ProcessorBoard
-    "107": Prom
-    "108": PushButton
-    "109": RaidExpansionModule
-    "85": Nvram
-    "86": Output
-    "87": PciExpansionBoard
-  FRUStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": failed
-    "4": degraded
-    "5": degraded
-    "6": degraded
-    "7": ok
-    "8": degraded
-  LogicalDiskStatusInformationTranslationTable:
-    "1": ""
-    "2": Degraded
-    default: Unknown Status
-    "3": Failed
-    "4": Missing
-    "5": Offline
-    "6": Init
-    "7": Spare
-  FRUStatusInformationTranslationTable:
-    "1": ""
-    "2": Critical
-    default: Unknown Status
-    "3": Major Fault
-    "4": Minor Fault
-    "5": Warning
-    "6": Indeterminate Status
-    "7": Informational Status
-    "8": Status Pending
-  LogicalDiskStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
-    "6": failed
-    "7": ok
-  LEDStateTranslationTable:
-    "1": UNKNOWN
-    "2": UNKNOWN
-    "3": "Off"
-    "4": "On"
-    "5": UNKNOWN
-    "6": Blinking
-    "7": Blinking
 connector:
   displayName: Oracle Hardware Management Agent
   platforms: Oracle/Sun
@@ -1133,3 +955,181 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(1)
         legacyTextParameters:
           StatusInformation: $column(2)
+translations:
+  LEDStateInformationTranslationTable:
+    "1": Unknown
+    "2": Other
+    "3": "Off"
+    "4": "On"
+    "5": Standby
+    "6": Slow Blinking
+    "7": Fast Blinking
+  DiskTypeTranslationTable:
+    "1": HDD
+    "2": SDD
+    default: ""
+  DiskUnitsTranslationTable:
+    "1": 1048576
+    "2": 1073741824
+    "3": 1099511627776
+  DiskCapacityUnitTranslationTable:
+    "1": 1048576
+    "2": 1073741824
+    default: 1
+    "3": 1099511627776
+  VoltageUnitTranslationTable:
+    "0": 1000
+    default: 1000
+    "-1": 100
+    "-2": 10
+    "-3": 1
+  OtherDeviceTypeTranslationTable:
+    "88": PciExpressInterface
+    "89": PciSwitch
+    "110": Ready
+    "111": RearFan
+    "112": RearFanBoard
+    "113": RearLEDBoard
+    "114": RiserBoard
+    "115": SasController
+    "116": SerialConnector
+    "90": PciTray
+    "117": ServiceProcessor
+    "91": PciXModule
+    "118": Slot
+    "92": PdbFan
+    "119": SlotId
+    "93": PhysicalSecurity
+    "94": PowerConditions
+    "95": PowerDistributionBoard
+    "97": PowerPCCPU
+    "98": PowerState
+    "15": CpuBoardMemoryBranch
+    "16": CpuBoardMemoryChannel
+    "17": CpuCMP
+    "19": CpuMemoryControllerChannel
+    "120": SpBoardModule
+    "122": StreamingProcessorUnit
+    "2": Other
+    "123": SystemFan
+    "124": Temperature
+    "125": ThermalConditions
+    "126": ToggleSwitch
+    "127": Tty
+    "7": Bios
+    "128": UsbBoard
+    "8": Blade
+    "129": UsbConnector
+    "20": CpuThread
+    "22": DataMMU
+    "23": DCache
+    "25": DiskBackplane
+    "26": Display
+    "27": DriveSlot
+    "29": Dvrm1V5Converter
+    "130": UsbPort
+    "131": Vibration
+    "132": Video
+    "133": Voltage
+    "134": XauiBoard
+    default: ""
+    "30": Dvrm3V3Converter
+    "31": DvrmCoreConverter
+    "32": DvrmFBDIMMConverter
+    "33": DvrmPLXConverter
+    "34": DvrmZambeziConverter
+    "35": DvrmZambeziPLXConverter
+    "37": ExpressModule
+    "38": FabricExpansionModule
+    "39": Fan
+    "40": FanModule
+    "41": FanTray
+    "43": FloatingPointUnit
+    "44": FrontFan
+    "45": FrontFanBoard
+    "46": FrontLEDBoard
+    "48": HddFan
+    "50": HotswapController
+    "52": iCache
+    "55": InfrastructureManager
+    "57": instructionMMU
+    "58": IoBoard
+    "59": IoBoat
+    "60": IoExpansionUnit
+    "61": L2bank
+    "62": L3bank
+    "63": LinkCard
+    "64": Memory
+    "65": MemoryBoard
+    "66": MemoryBoardMemoryBranch
+    "67": MemoryBoardMemoryChannel
+    "68": MemoryBranch
+    "69": MemoryBranchOnMemoryRiser
+    "70": MemoryChannelOnMemoryRiser
+    "71": MemoryCMP
+    "72": MemoryController
+    "73": MemoryRank
+    "74": MemoryRiser
+    "75": MicroCore
+    "76": MotherBoard
+    "77": NemState
+    "78": NetworkConfiguration
+    "79": NetworkExpressModule
+    "100": PowerSupplyExternalConditions
+    "101": PowerSupplyInternalSide
+    "102": PowerSupplyStatus
+    "103": PowerUnit
+    "104": Presence
+    "106": ProcessorBoard
+    "107": Prom
+    "108": PushButton
+    "109": RaidExpansionModule
+    "85": Nvram
+    "86": Output
+    "87": PciExpansionBoard
+  FRUStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": degraded
+    "5": degraded
+    "6": degraded
+    "7": ok
+    "8": degraded
+  LogicalDiskStatusInformationTranslationTable:
+    "1": ""
+    "2": Degraded
+    default: Unknown Status
+    "3": Failed
+    "4": Missing
+    "5": Offline
+    "6": Init
+    "7": Spare
+  FRUStatusInformationTranslationTable:
+    "1": ""
+    "2": Critical
+    default: Unknown Status
+    "3": Major Fault
+    "4": Minor Fault
+    "5": Warning
+    "6": Indeterminate Status
+    "7": Informational Status
+    "8": Status Pending
+  LogicalDiskStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": ok
+  LEDStateTranslationTable:
+    "1": UNKNOWN
+    "2": UNKNOWN
+    "3": "Off"
+    "4": "On"
+    "5": UNKNOWN
+    "6": Blinking
+    "7": Blinking

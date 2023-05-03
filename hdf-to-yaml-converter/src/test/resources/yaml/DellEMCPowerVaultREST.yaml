@@ -1,56 +1,4 @@
 ---
-translations:
-  AttachedToDeviceTypeTranslationTable:
-    default: Enclosure
-    controllers: DiskController
-    power-supplies: Enclosure
-    enclosures: Enclosure
-  LinkSpeedTranslationTable:
-    "0": 1000
-    "11": 12000
-    "12": 16000
-    "2": 4000
-    "255": ""
-    "6": 6000
-    "7": 8000
-    "8": 10
-    "9": 100
-    "10": 10000
-  LinkStatusTranslationTable:
-    not present: degraded
-    disconnected: degraded
-    warning: degraded
-    up: ok
-    error: degraded
-  StatusInformationTranslationTable:
-    "0": Unsupported
-    "1": ok
-    "2": Critical
-    "3": Warning
-    "4": Unrecoverable
-    "5": Not Installed
-    "6": Unknown
-    "7": Unavailable
-  StatusTranslationTable:
-    n/a: UNKNOWN
-    critical: failed
-    unavailable: ok
-    fault: failed
-    unrecoverable: failed
-    degraded: degraded
-    unknown: UNKNOWN
-    not installed: UNKNOWN
-    "0": failed
-    "1": ok
-    "2": failed
-    unsupported: UNKNOWN
-    "3": degraded
-    "4": failed
-    "5": degraded
-    "6": UNKNOWN
-    "7": degraded
-    warning: degraded
-    ok: ok
 connector:
   displayName: Dell EMC PowerVault (REST)
   platforms: PowerVault REST
@@ -619,3 +567,55 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
         legacyTextParameters:
           StatusInformation: $column(4)
+translations:
+  AttachedToDeviceTypeTranslationTable:
+    default: Enclosure
+    controllers: DiskController
+    power-supplies: Enclosure
+    enclosures: Enclosure
+  LinkSpeedTranslationTable:
+    "0": 1000
+    "11": 12000
+    "12": 16000
+    "2": 4000
+    "255": ""
+    "6": 6000
+    "7": 8000
+    "8": 10
+    "9": 100
+    "10": 10000
+  LinkStatusTranslationTable:
+    not present: degraded
+    disconnected: degraded
+    warning: degraded
+    up: ok
+    error: degraded
+  StatusInformationTranslationTable:
+    "0": Unsupported
+    "1": ok
+    "2": Critical
+    "3": Warning
+    "4": Unrecoverable
+    "5": Not Installed
+    "6": Unknown
+    "7": Unavailable
+  StatusTranslationTable:
+    n/a: UNKNOWN
+    critical: failed
+    unavailable: ok
+    fault: failed
+    unrecoverable: failed
+    degraded: degraded
+    unknown: UNKNOWN
+    not installed: UNKNOWN
+    "0": failed
+    "1": ok
+    "2": failed
+    unsupported: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": degraded
+    "6": UNKNOWN
+    "7": degraded
+    warning: degraded
+    ok: ok

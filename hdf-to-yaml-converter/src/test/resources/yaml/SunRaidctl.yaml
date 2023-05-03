@@ -1,67 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    CONTROLLERLIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($2 ~ /"/) {print $1}}'`
-    for CONTROLLER in $CONTROLLERLIST
-        do
-        %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $CONTROLLER | /usr/bin/nawk -v controller=$CONTROLLER '{if ($1 ~ /c[0-9]+/) {print ("MSHW;"controller";"$2";"$3";")}}'
-        done
-  EmbeddedFile(3): |-
-    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
-    for LOGICALDRIVE in $LOGICALDRIVELIST
-        do
-        %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $LOGICALDRIVE | /usr/bin/nawk -v logicalDrive=$LOGICALDRIVE '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {size=$2;
-                                                                                                                 raid=$NF; gsub (/[A-Z]/,"",raid);
-                                                                                                                 if (size ~ /[Gg]/) {gsub (/[Gg]/,"",size) ; }
-                                                                                                                 if (size ~ /[Mm]/) {gsub (/[Mm]/,"",size) ; size = size / 1024};
-                                                                                                                 if (size ~ /[Tt]/) {gsub (/[Tt]/,"",size) ; size = size * 1024};
-                                                                                                                 print ("MSHW;"logicalDrive";"size";"raid";")}}'
-        done
-  EmbeddedFile(2): |-
-    BEGIN {controller="";logicalDrive="";disk="";}
-    $2 ~ /"/ {controller=$1}
-    $1 ~ /c[0-9]t[0-9]d[0-9]/ {logicalDrive=$1;
-                               for (i=3; i<=(NF-2); i++) { if ($i ~ /[0-9]\.[0-9]\.[0-9]/) {print ("MSHW;"controller";"logicalDrive";"$i);}}
-                               }
-  EmbeddedFile(5): |-
-    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
-    for VOLUME in $LOGICALDRIVELIST
-            do
-            %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | /usr/bin/nawk '{if ($1 ~ /[0-9]\056[0-9]\056[0-9]/) {Size=$2;
-                                                                                            if (Size ~ /[Gg]/) {gsub (/[Gg]/,"",Size) ; }
-                                                                                            if (Size ~ /[Mm]/) {gsub (/[Mm]/,"",Size) ; Size = Size / 1024};
-                                                                                            if (Size ~ /[Tt]/) {gsub (/[Tt]/,"",Size) ; Size = Size * 1024};
-                                                                                            print ("MSHW;"$1";"Size";"$3";")}}'
-            done
-  EmbeddedFile(4): |
-    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
-    for VOLUME in $LOGICALDRIVELIST
-            do
-            %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | egrep 'OPTIMAL|DEGRADED|FAILED|SYNCING' | awk '{print ("MSHW;"$1";"$4";")}'
-            done
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    default: Unknown
-    missing: Missing
-    failed: Failed
-    good: Good
-  LogicalDiskStatusInformationTranslationTable:
-    default: Unknown
-    optimal: Optimal
-    syncing: Syncing
-    failed: Failed
-    degraded: Degraded
-  PhysicalDiskStatusTranslationTable:
-    default: UNKNOWN
-    missing: degraded
-    failed: failed
-    good: ok
-  LogicalDiskStatusTranslationTable:
-    default: UNKNOWN
-    optimal: ok
-    syncing: ok
-    failed: failed
-    degraded: degraded
 connector:
   displayName: Oracle/Sun Solaris - RAID Disks (raidctl)
   platforms: Oracle/Sun
@@ -280,3 +217,66 @@ monitors:
           hw.status{hw.type="physical_disk"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    CONTROLLERLIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($2 ~ /"/) {print $1}}'`
+    for CONTROLLER in $CONTROLLERLIST
+        do
+        %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $CONTROLLER | /usr/bin/nawk -v controller=$CONTROLLER '{if ($1 ~ /c[0-9]+/) {print ("MSHW;"controller";"$2";"$3";")}}'
+        done
+  EmbeddedFile(3): |-
+    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
+    for LOGICALDRIVE in $LOGICALDRIVELIST
+        do
+        %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $LOGICALDRIVE | /usr/bin/nawk -v logicalDrive=$LOGICALDRIVE '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {size=$2;
+                                                                                                                 raid=$NF; gsub (/[A-Z]/,"",raid);
+                                                                                                                 if (size ~ /[Gg]/) {gsub (/[Gg]/,"",size) ; }
+                                                                                                                 if (size ~ /[Mm]/) {gsub (/[Mm]/,"",size) ; size = size / 1024};
+                                                                                                                 if (size ~ /[Tt]/) {gsub (/[Tt]/,"",size) ; size = size * 1024};
+                                                                                                                 print ("MSHW;"logicalDrive";"size";"raid";")}}'
+        done
+  EmbeddedFile(2): |-
+    BEGIN {controller="";logicalDrive="";disk="";}
+    $2 ~ /"/ {controller=$1}
+    $1 ~ /c[0-9]t[0-9]d[0-9]/ {logicalDrive=$1;
+                               for (i=3; i<=(NF-2); i++) { if ($i ~ /[0-9]\.[0-9]\.[0-9]/) {print ("MSHW;"controller";"logicalDrive";"$i);}}
+                               }
+  EmbeddedFile(5): |-
+    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
+    for VOLUME in $LOGICALDRIVELIST
+            do
+            %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | /usr/bin/nawk '{if ($1 ~ /[0-9]\056[0-9]\056[0-9]/) {Size=$2;
+                                                                                            if (Size ~ /[Gg]/) {gsub (/[Gg]/,"",Size) ; }
+                                                                                            if (Size ~ /[Mm]/) {gsub (/[Mm]/,"",Size) ; Size = Size / 1024};
+                                                                                            if (Size ~ /[Tt]/) {gsub (/[Tt]/,"",Size) ; Size = Size * 1024};
+                                                                                            print ("MSHW;"$1";"Size";"$3";")}}'
+            done
+  EmbeddedFile(4): |
+    LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
+    for VOLUME in $LOGICALDRIVELIST
+            do
+            %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | egrep 'OPTIMAL|DEGRADED|FAILED|SYNCING' | awk '{print ("MSHW;"$1";"$4";")}'
+            done
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    default: Unknown
+    missing: Missing
+    failed: Failed
+    good: Good
+  LogicalDiskStatusInformationTranslationTable:
+    default: Unknown
+    optimal: Optimal
+    syncing: Syncing
+    failed: Failed
+    degraded: Degraded
+  PhysicalDiskStatusTranslationTable:
+    default: UNKNOWN
+    missing: degraded
+    failed: failed
+    good: ok
+  LogicalDiskStatusTranslationTable:
+    default: UNKNOWN
+    optimal: ok
+    syncing: ok
+    failed: failed
+    degraded: degraded

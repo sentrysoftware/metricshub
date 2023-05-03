@@ -1,35 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |
-    BEGIN { FS = ";"; sum=0}
-
-    {sum+=$1;}
-
-    END {print sum;}
-  EmbeddedFile(2): |
-    BEGIN { FS = ";"; upper=0; lower=0}
-
-    {upper=$3/100*110}
-
-    {lower=$3/100*90}
-
-    {print $1";"$2";"$3";"upper";"lower";"}
-
-    END
-translations:
-  BatteryStatusInformationTranslationTable:
-    "1": Unknown
-    "2": Battery Normal
-    "3": Battery Low
-    "4": Battery Depleted
-  BatteryStatusTranslationTable:
-    "1": WARNING
-    "2": ok
-    "3": WARNING
-    "4": failed
-  enclosureStatusTranslationTable:
-    "0": ok
-    default: failed
 connector:
   displayName: Generic UPS
   platforms: Any UPS which supports UPS-MIB (RFC1628)
@@ -368,3 +337,34 @@ monitors:
         deviceId: UPS Battery Temperature
         metrics:
           hw.temperature: $column(1)
+embedded:
+  EmbeddedFile(1): |
+    BEGIN { FS = ";"; sum=0}
+
+    {sum+=$1;}
+
+    END {print sum;}
+  EmbeddedFile(2): |
+    BEGIN { FS = ";"; upper=0; lower=0}
+
+    {upper=$3/100*110}
+
+    {lower=$3/100*90}
+
+    {print $1";"$2";"$3";"upper";"lower";"}
+
+    END
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": Unknown
+    "2": Battery Normal
+    "3": Battery Low
+    "4": Battery Depleted
+  BatteryStatusTranslationTable:
+    "1": WARNING
+    "2": ok
+    "3": WARNING
+    "4": failed
+  enclosureStatusTranslationTable:
+    "0": ok
+    default: failed

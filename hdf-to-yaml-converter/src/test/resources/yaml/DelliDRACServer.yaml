@@ -1,83 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";";}
-    {
-        split($3,outputarray,"-");
-        cardType = outputarray[1] ;
-        split($4,outputarray,".");
-        slotName = outputarray[3]
-
-        if (slotName != "")
-        {
-            print $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" slotName "." cardType
-        }
-    }
-translations:
-  EnvironmentStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-    "7": degraded
-    "8": failed
-    "9": failed
-    "10": failed
-  GenericStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-  GenericStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Non Critical
-    "5": Critical
-    "6": Unrecoverable
-  MemoryTypeTranslationTable:
-    "11": FEPROM
-    "12": EPROM
-    "13": CDRAM
-    "24": DDR3
-    "14": 3DRAM
-    "15": SDRAM
-    "16": SGRAM
-    "17": RDRAM
-    "18": DDR
-    "19": DDR2
-    "1": Other type
-    "2": Unknown type
-    default: ""
-    "3": DRAM
-    "4": EDRAM
-    "5": VRAM
-    "6": SRAM
-    "7": RAM
-    "8": ROM
-    "9": Flash
-    "20": DDR2 FB-DIMM
-    "10": EEPROM
-  GenericLinkStatusTranslationTable:
-    "11": degraded
-    "1": ok
-    "12": degraded
-    "2": degraded
-    "13": degraded
-    "3": degraded
-    "4": degraded
-    "10": degraded
-  EnvironmentStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Non-Critical Upper
-    "5": Critical Upper
-    "6": Unrecoverable Upper
-    "7": Non-Critical Lower
-    "8": Critical Lower
-    "9": Unrecoverable Lower
-    "10": Failed
 connector:
   displayName: Dell iDRAC - Server
   platforms: Dell PowerEdge
@@ -910,3 +831,82 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+        split($3,outputarray,"-");
+        cardType = outputarray[1] ;
+        split($4,outputarray,".");
+        slotName = outputarray[3]
+
+        if (slotName != "")
+        {
+            print $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" slotName "." cardType
+        }
+    }
+translations:
+  EnvironmentStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": degraded
+    "8": failed
+    "9": failed
+    "10": failed
+  GenericStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  GenericStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non Critical
+    "5": Critical
+    "6": Unrecoverable
+  MemoryTypeTranslationTable:
+    "11": FEPROM
+    "12": EPROM
+    "13": CDRAM
+    "24": DDR3
+    "14": 3DRAM
+    "15": SDRAM
+    "16": SGRAM
+    "17": RDRAM
+    "18": DDR
+    "19": DDR2
+    "1": Other type
+    "2": Unknown type
+    default: ""
+    "3": DRAM
+    "4": EDRAM
+    "5": VRAM
+    "6": SRAM
+    "7": RAM
+    "8": ROM
+    "9": Flash
+    "20": DDR2 FB-DIMM
+    "10": EEPROM
+  GenericLinkStatusTranslationTable:
+    "11": degraded
+    "1": ok
+    "12": degraded
+    "2": degraded
+    "13": degraded
+    "3": degraded
+    "4": degraded
+    "10": degraded
+  EnvironmentStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non-Critical Upper
+    "5": Critical Upper
+    "6": Unrecoverable Upper
+    "7": Non-Critical Lower
+    "8": Critical Lower
+    "9": Unrecoverable Lower
+    "10": Failed

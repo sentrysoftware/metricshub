@@ -1,27 +1,6 @@
 ---
 extends:
 - MIB2-header
-translations:
-  TempStatusInformationTranslationTable:
-    "1": Over Heating
-    "2": ok
-  StatusInformationTranslationTable:
-    "1": Unknow
-    "2": Bad
-    default: Unknown Status
-    "3": Warning
-    "4": Good
-    "5": Not Present
-  StatusTranslationTable:
-    "1": UNKNOWN
-    "2": failed
-    default: UNKNOWN
-    "3": degraded
-    "4": ok
-    "5": failed
-  TempStatusTranslationTable:
-    "1": failed
-    "2": ok
 connector:
   displayName: HP Procurve (SNMP)
   platforms: HP Procurve
@@ -255,3 +234,24 @@ monitors:
           device_type: $column(3)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+translations:
+  TempStatusInformationTranslationTable:
+    "1": Over Heating
+    "2": ok
+  StatusInformationTranslationTable:
+    "1": Unknow
+    "2": Bad
+    default: Unknown Status
+    "3": Warning
+    "4": Good
+    "5": Not Present
+  StatusTranslationTable:
+    "1": UNKNOWN
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": ok
+    "5": failed
+  TempStatusTranslationTable:
+    "1": failed
+    "2": ok

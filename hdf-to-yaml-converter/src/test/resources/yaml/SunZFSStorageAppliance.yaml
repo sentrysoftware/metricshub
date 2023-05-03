@@ -1,161 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {valid="";chassis="";primarychassis="";typeStart=""}
-    # Get Chassis
-    $1 ~ /chassis-[0-9]+/ { chassis = $1}
-
-    #Find the Primary Chassis (the one with CPUs)
-    $1 ~ /cpu-[0-9]+/ {primarychassis = chassis};
-
-    # Process instances
-    valid != "" && NF > 4 && chassis != "" {
-        if ( $1 ~ /^chassis/ ) { id = $1}
-           else {id = chassis "-" $1}
-        name = substr($0,nameStart,nameLength) ; gsub(/ +$/,"",name);
-        state = substr($0,stateStart,stateLength) ; gsub(/ +$/,"",state );
-        manufacturer = substr($0,manufacturerStart,manufacturerLength ) ; gsub(/ +$/,"",manufacturer );
-        model = substr($0,modelStart,modelLength) ; gsub(/ +$/,"",model );
-        if (valid=="withoutRPM") {serialLength = length ($0) - serialStart }
-           else {if (typeStart == 0){rpm = substr($0,rpmStart) ; gsub(/ +$/,"",rpm ); gsub(/^ +/,"",rpm );} else {rpm = substr($0,rpmStart,rpmLength) ; gsub(/ +$/,"",rpm ); gsub(/^ +/,"",rpm );}}
-        serial = substr($0,serialStart,serialLength ) ; gsub(/ +$/,"",serial );
-        print "MSHW;" chassis ";" id ";" name ";" state ";" state ";" manufacturer ";" model ";" serial ";" rpm ";"
-        }
-
-    # Check for header with RPM
-    $0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *RPM */ {
-         valid="withRPM"
-         nameStart = index($0,"NAME")
-         stateStart = index($0,"STATE")
-         manufacturerStart = index($0,"MANUFACTURER")
-         modelStart = index($0,"MODEL")
-         serialStart = index($0,"SERIAL")
-         rpmStart = index($0,"RPM")
-         typeStart = index($0,"TYPE")
-         nameLength = stateStart - nameStart - 1
-         stateLength = manufacturerStart - stateStart - 1
-         manufacturerLength = modelStart - manufacturerStart - 1
-         modelLength = serialStart - modelStart - 1
-         serialLength = rpmStart - serialStart - 1
-         rpmLength = typeStart - rpmStart - 1
-        };
-
-    # Check for header without RPM
-    $0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *$/ {
-         valid="withoutRPM"
-         nameStart = index($0,"NAME")
-         stateStart = index($0,"STATE")
-         manufacturerStart = index($0,"MANUFACTURER")
-         modelStart = index($0,"MODEL")
-         serialStart = index($0,"SERIAL")
-         nameLength = stateStart - nameStart - 1
-         stateLength = manufacturerStart - stateStart - 1
-         manufacturerLength = modelStart - manufacturerStart - 1
-         modelLength = serialStart - modelStart - 1
-         serialLength = rpmStart - serialStart - 1
-        };
-
-    END {print "MSHW;PrimaryChassis;"primarychassis";"}
-  EmbeddedFile(3): |-
-    function sizeConvert(size)
-    {
-    if (size ~ /P$/) {gsub(/P/,"",size); size = size * 1048576 }
-    else if (size ~ /T$/) {gsub(/T/,"",size); size = size * 1024}
-    else if (size ~ /G$/) {gsub(/G/,"",size); size = size }
-    else if (size ~ /M$/) {gsub(/M/,"",size); size = size / 1024}
-    else if (size ~ /K$/) {gsub(/K/,"",size); size = size / 1048576 }
-    else {size = size / 1073741824 }
-    return size
-    }
-
-    $1 ~ /:/ && $1 !~ /Storage:/ {pool = $1 ; gsub(/:/,"",pool)}
-    $1 ~ /^Used/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Used = sizeConvert($2);}
-    $1 ~ /^Avail/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Available = sizeConvert($2);}
-    $1 ~ /^Free/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Free = sizeConvert($2);}
-
-
-
-
-    $1 ~ /State/ && pool != "" {
-                                State = $2
-                                print "MSHW;" pool ";" State";" State";" Used ";" Available ";" Free ";"
-                                pool = "" ; State= ""
-                               }
-  EmbeddedFile(2): |-
-    $1 ~ /pool/ && $2 ~ /=/ {pool = $3}
-    $1 ~ /status/ && $2 ~ /=/ {status= $3}
-    $1 ~ /profile/ && $2 ~ /=/ && pool != "" {
-                                profile= $3
-                                print "MSHW;" pool ";" profile ";"
-                                pool = "" ; status = ""
-                               }
-  EmbeddedFile(5): |-
-    BEGIN {valid=""}
-
-    # Process instances
-    valid != "" && NF > 4 && $1 ~ /[A-Za-z]+[0-9]+/ {
-        device = substr($0,deviceStart,deviceLength) ; gsub(/ +$/,"",device );
-        up = substr($0,upStart,upLength) ; gsub(/ +$/,"",up);
-        speed = substr($0,speedStart,speedLength ) ; gsub(/ +$/,"",speed);
-        if (speed ~ /Mbit/) {  gsub(/ Mbit.*/,"",speed);  }
-        else if (speed ~ /Gbit/) {  gsub(/ Gbit.*/,"",speed); speed = speed * 1000  }
-        mac= substr($0,macStart) ; gsub(/ +$/,"",mac); gsub(/:/,"",mac); mac = toupper(mac);
-        print "MSHW;" device ";" mac";" speed ";" device ";IP target;" up ";MAC;"
-        }
-
-    # Check for header
-    $0 ~ /^ *DEVICE +UP +SPEED +MAC/ {
-         valid="1"
-         deviceStart = index($0,"DEVICE")
-         upStart = index($0,"UP")
-         speedStart = index($0,"SPEED")
-         macStart = index($0,"MAC")
-         deviceLength = upStart - deviceStart - 1
-         upLength = speedStart - upStart - 1
-         speedLength = macStart - speedStart - 1
-        };
-  EmbeddedFile(4): |-
-    BEGIN {valid=""}
-
-    # Process instances
-    valid != "" && NF > 4 && $1 ~ /target-/ {
-        name = substr($0,nameStart,nameLength) ; gsub(/ +$/,"",name);
-        mode = substr($0,modeStart,modeLength) ; gsub(/ +$/,"",mode);
-        WWN = substr($0,WWNStart,WWNLength ) ; gsub(/ +$/,"",WWN); gsub(/wwn./,"",WWN);
-        port = substr($0,portStart,portLength) ; gsub(/ +$/,"",port);
-        speed = substr($0,speedStart) ; gsub(/ +$/,"",speed); gsub(/ Gbit.*/,"",speed); speed = speed * 1000;
-        print "MSHW;" name ";" WWN ";" speed ";" port ";FC " mode ";" speed ";WWN;"
-        }
-
-    # Check for header
-    $0 ~ /^ *NAME +MODE +WWN +PORT +SPEED/ {
-         valid="1"
-         nameStart = index($0,"NAME")
-         modeStart = index($0,"MODE")
-         WWNStart = index($0,"WWN")
-         portStart = index($0,"PORT")
-         speedStart = index($0,"SPEED")
-         nameLength = modeStart - nameStart - 1
-         modeLength = WWNStart - modeStart - 1
-         WWNLength = portStart - WWNStart - 1
-         portLength = speedStart - portStart - 1
-        };
-translations:
-  linkUPTranslationTable:
-    "true": ok
-    "false": degraded
-  FCspeedTranslationTable:
-    "0": degraded
-    default: ok
-  StatusTranslationTable:
-    default: failed
-    faulted: failed
-    absent: failed
-    ok: ok
-  LogicalDiskStatusTranslationTable:
-    default: failed
-    faulted: failed
-    online: ok
 connector:
   displayName: Oracle/Sun ZFS Storage Appliance
   platforms: Oracle ZFS Storage Appliance
@@ -891,3 +734,160 @@ monitors:
         metrics:
           hw.network.up: legacyLinkStatus($column(3))
           hw.network.bandwidth.limit: megaBit2Bit($column(2))
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {valid="";chassis="";primarychassis="";typeStart=""}
+    # Get Chassis
+    $1 ~ /chassis-[0-9]+/ { chassis = $1}
+
+    #Find the Primary Chassis (the one with CPUs)
+    $1 ~ /cpu-[0-9]+/ {primarychassis = chassis};
+
+    # Process instances
+    valid != "" && NF > 4 && chassis != "" {
+        if ( $1 ~ /^chassis/ ) { id = $1}
+           else {id = chassis "-" $1}
+        name = substr($0,nameStart,nameLength) ; gsub(/ +$/,"",name);
+        state = substr($0,stateStart,stateLength) ; gsub(/ +$/,"",state );
+        manufacturer = substr($0,manufacturerStart,manufacturerLength ) ; gsub(/ +$/,"",manufacturer );
+        model = substr($0,modelStart,modelLength) ; gsub(/ +$/,"",model );
+        if (valid=="withoutRPM") {serialLength = length ($0) - serialStart }
+           else {if (typeStart == 0){rpm = substr($0,rpmStart) ; gsub(/ +$/,"",rpm ); gsub(/^ +/,"",rpm );} else {rpm = substr($0,rpmStart,rpmLength) ; gsub(/ +$/,"",rpm ); gsub(/^ +/,"",rpm );}}
+        serial = substr($0,serialStart,serialLength ) ; gsub(/ +$/,"",serial );
+        print "MSHW;" chassis ";" id ";" name ";" state ";" state ";" manufacturer ";" model ";" serial ";" rpm ";"
+        }
+
+    # Check for header with RPM
+    $0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *RPM */ {
+         valid="withRPM"
+         nameStart = index($0,"NAME")
+         stateStart = index($0,"STATE")
+         manufacturerStart = index($0,"MANUFACTURER")
+         modelStart = index($0,"MODEL")
+         serialStart = index($0,"SERIAL")
+         rpmStart = index($0,"RPM")
+         typeStart = index($0,"TYPE")
+         nameLength = stateStart - nameStart - 1
+         stateLength = manufacturerStart - stateStart - 1
+         manufacturerLength = modelStart - manufacturerStart - 1
+         modelLength = serialStart - modelStart - 1
+         serialLength = rpmStart - serialStart - 1
+         rpmLength = typeStart - rpmStart - 1
+        };
+
+    # Check for header without RPM
+    $0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *$/ {
+         valid="withoutRPM"
+         nameStart = index($0,"NAME")
+         stateStart = index($0,"STATE")
+         manufacturerStart = index($0,"MANUFACTURER")
+         modelStart = index($0,"MODEL")
+         serialStart = index($0,"SERIAL")
+         nameLength = stateStart - nameStart - 1
+         stateLength = manufacturerStart - stateStart - 1
+         manufacturerLength = modelStart - manufacturerStart - 1
+         modelLength = serialStart - modelStart - 1
+         serialLength = rpmStart - serialStart - 1
+        };
+
+    END {print "MSHW;PrimaryChassis;"primarychassis";"}
+  EmbeddedFile(3): |-
+    function sizeConvert(size)
+    {
+    if (size ~ /P$/) {gsub(/P/,"",size); size = size * 1048576 }
+    else if (size ~ /T$/) {gsub(/T/,"",size); size = size * 1024}
+    else if (size ~ /G$/) {gsub(/G/,"",size); size = size }
+    else if (size ~ /M$/) {gsub(/M/,"",size); size = size / 1024}
+    else if (size ~ /K$/) {gsub(/K/,"",size); size = size / 1048576 }
+    else {size = size / 1073741824 }
+    return size
+    }
+
+    $1 ~ /:/ && $1 !~ /Storage:/ {pool = $1 ; gsub(/:/,"",pool)}
+    $1 ~ /^Used/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Used = sizeConvert($2);}
+    $1 ~ /^Avail/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Available = sizeConvert($2);}
+    $1 ~ /^Free/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Free = sizeConvert($2);}
+
+
+
+
+    $1 ~ /State/ && pool != "" {
+                                State = $2
+                                print "MSHW;" pool ";" State";" State";" Used ";" Available ";" Free ";"
+                                pool = "" ; State= ""
+                               }
+  EmbeddedFile(2): |-
+    $1 ~ /pool/ && $2 ~ /=/ {pool = $3}
+    $1 ~ /status/ && $2 ~ /=/ {status= $3}
+    $1 ~ /profile/ && $2 ~ /=/ && pool != "" {
+                                profile= $3
+                                print "MSHW;" pool ";" profile ";"
+                                pool = "" ; status = ""
+                               }
+  EmbeddedFile(5): |-
+    BEGIN {valid=""}
+
+    # Process instances
+    valid != "" && NF > 4 && $1 ~ /[A-Za-z]+[0-9]+/ {
+        device = substr($0,deviceStart,deviceLength) ; gsub(/ +$/,"",device );
+        up = substr($0,upStart,upLength) ; gsub(/ +$/,"",up);
+        speed = substr($0,speedStart,speedLength ) ; gsub(/ +$/,"",speed);
+        if (speed ~ /Mbit/) {  gsub(/ Mbit.*/,"",speed);  }
+        else if (speed ~ /Gbit/) {  gsub(/ Gbit.*/,"",speed); speed = speed * 1000  }
+        mac= substr($0,macStart) ; gsub(/ +$/,"",mac); gsub(/:/,"",mac); mac = toupper(mac);
+        print "MSHW;" device ";" mac";" speed ";" device ";IP target;" up ";MAC;"
+        }
+
+    # Check for header
+    $0 ~ /^ *DEVICE +UP +SPEED +MAC/ {
+         valid="1"
+         deviceStart = index($0,"DEVICE")
+         upStart = index($0,"UP")
+         speedStart = index($0,"SPEED")
+         macStart = index($0,"MAC")
+         deviceLength = upStart - deviceStart - 1
+         upLength = speedStart - upStart - 1
+         speedLength = macStart - speedStart - 1
+        };
+  EmbeddedFile(4): |-
+    BEGIN {valid=""}
+
+    # Process instances
+    valid != "" && NF > 4 && $1 ~ /target-/ {
+        name = substr($0,nameStart,nameLength) ; gsub(/ +$/,"",name);
+        mode = substr($0,modeStart,modeLength) ; gsub(/ +$/,"",mode);
+        WWN = substr($0,WWNStart,WWNLength ) ; gsub(/ +$/,"",WWN); gsub(/wwn./,"",WWN);
+        port = substr($0,portStart,portLength) ; gsub(/ +$/,"",port);
+        speed = substr($0,speedStart) ; gsub(/ +$/,"",speed); gsub(/ Gbit.*/,"",speed); speed = speed * 1000;
+        print "MSHW;" name ";" WWN ";" speed ";" port ";FC " mode ";" speed ";WWN;"
+        }
+
+    # Check for header
+    $0 ~ /^ *NAME +MODE +WWN +PORT +SPEED/ {
+         valid="1"
+         nameStart = index($0,"NAME")
+         modeStart = index($0,"MODE")
+         WWNStart = index($0,"WWN")
+         portStart = index($0,"PORT")
+         speedStart = index($0,"SPEED")
+         nameLength = modeStart - nameStart - 1
+         modeLength = WWNStart - modeStart - 1
+         WWNLength = portStart - WWNStart - 1
+         portLength = speedStart - portStart - 1
+        };
+translations:
+  linkUPTranslationTable:
+    "true": ok
+    "false": degraded
+  FCspeedTranslationTable:
+    "0": degraded
+    default: ok
+  StatusTranslationTable:
+    default: failed
+    faulted: failed
+    absent: failed
+    ok: ok
+  LogicalDiskStatusTranslationTable:
+    default: failed
+    faulted: failed
+    online: ok

@@ -1,36 +1,4 @@
 ---
-translations:
-  memoryTypeTranslationTable:
-    "1": ""
-    "2": ""
-    "3": SIMM
-    "4": DIMM
-  GenericStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
-    "6": failed
-    "7": ok
-    "8": degraded
-    "9": ok
-    "10": failed
-  GenericStatusInformationTranslationTable:
-    default: UNKNOWN
-    "3": ""
-    "4": Warning
-    "5": Fatal
-    "6": Non-recoverable
-    "7": In test
-    "8": Degraded
-    "9": Disabled
-    "10": Down
-  cpuVendorTranslationTable:
-    "1": ""
-    "2": ""
-    default: ""
-    "3": Intel
-    "4": Mips
 connector:
   displayName: NEC ESMPRO Agent
   platforms: NEC Express5800
@@ -340,3 +308,35 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  memoryTypeTranslationTable:
+    "1": ""
+    "2": ""
+    "3": SIMM
+    "4": DIMM
+  GenericStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": ok
+    "8": degraded
+    "9": ok
+    "10": failed
+  GenericStatusInformationTranslationTable:
+    default: UNKNOWN
+    "3": ""
+    "4": Warning
+    "5": Fatal
+    "6": Non-recoverable
+    "7": In test
+    "8": Degraded
+    "9": Disabled
+    "10": Down
+  cpuVendorTranslationTable:
+    "1": ""
+    "2": ""
+    default: ""
+    "3": Intel
+    "4": Mips

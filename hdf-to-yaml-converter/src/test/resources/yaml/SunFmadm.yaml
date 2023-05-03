@@ -1,67 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {status="OK";statusInformation="No Memory Faults Reported by fmadm";exitFlag="1";}
-
-    nextLineTrigger == "1" {nextLineTrigger = "0";
-                             if ($NF ~ /mem:/ || /memory/) {nextLineTrigger="1"};
-                             if (status == "ALARM") {status = "ALARM"}
-                             else if (tolower($1) ~ /faulted/) {status = "ALARM"}
-                             else {status = "WARN"}
-                             }
-    ($1 ~ /[Aa]ffects/) && ($NF ~ /mem:/ || /memory/)  {nextLineTrigger="1";
-                                 statusInformation="Fault(s) Detected - Run fmadm faulty" ;
-                                  }
-
-
-
-    (tolower($1) ~ /degraded/ || tolower($1) ~ /faulted/) && ($NF ~ /mem:/ || /memory/)  {statusInformation="Fault(s) Detected - Run fmadm faulty"
-                                                                              if (status == "ALARM") {status = "ALARM"}
-                                                                                  else if (tolower($1) ~ /faulted/) {status = "ALARM"}
-                                                                                  else if (tolower($1) ~ /degraded/) {status = "WARN"}
-                                                                              }
-
-    $1 ~ /^errorlevel$/ {if ($2 == 0) {exitFlag="0"} }
-
-    END { if (exitFlag=="0") {print ("MSHW;Overall;"status";"statusInformation";")};}
-  EmbeddedFile(3): |-
-    $1 ~ /[Mm]emory/ && $2 ~ /[Ss]ize/ {size = $3;
-                                        if ($4 ~ /[Gg]igabytes/) {size=size*1024}
-                                        getline
-                                        uname = $1
-                                        gsub(/^[Ss].*,/,"",uname)
-                                        if ((uname == "Ultra-250") || (uname == "Ultra-4") || (uname == "Ultra-Enterprise") || (uname == "Netra-T12")) {size = ""}
-                                        print ("MSHW;Overall;"size";")
-                                        }
-  EmbeddedFile(2): |-
-    BEGIN {status="OK";statusInformation="No CPU Faults Reported by fmadm";exitFlag="1";}
-
-    nextLineTrigger == "1" {nextLineTrigger = "0";
-                             if ($NF ~ "://:") {nextLineTrigger="1" ;};
-                           if ($1 ~ /[Aa]ffects/) {nextLineTrigger="1"};
-                             if (status == "ALARM") {status = "ALARM"}
-                             else if (tolower($1) ~ /faulted/) {status = "ALARM"}
-                             else {status = "WARN"}
-                             }
-    ($1 ~ /[Ff]ault/) && $2 ~ /[Cc]lass/  && ($NF ~ /\.cpu\./)  {nextLineTrigger="1";
-                                                          statusInformation="Fault(s) Detected - Run fmadm faulty" ;
-                                                           }
-
-    ($1 ~ /[Aa]ffects/) && ($NF ~ /cpu:/)  {nextLineTrigger="1";
-                                 statusInformation="Fault(s) Detected - Run fmadm faulty" ;
-                                  }
-
-
-
-    (tolower($1) ~ /degraded/ || tolower($1) ~ /faulted/) && ($NF ~ /cpu:/)  {statusInformation="Fault(s) Detected - Run fmadm faulty"
-                                                                              if (status == "ALARM") {status = "ALARM"}
-                                                                                  else if (tolower($1) ~ /faulted/) {status = "ALARM"}
-                                                                                  else if (tolower($1) ~ /degraded/) {status = "WARN"}
-                                                                              }
-
-    $1 ~ /^errorlevel$/ {if ($2 == 0) {exitFlag="0"} }
-
-    END { if (exitFlag=="0") {print ("MSHW;Overall;"status";"statusInformation";")};}
 connector:
   displayName: Oracle/Sun Solaris - Fault  Manager - Memory and CPU
   platforms: Oracle/Sun
@@ -203,3 +140,66 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {status="OK";statusInformation="No Memory Faults Reported by fmadm";exitFlag="1";}
+
+    nextLineTrigger == "1" {nextLineTrigger = "0";
+                             if ($NF ~ /mem:/ || /memory/) {nextLineTrigger="1"};
+                             if (status == "ALARM") {status = "ALARM"}
+                             else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+                             else {status = "WARN"}
+                             }
+    ($1 ~ /[Aa]ffects/) && ($NF ~ /mem:/ || /memory/)  {nextLineTrigger="1";
+                                 statusInformation="Fault(s) Detected - Run fmadm faulty" ;
+                                  }
+
+
+
+    (tolower($1) ~ /degraded/ || tolower($1) ~ /faulted/) && ($NF ~ /mem:/ || /memory/)  {statusInformation="Fault(s) Detected - Run fmadm faulty"
+                                                                              if (status == "ALARM") {status = "ALARM"}
+                                                                                  else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+                                                                                  else if (tolower($1) ~ /degraded/) {status = "WARN"}
+                                                                              }
+
+    $1 ~ /^errorlevel$/ {if ($2 == 0) {exitFlag="0"} }
+
+    END { if (exitFlag=="0") {print ("MSHW;Overall;"status";"statusInformation";")};}
+  EmbeddedFile(3): |-
+    $1 ~ /[Mm]emory/ && $2 ~ /[Ss]ize/ {size = $3;
+                                        if ($4 ~ /[Gg]igabytes/) {size=size*1024}
+                                        getline
+                                        uname = $1
+                                        gsub(/^[Ss].*,/,"",uname)
+                                        if ((uname == "Ultra-250") || (uname == "Ultra-4") || (uname == "Ultra-Enterprise") || (uname == "Netra-T12")) {size = ""}
+                                        print ("MSHW;Overall;"size";")
+                                        }
+  EmbeddedFile(2): |-
+    BEGIN {status="OK";statusInformation="No CPU Faults Reported by fmadm";exitFlag="1";}
+
+    nextLineTrigger == "1" {nextLineTrigger = "0";
+                             if ($NF ~ "://:") {nextLineTrigger="1" ;};
+                           if ($1 ~ /[Aa]ffects/) {nextLineTrigger="1"};
+                             if (status == "ALARM") {status = "ALARM"}
+                             else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+                             else {status = "WARN"}
+                             }
+    ($1 ~ /[Ff]ault/) && $2 ~ /[Cc]lass/  && ($NF ~ /\.cpu\./)  {nextLineTrigger="1";
+                                                          statusInformation="Fault(s) Detected - Run fmadm faulty" ;
+                                                           }
+
+    ($1 ~ /[Aa]ffects/) && ($NF ~ /cpu:/)  {nextLineTrigger="1";
+                                 statusInformation="Fault(s) Detected - Run fmadm faulty" ;
+                                  }
+
+
+
+    (tolower($1) ~ /degraded/ || tolower($1) ~ /faulted/) && ($NF ~ /cpu:/)  {statusInformation="Fault(s) Detected - Run fmadm faulty"
+                                                                              if (status == "ALARM") {status = "ALARM"}
+                                                                                  else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+                                                                                  else if (tolower($1) ~ /degraded/) {status = "WARN"}
+                                                                              }
+
+    $1 ~ /^errorlevel$/ {if ($2 == 0) {exitFlag="0"} }
+
+    END { if (exitFlag=="0") {print ("MSHW;Overall;"status";"statusInformation";")};}

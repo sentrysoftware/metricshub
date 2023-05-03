@@ -1,55 +1,4 @@
 ---
-translations:
-  DriveStatusInformationTranslationTable:
-    "0": Unknown
-    "11": Not Unloadable
-    "1": Initializing
-    "2": Empty
-    "3": Cartridge Present
-    "4": Loading
-    "5": Loaded
-    "6": Cleaning
-    "7": Rewinding
-    "8": Unloading
-    "9": Inoperative
-    "10": Not Loadable
-  LibraryStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": failed
-    default: UNKNOWN
-  DriveStatusTranslationTable:
-    "0": UNKNOWN
-    "11": failed
-    "1": ok
-    "2": ok
-    "3": ok
-    "4": ok
-    "5": ok
-    "6": ok
-    "7": ok
-    "8": ok
-    "9": failed
-    "10": failed
-  RoboticStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-  RoboticStatusInformationTranslationTable:
-    "0": ""
-    "1": Degraded
-    "2": Not Operative
-    default: Unknown Status
-    "3": Info
-    "4": Trace
-  LibraryStatusInformationTranslationTable:
-    "0": ""
-    "1": Degraded
-    "2": Not Operative
-    default: Unknown Status
 connector:
   displayName: StorageTek StreamLine Tape Library
   platforms: StorageTek StreamLine
@@ -257,3 +206,54 @@ monitors:
           hw.status{hw.type="robotics"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  DriveStatusInformationTranslationTable:
+    "0": Unknown
+    "11": Not Unloadable
+    "1": Initializing
+    "2": Empty
+    "3": Cartridge Present
+    "4": Loading
+    "5": Loaded
+    "6": Cleaning
+    "7": Rewinding
+    "8": Unloading
+    "9": Inoperative
+    "10": Not Loadable
+  LibraryStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": failed
+    default: UNKNOWN
+  DriveStatusTranslationTable:
+    "0": UNKNOWN
+    "11": failed
+    "1": ok
+    "2": ok
+    "3": ok
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": ok
+    "8": ok
+    "9": failed
+    "10": failed
+  RoboticStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+  RoboticStatusInformationTranslationTable:
+    "0": ""
+    "1": Degraded
+    "2": Not Operative
+    default: Unknown Status
+    "3": Info
+    "4": Trace
+  LibraryStatusInformationTranslationTable:
+    "0": ""
+    "1": Degraded
+    "2": Not Operative
+    default: Unknown Status

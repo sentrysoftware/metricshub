@@ -1,132 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {
-        controllerID = "";
-    }
-    /^MSHW_Controller / {
-        controllerID = $2
-        model = ""
-        firmware = ""
-    }
-    ($1 == controllerID "." && $(NF-6) == "LSI" && $(NF-5) == "Logic") {
-        model = $(NF-4)
-        firmware = $(NF-1)
-    }
-    /^PhysDisk [0-9]/ {
-        if (controllerID != "" && model != "")
-        {
-            print "MSHW;" controllerID ";LSI Logic;" model ";" firmware
-            controllerID = ""
-            model = ""
-        }
-    }
-  EmbeddedFile(3): |-
-    BEGIN {
-        controllerID = "";
-    }
-    /^MSHW_Controller / {
-        controllerID = $2
-    }
-    /^Volume [0-9] is / {
-        volumeID = $2
-        raidType = $9
-        enabled = 0
-        diskSize = ""
-    }
-    /Volume State:/ {
-        if ($0 ~ /[Dd]isabled/)
-        {
-            enabled = 0
-        }
-        else
-        {
-            enabled = 1
-        }
-
-        colonIndex = index($0, ":")
-        status = substr($0, colonIndex + 3, length - colonIndex - 2)
-        commaIndex = index(status, ",")
-        if (commaIndex > 1)
-        {
-            status = substr(status, 1, commaIndex - 1)
-        }
-    }
-    /Volume Size/ {
-        diskSize = $3
-        sizeUnit = $4
-        if (sizeUnit == "MB,") { diskSize = diskSize * 1048576 }
-        else if (sizeUnit == "GB,") { diskSize = diskSize * 1048576 * 1024 }
-        else if (sizeUnit == "TB,") { diskSize = diskSize * 1048576 * 1048576 }
-    }
-    /^ *$/ {
-        if (controllerID != "" && volumeID != "" && enabled == 1)
-        {
-            print "MSHW;" controllerID ";" volumeID ";" diskSize ";" raidType ";" status
-            volumeID = ""
-        }
-    }
-  EmbeddedFile(2): |-
-    BEGIN {
-        controllerID = "";
-    }
-    /^MSHW_Controller / {
-        controllerID = $2
-    }
-    /^PhysDisk [0-9]/ {
-        if (controllerID != "")
-        {
-            diskID = $2
-            getline
-            if ($0 ~ /PhysDisk State:/)
-            {
-                colonIndex = index($0, ":")
-                status = substr($0, colonIndex + 3, length - colonIndex - 2)
-                commaIndex = index(status, ",")
-                if (commaIndex > 1)
-                {
-                    status = substr(status, 1, commaIndex - 1)
-                }
-            }
-            getline
-            if ($0 ~ /PhysDisk Size/)
-            {
-                diskSize = $3
-                sizeUnit = $4
-                if (sizeUnit == "MB,") { diskSize = diskSize * 1048576 }
-                else if (sizeUnit == "GB,") { diskSize = diskSize * 1048576 * 1024 }
-                else if (sizeUnit == "TB,") { diskSize = diskSize * 1048576 * 1048576 }
-                colonIndex = index($0, ":")
-                if (colonIndex > 10)
-                {
-                    tempDiskModel = substr($0, colonIndex + 2, length - colonIndex - 1)
-                    n = split(tempDiskModel, diskModelArray, " ")
-                    diskModel = ""
-                    for (i=1 ; i<n ; i++)
-                    {
-                        diskModel = diskModel diskModelArray[i] " "
-                    }
-                    diskModel = diskModel diskModelArray[n]
-                }
-                print "MSHW;" controllerID ";"  diskID ";" diskModel ";" diskSize ";" status
-                status = ""
-                diskModel = ""
-                diskSize = ""
-            }
-        }
-    }
-translations:
-  DiskStatusTranslationTable:
-    default: UNKNOWN
-    offlinerequested: degraded
-    optimal: ok
-    missing: failed
-    online: ok
-    initializing: degraded
-    failed: failed
-    degraded: degraded
-    notcompatible: failed
-    failedrequested: failed
 connector:
   displayName: LSI Logic - LsiUtil - RAID
   platforms: Any system with LSI lsiutil
@@ -306,3 +178,131 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        controllerID = "";
+    }
+    /^MSHW_Controller / {
+        controllerID = $2
+        model = ""
+        firmware = ""
+    }
+    ($1 == controllerID "." && $(NF-6) == "LSI" && $(NF-5) == "Logic") {
+        model = $(NF-4)
+        firmware = $(NF-1)
+    }
+    /^PhysDisk [0-9]/ {
+        if (controllerID != "" && model != "")
+        {
+            print "MSHW;" controllerID ";LSI Logic;" model ";" firmware
+            controllerID = ""
+            model = ""
+        }
+    }
+  EmbeddedFile(3): |-
+    BEGIN {
+        controllerID = "";
+    }
+    /^MSHW_Controller / {
+        controllerID = $2
+    }
+    /^Volume [0-9] is / {
+        volumeID = $2
+        raidType = $9
+        enabled = 0
+        diskSize = ""
+    }
+    /Volume State:/ {
+        if ($0 ~ /[Dd]isabled/)
+        {
+            enabled = 0
+        }
+        else
+        {
+            enabled = 1
+        }
+
+        colonIndex = index($0, ":")
+        status = substr($0, colonIndex + 3, length - colonIndex - 2)
+        commaIndex = index(status, ",")
+        if (commaIndex > 1)
+        {
+            status = substr(status, 1, commaIndex - 1)
+        }
+    }
+    /Volume Size/ {
+        diskSize = $3
+        sizeUnit = $4
+        if (sizeUnit == "MB,") { diskSize = diskSize * 1048576 }
+        else if (sizeUnit == "GB,") { diskSize = diskSize * 1048576 * 1024 }
+        else if (sizeUnit == "TB,") { diskSize = diskSize * 1048576 * 1048576 }
+    }
+    /^ *$/ {
+        if (controllerID != "" && volumeID != "" && enabled == 1)
+        {
+            print "MSHW;" controllerID ";" volumeID ";" diskSize ";" raidType ";" status
+            volumeID = ""
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        controllerID = "";
+    }
+    /^MSHW_Controller / {
+        controllerID = $2
+    }
+    /^PhysDisk [0-9]/ {
+        if (controllerID != "")
+        {
+            diskID = $2
+            getline
+            if ($0 ~ /PhysDisk State:/)
+            {
+                colonIndex = index($0, ":")
+                status = substr($0, colonIndex + 3, length - colonIndex - 2)
+                commaIndex = index(status, ",")
+                if (commaIndex > 1)
+                {
+                    status = substr(status, 1, commaIndex - 1)
+                }
+            }
+            getline
+            if ($0 ~ /PhysDisk Size/)
+            {
+                diskSize = $3
+                sizeUnit = $4
+                if (sizeUnit == "MB,") { diskSize = diskSize * 1048576 }
+                else if (sizeUnit == "GB,") { diskSize = diskSize * 1048576 * 1024 }
+                else if (sizeUnit == "TB,") { diskSize = diskSize * 1048576 * 1048576 }
+                colonIndex = index($0, ":")
+                if (colonIndex > 10)
+                {
+                    tempDiskModel = substr($0, colonIndex + 2, length - colonIndex - 1)
+                    n = split(tempDiskModel, diskModelArray, " ")
+                    diskModel = ""
+                    for (i=1 ; i<n ; i++)
+                    {
+                        diskModel = diskModel diskModelArray[i] " "
+                    }
+                    diskModel = diskModel diskModelArray[n]
+                }
+                print "MSHW;" controllerID ";"  diskID ";" diskModel ";" diskSize ";" status
+                status = ""
+                diskModel = ""
+                diskSize = ""
+            }
+        }
+    }
+translations:
+  DiskStatusTranslationTable:
+    default: UNKNOWN
+    offlinerequested: degraded
+    optimal: ok
+    missing: failed
+    online: ok
+    initializing: degraded
+    failed: failed
+    degraded: degraded
+    notcompatible: failed
+    failedrequested: failed

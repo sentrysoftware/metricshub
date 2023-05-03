@@ -1,30 +1,4 @@
 ---
-translations:
-  NetworkCardStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
-  iLoStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Not Responding
-  iLoStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-  NetworkCardStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  iLoModelTranslationTable:
-    "2": EISA Remote Insight
-    default: Unknown Remote/Integrated Insight Lights-Out
-    "3": PCI Remote Insight
-    "4": Remote Insight Lights-Out
-    "5": Integrated Remote Insight Lights-Out
-    "6": Remote Insight Lights-Out version II
 connector:
   displayName: HP Insight Management Agent - iLO
   platforms: HP ProLiant
@@ -169,3 +143,29 @@ monitors:
           hw.status{hw.type="network"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  NetworkCardStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
+  iLoStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Not Responding
+  iLoStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+  NetworkCardStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  iLoModelTranslationTable:
+    "2": EISA Remote Insight
+    default: Unknown Remote/Integrated Insight Lights-Out
+    "3": PCI Remote Insight
+    "4": Remote Insight Lights-Out
+    "5": Integrated Remote Insight Lights-Out
+    "6": Remote Insight Lights-Out version II

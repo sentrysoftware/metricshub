@@ -1,133 +1,4 @@
 ---
-translations:
-  batteryStatusInformationTranslationTable:
-    "0": ""
-    "1": Faulty
-    "2": Warning
-    default: Unknown Status
-    "3": Absent
-    "4": Unknown
-  lunStatusInformationTranslationTable:
-    "0": ""
-    "1": Warning
-    "2": Faulty
-    default: Unknown Status
-    "3": Unknown
-    "4": Status N/A
-  diskTypeTranslationTable:
-    "0": ""
-    "1": SATA
-    "2": SAS
-    default: ""
-    "3": SSD
-  diskRoleTranslationTable:
-    "0": Blank
-    "1": Global Spare
-    "2": Data
-    default: ""
-    "3": Raid Spare
-    "4": Conflict
-    "5": Unknown
-  otherdeviceStatusInformationTranslationTable:
-    default: UNKNOWN
-    "0_0": HA Status Normal
-    "0_1": HA A Takeover B
-    "1_0": HA Status Normal (Single)
-    "0_2": HA B Takeover A
-    "1_1": HA A Takeover B (Single)
-    "2_0": HA Status Normal (Double)
-    "0_3": HA Status Abnormal
-    "1_2": HA B Takeover A (Single)
-    "2_1": HA A Takeover B (Double)
-    "3_0": HA Status Abnormal (Single)
-    "1_3": HA Status Abnormal (Single)
-    "2_2": HA B Takeover A (Double)
-    "3_1": HA Status Abnormal (Single)
-    "4_0": HA Status Abnormal (Double)
-    "2_3": HA Status Abnormal (Double)
-    "3_2": HA Status Abnormal (Single)
-    "4_1": HA Status Abnormal (Double)
-    "5_0": HA Status Normal (Idle)
-    "3_3": HA Status Abnormal (Single)
-    "4_2": HA Status Abnormal (Double)
-    "5_1": HA A Takeover B (Idle)
-    "6_0": HA Status Normal (PowerOff)
-    "4_3": HA Status Abnormal (Double)
-    "5_2": HA B Takeover A (Idle)
-    "6_1": HA A Takeover B (PowerOff)
-    "5_3": HA Status Abnormal (Idle)
-    "6_2": HA B Takeover A (PowerOff)
-    "6_3": HA Status Abnormal (PowerOff)
-  moduleStatusTranslationTable:
-    "0": ok
-    "1": failed
-    "2": failed
-    default: UNKNOWN
-    "3": UNKNOWN
-  batteryStatusTranslationTable:
-    "0": ok
-    "1": failed
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": UNKNOWN
-  diskStatusInformationTranslationTable:
-    "0": ""
-    "1": Repairing
-    "2": Warning
-    default: Unknown Status
-    "3": Failed
-    "4": Missing
-  diskStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-  moduleStatusInformationTranslationTable:
-    "0": ""
-    "1": Faulty
-    "2": Absent
-    default: Unknown Status
-    "3": Unknown
-  otherdeviceStatusTranslationTable:
-    default: UNKNOWN
-    "0_0": ok
-    "0_1": degraded
-    "1_0": ok
-    "0_2": degraded
-    "1_1": degraded
-    "2_0": ok
-    "0_3": failed
-    "1_2": degraded
-    "2_1": degraded
-    "3_0": ok
-    "1_3": failed
-    "2_2": degraded
-    "3_1": degraded
-    "4_0": ok
-    "2_3": failed
-    "3_2": degraded
-    "4_1": degraded
-    "5_0": ok
-    "3_3": failed
-    "4_2": degraded
-    "5_1": degraded
-    "6_0": ok
-    "4_3": failed
-    "5_2": degraded
-    "6_1": degraded
-    "5_3": failed
-    "6_2": degraded
-    "6_3": failed
-  lunStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": failed
-    default: UNKNOWN
-    "3": UNKNOWN
-    "4": ok
 connector:
   displayName: MacroSan Storage System (SNMP)
   platforms: MacroSan
@@ -531,3 +402,132 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  batteryStatusInformationTranslationTable:
+    "0": ""
+    "1": Faulty
+    "2": Warning
+    default: Unknown Status
+    "3": Absent
+    "4": Unknown
+  lunStatusInformationTranslationTable:
+    "0": ""
+    "1": Warning
+    "2": Faulty
+    default: Unknown Status
+    "3": Unknown
+    "4": Status N/A
+  diskTypeTranslationTable:
+    "0": ""
+    "1": SATA
+    "2": SAS
+    default: ""
+    "3": SSD
+  diskRoleTranslationTable:
+    "0": Blank
+    "1": Global Spare
+    "2": Data
+    default: ""
+    "3": Raid Spare
+    "4": Conflict
+    "5": Unknown
+  otherdeviceStatusInformationTranslationTable:
+    default: UNKNOWN
+    "0_0": HA Status Normal
+    "0_1": HA A Takeover B
+    "1_0": HA Status Normal (Single)
+    "0_2": HA B Takeover A
+    "1_1": HA A Takeover B (Single)
+    "2_0": HA Status Normal (Double)
+    "0_3": HA Status Abnormal
+    "1_2": HA B Takeover A (Single)
+    "2_1": HA A Takeover B (Double)
+    "3_0": HA Status Abnormal (Single)
+    "1_3": HA Status Abnormal (Single)
+    "2_2": HA B Takeover A (Double)
+    "3_1": HA Status Abnormal (Single)
+    "4_0": HA Status Abnormal (Double)
+    "2_3": HA Status Abnormal (Double)
+    "3_2": HA Status Abnormal (Single)
+    "4_1": HA Status Abnormal (Double)
+    "5_0": HA Status Normal (Idle)
+    "3_3": HA Status Abnormal (Single)
+    "4_2": HA Status Abnormal (Double)
+    "5_1": HA A Takeover B (Idle)
+    "6_0": HA Status Normal (PowerOff)
+    "4_3": HA Status Abnormal (Double)
+    "5_2": HA B Takeover A (Idle)
+    "6_1": HA A Takeover B (PowerOff)
+    "5_3": HA Status Abnormal (Idle)
+    "6_2": HA B Takeover A (PowerOff)
+    "6_3": HA Status Abnormal (PowerOff)
+  moduleStatusTranslationTable:
+    "0": ok
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN
+  batteryStatusTranslationTable:
+    "0": ok
+    "1": failed
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": UNKNOWN
+  diskStatusInformationTranslationTable:
+    "0": ""
+    "1": Repairing
+    "2": Warning
+    default: Unknown Status
+    "3": Failed
+    "4": Missing
+  diskStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+  moduleStatusInformationTranslationTable:
+    "0": ""
+    "1": Faulty
+    "2": Absent
+    default: Unknown Status
+    "3": Unknown
+  otherdeviceStatusTranslationTable:
+    default: UNKNOWN
+    "0_0": ok
+    "0_1": degraded
+    "1_0": ok
+    "0_2": degraded
+    "1_1": degraded
+    "2_0": ok
+    "0_3": failed
+    "1_2": degraded
+    "2_1": degraded
+    "3_0": ok
+    "1_3": failed
+    "2_2": degraded
+    "3_1": degraded
+    "4_0": ok
+    "2_3": failed
+    "3_2": degraded
+    "4_1": degraded
+    "5_0": ok
+    "3_3": failed
+    "4_2": degraded
+    "5_1": degraded
+    "6_0": ok
+    "4_3": failed
+    "5_2": degraded
+    "6_1": degraded
+    "5_3": failed
+    "6_2": degraded
+    "6_3": failed
+  lunStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN
+    "4": ok

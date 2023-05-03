@@ -1,262 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    (NF > 4) {
-        if ($(NF-3) ~ /^[ACV]$/)
-        {
-            unit = $(NF-3)
-            value = $(NF-4)
-            status = $NF
-
-            if (unit == "A")
-            {
-                deviceType = "Current"
-            }
-            else if (unit == "C")
-            {
-                deviceType = "Temperature"
-            }
-            else if (unit == "V")
-            {
-                deviceType = "Voltage"
-            }
-            else
-            {
-                deviceType = ""
-            }
-
-            if (value == "--")
-            {
-                value = ""
-            }
-
-            DeviceID = $1 " " $2 " " $3 " / " $4 " /"
-            for (i = 5 ; i<=NF - 5 ; i++)
-            {
-                if ($i != "Temp" && $i != "Volt" && $i != "VDC")
-                {
-                    DeviceID = DeviceID " " $i
-                }
-            }
-
-            print "MSHW;" deviceType ";" DeviceID ";" value ";" status
-        }
-    }
-
-    /^PS[0-9] +/ {
-        if (NF == 8)
-        {
-            print "MSHW;Current;" $1 " / AC0;;" $3
-            print "MSHW;Current;" $1 " / AC1;;" $4
-        }
-    }
-
-    ($2 == "at" && $3 ~ /^PS[0-9]+/) {
-        if (NF == 10)
-        {
-            print "MSHW;Current;" $3 " / AC0;;" $5
-            print "MSHW;Current;" $3 " / AC1;;" $6
-        }
-    }
-  EmbeddedFile(3): |-
-    /^PS[0-9] +/ {
-        if (NF == 8)
-        {
-            print "MSHW;PowerSupply;" $1 ";" $2
-        }
-    }
-    ($2 == "at" && $3 ~ /^PS[0-9]+/) {
-        if (NF == 10)
-        {
-            print "MSHW;PowerSupply;" $3 ";" $4
-        }
-    }
-  EmbeddedFile(2): |-
-    BEGIN { fanCountPerTray = 0 }
-    /^FANTRAY +POWER +SPEED +FAN0/ {
-        fanCountPerTray = NF - 3
-    }
-
-    /^FT[0-9] +/ {
-        for (i=0 ; i<fanCountPerTray ; i++)
-        {
-            print "MSHW;Fan;Tray " substr($0, 3, 1) " / Fan " i ";" $(i+4)
-        }
-    }
-
-    /^PS[0-9] +/ {
-        if (NF == 8)
-        {
-            print "MSHW;Fan;" $1 " / Fan 0;" $7
-            print "MSHW;Fan;" $1 " / Fan 1;" $8
-        }
-
-    }
-
-    ($2 == "at" && $3 ~ /^PS[0-9]+/) {
-        if (NF == 10)
-        {
-            print "MSHW;Fan;" $3 " / Fan 0;" $9
-            print "MSHW;Fan;" $3 " / Fan 1;" $10
-        }
-    }
-  EmbeddedFile(5): |-
-    /^SB[0-9]+|^IO[0-9]+/ {
-        if ($3 != "Empty" && $4 != "Slot" && NF > 3)
-        {
-            domain = $NF
-            boardType = $3 " Board"
-            boardID = $1
-            status = $(NF-1)
-            active = $(NF-2)
-            onOff = $2
-
-            if (domain == "Isolated")
-            {
-                additionalLabel = onOff " - " active
-            }
-            else
-            {
-                if (active == "Assigned")
-                {
-                    additionalLabel = onOff " - " active " to domain " domain
-                }
-                else if (active == "Active")
-                {
-                    additionalLabel = onOff " - " active " in domain " domain
-                }
-                else
-                {
-                    additionalLabel = onOff " - " active
-                }
-            }
-
-            print "MSHW;" boardType ";" boardID ";" additionalLabel ";" status
-        }
-    }
-  EmbeddedFile(4): |-
-    BEGIN { capture = 0 }
-    {
-        if ($1 == "Domain" && $2 == "Configurations:")
-        {
-            capture = 1
-        }
-
-        if (NF == 0)
-        {
-            capture = 0
-        }
-
-        if (capture == 1 && substr($0, 1, 2) ~ /^[A-Z] $/)
-        {
-            domainTag = $2
-            if (domainTag == "-")
-            {
-                domainTag = ""
-            }
-
-            nodeName = $3
-            if (nodeName == "-")
-            {
-                nodeName = ""
-            }
-
-            if (domainTag != "" && nodeName != "")
-            {
-                label = domainTag " - " nodeName
-            }
-            else if (domainTag != "" && nodeName == "")
-            {
-                label = domainTag
-            }
-            else if (domainTag == "" && nodeName != "")
-            {
-                label = nodeName
-            }
-            else
-            {
-                label = ""
-            }
-
-            status = $4
-            for (i=5 ; i<=NF ; i++)
-            {
-                status = status " " $i
-            }
-            print "MSHW;Domain;" $1 ";" label ";" status
-        }
-    }
-  EmbeddedFile(6): |-
-    BEGIN { totalPower = 0; }
-    ($1 == "Current0") { current0 = $2; }
-    ($1 == "Current1") { current1 = $2; }
-    ($1 == "48VDC") {
-        if (current0 != "" && current1 != "")
-        {
-            vdc = $2;
-            totalPower = totalPower + (current0 + current1) * vdc;
-        }
-        current0 = "";
-        current1 = "";
-    }
-    END { print "MSHW;PowerConsumption;" totalPower }
-translations:
-  BoardStatusTranslationTable:
-    default: UNKNOWN
-    ipost: degraded
-    passed: ok
-    failed: failed
-    degraded: degraded
-  ShowEnvironmentStatusTranslationTable:
-    overlimit: failed
-    fail: failed
-    default: failed
-    low_min: failed
-    low_warn: degraded
-    bad: failed
-    high_max: failed
-    high_warn: degraded
-    invalid: ok
-    low_crit: failed
-    ok: ok
-    high_crit: failed
-  DomainStatusTranslationTable:
-    loading solaris: ok
-    solaris panic continue: failed
-    booting solaris: ok
-    solaris panic debug: failed
-    domain down: failed
-    in obp callback: degraded
-    debugging solaris: degraded
-    powered off: ok
-    obp debugging: degraded
-    loading obp: ok
-    unknown: failed
-    solaris resume in-progress: degraded
-    environmental domain halt: failed
-    loading solaris failed: failed
-    default: UNKNOWN
-    solaris halt: degraded
-    solaris quiesce in-progress: ok
-    in obp error reset: failed
-    environmental emergency: failed
-    solaris panic exit: failed
-    solaris quiesced: ok
-    solaris panic: failed
-    obp in sync callback to os: degraded
-    booting solaris failed: failed
-    domain exited obp: degraded
-    keyswitch standby: ok
-    running obp: ok
-    obp failed: failed
-    solaris panic dump: failed
-    booting obp: ok
-    solaris halted, in obp: degraded
-    running domain post: ok
-    solaris exited: failed
-    in recovery: failed
-    exited obp: degraded
-    running solaris: ok
 connector:
   displayName: Oracle/Sun Fire F12K/F15K/F20K/F25K (SMS)
   platforms: Oracle/Sun Fire F15K
@@ -713,3 +455,261 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    (NF > 4) {
+        if ($(NF-3) ~ /^[ACV]$/)
+        {
+            unit = $(NF-3)
+            value = $(NF-4)
+            status = $NF
+
+            if (unit == "A")
+            {
+                deviceType = "Current"
+            }
+            else if (unit == "C")
+            {
+                deviceType = "Temperature"
+            }
+            else if (unit == "V")
+            {
+                deviceType = "Voltage"
+            }
+            else
+            {
+                deviceType = ""
+            }
+
+            if (value == "--")
+            {
+                value = ""
+            }
+
+            DeviceID = $1 " " $2 " " $3 " / " $4 " /"
+            for (i = 5 ; i<=NF - 5 ; i++)
+            {
+                if ($i != "Temp" && $i != "Volt" && $i != "VDC")
+                {
+                    DeviceID = DeviceID " " $i
+                }
+            }
+
+            print "MSHW;" deviceType ";" DeviceID ";" value ";" status
+        }
+    }
+
+    /^PS[0-9] +/ {
+        if (NF == 8)
+        {
+            print "MSHW;Current;" $1 " / AC0;;" $3
+            print "MSHW;Current;" $1 " / AC1;;" $4
+        }
+    }
+
+    ($2 == "at" && $3 ~ /^PS[0-9]+/) {
+        if (NF == 10)
+        {
+            print "MSHW;Current;" $3 " / AC0;;" $5
+            print "MSHW;Current;" $3 " / AC1;;" $6
+        }
+    }
+  EmbeddedFile(3): |-
+    /^PS[0-9] +/ {
+        if (NF == 8)
+        {
+            print "MSHW;PowerSupply;" $1 ";" $2
+        }
+    }
+    ($2 == "at" && $3 ~ /^PS[0-9]+/) {
+        if (NF == 10)
+        {
+            print "MSHW;PowerSupply;" $3 ";" $4
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { fanCountPerTray = 0 }
+    /^FANTRAY +POWER +SPEED +FAN0/ {
+        fanCountPerTray = NF - 3
+    }
+
+    /^FT[0-9] +/ {
+        for (i=0 ; i<fanCountPerTray ; i++)
+        {
+            print "MSHW;Fan;Tray " substr($0, 3, 1) " / Fan " i ";" $(i+4)
+        }
+    }
+
+    /^PS[0-9] +/ {
+        if (NF == 8)
+        {
+            print "MSHW;Fan;" $1 " / Fan 0;" $7
+            print "MSHW;Fan;" $1 " / Fan 1;" $8
+        }
+
+    }
+
+    ($2 == "at" && $3 ~ /^PS[0-9]+/) {
+        if (NF == 10)
+        {
+            print "MSHW;Fan;" $3 " / Fan 0;" $9
+            print "MSHW;Fan;" $3 " / Fan 1;" $10
+        }
+    }
+  EmbeddedFile(5): |-
+    /^SB[0-9]+|^IO[0-9]+/ {
+        if ($3 != "Empty" && $4 != "Slot" && NF > 3)
+        {
+            domain = $NF
+            boardType = $3 " Board"
+            boardID = $1
+            status = $(NF-1)
+            active = $(NF-2)
+            onOff = $2
+
+            if (domain == "Isolated")
+            {
+                additionalLabel = onOff " - " active
+            }
+            else
+            {
+                if (active == "Assigned")
+                {
+                    additionalLabel = onOff " - " active " to domain " domain
+                }
+                else if (active == "Active")
+                {
+                    additionalLabel = onOff " - " active " in domain " domain
+                }
+                else
+                {
+                    additionalLabel = onOff " - " active
+                }
+            }
+
+            print "MSHW;" boardType ";" boardID ";" additionalLabel ";" status
+        }
+    }
+  EmbeddedFile(4): |-
+    BEGIN { capture = 0 }
+    {
+        if ($1 == "Domain" && $2 == "Configurations:")
+        {
+            capture = 1
+        }
+
+        if (NF == 0)
+        {
+            capture = 0
+        }
+
+        if (capture == 1 && substr($0, 1, 2) ~ /^[A-Z] $/)
+        {
+            domainTag = $2
+            if (domainTag == "-")
+            {
+                domainTag = ""
+            }
+
+            nodeName = $3
+            if (nodeName == "-")
+            {
+                nodeName = ""
+            }
+
+            if (domainTag != "" && nodeName != "")
+            {
+                label = domainTag " - " nodeName
+            }
+            else if (domainTag != "" && nodeName == "")
+            {
+                label = domainTag
+            }
+            else if (domainTag == "" && nodeName != "")
+            {
+                label = nodeName
+            }
+            else
+            {
+                label = ""
+            }
+
+            status = $4
+            for (i=5 ; i<=NF ; i++)
+            {
+                status = status " " $i
+            }
+            print "MSHW;Domain;" $1 ";" label ";" status
+        }
+    }
+  EmbeddedFile(6): |-
+    BEGIN { totalPower = 0; }
+    ($1 == "Current0") { current0 = $2; }
+    ($1 == "Current1") { current1 = $2; }
+    ($1 == "48VDC") {
+        if (current0 != "" && current1 != "")
+        {
+            vdc = $2;
+            totalPower = totalPower + (current0 + current1) * vdc;
+        }
+        current0 = "";
+        current1 = "";
+    }
+    END { print "MSHW;PowerConsumption;" totalPower }
+translations:
+  BoardStatusTranslationTable:
+    default: UNKNOWN
+    ipost: degraded
+    passed: ok
+    failed: failed
+    degraded: degraded
+  ShowEnvironmentStatusTranslationTable:
+    overlimit: failed
+    fail: failed
+    default: failed
+    low_min: failed
+    low_warn: degraded
+    bad: failed
+    high_max: failed
+    high_warn: degraded
+    invalid: ok
+    low_crit: failed
+    ok: ok
+    high_crit: failed
+  DomainStatusTranslationTable:
+    loading solaris: ok
+    solaris panic continue: failed
+    booting solaris: ok
+    solaris panic debug: failed
+    domain down: failed
+    in obp callback: degraded
+    debugging solaris: degraded
+    powered off: ok
+    obp debugging: degraded
+    loading obp: ok
+    unknown: failed
+    solaris resume in-progress: degraded
+    environmental domain halt: failed
+    loading solaris failed: failed
+    default: UNKNOWN
+    solaris halt: degraded
+    solaris quiesce in-progress: ok
+    in obp error reset: failed
+    environmental emergency: failed
+    solaris panic exit: failed
+    solaris quiesced: ok
+    solaris panic: failed
+    obp in sync callback to os: degraded
+    booting solaris failed: failed
+    domain exited obp: degraded
+    keyswitch standby: ok
+    running obp: ok
+    obp failed: failed
+    solaris panic dump: failed
+    booting obp: ok
+    solaris halted, in obp: degraded
+    running domain post: ok
+    solaris exited: failed
+    in recovery: failed
+    exited obp: degraded
+    running solaris: ok

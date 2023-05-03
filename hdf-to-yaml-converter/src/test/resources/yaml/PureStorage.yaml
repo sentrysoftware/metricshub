@@ -1,80 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {outputMatch = 0}
-    $1 ~ /[Nn]ame/ && $2 ~ /[Tt]ype/ && $3 ~ /[Ss]tatus/ && $4 ~ /[Cc]apacity/ {outputMatch = 1}
-    outputMatch == 1 && $4 ~ /^[0-9.]+/ {
-          enclosure = $1 ; gsub ("[.].+","",enclosure);
-          displayID = $1 ; gsub ("^.+[.]","",displayID);
-          size = $4 ;
-          if (size ~ /[Gg]/) {gsub(/[Gg]/,"",size) }
-          if (size ~ /[Mm]/) {gsub(/[Mm]/,"",size); size = size / 1024}
-          if (size ~ /[Tt]/) {gsub(/[Tt]/,"",size); size = size * 1024}
-    #            MSHW;ID;Type;Status;Status;Capacity;Enclosure;DisplayID;
-          print "MSHW;" $1 ";" $2 ";" $3 ";" $3 ";" size ";" enclosure ";" displayID ";"
-        }
-  EmbeddedFile(2): |-
-    BEGIN {outputMatch = 0}
-    $1 ~ /[Nn]ame/ && $2 ~ /[Ss]tatus/ && $3 ~ /[Ii]dentify/ {outputMatch = 1}
-    outputMatch == 1 && $1 ~ /^[SC][HT][0-9]/ {
-          type = $1 ;
-          enclosure = $1 ; gsub ("[.].+","",enclosure);
-          displayID = $1 ; gsub ("^.+[.]","",displayID);
-          if ($2 ~ /not_installed/) {next}
-          if (type ~ /^[SC][HT][0-9]+\.BAY/) {next}
-          if (type ~ /^[SC][HT][0-9]+\.DRV/) {next}
-             if (type ~ /^CT[0-9]+$/) {type = "MSHW_Enclosure;Controller" }
-             if (type ~ /^[SC][HT][0-9]+\.FAN/) {type = "MSHW_Fan" ;
-                                              CurrentReading = $6 ; gsub (/rpm/,"",CurrentReading);
-                                             }
-          if (type ~ /^[SC][HT][0-9]+\.PWR/) {type = "MSHW_PSU" }
-          if (type ~ /^[SC][HT][0-9]+\.ETH/ || type ~ /^[SC][HT][0-9]+\.FC/ || type ~ /^[SC][HT][0-9]+\.SAS/ || type ~ /^[SC][HT][0-9]+\.IB/) {
-                                          type = "MSHW_NetworkCard"
-                                            CurrentReading = $6
-                                            LinkStatus = 1
-                                            if ($7 ~ /Gb/) {
-                                                                            CurrentReading = CurrentReading * 1000
-                                                                           }
-                                          if (CurrentReading == 0) {
-                                              CurrentReading = ""
-                                              LinkStatus = 0
-                                              }
-                                         }
-          if (type ~ /^SH[0-9]+$/) {type = "MSHW_Enclosure;Disk Shelf" }
-          if (type ~ /^CH[0-9]+$/) {type = "MSHW_Enclosure;Chassis" }
-          if (type ~ /^[SC][HT][0-9]+\.IOM/) {type = "MSHW_OtherDevice" }
-    #All         MSHW_Type;ID;Status;Status;CurrentReading;Enclosure;DisplayID;
-    #OtherDevice/Controller/Shelf MSHW_Type;DeviceType;ID;Status;Status;CurrentReading;Enclosure;DisplayID;LinkStatus;
-          print type ";" $1 ";" $2 ";" $2";" CurrentReading ";" enclosure ";" displayID ";" LinkStatus ";"
-         }
-translations:
-  statusInformationTranslationTable:
-    failed: Failed
-    ok: ""
-    degraded: Degraded
-    not_installed: Missing
-  statusTranslationTable:
-    default: failed
-    failed: failed
-    ok: ok
-    degraded: degraded
-    not_installed: failed
-  linkTranslationTable:
-    "0": degraded
-    default: ok
-  driveTranslationTable:
-    default: failed
-    healthy: ok
-    missing: failed
-    failed: failed
-    reachable: degraded
-    foreign: degraded
-  driveInformationTranslationTable:
-    healthy: healthy
-    missing: 'Missing - '
-    failed: 'Failed - '
-    reachable: 'Reachable but not initialized - '
-    foreign: 'Drive is foreign to the array - '
 connector:
   displayName: Pure Storage FA Series (SSH)
   platforms: Pure Storage
@@ -591,3 +515,79 @@ monitors:
           hw.status{hw.type="other_device"}: $column(4)
         legacyTextParameters:
           StatusInformation: $column(5)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {outputMatch = 0}
+    $1 ~ /[Nn]ame/ && $2 ~ /[Tt]ype/ && $3 ~ /[Ss]tatus/ && $4 ~ /[Cc]apacity/ {outputMatch = 1}
+    outputMatch == 1 && $4 ~ /^[0-9.]+/ {
+          enclosure = $1 ; gsub ("[.].+","",enclosure);
+          displayID = $1 ; gsub ("^.+[.]","",displayID);
+          size = $4 ;
+          if (size ~ /[Gg]/) {gsub(/[Gg]/,"",size) }
+          if (size ~ /[Mm]/) {gsub(/[Mm]/,"",size); size = size / 1024}
+          if (size ~ /[Tt]/) {gsub(/[Tt]/,"",size); size = size * 1024}
+    #            MSHW;ID;Type;Status;Status;Capacity;Enclosure;DisplayID;
+          print "MSHW;" $1 ";" $2 ";" $3 ";" $3 ";" size ";" enclosure ";" displayID ";"
+        }
+  EmbeddedFile(2): |-
+    BEGIN {outputMatch = 0}
+    $1 ~ /[Nn]ame/ && $2 ~ /[Ss]tatus/ && $3 ~ /[Ii]dentify/ {outputMatch = 1}
+    outputMatch == 1 && $1 ~ /^[SC][HT][0-9]/ {
+          type = $1 ;
+          enclosure = $1 ; gsub ("[.].+","",enclosure);
+          displayID = $1 ; gsub ("^.+[.]","",displayID);
+          if ($2 ~ /not_installed/) {next}
+          if (type ~ /^[SC][HT][0-9]+\.BAY/) {next}
+          if (type ~ /^[SC][HT][0-9]+\.DRV/) {next}
+             if (type ~ /^CT[0-9]+$/) {type = "MSHW_Enclosure;Controller" }
+             if (type ~ /^[SC][HT][0-9]+\.FAN/) {type = "MSHW_Fan" ;
+                                              CurrentReading = $6 ; gsub (/rpm/,"",CurrentReading);
+                                             }
+          if (type ~ /^[SC][HT][0-9]+\.PWR/) {type = "MSHW_PSU" }
+          if (type ~ /^[SC][HT][0-9]+\.ETH/ || type ~ /^[SC][HT][0-9]+\.FC/ || type ~ /^[SC][HT][0-9]+\.SAS/ || type ~ /^[SC][HT][0-9]+\.IB/) {
+                                          type = "MSHW_NetworkCard"
+                                            CurrentReading = $6
+                                            LinkStatus = 1
+                                            if ($7 ~ /Gb/) {
+                                                                            CurrentReading = CurrentReading * 1000
+                                                                           }
+                                          if (CurrentReading == 0) {
+                                              CurrentReading = ""
+                                              LinkStatus = 0
+                                              }
+                                         }
+          if (type ~ /^SH[0-9]+$/) {type = "MSHW_Enclosure;Disk Shelf" }
+          if (type ~ /^CH[0-9]+$/) {type = "MSHW_Enclosure;Chassis" }
+          if (type ~ /^[SC][HT][0-9]+\.IOM/) {type = "MSHW_OtherDevice" }
+    #All         MSHW_Type;ID;Status;Status;CurrentReading;Enclosure;DisplayID;
+    #OtherDevice/Controller/Shelf MSHW_Type;DeviceType;ID;Status;Status;CurrentReading;Enclosure;DisplayID;LinkStatus;
+          print type ";" $1 ";" $2 ";" $2";" CurrentReading ";" enclosure ";" displayID ";" LinkStatus ";"
+         }
+translations:
+  statusInformationTranslationTable:
+    failed: Failed
+    ok: ""
+    degraded: Degraded
+    not_installed: Missing
+  statusTranslationTable:
+    default: failed
+    failed: failed
+    ok: ok
+    degraded: degraded
+    not_installed: failed
+  linkTranslationTable:
+    "0": degraded
+    default: ok
+  driveTranslationTable:
+    default: failed
+    healthy: ok
+    missing: failed
+    failed: failed
+    reachable: degraded
+    foreign: degraded
+  driveInformationTranslationTable:
+    healthy: healthy
+    missing: 'Missing - '
+    failed: 'Failed - '
+    reachable: 'Reachable but not initialized - '
+    foreign: 'Drive is foreign to the array - '

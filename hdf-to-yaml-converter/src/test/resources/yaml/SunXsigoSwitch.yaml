@@ -1,101 +1,4 @@
 ---
-translations:
-  XsigoOperStateTranslationTable:
-    "22": degraded
-    "23": degraded
-    "24": failed
-    "25": failed
-    "26": degraded
-    "27": degraded
-    "28": degraded
-    "29": ok
-    default: UNKNOWN
-    "30": ok
-    "31": degraded
-    "10": degraded
-    "32": ok
-    "11": degraded
-    "33": ok
-    "12": degraded
-    "34": degraded
-    "13": ok
-    "35": degraded
-    "14": failed
-    "36": ok
-    "15": degraded
-    "37": degraded
-    "16": failed
-    "38": degraded
-    "17": failed
-    "39": degraded
-    "18": degraded
-    "19": failed
-    "1": degraded
-    "2": ok
-    "3": ok
-    "4": failed
-    "5": degraded
-    "6": degraded
-    "7": degraded
-    "8": ok
-    "9": ok
-    "40": degraded
-    "20": failed
-    "21": failed
-  PortLinkStatusInformationTranslationTable:
-    "2": ok
-    default: ""
-    "3": degraded
-  PortTypeTranslationTable:
-    "121": sanFcPort
-    "111": nwEthernet100Mbport
-    "112": nwEthernet1GbPort
-    "123": sanFcPort
-    default: ""
-    "113": nwEthernet10GbPort
-    "131": ib10GbPort
-  XsigoOperStateInformationTranslationTable:
-    "22": Underlying Resource InTest
-    "23": Underlying Resource Authenticating
-    "24": Underlying Resource Authentication Failed
-    "25": Underlying Resource Insufficient Resources
-    "26": Underlying Resource Initializing
-    "27": Underlying Resource Shuttingdown
-    "28": Partial Failure
-    "29": Standby
-    default: UNKNOWN
-    "30": Ready
-    "31": Resource Unavailable
-    "10": Resource Missing
-    "32": Pooled
-    "11": Resource Mismatch
-    "33": Available
-    "12": Test In Progress
-    "34": Booting
-    "13": TestSucceeded
-    "35": Host Driver Mismatch
-    "14": TestFailed
-    "36": Active
-    "15": Authenticating
-    "37": Host Control Path Down
-    "16": Authentication Failed
-    "38": Removed
-    "17": Insufficient Resources
-    "39": Unassigned
-    "18": Underlying Resource Down
-    "19": Underlying Resource Failed
-    "1": Indeterminate
-    "2": ""
-    "3": ""
-    "4": Failed
-    "5": Initializing
-    "6": Shuttingdown
-    "7": Restarting
-    "8": Restarted
-    "9": Scheduled
-    "40": Uninitialized
-    "20": Underlying Resource Missing
-    "21": Underlying Resource Mismatch
 connector:
   displayName: Oracle/Sun Xsigo Switch
   platforms: Oracle/Sun Xsigo
@@ -543,3 +446,100 @@ monitors:
           hw.network.io{direction="transmit"}: $column(11)
         legacyTextParameters:
           StatusInformation: $column(4)
+translations:
+  XsigoOperStateTranslationTable:
+    "22": degraded
+    "23": degraded
+    "24": failed
+    "25": failed
+    "26": degraded
+    "27": degraded
+    "28": degraded
+    "29": ok
+    default: UNKNOWN
+    "30": ok
+    "31": degraded
+    "10": degraded
+    "32": ok
+    "11": degraded
+    "33": ok
+    "12": degraded
+    "34": degraded
+    "13": ok
+    "35": degraded
+    "14": failed
+    "36": ok
+    "15": degraded
+    "37": degraded
+    "16": failed
+    "38": degraded
+    "17": failed
+    "39": degraded
+    "18": degraded
+    "19": failed
+    "1": degraded
+    "2": ok
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": degraded
+    "7": degraded
+    "8": ok
+    "9": ok
+    "40": degraded
+    "20": failed
+    "21": failed
+  PortLinkStatusInformationTranslationTable:
+    "2": ok
+    default: ""
+    "3": degraded
+  PortTypeTranslationTable:
+    "121": sanFcPort
+    "111": nwEthernet100Mbport
+    "112": nwEthernet1GbPort
+    "123": sanFcPort
+    default: ""
+    "113": nwEthernet10GbPort
+    "131": ib10GbPort
+  XsigoOperStateInformationTranslationTable:
+    "22": Underlying Resource InTest
+    "23": Underlying Resource Authenticating
+    "24": Underlying Resource Authentication Failed
+    "25": Underlying Resource Insufficient Resources
+    "26": Underlying Resource Initializing
+    "27": Underlying Resource Shuttingdown
+    "28": Partial Failure
+    "29": Standby
+    default: UNKNOWN
+    "30": Ready
+    "31": Resource Unavailable
+    "10": Resource Missing
+    "32": Pooled
+    "11": Resource Mismatch
+    "33": Available
+    "12": Test In Progress
+    "34": Booting
+    "13": TestSucceeded
+    "35": Host Driver Mismatch
+    "14": TestFailed
+    "36": Active
+    "15": Authenticating
+    "37": Host Control Path Down
+    "16": Authentication Failed
+    "38": Removed
+    "17": Insufficient Resources
+    "39": Unassigned
+    "18": Underlying Resource Down
+    "19": Underlying Resource Failed
+    "1": Indeterminate
+    "2": ""
+    "3": ""
+    "4": Failed
+    "5": Initializing
+    "6": Shuttingdown
+    "7": Restarting
+    "8": Restarted
+    "9": Scheduled
+    "40": Uninitialized
+    "20": Underlying Resource Missing
+    "21": Underlying Resource Mismatch

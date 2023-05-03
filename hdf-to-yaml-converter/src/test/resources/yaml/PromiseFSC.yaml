@@ -1,57 +1,4 @@
 ---
-translations:
-  RAIDLevelTranslationTable:
-    "0": 0
-    "1": 1
-    "2": 0+1
-    default: ""
-    "3": 3
-    "-1": ""
-    "4": 4
-    "5": 5
-  PhysicalDiskStatusInformationTranslationTable:
-    "0": ""
-    "1": Offline
-    "2": Rebuild Needed
-    default: Unknown Status
-  DiskControllerStatusInformationTranslationTable:
-    "0": No battery
-    "1": ""
-    "2": Temperature Out of Range
-    default: Unknown Battery Status
-    "3": Unstable Temperature
-    "-1": ""
-    "4": Voltage Out of Range
-    "5": Unstable Voltage
-    "6": Communication Error
-  PhysicalDiskSMARTTranslationTable:
-    "0": "true"
-    default: "false"
-  LogicalDiskStatusInformationTranslationTable:
-    "0": ""
-    "1": Critical
-    "2": Offline
-    default: Unknown Status
-  LogicalDiskStatusTranslationTable:
-    "0": ok
-    "1": failed
-    "2": degraded
-    default: UNKNOWN
-  PhysicalDiskStatusTranslationTable:
-    "0": ok
-    "1": failed
-    "2": degraded
-    default: UNKNOWN
-  DiskControllerBatteryStatusTranslationTable:
-    "0": ok
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": degraded
-    "-1": ok
-    "4": failed
-    "5": failed
-    "6": degraded
 connector:
   displayName: Promise FastTrack
   platforms: Fujitsu-Siemens PRIMERGY
@@ -252,3 +199,56 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  RAIDLevelTranslationTable:
+    "0": 0
+    "1": 1
+    "2": 0+1
+    default: ""
+    "3": 3
+    "-1": ""
+    "4": 4
+    "5": 5
+  PhysicalDiskStatusInformationTranslationTable:
+    "0": ""
+    "1": Offline
+    "2": Rebuild Needed
+    default: Unknown Status
+  DiskControllerStatusInformationTranslationTable:
+    "0": No battery
+    "1": ""
+    "2": Temperature Out of Range
+    default: Unknown Battery Status
+    "3": Unstable Temperature
+    "-1": ""
+    "4": Voltage Out of Range
+    "5": Unstable Voltage
+    "6": Communication Error
+  PhysicalDiskSMARTTranslationTable:
+    "0": "true"
+    default: "false"
+  LogicalDiskStatusInformationTranslationTable:
+    "0": ""
+    "1": Critical
+    "2": Offline
+    default: Unknown Status
+  LogicalDiskStatusTranslationTable:
+    "0": ok
+    "1": failed
+    "2": degraded
+    default: UNKNOWN
+  PhysicalDiskStatusTranslationTable:
+    "0": ok
+    "1": failed
+    "2": degraded
+    default: UNKNOWN
+  DiskControllerBatteryStatusTranslationTable:
+    "0": ok
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": degraded
+    "-1": ok
+    "4": failed
+    "5": failed
+    "6": degraded

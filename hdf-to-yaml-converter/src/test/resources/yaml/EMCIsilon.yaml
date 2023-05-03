@@ -7,6 +7,23 @@ constants:
   _IsiNetworkCommand: /usr/bin/isi networks list interfaces --verbose --wide --show-inactive
   _IsiBatteryCommand: /usr/bin/isi batterystatus
   _IsiStatusCommand: /usr/bin/isi status -w
+connector:
+  displayName: EMC Isilon (SSH)
+  platforms: EMC Isilon
+  reliesOn: EMC Isilon SSH interface
+  version: 1.0
+  information: This connector discovers the status of an EMC Isilon Storage Cluster
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    # Check that sudo is working by running /usr/bin/isi status -w
+    - type: osCommand
+      commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -w\" "
+      errorMessage: Unable to run /usr/bin/isi status -w.  Check rights / sudo status.
+      expectedResult: 'Cluster Name:'
 embedded:
   EmbeddedFile(3): |-
     {nodeName = $1 ; gsub (/:/,"",nodeName);}
@@ -48,20 +65,3 @@ embedded:
         TotalSize = (HDDSize + SSDSize) / 1000000000
         print "MSHW;" ID ";" TotalSize ";"
         }
-connector:
-  displayName: EMC Isilon (SSH)
-  platforms: EMC Isilon
-  reliesOn: EMC Isilon SSH interface
-  version: 1.0
-  information: This connector discovers the status of an EMC Isilon Storage Cluster
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Storage
-    criteria:
-    # Check that sudo is working by running /usr/bin/isi status -w
-    - type: osCommand
-      commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -w\" "
-      errorMessage: Unable to run /usr/bin/isi status -w.  Check rights / sudo status.
-      expectedResult: 'Cluster Name:'

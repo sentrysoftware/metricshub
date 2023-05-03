@@ -1,78 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {
-        WWN = "";
-        PortNumber = "";
-        Model = "";
-    }
-
-    ($1 == "Port" && $2 == "WWN") { WWN = $4; gsub(":", "", WWN); }
-
-    ($1 == "Model") { Model = $3; }
-
-    (NF == 0 && WWN != "") {
-        print "MSHW;" Model ";" WWN ";"
-        WWN = "";
-        Model = "";
-    }
-  EmbeddedFile(3): |-
-    BEGIN {FS="[:]";WWN="";}
-
-    $1 ~ /Port Statistics for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
-
-    $1 ~ /^Tx Frame Count +$/ {TxFrame=$2;gsub (/^ +/,"",TxFrame);}
-
-    $1 ~ /^Rx Frame Count +$/ {RxFrame=$2;gsub (/^ +/,"",RxFrame);}
-
-    $1 ~ /^Tx KB Count +$/ {TxB=$2;gsub (/^ +/,"",TxKB);TxB=TxB*1024;}
-
-    $1 ~ /^Rx KB Count +$/ {RxB=$2;gsub (/^ +/,"",RxKB);RxB=RxB*1024;}
-
-    $1 ~ /^Error Frame Count +$/ && WWN != "" {ErrorCount=$2;gsub (/^ +/,"",ErrorCount);
-                                                 print ("MSHW;"TxFrame";"RxFrame";"TxB";"RxB";"ErrorCount";"WWN";")
-                                                 WWN="";}
-  EmbeddedFile(2): |-
-    BEGIN {FS="[:]";WWN="";}
-
-    $1 ~ /Port Attributes for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
-
-    $1 ~ /^Port State +$/ {Status=$2;gsub (/^ +/,"",Status);}
-
-    $1 ~ /^Port Speed +$/ {Speed=$2;gsub (/^ +/,"",Speed);Speed=$2;gsub (/[^0-9]/,"",Speed);
-                                          print ("MSHW;"Speed";"Status";"WWN";")
-                                          WWN="";}
-translations:
-  NetworkStatusInfoTranslationTable:
-    operational. need adapter port reset: Operational. Need Adapter Port Reset.
-    other: Other
-    default: UNKNOWN
-    in diagnostic mode: In Diagnostic Mode
-    link down. need adapter port reset: Link Down. Need Adapter Port Reset.
-    bypassed: Bypassed
-    link down: Link Down
-    operational: ""
-    user offline: User Offline
-    down: Port Down
-    port error: Port Error
-    loopback: Loopback
-  NetworkLinkStatusTranslationTable:
-    default: UNKNOWN
-    link down: degraded
-    operational: ok
-  NetworkStatusTranslationTable:
-    operational. need adapter port reset: degraded
-    other: UNKNOWN
-    default: UNKNOWN
-    in diagnostic mode: degraded
-    link down. need adapter port reset: degraded
-    bypassed: degraded
-    link down: ok
-    operational: ok
-    user offline: degraded
-    down: failed
-    port error: failed
-    loopback: degraded
 connector:
   displayName: Emulex HBAs (hbacmd)
   platforms: Any system with Emulex
@@ -231,3 +157,77 @@ monitors:
           hw.network.io{direction="transmit"}: $column(8)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        WWN = "";
+        PortNumber = "";
+        Model = "";
+    }
+
+    ($1 == "Port" && $2 == "WWN") { WWN = $4; gsub(":", "", WWN); }
+
+    ($1 == "Model") { Model = $3; }
+
+    (NF == 0 && WWN != "") {
+        print "MSHW;" Model ";" WWN ";"
+        WWN = "";
+        Model = "";
+    }
+  EmbeddedFile(3): |-
+    BEGIN {FS="[:]";WWN="";}
+
+    $1 ~ /Port Statistics for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
+
+    $1 ~ /^Tx Frame Count +$/ {TxFrame=$2;gsub (/^ +/,"",TxFrame);}
+
+    $1 ~ /^Rx Frame Count +$/ {RxFrame=$2;gsub (/^ +/,"",RxFrame);}
+
+    $1 ~ /^Tx KB Count +$/ {TxB=$2;gsub (/^ +/,"",TxKB);TxB=TxB*1024;}
+
+    $1 ~ /^Rx KB Count +$/ {RxB=$2;gsub (/^ +/,"",RxKB);RxB=RxB*1024;}
+
+    $1 ~ /^Error Frame Count +$/ && WWN != "" {ErrorCount=$2;gsub (/^ +/,"",ErrorCount);
+                                                 print ("MSHW;"TxFrame";"RxFrame";"TxB";"RxB";"ErrorCount";"WWN";")
+                                                 WWN="";}
+  EmbeddedFile(2): |-
+    BEGIN {FS="[:]";WWN="";}
+
+    $1 ~ /Port Attributes for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
+
+    $1 ~ /^Port State +$/ {Status=$2;gsub (/^ +/,"",Status);}
+
+    $1 ~ /^Port Speed +$/ {Speed=$2;gsub (/^ +/,"",Speed);Speed=$2;gsub (/[^0-9]/,"",Speed);
+                                          print ("MSHW;"Speed";"Status";"WWN";")
+                                          WWN="";}
+translations:
+  NetworkStatusInfoTranslationTable:
+    operational. need adapter port reset: Operational. Need Adapter Port Reset.
+    other: Other
+    default: UNKNOWN
+    in diagnostic mode: In Diagnostic Mode
+    link down. need adapter port reset: Link Down. Need Adapter Port Reset.
+    bypassed: Bypassed
+    link down: Link Down
+    operational: ""
+    user offline: User Offline
+    down: Port Down
+    port error: Port Error
+    loopback: Loopback
+  NetworkLinkStatusTranslationTable:
+    default: UNKNOWN
+    link down: degraded
+    operational: ok
+  NetworkStatusTranslationTable:
+    operational. need adapter port reset: degraded
+    other: UNKNOWN
+    default: UNKNOWN
+    in diagnostic mode: degraded
+    link down. need adapter port reset: degraded
+    bypassed: degraded
+    link down: ok
+    operational: ok
+    user offline: degraded
+    down: failed
+    port error: failed
+    loopback: degraded

@@ -1,69 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    $1 ~ /<HBA>/ {PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
-
-    $1 ~ /HBAID/ {PortID=$0;gsub(/^.*="/,"",PortID);gsub(/"$/,"",PortID);}
-
-    $1 ~ /HBAModel/ {Model=$0;gsub(/^.*="/,"",Model);gsub(/"$/,"",Model);}
-
-    $1 ~ /WWPN/ {WWPN=$0;gsub(/^.*="/,"",WWPN);gsub(/"$/,"",WWPN);gsub(/-/,"",WWPN);}
-
-    $1 ~ /ActualDataRate/ {ActualDataRate=$0;gsub(/^.*="/,"",ActualDataRate);gsub(/ Gbps"$/,"",ActualDataRate);}
-
-    $1 ~ /PortType/ {PortType=$0;gsub(/^.*="/,"",PortType);gsub(/"$/,"",PortType);gsub(/-/,"",PortType);}
-
-    $1 ~ /SerialNumber/ {SerialNumber=$0;gsub(/^.*="/,"",SerialNumber);gsub(/"$/,"",SerialNumber);gsub(/-/,"",SerialNumber);}
-
-    $1 ~ /Status/ {Status=$0;gsub(/^.*="/,"",Status);gsub(/" .>$/,"",Status);gsub(/-/,"",Status);}
-
-    $1 ~ "</HBA>" {print ("MSHW;"PortID";"Model";"WWPN";"ActualDataRate";"PortType";"SerialNumber";"Status";")
-                     PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
-translations:
-  NetworkStatusInfoTranslationTable:
-    send loop down update: Send loop down update
-    port update: Port update
-    sfp not installed: failed
-    send link down update: Send link down update
-    link up: Link Up
-    loop up: Loop Up
-    unknown: UNKNOWN
-    default: UNKNOWN
-    currently up: Currently Up
-    system error: System Error
-    alt wwn sctive: Alt WWN sctive
-    disable: Disable
-    link down: Link Down
-    online: ""
-    loop down: Loop Down
-    lip occurred: Lip occurred
-  NetworkLinkStatusTranslationTable:
-    send loop down update: degraded
-    default: UNKNOWN
-    link down: degraded
-    send link down update: degraded
-    online: ok
-    loop down: degraded
-    link up: ok
-    loop up: ok
-    unknown: UNKNOWN
-  NetworkStatusTranslationTable:
-    send loop down update: ok
-    port update: ok
-    sfp not installed: failed
-    send link down update: ok
-    link up: ok
-    loop up: ok
-    unknown: UNKNOWN
-    default: UNKNOWN
-    currently up: ok
-    system error: ok
-    alt wwn sctive: ok
-    disable: failed
-    link down: ok
-    online: ok
-    loop down: ok
-    lip occurred: degraded
 connector:
   displayName: QLogic HBAs (scli)
   platforms: Any system with QLogic
@@ -182,3 +117,68 @@ monitors:
           hw.network.up: legacyLinkStatus($column(5))
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    $1 ~ /<HBA>/ {PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
+
+    $1 ~ /HBAID/ {PortID=$0;gsub(/^.*="/,"",PortID);gsub(/"$/,"",PortID);}
+
+    $1 ~ /HBAModel/ {Model=$0;gsub(/^.*="/,"",Model);gsub(/"$/,"",Model);}
+
+    $1 ~ /WWPN/ {WWPN=$0;gsub(/^.*="/,"",WWPN);gsub(/"$/,"",WWPN);gsub(/-/,"",WWPN);}
+
+    $1 ~ /ActualDataRate/ {ActualDataRate=$0;gsub(/^.*="/,"",ActualDataRate);gsub(/ Gbps"$/,"",ActualDataRate);}
+
+    $1 ~ /PortType/ {PortType=$0;gsub(/^.*="/,"",PortType);gsub(/"$/,"",PortType);gsub(/-/,"",PortType);}
+
+    $1 ~ /SerialNumber/ {SerialNumber=$0;gsub(/^.*="/,"",SerialNumber);gsub(/"$/,"",SerialNumber);gsub(/-/,"",SerialNumber);}
+
+    $1 ~ /Status/ {Status=$0;gsub(/^.*="/,"",Status);gsub(/" .>$/,"",Status);gsub(/-/,"",Status);}
+
+    $1 ~ "</HBA>" {print ("MSHW;"PortID";"Model";"WWPN";"ActualDataRate";"PortType";"SerialNumber";"Status";")
+                     PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
+translations:
+  NetworkStatusInfoTranslationTable:
+    send loop down update: Send loop down update
+    port update: Port update
+    sfp not installed: failed
+    send link down update: Send link down update
+    link up: Link Up
+    loop up: Loop Up
+    unknown: UNKNOWN
+    default: UNKNOWN
+    currently up: Currently Up
+    system error: System Error
+    alt wwn sctive: Alt WWN sctive
+    disable: Disable
+    link down: Link Down
+    online: ""
+    loop down: Loop Down
+    lip occurred: Lip occurred
+  NetworkLinkStatusTranslationTable:
+    send loop down update: degraded
+    default: UNKNOWN
+    link down: degraded
+    send link down update: degraded
+    online: ok
+    loop down: degraded
+    link up: ok
+    loop up: ok
+    unknown: UNKNOWN
+  NetworkStatusTranslationTable:
+    send loop down update: ok
+    port update: ok
+    sfp not installed: failed
+    send link down update: ok
+    link up: ok
+    loop up: ok
+    unknown: UNKNOWN
+    default: UNKNOWN
+    currently up: ok
+    system error: ok
+    alt wwn sctive: ok
+    disable: failed
+    link down: ok
+    online: ok
+    loop down: ok
+    lip occurred: degraded

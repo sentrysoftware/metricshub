@@ -1,207 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { FS = ";" }
-    {
-        __Path = $1;
-        busType = $2;
-        deviceId = $3;
-        firmwareVersion = $4;
-        mediaType = $5;
-        model = $6
-        serialNumber = $7
-        size = $8
-        speed = $9
-
-        # Media Type
-        if (mediaType == 3) {
-            # HDD
-            if (speed == 15000) {
-                model = model " - 15K"
-            } else if (speed == 10000) {
-                model = model " - 10K"
-            } else if (speed > 1000 && speed < 100000) {
-                model =  model " - " speed
-            }
-        } else if (mediaType == 4) {
-            # SDD
-            model = model " - SSD"
-        } else if (mediaType == 5) {
-            # SCM (fancy NVDIMM-N)
-            model = model " - NVDIMM"
-        }
-
-        # Bus Type
-        model = model " - " busType
-
-        # Output
-        print "MSHW;" __Path ";" deviceId ";" model ";" firmwareVersion ";" serialNumber ";" size
-    }
-  EmbeddedFile(3): |-
-    BEGIN {
-        FS = ";";
-        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    }
-    {
-        if ($2 > 64 && $2 < 91) {
-            deviceId = substr(alphabet, int($2) - 64, 1) ":";
-        } else {
-            deviceId = $1;
-        }
-        print "MSHW;" deviceId ";" $3 ";" $4 ";" $5;
-    }
-  EmbeddedFile(2): |-
-    BEGIN {
-        FS = ";";
-        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    }
-    {
-        if ($2 > 64 && $2 < 91) {
-            deviceId = substr(alphabet, int($2) - 64, 1) ":";
-            label = deviceId
-        } else {
-            deviceId = $1;
-            label = ""
-        }
-        if ($5 != "") {
-            if (label != "") {
-                label = label " ";
-            }
-            label = label $5;
-        }
-        filesystem = $4;
-        size = $6;
-        print "MSHW;" deviceId ";" label ";File System: " filesystem ";" size;
-    }
-  EmbeddedFile(4): |-
-    BEGIN { FS = ";" }
-    {
-        warningThreshold = "";
-        alarmThreshold = $2;
-        model = $3;
-        if (alarmThreshold == "" || alarmThreshold == 0) {
-            if (tolower(model) ~ /ssd|nvm/) {
-                warningThreshold = 65;
-                alarmThreshold = 70;
-            } else {
-                warningThreshold = 41;
-                alarmThreshold = 50;
-            }
-        }
-        print "MSHW;" $1 ";" model ";" warningThreshold ";" alarmThreshold
-    }
-translations:
-  PredictedFailureTranslationTable:
-    default: "False"
-    "53285": "True"
-    "5": "True"
-  OperationalStatusInformationTranslationTable:
-    "53261": Scan Needed
-    "53286": Abnormal Latency
-    "53262": Spot Fix Needed
-    "53263": Full Repair Needed
-    "53285": Threshold Exceeded
-    "53269": Removing From Pool
-    "10": Stopped
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "19": Relocating
-    "53271": Updating Firmware
-    "53272": Device Hardware Error
-    "53270": In Maintenance Mode
-    "53253": Split
-    "1": Other
-    "53254": Stale Metadata
-    "53276": Starting Maintenance Mode
-    "2": ""
-    "53273": Not Usable
-    "3": Degraded
-    "53252": Failed Media
-    "53274": Transient Error
-    "4": Stressed
-    "5": Predictive Failure
-    "6": Error
-    "53255": IO Error
-    "53277": Stopping Maintenance Mode
-    "7": Non-Recoverable Error
-    "53256": Unrecognized Metadata
-    "8": Starting
-    "9": Stopping
-  LogicalDiskHealthStatusInformationTranslationTable:
-    "0": ""
-    "1": Scan Needed
-    "2": Spot Fix Needed
-    default: Unknown
-    "3": Full Repair Needed
-  LogicalDiskHealthStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  BustypeTranslationTable:
-    "11": SATA
-    "12": Secure Digital
-    "13": MMC - Multimedia Card
-    "14": Other
-    "15": File-Backed Virtual
-    "16": Storage Spaces
-    "17": NVMe
-    "18": Other
-    "0": Unknown
-    "1": SCSI
-    "2": ATAPI
-    "3": ATA
-    "4": IEEE 1394
-    "5": SSA
-    "6": Fibre Channel
-    "7": USB
-    "8": RAID
-    "9": iSCSI
-    "10": SAS
-  OperationalStatusTranslationTable:
-    "53261": ok
-    "53286": degraded
-    "53262": ok
-    "53263": degraded
-    "53285": degraded
-    "53269": ok
-    "10": ok
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": failed
-    "17": ok
-    "18": ok
-    "19": ok
-    "53271": degraded
-    "53272": failed
-    "53270": degraded
-    "53253": degraded
-    "53254": degraded
-    "53276": degraded
-    "2": ok
-    "53273": failed
-    "3": degraded
-    "53252": failed
-    "53274": failed
-    "4": degraded
-    "5": ok
-    "6": failed
-    "53255": failed
-    "53277": degraded
-    "7": failed
-    "53256": degraded
-    "8": ok
-    "9": ok
 connector:
   displayName: Windows Storage Spaces (WMI)
   platforms: Any system
@@ -616,3 +413,206 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.temperature: $column(2)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    {
+        __Path = $1;
+        busType = $2;
+        deviceId = $3;
+        firmwareVersion = $4;
+        mediaType = $5;
+        model = $6
+        serialNumber = $7
+        size = $8
+        speed = $9
+
+        # Media Type
+        if (mediaType == 3) {
+            # HDD
+            if (speed == 15000) {
+                model = model " - 15K"
+            } else if (speed == 10000) {
+                model = model " - 10K"
+            } else if (speed > 1000 && speed < 100000) {
+                model =  model " - " speed
+            }
+        } else if (mediaType == 4) {
+            # SDD
+            model = model " - SSD"
+        } else if (mediaType == 5) {
+            # SCM (fancy NVDIMM-N)
+            model = model " - NVDIMM"
+        }
+
+        # Bus Type
+        model = model " - " busType
+
+        # Output
+        print "MSHW;" __Path ";" deviceId ";" model ";" firmwareVersion ";" serialNumber ";" size
+    }
+  EmbeddedFile(3): |-
+    BEGIN {
+        FS = ";";
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    }
+    {
+        if ($2 > 64 && $2 < 91) {
+            deviceId = substr(alphabet, int($2) - 64, 1) ":";
+        } else {
+            deviceId = $1;
+        }
+        print "MSHW;" deviceId ";" $3 ";" $4 ";" $5;
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        FS = ";";
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    }
+    {
+        if ($2 > 64 && $2 < 91) {
+            deviceId = substr(alphabet, int($2) - 64, 1) ":";
+            label = deviceId
+        } else {
+            deviceId = $1;
+            label = ""
+        }
+        if ($5 != "") {
+            if (label != "") {
+                label = label " ";
+            }
+            label = label $5;
+        }
+        filesystem = $4;
+        size = $6;
+        print "MSHW;" deviceId ";" label ";File System: " filesystem ";" size;
+    }
+  EmbeddedFile(4): |-
+    BEGIN { FS = ";" }
+    {
+        warningThreshold = "";
+        alarmThreshold = $2;
+        model = $3;
+        if (alarmThreshold == "" || alarmThreshold == 0) {
+            if (tolower(model) ~ /ssd|nvm/) {
+                warningThreshold = 65;
+                alarmThreshold = 70;
+            } else {
+                warningThreshold = 41;
+                alarmThreshold = 50;
+            }
+        }
+        print "MSHW;" $1 ";" model ";" warningThreshold ";" alarmThreshold
+    }
+translations:
+  PredictedFailureTranslationTable:
+    default: "False"
+    "53285": "True"
+    "5": "True"
+  OperationalStatusInformationTranslationTable:
+    "53261": Scan Needed
+    "53286": Abnormal Latency
+    "53262": Spot Fix Needed
+    "53263": Full Repair Needed
+    "53285": Threshold Exceeded
+    "53269": Removing From Pool
+    "10": Stopped
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "19": Relocating
+    "53271": Updating Firmware
+    "53272": Device Hardware Error
+    "53270": In Maintenance Mode
+    "53253": Split
+    "1": Other
+    "53254": Stale Metadata
+    "53276": Starting Maintenance Mode
+    "2": ""
+    "53273": Not Usable
+    "3": Degraded
+    "53252": Failed Media
+    "53274": Transient Error
+    "4": Stressed
+    "5": Predictive Failure
+    "6": Error
+    "53255": IO Error
+    "53277": Stopping Maintenance Mode
+    "7": Non-Recoverable Error
+    "53256": Unrecognized Metadata
+    "8": Starting
+    "9": Stopping
+  LogicalDiskHealthStatusInformationTranslationTable:
+    "0": ""
+    "1": Scan Needed
+    "2": Spot Fix Needed
+    default: Unknown
+    "3": Full Repair Needed
+  LogicalDiskHealthStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  BustypeTranslationTable:
+    "11": SATA
+    "12": Secure Digital
+    "13": MMC - Multimedia Card
+    "14": Other
+    "15": File-Backed Virtual
+    "16": Storage Spaces
+    "17": NVMe
+    "18": Other
+    "0": Unknown
+    "1": SCSI
+    "2": ATAPI
+    "3": ATA
+    "4": IEEE 1394
+    "5": SSA
+    "6": Fibre Channel
+    "7": USB
+    "8": RAID
+    "9": iSCSI
+    "10": SAS
+  OperationalStatusTranslationTable:
+    "53261": ok
+    "53286": degraded
+    "53262": ok
+    "53263": degraded
+    "53285": degraded
+    "53269": ok
+    "10": ok
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": failed
+    "17": ok
+    "18": ok
+    "19": ok
+    "53271": degraded
+    "53272": failed
+    "53270": degraded
+    "53253": degraded
+    "53254": degraded
+    "53276": degraded
+    "2": ok
+    "53273": failed
+    "3": degraded
+    "53252": failed
+    "53274": failed
+    "4": degraded
+    "5": ok
+    "6": failed
+    "53255": failed
+    "53277": degraded
+    "7": failed
+    "53256": degraded
+    "8": ok
+    "9": ok

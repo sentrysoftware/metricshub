@@ -1,268 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    #  MonitoredDeviceID,Caption,HealthState,IpmiSensorType,Name,NumericOnly,CurrentState,DeviceID,SensorType
-
-    BEGIN {FS="[;]";}
-
-    {
-    #    MonitoredDeviceID = $1
-        Caption = $2
-        HealthState = $3
-        IpmiSensorType = $4
-        Name = $5
-        NumericOnly = $6
-        CurrentState = $7
-        DeviceID = $8 ; gsub("\.[^.]*$","",DeviceID);
-        SensorType = $9
-        if ( SensorType == 11 && CurrentState == "Deassert" ) { MemoryNotPresent[DeviceID] = "True" ; print $0 }
-
-        if ( DeviceID in Devices ) {
-                                       if ( NumericOnly == 0 ) { NumericOnlyArray[DeviceID] = 0 }
-                                       if ( Status[DeviceID] < HealthState) { Status[DeviceID] = HealthState}
-                                         if ( HealthState > 5) {
-                                               if (StatusInformation[DeviceID] == "") { StatusInformation[DeviceID] = Caption }
-                                                   else { StatusInformation[DeviceID] = StatusInformation[DeviceID] " - " Caption }
-                                                   }
-                               }
-                          else {
-                                   NumericOnlyArray[DeviceID] = NumericOnly
-                                    DisplayID[DeviceID] = Caption ; gsub (/\(.*\)/,"",DisplayID[DeviceID]); gsub (/:.*$/,"",DisplayID[DeviceID]);
-                                    if ( HealthState > 0 ) {
-                                           Devices[DeviceID] = DeviceID
-                                       Status[DeviceID] = HealthState
-                                       if ( HealthState > 5) {
-                                        StatusInformation[DeviceID] = Caption
-                                                 }
-                                   }
-                             }
-    }
-    END { for (DeviceID in Devices) {
-          if ( MemoryNotPresent[DeviceID] != "True" ) {
-              print ("MSHW;" DeviceID ";" StatusInformation[DeviceID] ";" Status[DeviceID] ";" DisplayID[DeviceID]";" NumericOnlyArray[DeviceID] ";")
-            }
-          }
-        }
-  EmbeddedFile(3): |-
-    BEGIN { FS = ";"; }
-    {
-        BaseUnits = $1
-        Caption = $2
-        CurrentReading = $3
-        DeviceID = $4
-        HealthState = $5
-        UpperThresholdNonCritical = $6
-        UpperThresholdCritical = $7
-        SensorType = $8
-        if (length(CurrentReading) > 2 )
-        {
-                    if (UpperThresholdNonCritical == "" && UpperThresholdCritical == "")
-                      {
-                       print "MSHW;" BaseUnits ";" Caption ";" CurrentReading ";" DeviceID ";" HealthState ";;;" SensorType ";"
-                }
-              else
-                {
-                              print "MSHW;" BaseUnits ";" Caption ";" CurrentReading ";" DeviceID ";;" UpperThresholdNonCritical ";" UpperThresholdCritical ";" SensorType ";"
-                }
-
-         }
-        else
-        {
-                    print "MSHW;" BaseUnits ";" Caption ";;" DeviceID ";" HealthState ";;;" SensorType ";"
-        }
-
-    }
-  EmbeddedFile(2): |-
-    BEGIN {FS="[;]";ipmiFound="false";globalFound="false";}
-    {if ($1 ~ /Global/) {if ($2 > 0) {globalFound=("MSHW;" $0)
-                                       }
-                          }
-    # If an OldInstance is found, then deactivate the GlobalFound as the previous discovery found individual modules
-     else {if ($3 ~ /OldInstance-/) {globalFound="false" ;  ipmiFound="true"}
-    # If it's not an OldInstance or Global or Blank, then print
-          else {if (NF > 3) {print ("MSHW;" $0);
-                             if ($4 != 1) {ipmiFound="true";}
-                            }
-               }
-          }
-     }
-    END {if (ipmiFound == "false" && globalFound != "false") {print globalFound}
-         if (ipmiFound == "true" ) {print "MSHW;ipmiFound;99;ipmiFound;0;"}
-        }
-  EmbeddedFile(4): |
-    BEGIN {FS="[;]"}
-    #IpmisensorID contains at least 3 dots
-    $5 ~ /.*\..*\..*\.*/ {
-    IPMISensorID = $5
-    HealthState = $2
-    SensorName = $4
-
-    ID = IPMISensorID ; gsub("\.[^.]*$","",ID);
-
-    # if we've already found a status for this ID, then try and find a common sensor name root
-    # We're going to assume the first 5 characters are the same to avoid a null DisplayID
-    # Note this will only be run if a battery has 2 or more sensors
-     if (ID in status) {
-       matchLength = 5
-       for (i=5 ; i <= length(DisplayID[ID]) ; i++ ) {
-         if ( substr(DisplayID[ID],5,i) == substr(SensorName,5,i) ) { matchLength = i }
-         }
-       DisplayID[ID] = substr(DisplayID[ID],1,matchLength)
-       gsub(/:? *$/,"",DisplayID[ID])
-       }
-     else { DisplayID[ID] = SensorName }
-    # See if we already have processed a valid statusInformation for this component
-    # i.e. there's more than one fault, do a worse than and append the sensor ID
-     if (ID in statusInformation) {
-                          if (status[ID] < HealthState) {status[ID] = (HealthState);}
-                          if (HealthState > 5) {if (statusInformation[ID]=="") {statusInformation[ID] = SensorName}
-                                       else {statusInformation[ID] = (statusInformation[ID] " - " SensorName)}
-                                      }
-                         }
-    # If we haven't seen a fault, check if this sensor state and set statusInformation if there's an issue
-      else {if (HealthState > 0) {status[ID] = HealthState};
-                if (HealthState > 5) {statusInformation[ID] = SensorName};
-               }
-    }
-    END { for (ID in status)
-          print ("MSHW;" ID ";" DisplayID[ID] ";" status[ID]";" statusInformation[ID] ";")
-        }
-translations:
-  psuAvailabilityTranslationTable:
-    "11": MISSING
-    "12": failed
-    "13": UNKNOWN
-    "14": degraded
-    "15": ok
-    "16": ok
-    "17": degraded
-    "18": ok
-    "19": failed
-    "1": MISSING
-    "2": MISSING
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": degraded
-    "6": MISSING
-    "7": failed
-    "8": failed
-    "9": ok
-    "20": degraded
-    "10": degraded
-    "21": ok
-  statusInformationTranslationTable:
-    "0": Unknown
-    default: Unknown Status
-    "25": Critical Failure
-    "15": Minor Failure
-    "5": ""
-    "30": Non-Recoverable Error
-    "20": Major Failure
-    "10": Degraded
-  statusTranslationTable:
-    "0": UNKNOWN
-    default: UNKNOWN
-    "25": failed
-    "15": degraded
-    "5": ok
-    "30": failed
-    "20": failed
-    "10": degraded
-  psuAvailabilityInformationTranslationTable:
-    "11": Not Installed
-    "12": Install Error
-    "13": Power Save - Unknown
-    "14": Power Save - Lower Power Mode
-    "15": Power Save - Standy
-    "16": Power Cycle
-    "17": Power Save - Warning
-    "18": Paused
-    "19": Not Ready
-    "1": Other / Unknown
-    "2": Unknown
-    default: Unknown Status
-    "3": ""
-    "4": Warning
-    "5": In Test
-    "6": Not Applicable
-    "7": Power Off
-    "8": Off Line
-    "9": Off Duty
-    "20": Not Configured
-    "10": Degraded
-    "21": Quiesced
-  PortTypeTranslationTable:
-    "11": HBA FC Port NL (Node/Loop)
-    "55": Ethernet Port
-    "12": HBA FC Port F/NL (Node/Loop/Fabric)
-    "56": Ethernet Port
-    "0": Unknown Network Port Type
-    "110": Ethernet Port
-    "1": Other Network Port Type
-    "100": Ethernet Port
-    "101": Ethernet Port
-    default: Unknown Network Port Type
-    "102": Ethernet Port
-    "103": Ethernet Port
-    "104": Ethernet Port
-    "105": Ethernet Port
-    "106": Ethernet Port
-    "107": Ethernet Port
-    "108": Ethernet Port
-    "109": Ethernet Port
-    "50": Ethernet Port
-    "51": Ethernet Port
-    "52": Ethernet Port
-    "53": Ethernet Port
-    "10": HBA FC Port N (Node)
-    "54": Ethernet Port
-  DuplexTypeTranslationTable:
-    default: 1
-    "false": 0
-  NetworkCardOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": degraded
-    "16": degraded
-    "17": ok
-    "18": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": ok
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": Error
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
-  SpeedToLinkStatusTranslationTable:
-    "0": degraded
-    ? ""
-    : degraded
-    default: ok
 monitors:
   enclosure:
     discovery:
@@ -1449,3 +1185,267 @@ monitors:
           hw.status{hw.type="battery"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    #  MonitoredDeviceID,Caption,HealthState,IpmiSensorType,Name,NumericOnly,CurrentState,DeviceID,SensorType
+
+    BEGIN {FS="[;]";}
+
+    {
+    #    MonitoredDeviceID = $1
+        Caption = $2
+        HealthState = $3
+        IpmiSensorType = $4
+        Name = $5
+        NumericOnly = $6
+        CurrentState = $7
+        DeviceID = $8 ; gsub("\.[^.]*$","",DeviceID);
+        SensorType = $9
+        if ( SensorType == 11 && CurrentState == "Deassert" ) { MemoryNotPresent[DeviceID] = "True" ; print $0 }
+
+        if ( DeviceID in Devices ) {
+                                       if ( NumericOnly == 0 ) { NumericOnlyArray[DeviceID] = 0 }
+                                       if ( Status[DeviceID] < HealthState) { Status[DeviceID] = HealthState}
+                                         if ( HealthState > 5) {
+                                               if (StatusInformation[DeviceID] == "") { StatusInformation[DeviceID] = Caption }
+                                                   else { StatusInformation[DeviceID] = StatusInformation[DeviceID] " - " Caption }
+                                                   }
+                               }
+                          else {
+                                   NumericOnlyArray[DeviceID] = NumericOnly
+                                    DisplayID[DeviceID] = Caption ; gsub (/\(.*\)/,"",DisplayID[DeviceID]); gsub (/:.*$/,"",DisplayID[DeviceID]);
+                                    if ( HealthState > 0 ) {
+                                           Devices[DeviceID] = DeviceID
+                                       Status[DeviceID] = HealthState
+                                       if ( HealthState > 5) {
+                                        StatusInformation[DeviceID] = Caption
+                                                 }
+                                   }
+                             }
+    }
+    END { for (DeviceID in Devices) {
+          if ( MemoryNotPresent[DeviceID] != "True" ) {
+              print ("MSHW;" DeviceID ";" StatusInformation[DeviceID] ";" Status[DeviceID] ";" DisplayID[DeviceID]";" NumericOnlyArray[DeviceID] ";")
+            }
+          }
+        }
+  EmbeddedFile(3): |-
+    BEGIN { FS = ";"; }
+    {
+        BaseUnits = $1
+        Caption = $2
+        CurrentReading = $3
+        DeviceID = $4
+        HealthState = $5
+        UpperThresholdNonCritical = $6
+        UpperThresholdCritical = $7
+        SensorType = $8
+        if (length(CurrentReading) > 2 )
+        {
+                    if (UpperThresholdNonCritical == "" && UpperThresholdCritical == "")
+                      {
+                       print "MSHW;" BaseUnits ";" Caption ";" CurrentReading ";" DeviceID ";" HealthState ";;;" SensorType ";"
+                }
+              else
+                {
+                              print "MSHW;" BaseUnits ";" Caption ";" CurrentReading ";" DeviceID ";;" UpperThresholdNonCritical ";" UpperThresholdCritical ";" SensorType ";"
+                }
+
+         }
+        else
+        {
+                    print "MSHW;" BaseUnits ";" Caption ";;" DeviceID ";" HealthState ";;;" SensorType ";"
+        }
+
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS="[;]";ipmiFound="false";globalFound="false";}
+    {if ($1 ~ /Global/) {if ($2 > 0) {globalFound=("MSHW;" $0)
+                                       }
+                          }
+    # If an OldInstance is found, then deactivate the GlobalFound as the previous discovery found individual modules
+     else {if ($3 ~ /OldInstance-/) {globalFound="false" ;  ipmiFound="true"}
+    # If it's not an OldInstance or Global or Blank, then print
+          else {if (NF > 3) {print ("MSHW;" $0);
+                             if ($4 != 1) {ipmiFound="true";}
+                            }
+               }
+          }
+     }
+    END {if (ipmiFound == "false" && globalFound != "false") {print globalFound}
+         if (ipmiFound == "true" ) {print "MSHW;ipmiFound;99;ipmiFound;0;"}
+        }
+  EmbeddedFile(4): |
+    BEGIN {FS="[;]"}
+    #IpmisensorID contains at least 3 dots
+    $5 ~ /.*\..*\..*\.*/ {
+    IPMISensorID = $5
+    HealthState = $2
+    SensorName = $4
+
+    ID = IPMISensorID ; gsub("\.[^.]*$","",ID);
+
+    # if we've already found a status for this ID, then try and find a common sensor name root
+    # We're going to assume the first 5 characters are the same to avoid a null DisplayID
+    # Note this will only be run if a battery has 2 or more sensors
+     if (ID in status) {
+       matchLength = 5
+       for (i=5 ; i <= length(DisplayID[ID]) ; i++ ) {
+         if ( substr(DisplayID[ID],5,i) == substr(SensorName,5,i) ) { matchLength = i }
+         }
+       DisplayID[ID] = substr(DisplayID[ID],1,matchLength)
+       gsub(/:? *$/,"",DisplayID[ID])
+       }
+     else { DisplayID[ID] = SensorName }
+    # See if we already have processed a valid statusInformation for this component
+    # i.e. there's more than one fault, do a worse than and append the sensor ID
+     if (ID in statusInformation) {
+                          if (status[ID] < HealthState) {status[ID] = (HealthState);}
+                          if (HealthState > 5) {if (statusInformation[ID]=="") {statusInformation[ID] = SensorName}
+                                       else {statusInformation[ID] = (statusInformation[ID] " - " SensorName)}
+                                      }
+                         }
+    # If we haven't seen a fault, check if this sensor state and set statusInformation if there's an issue
+      else {if (HealthState > 0) {status[ID] = HealthState};
+                if (HealthState > 5) {statusInformation[ID] = SensorName};
+               }
+    }
+    END { for (ID in status)
+          print ("MSHW;" ID ";" DisplayID[ID] ";" status[ID]";" statusInformation[ID] ";")
+        }
+translations:
+  psuAvailabilityTranslationTable:
+    "11": MISSING
+    "12": failed
+    "13": UNKNOWN
+    "14": degraded
+    "15": ok
+    "16": ok
+    "17": degraded
+    "18": ok
+    "19": failed
+    "1": MISSING
+    "2": MISSING
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": degraded
+    "6": MISSING
+    "7": failed
+    "8": failed
+    "9": ok
+    "20": degraded
+    "10": degraded
+    "21": ok
+  statusInformationTranslationTable:
+    "0": Unknown
+    default: Unknown Status
+    "25": Critical Failure
+    "15": Minor Failure
+    "5": ""
+    "30": Non-Recoverable Error
+    "20": Major Failure
+    "10": Degraded
+  statusTranslationTable:
+    "0": UNKNOWN
+    default: UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    "30": failed
+    "20": failed
+    "10": degraded
+  psuAvailabilityInformationTranslationTable:
+    "11": Not Installed
+    "12": Install Error
+    "13": Power Save - Unknown
+    "14": Power Save - Lower Power Mode
+    "15": Power Save - Standy
+    "16": Power Cycle
+    "17": Power Save - Warning
+    "18": Paused
+    "19": Not Ready
+    "1": Other / Unknown
+    "2": Unknown
+    default: Unknown Status
+    "3": ""
+    "4": Warning
+    "5": In Test
+    "6": Not Applicable
+    "7": Power Off
+    "8": Off Line
+    "9": Off Duty
+    "20": Not Configured
+    "10": Degraded
+    "21": Quiesced
+  PortTypeTranslationTable:
+    "11": HBA FC Port NL (Node/Loop)
+    "55": Ethernet Port
+    "12": HBA FC Port F/NL (Node/Loop/Fabric)
+    "56": Ethernet Port
+    "0": Unknown Network Port Type
+    "110": Ethernet Port
+    "1": Other Network Port Type
+    "100": Ethernet Port
+    "101": Ethernet Port
+    default: Unknown Network Port Type
+    "102": Ethernet Port
+    "103": Ethernet Port
+    "104": Ethernet Port
+    "105": Ethernet Port
+    "106": Ethernet Port
+    "107": Ethernet Port
+    "108": Ethernet Port
+    "109": Ethernet Port
+    "50": Ethernet Port
+    "51": Ethernet Port
+    "52": Ethernet Port
+    "53": Ethernet Port
+    "10": HBA FC Port N (Node)
+    "54": Ethernet Port
+  DuplexTypeTranslationTable:
+    default: 1
+    "false": 0
+  NetworkCardOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": degraded
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": ok
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
+  SpeedToLinkStatusTranslationTable:
+    "0": degraded
+    ? ""
+    : degraded
+    default: ok

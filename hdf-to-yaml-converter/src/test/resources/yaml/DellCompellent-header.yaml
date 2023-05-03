@@ -1,147 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(2): |-
-    BEGIN {FS=":";}
-    {
-    if ($1 == "Set-Cookie")
-        {
-             split($2,outputarray,";")
-             AuthenticationToken=outputarray[1]
-             print AuthenticationToken
-        }
-    }
-  EmbeddedFile(5): |-
-    BEGIN {FS=";";}
-    {
-    if ($4 ~ /^ScEnclosure/)
-        {
-             split($2,outputarray,".")
-             enclosureID=outputarray[1]
-           currentTemperature=$5*1
-           lowerCriticalThreshold=$7*1
-           lowerWarningThreshold=$8*1
-           warning=$9*1
-           alarm=$10*1
-             print $1";"$2";"$3";"$4";"currentTemperature";"$6";"lowerCriticalThreshold";"lowerWarningThreshold";"warning";"alarm";"enclosureID";Enclosure"
-        }
-    else
-        {
-               split($2,outputarray,".")
-               enclosureID=outputarray[1]"."outputarray[2]
-            currentTemperature=$5*1
-            lowerCriticalThreshold=$7*1
-            lowerWarningThreshold=$8*1
-            warning=$9*1
-            alarm=$10*1
-              print $1";"$2";"$3";"$4";"currentTemperature";"$6";"lowerCriticalThreshold";"lowerWarningThreshold";"warning";"alarm";"enclosureID";Blade"
-          }
-      }
-  EmbeddedFile(4): |-
-    BEGIN {FS=";";}
-    {
-    if ($4 ~ /^ScEnclosure/)
-        {
-             split($2,outputarray,".")
-             enclosureID=outputarray[1]
-             if ($4  ~ /^ScEnclosureAudibleAlarm/)
-             {
-               print $1";ScEnclosureAudibleAlarm"$2";"$3";"$4";"enclosureID ";Enclosure"
-             }
-             else
-             {
-                        print $0 enclosureID ";Enclosure"
-             }
-        }
-    else
-            {
-                 split($2,outputarray,".")
-                 controllerID=outputarray[1]"."outputarray[2]
-               print $0 controllerID";Blade"
-             }
-    }
-  EmbeddedFile(7): |-
-    BEGIN {FS=";";}
-    {
-
-
-        if ($5 ~ /^ScControllerPortSasConfiguration/)
-          {
-            split($3,outputarray," ")
-            if (outputarray[4] == "Gbps")
-              {
-                speed = outputarray[3] * 1000
-              }
-            else
-              {
-                speed = outputarray[3]
-              }
-            print $1";"$2";"speed";"$4
-          }
-        else
-        {
-            split($3,outputarray," ")
-            if (outputarray[2] == "Gbps")
-              {
-                speed = outputarray[1] * 1000
-              }
-            else
-              {
-                speed = outputarray[1]
-              }
-            print $1";"$2";"speed";"$4
-        }
-
-    }
-  EmbeddedFile(6): |-
-    BEGIN {FS=";";}
-    {
-           gsub("0.0","",$0)
-           split($2,outputarray,".")
-           controllerID=outputarray[1]"."outputarray[2]
-           if ($5 == "")
-           {
-             print $0 controllerID ";Blade"
-           }
-           else
-           {
-             currentVoltage = $5 * 1000
-             upperNormalThreshold = $7 * 1000
-             lowerCriticalThreshold = $8 * 1000
-            print $1";"$2";"$3";"$4";"$5";;"upperNormalThreshold";"lowerCriticalThreshold";"controllerID";Blade"
-           }
-
-    }
-  EmbeddedFile(8): |-
-    BEGIN {FS=";";}
-    {
-    if ($4 ~ /^ScEnclosure/)
-        {
-             split($2,outputarray,".")
-             enclosureID=outputarray[1]
-             print $0 "true;"enclosureID ";Enclosure"
-        }
-    else
-            {
-                 split($2,outputarray,".")
-                 controllerID=outputarray[1]"."outputarray[2]
-               if ( $5 == 0 || $5 == "")
-               {
-                 gsub("0","",$5)
-                 print $0 "true;"controllerID";Blade"
-               }
-               else
-               {
-                 print $0 ";"controllerID";Blade"
-               }
-
-             }
-    }
-translations:
-  statusTranslationTable:
-    default: UNKNOWN
-    up: ok
-    degraded: degraded
-    down: failed
 connector:
   detection:
     criteria:
@@ -1316,3 +1173,146 @@ monitors:
           hw.battery.time_left: $column(5)
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(2): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "Set-Cookie")
+        {
+             split($2,outputarray,";")
+             AuthenticationToken=outputarray[1]
+             print AuthenticationToken
+        }
+    }
+  EmbeddedFile(5): |-
+    BEGIN {FS=";";}
+    {
+    if ($4 ~ /^ScEnclosure/)
+        {
+             split($2,outputarray,".")
+             enclosureID=outputarray[1]
+           currentTemperature=$5*1
+           lowerCriticalThreshold=$7*1
+           lowerWarningThreshold=$8*1
+           warning=$9*1
+           alarm=$10*1
+             print $1";"$2";"$3";"$4";"currentTemperature";"$6";"lowerCriticalThreshold";"lowerWarningThreshold";"warning";"alarm";"enclosureID";Enclosure"
+        }
+    else
+        {
+               split($2,outputarray,".")
+               enclosureID=outputarray[1]"."outputarray[2]
+            currentTemperature=$5*1
+            lowerCriticalThreshold=$7*1
+            lowerWarningThreshold=$8*1
+            warning=$9*1
+            alarm=$10*1
+              print $1";"$2";"$3";"$4";"currentTemperature";"$6";"lowerCriticalThreshold";"lowerWarningThreshold";"warning";"alarm";"enclosureID";Blade"
+          }
+      }
+  EmbeddedFile(4): |-
+    BEGIN {FS=";";}
+    {
+    if ($4 ~ /^ScEnclosure/)
+        {
+             split($2,outputarray,".")
+             enclosureID=outputarray[1]
+             if ($4  ~ /^ScEnclosureAudibleAlarm/)
+             {
+               print $1";ScEnclosureAudibleAlarm"$2";"$3";"$4";"enclosureID ";Enclosure"
+             }
+             else
+             {
+                        print $0 enclosureID ";Enclosure"
+             }
+        }
+    else
+            {
+                 split($2,outputarray,".")
+                 controllerID=outputarray[1]"."outputarray[2]
+               print $0 controllerID";Blade"
+             }
+    }
+  EmbeddedFile(7): |-
+    BEGIN {FS=";";}
+    {
+
+
+        if ($5 ~ /^ScControllerPortSasConfiguration/)
+          {
+            split($3,outputarray," ")
+            if (outputarray[4] == "Gbps")
+              {
+                speed = outputarray[3] * 1000
+              }
+            else
+              {
+                speed = outputarray[3]
+              }
+            print $1";"$2";"speed";"$4
+          }
+        else
+        {
+            split($3,outputarray," ")
+            if (outputarray[2] == "Gbps")
+              {
+                speed = outputarray[1] * 1000
+              }
+            else
+              {
+                speed = outputarray[1]
+              }
+            print $1";"$2";"speed";"$4
+        }
+
+    }
+  EmbeddedFile(6): |-
+    BEGIN {FS=";";}
+    {
+           gsub("0.0","",$0)
+           split($2,outputarray,".")
+           controllerID=outputarray[1]"."outputarray[2]
+           if ($5 == "")
+           {
+             print $0 controllerID ";Blade"
+           }
+           else
+           {
+             currentVoltage = $5 * 1000
+             upperNormalThreshold = $7 * 1000
+             lowerCriticalThreshold = $8 * 1000
+            print $1";"$2";"$3";"$4";"$5";;"upperNormalThreshold";"lowerCriticalThreshold";"controllerID";Blade"
+           }
+
+    }
+  EmbeddedFile(8): |-
+    BEGIN {FS=";";}
+    {
+    if ($4 ~ /^ScEnclosure/)
+        {
+             split($2,outputarray,".")
+             enclosureID=outputarray[1]
+             print $0 "true;"enclosureID ";Enclosure"
+        }
+    else
+            {
+                 split($2,outputarray,".")
+                 controllerID=outputarray[1]"."outputarray[2]
+               if ( $5 == 0 || $5 == "")
+               {
+                 gsub("0","",$5)
+                 print $0 "true;"controllerID";Blade"
+               }
+               else
+               {
+                 print $0 ";"controllerID";Blade"
+               }
+
+             }
+    }
+translations:
+  statusTranslationTable:
+    default: UNKNOWN
+    up: ok
+    degraded: degraded
+    down: failed

@@ -4,27 +4,6 @@ extends:
 constants:
   _EF1_COMMAND_PART2: ;
   _EF1_COMMAND_PART1: "/bin/sh $embedded.EmbeddedFile(1)$ %{USERNAME} %{PASSWORD}"
-embedded:
-  EmbeddedFile(1): |-
-    username=$1
-    password=$2
-    export STONAVM_ACT=on
-    export STONAVM_RSP_PASS=on
-    export MS_HW_pwdfile=$RANDOM
-    if [ -n STONAVM_HOME ]; then
-            echo $password>$STONAVM_HOME/$MS_HW_pwdfile
-            $STONAVM_HOME/auaccountenv -set -uid $username -passwdfile $STONAVM_HOME/$MS_HW_pwdfile
-            UNITLIST=`$STONAVM_HOME/auunitref | /usr/bin/tail -n +2 | /bin/awk '{print $1}'`
-            for UNIT in $UNITLIST
-                    do
-                    echo $password>$STONAVM_HOME/$MS_HW_pwdfile
-                    $STONAVM_HOME/auaccountenv -set -uid $username -passwdfile $STONAVM_HOME/$MS_HW_pwdfile
-                    echo MS_HW_SYSTEM_START $UNIT
-                    $STONAVM_HOME/$3 $4 $5 -unit $UNIT
-                    echo MS_HW_SYSTEM_END $UNIT
-                    done
-             $STONAVM_HOME/auaccountenv -rm
-            fi
 connector:
   displayName: Hitachi HDS AMS/HUS (SNM2 CLI on Linux)
   platforms: "Hitachi AMS,Hitachi HUS"
@@ -70,3 +49,24 @@ connector:
       expectedResult: The account information has been set successfully
       executeLocally: true
       forceSerialization: true
+embedded:
+  EmbeddedFile(1): |-
+    username=$1
+    password=$2
+    export STONAVM_ACT=on
+    export STONAVM_RSP_PASS=on
+    export MS_HW_pwdfile=$RANDOM
+    if [ -n STONAVM_HOME ]; then
+            echo $password>$STONAVM_HOME/$MS_HW_pwdfile
+            $STONAVM_HOME/auaccountenv -set -uid $username -passwdfile $STONAVM_HOME/$MS_HW_pwdfile
+            UNITLIST=`$STONAVM_HOME/auunitref | /usr/bin/tail -n +2 | /bin/awk '{print $1}'`
+            for UNIT in $UNITLIST
+                    do
+                    echo $password>$STONAVM_HOME/$MS_HW_pwdfile
+                    $STONAVM_HOME/auaccountenv -set -uid $username -passwdfile $STONAVM_HOME/$MS_HW_pwdfile
+                    echo MS_HW_SYSTEM_START $UNIT
+                    $STONAVM_HOME/$3 $4 $5 -unit $UNIT
+                    echo MS_HW_SYSTEM_END $UNIT
+                    done
+             $STONAVM_HOME/auaccountenv -rm
+            fi

@@ -1,49 +1,4 @@
 ---
-translations:
-  PSUStatusInformationTranslationTable:
-    default: UNKNOWN
-    mshw_101: Comm Error - AC Error
-    mshw_010: DC Error
-    mshw_001: AC Error
-    mshw_100: Comm Error - AC Error - DC Error
-    mshw_111: Comm Error
-    mshw_000: AC Error - DC Error
-    mshw_011: ""
-    mshw_110: Comm Error - DC Error
-  sizeTranslationTable:
-    gib: 1073741824
-    default: 1
-    mb: 1000000
-    mib: 1048576
-    gb: 1000000000
-    tib: 1099511627776
-    tb: 1000000000000
-  PSUStatusTranslationTable:
-    default: UNKNOWN
-    mshw_101: failed
-    mshw_010: failed
-    mshw_001: failed
-    mshw_100: failed
-    mshw_111: degraded
-    mshw_000: failed
-    mshw_011: ok
-    mshw_110: failed
-  linkTranslationTable:
-    offline: degraded
-    default: ""
-    no light: degraded
-    online: ok
-    disabled: degraded
-    none: UNKNOWN
-  StatusTranslationTable:
-    excluded: degraded
-    "0": ok
-    offline: failed
-    "1": failed
-    default: failed
-    online: ok
-    active: ok
-    degraded: degraded
 connector:
   displayName: IBM FlashSystem 900
   platforms: IBM FlashSystem
@@ -722,3 +677,48 @@ monitors:
         metrics:
           hw.fan.speed_ratio: percent2Ratio($column(3))
           hw.fan.speed: $column(2)
+translations:
+  PSUStatusInformationTranslationTable:
+    default: UNKNOWN
+    mshw_101: Comm Error - AC Error
+    mshw_010: DC Error
+    mshw_001: AC Error
+    mshw_100: Comm Error - AC Error - DC Error
+    mshw_111: Comm Error
+    mshw_000: AC Error - DC Error
+    mshw_011: ""
+    mshw_110: Comm Error - DC Error
+  sizeTranslationTable:
+    gib: 1073741824
+    default: 1
+    mb: 1000000
+    mib: 1048576
+    gb: 1000000000
+    tib: 1099511627776
+    tb: 1000000000000
+  PSUStatusTranslationTable:
+    default: UNKNOWN
+    mshw_101: failed
+    mshw_010: failed
+    mshw_001: failed
+    mshw_100: failed
+    mshw_111: degraded
+    mshw_000: failed
+    mshw_011: ok
+    mshw_110: failed
+  linkTranslationTable:
+    offline: degraded
+    default: ""
+    no light: degraded
+    online: ok
+    disabled: degraded
+    none: UNKNOWN
+  StatusTranslationTable:
+    excluded: degraded
+    "0": ok
+    offline: failed
+    "1": failed
+    default: failed
+    online: ok
+    active: ok
+    degraded: degraded

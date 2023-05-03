@@ -1,136 +1,4 @@
 ---
-translations:
-  ControllerRoleTranslationTable:
-    "0": Ordinary Cluster Member
-    "1": Cluster Master
-    "2": Cluster Preparation
-    default: ""
-  DiskTypeTranslationTable:
-    "0": FC
-    "1": SAS
-    "2": SATA
-    default: ""
-    "3": SSD
-    "4": NL_SAS
-    "5": SLC SSD
-    "6": MLC SSD
-  DiskRoleTranslationTable:
-    "1": "Role: Idle Disk"
-    "2": "Role: Member of a Logical Disk"
-    default: ""
-    "3": "Role: Hot Spare"
-    "4": "Role: Cache Disk"
-  PortStatusInformationTranslationTable:
-    "0": Link Down
-    "1": Link Up
-    "2": Missing
-    default: ""
-    "3": Link Bad
-    "4": Hardware Error
-    "5": Speed Does Not Match
-    "6": Enabled
-    "7": Disabled
-    "8": MAC Error
-    "9": Lane Does Not Match
-  PortTypeTranslationTable:
-    "0": SAS
-    "1": FC
-    "2": iSCSI
-    default: ""
-    "5": iSCSI
-    "8": FCoE
-  TypeTranslationTable:
-    "22": SVP
-    "23": 2U 12GSAS 12 Disk Controller
-    "24": 2U SAS 25 Disk Shelf 2.5inch
-    "25": 4U SAS 24 Disk Shelf 3.5inch
-    "26": 2U 12GSAS 25 Disk Controller
-    "16": 2U SAS 12 Disk Shelf
-    "17": 2U SAS 24 Disk Shelf
-    "18": 4U SAS 24 Disk Shelf
-    "19": 4U FC 24 Disk Shelf
-    "0": BMC Controller
-    "1": 2U SAS 12 Disk Controller
-    "2": 2U SAS 24 Disk Controller
-    default: ""
-    "96": 3U 2 Independent Controller Head
-    "20": 1U PCIe Data Switch
-    "97": 6U 4 Independent Controller Head
-    "21": 4U SAS 75 Disk Shelf
-  LinkStatusTranslationTable:
-    "0": degraded
-    "1": ok
-    "2": ""
-    default: ""
-    "3": degraded
-    "4": ""
-    "5": degraded
-    "6": ""
-    "7": ""
-    "8": ""
-    "9": degraded
-  StatusInformationTranslationTable:
-    "11": No Input
-    "12": Low Battery
-    "13": Single Link Fault
-    "14": Invalid
-    "15": Write Protect
-    "0": Unknown Status
-    "1": ""
-    "2": Fault
-    default: UNKNOWN
-    "3": Pre-Fail
-    "4": Partially Broken
-    "5": Degraded
-    "6": Bad Sectors Found
-    "7": Bit Errors Found
-    "8": Consistent
-    "9": Inconsistent
-    "10": Busy
-  PortStatusTranslationTable:
-    "0": ok
-    "1": ok
-    "2": failed
-    default: ""
-    "3": degraded
-    "4": failed
-    "5": degraded
-    "6": ok
-    "7": ok
-    "8": degraded
-    "9": degraded
-  StatusTranslationTable:
-    "11": degraded
-    "12": degraded
-    "13": degraded
-    "14": degraded
-    "15": ok
-    "0": UNKNOWN
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": degraded
-    "7": degraded
-    "8": ok
-    "9": degraded
-    "10": ok
-  RoleTranslationTable:
-    "0": Disk Shelf
-    "1": Controller
-    "2": Data Switch
-    default: ""
-    "3": Managed Switch
-    "4": Management Server
-  AddressTypeTranslationTable:
-    "0": WWN
-    "1": WWN
-    "2": MAC
-    default: ""
-    "5": MAC
-    "8": MAC
 connector:
   displayName: Huawei Storage System (OceanStor)
   platforms: Huawei OceanStor
@@ -991,3 +859,135 @@ monitors:
           hw.network.up: legacyLinkStatus($column(4))
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  ControllerRoleTranslationTable:
+    "0": Ordinary Cluster Member
+    "1": Cluster Master
+    "2": Cluster Preparation
+    default: ""
+  DiskTypeTranslationTable:
+    "0": FC
+    "1": SAS
+    "2": SATA
+    default: ""
+    "3": SSD
+    "4": NL_SAS
+    "5": SLC SSD
+    "6": MLC SSD
+  DiskRoleTranslationTable:
+    "1": "Role: Idle Disk"
+    "2": "Role: Member of a Logical Disk"
+    default: ""
+    "3": "Role: Hot Spare"
+    "4": "Role: Cache Disk"
+  PortStatusInformationTranslationTable:
+    "0": Link Down
+    "1": Link Up
+    "2": Missing
+    default: ""
+    "3": Link Bad
+    "4": Hardware Error
+    "5": Speed Does Not Match
+    "6": Enabled
+    "7": Disabled
+    "8": MAC Error
+    "9": Lane Does Not Match
+  PortTypeTranslationTable:
+    "0": SAS
+    "1": FC
+    "2": iSCSI
+    default: ""
+    "5": iSCSI
+    "8": FCoE
+  TypeTranslationTable:
+    "22": SVP
+    "23": 2U 12GSAS 12 Disk Controller
+    "24": 2U SAS 25 Disk Shelf 2.5inch
+    "25": 4U SAS 24 Disk Shelf 3.5inch
+    "26": 2U 12GSAS 25 Disk Controller
+    "16": 2U SAS 12 Disk Shelf
+    "17": 2U SAS 24 Disk Shelf
+    "18": 4U SAS 24 Disk Shelf
+    "19": 4U FC 24 Disk Shelf
+    "0": BMC Controller
+    "1": 2U SAS 12 Disk Controller
+    "2": 2U SAS 24 Disk Controller
+    default: ""
+    "96": 3U 2 Independent Controller Head
+    "20": 1U PCIe Data Switch
+    "97": 6U 4 Independent Controller Head
+    "21": 4U SAS 75 Disk Shelf
+  LinkStatusTranslationTable:
+    "0": degraded
+    "1": ok
+    "2": ""
+    default: ""
+    "3": degraded
+    "4": ""
+    "5": degraded
+    "6": ""
+    "7": ""
+    "8": ""
+    "9": degraded
+  StatusInformationTranslationTable:
+    "11": No Input
+    "12": Low Battery
+    "13": Single Link Fault
+    "14": Invalid
+    "15": Write Protect
+    "0": Unknown Status
+    "1": ""
+    "2": Fault
+    default: UNKNOWN
+    "3": Pre-Fail
+    "4": Partially Broken
+    "5": Degraded
+    "6": Bad Sectors Found
+    "7": Bit Errors Found
+    "8": Consistent
+    "9": Inconsistent
+    "10": Busy
+  PortStatusTranslationTable:
+    "0": ok
+    "1": ok
+    "2": failed
+    default: ""
+    "3": degraded
+    "4": failed
+    "5": degraded
+    "6": ok
+    "7": ok
+    "8": degraded
+    "9": degraded
+  StatusTranslationTable:
+    "11": degraded
+    "12": degraded
+    "13": degraded
+    "14": degraded
+    "15": ok
+    "0": UNKNOWN
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": degraded
+    "7": degraded
+    "8": ok
+    "9": degraded
+    "10": ok
+  RoleTranslationTable:
+    "0": Disk Shelf
+    "1": Controller
+    "2": Data Switch
+    default: ""
+    "3": Managed Switch
+    "4": Management Server
+  AddressTypeTranslationTable:
+    "0": WWN
+    "1": WWN
+    "2": MAC
+    default: ""
+    "5": MAC
+    "8": MAC

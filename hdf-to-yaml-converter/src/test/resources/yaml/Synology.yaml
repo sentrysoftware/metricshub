@@ -1,60 +1,4 @@
 ---
-translations:
-  systemStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-  logicalDiskStatusTranslationTable:
-    "11": failed
-    "12": failed
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": ok
-    "7": degraded
-    "8": degraded
-    "9": degraded
-    "10": degraded
-  systemStatusInformationTranslationTable:
-    "1": ok
-    "2": failed
-    default: Unknown Status
-  logicalDiskStatusInformationTranslationTable:
-    "11": Degraded
-    "12": Crashed
-    "1": Normal
-    "2": Repairing
-    default: Unknown Status
-    "3": Migrating
-    "4": Expanding
-    "5": Deleting
-    "6": Creating
-    "7": RAID Syncing
-    "8": RAID Parity Checking
-    "9": RAID Assembling
-    "10": Cancelling
-  BiosStatusTranslationTable:
-    "1": degraded
-    default: ok
-  diskStatusInformationTranslationTable:
-    "1": Normal
-    "2": Initialized
-    default: Unknown Status
-    "3": Not Initialized
-    "4": System Partition Failed
-    "5": Crashed
-  diskStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": failed
-  BiosStatusInformationTranslationTable:
-    "1": Requires Upgrade
 connector:
   displayName: Synology Diskstation
   platforms: Synology DiskStation
@@ -524,3 +468,59 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.temperature: $column(2)
+translations:
+  systemStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  logicalDiskStatusTranslationTable:
+    "11": failed
+    "12": failed
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": ok
+    "7": degraded
+    "8": degraded
+    "9": degraded
+    "10": degraded
+  systemStatusInformationTranslationTable:
+    "1": ok
+    "2": failed
+    default: Unknown Status
+  logicalDiskStatusInformationTranslationTable:
+    "11": Degraded
+    "12": Crashed
+    "1": Normal
+    "2": Repairing
+    default: Unknown Status
+    "3": Migrating
+    "4": Expanding
+    "5": Deleting
+    "6": Creating
+    "7": RAID Syncing
+    "8": RAID Parity Checking
+    "9": RAID Assembling
+    "10": Cancelling
+  BiosStatusTranslationTable:
+    "1": degraded
+    default: ok
+  diskStatusInformationTranslationTable:
+    "1": Normal
+    "2": Initialized
+    default: Unknown Status
+    "3": Not Initialized
+    "4": System Partition Failed
+    "5": Crashed
+  diskStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": failed
+  BiosStatusInformationTranslationTable:
+    "1": Requires Upgrade
