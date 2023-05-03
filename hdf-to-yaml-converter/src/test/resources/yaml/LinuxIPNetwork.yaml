@@ -4,6 +4,19 @@ extends:
 constants:
   GLOBAL_COMMAND_LINE: '"/sbin/ip a"'
   COLLECT_COMMAND_LINE: '"/sbin/ip -s link show dev %NetworkCard.Collect.DeviceID%"'
+connector:
+  displayName: Linux - Network (ip)
+  platforms: Any system
+  reliesOn: Linux system commands (ip)
+  version: 1.0
+  information: This connector provides the monitoring of active network cards on all Linux systems using ip command.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Linux
+    supersedes:
+    - LinuxIfConfigNetwork
 embedded:
   EmbeddedFile(1): |-
     BEGIN {
@@ -60,16 +73,3 @@ embedded:
     END {
             print "MSHW;" deviceID ";" receivePackets ";" transmitPackets ";" receiveErrors + transmitErrors ";" receiveBytes ";" transmitBytes
     }
-connector:
-  displayName: Linux - Network (ip)
-  platforms: Any system
-  reliesOn: Linux system commands (ip)
-  version: 1.0
-  information: This connector provides the monitoring of active network cards on all Linux systems using ip command.
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Linux
-    supersedes:
-    - LinuxIfConfigNetwork

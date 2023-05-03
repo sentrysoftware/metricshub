@@ -1,25 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): "authorization: Basic %{BASIC_AUTH_BASE64}"
-translations:
-  statusTranslationTable:
-    normal: ok
-    default: UNKNOWN
-    blocked: failed
-    warning: degraded
-    failed: failed
-  hddStatusTranslationTable:
-    blk: failed
-    default: UNKNOWN
-    bsy: degraded
-    nml: ok
-    fai: failed
-  hddStatusInformationTranslationTable:
-    blk: Blocked
-    default: Unknown
-    bsy: Busy
-    nml: Normal
-    fai: Failed
 connector:
   detection:
     criteria:
@@ -964,3 +943,24 @@ monitors:
           hw.temperature: $column(6)
         legacyTextParameters:
           StatusInformation: $column(5)
+embedded:
+  EmbeddedFile(1): "authorization: Basic %{BASIC_AUTH_BASE64}"
+translations:
+  statusTranslationTable:
+    normal: ok
+    default: UNKNOWN
+    blocked: failed
+    warning: degraded
+    failed: failed
+  hddStatusTranslationTable:
+    blk: failed
+    default: UNKNOWN
+    bsy: degraded
+    nml: ok
+    fai: failed
+  hddStatusInformationTranslationTable:
+    blk: Blocked
+    default: Unknown
+    bsy: Busy
+    nml: Normal
+    fai: Failed

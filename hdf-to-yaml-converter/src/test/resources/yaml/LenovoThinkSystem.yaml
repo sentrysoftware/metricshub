@@ -1,61 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";";}
-    {
-           gsub("^0.?0*$","",$4)
-           if ($4 == "" || $4 <= 0)
-           {
-            print  $1";"";"";"";"$5
-           }
-           else
-           {
-                if ($2 == "N/A" && $3 == "N/A" || $2 == "" && $3 == "" )
-                {
-                print $1";"";"";"";"$5
-                }
-                else
-                {
-                print $1";"$2";"$3";"$4";""NoCurrentReading"
-                }
-            }
-    }
-translations:
-  enclosureStatusInformationTranslationTable:
-    "0": nonRecoverable
-    "2": critical
-    "255": normal
-    "4": nonCritical
-  SizeUnitsTranslationTable:
-    default: 1
-    mb: 1048576
-    gb: 1073741824
-    tb: 1099511627776
-  statusTranslationTable:
-    normal: ok
-    default: UNKNOWN
-    critical: failed
-    optimal: ok
-    operational: ok
-    online: ok
-    warning: degraded
-    unconfigured good: ok
-    nocurrentreading: ""
-    unknown: UNKNOWN
-  LEDColorTranslationTable:
-    green: OK;OK;ALARM
-    blue: OK;OK;OK
-    yellow: ALARM;ALARM;OK
-  LEDStateTranslationTable:
-    "0": "Off"
-    "1": "On"
-    "2": Blinking
-  enclosureStatusTranslationTable:
-    "0": failed
-    "2": failed
-    "255": ok
-    default: UNKNOWN
-    "4": degraded
 connector:
   displayName: Lenovo ThinkSystem Rack Mount Server
   platforms: Lenovo Server
@@ -916,3 +859,60 @@ monitors:
           hw.status{hw.type="temperature"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+           gsub("^0.?0*$","",$4)
+           if ($4 == "" || $4 <= 0)
+           {
+            print  $1";"";"";"";"$5
+           }
+           else
+           {
+                if ($2 == "N/A" && $3 == "N/A" || $2 == "" && $3 == "" )
+                {
+                print $1";"";"";"";"$5
+                }
+                else
+                {
+                print $1";"$2";"$3";"$4";""NoCurrentReading"
+                }
+            }
+    }
+translations:
+  enclosureStatusInformationTranslationTable:
+    "0": nonRecoverable
+    "2": critical
+    "255": normal
+    "4": nonCritical
+  SizeUnitsTranslationTable:
+    default: 1
+    mb: 1048576
+    gb: 1073741824
+    tb: 1099511627776
+  statusTranslationTable:
+    normal: ok
+    default: UNKNOWN
+    critical: failed
+    optimal: ok
+    operational: ok
+    online: ok
+    warning: degraded
+    unconfigured good: ok
+    nocurrentreading: ""
+    unknown: UNKNOWN
+  LEDColorTranslationTable:
+    green: OK;OK;ALARM
+    blue: OK;OK;OK
+    yellow: ALARM;ALARM;OK
+  LEDStateTranslationTable:
+    "0": "Off"
+    "1": "On"
+    "2": Blinking
+  enclosureStatusTranslationTable:
+    "0": failed
+    "2": failed
+    "255": ok
+    default: UNKNOWN
+    "4": degraded

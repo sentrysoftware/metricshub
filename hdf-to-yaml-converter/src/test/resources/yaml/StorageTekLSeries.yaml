@@ -1,36 +1,4 @@
 ---
-translations:
-  TapeDriveStatusTranslationTable:
-    "2": ok
-    default: ok
-    "3": failed
-    "4": degraded
-  CapStatusTranslationTable:
-    "2": ok
-    default: ok
-    "3": failed
-    "4": degraded
-  LibraryStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": degraded
-  FanStatusTranslationTable:
-    "1": failed
-    "2": ok
-    default: UNKNOWN
-  PowerSupplyStatusTranslationTable:
-    "1": failed
-    "2": ok
-    default: UNKNOWN
-  FanStatusInformationTranslationTable:
-    "1": Failed
-    "2": ""
-    default: Unknown Status
-  PowerSupplyStatusInformationTranslationTable:
-    "1": Failed
-    "2": ""
-    default: Unknown Status
 connector:
   displayName: StorageTek LSeries Tape Library
   platforms: StorageTek LSeries
@@ -531,3 +499,35 @@ monitors:
           hw.tape_drive.operations{type="mount"}: $column(4)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  TapeDriveStatusTranslationTable:
+    "2": ok
+    default: ok
+    "3": failed
+    "4": degraded
+  CapStatusTranslationTable:
+    "2": ok
+    default: ok
+    "3": failed
+    "4": degraded
+  LibraryStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": degraded
+  FanStatusTranslationTable:
+    "1": failed
+    "2": ok
+    default: UNKNOWN
+  PowerSupplyStatusTranslationTable:
+    "1": failed
+    "2": ok
+    default: UNKNOWN
+  FanStatusInformationTranslationTable:
+    "1": Failed
+    "2": ""
+    default: Unknown Status
+  PowerSupplyStatusInformationTranslationTable:
+    "1": Failed
+    "2": ""
+    default: Unknown Status

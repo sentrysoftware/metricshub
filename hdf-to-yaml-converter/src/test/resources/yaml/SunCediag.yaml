@@ -1,4 +1,76 @@
 ---
+connector:
+  displayName: Oracle/Sun Solaris - Memory Modules (cediag)
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (cediag, cestat)"
+  information: Provides memory modules monitoring on Sun Solaris 8 and 9 SPARC systems. Requires root privileges.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    criteria:
+    # OS should be SunOS,SOLARIS (Solaris on SPARC)
+    - type: deviceType
+      keep:
+      - SunOS
+      - SOLARIS
+    # The various following tools have to be present
+    - type: osCommand
+      commandLine: /bin/ls /opt/SUNWcest/bin/cestat
+      expectedResult: ^/opt/SUNWcest/bin/cestat$
+    - type: osCommand
+      commandLine: /bin/ls /opt/SUNWcest/bin/cediag
+      expectedResult: ^/opt/SUNWcest/bin/cediag$
+    # Cestat should work (it won't if not as superuser)
+    - type: osCommand
+      commandLine: "%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cestat -v"
+      expectedResult: ^Page Retirement Statistics Tool
+sudoCommands:
+- /opt/SUNWcest/bin/cediag
+monitors:
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of EmbeddedFile(1)
+          # deviceID;predictedFailure;status;statusInformation
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4,5"
+      mapping:
+        # InstanceTable = Source(3)
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          vendor: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+    collect:
+      # Collect type is "multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Memory.Discovery.Source(1)
+          # Because actually, we're not going to collect every 2 minutes. Collect will rely on
+          # discovery results (which got status and statusInformation) every hour.
+          # So, parameters will still be refreshed every 2 minutes but will reflect values collected
+          # every hour. This is sufficient because Sun recommends running cediag/cestat once a day, so...
+          # deviceID;predictedFailure;status;statusInformation
+          type: copy
+          from: $monitors.memory.discovery.sources.source(1)$
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory", state="predicted_failure"}: boolean($column(2))
+          hw.status{hw.type="memory"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
 embedded:
   EmbeddedFile(1): |
     #!/bin/sh
@@ -191,75 +263,3 @@ embedded:
 
     # Remove the temporary file
     /bin/rm -f $CEDIAGOUTPUTFILE
-connector:
-  displayName: Oracle/Sun Solaris - Memory Modules (cediag)
-  platforms: Oracle/Sun
-  reliesOn: "Sun Solaris system commands (cediag, cestat)"
-  information: Provides memory modules monitoring on Sun Solaris 8 and 9 SPARC systems. Requires root privileges.
-  version: 1.0
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Solaris
-    criteria:
-    # OS should be SunOS,SOLARIS (Solaris on SPARC)
-    - type: deviceType
-      keep:
-      - SunOS
-      - SOLARIS
-    # The various following tools have to be present
-    - type: osCommand
-      commandLine: /bin/ls /opt/SUNWcest/bin/cestat
-      expectedResult: ^/opt/SUNWcest/bin/cestat$
-    - type: osCommand
-      commandLine: /bin/ls /opt/SUNWcest/bin/cediag
-      expectedResult: ^/opt/SUNWcest/bin/cediag$
-    # Cestat should work (it won't if not as superuser)
-    - type: osCommand
-      commandLine: "%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cestat -v"
-      expectedResult: ^Page Retirement Statistics Tool
-sudoCommands:
-- /opt/SUNWcest/bin/cediag
-monitors:
-  memory:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of EmbeddedFile(1)
-          # deviceID;predictedFailure;status;statusInformation
-          type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: "2,3,4,5"
-      mapping:
-        # InstanceTable = Source(3)
-        source: $monitors.memory.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          vendor: $column(1)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
-    collect:
-      # Collect type is "multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = Memory.Discovery.Source(1)
-          # Because actually, we're not going to collect every 2 minutes. Collect will rely on
-          # discovery results (which got status and statusInformation) every hour.
-          # So, parameters will still be refreshed every 2 minutes but will reflect values collected
-          # every hour. This is sufficient because Sun recommends running cediag/cestat once a day, so...
-          # deviceID;predictedFailure;status;statusInformation
-          type: copy
-          from: $monitors.memory.discovery.sources.source(1)$
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="memory", state="predicted_failure"}: boolean($column(2))
-          hw.status{hw.type="memory"}: $column(3)
-        legacyTextParameters:
-          StatusInformation: $column(4)

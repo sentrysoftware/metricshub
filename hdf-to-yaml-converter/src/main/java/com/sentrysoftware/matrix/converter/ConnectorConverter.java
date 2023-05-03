@@ -43,14 +43,14 @@ public class ConnectorConverter {
 		// Set constants
 		setConstants(connector);
 
+		// Go through each key-value entry in the connector
+		preConnector.getCodeMap().forEach((key, value) -> convertKeyValue(key, value, connector));
+		
 		// Set embedded files
 		setEmbeddedFiles(connector);
 
 		// Set translation tables
 		setTranslationTables(connector);
-
-		// Go through each key-value entry in the connector
-		preConnector.getCodeMap().forEach((key, value) -> convertKeyValue(key, value, connector));
 
 		// Post conversion for the discovery mapping properties
 		MappingConvertersWrapper wrapper  = new MappingConvertersWrapper();

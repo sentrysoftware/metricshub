@@ -1,21 +1,6 @@
 ---
 extends:
 - MIB2-header
-translations:
-  TemperatureStatusTranslationTable:
-    default: failed
-    (normal): ok
-  SensorStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-  TemperatureStatusInformationTranslationTable:
-    default: Temperature outside normal range.
-    (normal): ""
-  SensorStatusInformationTranslationTable:
-    "1": Active
-    "2": Inactive
-    default: Unknown Status
 connector:
   displayName: Aruba (SNMP)
   platforms: Aruba
@@ -223,3 +208,18 @@ monitors:
           device_type: $column(3)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+translations:
+  TemperatureStatusTranslationTable:
+    default: failed
+    (normal): ok
+  SensorStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  TemperatureStatusInformationTranslationTable:
+    default: Temperature outside normal range.
+    (normal): ""
+  SensorStatusInformationTranslationTable:
+    "1": Active
+    "2": Inactive
+    default: Unknown Status

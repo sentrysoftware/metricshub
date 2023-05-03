@@ -1,25 +1,4 @@
 ---
-translations:
-  BatteryStatusInformationTranslationTable:
-    "1": ""
-    "2": Needs replacing
-    default: UNKNOWN
-  BatteryStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-  EnclosureStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-  EnclosureStatusInformationTranslationTable:
-    "1": ""
-    "2": Failed
-    default: Unknown
-    "3": Invalid test
-    "4": In progress
 connector:
   displayName: APC UPS
   platforms: APC UPS
@@ -379,3 +358,24 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.temperature: $column(2)
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": ""
+    "2": Needs replacing
+    default: UNKNOWN
+  BatteryStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  EnclosureStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+  EnclosureStatusInformationTranslationTable:
+    "1": ""
+    "2": Failed
+    default: Unknown
+    "3": Invalid test
+    "4": In progress

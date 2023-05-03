@@ -1,4 +1,86 @@
 ---
+connector:
+  displayName: IBM AIX - HBA
+  platforms: IBM POWER
+  reliesOn: "IBM AIX system commands (lsdev, lsattr, fcstat, etc.)"
+  information: Provides hardware status information for the fiber channel HBA cards on IBM AIX systems.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - RS6000
+    criteria:
+    # OS should be AIX (whatever version)
+    - type: deviceType
+      keep:
+      - RS6000
+      # The command fcstat must be installed
+      # (installed by default with AIX 5.3 (Technology Level 5) and AIX 5.2 ML08, whatever that means)
+      # The fcstat file is installed with the devices.common.IBM.fc.rte fileset
+    - type: osCommand
+      commandLine: /bin/ls /usr/sbin/fcstat
+      expectedResult: ^/usr/sbin/fcstat$
+    # The system must have some fcsX devices
+    - type: osCommand
+      commandLine: /usr/sbin/lsdev -Cc adapter
+      expectedResult: "^fcs[0-9] "
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(2) = output of embedded script 1
+          # DeviceID;Model;WWN;SerialNumber;PortType;Speed;
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4,5,6,7"
+          computes:
+          # Add "HBA FC Port (" on the left of PortType and ")" on its right
+          - type: leftConcat
+            column: 5
+            value: HBA FC Port (
+          - type: rightConcat
+            column: 5
+            value: )
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          physical_address: $column(3)
+          physical_address_type: WWN
+          serial_number: $column(4)
+          device_type: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = output of fcstat %hbaID%
+          # Moved to Embedded file (3)
+          # NetworkCard.Collect.Source(1).CommandLine="/usr/sbin/fcstat %NetworkCard.Collect.DeviceID%"
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$ %NetworkCard.Collect.DeviceID%
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4,5,6,7,8,9"
+      mapping:
+        # Value table = Source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        metrics:
+          hw.network.up: legacyLinkStatus($column(1))
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.errors{hw.type="network"}: $column(3)
+          hw.network.packets{direction="receive"}: $column(4)
+          hw.network.packets{direction="transmit"}: $column(5)
+          hw.network.io{direction="receive"}: $column(6)
+          hw.network.io{direction="transmit"}: $column(7)
 embedded:
   EmbeddedFile(1): |-
     #!/bin/sh
@@ -116,85 +198,3 @@ embedded:
       else
           echo "MSHW;WARN;;;;;;;"
     fi
-connector:
-  displayName: IBM AIX - HBA
-  platforms: IBM POWER
-  reliesOn: "IBM AIX system commands (lsdev, lsattr, fcstat, etc.)"
-  information: Provides hardware status information for the fiber channel HBA cards on IBM AIX systems.
-  version: 1.0
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - RS6000
-    criteria:
-    # OS should be AIX (whatever version)
-    - type: deviceType
-      keep:
-      - RS6000
-      # The command fcstat must be installed
-      # (installed by default with AIX 5.3 (Technology Level 5) and AIX 5.2 ML08, whatever that means)
-      # The fcstat file is installed with the devices.common.IBM.fc.rte fileset
-    - type: osCommand
-      commandLine: /bin/ls /usr/sbin/fcstat
-      expectedResult: ^/usr/sbin/fcstat$
-    # The system must have some fcsX devices
-    - type: osCommand
-      commandLine: /usr/sbin/lsdev -Cc adapter
-      expectedResult: "^fcs[0-9] "
-monitors:
-  network:
-    discovery:
-      sources:
-        source(1):
-          # Source(2) = output of embedded script 1
-          # DeviceID;Model;WWN;SerialNumber;PortType;Speed;
-          type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: "2,3,4,5,6,7"
-          computes:
-          # Add "HBA FC Port (" on the left of PortType and ")" on its right
-          - type: leftConcat
-            column: 5
-            value: HBA FC Port (
-          - type: rightConcat
-            column: 5
-            value: )
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.network.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          model: $column(2)
-          physical_address: $column(3)
-          physical_address_type: WWN
-          serial_number: $column(4)
-          device_type: $column(5)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
-    collect:
-      # Collect type is multi-instance
-      type: monoInstance
-      sources:
-        source(1):
-          # Source(1) = output of fcstat %hbaID%
-          # Moved to Embedded file (3)
-          # NetworkCard.Collect.Source(1).CommandLine="/usr/sbin/fcstat %NetworkCard.Collect.DeviceID%"
-          type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: "2,3,4,5,6,7,8,9"
-      mapping:
-        # Value table = Source(1)
-        source: $monitors.network.collect.sources.source(1)$
-        metrics:
-          hw.network.up: legacyLinkStatus($column(1))
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
-          hw.errors{hw.type="network"}: $column(3)
-          hw.network.packets{direction="receive"}: $column(4)
-          hw.network.packets{direction="transmit"}: $column(5)
-          hw.network.io{direction="receive"}: $column(6)
-          hw.network.io{direction="transmit"}: $column(7)

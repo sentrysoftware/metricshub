@@ -1,4 +1,73 @@
 ---
+connector:
+  displayName: Oracle/Sun Solaris - Multi-core Processors (psrinfo)
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (psrinfo, etc.)"
+  information: "This connector discovers and monitors the multi-core processors (SPARC T1, T2, T2+ and Intel Xeon) through the psrinfo system command."
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    supersedes:
+    - SunPsrinfo
+    criteria:
+    # OS should be SunOS or Solaris
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    # psrinfo should return that we have more than one virtual processor
+    - type: osCommand
+      commandLine: /usr/sbin/psrinfo -vp
+      expectedResult: "physical processor has [0-9]+.* virtual processors"
+monitors:
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = psrinfo -vp
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -vp
+          computes:
+            # Send psrinfo'soutput through awk $embedded.EmbeddedFile(1)$
+            # cpuID;cpuModel;cpuSpeed
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # Instance table = source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = psrinfo -vp
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -vp
+          computes:
+            # Send psrinfo'soutput through awk $embedded.EmbeddedFile(1)$
+            # cpuID;cpuModel;cpuSpeed
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
 embedded:
   EmbeddedFile(1): |-
     BEGIN {
@@ -84,72 +153,3 @@ translations:
     on-line: ok
     off-line: failed
     no-intr: ok
-connector:
-  displayName: Oracle/Sun Solaris - Multi-core Processors (psrinfo)
-  platforms: Oracle/Sun
-  reliesOn: "Sun Solaris system commands (psrinfo, etc.)"
-  information: "This connector discovers and monitors the multi-core processors (SPARC T1, T2, T2+ and Intel Xeon) through the psrinfo system command."
-  version: 1.0
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Solaris
-    supersedes:
-    - SunPsrinfo
-    criteria:
-    # OS should be SunOS or Solaris
-    - type: deviceType
-      keep:
-      - SunOS
-      - Solaris
-    # psrinfo should return that we have more than one virtual processor
-    - type: osCommand
-      commandLine: /usr/sbin/psrinfo -vp
-      expectedResult: "physical processor has [0-9]+.* virtual processors"
-monitors:
-  cpu:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = psrinfo -vp
-          type: osCommand
-          commandLine: /usr/sbin/psrinfo -vp
-          computes:
-            # Send psrinfo'soutput through awk %EmbeddedFile(1)%
-            # cpuID;cpuModel;cpuSpeed
-          - type: awk
-            script: EmbeddedFile(1)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4"
-      mapping:
-        # Instance table = source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          model: $column(2)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
-        metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
-    collect:
-      # Collect type = multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = psrinfo -vp
-          type: osCommand
-          commandLine: /usr/sbin/psrinfo -vp
-          computes:
-            # Send psrinfo'soutput through awk %EmbeddedFile(1)%
-            # cpuID;cpuModel;cpuSpeed
-          - type: awk
-            script: EmbeddedFile(1)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4"
-      mapping:
-        # ValueTable = source(1)
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)

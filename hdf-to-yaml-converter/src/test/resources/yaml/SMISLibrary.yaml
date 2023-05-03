@@ -4,11 +4,6 @@ extends:
 constants:
   _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^22|\)\|\(|22|\)\|\(^35|\)\|\(|35|\)"'
   _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
-translations:
-  TapeDriveNeedsCleaningTranslationTable:
-    default: 0
-    "true": 1
-    "false": 0
 connector:
   displayName: SMI-S Compliant Storage Libraries
   platforms: Any SMI-S compliant storage library
@@ -177,3 +172,8 @@ monitors:
           hw.status{hw.type="robotics"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  TapeDriveNeedsCleaningTranslationTable:
+    default: 0
+    "true": 1
+    "false": 0

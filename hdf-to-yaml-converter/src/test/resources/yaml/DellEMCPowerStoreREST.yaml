@@ -1,52 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): Accept:application/json
-translations:
-  NetworkStatusInformationTranslationTable:
-    default: Unknown status
-    "true": Link is up
-    "false": Link is down
-  LinkSpeedTranslationTable:
-    "1_gbps": 1000
-    "32_gbps": 32000
-    "25_gbps": 25000
-    "4_gbps": 4000
-    "12_gbps": 12000
-    default: ""
-    "null": ""
-    "40_gbps": 40000
-    "6_gbps": 6000
-    "3_gbps": 3000
-    "10_gbps": 10000
-    "16_gbps": 16000
-    "100_mbps": 100
-    "10_mbps": 10
-    "8_gbps": 8000
-  StatusInformationTranslationTable:
-    disconnected: degraded
-    prepare_failed: ok
-    healthy: Hardware is healthy.
-    initializing: System is starting up.
-    failed: failed
-    trigger_update: ok
-    uninitialized: System is starting up.
-    empty: ok
-  NetworkLinkStatusTranslationTable:
-    "true": ok
-    "false": degraded
-  StatusTranslationTable:
-    disconnected: degraded
-    prepare_failed: ok
-    healthy: ok
-    initializing: ok
-    failed: failed
-    trigger_update: ok
-    uninitialized: ok
-    empty: ok
-  NetworkStatusTranslationTable:
-    default: degraded
-    "true": ok
-    "false": ok
 connector:
   displayName: Dell EMC PowerStore (REST)
   platforms: PowerStore REST
@@ -618,3 +570,51 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): Accept:application/json
+translations:
+  NetworkStatusInformationTranslationTable:
+    default: Unknown status
+    "true": Link is up
+    "false": Link is down
+  LinkSpeedTranslationTable:
+    "1_gbps": 1000
+    "32_gbps": 32000
+    "25_gbps": 25000
+    "4_gbps": 4000
+    "12_gbps": 12000
+    default: ""
+    "null": ""
+    "40_gbps": 40000
+    "6_gbps": 6000
+    "3_gbps": 3000
+    "10_gbps": 10000
+    "16_gbps": 16000
+    "100_mbps": 100
+    "10_mbps": 10
+    "8_gbps": 8000
+  StatusInformationTranslationTable:
+    disconnected: degraded
+    prepare_failed: ok
+    healthy: Hardware is healthy.
+    initializing: System is starting up.
+    failed: failed
+    trigger_update: ok
+    uninitialized: System is starting up.
+    empty: ok
+  NetworkLinkStatusTranslationTable:
+    "true": ok
+    "false": degraded
+  StatusTranslationTable:
+    disconnected: degraded
+    prepare_failed: ok
+    healthy: ok
+    initializing: ok
+    failed: failed
+    trigger_update: ok
+    uninitialized: ok
+    empty: ok
+  NetworkStatusTranslationTable:
+    default: degraded
+    "true": ok
+    "false": ok

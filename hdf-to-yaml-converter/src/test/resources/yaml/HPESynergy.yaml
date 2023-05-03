@@ -1,71 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    Content-Type:application/json
-    Accept:application/json
-    X-Api-Version:1200
-  EmbeddedFile(3): |-
-    Content-Type:application/json
-    Accept:application/json
-    X-Api-Version:1200
-    Auth: %{AUTHENTICATIONTOKEN}
-  EmbeddedFile(2): |-
-    {
-    "userName":"%{USERNAME}",
-    "password":"%{PASSWORD}"
-    }
-translations:
-  LinkStatusTranslationTable:
-    default: degraded
-    linked: ok
-    unknown: degraded
-    unlinked: degraded
-  StatusInformationTranslationTable:
-    needsattn: The device needs attention.
-    default: The device is in a critical state
-    optimal: The device is running normal.
-    "null": The device is not reporting a status.
-    critical: The device is in critical state.
-    warning: The device has warning state.
-    ok: The device is running normal.
-    good: The device is running normal.
-    maintenancecharging: The device is performing routine maintenance.
-  StatusTranslationTable:
-    needsattn: degraded
-    default: failed
-    optimal: ok
-    "null": degraded
-    critical: failed
-    warning: degraded
-    ok: ok
-    maintenancecharging: ok
-  SpeedTranslationTable:
-    auto: Auto
-    speed_100m: 100
-    speed_2_5g: 2500
-    speed_10m: 10
-    speed_1m: 1
-    speed_20g: 20000
-    speed_10g: 10000
-    speed_40g: 40000
-    speed_30g: 30000
-    speed_13g: 13000
-    speed_24g: 24000
-    speed_5g: 5000
-    default: 0
-    speed_12g: 12000
-    speed_4g: 4000
-    speed_2g: 2000
-    speed_15g: 15000
-    speed_1g: 1000
-    speed_16g: 16000
-    speed_100g: 100000
-    speed_8g: 8000
-  NetworkCardStatusTranslationTable:
-    default: failed
-    linked: ok
-    unknown: ok
-    unlinked: ok
 connector:
   displayName: HP Synergy - REST
   platforms: HP Synergy REST
@@ -965,3 +898,70 @@ monitors:
           hw.status{hw.type="network"}: $column(4)
           hw.network.up: legacyLinkStatus($column(5))
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
+embedded:
+  EmbeddedFile(1): |-
+    Content-Type:application/json
+    Accept:application/json
+    X-Api-Version:1200
+  EmbeddedFile(3): |-
+    Content-Type:application/json
+    Accept:application/json
+    X-Api-Version:1200
+    Auth: %{AUTHENTICATIONTOKEN}
+  EmbeddedFile(2): |-
+    {
+    "userName":"%{USERNAME}",
+    "password":"%{PASSWORD}"
+    }
+translations:
+  LinkStatusTranslationTable:
+    default: degraded
+    linked: ok
+    unknown: degraded
+    unlinked: degraded
+  StatusInformationTranslationTable:
+    needsattn: The device needs attention.
+    default: The device is in a critical state
+    optimal: The device is running normal.
+    "null": The device is not reporting a status.
+    critical: The device is in critical state.
+    warning: The device has warning state.
+    ok: The device is running normal.
+    good: The device is running normal.
+    maintenancecharging: The device is performing routine maintenance.
+  StatusTranslationTable:
+    needsattn: degraded
+    default: failed
+    optimal: ok
+    "null": degraded
+    critical: failed
+    warning: degraded
+    ok: ok
+    maintenancecharging: ok
+  SpeedTranslationTable:
+    auto: Auto
+    speed_100m: 100
+    speed_2_5g: 2500
+    speed_10m: 10
+    speed_1m: 1
+    speed_20g: 20000
+    speed_10g: 10000
+    speed_40g: 40000
+    speed_30g: 30000
+    speed_13g: 13000
+    speed_24g: 24000
+    speed_5g: 5000
+    default: 0
+    speed_12g: 12000
+    speed_4g: 4000
+    speed_2g: 2000
+    speed_15g: 15000
+    speed_1g: 1000
+    speed_16g: 16000
+    speed_100g: 100000
+    speed_8g: 8000
+  NetworkCardStatusTranslationTable:
+    default: failed
+    linked: ok
+    unknown: ok
+    unlinked: ok

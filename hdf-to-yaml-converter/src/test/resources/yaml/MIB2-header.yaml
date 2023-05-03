@@ -1,41 +1,4 @@
 ---
-translations:
-  PortLinkStatusInformationTranslationTable:
-    "2": degraded
-    default: ok
-    "6": degraded
-    "7": degraded
-  PortStatusInformationTranslationTable:
-    "1": Up
-    "2": Down
-    default: Unknown Status
-    "3": Testing
-    "5": Dormant
-    "6": Component Not Present
-    "7": Lower Layer Down
-  PortTypeTranslationTable:
-    "56": FC Port
-    "26": Ethernet
-    "37": ATM
-    "166": MPLS
-    default: Ethernet
-    "6": Ethernet
-    "7": Ethernet
-    "117": Ethernet
-    "94": ADSL
-    "62": Ethernet
-    "95": RSDL
-    "96": SDSL
-    "97": VDSL
-    "32": Frame Relay
-  PortStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "5": ok
-    "6": failed
-    "7": failed
 connector:
   reliesOn: MIB-2 Standard SNMP Agent
   version: 1.0
@@ -262,3 +225,40 @@ monitors:
           hw.network.io{direction="transmit"}: $column(11)
         legacyTextParameters:
           StatusInformation: $column(5)
+translations:
+  PortLinkStatusInformationTranslationTable:
+    "2": degraded
+    default: ok
+    "6": degraded
+    "7": degraded
+  PortStatusInformationTranslationTable:
+    "1": Up
+    "2": Down
+    default: Unknown Status
+    "3": Testing
+    "5": Dormant
+    "6": Component Not Present
+    "7": Lower Layer Down
+  PortTypeTranslationTable:
+    "56": FC Port
+    "26": Ethernet
+    "37": ATM
+    "166": MPLS
+    default: Ethernet
+    "6": Ethernet
+    "7": Ethernet
+    "117": Ethernet
+    "94": ADSL
+    "62": Ethernet
+    "95": RSDL
+    "96": SDSL
+    "97": VDSL
+    "32": Frame Relay
+  PortStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "5": ok
+    "6": failed
+    "7": failed

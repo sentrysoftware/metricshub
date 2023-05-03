@@ -1,59 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {
-        FS = "[;]"
-        Column=6
-    }
-    {
-        n = split($Column, PortWWN, "|");
-        printf "MSHW;"
-        for (i = 1 ; i <= NF-1 ; i++) {
-            if (i == Column) {
-                for (j = 1 ; j <= n-1 ; j++) {
-                    printf "%02X", PortWWN[j]
-                }
-          printf ";"
-        } else {
-                printf $i
-                printf ";"
-            }
-        }
-     print ""
-    }
-translations:
-  PortStateToLinkStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "6": degraded
-  PortStateToStatusInformationTranslationTable:
-    "1": Unknown
-    "2": ""
-    default: UNKNOWN
-    "3": User Offline
-    "4": Bypassed
-    "5": In diagnostics mode
-    "6": Link Down
-    "7": Port Error
-    "8": Loopback
-  PortTypeTranslationTable:
-    default: HBA FC Port
-    "5": HBA FC Port N
-    "6": HBA FC Port NL
-    "7": HBA FC Port F/NL
-    "8": HBA FC Port F
-    "9": HBA FC Port E
-    "10": HBA FC Port G
-  PortStateToStatusTranslationTable:
-    "1": UNKNOWN
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": ok
-    "5": degraded
-    "6": ok
-    "7": failed
-    "8": degraded
 connector:
   displayName: WMI - HBA
   platforms: Any system
@@ -255,3 +200,58 @@ monitors:
           hw.network.packets{direction="receive"}: $column(9)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        FS = "[;]"
+        Column=6
+    }
+    {
+        n = split($Column, PortWWN, "|");
+        printf "MSHW;"
+        for (i = 1 ; i <= NF-1 ; i++) {
+            if (i == Column) {
+                for (j = 1 ; j <= n-1 ; j++) {
+                    printf "%02X", PortWWN[j]
+                }
+          printf ";"
+        } else {
+                printf $i
+                printf ";"
+            }
+        }
+     print ""
+    }
+translations:
+  PortStateToLinkStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "6": degraded
+  PortStateToStatusInformationTranslationTable:
+    "1": Unknown
+    "2": ""
+    default: UNKNOWN
+    "3": User Offline
+    "4": Bypassed
+    "5": In diagnostics mode
+    "6": Link Down
+    "7": Port Error
+    "8": Loopback
+  PortTypeTranslationTable:
+    default: HBA FC Port
+    "5": HBA FC Port N
+    "6": HBA FC Port NL
+    "7": HBA FC Port F/NL
+    "8": HBA FC Port F
+    "9": HBA FC Port E
+    "10": HBA FC Port G
+  PortStateToStatusTranslationTable:
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": ok
+    "5": degraded
+    "6": ok
+    "7": failed
+    "8": degraded

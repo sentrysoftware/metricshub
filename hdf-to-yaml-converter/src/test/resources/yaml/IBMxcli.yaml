@@ -1,194 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    $1 ~ /</ && $2 ~ /id=/ {
-        type=$1
-        gsub(/</,"",type)
-        }
-
-    $1 ~ /</ && $2 ~ /value=/ {
-        field= $1
-        gsub(/</,"",field)
-        value = $0
-        gsub(/.*value="/,"",value)
-        gsub(/".>/,"",value)
-        if ($1 ~ /component_id/) {
-            ID = value
-            typeArray[ID] = type
-            }
-        if ($1 ~ /name/ && type == "config") {
-            typeArray["system"] = type
-            ID = "system"
-            }
-        if (ID != "") {
-            fullArray[ID,field] = value
-            }
-        # Override if in config section
-        if (type == "config") {
-            name = fullArray["system","name"]
-            fullArray["system",name] = value
-            }
-        }
-
-    END {
-
-
-        for (ID in typeArray) {
-            split(ID,enclosureArray,":")
-            enclosureID = enclosureArray[3]
-            if (tolower(typeArray[ID]) == "ats") {
-                print "MSHW;OTHER;" enclosureID ";" ID ";ATS; Model: " fullArray[ID,"model"] ";" ";" ";"
-                }
-            if (tolower(typeArray[ID]) == "module") {
-                print "MSHW;ENCLOSURE;" enclosureID ";" ID ";" fullArray[ID,"serial"] ";" fullArray[ID,"part_number"] ";" fullArray[ID,"bios_version"] ";Module Part Number: " fullArray[ID,"part_number"] ";System Model: " fullArray["system","machine_type"] fullArray["system","machine_model"] ";System Name: " fullArray["system","system_name"] ";"
-                }
-            if (tolower(typeArray[ID]) == "ups") {
-                print "MSHW;ENCLOSURE;" ID ";" ID ";" fullArray[ID,"serial"] ";"                             ";AOS Version: " fullArray[ID,"aos_version"] ";"                                     ";"                                                                                          ";"                                                                                                                        ";"
-            # UPS-NMC No useful info, but need to attach it to the UPS, print one for each UPS found
-                print "MSHW;OTHER;" ID ";" "1:UPS_NMC: " enclosureID ";UPS_NMC" ";" ";" ";" ";"
-                }
-            # Physical Disks - Part Number Often Missing
-            if (tolower(typeArray[ID]) == "disk") {
-                print "MSHW;PHYS_DISK;" enclosureID ";" ID ";" fullArray[ID,"size"] ";" fullArray[ID,"model"] ";" fullArray[ID,"serial"] ";" fullArray[ID,"firmware"] ";" fullArray[ID,"part_number"] ";"
-                }
-            if (tolower(typeArray[ID]) == "switch") {
-                print "MSHW;ENCLOSURE;" ID ";" ID ";" fullArray[ID,"serial"] ";" ";" fullArray[ID,"current_active_version"] ";" ";" ";" ";"
-                }
-            # Management Modules - Part and Serial often missing
-            if (tolower(typeArray[ID]) == "mm") {
-                print "MSHW;OTHER;" enclosureID ";" ID ";MM;Part Number: " fullArray[ID,"part_number"] ";Serial Number: " fullArray[ID,"serial"] ";IP: " fullArray[ID,"ip_1"] " / " fullArray[ID,"ip_2"] ";"
-                }
-            # Fans (no useful info for now)
-            if (tolower(typeArray[ID]) == "fan") {
-                print "MSHW;FAN;" enclosureID ";" ID ";" ";" ";" ";"
-                }
-            # ATS (no useful info - will default to other)
-            # Ethernet-Cables (exclude - network discovery will be done seperately)
-            # PSU - FRU information often missing
-            if (tolower(typeArray[ID]) == "psu") {
-                print "MSHW;PSU;" enclosureID ";" ID "; " "Serial Number: " fullArray[ID,"serial"] ";" "Firmware: " fullArray[ID,"firmware_version"] ";"  "Part Number: " fullArray[ID,"part_number"] ";"
-                }
-            if (tolower(typeArray[ID]) == "dimm") {
-                print "MSHW;MEMORY;" enclosureID ";" ID "; " fullArray[ID,"serial"] ";" fullArray[ID,"manufacturer"] ";Part Number: " fullArray[ID,"part_number"] ";" "Channel: "fullArray[ID,"channel"] " - Bank: "fullArray[ID,"bank"] ";" "Speed: "fullArray[ID,"speed"] ";" fullArray[ID,"size"] ";"
-                }
-            if (tolower(typeArray[ID]) == "cf") {
-                print "MSHW;OTHER;" enclosureID ";" ID ";CompactFlash;Device Name: " fullArray[ID,"device_name"] ";Serial Number: " fullArray[ID,"serial"] ";Part Number: " fullArray[ID,"part_number"] ";"
-                }
-            }
-        }
-  EmbeddedFile(3): |-
-    $1 ~ /</ && $2 ~ /id=/ {
-        type=$1
-        gsub(/</,"",type)
-        ID = $0
-        gsub(/.*id="/,"",ID)
-        gsub(/">/,"",ID )
-        typeArray[ID] = type
-        }
-    $1 ~ /</ && $2 ~ /value=/ {
-        field= $1
-        gsub(/</,"",field)
-        value = $0
-        gsub(/.*value="/,"",value)
-        gsub(/".>/,"",value)
-        fullArray[ID,field] = value
-        }
-    END {
-        for (ID in typeArray) {
-            enclosureID = ""; speed = ""; status = ""; address = ""; linkstatus = ""; serial = ""; model = ""; firmware = "" ; deviceID = ""; addressType =""; portType =""
-            if (tolower(typeArray[ID]) == "fc_port") {
-                module = fullArray[ID,"module"] ; split(module,enclosureArray,":") ; enclosureID = enclosureArray[3] ;
-                speed = fullArray[ID,"current_rate"] * 1000
-                status = fullArray[ID,"status"]
-                address = fullArray[ID,"wwpn"]
-                linkstatus = fullArray[ID,"port_state"]
-                serial = fullArray[ID,"serial"]
-                model = fullArray[ID,"model"]
-                firmware = fullArray[ID,"active_firmware"]
-                deviceID = fullArray[ID,"component_id"]
-                addressType = "WWN"
-                portType = "FC"
-                }
-            if (tolower(typeArray[ID]) == "ib_port") {
-            # No available output, so guessing
-                switch = fullArray[ID,"component_id"]
-                split(switch ,enclosureArray,":")
-                enclosureID = enclosureArray[1] ":" enclosureArray[2] ":" enclosureArray[3]
-                status = fullArray[ID,"status"]
-                deviceID = fullArray[ID,"component_id"]
-                portType = "IB"
-                }
-            if (tolower(typeArray[ID]) == "ethernet_port") {
-                if ( fullArray[ID,"role"] == "Internal" ) {
-                    switch = fullArray[ID,"connected_component"]
-                    split(switch ,enclosureArray,":")
-                    enclosureID = enclosureArray[1] ":" enclosureArray[2] ":" enclosureArray[3]
-                    deviceID = fullArray[ID,"connected_component"]
-                    }
-                else if ( fullArray[ID,"role"] == "iSCSI" ) {
-                    module = fullArray[ID,"module_id"]
-                    split(module,enclosureArray,":")
-                    enclosureID = enclosureArray[3]
-                    deviceID = fullArray[ID,"ip_interface_name"]
-                    }
-                else if ( fullArray[ID,"role"] == "Component" ) {
-                    module = fullArray[ID,"module_id"]
-                    split(module,enclosureArray,":")
-                    enclosureID = enclosureArray[3]
-                    deviceID = fullArray[ID,"connected_component"]
-                    }
-                else if ( fullArray[ID,"role"] != "NONE" ) {
-                    module = fullArray[ID,"module_id"]
-                    split(module,enclosureArray,":")
-                    enclosureID = enclosureArray[3]
-                    deviceID = fullArray[ID,"module_id"] ":" fullArray[ID,"role"]
-                    }
-                portType = "Ethernet"
-                speed = fullArray[ID,"negotiated_speed_Mbs"]
-                linkstatus = fullArray[ID,"is_link_up"]
-                }
-            if ( deviceID != "" ) {
-                print "MSHW;" portType ";" deviceID ";" enclosureID ";" speed ";" status ";" address ";" addressType ";" linkstatus ";" serial ";" model ";Firmware: " firmware ";"
-                }
-            }
-        }
-  EmbeddedFile(2): |-
-    $1 ~ /</ && $2 ~ /value=/ {
-        value = $0
-        gsub(/.*value="/,"",value)
-        gsub(/".>/,"",value)
-        if ($1 ~ /component_id/) { ID = value }
-        if ($1 ~ /status/) { status[ID] = value }
-        if ($1 ~ /currently_functioning/) { currentFunctioning[ID] = value }
-        if ($1 ~ /requires_service/) { requiresService[ID] = value }
-        if ($1 ~ /service_reason/) { serviceReason[ID] = value }
-        }
-
-    END {
-        for (ID in status) {
-            statusInformation = ""
-            if (currentFunctioning[ID] == "no") { statusInformation = "Not Currently Functioning" }
-            if (requiresService[ID] != "") {
-                if (statusInformation != "") {statusInformation=statusInformation " - " }
-                statusInformation = statusInformation "Requires Service: " requiresService[ID]
-                }
-            if (serviceReason[ID] != "") {
-                if (statusInformation != "") {statusInformation=statusInformation " - " }
-                statusInformation = statusInformation "Service Reason: " serviceReason[ID]
-                }
-            print "MSHW;" ID ";" status[ID] ";" statusInformation ";"
-            }
-        }
-translations:
-  linkStatusTranslationTable:
-    default: degraded
-    "yes": ok
-    online: ok
-  statusTranslationTable:
-    default: failed
-    failed: failed
-    ok: ok
-    notok: degraded
 connector:
   displayName: IBM XIV (xcli)
   platforms: IBM XiV Storage System
@@ -841,3 +651,193 @@ monitors:
           hw.status{hw.type="network"}: $column(3)
           hw.network.up: legacyLinkStatus($column(4))
           hw.network.bandwidth.limit: megaBit2Bit($column(2))
+embedded:
+  EmbeddedFile(1): |-
+    $1 ~ /</ && $2 ~ /id=/ {
+        type=$1
+        gsub(/</,"",type)
+        }
+
+    $1 ~ /</ && $2 ~ /value=/ {
+        field= $1
+        gsub(/</,"",field)
+        value = $0
+        gsub(/.*value="/,"",value)
+        gsub(/".>/,"",value)
+        if ($1 ~ /component_id/) {
+            ID = value
+            typeArray[ID] = type
+            }
+        if ($1 ~ /name/ && type == "config") {
+            typeArray["system"] = type
+            ID = "system"
+            }
+        if (ID != "") {
+            fullArray[ID,field] = value
+            }
+        # Override if in config section
+        if (type == "config") {
+            name = fullArray["system","name"]
+            fullArray["system",name] = value
+            }
+        }
+
+    END {
+
+
+        for (ID in typeArray) {
+            split(ID,enclosureArray,":")
+            enclosureID = enclosureArray[3]
+            if (tolower(typeArray[ID]) == "ats") {
+                print "MSHW;OTHER;" enclosureID ";" ID ";ATS; Model: " fullArray[ID,"model"] ";" ";" ";"
+                }
+            if (tolower(typeArray[ID]) == "module") {
+                print "MSHW;ENCLOSURE;" enclosureID ";" ID ";" fullArray[ID,"serial"] ";" fullArray[ID,"part_number"] ";" fullArray[ID,"bios_version"] ";Module Part Number: " fullArray[ID,"part_number"] ";System Model: " fullArray["system","machine_type"] fullArray["system","machine_model"] ";System Name: " fullArray["system","system_name"] ";"
+                }
+            if (tolower(typeArray[ID]) == "ups") {
+                print "MSHW;ENCLOSURE;" ID ";" ID ";" fullArray[ID,"serial"] ";"                             ";AOS Version: " fullArray[ID,"aos_version"] ";"                                     ";"                                                                                          ";"                                                                                                                        ";"
+            # UPS-NMC No useful info, but need to attach it to the UPS, print one for each UPS found
+                print "MSHW;OTHER;" ID ";" "1:UPS_NMC: " enclosureID ";UPS_NMC" ";" ";" ";" ";"
+                }
+            # Physical Disks - Part Number Often Missing
+            if (tolower(typeArray[ID]) == "disk") {
+                print "MSHW;PHYS_DISK;" enclosureID ";" ID ";" fullArray[ID,"size"] ";" fullArray[ID,"model"] ";" fullArray[ID,"serial"] ";" fullArray[ID,"firmware"] ";" fullArray[ID,"part_number"] ";"
+                }
+            if (tolower(typeArray[ID]) == "switch") {
+                print "MSHW;ENCLOSURE;" ID ";" ID ";" fullArray[ID,"serial"] ";" ";" fullArray[ID,"current_active_version"] ";" ";" ";" ";"
+                }
+            # Management Modules - Part and Serial often missing
+            if (tolower(typeArray[ID]) == "mm") {
+                print "MSHW;OTHER;" enclosureID ";" ID ";MM;Part Number: " fullArray[ID,"part_number"] ";Serial Number: " fullArray[ID,"serial"] ";IP: " fullArray[ID,"ip_1"] " / " fullArray[ID,"ip_2"] ";"
+                }
+            # Fans (no useful info for now)
+            if (tolower(typeArray[ID]) == "fan") {
+                print "MSHW;FAN;" enclosureID ";" ID ";" ";" ";" ";"
+                }
+            # ATS (no useful info - will default to other)
+            # Ethernet-Cables (exclude - network discovery will be done seperately)
+            # PSU - FRU information often missing
+            if (tolower(typeArray[ID]) == "psu") {
+                print "MSHW;PSU;" enclosureID ";" ID "; " "Serial Number: " fullArray[ID,"serial"] ";" "Firmware: " fullArray[ID,"firmware_version"] ";"  "Part Number: " fullArray[ID,"part_number"] ";"
+                }
+            if (tolower(typeArray[ID]) == "dimm") {
+                print "MSHW;MEMORY;" enclosureID ";" ID "; " fullArray[ID,"serial"] ";" fullArray[ID,"manufacturer"] ";Part Number: " fullArray[ID,"part_number"] ";" "Channel: "fullArray[ID,"channel"] " - Bank: "fullArray[ID,"bank"] ";" "Speed: "fullArray[ID,"speed"] ";" fullArray[ID,"size"] ";"
+                }
+            if (tolower(typeArray[ID]) == "cf") {
+                print "MSHW;OTHER;" enclosureID ";" ID ";CompactFlash;Device Name: " fullArray[ID,"device_name"] ";Serial Number: " fullArray[ID,"serial"] ";Part Number: " fullArray[ID,"part_number"] ";"
+                }
+            }
+        }
+  EmbeddedFile(3): |-
+    $1 ~ /</ && $2 ~ /id=/ {
+        type=$1
+        gsub(/</,"",type)
+        ID = $0
+        gsub(/.*id="/,"",ID)
+        gsub(/">/,"",ID )
+        typeArray[ID] = type
+        }
+    $1 ~ /</ && $2 ~ /value=/ {
+        field= $1
+        gsub(/</,"",field)
+        value = $0
+        gsub(/.*value="/,"",value)
+        gsub(/".>/,"",value)
+        fullArray[ID,field] = value
+        }
+    END {
+        for (ID in typeArray) {
+            enclosureID = ""; speed = ""; status = ""; address = ""; linkstatus = ""; serial = ""; model = ""; firmware = "" ; deviceID = ""; addressType =""; portType =""
+            if (tolower(typeArray[ID]) == "fc_port") {
+                module = fullArray[ID,"module"] ; split(module,enclosureArray,":") ; enclosureID = enclosureArray[3] ;
+                speed = fullArray[ID,"current_rate"] * 1000
+                status = fullArray[ID,"status"]
+                address = fullArray[ID,"wwpn"]
+                linkstatus = fullArray[ID,"port_state"]
+                serial = fullArray[ID,"serial"]
+                model = fullArray[ID,"model"]
+                firmware = fullArray[ID,"active_firmware"]
+                deviceID = fullArray[ID,"component_id"]
+                addressType = "WWN"
+                portType = "FC"
+                }
+            if (tolower(typeArray[ID]) == "ib_port") {
+            # No available output, so guessing
+                switch = fullArray[ID,"component_id"]
+                split(switch ,enclosureArray,":")
+                enclosureID = enclosureArray[1] ":" enclosureArray[2] ":" enclosureArray[3]
+                status = fullArray[ID,"status"]
+                deviceID = fullArray[ID,"component_id"]
+                portType = "IB"
+                }
+            if (tolower(typeArray[ID]) == "ethernet_port") {
+                if ( fullArray[ID,"role"] == "Internal" ) {
+                    switch = fullArray[ID,"connected_component"]
+                    split(switch ,enclosureArray,":")
+                    enclosureID = enclosureArray[1] ":" enclosureArray[2] ":" enclosureArray[3]
+                    deviceID = fullArray[ID,"connected_component"]
+                    }
+                else if ( fullArray[ID,"role"] == "iSCSI" ) {
+                    module = fullArray[ID,"module_id"]
+                    split(module,enclosureArray,":")
+                    enclosureID = enclosureArray[3]
+                    deviceID = fullArray[ID,"ip_interface_name"]
+                    }
+                else if ( fullArray[ID,"role"] == "Component" ) {
+                    module = fullArray[ID,"module_id"]
+                    split(module,enclosureArray,":")
+                    enclosureID = enclosureArray[3]
+                    deviceID = fullArray[ID,"connected_component"]
+                    }
+                else if ( fullArray[ID,"role"] != "NONE" ) {
+                    module = fullArray[ID,"module_id"]
+                    split(module,enclosureArray,":")
+                    enclosureID = enclosureArray[3]
+                    deviceID = fullArray[ID,"module_id"] ":" fullArray[ID,"role"]
+                    }
+                portType = "Ethernet"
+                speed = fullArray[ID,"negotiated_speed_Mbs"]
+                linkstatus = fullArray[ID,"is_link_up"]
+                }
+            if ( deviceID != "" ) {
+                print "MSHW;" portType ";" deviceID ";" enclosureID ";" speed ";" status ";" address ";" addressType ";" linkstatus ";" serial ";" model ";Firmware: " firmware ";"
+                }
+            }
+        }
+  EmbeddedFile(2): |-
+    $1 ~ /</ && $2 ~ /value=/ {
+        value = $0
+        gsub(/.*value="/,"",value)
+        gsub(/".>/,"",value)
+        if ($1 ~ /component_id/) { ID = value }
+        if ($1 ~ /status/) { status[ID] = value }
+        if ($1 ~ /currently_functioning/) { currentFunctioning[ID] = value }
+        if ($1 ~ /requires_service/) { requiresService[ID] = value }
+        if ($1 ~ /service_reason/) { serviceReason[ID] = value }
+        }
+
+    END {
+        for (ID in status) {
+            statusInformation = ""
+            if (currentFunctioning[ID] == "no") { statusInformation = "Not Currently Functioning" }
+            if (requiresService[ID] != "") {
+                if (statusInformation != "") {statusInformation=statusInformation " - " }
+                statusInformation = statusInformation "Requires Service: " requiresService[ID]
+                }
+            if (serviceReason[ID] != "") {
+                if (statusInformation != "") {statusInformation=statusInformation " - " }
+                statusInformation = statusInformation "Service Reason: " serviceReason[ID]
+                }
+            print "MSHW;" ID ";" status[ID] ";" statusInformation ";"
+            }
+        }
+translations:
+  linkStatusTranslationTable:
+    default: degraded
+    "yes": ok
+    online: ok
+  statusTranslationTable:
+    default: failed
+    failed: failed
+    ok: ok
+    notok: degraded

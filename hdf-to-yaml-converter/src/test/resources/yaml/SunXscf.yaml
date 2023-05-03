@@ -1,4 +1,569 @@
 ---
+connector:
+  displayName: Oracle/Sun Enterprise Mx000 (XSCF)
+  platforms: Oracle/Sun Enterprise Mx000
+  reliesOn: Sun XSCF utilities installed on the System Controller
+  information: "Gives environmental information (temperatures, fans, etc.) and boards status on SPARC Enterprise M4000, M5000, M8000 and M9000 servers."
+  version: 1.5
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    - OOB
+    criteria:
+    # showhardconf must return platform's type
+    - type: osCommand
+      commandLine: showhardconf
+      errorMessage: This system does not appear to be an XSCF connected to a SPARC Enterprise Mx000 system
+      expectedResult: 'Serial:'
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Output of the showhardconf command
+          type: osCommand
+          commandLine: showhardconf
+          computes:
+          # Remove all colons and semicolons
+          - type: awk
+            script: EmbeddedFile(1)
+        source(2):
+          # Source(2) = copy of Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Process the showhardconf command throug an AWK script that lists the enclosures
+            # (the main enclosure as well as the I/O expansion units)
+            # EnclosureID;EnclosureType;Vendor;Model;Serial;Fru;Status;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8"
+            # Add "FRU: " in front of the Fru column
+            # EnclosureID;EnclosureType;Vendor;Model;Serial;Fru
+          - type: leftConcat
+            column: 6
+            value: "Part Number: "
+      mapping:
+        # The discovery table
+        source: $monitors.enclosure.discovery.sources.source(2)$
+        attributes:
+          id: $column(1)
+          type: $column(2)
+          vendor: $column(3)
+          model: $column(4)
+          serial_number: $column(5)
+          info: $column(6)
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), $column(2))"
+    collect:
+      # Collect type is multi-instance (of course)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of hte showhardconf command
+          type: osCommand
+          commandLine: showhardconf
+          computes:
+          # Remove all colons and semicolons
+          - type: awk
+            script: EmbeddedFile(1)
+        source(2):
+          # Source(2) = copy of Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Process the showhardconf command throug an AWK script that lists the enclosures
+            # (the main enclosure as well as the I/O expansion units)
+            # EnclosureID;Status;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,8"
+            # Duplicate Status
+            # EnclosureID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # EnclosureID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: ShowHardConfStatusTranslationTable
+      mapping:
+        # The ValueTable
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # AWK script that keeps only the CPUs
+            # CpuID;Model;Speed;SerialNumber;Fru;PowerConsumption;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,8"
+            # Add "FRU: " in front of the Fru column
+            # CpuID;Model;Speed;SerialNumber;Fru;PowerConsumption;
+          - type: leftConcat
+            column: 5
+            value: "Part Number: "
+          - type: leftConcat
+            column: 4
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          info: "join($column(5), $column(4), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: Main
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
+    collect:
+      # Collet type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # AWK script that keeps only the CPUs
+            # CpuID;State;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,7"
+            # Duplicate 'State'
+            # CpuID;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # CpuID;PATROLStatus;State;
+          - type: translate
+            column: 2
+            translationTable: ShowHardConfStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # AWK script that keeps only the memory modules
+            # MemoryID;Model;Size;SerialNumber;
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          type: $column(2)
+          serial_number: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: Main
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(3))
+    collect:
+      # Collet type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # AWK script that keeps only the CPUs
+            # MemoryID;State
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,6"
+            # Duplicate 'State'
+            # MemoryID;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # MemoryID;PATROLStatus;State;
+          - type: translate
+            column: 2
+            translationTable: ShowHardConfStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # AWK script that keeps only the power supplies
+            # PowerSupplyID;ParentID;SerialNumber;FRU;
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5"
+            # Add "FRU: " to the left of the FRU column
+            # PowerSupplyID;ParentID;SerialNumber;FRU;
+          - type: leftConcat
+            column: 4
+            value: "Part Number: "
+          - type: leftConcat
+            column: 3
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          info: "join($column(4), $column(3), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collet type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # AWK script that keeps only the power supplies
+            # PowerSupplyID;State
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,6"
+            # Duplicate 'State'
+            # MemoryID;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # MemoryID;PATROLStatus;State;
+          - type: translate
+            column: 2
+            translationTable: ShowHardConfStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # AWK script that keeps only the fans
+            # FanID;FanType;
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: Main
+          name: $column(1)
+    collect:
+      # Collet type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # AWK script that keeps only the CPUs
+            # FanID;State
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,4"
+            # Duplicate 'State'
+            # FanID;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # FanID;PATROLStatus;State;
+          - type: translate
+            column: 2
+            translationTable: ShowHardConfStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: osCommand
+          commandLine: showenvironment volt
+          computes:
+            # Pipe showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
+            # DeviceID;VoltageType;LowerThreshold;UpperThreshold
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # Instance Table = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          voltage_type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: Main
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(3)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: osCommand
+          commandLine: showenvironment volt
+          computes:
+            # Piped showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
+            # DeviceID;Voltage;
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,6"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: osCommand
+          commandLine: showenvironment temp
+          computes:
+            # Pipe showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
+            # MSHW;SensorID;Temperature;Warning;Alarm;
+          - type: awk
+            script: EmbeddedFile(10)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # Instance Table = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          temperature_type: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: Main
+          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: osCommand
+          commandLine: showenvironment temp
+          computes:
+            # Piped showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
+            # MSHW;SensorID;Temperature;Warning;Alarm;
+          - type: awk
+            script: EmbeddedFile(10)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+      mapping:
+        # ValueTable = Source(1)
+        # SensorID;Temperature
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showdomains -a
+          type: osCommand
+          commandLine: showdomainstatus -a
+          computes:
+            # Pipe showdomainsm's output into the $embedded.EmbeddedFile(8)$ awk script
+            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          - type: awk
+            script: EmbeddedFile(8)
+            keep: ^MSHW;Domain;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7"
+        source(2):
+          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # AWK script that keeps only the IO Units, XSCF units, and other stuff
+            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          - type: awk
+            script: EmbeddedFile(9)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7"
+            # Add "FRU: " on the left of the FruPartNumber column
+            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          - type: leftConcat
+            column: 6
+            value: "Part Number: "
+          - type: leftConcat
+            column: 5
+            value: "Serial Number: "
+        source(3):
+          # Source(3) = union of Source(1) and Source(2)
+          # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          type: tableUnion
+          tables:
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
+      mapping:
+        # Instance Table = Source(1)
+        source: $monitors.other_device.discovery.sources.source(3)$
+        attributes:
+          device_type: $column(1)
+          id: $column(2)
+          additional_label: $column(4)
+          info: "join($column(6), $column(5), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
+          name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(4))"
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of showdomains -a
+          type: osCommand
+          commandLine: showdomainstatus -a
+          computes:
+            # Pipe showdomains' output into the $embedded.EmbeddedFile(8)$ awk script
+            # DeviceID;State
+          - type: awk
+            script: EmbeddedFile(8)
+            keep: ^MSHW;Domain;
+            separators: ;
+            selectColumns: "3,8"
+            # Duplicate 'State'
+            # DeviceID;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # DeviceID;PATROLStatus;State;
+          - type: translate
+            column: 2
+            translationTable: DomainStatusTranslationTable
+        source(2):
+          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # AWK script that keeps only the IO Units, XSCF units, and other stuff
+            # DeviceID;State;PowerConsumption;
+          - type: awk
+            script: EmbeddedFile(9)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "3,8,9"
+            # Duplicate 'State'
+            # DeviceID;State;State;PowerConsumption;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # DeviceID;PATROLStatus;State;PowerConsumption;
+          - type: translate
+            column: 2
+            translationTable: ShowHardConfStatusTranslationTable
+        source(3):
+          # Source(3) = union of Source(1) and Source(2)
+          # DeviceID;PATROLStatus;State;PowerConsumption;
+          type: tableUnion
+          tables:
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+      mapping:
+        # ValueTable = Source(3)
+        source: $monitors.other_device.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+          hw.power{hw.type="other_device"}: $column(4)
+          hw.energy{hw.type="other_device"}: fakeCounter($column(4))
+        legacyTextParameters:
+          StatusInformation: $column(3)
 embedded:
   EmbeddedFile(1): |-
     BEGIN {
@@ -376,568 +941,3 @@ translations:
     shutdown started: ok
     panic state: failed
     powered off: ok
-connector:
-  displayName: Oracle/Sun Enterprise Mx000 (XSCF)
-  platforms: Oracle/Sun Enterprise Mx000
-  reliesOn: Sun XSCF utilities installed on the System Controller
-  information: "Gives environmental information (temperatures, fans, etc.) and boards status on SPARC Enterprise M4000, M5000, M8000 and M9000 servers."
-  version: 1.5
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Solaris
-    - OOB
-    criteria:
-    # showhardconf must return platform's type
-    - type: osCommand
-      commandLine: showhardconf
-      errorMessage: This system does not appear to be an XSCF connected to a SPARC Enterprise Mx000 system
-      expectedResult: 'Serial:'
-monitors:
-  enclosure:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = Output of the showhardconf command
-          type: osCommand
-          commandLine: showhardconf
-          computes:
-          # Remove all colons and semicolons
-          - type: awk
-            script: EmbeddedFile(1)
-        source(2):
-          # Source(2) = copy of Source(1)
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
-          computes:
-            # Process the showhardconf command throug an AWK script that lists the enclosures
-            # (the main enclosure as well as the I/O expansion units)
-            # EnclosureID;EnclosureType;Vendor;Model;Serial;Fru;Status;
-          - type: awk
-            script: EmbeddedFile(2)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5,6,7,8"
-            # Add "FRU: " in front of the Fru column
-            # EnclosureID;EnclosureType;Vendor;Model;Serial;Fru
-          - type: leftConcat
-            column: 6
-            value: "Part Number: "
-      mapping:
-        # The discovery table
-        source: $monitors.enclosure.discovery.sources.source(2)$
-        attributes:
-          id: $column(1)
-          type: $column(2)
-          vendor: $column(3)
-          model: $column(4)
-          serial_number: $column(5)
-          info: $column(6)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), $column(2))"
-    collect:
-      # Collect type is multi-instance (of course)
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = output of hte showhardconf command
-          type: osCommand
-          commandLine: showhardconf
-          computes:
-          # Remove all colons and semicolons
-          - type: awk
-            script: EmbeddedFile(1)
-        source(2):
-          # Source(2) = copy of Source(1)
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-          computes:
-            # Process the showhardconf command throug an AWK script that lists the enclosures
-            # (the main enclosure as well as the I/O expansion units)
-            # EnclosureID;Status;
-          - type: awk
-            script: EmbeddedFile(2)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,8"
-            # Duplicate Status
-            # EnclosureID;Status;Status;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first State column into a PATROL Status
-            # EnclosureID;PATROLStatus;Status;
-          - type: translate
-            column: 2
-            translationTable: ShowHardConfStatusTranslationTable
-      mapping:
-        # The ValueTable
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  cpu:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
-          computes:
-            # AWK script that keeps only the CPUs
-            # CpuID;Model;Speed;SerialNumber;Fru;PowerConsumption;
-          - type: awk
-            script: EmbeddedFile(3)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5,6,8"
-            # Add "FRU: " in front of the Fru column
-            # CpuID;Model;Speed;SerialNumber;Fru;PowerConsumption;
-          - type: leftConcat
-            column: 5
-            value: "Part Number: "
-          - type: leftConcat
-            column: 4
-            value: "Serial Number: "
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          model: $column(2)
-          info: "join($column(5), $column(4), \" \")"
-          hw.parent.type: enclosure
-          hw.parent.id: Main
-          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
-        metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
-    collect:
-      # Collet type is multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-          computes:
-            # AWK script that keeps only the CPUs
-            # CpuID;State;
-          - type: awk
-            script: EmbeddedFile(3)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,7"
-            # Duplicate 'State'
-            # CpuID;State;State;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first State column into a PATROL Status
-            # CpuID;PATROLStatus;State;
-          - type: translate
-            column: 2
-            translationTable: ShowHardConfStatusTranslationTable
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="cpu"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  memory:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
-          computes:
-            # AWK script that keeps only the memory modules
-            # MemoryID;Model;Size;SerialNumber;
-          - type: awk
-            script: EmbeddedFile(4)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5"
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.memory.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          type: $column(2)
-          serial_number: $column(4)
-          hw.parent.type: enclosure
-          hw.parent.id: Main
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
-        metrics:
-          hw.memory.limit: mebiByte2Byte($column(3))
-    collect:
-      # Collet type is multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-          computes:
-            # AWK script that keeps only the CPUs
-            # MemoryID;State
-          - type: awk
-            script: EmbeddedFile(4)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,6"
-            # Duplicate 'State'
-            # MemoryID;State;State;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first State column into a PATROL Status
-            # MemoryID;PATROLStatus;State;
-          - type: translate
-            column: 2
-            translationTable: ShowHardConfStatusTranslationTable
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="memory"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  power_supply:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
-          computes:
-            # AWK script that keeps only the power supplies
-            # PowerSupplyID;ParentID;SerialNumber;FRU;
-          - type: awk
-            script: EmbeddedFile(5)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5"
-            # Add "FRU: " to the left of the FRU column
-            # PowerSupplyID;ParentID;SerialNumber;FRU;
-          - type: leftConcat
-            column: 4
-            value: "Part Number: "
-          - type: leftConcat
-            column: 3
-            value: "Serial Number: "
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          info: "join($column(4), $column(3), \" \")"
-          hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(1))"
-    collect:
-      # Collet type is multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-          computes:
-            # AWK script that keeps only the power supplies
-            # PowerSupplyID;State
-          - type: awk
-            script: EmbeddedFile(5)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,6"
-            # Duplicate 'State'
-            # MemoryID;State;State;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first State column into a PATROL Status
-            # MemoryID;PATROLStatus;State;
-          - type: translate
-            column: 2
-            translationTable: ShowHardConfStatusTranslationTable
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  fan:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
-          computes:
-            # AWK script that keeps only the fans
-            # FanID;FanType;
-          - type: awk
-            script: EmbeddedFile(7)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3"
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          hw.parent.type: enclosure
-          hw.parent.id: Main
-          name: $column(1)
-    collect:
-      # Collet type is multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-          computes:
-            # AWK script that keeps only the CPUs
-            # FanID;State
-          - type: awk
-            script: EmbeddedFile(7)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,4"
-            # Duplicate 'State'
-            # FanID;State;State;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first State column into a PATROL Status
-            # FanID;PATROLStatus;State;
-          - type: translate
-            column: 2
-            translationTable: ShowHardConfStatusTranslationTable
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="fan"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  voltage:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of showenvironment
-          type: osCommand
-          commandLine: showenvironment volt
-          computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(6)% awk script
-            # DeviceID;VoltageType;LowerThreshold;UpperThreshold
-          - type: awk
-            script: EmbeddedFile(6)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5"
-      mapping:
-        # Instance Table = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          voltage_type: $column(2)
-          hw.parent.type: enclosure
-          hw.parent.id: Main
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
-        metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(3)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = output of showenvironment
-          type: osCommand
-          commandLine: showenvironment volt
-          computes:
-            # Piped showenvironment's output into the %EmbeddedFile(6)% awk script
-            # DeviceID;Voltage;
-          - type: awk
-            script: EmbeddedFile(6)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,6"
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.voltage: $column(2)
-  temperature:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of showenvironment
-          type: osCommand
-          commandLine: showenvironment temp
-          computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(10)% awk script
-            # MSHW;SensorID;Temperature;Warning;Alarm;
-          - type: awk
-            script: EmbeddedFile(10)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5"
-      mapping:
-        # Instance Table = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          temperature_type: $column(1)
-          hw.parent.type: enclosure
-          hw.parent.id: Main
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
-        metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
-          hw.temperature.limit{limit_type="high.critical"}: $column(4)
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = output of showenvironment
-          type: osCommand
-          commandLine: showenvironment temp
-          computes:
-            # Piped showenvironment's output into the %EmbeddedFile(10)% awk script
-            # MSHW;SensorID;Temperature;Warning;Alarm;
-          - type: awk
-            script: EmbeddedFile(10)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3"
-      mapping:
-        # ValueTable = Source(1)
-        # SensorID;Temperature
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.temperature: $column(2)
-  other_device:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of showdomains -a
-          type: osCommand
-          commandLine: showdomainstatus -a
-          computes:
-            # Pipe showdomainsm's output into the %EmbeddedFile(8)% awk script
-            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
-          - type: awk
-            script: EmbeddedFile(8)
-            keep: ^MSHW;Domain;
-            separators: ;
-            selectColumns: "2,3,4,5,6,7"
-        source(2):
-          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
-          computes:
-            # AWK script that keeps only the IO Units, XSCF units, and other stuff
-            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
-          - type: awk
-            script: EmbeddedFile(9)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5,6,7"
-            # Add "FRU: " on the left of the FruPartNumber column
-            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
-          - type: leftConcat
-            column: 6
-            value: "Part Number: "
-          - type: leftConcat
-            column: 5
-            value: "Serial Number: "
-        source(3):
-          # Source(3) = union of Source(1) and Source(2)
-          # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
-          type: tableUnion
-          tables:
-          - $monitors.other_device.discovery.sources.source(1)$
-          - $monitors.other_device.discovery.sources.source(2)$
-      mapping:
-        # Instance Table = Source(1)
-        source: $monitors.other_device.discovery.sources.source(3)$
-        attributes:
-          device_type: $column(1)
-          id: $column(2)
-          additional_label: $column(4)
-          info: "join($column(6), $column(5), \" \")"
-          hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(4))"
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = output of showdomains -a
-          type: osCommand
-          commandLine: showdomainstatus -a
-          computes:
-            # Pipe showdomains' output into the %EmbeddedFile(8)% awk script
-            # DeviceID;State
-          - type: awk
-            script: EmbeddedFile(8)
-            keep: ^MSHW;Domain;
-            separators: ;
-            selectColumns: "3,8"
-            # Duplicate 'State'
-            # DeviceID;State;State;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first State column into a PATROL Status
-            # DeviceID;PATROLStatus;State;
-          - type: translate
-            column: 2
-            translationTable: DomainStatusTranslationTable
-        source(2):
-          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-          computes:
-            # AWK script that keeps only the IO Units, XSCF units, and other stuff
-            # DeviceID;State;PowerConsumption;
-          - type: awk
-            script: EmbeddedFile(9)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "3,8,9"
-            # Duplicate 'State'
-            # DeviceID;State;State;PowerConsumption;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first State column into a PATROL Status
-            # DeviceID;PATROLStatus;State;PowerConsumption;
-          - type: translate
-            column: 2
-            translationTable: ShowHardConfStatusTranslationTable
-        source(3):
-          # Source(3) = union of Source(1) and Source(2)
-          # DeviceID;PATROLStatus;State;PowerConsumption;
-          type: tableUnion
-          tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
-      mapping:
-        # ValueTable = Source(3)
-        source: $monitors.other_device.collect.sources.source(3)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="other_device"}: $column(2)
-          hw.power{hw.type="other_device"}: $column(4)
-          hw.energy{hw.type="other_device"}: fakeCounter($column(4))
-        legacyTextParameters:
-          StatusInformation: $column(3)

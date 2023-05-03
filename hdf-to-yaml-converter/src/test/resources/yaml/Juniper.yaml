@@ -1,6 +1,491 @@
 ---
 extends:
 - MIB2-header
+connector:
+  displayName: Juniper Switch
+  platforms: Juniper Network Switch
+  reliesOn: Juniper SNMP Agent (JUNIPER-MIB)
+  version: 1.0
+  information: "This connector discovers the enclosure, ports, fans, power supplies, port modules, etc. of Juniper Network Switches."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Network
+    supersedes:
+    - FibreAllianceSwitch
+    - MIB2
+    - GenericSwitchEnclosure
+    criteria:
+    # Check that there are Juniper FRU OIDs
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.2636.3.1.15.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = \tjnxFruEntry SNMP table\nIndex;FruName;Type;Slot;Status;ChassisID;ChassisName;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2636.3.1.15.1
+          selectColumns: "ID,5,6,7,8,14,15"
+          computes:
+          # Exclude any empty
+          - type: excludeMatchingLines
+            column: 5
+            valueList: "1,2"
+            # Process the Output Through an AWK Script
+            # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW
+            separators: ;
+        source(2):
+          # Source(2) = \tjnxContentsTable SNMP table\nIndex;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2636.3.1.8.1
+          selectColumns: "ID,5,6,7,8,10,12"
+          computes:
+          - type: translate
+            column: 2
+            translationTable: jnxContentsDescrTranslationTable
+        source(3):
+          # Source(3) = Join 1 and 2
+          # This table will be used by other discoveries
+          # Match by Index
+          #  1     2      3     4    5     6         7        8          # 9          # 10         11   12       13         14           15        16         17
+          # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;;;
+          computes:
+          # Remove any enclosures
+          - type: excludeMatchingLines
+            column: 4
+            valueList: enclosure
+            # Add the FruName to the Index to make the DeviceID
+            # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          - type: rightConcat
+            column: 2
+            value: '-'
+          - type: rightConcat
+            column: 2
+            value: Column(3)
+        source(4):
+          # Build a table for Enclosure Discovery
+          # Match by FruName / Description
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 3
+          rightKeyColumn: 3
+          defaultRightLine: ;;;;;;
+          computes:
+            # Keep only enclosures
+            #   1  2   3       4   5  6  7  8  9  10  11    12      13          14          15          16       17
+            # MSHW;ID;FruName;Type;  ;  ;  ;  ;  ;  ;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: enclosure
+          # Remove FPC from the Model
+          - type: replace
+            column: 2
+            existingValue: FPC
+            newValue: ""
+          # Remove Backplane from the Model
+          - type: replace
+            column: 2
+            existingValue: FPC
+            newValue: ""
+          - type: replace
+            column: 12
+            existingValue: Backplane
+            newValue: ""
+          # Remove Backplane from the Model
+          - type: replace
+            column: 12
+            existingValue: Backplane
+            newValue: ""
+          # Add Part Number Description
+          - type: leftConcat
+            column: 16
+            value: "Part Number: "
+      mapping:
+        # The InstanceTable
+        #   1  2   3       4   5  6  7  8  9  10  11    12      13        # 14        # 15        # 16       17
+        # MSHW;ID;FruName;Type;  ;  ;  ;  ;  ;  ;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+        source: $monitors.enclosure.discovery.sources.source(4)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          vendor: Juniper
+          model: $column(12)
+          type: Switch
+          serial_number: $column(14)
+          bios_version: $column(15)
+          info: $column(16)
+          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"Juniper\", $column(12), \"Switch\")"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = \tjnxFruEntry SNMP table\nIndex;FruName;Status;StatusReason;ChassisID;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.2636.3.1.15.1
+          selectColumns: "ID,5,8,10,14"
+        source(2):
+          # Copy Source 1 to do translation.  Leave existing table in case some classes need special translations
+          # Index;FruName;Status;StatusReason;ChassisID;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Translate the first column status into a PATROLStatus
+            # Index;FruName;PatrolStatus;StatusReason;ChassisID;
+          - type: translate
+            column: 3
+            translationTable: FruStateTranslationTable
+            # Translate the first column status into a Status Information
+            # Index;FruName;PatrolStatus;StatusInformation;ChassisID;
+          - type: translate
+            column: 4
+            translationTable: FruReasonTranslationTable
+            # Add the FruName to the Index to make the DeviceID
+            # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
+          - type: rightConcat
+            column: 1
+            value: '-'
+          - type: rightConcat
+            column: 1
+            value: Column(2)
+        source(3):
+          # Copy the discovery table
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+      mapping:
+        # Collect table is used for other classes
+        # Instance Table
+        # Index;FruName;Status;
+        source: $monitors.enclosure.collect.sources.source(3)$
+        deviceId: $column(2)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          #  1     2         3     4    5     6         7        8          # 9          # 10         11   12       13         14           15        16         17
+          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # Keep Only FPCs
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 3
+          # Add Part Number ID
+          - type: leftConcat
+            column: 16
+            value: "Part Number: "
+          # Add Revision
+          - type: leftConcat
+            column: 15
+            value: "Version: "
+          - type: leftConcat
+            column: 3
+            value: "Alternative Part Number: "
+      mapping:
+        # Instance Table
+        # Use the displayID as the ID to enable devices to be attached
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(10)
+          __display_id: $column(10)
+          model: $column(12)
+          serial_number: $column(14)
+          info: "join($column(3), $column(15), $column(16), \" \")"
+          hw.parent.type: $column(9)
+          hw.parent.id: $column(8)
+          name: "sprintf(\"%s (%s)\", $column(10), $column(12))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Copy Enclosure Collect 1
+          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+        source(2):
+          # As the displayID is used as the device ID, join to discovery
+          #   1          2        3          # 4          #   5        6        7       8    9     10  11        12        13          14           15
+          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          type: tableJoin
+          leftTable: $monitors.blade.collect.sources.source(1)$
+          rightTable: $monitors.blade.discovery.sources.source(1)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+      mapping:
+        # Instance Table
+        source: $monitors.blade.collect.sources.source(2)$
+        deviceId: $column(15)
+        metrics:
+          hw.status{hw.type="blade"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          #  1     2      3     4    5     6         7        8          # 9          #    10         11   12       13         14           15        16         17
+          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # Keep Only PowerSupply
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: "7,18"
+          # Add Model ID
+          - type: leftConcat
+            column: 12
+            value: "Model: "
+          # Add Revision
+          - type: leftConcat
+            column: 15
+            value: "Version: "
+          # Add Serial Number ID
+          - type: rightConcat
+            column: 12
+            value: " - Serial Number: "
+          - type: rightConcat
+            column: 12
+            value: Column(14)
+          # Add Part Number
+          - type: rightConcat
+            column: 15
+            value: " - Part Number: "
+          - type: rightConcat
+            column: 15
+            value: Column(16)
+      mapping:
+        # Instance Table
+        #  1     2      3     4    5     6         7        8        #   9        #   10         11   12       13         14        #  15        16         17
+        # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(10)
+          info: "join($column(13), $column(12), $column(15), \" \")"
+          hw.parent.type: $column(9)
+          hw.parent.id: $column(8)
+          name: "sprintf(\"%s, $column(10))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Copy Enclosure Collect 1
+          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+      mapping:
+        # Instance Table
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          #  1     2      3     4    5     6         7        8          # 9          #    10         11   12       13         14           15        16         17
+          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # Keep Only Fan
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 13
+          # Add Model ID
+          - type: leftConcat
+            column: 12
+            value: "Model: "
+          # Add Revision
+          - type: leftConcat
+            column: 15
+            value: "Version: "
+          # Add Serial Number ID
+          - type: rightConcat
+            column: 12
+            value: " - Serial Number: "
+          - type: rightConcat
+            column: 12
+            value: Column(14)
+          # Add Part Number
+          - type: rightConcat
+            column: 15
+            value: " - Part Number: "
+          - type: rightConcat
+            column: 15
+            value: Column(16)
+      mapping:
+        # Instance Table
+        #  1     2      3     4    5     6         7        8        #   9        #   10         11   12       13         14        #  15        16         17
+        # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(10)
+          info: "join($column(13), $column(12), $column(15), \" \")"
+          hw.parent.type: $column(9)
+          hw.parent.id: $column(8)
+          name: $column(10)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Copy Enclosure Collect 1
+          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+      mapping:
+        # Instance Table
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          #  1        2      3     4    5     6         7        8          # 9          #    10         11   12       13         14           15        16         17
+          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # Exclude other known device types
+          - type: excludeMatchingLines
+            column: 4
+            valueList: "3,7,13,18"
+          # Add Model ID
+          - type: leftConcat
+            column: 12
+            value: "Model: "
+          # Add Revision
+          - type: leftConcat
+            column: 15
+            value: "Version: "
+          # Add Serial Number ID
+          - type: rightConcat
+            column: 12
+            value: " - Serial Number: "
+          - type: rightConcat
+            column: 12
+            value: Column(14)
+          # Add Part Number
+          - type: rightConcat
+            column: 15
+            value: " - Part Number: "
+          - type: rightConcat
+            column: 15
+            value: Column(16)
+          # Translate The type
+          - type: translate
+            column: 4
+            translationTable: TypeTranslationTable
+      mapping:
+        # Instance Table
+        #  1     2      3     4    5     6         7        8        #   9        #   10         11   12       13         14        #  15        16         17
+        # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(10)
+          device_type: $column(4)
+          info: "join($column(13), $column(12), $column(15), \" \")"
+          hw.parent.type: $column(9)
+          hw.parent.id: $column(8)
+          name: "sprintf(\"%s: %s\", $column(4), $column(10))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Copy Enclosure Collect 1
+          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+      mapping:
+        # Instance Table
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  network:
+    discovery:
+      sources:
+        source(3):
+          computes:
+            # Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
+            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+          - type: leftConcat
+            column: 7
+            value: MSHW
+          - type: rightConcat
+            column: 7
+            value: MSHW
+            # Replace "MSHWMSHW", i.e. a blank column with the ifTable value.
+            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+          - type: replace
+            column: 7
+            existingValue: MSHWMSHW
+            newValue: Column(2)
+            # Now get rid of any remaining MSHWs
+            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+          - type: replace
+            column: 7
+            existingValue: MSHW
+            newValue: ""
+        source(4):
+          # Union the Network Card List with the Blade List (Blade Must be First)
+          type: tableUnion
+          tables:
+          - $monitors.blade.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(3)$
+          computes:
+            # Process this through an AWK script to attach port to blades/enclosures
+            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;AttachedToID;AttachedToType;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: "^[0-9]"
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;AttachedToID;AttachedToType;
+        source: $monitors.network.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(7)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          device_type: $column(3)
+          hw.parent.type: $column(10)
+          hw.parent.id: $column(9)
+          name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
 embedded:
   EmbeddedFile(1): |-
     BEGIN { OIDs["jnxProducts"] = "1.3.6.1.4.1.2636.1" }
@@ -4069,488 +4554,3 @@ translations:
     "1.3.6.1.4.1.2636.1.1.2.1.7.0": ChassisT320
     "1.3.6.1.4.1.2636.1.1.1.4.52.0": ProductVariationIBM4274S36J36S
     "1.3.6.1.4.1.2636.1.1.2.2.52.3.0": IBM4274S36J36SSlotPower
-connector:
-  displayName: Juniper Switch
-  platforms: Juniper Network Switch
-  reliesOn: Juniper SNMP Agent (JUNIPER-MIB)
-  version: 1.0
-  information: "This connector discovers the enclosure, ports, fans, power supplies, port modules, etc. of Juniper Network Switches."
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Network
-    supersedes:
-    - FibreAllianceSwitch
-    - MIB2
-    - GenericSwitchEnclosure
-    criteria:
-    # Check that there are Juniper FRU OIDs
-    - type: snmpGetNext
-      oid: 1.3.6.1.4.1.2636.3.1.15.1
-monitors:
-  enclosure:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = \tjnxFruEntry SNMP table\nIndex;FruName;Type;Slot;Status;ChassisID;ChassisName;
-          type: snmpTable
-          oid: 1.3.6.1.4.1.2636.3.1.15.1
-          selectColumns: "ID,5,6,7,8,14,15"
-          computes:
-          # Exclude any empty
-          - type: excludeMatchingLines
-            column: 5
-            valueList: "1,2"
-            # Process the Output Through an AWK Script
-            # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;
-          - type: awk
-            script: EmbeddedFile(2)
-            keep: ^MSHW
-            separators: ;
-        source(2):
-          # Source(2) = \tjnxContentsTable SNMP table\nIndex;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          type: snmpTable
-          oid: 1.3.6.1.4.1.2636.3.1.8.1
-          selectColumns: "ID,5,6,7,8,10,12"
-          computes:
-          - type: translate
-            column: 2
-            translationTable: jnxContentsDescrTranslationTable
-        source(3):
-          # Source(3) = Join 1 and 2
-          # This table will be used by other discoveries
-          # Match by Index
-          #  1     2      3     4    5     6         7        8          # 9          # 10         11   12       13         14           15        16         17
-          # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
-          leftKeyColumn: 2
-          rightKeyColumn: 1
-          defaultRightLine: ;;;;;;
-          computes:
-          # Remove any enclosures
-          - type: excludeMatchingLines
-            column: 4
-            valueList: enclosure
-            # Add the FruName to the Index to make the DeviceID
-            # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          - type: rightConcat
-            column: 2
-            value: '-'
-          - type: rightConcat
-            column: 2
-            value: Column(3)
-        source(4):
-          # Build a table for Enclosure Discovery
-          # Match by FruName / Description
-          type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
-          leftKeyColumn: 3
-          rightKeyColumn: 3
-          defaultRightLine: ;;;;;;
-          computes:
-            # Keep only enclosures
-            #   1  2   3       4   5  6  7  8  9  10  11    12      13          14          15          16       17
-            # MSHW;ID;FruName;Type;  ;  ;  ;  ;  ;  ;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          - type: keepOnlyMatchingLines
-            column: 4
-            valueList: enclosure
-          # Remove FPC from the Model
-          - type: replace
-            column: 2
-            existingValue: FPC
-            newValue: ""
-          # Remove Backplane from the Model
-          - type: replace
-            column: 2
-            existingValue: FPC
-            newValue: ""
-          - type: replace
-            column: 12
-            existingValue: Backplane
-            newValue: ""
-          # Remove Backplane from the Model
-          - type: replace
-            column: 12
-            existingValue: Backplane
-            newValue: ""
-          # Add Part Number Description
-          - type: leftConcat
-            column: 16
-            value: "Part Number: "
-      mapping:
-        # The InstanceTable
-        #   1  2   3       4   5  6  7  8  9  10  11    12      13        # 14        # 15        # 16       17
-        # MSHW;ID;FruName;Type;  ;  ;  ;  ;  ;  ;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-        source: $monitors.enclosure.discovery.sources.source(4)$
-        attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          vendor: Juniper
-          model: $column(12)
-          type: Switch
-          serial_number: $column(14)
-          bios_version: $column(15)
-          info: $column(16)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"Juniper\", $column(12), \"Switch\")"
-    collect:
-      # Collect type = multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = \tjnxFruEntry SNMP table\nIndex;FruName;Status;StatusReason;ChassisID;
-          type: snmpTable
-          oid: 1.3.6.1.4.1.2636.3.1.15.1
-          selectColumns: "ID,5,8,10,14"
-        source(2):
-          # Copy Source 1 to do translation.  Leave existing table in case some classes need special translations
-          # Index;FruName;Status;StatusReason;ChassisID;
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-          computes:
-            # Translate the first column status into a PATROLStatus
-            # Index;FruName;PatrolStatus;StatusReason;ChassisID;
-          - type: translate
-            column: 3
-            translationTable: FruStateTranslationTable
-            # Translate the first column status into a Status Information
-            # Index;FruName;PatrolStatus;StatusInformation;ChassisID;
-          - type: translate
-            column: 4
-            translationTable: FruReasonTranslationTable
-            # Add the FruName to the Index to make the DeviceID
-            # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
-          - type: rightConcat
-            column: 1
-            value: '-'
-          - type: rightConcat
-            column: 1
-            value: Column(2)
-        source(3):
-          # Copy the discovery table
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(4)$
-      mapping:
-        # Collect table is used for other classes
-        # Instance Table
-        # Index;FruName;Status;
-        source: $monitors.enclosure.collect.sources.source(3)$
-        deviceId: $column(2)
-  blade:
-    discovery:
-      sources:
-        source(1):
-          # Discovery
-          #  1     2         3     4    5     6         7        8          # 9          # 10         11   12       13         14           15        16         17
-          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
-          computes:
-          # Keep Only FPCs
-          - type: keepOnlyMatchingLines
-            column: 4
-            valueList: 3
-          # Add Part Number ID
-          - type: leftConcat
-            column: 16
-            value: "Part Number: "
-          # Add Revision
-          - type: leftConcat
-            column: 15
-            value: "Version: "
-          - type: leftConcat
-            column: 3
-            value: "Alternative Part Number: "
-      mapping:
-        # Instance Table
-        # Use the displayID as the ID to enable devices to be attached
-        source: $monitors.blade.discovery.sources.source(1)$
-        attributes:
-          id: $column(10)
-          __display_id: $column(10)
-          model: $column(12)
-          serial_number: $column(14)
-          info: "join($column(3), $column(15), $column(16), \" \")"
-          hw.parent.type: $column(9)
-          hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s)\", $column(10), $column(12))"
-    collect:
-      # Collect type = multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Copy Enclosure Collect 1
-          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
-        source(2):
-          # As the displayID is used as the device ID, join to discovery
-          #   1          2        3          # 4          #   5        6        7       8    9     10  11        12        13          14           15
-          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          type: tableJoin
-          leftTable: $monitors.blade.collect.sources.source(1)$
-          rightTable: $monitors.blade.discovery.sources.source(1)$
-          leftKeyColumn: 1
-          rightKeyColumn: 2
-      mapping:
-        # Instance Table
-        source: $monitors.blade.collect.sources.source(2)$
-        deviceId: $column(15)
-        metrics:
-          hw.status{hw.type="blade"}: $column(3)
-        legacyTextParameters:
-          StatusInformation: $column(4)
-  power_supply:
-    discovery:
-      sources:
-        source(1):
-          # Discovery
-          #  1     2      3     4    5     6         7        8          # 9          #    10         11   12       13         14           15        16         17
-          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
-          computes:
-          # Keep Only PowerSupply
-          - type: keepOnlyMatchingLines
-            column: 4
-            valueList: "7,18"
-          # Add Model ID
-          - type: leftConcat
-            column: 12
-            value: "Model: "
-          # Add Revision
-          - type: leftConcat
-            column: 15
-            value: "Version: "
-          # Add Serial Number ID
-          - type: rightConcat
-            column: 12
-            value: " - Serial Number: "
-          - type: rightConcat
-            column: 12
-            value: Column(14)
-          # Add Part Number
-          - type: rightConcat
-            column: 15
-            value: " - Part Number: "
-          - type: rightConcat
-            column: 15
-            value: Column(16)
-      mapping:
-        # Instance Table
-        #  1     2      3     4    5     6         7        8        #   9        #   10         11   12       13         14        #  15        16         17
-        # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-        source: $monitors.power_supply.discovery.sources.source(1)$
-        attributes:
-          id: $column(2)
-          __display_id: $column(10)
-          info: "join($column(13), $column(12), $column(15), \" \")"
-          hw.parent.type: $column(9)
-          hw.parent.id: $column(8)
-          name: "sprintf(\"%s, $column(10))"
-    collect:
-      # Collect type = multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Copy Enclosure Collect 1
-          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
-      mapping:
-        # Instance Table
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="power_supply"}: $column(3)
-        legacyTextParameters:
-          StatusInformation: $column(4)
-  fan:
-    discovery:
-      sources:
-        source(1):
-          # Discovery
-          #  1     2      3     4    5     6         7        8          # 9          #    10         11   12       13         14           15        16         17
-          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
-          computes:
-          # Keep Only Fan
-          - type: keepOnlyMatchingLines
-            column: 4
-            valueList: 13
-          # Add Model ID
-          - type: leftConcat
-            column: 12
-            value: "Model: "
-          # Add Revision
-          - type: leftConcat
-            column: 15
-            value: "Version: "
-          # Add Serial Number ID
-          - type: rightConcat
-            column: 12
-            value: " - Serial Number: "
-          - type: rightConcat
-            column: 12
-            value: Column(14)
-          # Add Part Number
-          - type: rightConcat
-            column: 15
-            value: " - Part Number: "
-          - type: rightConcat
-            column: 15
-            value: Column(16)
-      mapping:
-        # Instance Table
-        #  1     2      3     4    5     6         7        8        #   9        #   10         11   12       13         14        #  15        16         17
-        # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-        source: $monitors.fan.discovery.sources.source(1)$
-        attributes:
-          id: $column(2)
-          __display_id: $column(10)
-          info: "join($column(13), $column(12), $column(15), \" \")"
-          hw.parent.type: $column(9)
-          hw.parent.id: $column(8)
-          name: $column(10)
-    collect:
-      # Collect type = multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Copy Enclosure Collect 1
-          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
-      mapping:
-        # Instance Table
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="fan"}: $column(3)
-        legacyTextParameters:
-          StatusInformation: $column(4)
-  other_device:
-    discovery:
-      sources:
-        source(1):
-          # Discovery
-          #  1        2      3     4    5     6         7        8          # 9          #    10         11   12       13         14           15        16         17
-          # MSHW;DeviceID;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
-          computes:
-          # Exclude other known device types
-          - type: excludeMatchingLines
-            column: 4
-            valueList: "3,7,13,18"
-          # Add Model ID
-          - type: leftConcat
-            column: 12
-            value: "Model: "
-          # Add Revision
-          - type: leftConcat
-            column: 15
-            value: "Version: "
-          # Add Serial Number ID
-          - type: rightConcat
-            column: 12
-            value: " - Serial Number: "
-          - type: rightConcat
-            column: 12
-            value: Column(14)
-          # Add Part Number
-          - type: rightConcat
-            column: 15
-            value: " - Part Number: "
-          - type: rightConcat
-            column: 15
-            value: Column(16)
-          # Translate The type
-          - type: translate
-            column: 4
-            translationTable: TypeTranslationTable
-      mapping:
-        # Instance Table
-        #  1     2      3     4    5     6         7        8        #   9        #   10         11   12       13         14        #  15        16         17
-        # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;Index;Model;Description;SerialNumber;Revision;Part Number;ChassisID;
-        source: $monitors.other_device.discovery.sources.source(1)$
-        attributes:
-          id: $column(2)
-          __display_id: $column(10)
-          device_type: $column(4)
-          info: "join($column(13), $column(12), $column(15), \" \")"
-          hw.parent.type: $column(9)
-          hw.parent.id: $column(8)
-          name: "sprintf(\"%s: %s\", $column(4), $column(10))"
-    collect:
-      # Collect type = multi-instance
-      type: multiInstance
-      sources:
-        source(1):
-          # Copy Enclosure Collect 1
-          # DeviceID;FruName;PatrolStatus;StatusInformation;ChassisID;
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
-      mapping:
-        # Instance Table
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="other_device"}: $column(3)
-        legacyTextParameters:
-          StatusInformation: $column(4)
-  network:
-    discovery:
-      sources:
-        source(3):
-          computes:
-            # Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
-            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-          - type: leftConcat
-            column: 7
-            value: MSHW
-          - type: rightConcat
-            column: 7
-            value: MSHW
-            # Replace "MSHWMSHW", i.e. a blank column with the ifTable value.
-            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-          - type: replace
-            column: 7
-            existingValue: MSHWMSHW
-            newValue: Column(2)
-            # Now get rid of any remaining MSHWs
-            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-          - type: replace
-            column: 7
-            existingValue: MSHW
-            newValue: ""
-        source(4):
-          # Union the Network Card List with the Blade List (Blade Must be First)
-          type: tableUnion
-          tables:
-          - $monitors.blade.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(3)$
-          computes:
-            # Process this through an AWK script to attach port to blades/enclosures
-            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;AttachedToID;AttachedToType;
-          - type: awk
-            script: EmbeddedFile(3)
-            keep: "^[0-9]"
-            separators: ;
-      mapping:
-        # InstanceTable = Source(1)
-        # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;AttachedToID;AttachedToType;
-        source: $monitors.network.discovery.sources.source(4)$
-        attributes:
-          id: $column(1)
-          __display_id: $column(7)
-          physical_address: $column(4)
-          physical_address_type: MAC
-          device_type: $column(3)
-          hw.parent.type: $column(10)
-          hw.parent.id: $column(9)
-          name: "sprintf(\"%s (%s)\", $column(7), $column(3))"

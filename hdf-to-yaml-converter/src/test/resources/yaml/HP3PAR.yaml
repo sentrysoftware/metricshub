@@ -1,99 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS="[;]"}
-    NF==6 { ElementName = $1
-              IdentifyingDescriptions = $2
-              Name = $3
-              OtherIdentifyingInfo = $4
-              PATH =  $5
-              split(IdentifyingDescriptions,Variables,"|")
-              split(OtherIdentifyingInfo,Values,"|")
-              for (Entry in Variables) {
-                    if (Variables[Entry] ~ /Node WWN/) { NodeWWN = Values[Entry]}
-                    if (Variables[Entry] ~ /Ipv4 Address/) { IPv4 = Values[Entry]}
-                    if (Variables[Entry] ~ /Ipv6 Address/) { Ipv6 = Values[Entry]}
-                  if (Variables[Entry] ~ /Fully Qualified Domain Name/) { FQDN = Values[Entry]}
-                  if (Variables[Entry] ~ /System ID/) { SystemID = Values[Entry]}
-                  }
-              print("MSHW;" ElementName ";" Name ";" NodeWWN ";" IPv4 ";" Ipv6 ";" FQDN ";" SystemID ";" PATH ";" )
-            }
-translations:
-  DMTFOperationStatusTranslationTable:
-    "11": degraded
-    "99": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": degraded
-    "17": ok
-    "18": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  ACStatusTranslationTable:
-    "1": '|OK'
-    default: '|UNKNOWN'
-    "3": '|ALARM'
-  PortTypeTranslationTable:
-    default: ""
-    tpd_ethernetport: Ethernet Port;MAC
-    tpd_fcport: FC Port;WWN
-    tpd_sasport: SAS Port;
-  DeviceTypeTranslationTable:
-    "1": HDD
-    "2": HDD-NL
-    default: Unknown
-    "4": SSD
-  FanSystemTypeTranslationTable:
-    default: Enclosure
-    tpd_storagesystem: Enclosure
-    tpd_nodesystem: Blade
-  InterconnectTypeTranslationTable:
-    "1": Other
-    "2": N/A
-    default: Unknown
-    "3": ATA
-    "4": SATA
-    "5": SAS
-    "6": FC
-    "7": SOP
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "99": Stopped
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "2": ""
-    default: ""
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": Error
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
-  PrimordialTranslationTable:
-    default: ""
-    "true": Primordial
-    "false": Disk Group
-  ACStatusInformationTranslationTable:
-    "1": ""
-    default: ""
-    "3": ' AC Failure'
 connector:
   displayName: HPE Primera / HP 3PAR Disk Array
   platforms: HPE Primera / HP 3PAR
@@ -2072,3 +1977,98 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.temperature: $column(2)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+    NF==6 { ElementName = $1
+              IdentifyingDescriptions = $2
+              Name = $3
+              OtherIdentifyingInfo = $4
+              PATH =  $5
+              split(IdentifyingDescriptions,Variables,"|")
+              split(OtherIdentifyingInfo,Values,"|")
+              for (Entry in Variables) {
+                    if (Variables[Entry] ~ /Node WWN/) { NodeWWN = Values[Entry]}
+                    if (Variables[Entry] ~ /Ipv4 Address/) { IPv4 = Values[Entry]}
+                    if (Variables[Entry] ~ /Ipv6 Address/) { Ipv6 = Values[Entry]}
+                  if (Variables[Entry] ~ /Fully Qualified Domain Name/) { FQDN = Values[Entry]}
+                  if (Variables[Entry] ~ /System ID/) { SystemID = Values[Entry]}
+                  }
+              print("MSHW;" ElementName ";" Name ";" NodeWWN ";" IPv4 ";" Ipv6 ";" FQDN ";" SystemID ";" PATH ";" )
+            }
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "99": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  ACStatusTranslationTable:
+    "1": '|OK'
+    default: '|UNKNOWN'
+    "3": '|ALARM'
+  PortTypeTranslationTable:
+    default: ""
+    tpd_ethernetport: Ethernet Port;MAC
+    tpd_fcport: FC Port;WWN
+    tpd_sasport: SAS Port;
+  DeviceTypeTranslationTable:
+    "1": HDD
+    "2": HDD-NL
+    default: Unknown
+    "4": SSD
+  FanSystemTypeTranslationTable:
+    default: Enclosure
+    tpd_storagesystem: Enclosure
+    tpd_nodesystem: Blade
+  InterconnectTypeTranslationTable:
+    "1": Other
+    "2": N/A
+    default: Unknown
+    "3": ATA
+    "4": SATA
+    "5": SAS
+    "6": FC
+    "7": SOP
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "99": Stopped
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "2": ""
+    default: ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
+  PrimordialTranslationTable:
+    default: ""
+    "true": Primordial
+    "false": Disk Group
+  ACStatusInformationTranslationTable:
+    "1": ""
+    default: ""
+    "3": ' AC Failure'

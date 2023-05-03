@@ -1,35 +1,4 @@
 ---
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    "1": ""
-    default: Unknown Status
-    "3": On-line
-    "4": Failed
-    "5": Rebuild
-    "6": Hot-spare
-    "20": Non-disk
-  LogicalDiskStatusInformationTranslationTable:
-    "0": Off-line
-    "1": Degraded
-    "2": ""
-    default: Unknown Status
-    "3": Initializing
-    "4": Check consistency
-  LogicalDiskStatusTranslationTable:
-    "0": failed
-    "1": degraded
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-  PhysicalDiskStatusTranslationTable:
-    "1": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": degraded
-    "6": ok
-    "20": ok
 connector:
   displayName: HP TopTools NetRaid Agent
   platforms: HP NetServer
@@ -182,3 +151,34 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    "1": ""
+    default: Unknown Status
+    "3": On-line
+    "4": Failed
+    "5": Rebuild
+    "6": Hot-spare
+    "20": Non-disk
+  LogicalDiskStatusInformationTranslationTable:
+    "0": Off-line
+    "1": Degraded
+    "2": ""
+    default: Unknown Status
+    "3": Initializing
+    "4": Check consistency
+  LogicalDiskStatusTranslationTable:
+    "0": failed
+    "1": degraded
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+  PhysicalDiskStatusTranslationTable:
+    "1": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": ok
+    "20": ok

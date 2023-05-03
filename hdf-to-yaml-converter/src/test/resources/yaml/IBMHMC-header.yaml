@@ -1,8 +1,4 @@
 ---
-translations:
-  LEDStatusTranslationTable:
-    default: "Off"
-    "on": "On"
 connector:
   detection:
     criteria:
@@ -139,3 +135,7 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($column(2))
+translations:
+  LEDStatusTranslationTable:
+    default: "Off"
+    "on": "On"

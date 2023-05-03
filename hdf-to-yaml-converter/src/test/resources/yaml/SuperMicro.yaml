@@ -1,26 +1,4 @@
 ---
-translations:
-  LinkStatusTranslationTable:
-    default: degraded
-    disabled: degraded
-    enabled: ok
-  StatusInformationTranslationTable:
-    default: failed
-    critical: The device is in critical state.
-    warning: The device has warning state.
-    ok: The device is running normal.
-  StatusTranslationTable:
-    default: failed
-    critical: failed
-    warning: degraded
-    ok: ok
-  LinkSpeedDeactivationTranslationTable:
-    default: ""
-    enabled: "True"
-  NetworkCardStatusTranslationTable:
-    default: failed
-    disabled: ok
-    enabled: ok
 connector:
   displayName: SuperMicro (REST)
   platforms: SuperMicro
@@ -849,3 +827,25 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
         legacyTextParameters:
           StatusInformation: $column(5)
+translations:
+  LinkStatusTranslationTable:
+    default: degraded
+    disabled: degraded
+    enabled: ok
+  StatusInformationTranslationTable:
+    default: failed
+    critical: The device is in critical state.
+    warning: The device has warning state.
+    ok: The device is running normal.
+  StatusTranslationTable:
+    default: failed
+    critical: failed
+    warning: degraded
+    ok: ok
+  LinkSpeedDeactivationTranslationTable:
+    default: ""
+    enabled: "True"
+  NetworkCardStatusTranslationTable:
+    default: failed
+    disabled: ok
+    enabled: ok

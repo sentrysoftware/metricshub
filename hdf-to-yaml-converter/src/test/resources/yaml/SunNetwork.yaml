@@ -1,6 +1,183 @@
 ---
 extends:
 - SunEthernetDriver-header
+connector:
+  displayName: Oracle/Sun Solaris - Network
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (kstat, ndd, ifconfig, dladm, etc.)"
+  version: 1.3
+  information: This connector provides the monitoring of network cards on all Sun Solaris systems.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    criteria:
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    - type: osCommand
+      commandLine: /usr/sbin/ifconfig -a
+      expectedResult: flags=
+sudoCommands:
+- /usr/sbin/ndd
+- /usr/sbin/dladm
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of ifconfig -a
+          type: osCommand
+          commandLine: /usr/sbin/ifconfig -a
+          computes:
+            # Process the output of ifconfig through an AWK script
+            # LogicalDeviceID;MacAddress;IPAddress;
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5"
+        source(2):
+          # Source(2) = output of prtconf -D or dladm show-dev
+          # with only the network instances
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
+          keep: "\\(network, instance #[0-9]\\)\\|\\(link:.*speed:.*duplex:\\)\\|\\(: flags=\\)\\|\\(SUNW,qfe\\)\\|\\(FJSV,pgtb\\)\\|\\(LinkID:.*DeviceID:\\)"
+          computes:
+            # Process the output of prtconf through an AWK script to keep only the NIC ID
+            # DeviceID;Driver;
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+        source(3):
+          # Source(3) = output of dladm show-phys
+          # This command will only work on Solaris 11.  A blank table is expected on other versions.
+          # LogicalDeviceID;PhysicalID
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(6)$
+          keep: "[A-Za-z].*[0-9];[A-Za-z].*[0-9]"
+          computes:
+            # Add a "" to column2 to force the PSL/Java close out column 2
+            # LogicalDeviceID;PhysicalID;
+          - type: rightConcat
+            column: 2
+            value: ""
+        source(4):
+          # Source(4) = Table joint of Source(2) and Source(3)
+          # Solaris 11 machines, the DeviceID from Table 2 will match the PhysicalID
+          # For other versions, it will not match, so we put a marker in
+          # DeviceID;Driver;LogicalDeviceID;PhysicalID;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(2)$
+          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          defaultRightLine: NotSolaris11;;
+          computes:
+            # For non-Solaris 11 machines, we will copy the deviceID into the PhysicalID column (where we put the marker NotSolaris11)
+            # DeviceID;Driver;LogicalDeviceID;PhysicalID;
+          - type: replace
+            column: 3
+            existingValue: NotSolaris11
+            newValue: Column(1)
+        source(5):
+          # Source(3) = Table joint of Source(2) and Source(1)
+          # DeviceID;Driver;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(4)$
+          rightTable: $monitors.network.discovery.sources.source(1)$
+          leftKeyColumn: 3
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+          computes:
+            # Translate the Driver column into a model name
+            #  DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
+          - type: translate
+            column: 2
+            translationTable: DriverTranslationTable
+      mapping:
+        # InstanceTable = Source(3)
+        # DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
+        source: $monitors.network.discovery.sources.source(5)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(3)
+          model: $column(2)
+          physical_address: $column(6)
+          physical_address_type: MAC
+          logical_address: $column(7)
+          logical_address_type: IP
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(3), $column(2))"
+    collect:
+      # Collect type is: mono-collect
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = output of the embedded script 2 (ifconfig output)
+          # DeviceID;ifconfigFlags
+          type: osCommand
+          commandLine: "if /usr/sbin/ifconfig %NetworkCard.Collect.DeviceID%; then /usr/bin/echo; else /usr/bin/echo \"%NetworkCard.Collect.DeviceID%: flags=00000000:UNPLUMBED\"; fi"
+          keep: "^%NetworkCard.Collect.DeviceID%: flags="
+          separators: :<>
+          selectColumns: "1,3"
+          computes:
+            # Duplicate the ifconfigFlags
+            # DeviceID;ifconfigFlags;ifconfigFlags;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first ifconfig flags
+            # DeviceID;StatusArray;ifconfigFlags;
+          - type: arrayTranslate
+            column: 2
+            translationTable: ifconfigFlagsTranslationTable
+            arraySeparator: ","
+            resultSeparator: '|'
+            # Convert StatusArray into Status
+            # DeviceID;Status;StatusInformation;
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+        source(2):
+          # Source(2) = output of embedded script 4 (complicated shell script)
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$ %NetworkCard.Collect.DeviceID%
+          computes:
+            # Process the output of this script through a smart AWK script
+            # DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10"
+        source(3):
+          # Source(3) = table joint of Source(1) and Source(2)
+          # DeviceID;Status;StatusInformation;DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;;;;;;
+      mapping:
+        # And here is the ValueTable
+        source: $monitors.network.collect.sources.source(3)$
+        metrics:
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.network.full_duplex: legacyFullDuplex($column(7))
+          hw.network.packets{direction="receive"}: $column(8)
+          hw.network.packets{direction="transmit"}: $column(9)
+          hw.errors{hw.type="network"}: $column(10)
+          hw.network.io{direction="receive"}: $column(11)
+          hw.network.io{direction="transmit"}: $column(12)
+        legacyTextParameters:
+          StatusInformation: $column(3)
 embedded:
   EmbeddedFile(1): |-
     BEGIN {
@@ -363,180 +540,3 @@ translations:
     deprecated: ok
     failed: failed
     up: ok
-connector:
-  displayName: Oracle/Sun Solaris - Network
-  platforms: Oracle/Sun
-  reliesOn: "Sun Solaris system commands (kstat, ndd, ifconfig, dladm, etc.)"
-  version: 1.3
-  information: This connector provides the monitoring of network cards on all Sun Solaris systems.
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Solaris
-    criteria:
-    - type: deviceType
-      keep:
-      - SunOS
-      - Solaris
-    - type: osCommand
-      commandLine: /usr/sbin/ifconfig -a
-      expectedResult: flags=
-sudoCommands:
-- /usr/sbin/ndd
-- /usr/sbin/dladm
-monitors:
-  network:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of ifconfig -a
-          type: osCommand
-          commandLine: /usr/sbin/ifconfig -a
-          computes:
-            # Process the output of ifconfig through an AWK script
-            # LogicalDeviceID;MacAddress;IPAddress;
-          - type: awk
-            script: EmbeddedFile(1)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5"
-        source(2):
-          # Source(2) = output of prtconf -D or dladm show-dev
-          # with only the network instances
-          type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(5)%
-          keep: "\\(network, instance #[0-9]\\)\\|\\(link:.*speed:.*duplex:\\)\\|\\(: flags=\\)\\|\\(SUNW,qfe\\)\\|\\(FJSV,pgtb\\)\\|\\(LinkID:.*DeviceID:\\)"
-          computes:
-            # Process the output of prtconf through an AWK script to keep only the NIC ID
-            # DeviceID;Driver;
-          - type: awk
-            script: EmbeddedFile(4)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3"
-        source(3):
-          # Source(3) = output of dladm show-phys
-          # This command will only work on Solaris 11.  A blank table is expected on other versions.
-          # LogicalDeviceID;PhysicalID
-          type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(6)%
-          keep: "[A-Za-z].*[0-9];[A-Za-z].*[0-9]"
-          computes:
-            # Add a "" to column2 to force the PSL/Java close out column 2
-            # LogicalDeviceID;PhysicalID;
-          - type: rightConcat
-            column: 2
-            value: ""
-        source(4):
-          # Source(4) = Table joint of Source(2) and Source(3)
-          # Solaris 11 machines, the DeviceID from Table 2 will match the PhysicalID
-          # For other versions, it will not match, so we put a marker in
-          # DeviceID;Driver;LogicalDeviceID;PhysicalID;
-          type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(2)$
-          rightTable: $monitors.network.discovery.sources.source(3)$
-          leftKeyColumn: 1
-          rightKeyColumn: 2
-          defaultRightLine: NotSolaris11;;
-          computes:
-            # For non-Solaris 11 machines, we will copy the deviceID into the PhysicalID column (where we put the marker NotSolaris11)
-            # DeviceID;Driver;LogicalDeviceID;PhysicalID;
-          - type: replace
-            column: 3
-            existingValue: NotSolaris11
-            newValue: Column(1)
-        source(5):
-          # Source(3) = Table joint of Source(2) and Source(1)
-          # DeviceID;Driver;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
-          type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(4)$
-          rightTable: $monitors.network.discovery.sources.source(1)$
-          leftKeyColumn: 3
-          rightKeyColumn: 1
-          defaultRightLine: ;;;
-          computes:
-            # Translate the Driver column into a model name
-            #  DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
-          - type: translate
-            column: 2
-            translationTable: DriverTranslationTable
-      mapping:
-        # InstanceTable = Source(3)
-        # DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
-        source: $monitors.network.discovery.sources.source(5)$
-        attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          model: $column(2)
-          physical_address: $column(6)
-          physical_address_type: MAC
-          logical_address: $column(7)
-          logical_address_type: IP
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(2))"
-    collect:
-      # Collect type is: mono-collect
-      type: monoInstance
-      sources:
-        source(1):
-          # Source(1) = output of the embedded script 2 (ifconfig output)
-          # DeviceID;ifconfigFlags
-          type: osCommand
-          commandLine: "if /usr/sbin/ifconfig %NetworkCard.Collect.DeviceID%; then /usr/bin/echo; else /usr/bin/echo \"%NetworkCard.Collect.DeviceID%: flags=00000000:UNPLUMBED\"; fi"
-          keep: "^%NetworkCard.Collect.DeviceID%: flags="
-          separators: :<>
-          selectColumns: "1,3"
-          computes:
-            # Duplicate the ifconfigFlags
-            # DeviceID;ifconfigFlags;ifconfigFlags;
-          - type: duplicateColumn
-            column: 2
-            # Translate the first ifconfig flags
-            # DeviceID;StatusArray;ifconfigFlags;
-          - type: arrayTranslate
-            column: 2
-            translationTable: ifconfigFlagsTranslationTable
-            arraySeparator: ","
-            resultSeparator: '|'
-            # Convert StatusArray into Status
-            # DeviceID;Status;StatusInformation;
-          - type: convert
-            column: 2
-            conversion: array2SimpleStatus
-        source(2):
-          # Source(2) = output of embedded script 4 (complicated shell script)
-          type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%
-          computes:
-            # Process the output of this script through a smart AWK script
-            # DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
-          - type: awk
-            script: EmbeddedFile(3)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: "2,3,4,5,6,7,8,9,10"
-        source(3):
-          # Source(3) = table joint of Source(1) and Source(2)
-          # DeviceID;Status;StatusInformation;DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
-          type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
-          leftKeyColumn: 1
-          rightKeyColumn: 1
-          defaultRightLine: ;;;;;;;;;
-      mapping:
-        # And here is the ValueTable
-        source: $monitors.network.collect.sources.source(3)$
-        metrics:
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.bandwidth.limit: megaBit2Bit($column(6))
-          hw.network.full_duplex: legacyFullDuplex($column(7))
-          hw.network.packets{direction="receive"}: $column(8)
-          hw.network.packets{direction="transmit"}: $column(9)
-          hw.errors{hw.type="network"}: $column(10)
-          hw.network.io{direction="receive"}: $column(11)
-          hw.network.io{direction="transmit"}: $column(12)
-        legacyTextParameters:
-          StatusInformation: $column(3)

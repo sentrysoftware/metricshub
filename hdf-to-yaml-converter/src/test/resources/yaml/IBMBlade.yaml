@@ -1,77 +1,4 @@
 ---
-translations:
-  TemperatureStatusTranslationTable:
-    "0": ok
-    "1": failed
-    default: UNKNOWN
-  BladeStatusTranslationTable:
-    "0_0": ok
-    "0_1": ok
-    default: UNKNOWN
-    "0_2": degraded
-    "1_1": ok
-    "0_3": degraded
-    "1_2": degraded
-    "1_3": failed
-  FanStatusTranslationTable:
-    "0": failed
-    "1": ok
-    default: UNKNOWN
-  ManagementModuleTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  PowerSupplyStatusTranslationTable:
-    "0": failed
-    "1": ok
-    default: UNKNOWN
-  FanControllerStatusTranslationTable:
-    "0": UNKNOWN
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  SwitchModuleTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  LEDSwitchModuleTranslationTable:
-    "0": ok
-    "1": failed
-    default: UNKNOWN
-  BladePowerStateTranslationTable:
-    "0": "off"
-    "1": "on"
-    "255": ""
-    default: ""
-    "3": "off"
-    "4": "off"
-  SwitchTypeTranslationTable:
-    "1": Ethernet
-    "2": Fibre
-    default: UNKNOWN
-    "3": Opm
-    "4": SerialCM
-    "5": CopperPassThrough
-    "6": Infiniband
-    "40": SAS
-    "30": PassThrough
-    "20": HighSpeed
-  BladeStatusInformationTranslationTable:
-    "0_0": Spare - Unknown
-    "0_1": Spare
-    default: Unknown Status
-    "0_2": Spare - Warning
-    "1_1": ""
-    "0_3": Spare - Bad
-    "1_2": Warning
-    "1_3": Bad
-  PowerSupplyStatusInformationTranslationTable:
-    "0": Not functional
-    "1": ""
-    default: Unknown Status
 connector:
   displayName: IBM BladeCenter Management Module
   platforms: IBM BladeCenter
@@ -1467,3 +1394,76 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.status{hw.type="other_device"}: $column(2)
+translations:
+  TemperatureStatusTranslationTable:
+    "0": ok
+    "1": failed
+    default: UNKNOWN
+  BladeStatusTranslationTable:
+    "0_0": ok
+    "0_1": ok
+    default: UNKNOWN
+    "0_2": degraded
+    "1_1": ok
+    "0_3": degraded
+    "1_2": degraded
+    "1_3": failed
+  FanStatusTranslationTable:
+    "0": failed
+    "1": ok
+    default: UNKNOWN
+  ManagementModuleTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  PowerSupplyStatusTranslationTable:
+    "0": failed
+    "1": ok
+    default: UNKNOWN
+  FanControllerStatusTranslationTable:
+    "0": UNKNOWN
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  SwitchModuleTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  LEDSwitchModuleTranslationTable:
+    "0": ok
+    "1": failed
+    default: UNKNOWN
+  BladePowerStateTranslationTable:
+    "0": "off"
+    "1": "on"
+    "255": ""
+    default: ""
+    "3": "off"
+    "4": "off"
+  SwitchTypeTranslationTable:
+    "1": Ethernet
+    "2": Fibre
+    default: UNKNOWN
+    "3": Opm
+    "4": SerialCM
+    "5": CopperPassThrough
+    "6": Infiniband
+    "40": SAS
+    "30": PassThrough
+    "20": HighSpeed
+  BladeStatusInformationTranslationTable:
+    "0_0": Spare - Unknown
+    "0_1": Spare
+    default: Unknown Status
+    "0_2": Spare - Warning
+    "1_1": ""
+    "0_3": Spare - Bad
+    "1_2": Warning
+    "1_3": Bad
+  PowerSupplyStatusInformationTranslationTable:
+    "0": Not functional
+    "1": ""
+    default: Unknown Status

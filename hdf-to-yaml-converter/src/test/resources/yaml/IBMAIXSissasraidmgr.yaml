@@ -1,57 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    $1 ~ /^sissas[0-9]/ && $3 !~ /HA/ {ControllerID = $1;
-                                         if ($3 ~ /Primary/) {PrimaryControllerID = $1}
-                                             else {PrimaryControllerID = ""}
-                                         State = $3;
-                                         Description = $0;
-                                         gsub(/(.*Secondary *)|(.*Primary *)/,"",Description)
-                                         print ("MSHW_CTRL;" ControllerID ";" State ";" Description ";")
-                                        }
-    # Only print Logical/Physical Disks if Controller is Primary
-    $1 ~ /^[ph]disk[0-9]/ && PrimaryControllerID != "" {
-                         diskID = $1
-                           State = $3
-                           Start = index($0,$3) + length ($3)
-                           End = match($0,/[0-9.]+[MmGgTt][Bb]/); Length = End - Start
-                           Description = substr($0,Start,Length)
-                         gsub(/ +$/,"",Description);gsub(/^ +/,"",Description);
-                         Size = substr($0,End)
-                         gsub(/ +.+$/,"",Size)
-                         if (Size ~ /[Mm][Bb]/) {gsub (/[Mm][Bb]/,"",Size);Size = Size / 1024};
-                         if (Size ~ /[Tt][Bb]/) {gsub (/[Tt][Bb]/,"",Size);Size = Size * 1024};
-                         if (Size ~ /[Gg][Bb]/) {gsub (/[Gg][Bb]/,"",Size)}
-                         if ($1 ~ /hdisk/) {type="MSHW_LD"}
-                         if ($1 ~ /pdisk/) {type="MSHW_PD"}
-                         print type ";" diskID ";" State ";Description: " Description ";" Size ";" PrimaryControllerID ";"
-                         }
-  EmbeddedFile(2): |-
-    BEGIN {FS="[:]"}
-    $1 ~ /RAID Adapter/ { Controller = $2 ; gsub(/ /,"",Controller);}
-    $1 ~ /Battery State/ { State = $2 ; gsub(/^ +/,"",State); gsub(/ +$/,"",State);
-                             print "MSHW;" Controller ";" State ";"
-                            }
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    default: Unknown Status
-    available: Available
-    active: Active
-    failed: Failed
-    rwprotected: RWProtected (Formatting/Rebuilding)
-  BatteryStatusTranslationTable:
-    default: failed
-    no battery warning/error: ok
-  LogicalDiskStatusTranslationTable:
-    default: failed
-    optimal: ok
-    rebuilding: degraded
-  PhysicalDiskStatusTranslationTable:
-    default: degraded
-    available: ok
-    active: ok
-    failed: failed
-    rwprotected: degraded
 connector:
   displayName: IBM AIX - sissasraidmgr Disk Controllers
   platforms: IBM POWER
@@ -342,3 +289,56 @@ monitors:
           hw.status{hw.type="battery"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    $1 ~ /^sissas[0-9]/ && $3 !~ /HA/ {ControllerID = $1;
+                                         if ($3 ~ /Primary/) {PrimaryControllerID = $1}
+                                             else {PrimaryControllerID = ""}
+                                         State = $3;
+                                         Description = $0;
+                                         gsub(/(.*Secondary *)|(.*Primary *)/,"",Description)
+                                         print ("MSHW_CTRL;" ControllerID ";" State ";" Description ";")
+                                        }
+    # Only print Logical/Physical Disks if Controller is Primary
+    $1 ~ /^[ph]disk[0-9]/ && PrimaryControllerID != "" {
+                         diskID = $1
+                           State = $3
+                           Start = index($0,$3) + length ($3)
+                           End = match($0,/[0-9.]+[MmGgTt][Bb]/); Length = End - Start
+                           Description = substr($0,Start,Length)
+                         gsub(/ +$/,"",Description);gsub(/^ +/,"",Description);
+                         Size = substr($0,End)
+                         gsub(/ +.+$/,"",Size)
+                         if (Size ~ /[Mm][Bb]/) {gsub (/[Mm][Bb]/,"",Size);Size = Size / 1024};
+                         if (Size ~ /[Tt][Bb]/) {gsub (/[Tt][Bb]/,"",Size);Size = Size * 1024};
+                         if (Size ~ /[Gg][Bb]/) {gsub (/[Gg][Bb]/,"",Size)}
+                         if ($1 ~ /hdisk/) {type="MSHW_LD"}
+                         if ($1 ~ /pdisk/) {type="MSHW_PD"}
+                         print type ";" diskID ";" State ";Description: " Description ";" Size ";" PrimaryControllerID ";"
+                         }
+  EmbeddedFile(2): |-
+    BEGIN {FS="[:]"}
+    $1 ~ /RAID Adapter/ { Controller = $2 ; gsub(/ /,"",Controller);}
+    $1 ~ /Battery State/ { State = $2 ; gsub(/^ +/,"",State); gsub(/ +$/,"",State);
+                             print "MSHW;" Controller ";" State ";"
+                            }
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    default: Unknown Status
+    available: Available
+    active: Active
+    failed: Failed
+    rwprotected: RWProtected (Formatting/Rebuilding)
+  BatteryStatusTranslationTable:
+    default: failed
+    no battery warning/error: ok
+  LogicalDiskStatusTranslationTable:
+    default: failed
+    optimal: ok
+    rebuilding: degraded
+  PhysicalDiskStatusTranslationTable:
+    default: degraded
+    available: ok
+    active: ok
+    failed: failed
+    rwprotected: degraded

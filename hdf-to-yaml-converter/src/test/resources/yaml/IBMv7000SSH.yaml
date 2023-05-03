@@ -1,93 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { enclosureSection = 0 ; canisterSection = 0; faultLED = "" ; identify_LED = ""}
-
-    $1 ~ /MS_HW_ENCLOSURE_START/  {enclosureSection = 1}
-    $1 ~ /^id$/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
-    $1 ~ /fault_LED/ {faultLED = $2 ; }
-    $1 ~ /identify_LED/ {identifyLED = $2 ; }
-    $1 ~ /MS_HW_ENCLOSURE_END/ && enclosureID != "" {
-                                 if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_fault" }
-                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
-                                                      print "MS_HW_LED;Enclosure " enclosureID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
-                                                     }
-                                 if (identifyLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_identify" }
-                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
-                                                      print "MS_HW_LED;Enclosure " enclosureID " Indentify;" identifyLED ";OK;OK;OK;" enclosureID ";"
-                                                     }
-                                 enclosureID = ""; faultLED = ""; identifyLED = "";
-                                 }
-
-
-    $1 ~ /MS_HW_CANISTER_START/  {canisterSection = 1}
-    $1 ~ /enclosure_id/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
-    $1 ~ /canister_id/  && $2 ~ /^[0-9]+$/ {canisterID = $2}
-    $1 ~ /fault_LED/ {faultLED = $2 ; }
-    $1 ~ /temperature/ && $2 ~ /^[0-9]+$/ {temperature = $2 ; }
-    $1 ~ /MS_HW_CANISTER_END/ && enclosureID != ""{
-                                 if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_canister_fault" }
-                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
-                                                      print "MS_HW_LED;Enclosure " enclosureID ":Canister " canisterID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
-                                                     }
-                               if (temperature != "") {
-                                                  #                 ID                 ; Temperature   ; AttachToDeviceID
-                                                      print "MS_HW_TEMPERATURE;Enclosure " enclosureID ":Canister " canisterID ";"temperature";" enclosureID ";"
-                                                     }
-                                  enclosureID = ""; canisterID = "" ; faultLED = ""; temperature = "";
-                                 }
-  EmbeddedFile(2): |-
-    BEGIN{FS="[:]"};
-    $1 ~ /^id$/ {DiskID=$2}
-    $1 ~ /tech_type/ {DiskType=$2;gsub(/_.*/,"",DiskType);}
-    $1 ~ /vendor_id/ {Vendor=$2}
-    $1 ~ /product_id/ {Model=$2}
-    $1 ~ /FRU_part_number/ {PartNumber= "Part Number: "$2}
-    $1 ~ /FRU_identity/ {SerialNumber=$2}
-    $1 ~ /RPM/ {RPM="RPM: " $2}
-    $1 ~ /firmware_level/ {Firmware = $2}
-    $1 ~ /MS_HW_DRIVE_END/{
-         print ("MSHW;" DiskID ";" Vendor ";" Model ";" SerialNumber ";" Firmware ";" RPM " - " PartNumber ";" )
-         }
-translations:
-  LEDStatusInformationTranslationTable:
-    slow_flashing_canister_fault: LED is in Identify Mode (This mode conceals faults as the system cannot set the LED to on.)
-    slow_flashing: Slow Flashing
-    slow_flashing_enclosure_identify: Flashing
-    flashing: Flashing
-    slow_flashing_enclosure_fault: Insufficient Battery Power.
-    "off": "Off"
-    "on": "On"
-  endOfLifeStatusInformationTranslationTable:
-    "no": ""
-    default: ""
-    "yes": " -  The battery is reaching its end of life, and needs to be replaced."
-  onlinedegradedofflineStatusInformationTranslationTable:
-    offline: Offline
-    default: Unknown Status
-    online: ok
-    degraded: Degraded
-  onlinedegradedofflineStatusTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    online: ok
-    degraded: failed
-  LEDStateTranslationTable:
-    slow_flashing_canister_fault: Blinking
-    slow_flashing: Blinking
-    slow_flashing_enclosure_identify: Blinking
-    flashing: Blinking
-    slow_flashing_enclosure_fault: Blinking
-    "off": "Off"
-    "on": "On"
-  reconditioningStatusInformationTranslationTable:
-    "no": ""
-    default: ""
-    "yes": " - The battery needs to be reconditioned, but cannot be reconditioned because of one or more errors."
-  yesnoWarningStatusTranslationTable:
-    "no": ok
-    default: UNKNOWN
-    "yes": degraded
 connector:
   displayName: IBM Storwize Disk Arrays (SSH)
   platforms: IBM Storwize
@@ -780,3 +691,92 @@ monitors:
         deviceId: $column(2)
         metrics:
           hw.temperature: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { enclosureSection = 0 ; canisterSection = 0; faultLED = "" ; identify_LED = ""}
+
+    $1 ~ /MS_HW_ENCLOSURE_START/  {enclosureSection = 1}
+    $1 ~ /^id$/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+    $1 ~ /fault_LED/ {faultLED = $2 ; }
+    $1 ~ /identify_LED/ {identifyLED = $2 ; }
+    $1 ~ /MS_HW_ENCLOSURE_END/ && enclosureID != "" {
+                                 if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_fault" }
+                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                      print "MS_HW_LED;Enclosure " enclosureID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+                                                     }
+                                 if (identifyLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_identify" }
+                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                      print "MS_HW_LED;Enclosure " enclosureID " Indentify;" identifyLED ";OK;OK;OK;" enclosureID ";"
+                                                     }
+                                 enclosureID = ""; faultLED = ""; identifyLED = "";
+                                 }
+
+
+    $1 ~ /MS_HW_CANISTER_START/  {canisterSection = 1}
+    $1 ~ /enclosure_id/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+    $1 ~ /canister_id/  && $2 ~ /^[0-9]+$/ {canisterID = $2}
+    $1 ~ /fault_LED/ {faultLED = $2 ; }
+    $1 ~ /temperature/ && $2 ~ /^[0-9]+$/ {temperature = $2 ; }
+    $1 ~ /MS_HW_CANISTER_END/ && enclosureID != ""{
+                                 if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_canister_fault" }
+                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                      print "MS_HW_LED;Enclosure " enclosureID ":Canister " canisterID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+                                                     }
+                               if (temperature != "") {
+                                                  #                 ID                 ; Temperature   ; AttachToDeviceID
+                                                      print "MS_HW_TEMPERATURE;Enclosure " enclosureID ":Canister " canisterID ";"temperature";" enclosureID ";"
+                                                     }
+                                  enclosureID = ""; canisterID = "" ; faultLED = ""; temperature = "";
+                                 }
+  EmbeddedFile(2): |-
+    BEGIN{FS="[:]"};
+    $1 ~ /^id$/ {DiskID=$2}
+    $1 ~ /tech_type/ {DiskType=$2;gsub(/_.*/,"",DiskType);}
+    $1 ~ /vendor_id/ {Vendor=$2}
+    $1 ~ /product_id/ {Model=$2}
+    $1 ~ /FRU_part_number/ {PartNumber= "Part Number: "$2}
+    $1 ~ /FRU_identity/ {SerialNumber=$2}
+    $1 ~ /RPM/ {RPM="RPM: " $2}
+    $1 ~ /firmware_level/ {Firmware = $2}
+    $1 ~ /MS_HW_DRIVE_END/{
+         print ("MSHW;" DiskID ";" Vendor ";" Model ";" SerialNumber ";" Firmware ";" RPM " - " PartNumber ";" )
+         }
+translations:
+  LEDStatusInformationTranslationTable:
+    slow_flashing_canister_fault: LED is in Identify Mode (This mode conceals faults as the system cannot set the LED to on.)
+    slow_flashing: Slow Flashing
+    slow_flashing_enclosure_identify: Flashing
+    flashing: Flashing
+    slow_flashing_enclosure_fault: Insufficient Battery Power.
+    "off": "Off"
+    "on": "On"
+  endOfLifeStatusInformationTranslationTable:
+    "no": ""
+    default: ""
+    "yes": " -  The battery is reaching its end of life, and needs to be replaced."
+  onlinedegradedofflineStatusInformationTranslationTable:
+    offline: Offline
+    default: Unknown Status
+    online: ok
+    degraded: Degraded
+  onlinedegradedofflineStatusTranslationTable:
+    offline: failed
+    default: UNKNOWN
+    online: ok
+    degraded: failed
+  LEDStateTranslationTable:
+    slow_flashing_canister_fault: Blinking
+    slow_flashing: Blinking
+    slow_flashing_enclosure_identify: Blinking
+    flashing: Blinking
+    slow_flashing_enclosure_fault: Blinking
+    "off": "Off"
+    "on": "On"
+  reconditioningStatusInformationTranslationTable:
+    "no": ""
+    default: ""
+    "yes": " - The battery needs to be reconditioned, but cannot be reconditioned because of one or more errors."
+  yesnoWarningStatusTranslationTable:
+    "no": ok
+    default: UNKNOWN
+    "yes": degraded

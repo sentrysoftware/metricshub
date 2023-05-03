@@ -1,59 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): Accept:application/json
-  EmbeddedFile(2): |-
-    BEGIN { FS = ";"; }
-    {
-      systemName[$2]=$2;
-      systemConsumption[$2] += $6;
-
-    }
-    END{
-      for (var in systemName)
-        printf "JSON;%s;%d\n",systemName[var],systemConsumption[var];
-    }
-translations:
-  EthernetInterfacesLinkSpeedDeactivationTable:
-    standbyoffline: ""
-    default: "True"
-  LinkStatusTranslationTable:
-    standbyoffline: degraded
-    default: degraded
-    none: degraded
-    up: ok
-    failed: failed
-    down: degraded
-    enabled: ok
-  StatusInformationTranslationTable:
-    needsattn: The device needs attention.
-    default: The device is in a critical state
-    optimal: The device is running normal.
-    "null": The device is not reporting a status.
-    critical: The device is in critical state.
-    warning: The device has warning state.
-    ok: The device is running normal.
-    good: The device is running normal.
-    maintenancecharging: The device is performing routine maintenance.
-  StatusTranslationTable:
-    needsattn: degraded
-    default: failed
-    optimal: ok
-    "null": degraded
-    critical: failed
-    warning: degraded
-    ok: ok
-    maintenancecharging: ok
-  LinkSpeedDeactivationTranslationTable:
-    "0": ""
-    default: "True"
-  NetworkCardStatusTranslationTable:
-    standbyoffline: ok
-    default: failed
-    none: ok
-    up: ok
-    failed: failed
-    down: ok
-    enabled: ok
 connector:
   displayName: Dell iDRAC9 (REST)
   platforms: iDRAC9 REST
@@ -1032,3 +977,58 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
         legacyTextParameters:
           StatusInformation: $column(5)
+embedded:
+  EmbeddedFile(1): Accept:application/json
+  EmbeddedFile(2): |-
+    BEGIN { FS = ";"; }
+    {
+      systemName[$2]=$2;
+      systemConsumption[$2] += $6;
+
+    }
+    END{
+      for (var in systemName)
+        printf "JSON;%s;%d\n",systemName[var],systemConsumption[var];
+    }
+translations:
+  EthernetInterfacesLinkSpeedDeactivationTable:
+    standbyoffline: ""
+    default: "True"
+  LinkStatusTranslationTable:
+    standbyoffline: degraded
+    default: degraded
+    none: degraded
+    up: ok
+    failed: failed
+    down: degraded
+    enabled: ok
+  StatusInformationTranslationTable:
+    needsattn: The device needs attention.
+    default: The device is in a critical state
+    optimal: The device is running normal.
+    "null": The device is not reporting a status.
+    critical: The device is in critical state.
+    warning: The device has warning state.
+    ok: The device is running normal.
+    good: The device is running normal.
+    maintenancecharging: The device is performing routine maintenance.
+  StatusTranslationTable:
+    needsattn: degraded
+    default: failed
+    optimal: ok
+    "null": degraded
+    critical: failed
+    warning: degraded
+    ok: ok
+    maintenancecharging: ok
+  LinkSpeedDeactivationTranslationTable:
+    "0": ""
+    default: "True"
+  NetworkCardStatusTranslationTable:
+    standbyoffline: ok
+    default: failed
+    none: ok
+    up: ok
+    failed: failed
+    down: ok
+    enabled: ok

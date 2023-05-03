@@ -1,34 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {
-      FS=";"
-    }
-    {
-      print $1-11";"$2";"$3";"$4";"$5";"$6";"$7";"$8";"$9";"$10";"$11";"$12";"$13";"
-    }
-translations:
-  SensorStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
-    "6": failed
-  SensorStatusInformationTranslationTable:
-    "1": ""
-    "2": Warning
-    default: Unknown Status
-    "3": Critical
-    "4": Shutdown
-    "5": No Longer Present
-    "6": Not Functioning
-  entPhySensorPrecisionTranslationTable:
-    "1": 10
-    default: 1
-    "2": 100
-    "3": 1000
 connector:
   detection:
     criteria:
@@ -265,3 +235,33 @@ monitors:
           hw.status{hw.type="fan"}: $column(5)
         legacyTextParameters:
           StatusInformation: $column(6)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+      FS=";"
+    }
+    {
+      print $1-11";"$2";"$3";"$4";"$5";"$6";"$7";"$8";"$9";"$10";"$11";"$12";"$13";"
+    }
+translations:
+  SensorStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+  SensorStatusInformationTranslationTable:
+    "1": ""
+    "2": Warning
+    default: Unknown Status
+    "3": Critical
+    "4": Shutdown
+    "5": No Longer Present
+    "6": Not Functioning
+  entPhySensorPrecisionTranslationTable:
+    "1": 10
+    default: 1
+    "2": 100
+    "3": 1000

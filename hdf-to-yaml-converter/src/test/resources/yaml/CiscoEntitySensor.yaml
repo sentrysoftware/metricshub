@@ -1,52 +1,6 @@
 ---
 extends:
 - MIB2-header
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";"}
-    {
-      INDEX[$7] = $7;
-      PS[$7] = $7 ";" $9 ";" $10 ";Serial Number: " $11 ";Vendor: " $12 ";Model: " $13
-      if ($2 == 5) { AMPS[$7] = $4 }
-      if ($2 == 3) { AC[$7] = $4 }
-      if ($5 >= STATUS[$7] || "" == STATUS[$7]) { STATUS[$7] = $5 }
-    }
-
-    END {
-      for (var in INDEX)
-        print PS[var] ";" AC[var] ";" AMPS[var] ";" STATUS[var] ";" STATUS[var]
-    }
-  EmbeddedFile(2): |-
-    BEGIN {
-      FS=";"
-      PowerConsumption=0
-    }
-    {
-      PowerConsumption += $8
-    }
-    END {
-      print "Chassis;" PowerConsumption
-    }
-translations:
-  SensorStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
-    "6": failed
-  SensorStatusInformationTranslationTable:
-    "1": ""
-    "2": Warning
-    default: Unknown Status
-    "3": Critical
-    "4": Shutdown
-    "5": No Longer Present
-    "6": Not Functioning
-  SensorValueMultiplierTable:
-    default: 1
-    "9": 1000 //V to mV
 connector:
   displayName: Cisco Entity Sensor (SNMP)
   platforms: Cisco
@@ -375,3 +329,49 @@ monitors:
           device_type: $column(3)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";"}
+    {
+      INDEX[$7] = $7;
+      PS[$7] = $7 ";" $9 ";" $10 ";Serial Number: " $11 ";Vendor: " $12 ";Model: " $13
+      if ($2 == 5) { AMPS[$7] = $4 }
+      if ($2 == 3) { AC[$7] = $4 }
+      if ($5 >= STATUS[$7] || "" == STATUS[$7]) { STATUS[$7] = $5 }
+    }
+
+    END {
+      for (var in INDEX)
+        print PS[var] ";" AC[var] ";" AMPS[var] ";" STATUS[var] ";" STATUS[var]
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+      FS=";"
+      PowerConsumption=0
+    }
+    {
+      PowerConsumption += $8
+    }
+    END {
+      print "Chassis;" PowerConsumption
+    }
+translations:
+  SensorStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+  SensorStatusInformationTranslationTable:
+    "1": ""
+    "2": Warning
+    default: Unknown Status
+    "3": Critical
+    "4": Shutdown
+    "5": No Longer Present
+    "6": Not Functioning
+  SensorValueMultiplierTable:
+    default: 1
+    "9": 1000 //V to mV

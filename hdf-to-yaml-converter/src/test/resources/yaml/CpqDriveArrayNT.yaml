@@ -1,263 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";";}
-    {
-      status = "UNKNOWN";
-      if ($2 == "OK" || $4 == "OK") {
-        status = "OK";
-      }
-      if ($2 == "WARN" || $4 == "WARN") {
-        status = "WARN";
-      }
-      if ($2 == "ALARM" || $4 == "ALARM") {
-        status = "ALARM";
-      }
-      print $1";"status";"$3";"$4";"
-    }
-translations:
-  BatteryStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Charging
-    "4": Failed
-    "5": Degraded
-    "7": Capacitor Failed
-  DiskControllerModelTranslationTable:
-    "88": HP P840ar
-    "89": HP P542d
-    "90": HP S100i
-    "91": HP E208i-p
-    "92": HP E208i-a
-    "93": HP E208i-c
-    "94": HP E208e-p
-    "95": HP E204i-b
-    "96": HP P204i-c
-    "97": HP P408i-p
-    "10": Compaq Smart Array 3200
-    "98": HP P408i-a
-    "11": Compaq SMART-2DH Array
-    "99": HP P408e-p
-    "12": Compaq Smart Array 221
-    "13": Compaq Smart Array 4250ES
-    "14": Compaq Smart Array 4200
-    "15": Compaq Integrated Smart Array
-    "16": Compaq Smart Array 431
-    "17": Compaq Smart Array 5300
-    "18": Compaq RAID LC2
-    "19": Compaq Smart Array 5i
-    "1": Compaq Array
-    "2": Compaq 32-Bit Intelligent Drive Array
-    "3": Compaq 32-Bit Intelligent Drive Array Expansion
-    "4": Compaq Intelligent Drive Array-2
-    "5": Compaq SMART Array
-    "6": Compaq SMART-2/E Array
-    "7": Compaq SMART-2/P Array
-    "8": Compaq SMART-2SL Array
-    "9": Compaq Smart Array 3100ES
-    "20": Compaq Smart Array 532
-    "21": Compaq Smart Array 5312
-    "22": HP Smart Array 641
-    "23": HP Smart Array 642
-    "24": HP Smart Array 6400
-    "25": HP Smart Array 6400 EM
-    "26": HP Smart Array 6i
-    "27": Generic Array
-    "29": HP Smart Array P600
-    default: HP Smart Array
-    "30": HP Smart Array P400
-    "31": HP Smart Array E200
-    "32": HP Smart Array E200i
-    "33": HP Smart Array P400i
-    "34": HP Smart Array P800
-    "35": HP Smart Array E500
-    "36": HP Smart Array P700m
-    "37": HP Smart Array P212
-    "38": HP Smart Array P410
-    "39": HP Smart Array P410i
-    "40": HP Smart Array P411
-    "41": HP Smart Array B110i SATA RAID
-    "42": HP Smart Array P712m
-    "43": HP Smart Array P711m
-    "44": HP Smart Array P812
-    "45": HP SW 1210M
-    "46": HP Smart Array P220i
-    "47": HP Smart Array P222
-    "48": HP Smart Array P420
-    "49": HP Smart Array P420i
-    "50": HP Smart Array P421
-    "51": HP Smart Array B320i
-    "52": HP Smart Array P822
-    "53": HP Smart Array P721M
-    "54": HP Smart Array B120i
-    "55": HP HPS-1224
-    "56": HP HPS-1228
-    "57": HP HPS-1228m
-    "58": HP Smart Array P822SE
-    "59": HP HPS-1224e
-    "60": HP HPS-1228e
-    "61": HP HPS-1228em
-    "62": HP Smart Array P230i
-    "63": HP Smart Array P430i
-    "64": HP Smart Array P430
-    "65": HP Smart Array P431
-    "66": HP Smart Array P731m
-    "67": HP Smart Array P830i
-    "68": HP Smart Array P830
-    "69": HP Smart Array P831
-    "70": HP Smart Array P530
-    "71": HP Smart Array P531
-    "72": HP Smart Array P244br
-    "73": HP Smart Array P246br
-    "74": HP Smart Array P440
-    "75": HP Smart Array P440ar
-    "76": HP Smart Array P441
-    "77": HP Smart Array P741m
-    "78": HP Smart Array P840
-    "79": HP Smart Array P841
-    "100": HP P408i-c
-    "101": HP P408e-m
-    "102": HP P416ie-m
-    "103": HP P816i-a
-    "80": HP SH-H240ar
-    "81": HP SH-H244br
-    "82": HP SH-240
-    "83": HP SH-241
-    "84": HP SA-B140i
-    "85": HP SH-Generic
-    "86": HP SA-P240nr
-    "87": HP SA-H240nr
-  TemperatureStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  FanStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "5": degraded
-  BatteryStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": degraded
-    "7": failed
-  DiskControllerConditionTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  PowerSupplyStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  EnclosureStatusTranslationTable:
-    "1": UNKNOWN
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  FanStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Failed
-    "5": Degraded
-  LogicalDiskStatusTranslationTable:
-    "11": failed
-    "12": ok
-    "13": failed
-    "14": ok
-    "15": degraded
-    "16": ok
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": ok
-    "5": degraded
-    "6": ok
-    "7": degraded
-    "8": failed
-    "9": failed
-    "10": degraded
-  PhysicalDiskStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": degraded
-    "5": ok
-    "6": ok
-    "7": ok
-  PowerSupplyStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
-  DiskControllerStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": degraded
-  RAIDLevelTranslationTable:
-    "1": ""
-    "2": 0
-    default: ""
-    "3": 1
-    "4": 4
-    "5": 5
-    "7": 6
-    "8": 50
-    "9": 60
-  PhysicalDiskStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Failed
-    "4": Predicted Failure
-    "5": Erasing
-    "6": Erase Done
-    "7": Erase Queued
-  TemperatureStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
-  DiskControllerStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": General failure
-    "4": Cable problem
-    "5": Powered off
-  PhysicalDiskSMARTStatusTranslationTable:
-    "1": "FALSE"
-    "2": "FALSE"
-    default: "FALSE"
-    "3": "TRUE"
-  LogicalDiskStatusInformationTranslationTable:
-    "11": Shutdown
-    "12": Expanding
-    "13": Not available
-    "14": Queued for expansion
-    "15": Multi-path Degraded
-    "16": Erasing
-    "2": ""
-    default: Unknown Status
-    "3": Failed
-    "4": Unconfigured
-    "5": Recovering
-    "6": Ready for rebuild
-    "7": Rebuilding
-    "8": Wrong drive
-    "9": Bad connect
-    "10": Overheating
-  EnclosureStatusInformationTranslationTable:
-    "1": Status Not Recognized
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
 connector:
   displayName: HP Insight Management Agent - Drive Array
   platforms: HP ProLiant
@@ -847,3 +588,262 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+      status = "UNKNOWN";
+      if ($2 == "OK" || $4 == "OK") {
+        status = "OK";
+      }
+      if ($2 == "WARN" || $4 == "WARN") {
+        status = "WARN";
+      }
+      if ($2 == "ALARM" || $4 == "ALARM") {
+        status = "ALARM";
+      }
+      print $1";"status";"$3";"$4";"
+    }
+translations:
+  BatteryStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Charging
+    "4": Failed
+    "5": Degraded
+    "7": Capacitor Failed
+  DiskControllerModelTranslationTable:
+    "88": HP P840ar
+    "89": HP P542d
+    "90": HP S100i
+    "91": HP E208i-p
+    "92": HP E208i-a
+    "93": HP E208i-c
+    "94": HP E208e-p
+    "95": HP E204i-b
+    "96": HP P204i-c
+    "97": HP P408i-p
+    "10": Compaq Smart Array 3200
+    "98": HP P408i-a
+    "11": Compaq SMART-2DH Array
+    "99": HP P408e-p
+    "12": Compaq Smart Array 221
+    "13": Compaq Smart Array 4250ES
+    "14": Compaq Smart Array 4200
+    "15": Compaq Integrated Smart Array
+    "16": Compaq Smart Array 431
+    "17": Compaq Smart Array 5300
+    "18": Compaq RAID LC2
+    "19": Compaq Smart Array 5i
+    "1": Compaq Array
+    "2": Compaq 32-Bit Intelligent Drive Array
+    "3": Compaq 32-Bit Intelligent Drive Array Expansion
+    "4": Compaq Intelligent Drive Array-2
+    "5": Compaq SMART Array
+    "6": Compaq SMART-2/E Array
+    "7": Compaq SMART-2/P Array
+    "8": Compaq SMART-2SL Array
+    "9": Compaq Smart Array 3100ES
+    "20": Compaq Smart Array 532
+    "21": Compaq Smart Array 5312
+    "22": HP Smart Array 641
+    "23": HP Smart Array 642
+    "24": HP Smart Array 6400
+    "25": HP Smart Array 6400 EM
+    "26": HP Smart Array 6i
+    "27": Generic Array
+    "29": HP Smart Array P600
+    default: HP Smart Array
+    "30": HP Smart Array P400
+    "31": HP Smart Array E200
+    "32": HP Smart Array E200i
+    "33": HP Smart Array P400i
+    "34": HP Smart Array P800
+    "35": HP Smart Array E500
+    "36": HP Smart Array P700m
+    "37": HP Smart Array P212
+    "38": HP Smart Array P410
+    "39": HP Smart Array P410i
+    "40": HP Smart Array P411
+    "41": HP Smart Array B110i SATA RAID
+    "42": HP Smart Array P712m
+    "43": HP Smart Array P711m
+    "44": HP Smart Array P812
+    "45": HP SW 1210M
+    "46": HP Smart Array P220i
+    "47": HP Smart Array P222
+    "48": HP Smart Array P420
+    "49": HP Smart Array P420i
+    "50": HP Smart Array P421
+    "51": HP Smart Array B320i
+    "52": HP Smart Array P822
+    "53": HP Smart Array P721M
+    "54": HP Smart Array B120i
+    "55": HP HPS-1224
+    "56": HP HPS-1228
+    "57": HP HPS-1228m
+    "58": HP Smart Array P822SE
+    "59": HP HPS-1224e
+    "60": HP HPS-1228e
+    "61": HP HPS-1228em
+    "62": HP Smart Array P230i
+    "63": HP Smart Array P430i
+    "64": HP Smart Array P430
+    "65": HP Smart Array P431
+    "66": HP Smart Array P731m
+    "67": HP Smart Array P830i
+    "68": HP Smart Array P830
+    "69": HP Smart Array P831
+    "70": HP Smart Array P530
+    "71": HP Smart Array P531
+    "72": HP Smart Array P244br
+    "73": HP Smart Array P246br
+    "74": HP Smart Array P440
+    "75": HP Smart Array P440ar
+    "76": HP Smart Array P441
+    "77": HP Smart Array P741m
+    "78": HP Smart Array P840
+    "79": HP Smart Array P841
+    "100": HP P408i-c
+    "101": HP P408e-m
+    "102": HP P416ie-m
+    "103": HP P816i-a
+    "80": HP SH-H240ar
+    "81": HP SH-H244br
+    "82": HP SH-240
+    "83": HP SH-241
+    "84": HP SA-B140i
+    "85": HP SH-Generic
+    "86": HP SA-P240nr
+    "87": HP SA-H240nr
+  TemperatureStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  FanStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "5": degraded
+  BatteryStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "7": failed
+  DiskControllerConditionTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  PowerSupplyStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  EnclosureStatusTranslationTable:
+    "1": UNKNOWN
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  FanStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Failed
+    "5": Degraded
+  LogicalDiskStatusTranslationTable:
+    "11": failed
+    "12": ok
+    "13": failed
+    "14": ok
+    "15": degraded
+    "16": ok
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": degraded
+    "6": ok
+    "7": degraded
+    "8": failed
+    "9": failed
+    "10": degraded
+  PhysicalDiskStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": degraded
+    "5": ok
+    "6": ok
+    "7": ok
+  PowerSupplyStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
+  DiskControllerStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": degraded
+  RAIDLevelTranslationTable:
+    "1": ""
+    "2": 0
+    default: ""
+    "3": 1
+    "4": 4
+    "5": 5
+    "7": 6
+    "8": 50
+    "9": 60
+  PhysicalDiskStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Failed
+    "4": Predicted Failure
+    "5": Erasing
+    "6": Erase Done
+    "7": Erase Queued
+  TemperatureStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
+  DiskControllerStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": General failure
+    "4": Cable problem
+    "5": Powered off
+  PhysicalDiskSMARTStatusTranslationTable:
+    "1": "FALSE"
+    "2": "FALSE"
+    default: "FALSE"
+    "3": "TRUE"
+  LogicalDiskStatusInformationTranslationTable:
+    "11": Shutdown
+    "12": Expanding
+    "13": Not available
+    "14": Queued for expansion
+    "15": Multi-path Degraded
+    "16": Erasing
+    "2": ""
+    default: Unknown Status
+    "3": Failed
+    "4": Unconfigured
+    "5": Recovering
+    "6": Ready for rebuild
+    "7": Rebuilding
+    "8": Wrong drive
+    "9": Bad connect
+    "10": Overheating
+  EnclosureStatusInformationTranslationTable:
+    "1": Status Not Recognized
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed

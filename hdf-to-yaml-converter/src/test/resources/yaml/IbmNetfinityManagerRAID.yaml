@@ -1,37 +1,4 @@
 ---
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    rebuild: Rebuild
-    hot spare: Hot Spare
-    default: Unknown Status
-    defunct: Defunct
-    standby: Standby
-    defunct hot spare: Defunct Hot Spare
-    standby hot spare: Standby Hot Spare
-    ready: Ready
-    online: ""
-    pfa: Predicted failure
-  LogicalDiskStatusInformationTranslationTable:
-    offline: Offline
-    default: Unknown Status
-    critical: Critical
-    online: ""
-  LogicalDiskStatusTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    critical: degraded
-    online: ok
-  PhysicalDiskStatusTranslationTable:
-    rebuild: degraded
-    hot spare: ok
-    default: UNKNOWN
-    defunct: failed
-    standby: ok
-    defunct hot spare: degraded
-    standby hot spare: ok
-    ready: ok
-    online: ok
-    pfa: degraded
 connector:
   displayName: IBM Netfinity Manager 5.20.x - Disks
   platforms: IBM Netfinity
@@ -251,3 +218,36 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(5)
         legacyTextParameters:
           StatusInformation: $column(6)
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    rebuild: Rebuild
+    hot spare: Hot Spare
+    default: Unknown Status
+    defunct: Defunct
+    standby: Standby
+    defunct hot spare: Defunct Hot Spare
+    standby hot spare: Standby Hot Spare
+    ready: Ready
+    online: ""
+    pfa: Predicted failure
+  LogicalDiskStatusInformationTranslationTable:
+    offline: Offline
+    default: Unknown Status
+    critical: Critical
+    online: ""
+  LogicalDiskStatusTranslationTable:
+    offline: failed
+    default: UNKNOWN
+    critical: degraded
+    online: ok
+  PhysicalDiskStatusTranslationTable:
+    rebuild: degraded
+    hot spare: ok
+    default: UNKNOWN
+    defunct: failed
+    standby: ok
+    defunct hot spare: degraded
+    standby hot spare: ok
+    ready: ok
+    online: ok
+    pfa: degraded

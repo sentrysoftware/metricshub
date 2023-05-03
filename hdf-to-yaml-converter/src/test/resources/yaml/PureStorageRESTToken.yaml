@@ -1,100 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    Content-Type:application/json
-    Accept:application/json
-  EmbeddedFile(3): |-
-    Content-Type: application/json
-    Accept: application/json
-    Cookie: %{AUTHENTICATIONTOKEN}
-  EmbeddedFile(2): |-
-    BEGIN {FS=":";}
-    {
-    if ($1 == "Set-Cookie")
-        {
-             split($2,outputarray,";")
-             AuthenticationToken=outputarray[1]
-             print AuthenticationToken
-        }
-    }
-  EmbeddedFile(5): |-
-    BEGIN {FS=";";}
-    {
-      enclosure = $2 ; gsub ("[.].+","",enclosure);
-      displayID = $2 ; gsub ("^.+[.]","",displayID);
-
-      if ($2 ~ /^CT[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;DiskController"}
-      if ($2 ~ /^CH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Enclosure"}
-      if ($2 ~ /^SH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Disk Shelf"}
-
-      if ($2 ~ /^CT[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;DiskController"}
-      if ($2 ~ /^CH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Enclosure"}
-      if ($2 ~ /^SH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Disk Shelf"}
-
-    }
-  EmbeddedFile(4): |-
-    BEGIN {FS=";";}
-    {
-      enclosure = $4 ; gsub ("[.].+","",enclosure);
-      displayID = $4 ; gsub ("^.+[.]","",displayID);
-      if ($4 ~ /^CH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Enclosure;Enclosure" }
-
-      if ($4 ~ /^SH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
-      if ($4 ~ /^CT[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
-
-      if ($4 ~ /^CT[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
-      if ($4 ~ /^CH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Enclosure"}
-      if ($4 ~ /^SH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
-
-      if ($4 ~ /^CT[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
-      if ($4 ~ /^CH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Enclosure"}
-      if ($4 ~ /^SH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
-
-      if ($4 ~ /^CT[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
-      if ($4 ~ /^CH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Enclosure"}
-      if ($4 ~ /^SH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
-
-      if ($4 ~ /^CT[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
-      if ($4 ~ /^CH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;MAC"}
-      if ($4 ~ /^SH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
-
-      if ($4 ~ /^CT[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
-      if ($4 ~ /^CH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;WWN"}
-      if ($4 ~ /^SH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
-    }
-translations:
-  DriveInformationTranslationTable:
-    healthy: healthy
-    missing: 'Missing - '
-    failed: 'Failed - '
-    reachable: 'Reachable but not initialized - '
-    foreign: 'Drive is foreign to the array - '
-  LinkStatusTranslationTable:
-    default: ok
-    "false": degraded
-  DriveTranslationTable:
-    default: failed
-    healthy: ok
-    missing: failed
-    failed: failed
-    reachable: degraded
-    foreign: degraded
-  LinkSpeedActivationTable:
-    "true": "true"
-    "false": ""
-  StatusInformationTranslationTable:
-    ready: ok
-    failed: Failed
-    ok: ""
-    degraded: Degraded
-    not_installed: Missing
-  StatusTranslationTable:
-    default: failed
-    ready: ok
-    failed: failed
-    ok: ok
-    degraded: degraded
-    not_installed: failed
 connector:
   displayName: Pure Storage FA Series (REST Token Authentication)
   platforms: Pure Storage
@@ -600,3 +504,99 @@ monitors:
           hw.status{hw.type="other_device"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    Content-Type:application/json
+    Accept:application/json
+  EmbeddedFile(3): |-
+    Content-Type: application/json
+    Accept: application/json
+    Cookie: %{AUTHENTICATIONTOKEN}
+  EmbeddedFile(2): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "Set-Cookie")
+        {
+             split($2,outputarray,";")
+             AuthenticationToken=outputarray[1]
+             print AuthenticationToken
+        }
+    }
+  EmbeddedFile(5): |-
+    BEGIN {FS=";";}
+    {
+      enclosure = $2 ; gsub ("[.].+","",enclosure);
+      displayID = $2 ; gsub ("^.+[.]","",displayID);
+
+      if ($2 ~ /^CT[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;DiskController"}
+      if ($2 ~ /^CH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Enclosure"}
+      if ($2 ~ /^SH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Disk Shelf"}
+
+      if ($2 ~ /^CT[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;DiskController"}
+      if ($2 ~ /^CH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Enclosure"}
+      if ($2 ~ /^SH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Disk Shelf"}
+
+    }
+  EmbeddedFile(4): |-
+    BEGIN {FS=";";}
+    {
+      enclosure = $4 ; gsub ("[.].+","",enclosure);
+      displayID = $4 ; gsub ("^.+[.]","",displayID);
+      if ($4 ~ /^CH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Enclosure;Enclosure" }
+
+      if ($4 ~ /^SH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+      if ($4 ~ /^CT[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+
+      if ($4 ~ /^CT[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+      if ($4 ~ /^CH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Enclosure"}
+      if ($4 ~ /^SH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+
+      if ($4 ~ /^CT[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+      if ($4 ~ /^CH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Enclosure"}
+      if ($4 ~ /^SH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+
+      if ($4 ~ /^CT[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+      if ($4 ~ /^CH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Enclosure"}
+      if ($4 ~ /^SH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+
+      if ($4 ~ /^CT[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+      if ($4 ~ /^CH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;MAC"}
+      if ($4 ~ /^SH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+
+      if ($4 ~ /^CT[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+      if ($4 ~ /^CH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;WWN"}
+      if ($4 ~ /^SH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+    }
+translations:
+  DriveInformationTranslationTable:
+    healthy: healthy
+    missing: 'Missing - '
+    failed: 'Failed - '
+    reachable: 'Reachable but not initialized - '
+    foreign: 'Drive is foreign to the array - '
+  LinkStatusTranslationTable:
+    default: ok
+    "false": degraded
+  DriveTranslationTable:
+    default: failed
+    healthy: ok
+    missing: failed
+    failed: failed
+    reachable: degraded
+    foreign: degraded
+  LinkSpeedActivationTable:
+    "true": "true"
+    "false": ""
+  StatusInformationTranslationTable:
+    ready: ok
+    failed: Failed
+    ok: ""
+    degraded: Degraded
+    not_installed: Missing
+  StatusTranslationTable:
+    default: failed
+    ready: ok
+    failed: failed
+    ok: ok
+    degraded: degraded
+    not_installed: failed

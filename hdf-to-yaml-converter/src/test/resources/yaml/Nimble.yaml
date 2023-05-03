@@ -1,37 +1,4 @@
 ---
-translations:
-  ShelfSensorTranslationTable:
-    default: degraded
-    alerted: failed
-    missing: degraded
-    failed: failed
-    ok: ok
-  LinkStatusTranslationTable:
-    default: UNKNOWN
-    up: ok
-    down: degraded
-  SASPortTranslationTable:
-    connected: ok
-    disconnected: failed
-    default: degraded
-  PortStatusTranslationTable:
-    default: degraded
-    operational: ok
-  PhysicalDiskStatusTranslationTable:
-    okay: ok
-    n/a: UNKNOWN
-    void: degraded
-    in use: ok
-    failed: failed
-    resynchronizing: degraded
-    faulty: failed
-    foreign: degraded
-    valid: ok
-    default: UNKNOWN
-    removed: failed
-    t_fail: failed
-    absent: failed
-    spare: ok
 connector:
   displayName: Nimble
   platforms: Nimble
@@ -952,3 +919,36 @@ monitors:
           hw.status{hw.type="network"}: $column(6)
         legacyTextParameters:
           StatusInformation: $column(7)
+translations:
+  ShelfSensorTranslationTable:
+    default: degraded
+    alerted: failed
+    missing: degraded
+    failed: failed
+    ok: ok
+  LinkStatusTranslationTable:
+    default: UNKNOWN
+    up: ok
+    down: degraded
+  SASPortTranslationTable:
+    connected: ok
+    disconnected: failed
+    default: degraded
+  PortStatusTranslationTable:
+    default: degraded
+    operational: ok
+  PhysicalDiskStatusTranslationTable:
+    okay: ok
+    n/a: UNKNOWN
+    void: degraded
+    in use: ok
+    failed: failed
+    resynchronizing: degraded
+    faulty: failed
+    foreign: degraded
+    valid: ok
+    default: UNKNOWN
+    removed: failed
+    t_fail: failed
+    absent: failed
+    spare: ok

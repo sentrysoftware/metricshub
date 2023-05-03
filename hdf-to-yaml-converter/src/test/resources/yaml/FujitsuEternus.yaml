@@ -1,68 +1,4 @@
 ---
-translations:
-  DMTFOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": degraded
-    "17": ok
-    "18": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  PortTypeTranslationTable:
-    "11": FC Port NL
-    "12": FC Port F/NL
-    "13": FC Port Nx
-    default: FC Port
-    "14": FC Port E
-    "15": FC Port F
-    "16": FC Port FL
-    "17": FC Port B
-    "18": FC Port G
-    "19": FC Port GL
-    "10": FC Port N
-  CreationClassNameStoragePoolTranslationTable:
-    default: 0;Storage Pool
-    fujitsu_raidstoragepool: 0;RAID Storage Pool
-    fujitsu_flexibletierpool: 0;Flexible Tier Pool
-    fujitsu_flexibletiersubpool: 0;Flexible Tier Sub Pool
-    fujitsu_thinprovisioningpool: 0;Thin Provisioning Pool
-    fujitsu_sdpvpool: 0;SDPV Pool
-    fujitsu_snapdatapool: 0;Snap Data Pool
-    fujitsu_primordialstoragepool: 0;Primordial Storage Pool
-  UsageRestrictionTranslationTable:
-    "2": Front-end Port
-    default: ""
-    "3": Back-end Port
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "2": ""
-    default: ""
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": Error
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
 connector:
   displayName: Fujitsu Eternus DX Disk Arrays
   platforms: Fujitsu Eternus
@@ -1670,3 +1606,67 @@ monitors:
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  PortTypeTranslationTable:
+    "11": FC Port NL
+    "12": FC Port F/NL
+    "13": FC Port Nx
+    default: FC Port
+    "14": FC Port E
+    "15": FC Port F
+    "16": FC Port FL
+    "17": FC Port B
+    "18": FC Port G
+    "19": FC Port GL
+    "10": FC Port N
+  CreationClassNameStoragePoolTranslationTable:
+    default: 0;Storage Pool
+    fujitsu_raidstoragepool: 0;RAID Storage Pool
+    fujitsu_flexibletierpool: 0;Flexible Tier Pool
+    fujitsu_flexibletiersubpool: 0;Flexible Tier Sub Pool
+    fujitsu_thinprovisioningpool: 0;Thin Provisioning Pool
+    fujitsu_sdpvpool: 0;SDPV Pool
+    fujitsu_snapdatapool: 0;Snap Data Pool
+    fujitsu_primordialstoragepool: 0;Primordial Storage Pool
+  UsageRestrictionTranslationTable:
+    "2": Front-end Port
+    default: ""
+    "3": Back-end Port
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "2": ""
+    default: ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped

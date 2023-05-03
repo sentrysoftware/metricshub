@@ -4,14 +4,6 @@ extends:
 constants:
   _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)"'
   _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
-translations:
-  replicationTypeTranslationTable:
-    default: ""
-    "6": 'Mirror of '
-    "8": 'Clone of '
-  PrimordialStoragePoolTranslationTable:
-    default: 0;Storage Pool
-    "true": 0;Primordial Storage Pool
 connector:
   displayName: SMI-S Compliant Disk Arrays
   platforms: Any SMI-S compliant disk array
@@ -340,3 +332,11 @@ monitors:
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  replicationTypeTranslationTable:
+    default: ""
+    "6": 'Mirror of '
+    "8": 'Clone of '
+  PrimordialStoragePoolTranslationTable:
+    default: 0;Storage Pool
+    "true": 0;Primordial Storage Pool

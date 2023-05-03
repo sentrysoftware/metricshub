@@ -1,101 +1,4 @@
 ---
-translations:
-  DMTFOperationStatusTranslationTable:
-    default: UNKNOWN
-    "32768": failed
-    "32769": ok
-    "10": failed
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": degraded
-    "17": ok
-    "18": ok
-    "32775": ok
-    "32776": degraded
-    "2": ok
-    "32773": failed
-    "3": degraded
-    "32774": ok
-    "4": degraded
-    "32771": degraded
-    "5": degraded
-    "32772": ok
-    "6": failed
-    "7": failed
-    "32770": failed
-    "8": degraded
-    "9": degraded
-    "32777": ok
-    "32778": ok
-  CIMFCPortOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": degraded
-    "17": ok
-    "18": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": ok
-  PortTypeTranslationTable:
-    "11": FC Port NL
-    "12": FC Port F/NL
-    "13": FC Port Nx
-    default: FC Port
-    "14": FC Port E
-    "15": FC Port F
-    "16": FC Port FL
-    "17": FC Port B
-    "18": FC Port G
-    "19": FC Port GL
-    "10": FC Port N
-  DMTFOperationStatusInformationTranslationTable:
-    default: ""
-    "32768": Removed
-    "32769": Online
-    "10": Stopped
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "32775": Write Protected
-    "32776": Not Ready
-    "2": ""
-    "32773": Failure
-    "3": Degraded
-    "32774": Write Disabled
-    "4": Stressed
-    "32771": Rebooting
-    "5": Predicted Failure
-    "32772": Success
-    "6": Error
-    "7": Non-Recoverable Error
-    "32770": Offline
-    "8": Starting
-    "9": Stopping
-    "32777": Power Saving Mode
-    "32778": "Reported Status: Vendor Reserved"
-  SpeedToLinkStatusTranslationTable:
-    "0": degraded
-    ? ""
-    : degraded
-    default: ok
 connector:
   displayName: EMC SMI-S Agent (ECOM)
   platforms: "EMC Symmetrix,EMC VMAX,EMC CLARiiON,EMC VNX"
@@ -1103,3 +1006,100 @@ monitors:
           hw.status{hw.type="physical_disk"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+translations:
+  DMTFOperationStatusTranslationTable:
+    default: UNKNOWN
+    "32768": failed
+    "32769": ok
+    "10": failed
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "32775": ok
+    "32776": degraded
+    "2": ok
+    "32773": failed
+    "3": degraded
+    "32774": ok
+    "4": degraded
+    "32771": degraded
+    "5": degraded
+    "32772": ok
+    "6": failed
+    "7": failed
+    "32770": failed
+    "8": degraded
+    "9": degraded
+    "32777": ok
+    "32778": ok
+  CIMFCPortOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": ok
+  PortTypeTranslationTable:
+    "11": FC Port NL
+    "12": FC Port F/NL
+    "13": FC Port Nx
+    default: FC Port
+    "14": FC Port E
+    "15": FC Port F
+    "16": FC Port FL
+    "17": FC Port B
+    "18": FC Port G
+    "19": FC Port GL
+    "10": FC Port N
+  DMTFOperationStatusInformationTranslationTable:
+    default: ""
+    "32768": Removed
+    "32769": Online
+    "10": Stopped
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "32775": Write Protected
+    "32776": Not Ready
+    "2": ""
+    "32773": Failure
+    "3": Degraded
+    "32774": Write Disabled
+    "4": Stressed
+    "32771": Rebooting
+    "5": Predicted Failure
+    "32772": Success
+    "6": Error
+    "7": Non-Recoverable Error
+    "32770": Offline
+    "8": Starting
+    "9": Stopping
+    "32777": Power Saving Mode
+    "32778": "Reported Status: Vendor Reserved"
+  SpeedToLinkStatusTranslationTable:
+    "0": degraded
+    ? ""
+    : degraded
+    default: ok

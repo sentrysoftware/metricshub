@@ -2,54 +2,6 @@
 constants:
   _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)\|\(^15|\)\|\(^16|\)\|\(^24|\)\|\(^25|\)"'
   _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
-translations:
-  EthernetPortTypeTranslationTable:
-    "55": 10G BaseT
-    "56": 10G BaseCX4
-    default: Ethernet Port
-    "50": 10 BaseT
-    "51": 10-100 BaseT
-    "52": 100 BaseT
-    "53": 1000 BaseT
-    "54": 2500 BaseT
-  statusInformationTranslationTable:
-    "0": Unknown
-    default: Unknown Status
-    "25": Critical Failure
-    "15": Minor Failure
-    "5": ""
-    "30": Non-Recoverable Error
-    "20": Major Failure
-    "10": Degraded
-  statusTranslationTable:
-    "0": UNKNOWN
-    default: UNKNOWN
-    "25": failed
-    "15": degraded
-    "5": ok
-    "30": failed
-    "20": failed
-    "10": degraded
-  PortTypeTranslationTable:
-    "11": FC Port NL
-    "12": FC Port F/NL
-    "13": FC Port Nx
-    default: FC Port
-    "14": FC Port E
-    "15": FC Port F
-    "16": FC Port FL
-    "17": FC Port B
-    "18": FC Port G
-    "19": FC Port GL
-    "10": FC Port N
-  PrimordialStoragePoolTranslationTable:
-    default: 0;Storage Pool
-    "true": 0;Primordial Storage Pool
-  SpeedToLinkStatusTranslationTable:
-    "0": degraded
-    ? ""
-    : degraded
-    default: ok
 connector:
   displayName: EMC Unity SMI-S Agent
   platforms: EMC Unity
@@ -658,3 +610,51 @@ monitors:
         metrics:
           hw.logical_disk.usage{state="free"}: $column(2)
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
+translations:
+  EthernetPortTypeTranslationTable:
+    "55": 10G BaseT
+    "56": 10G BaseCX4
+    default: Ethernet Port
+    "50": 10 BaseT
+    "51": 10-100 BaseT
+    "52": 100 BaseT
+    "53": 1000 BaseT
+    "54": 2500 BaseT
+  statusInformationTranslationTable:
+    "0": Unknown
+    default: Unknown Status
+    "25": Critical Failure
+    "15": Minor Failure
+    "5": ""
+    "30": Non-Recoverable Error
+    "20": Major Failure
+    "10": Degraded
+  statusTranslationTable:
+    "0": UNKNOWN
+    default: UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    "30": failed
+    "20": failed
+    "10": degraded
+  PortTypeTranslationTable:
+    "11": FC Port NL
+    "12": FC Port F/NL
+    "13": FC Port Nx
+    default: FC Port
+    "14": FC Port E
+    "15": FC Port F
+    "16": FC Port FL
+    "17": FC Port B
+    "18": FC Port G
+    "19": FC Port GL
+    "10": FC Port N
+  PrimordialStoragePoolTranslationTable:
+    default: 0;Storage Pool
+    "true": 0;Primordial Storage Pool
+  SpeedToLinkStatusTranslationTable:
+    "0": degraded
+    ? ""
+    : degraded
+    default: ok

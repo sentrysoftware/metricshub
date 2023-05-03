@@ -1,9 +1,4 @@
 ---
-translations:
-  LEDStatusTranslationTable:
-    normal: "Off"
-    default: "Off"
-    fault: "On"
 connector:
   displayName: IBM AIX - usysfault
   platforms: IBM POWER
@@ -67,3 +62,8 @@ monitors:
         source: $monitors.led.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($column(1))
+translations:
+  LEDStatusTranslationTable:
+    normal: "Off"
+    default: "Off"
+    fault: "On"

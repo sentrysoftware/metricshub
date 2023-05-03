@@ -1,35 +1,6 @@
 ---
 extends:
 - FibreAllianceSwitchCommon-header
-translations:
-  SensorTypeTranslationTable:
-    "11": SFO 1G
-    "12": SFO 2G
-    "13": LW SM MT-RJ 1G
-    "14": SW MM MT-RJ 1G
-    "15": Mixed MT-RJ 1G
-    "16": F-Port Internal 1G
-    "1": Backplane
-    "2": Control Processor Card
-    "3": Serial Crossbar
-    "4": Center Fan Module
-    "5": Fan Module
-    "6": Power Supply Module
-    "8": LW SM LC 1G
-    "9": SW MM LC 1G
-    "10": Mixed LC 1G
-  McSensorInformationStatusTranslationTable:
-    "1": Active
-    "2": Backup
-    default: UNKNOWN
-    "3": Update-Busy
-    "4": Failed
-  McSensorStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
 connector:
   displayName: McData Fibre Switch
   platforms: McData SAN
@@ -364,3 +335,32 @@ monitors:
           hw.status{hw.type="blade"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+translations:
+  SensorTypeTranslationTable:
+    "11": SFO 1G
+    "12": SFO 2G
+    "13": LW SM MT-RJ 1G
+    "14": SW MM MT-RJ 1G
+    "15": Mixed MT-RJ 1G
+    "16": F-Port Internal 1G
+    "1": Backplane
+    "2": Control Processor Card
+    "3": Serial Crossbar
+    "4": Center Fan Module
+    "5": Fan Module
+    "6": Power Supply Module
+    "8": LW SM LC 1G
+    "9": SW MM LC 1G
+    "10": Mixed LC 1G
+  McSensorInformationStatusTranslationTable:
+    "1": Active
+    "2": Backup
+    default: UNKNOWN
+    "3": Update-Busy
+    "4": Failed
+  McSensorStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed

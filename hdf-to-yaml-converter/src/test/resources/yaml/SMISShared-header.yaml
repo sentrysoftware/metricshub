@@ -1,137 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { FS=";" }
-    {
-        computerID = $1
-        elementName = $2
-        chassisID = $3
-        vendor1 = $4
-        model1 = $5
-        serialNumber1 = $6
-        vendor2 = $7
-        model2 = $8
-        serialNumber2 = $9
-
-        if (vendor2 != "")
-        {
-            vendor = vendor2
-        }
-        else
-        {
-            vendor = vendor1
-        }
-
-        if (model2 != "")
-        {
-            model = model2
-        }
-        else
-        {
-            model = model1
-        }
-
-        if (length(serialNumber2) > 10)
-        {
-            serialNumber = serialNumber2
-        }
-        else
-        {
-            serialNumber = serialNumber1
-        }
-
-        if (model != "")
-        {
-            model = model " - " elementName
-        }
-        else
-        {
-            model =  elementName
-        }
-
-        print "MSHW;" computerID ";" chassisID ";" vendor ";" model ";" serialNumber
-    }
-  EmbeddedFile(3): |-
-    BEGIN { alreadyFoundList = ";"; }
-    {
-        if (index(alreadyFoundList, ";" $0 ";") == 0)
-        {
-            print $0
-            alreadyFoundList = alreadyFoundList $0 ";"
-        }
-    }
-  EmbeddedFile(2): |-
-    BEGIN { FS=";" }
-    {
-        deviceID = $1
-        parentID = $2
-        grandParentID = $5
-
-        if (grandParentID != "")
-        {
-            print deviceID ";" grandParentID
-        }
-        else
-        {
-            print deviceID ";" parentID
-        }
-    }
-translations:
-  DMTFOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": degraded
-    "17": ok
-    "18": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  PortTypeTranslationTable:
-    "11": FC Port NL
-    "12": FC Port F/NL
-    "13": FC Port Nx
-    default: FC Port
-    "14": FC Port E
-    "15": FC Port F
-    "16": FC Port FL
-    "17": FC Port B
-    "18": FC Port G
-    "19": FC Port GL
-    "10": FC Port N
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "2": ""
-    default: ""
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": Error
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
-  SpeedToLinkStatusTranslationTable:
-    "0": degraded
-    ? ""
-    : degraded
-    default: ok
 monitors:
   enclosure:
     discovery:
@@ -825,3 +692,136 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS=";" }
+    {
+        computerID = $1
+        elementName = $2
+        chassisID = $3
+        vendor1 = $4
+        model1 = $5
+        serialNumber1 = $6
+        vendor2 = $7
+        model2 = $8
+        serialNumber2 = $9
+
+        if (vendor2 != "")
+        {
+            vendor = vendor2
+        }
+        else
+        {
+            vendor = vendor1
+        }
+
+        if (model2 != "")
+        {
+            model = model2
+        }
+        else
+        {
+            model = model1
+        }
+
+        if (length(serialNumber2) > 10)
+        {
+            serialNumber = serialNumber2
+        }
+        else
+        {
+            serialNumber = serialNumber1
+        }
+
+        if (model != "")
+        {
+            model = model " - " elementName
+        }
+        else
+        {
+            model =  elementName
+        }
+
+        print "MSHW;" computerID ";" chassisID ";" vendor ";" model ";" serialNumber
+    }
+  EmbeddedFile(3): |-
+    BEGIN { alreadyFoundList = ";"; }
+    {
+        if (index(alreadyFoundList, ";" $0 ";") == 0)
+        {
+            print $0
+            alreadyFoundList = alreadyFoundList $0 ";"
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { FS=";" }
+    {
+        deviceID = $1
+        parentID = $2
+        grandParentID = $5
+
+        if (grandParentID != "")
+        {
+            print deviceID ";" grandParentID
+        }
+        else
+        {
+            print deviceID ";" parentID
+        }
+    }
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  PortTypeTranslationTable:
+    "11": FC Port NL
+    "12": FC Port F/NL
+    "13": FC Port Nx
+    default: FC Port
+    "14": FC Port E
+    "15": FC Port F
+    "16": FC Port FL
+    "17": FC Port B
+    "18": FC Port G
+    "19": FC Port GL
+    "10": FC Port N
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "2": ""
+    default: ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
+  SpeedToLinkStatusTranslationTable:
+    "0": degraded
+    ? ""
+    : degraded
+    default: ok

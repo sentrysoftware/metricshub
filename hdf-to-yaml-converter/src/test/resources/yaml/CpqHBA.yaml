@@ -1,4 +1,97 @@
 ---
+connector:
+  displayName: HP Insight Management Agent - HBA
+  version: 1.0
+  information: This connector monitors the HBA cards present in an HP ProLiant system by connecting to the HP Insight Management agent.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    - Linux
+    - OSF1
+    - VMS
+    - OOB
+    - Solaris
+    criteria:
+    # The system must have at least one HBA
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.16.2.7.1.1
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaHostCntlr SNMP table
+          # DeviceID;ModelCode;WWNAddress;SerialNumber;HWLocation;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.16.2.7.1.1
+          selectColumns: "ID,3,6,10,11"
+          computes:
+            # Translate ModelCode into a more readable string
+            # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
+          - type: translate
+            column: 2
+            translationTable: HostControllerModelTranslationTable
+          # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
+          - type: leftConcat
+            column: 5
+            value: "Location: "
+      mapping:
+        # InstanceTable
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          device_type: FC Port
+          physical_address: $column(3)
+          physical_address_type: WWN
+          serial_number: $column(4)
+          info: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), \"FC Port\", $column(2))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaHostCntlr snmp table
+          # ID;Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.16.2.7.1.1
+          selectColumns: "ID,4"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status;Status;
+          - type: duplicateColumn
+            column: 2
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLStatus;Status;Status;
+          - type: translate
+            column: 2
+            translationTable: NetworkCardStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;StatusInformation;Status;
+          - type: translate
+            column: 3
+            translationTable: NetworkCardStatusInformationTranslationTable
+            # Translate the third status column into LinkStatus
+            # ID;PATROLStatus;StatusInformation;LinkStatus;
+          - type: translate
+            column: 4
+            translationTable: NetworkCardLinkStatusTranslationTable
+      mapping:
+        # The ValueTable = source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(4))
+        legacyTextParameters:
+          StatusInformation: $column(3)
 translations:
   NetworkCardLinkStatusTranslationTable:
     "2": ok
@@ -123,96 +216,3 @@ translations:
     "5": degraded
     "6": ok
     "7": ok
-connector:
-  displayName: HP Insight Management Agent - HBA
-  version: 1.0
-  information: This connector monitors the HBA cards present in an HP ProLiant system by connecting to the HP Insight Management agent.
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - NT
-    - Linux
-    - OSF1
-    - VMS
-    - OOB
-    - Solaris
-    criteria:
-    # The system must have at least one HBA
-    - type: snmpGetNext
-      oid: 1.3.6.1.4.1.232.16.2.7.1.1
-  platforms: HP ProLiant
-  reliesOn: HP Insight Management Agents
-monitors:
-  network:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = the cpqFcaHostCntlr SNMP table
-          # DeviceID;ModelCode;WWNAddress;SerialNumber;HWLocation;
-          type: snmpTable
-          oid: 1.3.6.1.4.1.232.16.2.7.1.1
-          selectColumns: "ID,3,6,10,11"
-          computes:
-            # Translate ModelCode into a more readable string
-            # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
-          - type: translate
-            column: 2
-            translationTable: HostControllerModelTranslationTable
-          # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
-          - type: leftConcat
-            column: 5
-            value: "Location: "
-      mapping:
-        # InstanceTable
-        source: $monitors.network.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          model: $column(2)
-          device_type: FC Port
-          physical_address: $column(3)
-          physical_address_type: WWN
-          serial_number: $column(4)
-          info: $column(5)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), \"FC Port\", $column(2))"
-    collect:
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = the cpqFcaHostCntlr snmp table
-          # ID;Status
-          type: snmpTable
-          oid: 1.3.6.1.4.1.232.16.2.7.1.1
-          selectColumns: "ID,4"
-          computes:
-            # Duplicate the status column
-            # ID;Status;Status;Status;
-          - type: duplicateColumn
-            column: 2
-          - type: duplicateColumn
-            column: 2
-            # Translate the first status column into a PATROL status
-            # ID;PATROLStatus;Status;Status;
-          - type: translate
-            column: 2
-            translationTable: NetworkCardStatusTranslationTable
-            # Translate the second status column into a more readable string
-            # ID;PATROLStatus;StatusInformation;Status;
-          - type: translate
-            column: 3
-            translationTable: NetworkCardStatusInformationTranslationTable
-            # Translate the third status column into LinkStatus
-            # ID;PATROLStatus;StatusInformation;LinkStatus;
-          - type: translate
-            column: 4
-            translationTable: NetworkCardLinkStatusTranslationTable
-      mapping:
-        # The ValueTable = source(1)
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(4))
-        legacyTextParameters:
-          StatusInformation: $column(3)

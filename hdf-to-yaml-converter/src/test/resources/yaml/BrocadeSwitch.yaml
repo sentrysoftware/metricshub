@@ -1,90 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS="[;]"}
-    $2 ~ /[0-9]+/ {
-       if (($2 / 10625) == int($2 / 10625)) { speed = ($2 / 106.25) }
-       else if (($2 / 1250) == int($2 / 1250)) { speed = ($2 / 125.0) }
-       else { speed =  $2 / 100}
-       print "MSHW;" $1 ";" speed ";"
-       }
-translations:
-  WaveTypeTranslationTable:
-    "2": LongWave Laser
-    default: ""
-    "3": ShortWave Laser
-    "4": LongWave LED
-    "5": Copper
-  PortLinkStatusInformationTranslationTable:
-    "1": ok
-    "2": degraded
-    default: ok
-    "3": degraded
-  PortStatusInformationTranslationTable:
-    "1": Card No Longer Present
-    "2": Transceiver No Longer Present
-    default: Unknown Status
-    "3": Laser Fault
-    "4": No Light
-    "5": No Sync
-    "6": ""
-    "7": Port Faulty
-    "8": Failed Diagnostics
-    "9": Port is Locking to Reference Signal
-  SensorStatusTranslationTable:
-    "1": UNKNOWN
-    "2": failed
-    default: UNKNOWN
-    "3": degraded
-    "4": ok
-    "5": degraded
-    "6": failed
-  OtherDeviceTypeTT:
-    "4": CP
-    "5": CP-Other
-    "6": SB
-    "7": WWN
-    "10": CR-SB
-  PortTypeTranslationTable:
-    default: FC Port
-    "3": FC Port FL
-    "4": FC Port F
-    "5": FC Port E
-    "6": FC Port G
-    "7": FC Port EX
-  AdminSpeedTranslationTable:
-    "1": 1000
-    "2": 2000
-    default: ""
-    "3": ""
-    "4": 4000
-    "5": 8000
-    "6": 10000
-  OtherDeviceStatusInfoTT:
-    "1": Other Status
-    "2": Unknown Status
-    default: UNKNOWN
-    "3": "On"
-    "4": "Off"
-    "5": Faulty
-  PortStatusTranslationTable:
-    "1": failed
-    "2": failed
-    default: UNKNOWN
-    "3": failed
-    "4": ok
-    "5": ok
-    "6": ok
-    "7": failed
-    "8": failed
-    "9": degraded
-  OtherDeviceStatusTT:
-    "1": UNKNOWN
-    "2": UNKNOWN
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": failed
 connector:
   displayName: Brocade SAN Switch
   platforms: Brocade SAN
@@ -635,3 +549,89 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+    $2 ~ /[0-9]+/ {
+       if (($2 / 10625) == int($2 / 10625)) { speed = ($2 / 106.25) }
+       else if (($2 / 1250) == int($2 / 1250)) { speed = ($2 / 125.0) }
+       else { speed =  $2 / 100}
+       print "MSHW;" $1 ";" speed ";"
+       }
+translations:
+  WaveTypeTranslationTable:
+    "2": LongWave Laser
+    default: ""
+    "3": ShortWave Laser
+    "4": LongWave LED
+    "5": Copper
+  PortLinkStatusInformationTranslationTable:
+    "1": ok
+    "2": degraded
+    default: ok
+    "3": degraded
+  PortStatusInformationTranslationTable:
+    "1": Card No Longer Present
+    "2": Transceiver No Longer Present
+    default: Unknown Status
+    "3": Laser Fault
+    "4": No Light
+    "5": No Sync
+    "6": ""
+    "7": Port Faulty
+    "8": Failed Diagnostics
+    "9": Port is Locking to Reference Signal
+  SensorStatusTranslationTable:
+    "1": UNKNOWN
+    "2": failed
+    default: UNKNOWN
+    "3": degraded
+    "4": ok
+    "5": degraded
+    "6": failed
+  OtherDeviceTypeTT:
+    "4": CP
+    "5": CP-Other
+    "6": SB
+    "7": WWN
+    "10": CR-SB
+  PortTypeTranslationTable:
+    default: FC Port
+    "3": FC Port FL
+    "4": FC Port F
+    "5": FC Port E
+    "6": FC Port G
+    "7": FC Port EX
+  AdminSpeedTranslationTable:
+    "1": 1000
+    "2": 2000
+    default: ""
+    "3": ""
+    "4": 4000
+    "5": 8000
+    "6": 10000
+  OtherDeviceStatusInfoTT:
+    "1": Other Status
+    "2": Unknown Status
+    default: UNKNOWN
+    "3": "On"
+    "4": "Off"
+    "5": Faulty
+  PortStatusTranslationTable:
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": failed
+    "8": failed
+    "9": degraded
+  OtherDeviceStatusTT:
+    "1": UNKNOWN
+    "2": UNKNOWN
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed

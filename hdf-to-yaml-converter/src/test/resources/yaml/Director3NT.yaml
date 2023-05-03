@@ -1,71 +1,4 @@
 ---
-translations:
-  PhysicalDiskStatusInformationTranslationTable:
-    "0": Empty
-    "1": Standby
-    "133": Hot Spare
-    "254": Reserved
-    default: Unknown Status
-    "4": Defunct Hot Spare
-    "5": Standby Hot Spare
-    "137": Online
-    "139": Rebuild
-    "8": Defunct
-    "129": Ready
-  VoltageTypeTranslationTable:
-    "0": ""
-    "1": +2.5a V
-    "2": +1.5 V
-    default: ""
-    "3": +3.3 V
-    "4": +5 V
-    "5": +12 V
-    "6": -12 V
-    "7": -5 V
-    "8": VIO
-    "9": Vcore
-    "10": Bus
-  LogicalDiskStatusInformationTranslationTable:
-    "0": Free
-    "2": Offline
-    default: Unknown Status
-    "3": ""
-    "36": Critical System
-    "4": Critical
-    "5": Migration
-    "6": System
-    "20": Critical Migration
-  TemperatureTypeTranslationTable:
-    "1": Motherboard
-    "2": CPU
-    default: ""
-  FanTypeTranslationTable:
-    "1": System
-    "2": Power-Supply
-    default: ""
-    "3": CPU
-  LogicalDiskStatusTranslationTable:
-    "0": ok
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "36": degraded
-    "4": degraded
-    "5": ok
-    "6": ok
-    "20": degraded
-  PhysicalDiskStatusTranslationTable:
-    "0": ok
-    "1": ok
-    "133": ok
-    "254": ok
-    default: UNKNOWN
-    "4": degraded
-    "5": ok
-    "137": ok
-    "139": degraded
-    "8": failed
-    "129": ok
 connector:
   displayName: IBM Director Agent 3.x - Windows
   platforms: IBM xSeries
@@ -391,3 +324,70 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    "0": Empty
+    "1": Standby
+    "133": Hot Spare
+    "254": Reserved
+    default: Unknown Status
+    "4": Defunct Hot Spare
+    "5": Standby Hot Spare
+    "137": Online
+    "139": Rebuild
+    "8": Defunct
+    "129": Ready
+  VoltageTypeTranslationTable:
+    "0": ""
+    "1": +2.5a V
+    "2": +1.5 V
+    default: ""
+    "3": +3.3 V
+    "4": +5 V
+    "5": +12 V
+    "6": -12 V
+    "7": -5 V
+    "8": VIO
+    "9": Vcore
+    "10": Bus
+  LogicalDiskStatusInformationTranslationTable:
+    "0": Free
+    "2": Offline
+    default: Unknown Status
+    "3": ""
+    "36": Critical System
+    "4": Critical
+    "5": Migration
+    "6": System
+    "20": Critical Migration
+  TemperatureTypeTranslationTable:
+    "1": Motherboard
+    "2": CPU
+    default: ""
+  FanTypeTranslationTable:
+    "1": System
+    "2": Power-Supply
+    default: ""
+    "3": CPU
+  LogicalDiskStatusTranslationTable:
+    "0": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "36": degraded
+    "4": degraded
+    "5": ok
+    "6": ok
+    "20": degraded
+  PhysicalDiskStatusTranslationTable:
+    "0": ok
+    "1": ok
+    "133": ok
+    "254": ok
+    default: UNKNOWN
+    "4": degraded
+    "5": ok
+    "137": ok
+    "139": degraded
+    "8": failed
+    "129": ok

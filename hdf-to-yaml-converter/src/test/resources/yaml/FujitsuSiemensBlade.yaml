@@ -1,43 +1,4 @@
 ---
-translations:
-  BladeStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "4": failed
-    "5": failed
-    "6": ok
-  FanStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": degraded
-    "6": degraded
-  PowerSupplyStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "4": failed
-    "5": failed
-    "6": ok
-  FanStatusInformationTranslationTable:
-    "2": Disabled
-    default: Unknown Status
-    "3": ""
-    "4": Failed!
-    "5": Failure predicted
-    "6": Redundanct fan failed
-  BladeStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown
-    "4": Error
-    "5": Critical
-    "6": Standby
-  PowerSupplyStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "4": Error
-    "5": Critical
-    "6": "Off"
 connector:
   displayName: Fujitsu-Siemens Management Blade (FSC BX Blade Servers)
   platforms: Fujitsu-Siemens BX Blade
@@ -264,3 +225,42 @@ monitors:
           hw.status{hw.type="blade"}: $column(1)
         legacyTextParameters:
           StatusInformation: $column(2)
+translations:
+  BladeStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "4": failed
+    "5": failed
+    "6": ok
+  FanStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": degraded
+  PowerSupplyStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "4": failed
+    "5": failed
+    "6": ok
+  FanStatusInformationTranslationTable:
+    "2": Disabled
+    default: Unknown Status
+    "3": ""
+    "4": Failed!
+    "5": Failure predicted
+    "6": Redundanct fan failed
+  BladeStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown
+    "4": Error
+    "5": Critical
+    "6": Standby
+  PowerSupplyStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "4": Error
+    "5": Critical
+    "6": "Off"

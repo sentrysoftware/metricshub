@@ -1,39 +1,4 @@
 ---
-translations:
-  TemperatureStatusTranslationTable:
-    high: degraded
-    default: UNKNOWN
-    too high: failed
-    ok: ok
-  FanStatusTranslationTable:
-    too low: failed
-    default: UNKNOWN
-    low: degraded
-    ok: ok
-  VoltageStatusTranslationTable:
-    too low: degraded
-    high: degraded
-    default: UNKNOWN
-    low: degraded
-    too high: degraded
-    ok: ok
-  TemperatureStatusInformationTranslationTable:
-    high: High
-    default: Unknown Status
-    too high: Too high
-    ok: ""
-  VoltageStatusInformationTranslationTable:
-    too low: Too low
-    high: High
-    default: Unknown Status
-    low: Low
-    too high: Too high
-    ok: ""
-  FanStatusInformationTranslationTable:
-    too low: Too low
-    default: Unknown Status
-    low: Low
-    ok: ""
 connector:
   displayName: IBM Netfinity Manager 5.20.x - Basic
   platforms: IBM Netfinity
@@ -230,3 +195,38 @@ monitors:
           hw.status{hw.type="voltage"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  TemperatureStatusTranslationTable:
+    high: degraded
+    default: UNKNOWN
+    too high: failed
+    ok: ok
+  FanStatusTranslationTable:
+    too low: failed
+    default: UNKNOWN
+    low: degraded
+    ok: ok
+  VoltageStatusTranslationTable:
+    too low: degraded
+    high: degraded
+    default: UNKNOWN
+    low: degraded
+    too high: degraded
+    ok: ok
+  TemperatureStatusInformationTranslationTable:
+    high: High
+    default: Unknown Status
+    too high: Too high
+    ok: ""
+  VoltageStatusInformationTranslationTable:
+    too low: Too low
+    high: High
+    default: Unknown Status
+    low: Low
+    too high: Too high
+    ok: ""
+  FanStatusInformationTranslationTable:
+    too low: Too low
+    default: Unknown Status
+    low: Low
+    ok: ""

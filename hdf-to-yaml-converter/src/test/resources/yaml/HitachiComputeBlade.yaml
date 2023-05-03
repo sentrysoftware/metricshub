@@ -1,39 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS="[;]"}
-    $1 ~ /P-[0-9]/ {Partition = $1 ; SlotNum = $2 ; BladeID = $3
-                    if (members[Partition] != "") { members[Partition] = members[Partition] " - " }
-                    members[Partition] = members[Partition] "(Blade-" BladeID "/Slot-" SlotNum ")"
-                     }
-    END { for (Partition in members) {
-                 print "MSHW;" Partition ";Members = " members[Partition] ";"
-                }
-          }
-translations:
-  bladeStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": UNKNOWN
-  statusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": UNKNOWN
-  validStatusTranslationTable:
-    "1": failed
-    "2": ok
-    default: UNKNOWN
-    "3": UNKNOWN
-  PowerStateTranslationTable:
-    "1": "off"
-    "2": "off"
-    default: ""
-    "3": "on"
-    "4": ""
-    "5": "off"
-    "6": "off"
 connector:
   displayName: Hitachi Compute Blade Chassis
   platforms: Hitachi Compute Blade
@@ -2623,3 +2588,38 @@ monitors:
         metrics:
           hw.status{hw.type="temperature"}: $column(2)
           hw.temperature: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+    $1 ~ /P-[0-9]/ {Partition = $1 ; SlotNum = $2 ; BladeID = $3
+                    if (members[Partition] != "") { members[Partition] = members[Partition] " - " }
+                    members[Partition] = members[Partition] "(Blade-" BladeID "/Slot-" SlotNum ")"
+                     }
+    END { for (Partition in members) {
+                 print "MSHW;" Partition ";Members = " members[Partition] ";"
+                }
+          }
+translations:
+  bladeStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN
+  statusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN
+  validStatusTranslationTable:
+    "1": failed
+    "2": ok
+    default: UNKNOWN
+    "3": UNKNOWN
+  PowerStateTranslationTable:
+    "1": "off"
+    "2": "off"
+    default: ""
+    "3": "on"
+    "4": ""
+    "5": "off"
+    "6": "off"

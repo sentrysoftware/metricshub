@@ -1,131 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {
-        FS = ";";
-    }
-    {
-        if ($2 ~ /gpu-/) { gpuId = $2; gpuIds[gpuId] = gpuId}
-        if ($1 ~ /D3D Video Decode/)  { gpuId = $2; VideoDecode[gpuId] = $3 }
-        if ($1 ~ /D3D Video Encode/) { gpuId = $2; VideoEncode[gpuId] = $3 }
-        if ($1 ~ /GPU Package/) { gpuId = $2; PowerConsumption[gpuId] = $3 }
-        if ($1 ~ /GPU PCIe Tx/) { gpuId = $2; TransmittedBytes[gpuId] = $3 }
-        if ($1 ~ /GPU PCIe Rx/) { gpuId = $2; ReceivedBytes[gpuId] = $3 }
-        if ($1 ~ /GPU Core/ && $4 ~ /Load/) { gpuId = $2; UsedTimePercent[gpuId] = $3 }
-        if ($1 ~ /GPU Memory$/ && $4 ~ /Load/) { gpuId = $2; Memory[gpuId] = $3}
-    }
-    END {
-        for (gpuId in gpuIds) {
-            print ("MSHW;"gpuId";"VideoDecode[gpuId]";"VideoEncode[gpuId]";"Memory[gpuId]";"PowerConsumption[gpuId]";"int(ReceivedBytes[gpuId])";"int(TransmittedBytes[gpuId])";"UsedTimePercent[gpuId]";" );
-        }
-    }
-  EmbeddedFile(3): |-
-    BEGIN { FS = ";" }
-
-    # Skip bus clock speed
-    ($1 ~ /[Bb]us/) { next; }
-
-    # Process all remaining lines
-    {
-        if (clockCount[$2] == "") {
-            clockCount[$2] = 0;
-            clockSum[$2] = 0;
-        }
-        clockCount[$2] = clockCount[$2] + 1;
-        clockSum[$2] = clockSum[$2] + $3
-    }
-
-    # Print the result at the end
-    END {
-        for (cpuId in clockCount) {
-            print "MSHW;" cpuId ";" clockSum[cpuId] / clockCount[cpuId]
-        }
-    }
-  EmbeddedFile(2): |-
-    BEGIN { FS = ";" }
-
-    # Skip sensors that mention "Max" or "Average" (they are not real sensors anyway)
-    ($2 ~ " Max" || $2 ~ " Average") { next; }
-
-    # Distance to TjMax sensors value are stored in an array to be retrieved later
-    ($2 ~ / Distance to TjMax$/) {
-        name = $2;
-        gsub(/ Distance to TjMax$/, "", name);
-        distanceToThreshold[name] = $4
-        next;
-    }
-
-    # Parse all remaining lines and store the values in arrays that will be parsed
-    # in the END section (and reconciled with the distanceToThreshold array)
-    {
-        sensorId = $1;
-        sensorName[sensorId] = $2;
-        sensorParent[sensorId] = $3;
-        sensorValue[sensorId] = $4;
-        parentId[sensorId] = $5;
-        parentType[sensorId] = $7;
-    }
-
-    # Now process what we got in our arrays and join with the thresholds
-    END {
-        for (sensorId in sensorName) {
-
-            # Retrieve the sensor properties from the arrays
-            name = sensorName[sensorId];
-            parent = sensorParent[sensorId];
-            value = sensorValue[sensorId];
-            parentDeviceId = parentId[sensorId];
-            deviceType = parentType[sensorId];
-
-            # Clean-up deviceType
-            if (deviceType == "Cpu") { deviceType = "CPU"; }
-            else if (deviceType ~ "Gpu") { deviceType = "GPU"; }
-            else if (deviceType == "Psu") { deviceType = "Power Supply"; }
-
-            # Do we have a distance to TjMax?
-            distanceToTjMax = distanceToThreshold[name]; # not sensorId!
-            if (distanceToTjMax != "") {
-                wThres = "";
-                aThres = value + distanceToTjMax;
-            } else {
-                # If no threshold from TjMax, try to figure something out
-                if (deviceType == "CPU") {
-                    wThres = 80;
-                    aThres = 90;
-                } else if (deviceType == "GPU") {
-                    wThres = 85;
-                    aThres = 100;
-                } else if (parentDeviceId ~ "^/(ssd|nvme)") {
-                    wThres = 65;
-                    aThres = 70;
-                } else if (parentDeviceId ~ "^/hdd") {
-                    wThres = 41;
-                    aThres = 50;
-                } else if (deviceType == "Motherboard") {
-                    wThres = 40;
-                    aThres = 45;
-                } else if (deviceType == "Memory" || deviceType == "Network") {
-                    wThres = 50;
-                    aThres = 60;
-                } else if (deviceType == "Power Supply") {
-                    wThres = 55;
-                    aThres = 65;
-                } else {
-                    wThres = "";
-                    aThres = "";
-                }
-            }
-
-            # Build label
-            label = deviceType " " parentDeviceId;
-            if (name != "Temperature" && name != "") {
-                label = label " - " name
-            }
-
-            # Print
-            print "MSHW;" sensorId ";" label ";" wThres ";" aThres ";"
-        }
-    }
 connector:
   displayName: Libre Hardware Monitor
   platforms: Any Windows system
@@ -655,3 +528,130 @@ monitors:
           hw.energy{hw.type="gpu"}: fakeCounter($column(5))
           hw.gpu.io{direction="receive"}: fakeCounter($column(6))
           hw.gpu.utilization{task="general"}: percent2Ratio($column(8))
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        FS = ";";
+    }
+    {
+        if ($2 ~ /gpu-/) { gpuId = $2; gpuIds[gpuId] = gpuId}
+        if ($1 ~ /D3D Video Decode/)  { gpuId = $2; VideoDecode[gpuId] = $3 }
+        if ($1 ~ /D3D Video Encode/) { gpuId = $2; VideoEncode[gpuId] = $3 }
+        if ($1 ~ /GPU Package/) { gpuId = $2; PowerConsumption[gpuId] = $3 }
+        if ($1 ~ /GPU PCIe Tx/) { gpuId = $2; TransmittedBytes[gpuId] = $3 }
+        if ($1 ~ /GPU PCIe Rx/) { gpuId = $2; ReceivedBytes[gpuId] = $3 }
+        if ($1 ~ /GPU Core/ && $4 ~ /Load/) { gpuId = $2; UsedTimePercent[gpuId] = $3 }
+        if ($1 ~ /GPU Memory$/ && $4 ~ /Load/) { gpuId = $2; Memory[gpuId] = $3}
+    }
+    END {
+        for (gpuId in gpuIds) {
+            print ("MSHW;"gpuId";"VideoDecode[gpuId]";"VideoEncode[gpuId]";"Memory[gpuId]";"PowerConsumption[gpuId]";"int(ReceivedBytes[gpuId])";"int(TransmittedBytes[gpuId])";"UsedTimePercent[gpuId]";" );
+        }
+    }
+  EmbeddedFile(3): |-
+    BEGIN { FS = ";" }
+
+    # Skip bus clock speed
+    ($1 ~ /[Bb]us/) { next; }
+
+    # Process all remaining lines
+    {
+        if (clockCount[$2] == "") {
+            clockCount[$2] = 0;
+            clockSum[$2] = 0;
+        }
+        clockCount[$2] = clockCount[$2] + 1;
+        clockSum[$2] = clockSum[$2] + $3
+    }
+
+    # Print the result at the end
+    END {
+        for (cpuId in clockCount) {
+            print "MSHW;" cpuId ";" clockSum[cpuId] / clockCount[cpuId]
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { FS = ";" }
+
+    # Skip sensors that mention "Max" or "Average" (they are not real sensors anyway)
+    ($2 ~ " Max" || $2 ~ " Average") { next; }
+
+    # Distance to TjMax sensors value are stored in an array to be retrieved later
+    ($2 ~ / Distance to TjMax$/) {
+        name = $2;
+        gsub(/ Distance to TjMax$/, "", name);
+        distanceToThreshold[name] = $4
+        next;
+    }
+
+    # Parse all remaining lines and store the values in arrays that will be parsed
+    # in the END section (and reconciled with the distanceToThreshold array)
+    {
+        sensorId = $1;
+        sensorName[sensorId] = $2;
+        sensorParent[sensorId] = $3;
+        sensorValue[sensorId] = $4;
+        parentId[sensorId] = $5;
+        parentType[sensorId] = $7;
+    }
+
+    # Now process what we got in our arrays and join with the thresholds
+    END {
+        for (sensorId in sensorName) {
+
+            # Retrieve the sensor properties from the arrays
+            name = sensorName[sensorId];
+            parent = sensorParent[sensorId];
+            value = sensorValue[sensorId];
+            parentDeviceId = parentId[sensorId];
+            deviceType = parentType[sensorId];
+
+            # Clean-up deviceType
+            if (deviceType == "Cpu") { deviceType = "CPU"; }
+            else if (deviceType ~ "Gpu") { deviceType = "GPU"; }
+            else if (deviceType == "Psu") { deviceType = "Power Supply"; }
+
+            # Do we have a distance to TjMax?
+            distanceToTjMax = distanceToThreshold[name]; # not sensorId!
+            if (distanceToTjMax != "") {
+                wThres = "";
+                aThres = value + distanceToTjMax;
+            } else {
+                # If no threshold from TjMax, try to figure something out
+                if (deviceType == "CPU") {
+                    wThres = 80;
+                    aThres = 90;
+                } else if (deviceType == "GPU") {
+                    wThres = 85;
+                    aThres = 100;
+                } else if (parentDeviceId ~ "^/(ssd|nvme)") {
+                    wThres = 65;
+                    aThres = 70;
+                } else if (parentDeviceId ~ "^/hdd") {
+                    wThres = 41;
+                    aThres = 50;
+                } else if (deviceType == "Motherboard") {
+                    wThres = 40;
+                    aThres = 45;
+                } else if (deviceType == "Memory" || deviceType == "Network") {
+                    wThres = 50;
+                    aThres = 60;
+                } else if (deviceType == "Power Supply") {
+                    wThres = 55;
+                    aThres = 65;
+                } else {
+                    wThres = "";
+                    aThres = "";
+                }
+            }
+
+            # Build label
+            label = deviceType " " parentDeviceId;
+            if (name != "Temperature" && name != "") {
+                label = label " - " name
+            }
+
+            # Print
+            print "MSHW;" sensorId ";" label ";" wThres ";" aThres ";"
+        }
+    }

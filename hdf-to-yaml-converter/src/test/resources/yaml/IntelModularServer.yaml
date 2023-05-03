@@ -1,30 +1,4 @@
 ---
-translations:
-  DiskStatusTranslationTable:
-    default: failed
-    ok: ok
-  DiskPFATranslationTable:
-    default: "true"
-    ok: "false"
-  networkStatusTranslationTable:
-    "1": ok
-    "2": ok
-    "3": degraded
-    "4": UNKNOWN
-    "5": degraded
-    "6": failed
-  GenericLinkStatusTranslationTable:
-    "1": ok
-    "2": degraded
-  LEDStatusTranslationTable:
-    "0": ok
-    "1": degraded
-    "-16": UNKNOWN
-    "2": failed
-    default: UNKNOWN
-    "-1": UNKNOWN
-    "-4": ok
-    "-32": UNKNOWN
 connector:
   displayName: Intel Modular Server
   platforms: Intel Modular
@@ -631,3 +605,29 @@ monitors:
           hw.network.io{direction="receive"}: $column(3)
           hw.network.io{direction="transmit"}: $column(4)
           hw.network.bandwidth.limit: megaBit2Bit($column(2))
+translations:
+  DiskStatusTranslationTable:
+    default: failed
+    ok: ok
+  DiskPFATranslationTable:
+    default: "true"
+    ok: "false"
+  networkStatusTranslationTable:
+    "1": ok
+    "2": ok
+    "3": degraded
+    "4": UNKNOWN
+    "5": degraded
+    "6": failed
+  GenericLinkStatusTranslationTable:
+    "1": ok
+    "2": degraded
+  LEDStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "-16": UNKNOWN
+    "2": failed
+    default: UNKNOWN
+    "-1": UNKNOWN
+    "-4": ok
+    "-32": UNKNOWN

@@ -1,111 +1,4 @@
 ---
-translations:
-  FanStatusTranslationTable:
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": degraded
-    "6": degraded
-    "7": ok
-    "8": failed
-  EnclosureTypeTranslationTable:
-    "2": Computer
-    default: Computer
-    "3": Computer
-    "4": Enclosure
-    "5": Storage
-  PowerSupplyStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": degraded
-    "5": degraded
-    "6": degraded
-    "7": failed
-    "8": failed
-  VoltageStrongestBitCheckTranslationTable:
-    "15,1": 65536
-    "15,0": 0
-  MemoryBitTranslationTable:
-    "4,1": EDO
-    "5,1": Parity
-    "6,1": ECC
-    "7,1": SIMM
-    "8,1": DIMM
-    "9,1": RIMM
-  CPUStatusTranslationTable:
-    "2": degraded
-    default: UNKNOWN
-    "3": ok
-    "5": failed
-    "6": failed
-    "7": degraded
-  MemoryModuleStatusInformationTranslationTable:
-    "2": Error (Disabled)
-    default: Unknown Status
-    "3": ""
-    "4": Empty Socket
-    "5": Failed (Disabled)
-    "6": Failing!
-    "7": Hot Spare
-  TemperatureTypeTranslationTable:
-    "1": ""
-    "2": Disabled
-    default: ""
-    "3": CPU
-    "4": Ambient
-    "5": Housing
-    "6": Not available
-    "7": I/O Board
-    "8": Power Backplane
-  FanStatusInformationTranslationTable:
-    default: Unknown Status
-    "3": ""
-    "4": Failed
-    "5": Predicted Failure
-    "6": Failed Redundancy
-    "7": Not available
-    "8": Removed
-  FanTypeTranslationTable:
-    "2": Disabled
-    default: ""
-    "3": CPU
-    "4": Component
-    "5": Housing
-    "6": Power-Supply
-  PowerSupplyStatusInformationTranslationTable:
-    "2": Not Present
-    default: Unknown Status
-    "3": ""
-    "4": Failed
-    "5": AC Failure
-    "6": DC Failure
-    "7": Critical Temperature
-    "8": Not Manageable
-  MemoryModuleStatusTranslationTable:
-    "2": failed
-    default: UNKNOWN
-    "3": ok
-    "5": failed
-    "6": degraded
-    "7": ok
-  IntrusionCodeTranslationTable:
-    "11": degraded
-    "2": degraded
-    default: ok
-    "14": degraded
-    "6": degraded
-    "8": degraded
-    "9": degraded
-    "10": degraded
-  CPUStatusInformationTranslationTable:
-    "2": Disabled
-    default: Unknown Status
-    "3": ""
-    "4": Empty Socket
-    "5": Error
-    "6": Failed
-    "7": Missing Termination
 connector:
   displayName: Fujitsu-Siemens Serverview
   platforms: Fujitsu-Siemens PRIMERGY
@@ -688,3 +581,110 @@ monitors:
           hw.status{hw.type="cpu"}: $column(1)
         legacyTextParameters:
           StatusInformation: $column(2)
+translations:
+  FanStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": degraded
+    "7": ok
+    "8": failed
+  EnclosureTypeTranslationTable:
+    "2": Computer
+    default: Computer
+    "3": Computer
+    "4": Enclosure
+    "5": Storage
+  PowerSupplyStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": degraded
+    "6": degraded
+    "7": failed
+    "8": failed
+  VoltageStrongestBitCheckTranslationTable:
+    "15,1": 65536
+    "15,0": 0
+  MemoryBitTranslationTable:
+    "4,1": EDO
+    "5,1": Parity
+    "6,1": ECC
+    "7,1": SIMM
+    "8,1": DIMM
+    "9,1": RIMM
+  CPUStatusTranslationTable:
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+    "5": failed
+    "6": failed
+    "7": degraded
+  MemoryModuleStatusInformationTranslationTable:
+    "2": Error (Disabled)
+    default: Unknown Status
+    "3": ""
+    "4": Empty Socket
+    "5": Failed (Disabled)
+    "6": Failing!
+    "7": Hot Spare
+  TemperatureTypeTranslationTable:
+    "1": ""
+    "2": Disabled
+    default: ""
+    "3": CPU
+    "4": Ambient
+    "5": Housing
+    "6": Not available
+    "7": I/O Board
+    "8": Power Backplane
+  FanStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Failed
+    "5": Predicted Failure
+    "6": Failed Redundancy
+    "7": Not available
+    "8": Removed
+  FanTypeTranslationTable:
+    "2": Disabled
+    default: ""
+    "3": CPU
+    "4": Component
+    "5": Housing
+    "6": Power-Supply
+  PowerSupplyStatusInformationTranslationTable:
+    "2": Not Present
+    default: Unknown Status
+    "3": ""
+    "4": Failed
+    "5": AC Failure
+    "6": DC Failure
+    "7": Critical Temperature
+    "8": Not Manageable
+  MemoryModuleStatusTranslationTable:
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "5": failed
+    "6": degraded
+    "7": ok
+  IntrusionCodeTranslationTable:
+    "11": degraded
+    "2": degraded
+    default: ok
+    "14": degraded
+    "6": degraded
+    "8": degraded
+    "9": degraded
+    "10": degraded
+  CPUStatusInformationTranslationTable:
+    "2": Disabled
+    default: Unknown Status
+    "3": ""
+    "4": Empty Socket
+    "5": Error
+    "6": Failed
+    "7": Missing Termination

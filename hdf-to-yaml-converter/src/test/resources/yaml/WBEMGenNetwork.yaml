@@ -1,20 +1,4 @@
 ---
-translations:
-  GenericStatusTranslationTable:
-    "0": ok
-    "1": ok
-    "2": ok
-    "3": degraded
-    "4": failed
-  GenericStatusInformationTranslationTable:
-    "0": ""
-    "1": Initializing
-    "2": Reset
-    "3": Closing
-    "4": Not-ready
-  GenericLinkStatusTranslationTable:
-    "0": ok
-    "1": degraded
 connector:
   displayName: WMI - Network
   platforms: Any system
@@ -306,3 +290,19 @@ monitors:
           hw.network.io{direction="transmit"}: $column(18)
         legacyTextParameters:
           StatusInformation: $column(5)
+translations:
+  GenericStatusTranslationTable:
+    "0": ok
+    "1": ok
+    "2": ok
+    "3": degraded
+    "4": failed
+  GenericStatusInformationTranslationTable:
+    "0": ""
+    "1": Initializing
+    "2": Reset
+    "3": Closing
+    "4": Not-ready
+  GenericLinkStatusTranslationTable:
+    "0": ok
+    "1": degraded

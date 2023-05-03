@@ -1,91 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN
-    {
-      if ( $1 ~ /^[{]/ ) {
-        print $0
-      }
-    }
-  EmbeddedFile(3): |-
-    BEGIN {FS=":";}
-    {
-    if ($1 == "iBaseToken")
-        {
-           ibt = $2 ; gsub(/;/, "", ibt) ;
-             print "iBaseToken:" ibt
-        }
-    }
-  EmbeddedFile(2): |-
-    BEGIN {FS=":";}
-    {
-    if ($1 == "Set-Cookie")
-        {
-           cookie = $2 ; gsub(/^[ \t]+/, "", cookie) ;
-             print "Cookie:" cookie
-        }
-    }
-translations:
-  PhysicalDiskTypeTranslationTable:
-    "11": NL_SAS_SED
-    "12": SLC_SSD_SED
-    "13": MLC_SSD_SED
-    "0": FC
-    "1": SAS
-    "2": SATA
-    "3": SSD
-    "4": NL_SAS
-    "5": SLC_SSD
-    "6": MLC_SSD
-    "7": FC_SED
-    "8": SAS_SED
-    "9": SATA_SED
-    "10": SSD_SED
-  EnclosureProductModeTranslationTable:
-    "68": 5500 V3
-    "70": 5300 V3
-    "71": 2800 V3
-    "61": 6800 V3
-    "72": 18500 V3
-    "62": 6900 V3
-    "73": 18800 V3
-    "63": 5600 V3
-    "64": 5800 V3
-  HealthStatusInformationTranslationTable:
-    "0": Unknown
-    "11": no input
-    "1": Normal
-    "12": low battery
-    "2": Faulty
-    "3": Failing
-    "9": inconsistent
-  HealthStatusTranslationTable:
-    "0": UNKNOWN
-    "11": degraded
-    "1": ok
-    "12": degraded
-    "2": failed
-    "3": degraded
-    "9": degraded
-  TypeTranslationTable:
-    "211": Fan
-    "212": Fibre Channel
-    "213": Ethernet
-    "214": SAS
-    "206": Enclosure
-    "207": DiskController
-    "209": DiskController" // Interface Modules
-  LinkStatusTranslationTable:
-    "0": degraded
-    "11": degraded
-    "1": ok
-    "2": ok
-    "53": degraded
-    "10": ok
-  LogicalDiskTypeTranslationTable:
-    "0": Thick LUN
-    "1": Thin LUN
-    "2": Snapshot
 connector:
   displayName: Huawei OceanStor (REST)
   platforms: Huawei OceanStor
@@ -1763,3 +1676,90 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(6))
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN
+    {
+      if ( $1 ~ /^[{]/ ) {
+        print $0
+      }
+    }
+  EmbeddedFile(3): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "iBaseToken")
+        {
+           ibt = $2 ; gsub(/;/, "", ibt) ;
+             print "iBaseToken:" ibt
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "Set-Cookie")
+        {
+           cookie = $2 ; gsub(/^[ \t]+/, "", cookie) ;
+             print "Cookie:" cookie
+        }
+    }
+translations:
+  PhysicalDiskTypeTranslationTable:
+    "11": NL_SAS_SED
+    "12": SLC_SSD_SED
+    "13": MLC_SSD_SED
+    "0": FC
+    "1": SAS
+    "2": SATA
+    "3": SSD
+    "4": NL_SAS
+    "5": SLC_SSD
+    "6": MLC_SSD
+    "7": FC_SED
+    "8": SAS_SED
+    "9": SATA_SED
+    "10": SSD_SED
+  EnclosureProductModeTranslationTable:
+    "68": 5500 V3
+    "70": 5300 V3
+    "71": 2800 V3
+    "61": 6800 V3
+    "72": 18500 V3
+    "62": 6900 V3
+    "73": 18800 V3
+    "63": 5600 V3
+    "64": 5800 V3
+  HealthStatusInformationTranslationTable:
+    "0": Unknown
+    "11": no input
+    "1": Normal
+    "12": low battery
+    "2": Faulty
+    "3": Failing
+    "9": inconsistent
+  HealthStatusTranslationTable:
+    "0": UNKNOWN
+    "11": degraded
+    "1": ok
+    "12": degraded
+    "2": failed
+    "3": degraded
+    "9": degraded
+  TypeTranslationTable:
+    "211": Fan
+    "212": Fibre Channel
+    "213": Ethernet
+    "214": SAS
+    "206": Enclosure
+    "207": DiskController
+    "209": DiskController" // Interface Modules
+  LinkStatusTranslationTable:
+    "0": degraded
+    "11": degraded
+    "1": ok
+    "2": ok
+    "53": degraded
+    "10": ok
+  LogicalDiskTypeTranslationTable:
+    "0": Thick LUN
+    "1": Thin LUN
+    "2": Snapshot

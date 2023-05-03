@@ -1,6 +1,60 @@
 ---
 extends:
 - EMCNavisphereCLI-header
+connector:
+  displayName: EMC Celerra/VNX Unified System (SSH)
+  platforms: "EMC Celerra,EMC VNX Unified"
+  reliesOn: EMC naviseccli and nas_inventory utilities
+  information: This connector provides hardware monitoring by connecting to the Control Server of EMC Celerra and EMC VNX Unified Systems.
+  detection:
+    connectionTypes:
+    - local
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - EMCuemcli
+    - EMCNavisphereCLI
+    - EMCNavisphereCLIGlobal
+    criteria:
+    # SSSU Should Exist
+    - type: osCommand
+      commandLine: /nas/bin/nas_inventory
+      errorMessage: nas_inventory command not found
+      expectedResult: Error 2100
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = EF2
+          # Note: A timeout here can indicate that there have been excessive failed authentication attempts
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(2)$ %{USERNAME} %{PASSWORD};history -d $((HISTCMD-1))"
+          timeout: 600
+        source(2):
+          # Need to copy this into Enclosure 3 to match other NaviSphere Connectors
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+        source(3):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(5)$
+    collect:
+      sources:
+        source(1):
+          # Source(1) = EF2
+          # Note: A timeout here can indicate that there have been excessive failed authentication attempts
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(2)$ %{USERNAME} %{PASSWORD};history -d$((HISTCMD-1))"
+          timeout: 600
+        source(2):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+        source(3):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
 embedded:
   EmbeddedFile(2): |-
     #!/bin/bash
@@ -106,57 +160,3 @@ embedded:
         fi
 
     fi
-connector:
-  displayName: EMC Celerra/VNX Unified System (SSH)
-  platforms: "EMC Celerra,EMC VNX Unified"
-  reliesOn: EMC naviseccli and nas_inventory utilities
-  information: This connector provides hardware monitoring by connecting to the Control Server of EMC Celerra and EMC VNX Unified Systems.
-  detection:
-    connectionTypes:
-    - local
-    - remote
-    appliesTo:
-    - Storage
-    supersedes:
-    - EMCuemcli
-    - EMCNavisphereCLI
-    - EMCNavisphereCLIGlobal
-    criteria:
-    # SSSU Should Exist
-    - type: osCommand
-      commandLine: /nas/bin/nas_inventory
-      errorMessage: nas_inventory command not found
-      expectedResult: Error 2100
-monitors:
-  enclosure:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = EF2
-          # Note: A timeout here can indicate that there have been excessive failed authentication attempts
-          type: osCommand
-          commandLine: "/bin/sh %EmbeddedFile(2)% %{USERNAME} %{PASSWORD};history -d $((HISTCMD-1))"
-          timeout: 600
-        source(2):
-          # Need to copy this into Enclosure 3 to match other NaviSphere Connectors
-          type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
-        source(3):
-          type: tableUnion
-          tables:
-          - $monitors.enclosure.discovery.sources.source(2)$
-          - $monitors.enclosure.collect.sources.source(5)$
-    collect:
-      sources:
-        source(1):
-          # Source(1) = EF2
-          # Note: A timeout here can indicate that there have been excessive failed authentication attempts
-          type: osCommand
-          commandLine: "/bin/sh %EmbeddedFile(2)% %{USERNAME} %{PASSWORD};history -d$((HISTCMD-1))"
-          timeout: 600
-        source(2):
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
-        source(3):
-          type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$

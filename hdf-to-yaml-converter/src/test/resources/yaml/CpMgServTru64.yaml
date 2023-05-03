@@ -1,27 +1,4 @@
 ---
-translations:
-  FanStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "4": failed
-  PowerSupplyStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-  FanStatusInformationTranslationTable:
-    "2": ok
-    default: Unknown Status
-    "4": Failed
-  FanTypeTranslationTable:
-    "2": System
-    default: ""
-    "3": CPU
-  PowerSupplyStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Failed
 connector:
   displayName: HP Insight Management Agent - Server (Alpha)
   platforms: HP ProLiant
@@ -154,3 +131,26 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(1)
         legacyTextParameters:
           StatusInformation: $column(2)
+translations:
+  FanStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "4": failed
+  PowerSupplyStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  FanStatusInformationTranslationTable:
+    "2": ok
+    default: Unknown Status
+    "4": Failed
+  FanTypeTranslationTable:
+    "2": System
+    default: ""
+    "3": CPU
+  PowerSupplyStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed

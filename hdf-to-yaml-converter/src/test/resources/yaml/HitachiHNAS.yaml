@@ -1,152 +1,4 @@
 ---
-translations:
-  fanFittedStatusInformationTranslationTable:
-    "1": ""
-    "2": "Fitted correctly, but ID is wrong. "
-    default: 'Unknown Fitted Status '
-    "3": 'Fan is Missing. '
-  batteryStatusInformationTranslationTable:
-    "11": Battery status changed to ignore
-    "1": ""
-    "2": Fault
-    default: Unknown Status
-    "3": Missing
-    "4": Initializing
-    "5": Charging - Normal
-    "6": Discharging
-    "7": Self Testing
-    "8": Not Responding
-    "9": Low
-    "10": Very Low
-  physicalDiskTranslationTable:
-    "1": ""
-    "2": Volume
-    default: ""
-    "3": Swap
-  fanFittedStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  logicalDiskStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": degraded
-    "6": failed
-    "7": degraded
-    "8": degraded
-    "9": UNKNOWN
-  physicalDiskStatusTranslationTable:
-    "1": UNKNOWN
-    "2": degraded
-    default: UNKNOWN
-    "3": degraded
-    "4": failed
-    "5": failed
-    "6": ok
-  fanSpeedStatusInformationTranslationTable:
-    "1": ""
-    "2": 'Speed at Warning Level. '
-    default: 'Unknown Speed Status '
-    "3": 'Speed at Severe Level. '
-  temperatureStatusInformationTranslationTable:
-    "1": ""
-    "2": Outside of expected range but not severe.
-    default: Unknown Status
-    "3": Severely outside expected range.
-    "4": Sensor unit has failed.  Temperature value is invalid.
-    "5": Warning Condition
-    "6": Unknown
-  cacheLevelTranslationTable:
-    "1": "Cache Mode: Write Through"
-    "2": "Cache Mode: Write Back"
-    "3": ""
-  batteryStatusTranslationTable:
-    "11": degraded
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": failed
-    "4": ok
-    "5": ok
-    "6": ok
-    "7": ok
-    "8": failed
-    "9": degraded
-    "10": failed
-  logicalDiskStatusInformationTranslationTable:
-    "1": Online
-    "2": Corrupt
-    default: Unknown Status
-    "3": Failed
-    "4": Not Present
-    "5": Disconnected
-    "6": Offline
-    "7": Initializing
-    "8": Formatting
-    "9": Unknown
-  physicalDiskStatusInformationTranslationTable:
-    "1": Unknown
-    "2": Degraded
-    default: Unknown Status
-    "3": Rebuilding
-    "4": Failed
-    "5": Invalid
-    "6": Good
-  nodeStatusInformationTranslationTable:
-    "2": Up
-    default: Unknown Status
-    "3": Not Up
-    "4": On Line
-    "5": Dead
-    "6": Dormant
-  GenericLinkStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    "3": degraded
-  fanSpeedStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-  nodeStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": ok
-    "5": failed
-    "6": degraded
-  powerSupplyStatusInformationTranslationTable:
-    "1": ""
-    "2": Failed.
-    default: Unknown Status
-    "3": Missing.
-  temperatureStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": failed
-    "4": ok
-    "5": failed
-    "6": UNKNOWN
-  raidLevelTranslationTable:
-    "1": Raid 0
-    "2": Raid 1
-    default: ""
-    "3": Raid 3
-    "4": Raid 5
-    "5": Raid 10
-    "6": JBOD
-    "7": RAID 30
-    "8": Raid 50
-  powerSupplyStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-    "3": failed
 connector:
   displayName: Hitachi HNAS (SNMP)
   platforms: Hitachi HNAS
@@ -735,3 +587,151 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  fanFittedStatusInformationTranslationTable:
+    "1": ""
+    "2": "Fitted correctly, but ID is wrong. "
+    default: 'Unknown Fitted Status '
+    "3": 'Fan is Missing. '
+  batteryStatusInformationTranslationTable:
+    "11": Battery status changed to ignore
+    "1": ""
+    "2": Fault
+    default: Unknown Status
+    "3": Missing
+    "4": Initializing
+    "5": Charging - Normal
+    "6": Discharging
+    "7": Self Testing
+    "8": Not Responding
+    "9": Low
+    "10": Very Low
+  physicalDiskTranslationTable:
+    "1": ""
+    "2": Volume
+    default: ""
+    "3": Swap
+  fanFittedStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  logicalDiskStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": degraded
+    "6": failed
+    "7": degraded
+    "8": degraded
+    "9": UNKNOWN
+  physicalDiskStatusTranslationTable:
+    "1": UNKNOWN
+    "2": degraded
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": failed
+    "6": ok
+  fanSpeedStatusInformationTranslationTable:
+    "1": ""
+    "2": 'Speed at Warning Level. '
+    default: 'Unknown Speed Status '
+    "3": 'Speed at Severe Level. '
+  temperatureStatusInformationTranslationTable:
+    "1": ""
+    "2": Outside of expected range but not severe.
+    default: Unknown Status
+    "3": Severely outside expected range.
+    "4": Sensor unit has failed.  Temperature value is invalid.
+    "5": Warning Condition
+    "6": Unknown
+  cacheLevelTranslationTable:
+    "1": "Cache Mode: Write Through"
+    "2": "Cache Mode: Write Back"
+    "3": ""
+  batteryStatusTranslationTable:
+    "11": degraded
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": ok
+    "8": failed
+    "9": degraded
+    "10": failed
+  logicalDiskStatusInformationTranslationTable:
+    "1": Online
+    "2": Corrupt
+    default: Unknown Status
+    "3": Failed
+    "4": Not Present
+    "5": Disconnected
+    "6": Offline
+    "7": Initializing
+    "8": Formatting
+    "9": Unknown
+  physicalDiskStatusInformationTranslationTable:
+    "1": Unknown
+    "2": Degraded
+    default: Unknown Status
+    "3": Rebuilding
+    "4": Failed
+    "5": Invalid
+    "6": Good
+  nodeStatusInformationTranslationTable:
+    "2": Up
+    default: Unknown Status
+    "3": Not Up
+    "4": On Line
+    "5": Dead
+    "6": Dormant
+  GenericLinkStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    "3": degraded
+  fanSpeedStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  nodeStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": failed
+    "6": degraded
+  powerSupplyStatusInformationTranslationTable:
+    "1": ""
+    "2": Failed.
+    default: Unknown Status
+    "3": Missing.
+  temperatureStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": failed
+    "6": UNKNOWN
+  raidLevelTranslationTable:
+    "1": Raid 0
+    "2": Raid 1
+    default: ""
+    "3": Raid 3
+    "4": Raid 5
+    "5": Raid 10
+    "6": JBOD
+    "7": RAID 30
+    "8": Raid 50
+  powerSupplyStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed

@@ -1,29 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS="[;]"}
-        {split($1,LunIdArray,"[|]") ;
-         split($2,LunPathCountArray,"[|]") ;
-         split($3,LunNaaIDArray,"[|]") ;
-        }
-
-    END {for (MPIOID in LunIdArray)
-            if ( LunIdArray[MPIOID] != "" ) {print ("MSHW;" LunIdArray[MPIOID] ";" LunPathCountArray[MPIOID] ";" "naa." LunNaaIDArray[MPIOID] ";" ) }
-            }
-  EmbeddedFile(3): |-
-    BEGIN {FS="[;]"}
-    $1 ~ /.Device.MPIO/ { print ( "MSHW;" $1 ";" toupper($2) ";") }
-  EmbeddedFile(2): |-
-    BEGIN {FS="[;]"}
-    $3 ~ /.Device.MPIO/ { DriveLetter = $1
-                            DriveName = $2
-                            MPIOID = $3 ; gsub (".*MPIO","MPIO ",MPIOID)
-                            MPIOInfo[MPIOID] = MPIOInfo[MPIOID] DriveLetter " (" DriveName ") "
-                          }
-    END { for (MPIOID in MPIOInfo) {
-              if ( MPIOInfo[MPIOID] != "" ) {print ("MSHW;" MPIOID ";" MPIOInfo[MPIOID] ";" ) }
-          }
-        }
 connector:
   displayName: WMI - LUN
   platforms: Any system
@@ -217,3 +192,28 @@ monitors:
         deviceId: $column(3)
         metrics:
           hw.lun.paths: $column(2)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS="[;]"}
+        {split($1,LunIdArray,"[|]") ;
+         split($2,LunPathCountArray,"[|]") ;
+         split($3,LunNaaIDArray,"[|]") ;
+        }
+
+    END {for (MPIOID in LunIdArray)
+            if ( LunIdArray[MPIOID] != "" ) {print ("MSHW;" LunIdArray[MPIOID] ";" LunPathCountArray[MPIOID] ";" "naa." LunNaaIDArray[MPIOID] ";" ) }
+            }
+  EmbeddedFile(3): |-
+    BEGIN {FS="[;]"}
+    $1 ~ /.Device.MPIO/ { print ( "MSHW;" $1 ";" toupper($2) ";") }
+  EmbeddedFile(2): |-
+    BEGIN {FS="[;]"}
+    $3 ~ /.Device.MPIO/ { DriveLetter = $1
+                            DriveName = $2
+                            MPIOID = $3 ; gsub (".*MPIO","MPIO ",MPIOID)
+                            MPIOInfo[MPIOID] = MPIOInfo[MPIOID] DriveLetter " (" DriveName ") "
+                          }
+    END { for (MPIOID in MPIOInfo) {
+              if ( MPIOInfo[MPIOID] != "" ) {print ("MSHW;" MPIOID ";" MPIOInfo[MPIOID] ";" ) }
+          }
+        }

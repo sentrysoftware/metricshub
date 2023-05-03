@@ -1,60 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {FS=";";}
-    NF > 8 && $1 != "" {displayID = $2 ; gsub(/^.*\./,"",displayID);
-                        print "MSHW;" $1 ";" displayID ";" $3 ";" $4 ";" $5 ";" $6 ";" $7 ";" $8 ";" $9 ";"
-                       }
-translations:
-  DMTFOperationStatusTranslationTable:
-    "11": degraded
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": ok
-    "16": degraded
-    "17": ok
-    "18": ok
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": degraded
-    "6": failed
-    "7": failed
-    "8": degraded
-    "9": degraded
-    "10": failed
-  ExtentPoolRaidLevel:
-    default: ""
-    "3": Fixed Block
-    "4": Count Key Data
-    "5": 3380
-  LogicalDiskRaidLevel:
-    default: ""
-    "3": JBOD
-    "4": RAID 5
-    "5": RAID 10
-    "6": RAID 6
-  DMTFOperationStatusInformationTranslationTable:
-    "11": In Service
-    "12": No Contact
-    "13": Lost Communication
-    "14": Aborted
-    "15": Dormant
-    "16": Supporting Entity in Error
-    "17": Completed
-    "18": Power Mode
-    "2": ""
-    default: ""
-    "3": Degraded
-    "4": Stressed
-    "5": Predicted Failure
-    "6": Error
-    "7": Non-Recoverable Error
-    "8": Starting
-    "9": Stopping
-    "10": Stopped
 connector:
   displayName: IBM DS6000/8000 Disk Arrays
   platforms: "IBM DS6000,DS8000"
@@ -810,3 +754,59 @@ monitors:
           hw.status{hw.type="network"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    NF > 8 && $1 != "" {displayID = $2 ; gsub(/^.*\./,"",displayID);
+                        print "MSHW;" $1 ";" displayID ";" $3 ";" $4 ";" $5 ";" $6 ";" $7 ";" $8 ";" $9 ";"
+                       }
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  ExtentPoolRaidLevel:
+    default: ""
+    "3": Fixed Block
+    "4": Count Key Data
+    "5": 3380
+  LogicalDiskRaidLevel:
+    default: ""
+    "3": JBOD
+    "4": RAID 5
+    "5": RAID 10
+    "6": RAID 6
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "2": ""
+    default: ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped

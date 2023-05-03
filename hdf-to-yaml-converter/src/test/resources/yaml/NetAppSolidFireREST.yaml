@@ -1,101 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { level = 0 ; networkSection = 0 }
-    # Preprocess the jsoninput into the linearray array
-    {
-      jsonInput = $0
-      gsub(",\"","\n\"",jsonInput)
-      gsub(/\{/,"{\n",jsonInput)
-      gsub(/\}/,"}\n",jsonInput)
-      lengthArray=split(jsonInput,lineArray,"\n")
-      # For each line in the JSON, search for Network Information
-      # We have to use a 1 to N for loop to keep the line order
-      for (lineNumber=1; lineNumber <= lengthArray; lineNumber++ ) {
-        line = lineArray[lineNumber]
-        attribute = line; gsub("\":.*$","",attribute) ; gsub("\"","",attribute)
-        value = line; gsub(".*\": ?\"?","",value ) ; gsub("\"$","",value)
-
-        # Find the NodeID
-        if ( attribute == "nodeID" ) { nodeID = value }
-
-        # We are going to use a "level" variable to know when we're at the network card entry level
-        if ( level < networkLevel ) { networkSection = 0 }
-        if ( attribute == "network" && value == "\{" ) { networkLevel = level + 1 ; networkSection = 1 }
-
-        # Find the network card name
-        if ( level == networkLevel && networkSection == 1 && value == "\{" ) {
-          cardName = nodeID "-" attribute
-          cards[cardName] = cardName
-          cardDisplayName[cardName] = attribute
-          node[cardName] = nodeID
-        }
-
-        # Keep track of the level (Needs to be after the above)
-        if ( line ~ /\{/ ) { level = level + 1 }
-        if ( line ~ /\}/ ) { level = level - 1 }
-
-        # Extract the Family, LinkSpeed, MacAddress, Status, address
-        if ( level == networkLevel + 1 && attribute == "family" ) { family[cardName] = value ; }
-        if ( level == networkLevel + 1 && attribute == "linkSpeed" ) { linkSpeed[cardName] = value ; }
-        if ( level == networkLevel + 1 && attribute == "macAddress" ) { macAddress[cardName] = value ; }
-        if ( level == networkLevel + 1 && attribute == "status" ) { status[cardName] = value ; }
-        if ( level == networkLevel + 1 && attribute == "address" ) { address[cardName] = value ; }
-      }
-    }
-    END {
-      for (cardName in cards) {
-        print node[cardName] ";" cards[cardName] ";" cardDisplayName[cardName] ";" family[cardName] ";" linkSpeed[cardName] ";" macAddress[cardName] ";" status[cardName] ";" address[cardName] ";"
-      }
-    }
-  EmbeddedFile(2): |-
-    BEGIN { FS = ";"; }
-    {
-      systemConsumption[$4] += $5;
-    }
-    END {
-      printf "Cluster;%s\n",systemConsumption["PW Consumption"];
-    }
-translations:
-  PhysicalDiskTranslationTable:
-    default: failed
-    available: ok
-    erasing: degraded
-    assigned: ok
-    failed: failed
-    removing: degraded
-  DiskControllerTranslationTable:
-    default: failed
-    healthy: ok
-  SensorStatusTranslationTable:
-    default: failed
-    not available: ok
-    ok: ok
-  LinkStatusTranslationTable:
-    default: degraded
-    up: ok
-    down: degraded
-    upandrunning: ok
-  PowerSupplyStatusTranslationTable:
-    failure detected: failed
-    default: failed
-    presence detected: ok
-    power supply ac lost: failed
-    ac lost or out-of-range: failed
-    config error: degraded
-    power supply inactive: degraded
-    ac out-of-range, but present: degraded
-  HardwareConfigTranslationTable:
-    "true": ok
-    "false": failed
-  LogicalDiskStatusTranslationTable:
-    default: failed
-    active: ok
-  NetworkCardStatusTranslationTable:
-    default: failed
-    up: ok
-    down: ok
-    upandrunning: ok
 connector:
   displayName: NetApp SolidFire (REST)
   platforms: NetApp SolidFire
@@ -995,3 +898,100 @@ monitors:
           hw.network.up: legacyLinkStatus($column(8))
         legacyTextParameters:
           StatusInformation: $column(9)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { level = 0 ; networkSection = 0 }
+    # Preprocess the jsoninput into the linearray array
+    {
+      jsonInput = $0
+      gsub(",\"","\n\"",jsonInput)
+      gsub(/\{/,"{\n",jsonInput)
+      gsub(/\}/,"}\n",jsonInput)
+      lengthArray=split(jsonInput,lineArray,"\n")
+      # For each line in the JSON, search for Network Information
+      # We have to use a 1 to N for loop to keep the line order
+      for (lineNumber=1; lineNumber <= lengthArray; lineNumber++ ) {
+        line = lineArray[lineNumber]
+        attribute = line; gsub("\":.*$","",attribute) ; gsub("\"","",attribute)
+        value = line; gsub(".*\": ?\"?","",value ) ; gsub("\"$","",value)
+
+        # Find the NodeID
+        if ( attribute == "nodeID" ) { nodeID = value }
+
+        # We are going to use a "level" variable to know when we're at the network card entry level
+        if ( level < networkLevel ) { networkSection = 0 }
+        if ( attribute == "network" && value == "\{" ) { networkLevel = level + 1 ; networkSection = 1 }
+
+        # Find the network card name
+        if ( level == networkLevel && networkSection == 1 && value == "\{" ) {
+          cardName = nodeID "-" attribute
+          cards[cardName] = cardName
+          cardDisplayName[cardName] = attribute
+          node[cardName] = nodeID
+        }
+
+        # Keep track of the level (Needs to be after the above)
+        if ( line ~ /\{/ ) { level = level + 1 }
+        if ( line ~ /\}/ ) { level = level - 1 }
+
+        # Extract the Family, LinkSpeed, MacAddress, Status, address
+        if ( level == networkLevel + 1 && attribute == "family" ) { family[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "linkSpeed" ) { linkSpeed[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "macAddress" ) { macAddress[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "status" ) { status[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "address" ) { address[cardName] = value ; }
+      }
+    }
+    END {
+      for (cardName in cards) {
+        print node[cardName] ";" cards[cardName] ";" cardDisplayName[cardName] ";" family[cardName] ";" linkSpeed[cardName] ";" macAddress[cardName] ";" status[cardName] ";" address[cardName] ";"
+      }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { FS = ";"; }
+    {
+      systemConsumption[$4] += $5;
+    }
+    END {
+      printf "Cluster;%s\n",systemConsumption["PW Consumption"];
+    }
+translations:
+  PhysicalDiskTranslationTable:
+    default: failed
+    available: ok
+    erasing: degraded
+    assigned: ok
+    failed: failed
+    removing: degraded
+  DiskControllerTranslationTable:
+    default: failed
+    healthy: ok
+  SensorStatusTranslationTable:
+    default: failed
+    not available: ok
+    ok: ok
+  LinkStatusTranslationTable:
+    default: degraded
+    up: ok
+    down: degraded
+    upandrunning: ok
+  PowerSupplyStatusTranslationTable:
+    failure detected: failed
+    default: failed
+    presence detected: ok
+    power supply ac lost: failed
+    ac lost or out-of-range: failed
+    config error: degraded
+    power supply inactive: degraded
+    ac out-of-range, but present: degraded
+  HardwareConfigTranslationTable:
+    "true": ok
+    "false": failed
+  LogicalDiskStatusTranslationTable:
+    default: failed
+    active: ok
+  NetworkCardStatusTranslationTable:
+    default: failed
+    up: ok
+    down: ok
+    upandrunning: ok

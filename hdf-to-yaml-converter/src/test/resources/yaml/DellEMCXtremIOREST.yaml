@@ -1,61 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): "authorization: Basic %{BASIC_AUTH_BASE64}"
-translations:
-  LinkSpeedTranslationTable:
-    "100mfc": 100
-    "10mfc": 10
-    not_in_use: 0
-    "10mb": 10
-    "1gfc": 1000
-    "12gfc": 12000
-    "12gb": 12000
-    "1gb": 1000
-    "10gfc": 10000
-    inconsistent: 0
-    "10gb": 10000
-    unknown: 0
-    "100mb": 100
-    default: 0
-    "8gfc": 8000
-  LinkStatusTranslationTable:
-    default: UNKNOWN
-    up: ok
-    down: degraded
-  StatusTranslationTable:
-    minor: degraded
-    critical: failed
-    level_1_clear: ok
-    system_disabled: failed
-    partial_fault: degraded
-    down: failed
-    enabled: ok
-    unknown: UNKNOWN
-    disconnected: failed
-    default: UNKNOWN
-    major: failed
-    level_3_warning: degraded
-    level_5_major: failed
-    user_disabled: degraded
-    up: ok
-    uninitialized: failed
-    clear: ok
-    "false": ok
-    active: ok
-    initializing: degraded
-    failed: failed
-    degraded: failed
-    level_4_minor: failed
-    connected: ok
-    healthy: ok
-    level_6_critical: failed
-    "true": failed
-    information: ok
-    level_2_unknown: UNKNOWN
-  LinkSpeedDeactivationTranslationTable:
-    up: "True"
-    down: ""
-    unknown: ""
 connector:
   displayName: Dell XtremIO - REST
   platforms: X1
@@ -820,3 +763,60 @@ monitors:
           hw.status{hw.type="network"}: $column(4)
           hw.network.up: legacyLinkStatus($column(3))
           hw.network.bandwidth.limit: megaBit2Bit($column(5))
+embedded:
+  EmbeddedFile(1): "authorization: Basic %{BASIC_AUTH_BASE64}"
+translations:
+  LinkSpeedTranslationTable:
+    "100mfc": 100
+    "10mfc": 10
+    not_in_use: 0
+    "10mb": 10
+    "1gfc": 1000
+    "12gfc": 12000
+    "12gb": 12000
+    "1gb": 1000
+    "10gfc": 10000
+    inconsistent: 0
+    "10gb": 10000
+    unknown: 0
+    "100mb": 100
+    default: 0
+    "8gfc": 8000
+  LinkStatusTranslationTable:
+    default: UNKNOWN
+    up: ok
+    down: degraded
+  StatusTranslationTable:
+    minor: degraded
+    critical: failed
+    level_1_clear: ok
+    system_disabled: failed
+    partial_fault: degraded
+    down: failed
+    enabled: ok
+    unknown: UNKNOWN
+    disconnected: failed
+    default: UNKNOWN
+    major: failed
+    level_3_warning: degraded
+    level_5_major: failed
+    user_disabled: degraded
+    up: ok
+    uninitialized: failed
+    clear: ok
+    "false": ok
+    active: ok
+    initializing: degraded
+    failed: failed
+    degraded: failed
+    level_4_minor: failed
+    connected: ok
+    healthy: ok
+    level_6_critical: failed
+    "true": failed
+    information: ok
+    level_2_unknown: UNKNOWN
+  LinkSpeedDeactivationTranslationTable:
+    up: "True"
+    down: ""
+    unknown: ""

@@ -1,14 +1,6 @@
 ---
 extends:
 - DellCompellent-header
-embedded:
-  EmbeddedFile(1): |-
-    Content-Type:application/json
-    Accept:application/json
-  EmbeddedFile(3): |-
-    Content-Type: application/json
-    Accept: application/json
-    Cookie: %{AUTHENTICATIONTOKEN}
 connector:
   displayName: Dell Compellent Storage Center
   platforms: Dell Compellent
@@ -27,3 +19,11 @@ connector:
       url: /api/rest/ApiConnection/Login
       header: EmbeddedFile(1)
       expectedResult: StorageCenter
+embedded:
+  EmbeddedFile(1): |-
+    Content-Type:application/json
+    Accept:application/json
+  EmbeddedFile(3): |-
+    Content-Type: application/json
+    Accept: application/json
+    Cookie: %{AUTHENTICATIONTOKEN}

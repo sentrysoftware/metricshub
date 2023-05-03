@@ -1,364 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN { FS = ";" }
-    { location = $4
-        shelfID = $1
-        psCount = split($2, psIDArray, ",")
-        split($3, psSerialNumberArray, ",")
-      split($5, psPartNumberArray, ",")
-        for (i=1 ; i<=psCount ; i++)
-        {if (psIDArray[i] ~ /[A-Za-z0-9]/) {
-                                           print "MSHW;" shelfID "-" psIDArray[i] ";" psSerialNumberArray[i] ";" location "-" psIDArray[i] ";" psPartNumberArray[i] ";"
-                                          }
-        }
-    }
-  EmbeddedFile(11): |-
-    BEGIN {FS=";";}
-    {
-      if ($2 > $3)
-      {
-          print "Unassigned Disks: "$2-$3";;;;;;;Unassigned Disks."$1";Unassigned Disks."$1";Unassigned Disks."$1";true;"
-      }
-    }
-  EmbeddedFile(3): |-
-    BEGIN { FS = ";" }
-    { location = $3
-        shelfID = $1
-        fanCount = split($2, fanIDArray, ",")
-
-        for (i=1 ; i<=fanCount ; i++)
-        {if (fanIDArray[i] ~ /[A-Za-z0-9]/) {
-                                           print "MSHW;" shelfID "-" fanIDArray[i] ";Shelf " shelfID ";" location "-" fanIDArray[i] ";"
-                                          }
-        }
-    }
-  EmbeddedFile(2): |-
-    BEGIN { FS = ";" }
-    {
-        shelfID = $1
-        psCount = split($2, psIDArray, ",")
-        failedPsList = "," $3 ","
-
-        for (i=1 ; i<=psCount ; i++)
-        {
-            if (index(failedPsList, "," psIDArray[i] ",") > 0)
-            {
-                print "MSHW;" shelfID "-" psIDArray[i] ";ALARM;Failed;"
-            }
-            else
-            {
-                print "MSHW;" shelfID "-" psIDArray[i] ";OK;;" location ";"
-            }
-        }
-    }
-  EmbeddedFile(5): |-
-    BEGIN { FS = ";" }
-    { location = $5
-        shelfID = $1
-        temperatureCount = split($2, temperatureIDArray, ",")
-        split($3, alarmThresholdArray, ",")
-        split($4, warningThresholdArray, ",")
-
-        for (i=1 ; i<=temperatureCount ; i++)
-        {
-            cIndex = index(warningThresholdArray[i], "C")
-            if (cIndex > 0)
-            {
-                warningThreshold = substr(warningThresholdArray[i], 1, cIndex - 1)
-            }
-            else
-            {
-                warningThreshold = ""
-            }
-
-            cIndex = index(alarmThresholdArray[i], "C")
-            if (cIndex > 0)
-            {
-                alarmThreshold = substr(alarmThresholdArray[i], 1, cIndex - 1)
-            }
-            else
-            {
-                alarmThreshold = ""
-            }
-
-            print "MSHW;" shelfID "-" temperatureIDArray[i] ";" shelfID ";" warningThreshold ";" alarmThreshold ";;" location ";"
-        }
-    }
-  EmbeddedFile(4): |-
-    BEGIN { FS = ";" }
-    {
-        shelfID = $1
-        fanCount = split($2, fanIDArray, ",")
-        failedFanList = "," $3 ","
-
-        for (i=1 ; i<=fanCount ; i++)
-        {
-            if (index(failedFanList, "," fanIDArray[i] ",") > 0)
-            {
-                print "MSHW;" shelfID "-" fanIDArray[i] ";ALARM;Failed;"
-            }
-            else
-            {
-                print "MSHW;" shelfID "-" fanIDArray[i] ";OK;;"
-            }
-        }
-    }
-  EmbeddedFile(7): |-
-    BEGIN { FS = ";"; totalUsedMB = 0; totalSizeMB = 0; }
-    {
-        usedMB = $1;
-        sizeMB = $2;
-
-        totalUsedMB = totalUsedMB + usedMB;
-        totalSizeMB = totalSizeMB + sizeMB;
-    }
-    END {
-        unallocatedSpace = totalSizeMB - totalUsedMB;
-        if (unallocatedSpace < 0) { unallocatedSpace = 0; }
-        printf("MSHW;PrimordialStoragePool;OK;;;%d\n", unallocatedSpace);
-    }
-  EmbeddedFile(6): |-
-    BEGIN { FS = ";" }
-    {
-        shelfID = $1
-        temperatureCount = split($2, temperatureIDArray, ",")
-        split($3, temperatureArray, ",")
-
-        for (i=1 ; i<=temperatureCount ; i++)
-        {
-            cIndex = index(temperatureArray[i], "C")
-            if (cIndex > 0)
-            {
-                temperature = substr(temperatureArray[i], 1, cIndex - 1)
-            }
-            else
-            {
-                temperature = ""
-            }
-
-            print "MSHW;" shelfID "-" temperatureIDArray[i] ";" temperature ";;"
-        }
-    }
-  EmbeddedFile(10): |-
-    BEGIN {FS="[;]";individualFound="false";globalFound="false";}
-    # Individual Found
-    (NF >= 4) { bladeID = $1; gsub(/-.*/,"",bladeID)
-            print ("MSHW;"$1";"$2";"$3";"$4";;"$6";"bladeID";blade;")
-            individualFound="true"
-           }
-    (NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
-    (NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
-    END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;;;Activate;Global;NetApp;Enclosure;"}}
-  EmbeddedFile(9): |-
-    BEGIN {FS="[;]";individualFound="false";globalFound="false";}
-    # Individual Found
-    # $4 does not exist for Fans, but this is dealt with
-    (NF >= 2) && ($2 ~ /.+/) { bladeID = $1; gsub(/-.*/,"",bladeID)
-                              print ("MSHW;"$1";"$2";"$3";"$4";"bladeID";blade;")
-                              individualFound="true"
-                              }
-    (NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
-    (NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
-    END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;Global;;NetApp;Enclosure;"}}
-  EmbeddedFile(8): |-
-    BEGIN { FS = ";"; totalSizeMB = 0; }
-    {
-        sizeMB = $1;
-
-        totalSizeMB = totalSizeMB + sizeMB;
-    }
-    END {
-        printf("MSHW;PrimordialStoragePool;;;%d;Primordial Storage Pool;0\n", totalSizeMB);
-    }
-translations:
-  BatteryStatusInformationTranslationTable:
-    "1": ""
-    "2": Partially Discharged
-    default: Unknown
-    "3": Fully Discharged
-    "4": Not Present
-    "5": Near End of Life
-    "6": At End of Life
-    "7": Unknown
-    "8": Over Charged'
-    "9": Fully Charged
-  raidPDiskStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-    "5": ok
-    "6": failed
-    "9": degraded
-    "10": ok
-  fcpStatusInformationTranslationTable:
-    "1": Startup
-    "2": Un-initialized
-    default: Unknown Status
-    "3": Initializing Firmware
-    "4": Link Not Connected
-    "5": Waiting for Link Up
-    "6": Online
-    "7": Link Disconnected
-    "8": Resetting
-    "9": Offline
-    "10": Offlined by User
-  aggrStatusTranslationTable:
-    mixed_raid_type: ok
-    snapmirrored: ok
-    needs_check: degraded
-    foreign: ok
-    mirrored: ok
-    growing: ok
-    raid0: ok
-    trad: ok
-    copying: ok
-    ironing: degraded
-    mirrordegraded: degraded
-    raid4: ok
-    redirect: ok
-    raid_dp: ok
-    verifying: ok
-    resyncing: degraded
-    reconstruct: degraded
-    initializing: ok
-    degraded: degraded
-    mirror_degraded: degraded
-    wafl_inconsistent: failed
-    waflinconsistent: failed
-    invalid: failed
-    aggr: ok
-    partial: degraded
-    needscheck: degraded
-  BatteryStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": degraded
-    "6": failed
-    "7": UNKNOWN
-    "8": degraded
-    "9": ok
-  aggrStatusInformationTranslationTable:
-    mixed_raid_type: ""
-    snapmirrored: ""
-    needs_check: Needs Check
-    foreign: Foreign
-    mirrored: ""
-    growing: Growing
-    raid0: ""
-    trad: ""
-    copying: Copying
-    ironing: Ironing
-    mirrordegraded: Mirror Degraded
-    raid4: ""
-    redirect: Redirecting
-    raid_dp: ""
-    verifying: Verifying
-    resyncing: Resyncing
-    reconstruct: Reconstructing
-    initializing: Initializing
-    degraded: Degraded
-    mirror_degraded: Mirror Degraded
-    wafl_inconsistent: WAFL Inconsistent
-    waflinconsistent: WAFL Inconsistent
-    invalid: Invalid
-    aggr: ""
-    partial: Partial
-    needscheck: Needs Check
-  tempStatusTranslationTable:
-    "1": ok
-    "2": failed
-    default: UNKNOWN
-  diskFailedCountTranslationTable:
-    "0": ok
-    default: failed
-  generalStatusTranslationTable:
-    "11": failed
-    "12": failed
-    "13": failed
-    "14": failed
-    "15": failed
-    "16": failed
-    "17": failed
-    "18": failed
-    "19": failed
-    "0": ok
-    "1": failed
-    "2": failed
-    default: UNKNOWN
-    "3": failed
-    "4": failed
-    "5": failed
-    "6": failed
-    "7": failed
-    "8": failed
-    "9": failed
-    "10": failed
-  spareDiskStatusInformationTranslationTable:
-    "1": Spare
-    "2": Adding spare
-    default: Unknown Status
-    "3": By-passed
-    "10": Offline
-  fcpStatusTranslationTable:
-    "1": ok
-    "2": degraded
-    default: UNKNOWN
-    "3": ok
-    "4": ok
-    "5": ok
-    "6": ok
-    "7": ok
-    "8": degraded
-    "9": failed
-    "10": ok
-  otherDiskStatusTranslationTable:
-    "1": failed
-    "2": ok
-    default: UNKNOWN
-  spareDiskStatusTranslationTable:
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "10": ok
-  diskPrefailedCountTranslationTable:
-    "0": "False"
-    default: "True"
-  PortTypeTranslationTable:
-    "2": FC Port F
-    default: FC Port
-    "3": FC Port
-    "4": FC Port L
-  raidPDiskStatusInformationTranslationTable:
-    "1": Active
-    "2": Reconstruction in progress
-    default: Unknown status
-    "3": Parity reconstruction in progress
-    "4": Parity verification in progress
-    "5": Scrubbing in progress
-    "6": Failed
-    "9": Predicted Failure
-    "10": Offline
-  VendorTranslationTable:
-    "1": NetApp
-    "2": Dell
-    default: NetApp
-    "3": IBM
-  otherDiskStatusInformationTranslationTable:
-    "1": Broken
-    "2": By-passed
-    default: Unknown Status
-  fcpLinkStatusTranslationTable:
-    default: ok
-    "4": degraded
-    "5": degraded
-    "7": degraded
 connector:
   displayName: NetApp Filer (SNMP)
   platforms: NetApp
@@ -1723,3 +1363,363 @@ monitors:
           hw.status{hw.type="other_device"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    { location = $4
+        shelfID = $1
+        psCount = split($2, psIDArray, ",")
+        split($3, psSerialNumberArray, ",")
+      split($5, psPartNumberArray, ",")
+        for (i=1 ; i<=psCount ; i++)
+        {if (psIDArray[i] ~ /[A-Za-z0-9]/) {
+                                           print "MSHW;" shelfID "-" psIDArray[i] ";" psSerialNumberArray[i] ";" location "-" psIDArray[i] ";" psPartNumberArray[i] ";"
+                                          }
+        }
+    }
+  EmbeddedFile(11): |-
+    BEGIN {FS=";";}
+    {
+      if ($2 > $3)
+      {
+          print "Unassigned Disks: "$2-$3";;;;;;;Unassigned Disks."$1";Unassigned Disks."$1";Unassigned Disks."$1";true;"
+      }
+    }
+  EmbeddedFile(3): |-
+    BEGIN { FS = ";" }
+    { location = $3
+        shelfID = $1
+        fanCount = split($2, fanIDArray, ",")
+
+        for (i=1 ; i<=fanCount ; i++)
+        {if (fanIDArray[i] ~ /[A-Za-z0-9]/) {
+                                           print "MSHW;" shelfID "-" fanIDArray[i] ";Shelf " shelfID ";" location "-" fanIDArray[i] ";"
+                                          }
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { FS = ";" }
+    {
+        shelfID = $1
+        psCount = split($2, psIDArray, ",")
+        failedPsList = "," $3 ","
+
+        for (i=1 ; i<=psCount ; i++)
+        {
+            if (index(failedPsList, "," psIDArray[i] ",") > 0)
+            {
+                print "MSHW;" shelfID "-" psIDArray[i] ";ALARM;Failed;"
+            }
+            else
+            {
+                print "MSHW;" shelfID "-" psIDArray[i] ";OK;;" location ";"
+            }
+        }
+    }
+  EmbeddedFile(5): |-
+    BEGIN { FS = ";" }
+    { location = $5
+        shelfID = $1
+        temperatureCount = split($2, temperatureIDArray, ",")
+        split($3, alarmThresholdArray, ",")
+        split($4, warningThresholdArray, ",")
+
+        for (i=1 ; i<=temperatureCount ; i++)
+        {
+            cIndex = index(warningThresholdArray[i], "C")
+            if (cIndex > 0)
+            {
+                warningThreshold = substr(warningThresholdArray[i], 1, cIndex - 1)
+            }
+            else
+            {
+                warningThreshold = ""
+            }
+
+            cIndex = index(alarmThresholdArray[i], "C")
+            if (cIndex > 0)
+            {
+                alarmThreshold = substr(alarmThresholdArray[i], 1, cIndex - 1)
+            }
+            else
+            {
+                alarmThreshold = ""
+            }
+
+            print "MSHW;" shelfID "-" temperatureIDArray[i] ";" shelfID ";" warningThreshold ";" alarmThreshold ";;" location ";"
+        }
+    }
+  EmbeddedFile(4): |-
+    BEGIN { FS = ";" }
+    {
+        shelfID = $1
+        fanCount = split($2, fanIDArray, ",")
+        failedFanList = "," $3 ","
+
+        for (i=1 ; i<=fanCount ; i++)
+        {
+            if (index(failedFanList, "," fanIDArray[i] ",") > 0)
+            {
+                print "MSHW;" shelfID "-" fanIDArray[i] ";ALARM;Failed;"
+            }
+            else
+            {
+                print "MSHW;" shelfID "-" fanIDArray[i] ";OK;;"
+            }
+        }
+    }
+  EmbeddedFile(7): |-
+    BEGIN { FS = ";"; totalUsedMB = 0; totalSizeMB = 0; }
+    {
+        usedMB = $1;
+        sizeMB = $2;
+
+        totalUsedMB = totalUsedMB + usedMB;
+        totalSizeMB = totalSizeMB + sizeMB;
+    }
+    END {
+        unallocatedSpace = totalSizeMB - totalUsedMB;
+        if (unallocatedSpace < 0) { unallocatedSpace = 0; }
+        printf("MSHW;PrimordialStoragePool;OK;;;%d\n", unallocatedSpace);
+    }
+  EmbeddedFile(6): |-
+    BEGIN { FS = ";" }
+    {
+        shelfID = $1
+        temperatureCount = split($2, temperatureIDArray, ",")
+        split($3, temperatureArray, ",")
+
+        for (i=1 ; i<=temperatureCount ; i++)
+        {
+            cIndex = index(temperatureArray[i], "C")
+            if (cIndex > 0)
+            {
+                temperature = substr(temperatureArray[i], 1, cIndex - 1)
+            }
+            else
+            {
+                temperature = ""
+            }
+
+            print "MSHW;" shelfID "-" temperatureIDArray[i] ";" temperature ";;"
+        }
+    }
+  EmbeddedFile(10): |-
+    BEGIN {FS="[;]";individualFound="false";globalFound="false";}
+    # Individual Found
+    (NF >= 4) { bladeID = $1; gsub(/-.*/,"",bladeID)
+            print ("MSHW;"$1";"$2";"$3";"$4";;"$6";"bladeID";blade;")
+            individualFound="true"
+           }
+    (NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
+    (NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
+    END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;;;Activate;Global;NetApp;Enclosure;"}}
+  EmbeddedFile(9): |-
+    BEGIN {FS="[;]";individualFound="false";globalFound="false";}
+    # Individual Found
+    # $4 does not exist for Fans, but this is dealt with
+    (NF >= 2) && ($2 ~ /.+/) { bladeID = $1; gsub(/-.*/,"",bladeID)
+                              print ("MSHW;"$1";"$2";"$3";"$4";"bladeID";blade;")
+                              individualFound="true"
+                              }
+    (NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
+    (NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
+    END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;Global;;NetApp;Enclosure;"}}
+  EmbeddedFile(8): |-
+    BEGIN { FS = ";"; totalSizeMB = 0; }
+    {
+        sizeMB = $1;
+
+        totalSizeMB = totalSizeMB + sizeMB;
+    }
+    END {
+        printf("MSHW;PrimordialStoragePool;;;%d;Primordial Storage Pool;0\n", totalSizeMB);
+    }
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": ""
+    "2": Partially Discharged
+    default: Unknown
+    "3": Fully Discharged
+    "4": Not Present
+    "5": Near End of Life
+    "6": At End of Life
+    "7": Unknown
+    "8": Over Charged'
+    "9": Fully Charged
+  raidPDiskStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": ok
+    "6": failed
+    "9": degraded
+    "10": ok
+  fcpStatusInformationTranslationTable:
+    "1": Startup
+    "2": Un-initialized
+    default: Unknown Status
+    "3": Initializing Firmware
+    "4": Link Not Connected
+    "5": Waiting for Link Up
+    "6": Online
+    "7": Link Disconnected
+    "8": Resetting
+    "9": Offline
+    "10": Offlined by User
+  aggrStatusTranslationTable:
+    mixed_raid_type: ok
+    snapmirrored: ok
+    needs_check: degraded
+    foreign: ok
+    mirrored: ok
+    growing: ok
+    raid0: ok
+    trad: ok
+    copying: ok
+    ironing: degraded
+    mirrordegraded: degraded
+    raid4: ok
+    redirect: ok
+    raid_dp: ok
+    verifying: ok
+    resyncing: degraded
+    reconstruct: degraded
+    initializing: ok
+    degraded: degraded
+    mirror_degraded: degraded
+    wafl_inconsistent: failed
+    waflinconsistent: failed
+    invalid: failed
+    aggr: ok
+    partial: degraded
+    needscheck: degraded
+  BatteryStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": degraded
+    "6": failed
+    "7": UNKNOWN
+    "8": degraded
+    "9": ok
+  aggrStatusInformationTranslationTable:
+    mixed_raid_type: ""
+    snapmirrored: ""
+    needs_check: Needs Check
+    foreign: Foreign
+    mirrored: ""
+    growing: Growing
+    raid0: ""
+    trad: ""
+    copying: Copying
+    ironing: Ironing
+    mirrordegraded: Mirror Degraded
+    raid4: ""
+    redirect: Redirecting
+    raid_dp: ""
+    verifying: Verifying
+    resyncing: Resyncing
+    reconstruct: Reconstructing
+    initializing: Initializing
+    degraded: Degraded
+    mirror_degraded: Mirror Degraded
+    wafl_inconsistent: WAFL Inconsistent
+    waflinconsistent: WAFL Inconsistent
+    invalid: Invalid
+    aggr: ""
+    partial: Partial
+    needscheck: Needs Check
+  tempStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  diskFailedCountTranslationTable:
+    "0": ok
+    default: failed
+  generalStatusTranslationTable:
+    "11": failed
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": failed
+    "16": failed
+    "17": failed
+    "18": failed
+    "19": failed
+    "0": ok
+    "1": failed
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": failed
+    "8": failed
+    "9": failed
+    "10": failed
+  spareDiskStatusInformationTranslationTable:
+    "1": Spare
+    "2": Adding spare
+    default: Unknown Status
+    "3": By-passed
+    "10": Offline
+  fcpStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": ok
+    "8": degraded
+    "9": failed
+    "10": ok
+  otherDiskStatusTranslationTable:
+    "1": failed
+    "2": ok
+    default: UNKNOWN
+  spareDiskStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "10": ok
+  diskPrefailedCountTranslationTable:
+    "0": "False"
+    default: "True"
+  PortTypeTranslationTable:
+    "2": FC Port F
+    default: FC Port
+    "3": FC Port
+    "4": FC Port L
+  raidPDiskStatusInformationTranslationTable:
+    "1": Active
+    "2": Reconstruction in progress
+    default: Unknown status
+    "3": Parity reconstruction in progress
+    "4": Parity verification in progress
+    "5": Scrubbing in progress
+    "6": Failed
+    "9": Predicted Failure
+    "10": Offline
+  VendorTranslationTable:
+    "1": NetApp
+    "2": Dell
+    default: NetApp
+    "3": IBM
+  otherDiskStatusInformationTranslationTable:
+    "1": Broken
+    "2": By-passed
+    default: Unknown Status
+  fcpLinkStatusTranslationTable:
+    default: ok
+    "4": degraded
+    "5": degraded
+    "7": degraded

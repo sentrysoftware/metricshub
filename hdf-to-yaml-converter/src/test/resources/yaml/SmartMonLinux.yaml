@@ -1,4 +1,153 @@
 ---
+connector:
+  displayName: SmartMon Tools
+  platforms: Any system with SmartMon
+  reliesOn: SmartMon Tools
+  information: Gives S.M.A.R.T.-enabled physical disk information through the smartd/smartctl utility under Linux.
+  version: 1.1
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Linux
+    criteria:
+    - type: deviceType
+      keep:
+      - Linux
+    - type: osCommand
+      commandLine: /bin/ls /usr/sbin/smartd
+      expectedResult: ^/usr/sbin/smartd$
+      errorMessage: Unable to find the smartd program in /usr/sbin
+    - type: osCommand
+      commandLine: /bin/ls /usr/sbin/smartctl
+      expectedResult: ^/usr/sbin/smartctl$
+      errorMessage: Unable to find the smartctl program in /usr/sbin
+    - type: osCommand
+      commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -c;%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -q onecheck"
+      expectedResult: "Device: .* opened"
+      errorMessage: Unable to run the smartd/smartctl utility (not enough privilege?)
+    - type: osCommand
+      commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -c;%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -q onecheck"
+      expectedResult: "Device: .* is SMART capable"
+      errorMessage: No S.M.A.R.T-capable disk found.
+sudoCommands:
+- /usr/sbin/smartctl
+- /bin/dd
+monitors:
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of smartd -c + smartctl reformatted by awk (see EmbeddedFile(1))
+          # DeviceID;Vendor;SerialNumber
+          type: osCommand
+          commandLine: "sh $embedded.EmbeddedFile(1)$ \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4"
+          computes:
+            # Exclude Disks Whose vendor is listed as "Virtual"
+            # This was added because IBM's drivers are badly written.
+            # DeviceID;Vendor;Size
+          - type: excludeMatchingLines
+            column: 2
+            regExp: "[Vv]irtual"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          serial_number: $column(3)
+          vendor: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collect type is "one instance per instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = output of smartctl
+          type: osCommand
+          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -H %PhysicalDisk.Collect.DeviceID%"
+          computes:
+            # Process smartctl's output through awk EmbeddedFile(4)
+            # SMARTstatus
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
+            # Translate the SMARTstatus into a PredictedFailure value
+            # 1;PredictedFailure
+          - type: translate
+            column: 1
+            translationTable: PhysicalDiskPredictedFailureTranslationTable
+        source(2):
+          # Source(2) = output of the shell script based on dd
+          # 1;Status;StatusInformation
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$ %PhysicalDisk.Collect.DeviceID%
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4"
+        source(3):
+          # Source(3) = Table joint of Source(1) and Source(2)
+          # 1;PredictedFailure;1;Status;StatusInformation
+          type: tableJoin
+          leftTable: $monitors.physical_disk.collect.sources.source(1)$
+          rightTable: $monitors.physical_disk.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(3)$
+        metrics:
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(2))
+          hw.status{hw.type="physical_disk"}: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(5)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of EmbeddedFile(2)
+          # DeviceID;WarningThreshold
+          type: osCommand
+          commandLine: "sh $embedded.EmbeddedFile(2)$ \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          temperature_type: Harddisk
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), \"Harddisk\")"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
+    collect:
+      # Collect type is mono-instance (one instance per collect)
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = output of smartctl
+          type: osCommand
+          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -a %PhysicalDisk.Collect.DeviceID%"
+          computes:
+            # Process smartctl's output through awk EmbeddedFile(3)
+            # Temperature
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        metrics:
+          hw.temperature: $column(1)
 embedded:
   EmbeddedFile(1): |-
     #!/bin/sh
@@ -152,152 +301,3 @@ translations:
     ok!: 1;false
     passed: 1;false
     ok: 1;false
-connector:
-  displayName: SmartMon Tools
-  platforms: Any system with SmartMon
-  reliesOn: SmartMon Tools
-  information: Gives S.M.A.R.T.-enabled physical disk information through the smartd/smartctl utility under Linux.
-  version: 1.1
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Linux
-    criteria:
-    - type: deviceType
-      keep:
-      - Linux
-    - type: osCommand
-      commandLine: /bin/ls /usr/sbin/smartd
-      expectedResult: ^/usr/sbin/smartd$
-      errorMessage: Unable to find the smartd program in /usr/sbin
-    - type: osCommand
-      commandLine: /bin/ls /usr/sbin/smartctl
-      expectedResult: ^/usr/sbin/smartctl$
-      errorMessage: Unable to find the smartctl program in /usr/sbin
-    - type: osCommand
-      commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -c;%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -q onecheck"
-      expectedResult: "Device: .* opened"
-      errorMessage: Unable to run the smartd/smartctl utility (not enough privilege?)
-    - type: osCommand
-      commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -c;%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd -q onecheck"
-      expectedResult: "Device: .* is SMART capable"
-      errorMessage: No S.M.A.R.T-capable disk found.
-sudoCommands:
-- /usr/sbin/smartctl
-- /bin/dd
-monitors:
-  physical_disk:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of smartd -c + smartctl reformatted by awk (see EmbeddedFile(1))
-          # DeviceID;Vendor;SerialNumber
-          type: osCommand
-          commandLine: "sh %EmbeddedFile(1)% \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: "2,3,4"
-          computes:
-            # Exclude Disks Whose vendor is listed as "Virtual"
-            # This was added because IBM's drivers are badly written.
-            # DeviceID;Vendor;Size
-          - type: excludeMatchingLines
-            column: 2
-            regExp: "[Vv]irtual"
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          serial_number: $column(3)
-          vendor: $column(2)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
-    collect:
-      # Collect type is "one instance per instance
-      type: monoInstance
-      sources:
-        source(1):
-          # Source(1) = output of smartctl
-          type: osCommand
-          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -H %PhysicalDisk.Collect.DeviceID%"
-          computes:
-            # Process smartctl's output through awk EmbeddedFile(4)
-            # SMARTstatus
-          - type: awk
-            script: EmbeddedFile(4)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: 2
-            # Translate the SMARTstatus into a PredictedFailure value
-            # 1;PredictedFailure
-          - type: translate
-            column: 1
-            translationTable: PhysicalDiskPredictedFailureTranslationTable
-        source(2):
-          # Source(2) = output of the shell script based on dd
-          # 1;Status;StatusInformation
-          type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(5)% %PhysicalDisk.Collect.DeviceID%
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: "2,3,4"
-        source(3):
-          # Source(3) = Table joint of Source(1) and Source(2)
-          # 1;PredictedFailure;1;Status;StatusInformation
-          type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.physical_disk.collect.sources.source(2)$
-          leftKeyColumn: 1
-          rightKeyColumn: 1
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(3)$
-        metrics:
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(2))
-          hw.status{hw.type="physical_disk"}: $column(4)
-        legacyTextParameters:
-          StatusInformation: $column(5)
-  temperature:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = output of EmbeddedFile(2)
-          # DeviceID;WarningThreshold
-          type: osCommand
-          commandLine: "sh %EmbeddedFile(2)% \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
-          keep: ^MSHW;
-          separators: ;
-          selectColumns: "2,3"
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          temperature_type: Harddisk
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), \"Harddisk\")"
-        metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
-    collect:
-      # Collect type is mono-instance (one instance per collect)
-      type: monoInstance
-      sources:
-        source(1):
-          # Source(1) = output of smartctl
-          type: osCommand
-          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -a %PhysicalDisk.Collect.DeviceID%"
-          computes:
-            # Process smartctl's output through awk EmbeddedFile(3)
-            # Temperature
-          - type: awk
-            script: EmbeddedFile(3)
-            keep: ^MSHW;
-            separators: ;
-            selectColumns: 2
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        metrics:
-          hw.temperature: $column(1)

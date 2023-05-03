@@ -1,16 +1,6 @@
 ---
 extends:
 - DellCompellent-header
-embedded:
-  EmbeddedFile(1): |-
-    Content-Type:application/json
-    Accept:application/json
-    x-dell-api-version: 2.0
-  EmbeddedFile(3): |-
-    Content-Type: application/json
-    Accept: application/json
-    Cookie: %{AUTHENTICATIONTOKEN}
-    x-dell-api-version: 2.0
 connector:
   displayName: Dell Compellent Storage Manager - Unisphere For Storage Center
   platforms: Dell Compellent
@@ -22,3 +12,13 @@ connector:
     - remote
     appliesTo:
     - Storage
+embedded:
+  EmbeddedFile(1): |-
+    Content-Type:application/json
+    Accept:application/json
+    x-dell-api-version: 2.0
+  EmbeddedFile(3): |-
+    Content-Type: application/json
+    Accept: application/json
+    Cookie: %{AUTHENTICATIONTOKEN}
+    x-dell-api-version: 2.0

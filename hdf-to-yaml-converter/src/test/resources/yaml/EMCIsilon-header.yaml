@@ -1,202 +1,4 @@
 ---
-embedded:
-  EmbeddedFile(1): |-
-    BEGIN {SensorSection = 0 ; DriveSection = 0}
-
-    $2 ~ /\[safe.id.*\]/ { SensorSection = 0
-        if ($2 ~ "[safe.id.sensors]") { SensorSection = 1 }
-        if ($2 ~ "[safe.id.drives]") { DriveSection = 1 }
-        }
-
-    SensorSection == 1 && NF > 5 {
-        nodeName = $1 ; gsub (/:/,"",nodeName);
-        if (tolower($3) ~ /chassis/ && $4 ~ /=/) {nodeModelNumber = $5 ;
-                                                nodeModel = $6 $7 $8 $9;
-                                                gsub(/^[(]/,"",nodeModel);gsub(/[)]$/,"",nodeModel)
-                                                print "MSHW_ENCLOSURE;Node;" nodeName ";" nodeModelNumber ";" nodeModel ";"
-                                               }
-        if (tolower($3) ~ /power/ && $4 ~ /=/) {print "MSHW_POWERSUPPLY;" nodeName ";" nodeName "-Global;Global;"}
-
-        if (tolower($3) ~ /cpu/ && tolower($4) ~ /operation/ && $5 ~ /=/) {print "MSHW_CPU;" nodeName ";" nodeName "-Global;Global;"}
-
-        if ($(NF-5) ~ /\[/ && $(NF-3)~ /\]/ && $(NF-2) ~ /=/) {lowerThreshold = $(NF-5) ; gsub (/\[/,"",lowerThreshold)
-                                                                    upperThreshold = $(NF-3) ; gsub (/\]/,"",upperThreshold )
-                                                                    ID = $0 ; gsub (/^.*: +: +/,"",ID);gsub (/ *\[.*$/,"",ID);
-                                                                    if (tolower($NF) ~ /rpm/) {print "MSHW_FAN;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
-                                                                    if ($NF ~ /C/) {print "MSHW_TEMPERATURE;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
-                                                                    if ($NF ~ /V/) {print "MSHW_VOLTAGE;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
-                                                                   }
-        }
-
-    DriveSection == 1 && $3 ~ /Bay/ && $4 ~ /^[0-9]+$/ {
-        nodeName = $1 ; gsub (/:/,"",nodeName);
-        Location = $4 ; Location = "Bay-" Location ;
-        Manufacturer = $6 ; Model = $7 ; Firmware = $(NF-3) ;
-        Size = $(NF-2) ; gsub (/[(]/,"",Size) ; Size = Size * 512 ; SizeGB = Size / 1000000000 ;
-        SerialNumber = $NF ; gsub (/sn:/,"",SerialNumber)
-        print "MSHW_PhysicalDisk;" nodeName "-" Location ";" Manufacturer ";" Model ";" Firmware ";" SizeGB ";" SerialNumber ";"
-        }
-  EmbeddedFile(2): |-
-    {nodeName = $1 ; gsub (/:/,"",nodeName);}
-    tolower($2) ~ /power/ && tolower($3) ~ /supplies/ {print "MSHW_POWERSUPPLY;"nodeName"-Global;" $4 ";"}
-
-    tolower($2) ~ /cpu/ && tolower($3) ~ /operation/ {print "MSHW_CPU;" nodeName "-Global;" $NF ";"}
-
-    NF > 3 && $NF ~ /^[0-9.-]+$/ {
-        if ($(NF-1) ~ /=/) {ID = $0 ; gsub (/^.*: */,"",ID);gsub (/ *=.*$/,"",ID);
-                               value = $NF
-                               print "MSHW;" nodeName "-" ID ";" value ";"
-                              }
-        }
-  EmbeddedFile(4): |-
-    BEGIN { FS="[|]" }
-    $1 ~ /Cluster Name:/   {ClusterName = $0 ; gsub (/^.*: +/,"",ClusterName) }
-    $1 ~ /Cluster Health:/ {ClusterStatus = $0 ; gsub (/^.*\[ */,"",ClusterStatus) ; gsub (/ *\] *$/,"",ClusterStatus)
-                              print "MSHW_ENCLOSURE;Cluster;" ClusterName ";" ClusterStatus ";" ClusterStatus ";;"
-                             }
-    $1 ~ /^[0-9 ]+$/ && NF == 8 {NodeStatus = $3 ; gsub (/ /,"",NodeStatus);
-                                   NodeID = $1 ; gsub (/ /,"",NodeID);
-                                   NodeIP = $2 ; gsub (/ /,"",NodeIP);
-                                   print "MSHW_ENCLOSURE;Node;" NodeID ";" NodeStatus ";"  NodeStatus ";" NodeIP ";"
-                                  }
-  EmbeddedFile(7): |-
-    $1 ~ /:/ { node = $1
-                 SORT[node] = SORT[node] "\n" $0
-               }
-
-    END { for (nodeList in SORT)
-              print SORT[nodeList]
-        }
-  EmbeddedFile(10): |-
-    {nodeName = $1 ; gsub (/:/,"",nodeName);}
-    $2 ~ /SerNo/ { systemSerialNumber = $NF }
-    $2 ~ /Product/ { systemProductModel = $0 ; gsub(/.*: /,"",systemProductModel) }
-    $2 ~ /^RAM.$/ { systemRAM = $3 ; print "MSHW;" nodeName ";" systemSerialNumber ";" systemProductModel ";System RAM: " systemRAM ";" }
-  EmbeddedFile(8): |-
-    BEGIN { activate = 0 ; poolEnum = 0; id = 0}
-    $1 ~ /^OK$/ && $2 ~ /=/ && $3 ~ /Ok/ {exit}
-    NF > 1 && NF != 3 && activate == 1 && $2 !~ /Drives:/ { poolEnum = poolEnum + 1
-      ID[poolEnum] = $1
-      Health[poolEnum] = $2
-      AdditionalInformation[poolEnum] = $3 $4 $5
-      # make sure that the pool name is not divided into two lines
-      if($1 ~ /-$/) {key=$1; getline; $id = key $1;} else $id=$1;
-      ID[poolEnum] = $id
-      }
-
-    $1 ~ /^[-]+$/ && $2 ~ /^[-]+$/ && $3 ~ /^[-]+$/ && $4 ~ /^[-]+$/ && $5 ~ /^[-]+$/ && $6 ~ /^[-]+$/ && $7 ~ /^[-]+$/ { activate = 1}
-
-    END {
-      for (pool in ID) {
-    # Translate the status in the script as it's a mess
-        status = ""
-        statusInformation = ""
-        if ( Health[pool]~ /OK/ ) { status = status "OK|" ; statusInformation = statusInformation ""}
-        if ( Health[pool]~ /U/ ) { status = status "TooFewNodes|" ; statusInformation = statusInformation "Too Few Nodes for this Pool"}
-        if ( Health[pool]~ /M/ ) { status = status "MissingDrives|" ; statusInformation = statusInformation "This Pool is Missing Drives"}
-        if ( Health[pool]~ /D/ ) { status = status "Down|" ; statusInformation = statusInformation "Some Nodes or Drives for this Pool are Down"}
-        if ( Health[pool]~ /S/ ) { status = status "SmartFailed|" ; statusInformation = statusInformation "Some Nodes or Drives for this Pool are SmartFailed"}
-        if ( Health[pool]~ /R/ ) { status = status "Repair|" ; statusInformation = statusInformation "Some Nodes or Drives for this Pool need Repair"}
-        # It can be difficult to differentiate a two column top level line from a line with leftovers from the previous line.
-        # We with thus check that some form of status was collected and that no numbers are in the status (items that flow over are likely to contain numbers)
-        if ( status != "" && Health[pool] !~ /[0-9]/ ) { print "MSHW;" ID[pool] ";" status  ";" AdditionalInformation[pool] ";" statusInformation ";"}
-        }
-      }
-translations:
-  BatteryStatusTranslationTable:
-    good-test: ok
-    good-testing: ok
-    default: failed
-    good-good: ok
-    ready-enabled: ok
-    ready-enabled-fully charged: ok
-    testing-good: ok
-    good: ok
-  LinkStatusTranslationTable:
-    no carrier: degraded
-    default: degraded
-    inactive: degraded
-    up: ok
-  PowerSupplyStatusTranslationTable:
-    default: failed
-    ok: ok
-  ClusterStatusTranslationTable:
-    default: failed
-    ok: ok
-  CPUStatusTranslationTable:
-    normal: ok
-    default: failed
-  NodeStatusInformationTranslationTable:
-    d--r: Down Read-Only
-    "-a--": Attention
-    "-asr": Attention Smartfailed Read-Only
-    d-sr: Down Smartfailed Read-Only
-    d---: Down
-    "--sr": Smartfailed Read-Only
-    "-a-r": Attention Read-Only
-    da-r: Down Attention Read-Only
-    d-s-: Down Smartfailed
-    "--s-": Smartfailed
-    "---r": Read-Only
-    dasr: Down Attention Smartfailed Read-Only
-    default: UNKNOWN
-    da--: Down Attention
-    "----": ""
-    das-: Down Attention Smartfailed
-    "-as-": Attention Smartfailed
-    ok: ""
-  NodeStatusTranslationTable:
-    d--r: failed
-    "-a--": degraded
-    "-asr": degraded
-    d-sr: failed
-    d---: failed
-    "--sr": degraded
-    "-a-r": degraded
-    da-r: failed
-    d-s-: failed
-    "--s-": degraded
-    "---r": degraded
-    dasr: failed
-    default: UNKNOWN
-    da--: failed
-    "----": ok
-    das-: failed
-    "-as-": degraded
-    ok: ok
-  LogicalDiskStatusTranslationTable:
-    repair: failed
-    default: failed
-    toofewnodes: failed
-    smartfailed: degraded
-    ok: ok
-    down: degraded
-    missingdrives: failed
-  PhysicalDiskStatusTranslationTable:
-    new: degraded
-    erase: degraded
-    l3: ok
-    replace: failed
-    used: degraded
-    boot_drive: ok
-    wrong_type: degraded
-    suspended: degraded
-    unencrypted: failed
-    restripe: degraded
-    smartfail: degraded
-    not: failed
-    default: failed
-    journal: ok
-    preparing: degraded
-    healthy: ok
-    stalled: ok
-    insecure: failed
-    sed_error: failed
-  NetworkCardStatusTranslationTable:
-    no carrier: ok
-    default: failed
-    inactive: ok
-    up: ok
 sudoCommands:
 - /usr/bin/isi
 - /usr/bin/isi_for_array
@@ -1039,3 +841,201 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(3)
         legacyTextParameters:
           StatusInformation: $column(5)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {SensorSection = 0 ; DriveSection = 0}
+
+    $2 ~ /\[safe.id.*\]/ { SensorSection = 0
+        if ($2 ~ "[safe.id.sensors]") { SensorSection = 1 }
+        if ($2 ~ "[safe.id.drives]") { DriveSection = 1 }
+        }
+
+    SensorSection == 1 && NF > 5 {
+        nodeName = $1 ; gsub (/:/,"",nodeName);
+        if (tolower($3) ~ /chassis/ && $4 ~ /=/) {nodeModelNumber = $5 ;
+                                                nodeModel = $6 $7 $8 $9;
+                                                gsub(/^[(]/,"",nodeModel);gsub(/[)]$/,"",nodeModel)
+                                                print "MSHW_ENCLOSURE;Node;" nodeName ";" nodeModelNumber ";" nodeModel ";"
+                                               }
+        if (tolower($3) ~ /power/ && $4 ~ /=/) {print "MSHW_POWERSUPPLY;" nodeName ";" nodeName "-Global;Global;"}
+
+        if (tolower($3) ~ /cpu/ && tolower($4) ~ /operation/ && $5 ~ /=/) {print "MSHW_CPU;" nodeName ";" nodeName "-Global;Global;"}
+
+        if ($(NF-5) ~ /\[/ && $(NF-3)~ /\]/ && $(NF-2) ~ /=/) {lowerThreshold = $(NF-5) ; gsub (/\[/,"",lowerThreshold)
+                                                                    upperThreshold = $(NF-3) ; gsub (/\]/,"",upperThreshold )
+                                                                    ID = $0 ; gsub (/^.*: +: +/,"",ID);gsub (/ *\[.*$/,"",ID);
+                                                                    if (tolower($NF) ~ /rpm/) {print "MSHW_FAN;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
+                                                                    if ($NF ~ /C/) {print "MSHW_TEMPERATURE;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
+                                                                    if ($NF ~ /V/) {print "MSHW_VOLTAGE;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
+                                                                   }
+        }
+
+    DriveSection == 1 && $3 ~ /Bay/ && $4 ~ /^[0-9]+$/ {
+        nodeName = $1 ; gsub (/:/,"",nodeName);
+        Location = $4 ; Location = "Bay-" Location ;
+        Manufacturer = $6 ; Model = $7 ; Firmware = $(NF-3) ;
+        Size = $(NF-2) ; gsub (/[(]/,"",Size) ; Size = Size * 512 ; SizeGB = Size / 1000000000 ;
+        SerialNumber = $NF ; gsub (/sn:/,"",SerialNumber)
+        print "MSHW_PhysicalDisk;" nodeName "-" Location ";" Manufacturer ";" Model ";" Firmware ";" SizeGB ";" SerialNumber ";"
+        }
+  EmbeddedFile(2): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+    tolower($2) ~ /power/ && tolower($3) ~ /supplies/ {print "MSHW_POWERSUPPLY;"nodeName"-Global;" $4 ";"}
+
+    tolower($2) ~ /cpu/ && tolower($3) ~ /operation/ {print "MSHW_CPU;" nodeName "-Global;" $NF ";"}
+
+    NF > 3 && $NF ~ /^[0-9.-]+$/ {
+        if ($(NF-1) ~ /=/) {ID = $0 ; gsub (/^.*: */,"",ID);gsub (/ *=.*$/,"",ID);
+                               value = $NF
+                               print "MSHW;" nodeName "-" ID ";" value ";"
+                              }
+        }
+  EmbeddedFile(4): |-
+    BEGIN { FS="[|]" }
+    $1 ~ /Cluster Name:/   {ClusterName = $0 ; gsub (/^.*: +/,"",ClusterName) }
+    $1 ~ /Cluster Health:/ {ClusterStatus = $0 ; gsub (/^.*\[ */,"",ClusterStatus) ; gsub (/ *\] *$/,"",ClusterStatus)
+                              print "MSHW_ENCLOSURE;Cluster;" ClusterName ";" ClusterStatus ";" ClusterStatus ";;"
+                             }
+    $1 ~ /^[0-9 ]+$/ && NF == 8 {NodeStatus = $3 ; gsub (/ /,"",NodeStatus);
+                                   NodeID = $1 ; gsub (/ /,"",NodeID);
+                                   NodeIP = $2 ; gsub (/ /,"",NodeIP);
+                                   print "MSHW_ENCLOSURE;Node;" NodeID ";" NodeStatus ";"  NodeStatus ";" NodeIP ";"
+                                  }
+  EmbeddedFile(7): |-
+    $1 ~ /:/ { node = $1
+                 SORT[node] = SORT[node] "\n" $0
+               }
+
+    END { for (nodeList in SORT)
+              print SORT[nodeList]
+        }
+  EmbeddedFile(10): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+    $2 ~ /SerNo/ { systemSerialNumber = $NF }
+    $2 ~ /Product/ { systemProductModel = $0 ; gsub(/.*: /,"",systemProductModel) }
+    $2 ~ /^RAM.$/ { systemRAM = $3 ; print "MSHW;" nodeName ";" systemSerialNumber ";" systemProductModel ";System RAM: " systemRAM ";" }
+  EmbeddedFile(8): |-
+    BEGIN { activate = 0 ; poolEnum = 0; id = 0}
+    $1 ~ /^OK$/ && $2 ~ /=/ && $3 ~ /Ok/ {exit}
+    NF > 1 && NF != 3 && activate == 1 && $2 !~ /Drives:/ { poolEnum = poolEnum + 1
+      ID[poolEnum] = $1
+      Health[poolEnum] = $2
+      AdditionalInformation[poolEnum] = $3 $4 $5
+      # make sure that the pool name is not divided into two lines
+      if($1 ~ /-$/) {key=$1; getline; $id = key $1;} else $id=$1;
+      ID[poolEnum] = $id
+      }
+
+    $1 ~ /^[-]+$/ && $2 ~ /^[-]+$/ && $3 ~ /^[-]+$/ && $4 ~ /^[-]+$/ && $5 ~ /^[-]+$/ && $6 ~ /^[-]+$/ && $7 ~ /^[-]+$/ { activate = 1}
+
+    END {
+      for (pool in ID) {
+    # Translate the status in the script as it's a mess
+        status = ""
+        statusInformation = ""
+        if ( Health[pool]~ /OK/ ) { status = status "OK|" ; statusInformation = statusInformation ""}
+        if ( Health[pool]~ /U/ ) { status = status "TooFewNodes|" ; statusInformation = statusInformation "Too Few Nodes for this Pool"}
+        if ( Health[pool]~ /M/ ) { status = status "MissingDrives|" ; statusInformation = statusInformation "This Pool is Missing Drives"}
+        if ( Health[pool]~ /D/ ) { status = status "Down|" ; statusInformation = statusInformation "Some Nodes or Drives for this Pool are Down"}
+        if ( Health[pool]~ /S/ ) { status = status "SmartFailed|" ; statusInformation = statusInformation "Some Nodes or Drives for this Pool are SmartFailed"}
+        if ( Health[pool]~ /R/ ) { status = status "Repair|" ; statusInformation = statusInformation "Some Nodes or Drives for this Pool need Repair"}
+        # It can be difficult to differentiate a two column top level line from a line with leftovers from the previous line.
+        # We with thus check that some form of status was collected and that no numbers are in the status (items that flow over are likely to contain numbers)
+        if ( status != "" && Health[pool] !~ /[0-9]/ ) { print "MSHW;" ID[pool] ";" status  ";" AdditionalInformation[pool] ";" statusInformation ";"}
+        }
+      }
+translations:
+  BatteryStatusTranslationTable:
+    good-test: ok
+    good-testing: ok
+    default: failed
+    good-good: ok
+    ready-enabled: ok
+    ready-enabled-fully charged: ok
+    testing-good: ok
+    good: ok
+  LinkStatusTranslationTable:
+    no carrier: degraded
+    default: degraded
+    inactive: degraded
+    up: ok
+  PowerSupplyStatusTranslationTable:
+    default: failed
+    ok: ok
+  ClusterStatusTranslationTable:
+    default: failed
+    ok: ok
+  CPUStatusTranslationTable:
+    normal: ok
+    default: failed
+  NodeStatusInformationTranslationTable:
+    d--r: Down Read-Only
+    "-a--": Attention
+    "-asr": Attention Smartfailed Read-Only
+    d-sr: Down Smartfailed Read-Only
+    d---: Down
+    "--sr": Smartfailed Read-Only
+    "-a-r": Attention Read-Only
+    da-r: Down Attention Read-Only
+    d-s-: Down Smartfailed
+    "--s-": Smartfailed
+    "---r": Read-Only
+    dasr: Down Attention Smartfailed Read-Only
+    default: UNKNOWN
+    da--: Down Attention
+    "----": ""
+    das-: Down Attention Smartfailed
+    "-as-": Attention Smartfailed
+    ok: ""
+  NodeStatusTranslationTable:
+    d--r: failed
+    "-a--": degraded
+    "-asr": degraded
+    d-sr: failed
+    d---: failed
+    "--sr": degraded
+    "-a-r": degraded
+    da-r: failed
+    d-s-: failed
+    "--s-": degraded
+    "---r": degraded
+    dasr: failed
+    default: UNKNOWN
+    da--: failed
+    "----": ok
+    das-: failed
+    "-as-": degraded
+    ok: ok
+  LogicalDiskStatusTranslationTable:
+    repair: failed
+    default: failed
+    toofewnodes: failed
+    smartfailed: degraded
+    ok: ok
+    down: degraded
+    missingdrives: failed
+  PhysicalDiskStatusTranslationTable:
+    new: degraded
+    erase: degraded
+    l3: ok
+    replace: failed
+    used: degraded
+    boot_drive: ok
+    wrong_type: degraded
+    suspended: degraded
+    unencrypted: failed
+    restripe: degraded
+    smartfail: degraded
+    not: failed
+    default: failed
+    journal: ok
+    preparing: degraded
+    healthy: ok
+    stalled: ok
+    insecure: failed
+    sed_error: failed
+  NetworkCardStatusTranslationTable:
+    no carrier: ok
+    default: failed
+    inactive: ok
+    up: ok

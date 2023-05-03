@@ -1,4 +1,412 @@
 ---
+connector:
+  displayName: "Oracle/Sun Solaris - Environment (prtdiag, lom)"
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (prtdiag, lom, etc.)"
+  information: "Gives environmental information (temperatures, fans, etc.) on several Sun platforms through the prtdiag or lom utility"
+  version: 1.5
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    criteria:
+    # OS should be SunOS or Solaris
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    # Only on sun4u systems
+    - type: osCommand
+      commandLine: /bin/uname -m
+      expectedResult: "^sun4u[s]?$"
+    # we should find the prtdiag utility
+    - type: osCommand
+      commandLine: /bin/ls /usr/platform/`/bin/uname -i`/sbin/prtdiag
+      expectedResult: ^/usr/platform/.*/sbin/prtdiag$
+sudoCommands:
+- /usr/sbin/lom
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ computermodel"
+          # ComputerModel;
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ computermodel
+          timeout: 360
+          keep: ^MSHW;ComputerModel;
+          separators: ;
+          selectColumns: 3
+          computes:
+          # Remove the " (TM)" in the computer model string
+          - type: replace
+            column: 1
+            existingValue: ' (TM)'
+            newValue: ""
+      mapping:
+        # The discovery table
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: SUN
+          model: $column(1)
+          type: Computer
+          name: "sprintf(\"%s (%s - %s)\", \"SUN\", $column(1), \"Computer\")"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ fan"
+          # FanName;Status
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ fan
+          timeout: 360
+          keep: ^MSHW;Fan;
+          separators: ;
+          selectColumns: 3
+          computes:
+            # Duplicate the first column
+            # FanName;FanName
+          - type: duplicateColumn
+            column: 1
+            # Lengthen the first fanName in order to obtain an long id
+            # fanDeviceID;fanType
+          - type: leftConcat
+            column: 1
+            value: MSHW_PRTDIAG_
+      mapping:
+        # The instance table
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the $embedded.EmbeddedFile(1)$ fan OSCommand
+          # fanName;fanStatus
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ fan
+          timeout: 360
+          keep: ^MSHW;Fan;
+          separators: ;
+          selectColumns: "3,4"
+          computes:
+            # Duplicate the status column
+            # fanName;fanStatus;fanStatusInformation
+          - type: duplicateColumn
+            column: 2
+            # Lengthen the first fanName in order to obtain an long id
+            # fanDeviceID;fanStatus;fanStatusInformation
+          - type: leftConcat
+            column: 1
+            value: MSHW_PRTDIAG_
+            # Translate the status
+            # fanDeviceID;fanPATROLStatus;fanStatusInformation
+          - type: translate
+            column: 2
+            translationTable: PrtDiagStatusTranslationTable
+      mapping:
+        # CollectTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the stdout of $embedded.EmbeddedFile(1)$ temperature
+          # TemperatureName;WarningThreshold;AlarmThreshold;Status
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ temperature
+          timeout: 360
+          keep: ^MSHW;Temperature;
+          separators: ;
+          selectColumns: "3,5,6"
+          computes:
+            # Duplicate the first column, in order to obtain a deviceID and a temperatureLocation
+            # TemperatureName;TemperatureName;WarningThreshold;AlarmThreshold;Status
+          - type: duplicateColumn
+            column: 1
+            # Lengthen the first TemperatureName in order to get a long deviceID
+            # that will be articially shortened by HWS
+            # DeviceID;TemperatureName;WarningThreshold;AlarmThreshold;Status
+          - type: leftConcat
+            column: 1
+            value: MSHW_PRTDIAG_
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+    collect:
+      # Collect type is all instances in one single shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = stdout of $embedded.EmbeddedFile(1)$ temperature
+          # TemperatureName;CurrentValue;Status
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ temperature
+          timeout: 360
+          keep: ^MSHW;Temperature;
+          separators: ;
+          selectColumns: "3,4,7"
+          computes:
+            # Convert the TemperatureName into a DeviceID
+            # DeviceID;CurrentValue;Status
+          - type: leftConcat
+            column: 1
+            value: MSHW_PRTDIAG_
+            # Duplicate the Status column
+            # DeviceID;CurrentValue;Status;Status
+          - type: duplicateColumn
+            column: 3
+            # Translate the first Status column into a PATROL Status
+            # DeviceID;CurrentValue;PATROLStatus;StatusInformation
+          - type: translate
+            column: 3
+            translationTable: PrtDiagStatusTranslationTable
+      mapping:
+        # Collect table = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = stdout of $embedded.EmbeddedFile(1)$ voltage
+          # voltageName;lowerThreshold;upperThreshold
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ voltage
+          timeout: 360
+          keep: ^MSHW;Voltage;
+          separators: ;
+          selectColumns: "3,5,6"
+          computes:
+            # Duplicate the voltageName column
+            # voltageName;voltageName;lowerThreshold;upperThreshold
+          - type: duplicateColumn
+            column: 1
+            # Lengthen the first voltageName in order to get a long deviceID
+            # that will be articially shortened by HWS
+            # DeviceID;TemperatureName;WarningThreshold;AlarmThreshold
+          - type: leftConcat
+            column: 1
+            value: MSHW_PRTDIAG_
+          # Convert the lowerThreshold from V to mV
+          - type: multiply
+            column: 3
+            value: 1000
+          # Convert the upperThreshold from V to mV
+          - type: multiply
+            column: 4
+            value: 1000
+      mapping:
+        # The instance table = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          voltage_type: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(3)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ voltage"
+          # voltageName;CurrentValue;Status
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ voltage
+          timeout: 360
+          keep: ^MSHW;Voltage;
+          separators: ;
+          selectColumns: "3,4,7"
+          computes:
+            # convert voltageName to DeviceID
+            # DeviceID;CurrentValue;Status
+          - type: leftConcat
+            column: 1
+            value: MSHW_PRTDIAG_
+          # convert currentValue from V to mV
+          - type: multiply
+            column: 2
+            value: 1000
+            # duplicate the status column: one will be the PATROLStatus, other will be the status information
+            # DeviceID;CurrentValuemV;Status;Status
+          - type: duplicateColumn
+            column: 3
+          # convert the first status column to a PATROLStatus
+          - type: translate
+            column: 3
+            translationTable: PrtDiagStatusTranslationTable
+      mapping:
+        # Collect table = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+          hw.status{hw.type="voltage"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply"
+          # PowerSupplyName
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ powersupply
+          timeout: 360
+          keep: ^MSHW;PowerSupply;
+          separators: ;
+          selectColumns: 3
+      mapping:
+        # Instance Table = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply"
+          # PowerSupplyName;Status
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ powersupply
+          timeout: 360
+          keep: ^MSHW;PowerSupply;
+          separators: ;
+          selectColumns: "3,4"
+          computes:
+            # Duplicate the status column
+            # PowerSupplyName;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # PowerSupplyName;PATROLStatus;Status
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+            # Remove leading and trailing [] from Status
+            # PowerSupplyName;PATROLStatus;Status
+          - type: replace
+            column: 3
+            existingValue: "["
+            newValue: ""
+          - type: replace
+            column: 3
+            existingValue: "]"
+            newValue: ""
+          - type: replace
+            column: 3
+            existingValue: ' '
+            newValue: ""
+      mapping:
+        # Collect table = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ memory"
+          # MemoryID;Size
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ memory
+          timeout: 360
+          keep: ^MSHW;Memory;
+          separators: ;
+          selectColumns: "3,4"
+          computes:
+          # Remove the "MB" from Size
+          - type: replace
+            column: 2
+            existingValue: MB
+            newValue: ""
+      mapping:
+        # Instance Table = Source(1)
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(2))
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply"
+          # MemoryID;Status
+          type: osCommand
+          commandLine: sh $embedded.EmbeddedFile(1)$ memory
+          timeout: 360
+          keep: ^MSHW;Memory;
+          separators: ;
+          selectColumns: "3,5"
+          computes:
+            # Duplicate the status column
+            # MemoryID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # MemoryID;PATROLStatus;Status
+          - type: translate
+            column: 2
+            translationTable: PrtDiagStatusTranslationTable
+            # Remove leading and trailing [] from Status
+            # MemoryID;PATROLStatus;Status
+          - type: replace
+            column: 3
+            existingValue: "["
+            newValue: ""
+          - type: replace
+            column: 3
+            existingValue: "]"
+            newValue: ""
+          - type: replace
+            column: 3
+            existingValue: ' '
+            newValue: ""
+      mapping:
+        # Collect table = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
 embedded:
   EmbeddedFile(1): |
     #!/bin/sh
@@ -1428,411 +1836,3 @@ translations:
     self: ok
     tooslow: degraded
     ok: ok
-connector:
-  displayName: "Oracle/Sun Solaris - Environment (prtdiag, lom)"
-  platforms: Oracle/Sun
-  reliesOn: "Sun Solaris system commands (prtdiag, lom, etc.)"
-  information: "Gives environmental information (temperatures, fans, etc.) on several Sun platforms through the prtdiag or lom utility"
-  version: 1.5
-  detection:
-    connectionTypes:
-    - remote
-    appliesTo:
-    - Solaris
-    criteria:
-    # OS should be SunOS or Solaris
-    - type: deviceType
-      keep:
-      - SunOS
-      - Solaris
-    # Only on sun4u systems
-    - type: osCommand
-      commandLine: /bin/uname -m
-      expectedResult: "^sun4u[s]?$"
-    # we should find the prtdiag utility
-    - type: osCommand
-      commandLine: /bin/ls /usr/platform/`/bin/uname -i`/sbin/prtdiag
-      expectedResult: ^/usr/platform/.*/sbin/prtdiag$
-sudoCommands:
-- /usr/sbin/lom
-monitors:
-  enclosure:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = the output of "%EmbeddedFile(1)% computermodel"
-          # ComputerModel;
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% computermodel
-          timeout: 360
-          keep: ^MSHW;ComputerModel;
-          separators: ;
-          selectColumns: 3
-          computes:
-          # Remove the " (TM)" in the computer model string
-          - type: replace
-            column: 1
-            existingValue: ' (TM)'
-            newValue: ""
-      mapping:
-        # The discovery table
-        source: $monitors.enclosure.discovery.sources.source(1)$
-        attributes:
-          id: SUN
-          model: $column(1)
-          type: Computer
-          name: "sprintf(\"%s (%s - %s)\", \"SUN\", $column(1), \"Computer\")"
-  fan:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = the output of "%EmbeddedFile(1)% fan"
-          # FanName;Status
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% fan
-          timeout: 360
-          keep: ^MSHW;Fan;
-          separators: ;
-          selectColumns: 3
-          computes:
-            # Duplicate the first column
-            # FanName;FanName
-          - type: duplicateColumn
-            column: 1
-            # Lengthen the first fanName in order to obtain an long id
-            # fanDeviceID;fanType
-          - type: leftConcat
-            column: 1
-            value: MSHW_PRTDIAG_
-      mapping:
-        # The instance table
-        source: $monitors.fan.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          hw.parent.type: enclosure
-          name: $column(1)
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = the %EmbeddedFile(1)% fan OSCommand
-          # fanName;fanStatus
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% fan
-          timeout: 360
-          keep: ^MSHW;Fan;
-          separators: ;
-          selectColumns: "3,4"
-          computes:
-            # Duplicate the status column
-            # fanName;fanStatus;fanStatusInformation
-          - type: duplicateColumn
-            column: 2
-            # Lengthen the first fanName in order to obtain an long id
-            # fanDeviceID;fanStatus;fanStatusInformation
-          - type: leftConcat
-            column: 1
-            value: MSHW_PRTDIAG_
-            # Translate the status
-            # fanDeviceID;fanPATROLStatus;fanStatusInformation
-          - type: translate
-            column: 2
-            translationTable: PrtDiagStatusTranslationTable
-      mapping:
-        # CollectTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="fan"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  temperature:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = the stdout of %EmbeddedFile(1)% temperature
-          # TemperatureName;WarningThreshold;AlarmThreshold;Status
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% temperature
-          timeout: 360
-          keep: ^MSHW;Temperature;
-          separators: ;
-          selectColumns: "3,5,6"
-          computes:
-            # Duplicate the first column, in order to obtain a deviceID and a temperatureLocation
-            # TemperatureName;TemperatureName;WarningThreshold;AlarmThreshold;Status
-          - type: duplicateColumn
-            column: 1
-            # Lengthen the first TemperatureName in order to get a long deviceID
-            # that will be articially shortened by HWS
-            # DeviceID;TemperatureName;WarningThreshold;AlarmThreshold;Status
-          - type: leftConcat
-            column: 1
-            value: MSHW_PRTDIAG_
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          temperature_type: $column(2)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
-        metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
-          hw.temperature.limit{limit_type="high.critical"}: $column(4)
-    collect:
-      # Collect type is all instances in one single shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = stdout of %EmbeddedFile(1)% temperature
-          # TemperatureName;CurrentValue;Status
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% temperature
-          timeout: 360
-          keep: ^MSHW;Temperature;
-          separators: ;
-          selectColumns: "3,4,7"
-          computes:
-            # Convert the TemperatureName into a DeviceID
-            # DeviceID;CurrentValue;Status
-          - type: leftConcat
-            column: 1
-            value: MSHW_PRTDIAG_
-            # Duplicate the Status column
-            # DeviceID;CurrentValue;Status;Status
-          - type: duplicateColumn
-            column: 3
-            # Translate the first Status column into a PATROL Status
-            # DeviceID;CurrentValue;PATROLStatus;StatusInformation
-          - type: translate
-            column: 3
-            translationTable: PrtDiagStatusTranslationTable
-      mapping:
-        # Collect table = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.temperature: $column(2)
-          hw.status{hw.type="temperature"}: $column(3)
-        legacyTextParameters:
-          StatusInformation: $column(4)
-  voltage:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = stdout of %EmbeddedFile(1)% voltage
-          # voltageName;lowerThreshold;upperThreshold
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% voltage
-          timeout: 360
-          keep: ^MSHW;Voltage;
-          separators: ;
-          selectColumns: "3,5,6"
-          computes:
-            # Duplicate the voltageName column
-            # voltageName;voltageName;lowerThreshold;upperThreshold
-          - type: duplicateColumn
-            column: 1
-            # Lengthen the first voltageName in order to get a long deviceID
-            # that will be articially shortened by HWS
-            # DeviceID;TemperatureName;WarningThreshold;AlarmThreshold
-          - type: leftConcat
-            column: 1
-            value: MSHW_PRTDIAG_
-          # Convert the lowerThreshold from V to mV
-          - type: multiply
-            column: 3
-            value: 1000
-          # Convert the upperThreshold from V to mV
-          - type: multiply
-            column: 4
-            value: 1000
-      mapping:
-        # The instance table = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          voltage_type: $column(2)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
-        metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(3)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% voltage"
-          # voltageName;CurrentValue;Status
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% voltage
-          timeout: 360
-          keep: ^MSHW;Voltage;
-          separators: ;
-          selectColumns: "3,4,7"
-          computes:
-            # convert voltageName to DeviceID
-            # DeviceID;CurrentValue;Status
-          - type: leftConcat
-            column: 1
-            value: MSHW_PRTDIAG_
-          # convert currentValue from V to mV
-          - type: multiply
-            column: 2
-            value: 1000
-            # duplicate the status column: one will be the PATROLStatus, other will be the status information
-            # DeviceID;CurrentValuemV;Status;Status
-          - type: duplicateColumn
-            column: 3
-          # convert the first status column to a PATROLStatus
-          - type: translate
-            column: 3
-            translationTable: PrtDiagStatusTranslationTable
-      mapping:
-        # Collect table = Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.voltage: $column(2)
-          hw.status{hw.type="voltage"}: $column(3)
-        legacyTextParameters:
-          StatusInformation: $column(4)
-  power_supply:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% powersupply"
-          # PowerSupplyName
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% powersupply
-          timeout: 360
-          keep: ^MSHW;PowerSupply;
-          separators: ;
-          selectColumns: 3
-      mapping:
-        # Instance Table = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% powersupply"
-          # PowerSupplyName;Status
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% powersupply
-          timeout: 360
-          keep: ^MSHW;PowerSupply;
-          separators: ;
-          selectColumns: "3,4"
-          computes:
-            # Duplicate the status column
-            # PowerSupplyName;Status;Status
-          - type: duplicateColumn
-            column: 2
-            # Translate the first status column into a PATROLStatus
-            # PowerSupplyName;PATROLStatus;Status
-          - type: translate
-            column: 2
-            translationTable: PowerSupplyStatusTranslationTable
-            # Remove leading and trailing [] from Status
-            # PowerSupplyName;PATROLStatus;Status
-          - type: replace
-            column: 3
-            existingValue: "["
-            newValue: ""
-          - type: replace
-            column: 3
-            existingValue: "]"
-            newValue: ""
-          - type: replace
-            column: 3
-            existingValue: ' '
-            newValue: ""
-      mapping:
-        # Collect table = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  memory:
-    discovery:
-      sources:
-        source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% memory"
-          # MemoryID;Size
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% memory
-          timeout: 360
-          keep: ^MSHW;Memory;
-          separators: ;
-          selectColumns: "3,4"
-          computes:
-          # Remove the "MB" from Size
-          - type: replace
-            column: 2
-            existingValue: MB
-            newValue: ""
-      mapping:
-        # Instance Table = Source(1)
-        source: $monitors.memory.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
-        metrics:
-          hw.memory.limit: mebiByte2Byte($column(2))
-    collect:
-      # Collect type is "all instances in one shot
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% powersupply"
-          # MemoryID;Status
-          type: osCommand
-          commandLine: sh %EmbeddedFile(1)% memory
-          timeout: 360
-          keep: ^MSHW;Memory;
-          separators: ;
-          selectColumns: "3,5"
-          computes:
-            # Duplicate the status column
-            # MemoryID;Status;Status
-          - type: duplicateColumn
-            column: 2
-            # Translate the first status column into a PATROLStatus
-            # MemoryID;PATROLStatus;Status
-          - type: translate
-            column: 2
-            translationTable: PrtDiagStatusTranslationTable
-            # Remove leading and trailing [] from Status
-            # MemoryID;PATROLStatus;Status
-          - type: replace
-            column: 3
-            existingValue: "["
-            newValue: ""
-          - type: replace
-            column: 3
-            existingValue: "]"
-            newValue: ""
-          - type: replace
-            column: 3
-            existingValue: ' '
-            newValue: ""
-      mapping:
-        # Collect table = Source(1)
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="memory"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)

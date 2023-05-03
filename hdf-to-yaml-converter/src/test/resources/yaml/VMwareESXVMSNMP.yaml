@@ -1,9 +1,4 @@
 ---
-translations:
-  PowerStateTranslationTable:
-    powered off: "OFF"
-    suspended: SUSPENDED
-    powered on: "ON"
 connector:
   displayName: VMware ESXi - Virtual Machines (SNMP)
   platforms: VMware ESXi
@@ -62,3 +57,8 @@ monitors:
         metrics:
           hw.vm.power_ratio: computePowerShareRatio($column(2))
           hw.vm.power_state: $column(3)
+translations:
+  PowerStateTranslationTable:
+    powered off: "OFF"
+    suspended: SUSPENDED
+    powered on: "ON"

@@ -1,57 +1,4 @@
 ---
-translations:
-  DiskNumberCodeTranslationTable:
-    "11": SATA Device 7
-    "22": Bay 2
-    "23": Bay 3
-    "24": Bay 4
-    "25": Bay 5
-    "26": Bay 6
-    "27": Bay 7
-    "28": Bay 8
-    "2": Device 0
-    default: ""
-    "3": Device 1
-    "4": SATA Device 0
-    "5": SATA Device 1
-    "6": SATA Device 2
-    "7": SATA Device 3
-    "8": SATA Device 4
-    "9": SATA Device 5
-    "10": SATA Device 6
-    "21": Bay 1
-  RAIDLevelTranslationTable:
-    "2": 0
-    default: ""
-    "3": 1
-    "4": 0+1
-  PhysicalDiskStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": SMART predicted failure
-    "4": Failed
-  PhysicalDiskSMARTStatusTranslationTable:
-    "1": "FALSE"
-    "2": "FALSE"
-    default: "FALSE"
-    "3": "TRUE"
-  LogicalDiskStatusInformationTranslationTable:
-    "2": ""
-    default: Unknown Status
-    "3": Degraded
-    "4": Rebuilding
-    "5": Failed
-  LogicalDiskStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": degraded
-    "4": degraded
-    "5": failed
-  PhysicalDiskStatusTranslationTable:
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
 connector:
   displayName: HP Insight Management Agent - IDE Storage
   platforms: HP ProLiant
@@ -260,3 +207,56 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  DiskNumberCodeTranslationTable:
+    "11": SATA Device 7
+    "22": Bay 2
+    "23": Bay 3
+    "24": Bay 4
+    "25": Bay 5
+    "26": Bay 6
+    "27": Bay 7
+    "28": Bay 8
+    "2": Device 0
+    default: ""
+    "3": Device 1
+    "4": SATA Device 0
+    "5": SATA Device 1
+    "6": SATA Device 2
+    "7": SATA Device 3
+    "8": SATA Device 4
+    "9": SATA Device 5
+    "10": SATA Device 6
+    "21": Bay 1
+  RAIDLevelTranslationTable:
+    "2": 0
+    default: ""
+    "3": 1
+    "4": 0+1
+  PhysicalDiskStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": SMART predicted failure
+    "4": Failed
+  PhysicalDiskSMARTStatusTranslationTable:
+    "1": "FALSE"
+    "2": "FALSE"
+    default: "FALSE"
+    "3": "TRUE"
+  LogicalDiskStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Rebuilding
+    "5": Failed
+  LogicalDiskStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": failed
+  PhysicalDiskStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed

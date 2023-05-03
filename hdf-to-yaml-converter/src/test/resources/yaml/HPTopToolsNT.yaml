@@ -1,6 +1,396 @@
 ---
 extends:
 - CpuFamilyTranslationTable-header
+connector:
+  displayName: HP TopTools Agent
+  platforms: HP NetServer
+  reliesOn: HP TopTools Agent
+  version: 3.1
+  information: This connector provides hardware monitoring through the HP TopTools Agent version 5.x which supports almost all HP NetServer servers under Windows.
+  detection:
+    appliesTo:
+    - NT
+    criteria:
+    - type: deviceType
+      keep:
+      - NT
+    - type: service
+      name: SNMP
+    - type: service
+      name: hpwebsvc
+    - type: osCommand
+      commandLine: CSCRIPT.EXE //?
+      expectedResult: Microsoft
+      errorMessage: WSH is not present
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Retrieve the path were the hpnst.exe CGI is installed
+          type: osCommand
+          commandLine: CSCRIPT.EXE //E:VBScript //NoLogo $embedded.EmbeddedFile(2)$
+        source(2):
+          # Execute hpnst.exe to get the computer model
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(3)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_ComputerModel.html"&&SET QUERY_STRING=c=p+i=MSHW_ComputerModel.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;ComputerModel;
+          separators: ;
+          selectColumns: 3
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(2)$
+        attributes:
+          id: Computer01
+          vendor: HP
+          model: $column(1)
+          type: Computer
+          name: "sprintf(\"%s (%s %s - %s)\", \"Computer01\", \"HP\", $column(1), \"Computer\")"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Memory discovery
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(8)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Memory;
+          separators: ;
+          selectColumns: "3,4,5,6"
+          computes:
+          # Keep only the memory modules for which we have a status
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,2,8,0"
+          # Remove MB for the memory size
+          - type: replace
+            column: 3
+            existingValue: MB
+            newValue: ""
+          # Remove spaces from memory size
+          - type: replace
+            column: 3
+            existingValue: ' '
+            newValue: ""
+          # Remove spaces from memory size
+          - type: replace
+            column: 3
+            existingValue: "\t"
+            newValue: ""
+          # Separate the different types by " - 
+          - type: replace
+            column: 4
+            existingValue: ","
+            newValue: ' - '
+      mapping:
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          type: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(3))
+    collect:
+      # Memory collect
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(8)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Memory;
+          separators: ;
+          selectColumns: "3,4"
+          computes:
+          # Keep only the memory modules for which we have a status
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,2,8,0"
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: memoryStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: memoryStatusInformationTranslationTable
+      mapping:
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Temperature discovery
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(4)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Temperature;
+          separators: ;
+          selectColumns: "3,5"
+      mapping:
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          temperature_type: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: 65
+          hw.temperature.limit{limit_type="high.critical"}: 75
+    collect:
+      # Temperature collect
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(4)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Temperature;
+          separators: ;
+          selectColumns: "3,6"
+          computes:
+          - type: excludeMatchingLines
+            column: 2
+            valueList: '-'
+      mapping:
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Fan discovery
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(5)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Fan;
+          separators: ;
+          selectColumns: "3,4,5"
+          computes:
+          # Remove the fan that are not present
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "20,21,22"
+      mapping:
+        # Instancetable = source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: 2000
+          hw.fan.speed.limit{limit_type="low.critical"}: 1
+    collect:
+      # Fan collect
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(5)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Fan;
+          separators: ;
+          selectColumns: "3,4,6"
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: FanStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: FanStatusInformationTranslationTable
+      mapping:
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(4)
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Voltage discovery
+          # DeviceID;Status;Type
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(6)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Voltage;
+          separators: ;
+          selectColumns: "3,4,5"
+          computes:
+          # Remove bad voltages (status = 21 or 23)
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "20,21,22"
+            # Duplicate the "type" status
+            # DeviceID;Status;Type;Type;Type
+          - type: duplicateColumn
+            column: 3
+          - type: duplicateColumn
+            column: 4
+            # Translate the second type column into a lower threshold
+            # DeviceID;Status;Type;LowerThreshold;Type
+          - type: translate
+            column: 4
+            translationTable: VoltageLowerThresholdTranslationTable
+            # Translate the last type column into a upper threshold
+            # DeviceID;Status;Type;LowerThreshold;UpperThreshold
+          - type: translate
+            column: 5
+            translationTable: VoltageUpperThresholdTranslationTable
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          voltage_type: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(4)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(5)
+    collect:
+      # Voltage collect
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(6)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;Voltage;
+          separators: ;
+          selectColumns: "3,4,6"
+          computes:
+          # Convert Volts to milliVolts
+          - type: multiply
+            column: 3
+            value: 1000
+          # Duplicate the status column
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: VoltageStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: VoltageStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Power supply discovery
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(7)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;PowerSupply;
+          separators: ;
+          selectColumns: "3,5"
+          computes:
+          # Keep only power supplies that are present
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: 1
+      mapping:
+        # Instance Table = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Power supply collect
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: COPY $embedded.EmbeddedFile(7)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          keep: ^MSHW;PowerSupply;
+          separators: ;
+          selectColumns: "3,4"
+          computes:
+          # Duplicate the status column
+          - type: duplicateColumn
+            column: 2
+          # Translate the status
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: PowerSupplyStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # CPU discovery
+          type: wmi
+          query: "SELECT CurrentClockSpeed,DeviceID,Family,Manufacturer FROM Win32_Processor"
+          namespace: root\cimv2
+          computes:
+          # Translate CPU family
+          - type: translate
+            column: 3
+            translationTable: cpuFamilyTranslationTable
+          # Remove Genuine from manufacturer's name
+          - type: replace
+            column: 4
+            existingValue: Genuine
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          vendor: $column(4)
+          model: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(2), $column(4), $column(3), $column(1))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
+    collect:
+      # CPU supply collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = The IBMPSG_Processor WBEM class
+          type: wmi
+          query: "SELECT DeviceID,Status FROM Win32_Processor"
+          namespace: root\cimv2
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: cpuStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: cpuStatusInformationTranslationTable
+      mapping:
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
 embedded:
   EmbeddedFile(1): nothing
   EmbeddedFile(3): MSHW;ComputerModel;<!--getscalar api="hpsmbapi" name="SMBAPI_GetSystemModel" default="unknown"-->
@@ -136,393 +526,3 @@ translations:
     "4": Critical
     "20": ""
     "21": Warning
-connector:
-  displayName: HP TopTools Agent
-  platforms: HP NetServer
-  reliesOn: HP TopTools Agent
-  version: 3.1
-  information: This connector provides hardware monitoring through the HP TopTools Agent version 5.x which supports almost all HP NetServer servers under Windows.
-  detection:
-    appliesTo:
-    - NT
-    criteria:
-    - type: deviceType
-      keep:
-      - NT
-    - type: service
-      name: SNMP
-    - type: service
-      name: hpwebsvc
-    - type: osCommand
-      commandLine: CSCRIPT.EXE //?
-      expectedResult: Microsoft
-      errorMessage: WSH is not present
-monitors:
-  enclosure:
-    discovery:
-      sources:
-        source(1):
-          # Retrieve the path were the hpnst.exe CGI is installed
-          type: osCommand
-          commandLine: CSCRIPT.EXE //E:VBScript //NoLogo %EmbeddedFile(2)%
-        source(2):
-          # Execute hpnst.exe to get the computer model
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(3)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_ComputerModel.html"&&SET QUERY_STRING=c=p+i=MSHW_ComputerModel.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;ComputerModel;
-          separators: ;
-          selectColumns: 3
-      mapping:
-        source: $monitors.enclosure.discovery.sources.source(2)$
-        attributes:
-          id: Computer01
-          vendor: HP
-          model: $column(1)
-          type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"Computer01\", \"HP\", $column(1), \"Computer\")"
-  memory:
-    discovery:
-      sources:
-        source(1):
-          # Memory discovery
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(8)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Memory;
-          separators: ;
-          selectColumns: "3,4,5,6"
-          computes:
-          # Keep only the memory modules for which we have a status
-          - type: keepOnlyMatchingLines
-            column: 2
-            valueList: "1,2,8,0"
-          # Remove MB for the memory size
-          - type: replace
-            column: 3
-            existingValue: MB
-            newValue: ""
-          # Remove spaces from memory size
-          - type: replace
-            column: 3
-            existingValue: ' '
-            newValue: ""
-          # Remove spaces from memory size
-          - type: replace
-            column: 3
-            existingValue: "\t"
-            newValue: ""
-          # Separate the different types by " - 
-          - type: replace
-            column: 4
-            existingValue: ","
-            newValue: ' - '
-      mapping:
-        source: $monitors.memory.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          type: $column(4)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
-        metrics:
-          hw.memory.limit: mebiByte2Byte($column(3))
-    collect:
-      # Memory collect
-      type: multiInstance
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(8)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Memory;
-          separators: ;
-          selectColumns: "3,4"
-          computes:
-          # Keep only the memory modules for which we have a status
-          - type: keepOnlyMatchingLines
-            column: 2
-            valueList: "1,2,8,0"
-          - type: duplicateColumn
-            column: 2
-          - type: translate
-            column: 2
-            translationTable: memoryStatusTranslationTable
-          - type: translate
-            column: 3
-            translationTable: memoryStatusInformationTranslationTable
-      mapping:
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="memory"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  temperature:
-    discovery:
-      sources:
-        source(1):
-          # Temperature discovery
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(4)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Temperature;
-          separators: ;
-          selectColumns: "3,5"
-      mapping:
-        source: $monitors.temperature.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          temperature_type: $column(2)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
-        metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: 65
-          hw.temperature.limit{limit_type="high.critical"}: 75
-    collect:
-      # Temperature collect
-      type: multiInstance
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(4)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Temperature;
-          separators: ;
-          selectColumns: "3,6"
-          computes:
-          - type: excludeMatchingLines
-            column: 2
-            valueList: '-'
-      mapping:
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.temperature: $column(2)
-  fan:
-    discovery:
-      sources:
-        source(1):
-          # Fan discovery
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(5)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Fan;
-          separators: ;
-          selectColumns: "3,4,5"
-          computes:
-          # Remove the fan that are not present
-          - type: keepOnlyMatchingLines
-            column: 2
-            valueList: "20,21,22"
-      mapping:
-        # Instancetable = source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          hw.parent.type: enclosure
-          name: $column(1)
-        metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: 2000
-          hw.fan.speed.limit{limit_type="low.critical"}: 1
-    collect:
-      # Fan collect
-      type: multiInstance
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(5)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Fan;
-          separators: ;
-          selectColumns: "3,4,6"
-          computes:
-          - type: duplicateColumn
-            column: 2
-          - type: translate
-            column: 2
-            translationTable: FanStatusTranslationTable
-          - type: translate
-            column: 3
-            translationTable: FanStatusInformationTranslationTable
-      mapping:
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.fan.speed: $column(4)
-          hw.status{hw.type="fan"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  voltage:
-    discovery:
-      sources:
-        source(1):
-          # Voltage discovery
-          # DeviceID;Status;Type
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(6)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Voltage;
-          separators: ;
-          selectColumns: "3,4,5"
-          computes:
-          # Remove bad voltages (status = 21 or 23)
-          - type: keepOnlyMatchingLines
-            column: 2
-            valueList: "20,21,22"
-            # Duplicate the "type" status
-            # DeviceID;Status;Type;Type;Type
-          - type: duplicateColumn
-            column: 3
-          - type: duplicateColumn
-            column: 4
-            # Translate the second type column into a lower threshold
-            # DeviceID;Status;Type;LowerThreshold;Type
-          - type: translate
-            column: 4
-            translationTable: VoltageLowerThresholdTranslationTable
-            # Translate the last type column into a upper threshold
-            # DeviceID;Status;Type;LowerThreshold;UpperThreshold
-          - type: translate
-            column: 5
-            translationTable: VoltageUpperThresholdTranslationTable
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          voltage_type: $column(3)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
-        metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(4)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(5)
-    collect:
-      # Voltage collect
-      type: multiInstance
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(6)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;Voltage;
-          separators: ;
-          selectColumns: "3,4,6"
-          computes:
-          # Convert Volts to milliVolts
-          - type: multiply
-            column: 3
-            value: 1000
-          # Duplicate the status column
-          - type: duplicateColumn
-            column: 2
-          - type: translate
-            column: 2
-            translationTable: VoltageStatusTranslationTable
-          - type: translate
-            column: 3
-            translationTable: VoltageStatusInformationTranslationTable
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.voltage: $column(4)
-          hw.status{hw.type="voltage"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  power_supply:
-    discovery:
-      sources:
-        source(1):
-          # Power supply discovery
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(7)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;PowerSupply;
-          separators: ;
-          selectColumns: "3,5"
-          computes:
-          # Keep only power supplies that are present
-          - type: keepOnlyMatchingLines
-            column: 2
-            valueList: 1
-      mapping:
-        # Instance Table = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
-        attributes:
-          id: $column(1)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
-    collect:
-      # Power supply collect
-      type: multiInstance
-      sources:
-        source(1):
-          type: osCommand
-          commandLine: COPY %EmbeddedFile(7)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
-          keep: ^MSHW;PowerSupply;
-          separators: ;
-          selectColumns: "3,4"
-          computes:
-          # Duplicate the status column
-          - type: duplicateColumn
-            column: 2
-          # Translate the status
-          - type: translate
-            column: 2
-            translationTable: PowerSupplyStatusTranslationTable
-          - type: translate
-            column: 3
-            translationTable: PowerSupplyStatusInformationTranslationTable
-      mapping:
-        # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)
-  cpu:
-    discovery:
-      sources:
-        source(1):
-          # CPU discovery
-          type: wmi
-          query: "SELECT CurrentClockSpeed,DeviceID,Family,Manufacturer FROM Win32_Processor"
-          namespace: root\cimv2
-          computes:
-          # Translate CPU family
-          - type: translate
-            column: 3
-            translationTable: cpuFamilyTranslationTable
-          # Remove Genuine from manufacturer's name
-          - type: replace
-            column: 4
-            existingValue: Genuine
-            newValue: ""
-      mapping:
-        # InstanceTable = Source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
-        attributes:
-          id: $column(2)
-          vendor: $column(4)
-          model: $column(3)
-          hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(2), $column(4), $column(3), $column(1))"
-        metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
-    collect:
-      # CPU supply collect
-      type: multiInstance
-      sources:
-        source(1):
-          # Source(1) = The IBMPSG_Processor WBEM class
-          type: wmi
-          query: "SELECT DeviceID,Status FROM Win32_Processor"
-          namespace: root\cimv2
-          computes:
-          - type: duplicateColumn
-            column: 2
-          - type: translate
-            column: 2
-            translationTable: cpuStatusTranslationTable
-          - type: translate
-            column: 3
-            translationTable: cpuStatusInformationTranslationTable
-      mapping:
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
-        metrics:
-          hw.status{hw.type="cpu"}: $column(2)
-        legacyTextParameters:
-          StatusInformation: $column(3)

@@ -1,17 +1,4 @@
 ---
-translations:
-  VoltageStatusTranslationTable:
-    "11": ok
-    default: failed
-  PowerSupplyStatusTranslationTable:
-    "11": ok
-    default: failed
-  VoltageStatusInformationTranslationTable:
-    "11": Normal
-    default: Failed
-  PowerSupplyStatusInformationTranslationTable:
-    "11": Normal
-    default: Failed
 connector:
   displayName: IBM AIX - Environment (uesensor)
   platforms: IBM POWER
@@ -219,3 +206,16 @@ monitors:
           hw.status{hw.type="power_supply"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  VoltageStatusTranslationTable:
+    "11": ok
+    default: failed
+  PowerSupplyStatusTranslationTable:
+    "11": ok
+    default: failed
+  VoltageStatusInformationTranslationTable:
+    "11": Normal
+    default: Failed
+  PowerSupplyStatusInformationTranslationTable:
+    "11": Normal
+    default: Failed

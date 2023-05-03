@@ -1,51 +1,4 @@
 ---
-translations:
-  DiskStatusTranslationTable:
-    "11": ok
-    "12": degraded
-    "13": ok
-    "14": ok
-    "1": ok
-    "2": ok
-    default: UNKNOWN
-    "3": ok
-    "4": failed
-    "5": degraded
-    "6": ok
-    "7": ok
-    "8": failed
-    "9": ok
-    "10": degraded
-  RAIDLevelTranslationTable:
-    default: Unknown
-    "3": 0
-    "4": 1
-    "5": 5
-    "6": Redirected
-    "7": Hot-spare
-    "8": jbod
-  PhysicalDiskSMARTTranslationTable:
-    "1": "false"
-    "2": "false"
-    "3": "false"
-    "4": "false"
-    "5": "true"
-  DiskStatusInformationTranslationTable:
-    "11": Building
-    "12": Rebuilding
-    "13": Verify fixing
-    "14": Abort activity
-    "1": Invalid
-    "2": ""
-    default: Unknown Status
-    "3": Verifying
-    "4": Failed
-    "5": Warning
-    "6": Formatting
-    "7": Format certifying
-    "8": Missing
-    "9": Not created yet
-    "10": Degraded
 connector:
   displayName: Adaptec Storage Manager (DPT)
   platforms: Fujitsu-Siemens PRIMERGY
@@ -272,3 +225,50 @@ monitors:
           hw.status{hw.type="logical_disk"}: $column(2)
         legacyTextParameters:
           StatusInformation: $column(3)
+translations:
+  DiskStatusTranslationTable:
+    "11": ok
+    "12": degraded
+    "13": ok
+    "14": ok
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "5": degraded
+    "6": ok
+    "7": ok
+    "8": failed
+    "9": ok
+    "10": degraded
+  RAIDLevelTranslationTable:
+    default: Unknown
+    "3": 0
+    "4": 1
+    "5": 5
+    "6": Redirected
+    "7": Hot-spare
+    "8": jbod
+  PhysicalDiskSMARTTranslationTable:
+    "1": "false"
+    "2": "false"
+    "3": "false"
+    "4": "false"
+    "5": "true"
+  DiskStatusInformationTranslationTable:
+    "11": Building
+    "12": Rebuilding
+    "13": Verify fixing
+    "14": Abort activity
+    "1": Invalid
+    "2": ""
+    default: Unknown Status
+    "3": Verifying
+    "4": Failed
+    "5": Warning
+    "6": Formatting
+    "7": Format certifying
+    "8": Missing
+    "9": Not created yet
+    "10": Degraded
