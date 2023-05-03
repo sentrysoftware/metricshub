@@ -53,7 +53,10 @@ public class ConnectorConverter {
 		preConnector.getCodeMap().forEach((key, value) -> convertKeyValue(key, value, connector));
 
 		// Post conversion for the discovery mapping properties
-		new MappingConvertersWrapper().postConvertDiscovery(connector);
+		MappingConvertersWrapper wrapper  = new MappingConvertersWrapper();
+		
+		wrapper.removeMonitor(connector, ConverterConstants.YAML_CPU_CORE);
+		wrapper.postConvertDiscovery(connector);
 
 		return connector;
 	}
