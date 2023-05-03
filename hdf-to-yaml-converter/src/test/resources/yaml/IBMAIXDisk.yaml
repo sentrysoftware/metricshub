@@ -171,7 +171,7 @@ monitors:
           # Source(1) = output of the pvdisplay command
           # ErrorCount;LastError;
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(4)% %DiskController.Collect.DeviceID%
+          commandLine: /bin/sh $embedded.EmbeddedFile(4)$ %DiskController.Collect.DeviceID%
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"
@@ -215,7 +215,7 @@ monitors:
           # Source(2) = output of EmbeddedFile(1)
           # DeviceID;Manufacturer;SerialNumber
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4"
@@ -233,7 +233,7 @@ monitors:
           # Source(4) = output of EmbeddedFile(2)
           # DeviceID;SizeMB
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(2)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3"
@@ -285,7 +285,7 @@ monitors:
           # Source(1) = output of the pvdisplay command
           # Status;StatusInformation;ErrorCount;LastError
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(3)% %PhysicalDisk.Collect.DeviceID%
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$ %PhysicalDisk.Collect.DeviceID%
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"

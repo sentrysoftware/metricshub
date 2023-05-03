@@ -405,7 +405,7 @@ monitors:
           # Source(2) = output of prtconf -D or dladm show-dev
           # with only the network instances
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(5)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
           keep: "\\(network, instance #[0-9]\\)\\|\\(link:.*speed:.*duplex:\\)\\|\\(: flags=\\)\\|\\(SUNW,qfe\\)\\|\\(FJSV,pgtb\\)\\|\\(LinkID:.*DeviceID:\\)"
           computes:
             # Process the output of prtconf through an AWK script to keep only the NIC ID
@@ -420,7 +420,7 @@ monitors:
           # This command will only work on Solaris 11.  A blank table is expected on other versions.
           # LogicalDeviceID;PhysicalID
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(6)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(6)$
           keep: "[A-Za-z].*[0-9];[A-Za-z].*[0-9]"
           computes:
             # Add a "" to column2 to force the PSL/Java close out column 2
@@ -507,7 +507,7 @@ monitors:
         source(2):
           # Source(2) = output of embedded script 4 (complicated shell script)
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$ %NetworkCard.Collect.DeviceID%
           computes:
             # Process the output of this script through a smart AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;

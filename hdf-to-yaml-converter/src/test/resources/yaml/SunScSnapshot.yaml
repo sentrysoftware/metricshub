@@ -75,7 +75,7 @@ monitors:
           # wasn't installed, or root credentials were not provided)
           type: osCommand
           forceSerialization: true
-          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(1)%|/bin/dos2unix -ascii -437;/bin/uname -i"
+          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c $embedded.EmbeddedFile(1)$|/bin/dos2unix -ascii -437;/bin/uname -i"
           computes:
             # Reformat snapshot and uname's output through awk (see EmbeddedFile(3))
             # Model;
@@ -94,7 +94,7 @@ monitors:
           # Source(2) = Output of the showenvironment command
           type: osCommand
           forceSerialization: true
-          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
+          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c $embedded.EmbeddedFile(2)$|/bin/dos2unix -ascii -437"
           separators: " \t"
           selectColumns: 1-
           computes:
@@ -120,7 +120,7 @@ monitors:
           # Source(1) = Output of the showenvironment command
           type: osCommand
           forceSerialization: true
-          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
+          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c $embedded.EmbeddedFile(2)$|/bin/dos2unix -ascii -437"
           separators: " \t"
           selectColumns: 1-
           computes:

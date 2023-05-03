@@ -150,7 +150,7 @@ connector:
       errorMessage: The Smart Array RAID Controller Utility is not present on this system.
     # We should find disks attached to one controller
     - type: osCommand
-      commandLine: /bin/sh %EmbeddedFile(1)%
+      commandLine: /bin/sh $embedded.EmbeddedFile(1)$
       expectedResult: "[GgTtMm][Bb]"
       forceSerialization: true
       errorMessage: "There are not enough rights to execute the sautil utility, or no disks are listed."
@@ -165,7 +165,7 @@ monitors:
           # /opt/raidsa/bin/sautil /dev/cissx -s output
           # DeviceFile;
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           forceSerialization: true
         source(2):
           # Source(2) = Copy of source(1)
@@ -259,7 +259,7 @@ monitors:
           # Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
           # DeviceFile;
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           forceSerialization: true
           computes:
             # Reformat Source(1) = List all Internal Physical Disks in the system and their status
@@ -336,7 +336,7 @@ monitors:
         source(1):
           # Collect type = Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           forceSerialization: true
           computes:
             # Reformat Source(1) = List all logical drives and their status
@@ -404,7 +404,7 @@ monitors:
           # Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
           # DeviceFile;
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           forceSerialization: true
           computes:
             # Process sautil output through awk embeddedfile(5)

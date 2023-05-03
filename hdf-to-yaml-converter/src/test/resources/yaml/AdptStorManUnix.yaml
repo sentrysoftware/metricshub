@@ -255,7 +255,7 @@ connector:
       - Linux
     # We should find disks attached to one controller
     - type: osCommand
-      commandLine: /bin/sh %EmbeddedFile(1)%
+      commandLine: /bin/sh $embedded.EmbeddedFile(1)$
       expectedResult: Hard drive
       errorMessage: No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.
 sudoCommands:
@@ -266,7 +266,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(3)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$
           computes:
             # Reformat Source(1) output via EmbeddedFile(4)
             # MSHW;controllerID;status;model;serial;slot;memory;firmware;driver;batteryStatus;
@@ -296,7 +296,7 @@ monitors:
         source(1):
           # Source(1) = EF4
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(3)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$
           computes:
             # Reformat Source(1) output via EmbeddedFile(4)
             # MSHW;controllerID;status;model;serial;slot;memory;firmware;driver;batteryStatus;
@@ -327,7 +327,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           computes:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;controllerID;hardDriveID;status;location;vendor;model;firmware;serialNumber;sizeGB;channel;
@@ -363,7 +363,7 @@ monitors:
         source(1):
           # Source(1) = EF1
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           computes:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;controllerID;hardDriveID;status;location;vendor;model;firmware;serialNumber;sizeGB;Channel;
@@ -400,7 +400,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(5)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
           computes:
             # Reformat Source(1) output via EmbeddedFile(6)
             # MSHW;controllerID;logicaldriveID;logicaldriveName;status;size;raidLevel;statusInfo;
@@ -433,7 +433,7 @@ monitors:
         source(1):
           # Source(1) = EF5
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(5)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
           computes:
             # Reformat Source(1) output via EmbeddedFile(6)
             # MSHW;controllerID;logicaldriveID;logicaldriveName;status;size;raidLevel;statusInfo;

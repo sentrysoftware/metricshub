@@ -3,7 +3,7 @@ extends:
 - HitachiSNM2CLI-header
 constants:
   _EF1_COMMAND_PART2: ;
-  _EF1_COMMAND_PART1: "/bin/sh %EmbeddedFile(1)% %{USERNAME} %{PASSWORD}"
+  _EF1_COMMAND_PART1: "/bin/sh $embedded.EmbeddedFile(1)$ %{USERNAME} %{PASSWORD}"
 embedded:
   EmbeddedFile(1): |-
     username=$1

@@ -132,7 +132,7 @@ connector:
       errorMessage: No sas2ircu managed controllers found / insufficient rights.
     # We should find disks attached to one controller
     - type: osCommand
-      commandLine: /bin/sh %EmbeddedFile(1)%
+      commandLine: /bin/sh $embedded.EmbeddedFile(1)$
       expectedResult: Device is a
       errorMessage: No sas2ircu managed physical disks found.
 sudoCommands:
@@ -144,7 +144,7 @@ monitors:
         source(1):
           # Source(1) = Output of sas2ircu script
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           computes:
           # Reformat Source(1) output via EmbeddedFile(2)
           - type: awk
@@ -183,7 +183,7 @@ monitors:
         source(1):
           # Source(1) = Output of sas2ircu script
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           computes:
           # Reformat Source(1) output via EmbeddedFile(2)
           - type: awk

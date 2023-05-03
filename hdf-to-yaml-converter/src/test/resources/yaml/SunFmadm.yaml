@@ -102,8 +102,7 @@ monitors:
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
-            # Send fmadm'soutput through awk %EmbeddedFile(1)%
-            # MSHW;Overall Memory Faults;status;statusInformation;
+          # Send fmadm'soutput through awk $embedded.EmbeddedFile(1)$
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;
@@ -114,8 +113,7 @@ monitors:
           type: osCommand
           commandLine: "/usr/sbin/prtconf | /usr/bin/egrep '^SUNW,|^Memory size'"
           computes:
-            # Send prtconf's output through awk %EmbeddedFile(3)%
-            # MSHW;Overall;Size
+          # Send prtconf's output through awk $embedded.EmbeddedFile(3)$
           - type: awk
             script: EmbeddedFile(3)
             keep: ^MSHW;
@@ -146,8 +144,7 @@ monitors:
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
-            # Send fmadm's output through awk %EmbeddedFile(1)%
-            # MSHW;Overall Memory Faults;status;statusInformation
+          # Send fmadm's output through awk $embedded.EmbeddedFile(1)$
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;
@@ -169,8 +166,7 @@ monitors:
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
-            # Send fmadm'soutput through awk %EmbeddedFile(2)%
-            # MSHW;Overall CPU Faults;status;statusInformation;
+          # Send fmadm'soutput through awk $embedded.EmbeddedFile(2)$
           - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW;
@@ -193,8 +189,7 @@ monitors:
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
-            # Send fmadm's output through awk %EmbeddedFile(2)%
-            # MSHW;Overall CPU Faults;status;statusInformation
+          # Send fmadm's output through awk $embedded.EmbeddedFile(2)$
           - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW;

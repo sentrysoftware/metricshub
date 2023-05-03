@@ -397,7 +397,7 @@ monitors:
           # Source(1) = output of iostat reformatted by the awk (see EmbeddedFile(1))
           # DeviceID
           type: osCommand
-          commandLine: /usr/bin/iostat -En|/usr/bin/awk -f %EmbeddedFile(1)%|/usr/bin/uniq
+          commandLine: /usr/bin/iostat -En|/usr/bin/awk -f $embedded.EmbeddedFile(1)$|/usr/bin/uniq
           keep: ^MSHW;
           separators: ;
           selectColumns: 2
@@ -472,7 +472,7 @@ monitors:
           # Source(2) = output of the shell script based on the format command
           # DeviceID;Status;StatusInformation
           type: osCommand
-          commandLine: /usr/bin/sh %EmbeddedFile(4)%
+          commandLine: /usr/bin/sh $embedded.EmbeddedFile(4)$
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4"

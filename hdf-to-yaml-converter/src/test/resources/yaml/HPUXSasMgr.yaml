@@ -97,7 +97,7 @@ connector:
       expectedResult: sasmgr$
     # The various following tools have to be present
     - type: osCommand
-      commandLine: /bin/sh %EmbeddedFile(1)%
+      commandLine: /bin/sh $embedded.EmbeddedFile(1)$
       expectedResult: Info for PHY ID
 sudoCommands:
 - /opt/sas/bin/sasmgr
@@ -108,7 +108,7 @@ monitors:
         source(1):
           # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(3)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
@@ -134,7 +134,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(3)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
@@ -160,7 +160,7 @@ monitors:
         source(1):
           # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
@@ -183,7 +183,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
@@ -209,7 +209,7 @@ monitors:
         source(1):
           # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(5)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
           computes:
             # Run Source(1) through an AWK script
             # MSHW;ID;Status;Controller it is attached to; Raid Level; ; Size
@@ -234,7 +234,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(5)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;

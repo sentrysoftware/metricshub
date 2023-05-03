@@ -54,7 +54,7 @@ monitors:
         source(1):
           # Get the list of Ports and attributes from EF1
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           computes:
             # AWK it
             # LUNID;ArrayName;NAAID;

@@ -324,8 +324,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
-            # PowerConsumption;
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
           - type: awk
             script: EmbeddedFile(6)
             keep: ^MSHW;PowerConsumption;
@@ -346,8 +345,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Send showenvironnment's output into the %EmbeddedFile(2)% awk script
-            # DeviceID;
+          # Send showenvironnment's output into the $embedded.EmbeddedFile(2)$ awk script
           - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW;Fan;
@@ -371,8 +369,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe the output of showenvironment into the %EmbeddedFile(2)% awk script
-            # DeviceID;Status
+          # Pipe the output of showenvironment into the $embedded.EmbeddedFile(2)$ awk script
           - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW;Fan;
@@ -404,8 +401,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
-            # DeviceID;
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;Temperature;
@@ -430,8 +426,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
-            # DeviceID;Temperature;Status
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;Temperature;
@@ -464,8 +459,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
-            # DeviceID;
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;Voltage;
@@ -490,8 +484,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Piped showenvironment's output into the %EmbeddedFile(1)% awk script
-            # DeviceID;Voltage;Status
+          # Piped showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;Voltage;
@@ -524,14 +517,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = output of showenvironment piped into the %EmbeddedFile(3)% awk script
-          # DeviceID
+          # Source(1) = output of showenvironment piped into the $embedded.EmbeddedFile(3)$ awk script
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(3)% awk script
-            # DeviceID
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(3)$ awk script
           - type: awk
             script: EmbeddedFile(3)
             keep: ^MSHW;PowerSupply;
@@ -555,8 +546,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(3)% awk script
-            # DeviceID;Status
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(3)$ awk script
           - type: awk
             script: EmbeddedFile(3)
             keep: ^MSHW;PowerSupply;
@@ -588,9 +578,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
-            # Source(1) is the list of currents
-            # DeviceType;DeviceID;
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;Current;
@@ -606,9 +594,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform
           timeout: 90
           computes:
-            # Pipe showplatform's output into the %EmbeddedFile(4)% awk script
-            # Source(2) is the list of domains
-            # DeviceType;DeviceID;AdditionalLabel
+          # Pipe showplatform's output into the $embedded.EmbeddedFile(4)$ awk script
           - type: awk
             script: EmbeddedFile(4)
             keep: ^MSHW;Domain;
@@ -620,9 +606,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards
           timeout: 90
           computes:
-            # Pipe showboards' output into the %EmbeddedFile(5)% awk script
-            # Source(3) is the list of boards
-            # DeviceType;DeviceID;AdditionalLabel
+          # Pipe showboards' output into the $embedded.EmbeddedFile(5)$ awk script
           - type: awk
             script: EmbeddedFile(5)
             keep: ^MSHW;
@@ -656,8 +640,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
-            # DeviceID;Status
+          # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;Current;
@@ -678,9 +661,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform
           timeout: 90
           computes:
-            # Pipe showplatform's output into the %EmbeddedFile(4)% awk script
-            # Source(2) is the list of domains
-            # DeviceID;Status
+          # Pipe showplatform's output into the $embedded.EmbeddedFile(4)$ awk script
           - type: awk
             script: EmbeddedFile(4)
             keep: ^MSHW;Domain;
@@ -701,9 +682,7 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards
           timeout: 90
           computes:
-            # Pipe showboards' output into the %EmbeddedFile(5)% awk script
-            # Source(3) is the list of boards
-            # DeviceID;Status
+          # Pipe showboards' output into the $embedded.EmbeddedFile(5)$ awk script
           - type: awk
             script: EmbeddedFile(5)
             keep: ^MSHW;

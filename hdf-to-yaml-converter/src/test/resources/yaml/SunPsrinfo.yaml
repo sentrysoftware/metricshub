@@ -87,8 +87,7 @@ monitors:
           type: osCommand
           commandLine: /usr/sbin/psrinfo -v
           computes:
-            # Send psrinfo'soutput through awk %EmbeddedFile(1)%
-            # cpuID;cpuModel;cpuSpeed
+          # Send psrinfo'soutput through awk $embedded.EmbeddedFile(1)$
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;
@@ -113,8 +112,7 @@ monitors:
           type: osCommand
           commandLine: /usr/sbin/psrinfo -v
           computes:
-            # Send psrinfo's output through awk %EmbeddedFile(2)%
-            # cpuID;cpuStatus
+          # Send psrinfo's output through awk $embedded.EmbeddedFile(2)$
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;

@@ -1460,10 +1460,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of "%EmbeddedFile(1)% computermodel"
-          # ComputerModel;
+          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ computermodel
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% computermodel
+          commandLine: sh $embedded.EmbeddedFile(1)$ computermodel
           timeout: 360
           keep: ^MSHW;ComputerModel;
           separators: ;
@@ -1486,10 +1485,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of "%EmbeddedFile(1)% fan"
-          # FanName;Status
+          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ fan
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% fan
+          commandLine: sh $embedded.EmbeddedFile(1)$ fan
           timeout: 360
           keep: ^MSHW;Fan;
           separators: ;
@@ -1516,10 +1514,9 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = the %EmbeddedFile(1)% fan OSCommand
-          # fanName;fanStatus
+          # Source(1) = the $embedded.EmbeddedFile(1)$ fan OSCommand
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% fan
+          commandLine: sh $embedded.EmbeddedFile(1)$ fan
           timeout: 360
           keep: ^MSHW;Fan;
           separators: ;
@@ -1551,10 +1548,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = the stdout of %EmbeddedFile(1)% temperature
-          # TemperatureName;WarningThreshold;AlarmThreshold;Status
+          # Source(1) = the stdout of $embedded.EmbeddedFile(1)$ temperature
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% temperature
+          commandLine: sh $embedded.EmbeddedFile(1)$ temperature
           timeout: 360
           keep: ^MSHW;Temperature;
           separators: ;
@@ -1586,10 +1582,9 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = stdout of %EmbeddedFile(1)% temperature
-          # TemperatureName;CurrentValue;Status
+          # Source(1) = stdout of $embedded.EmbeddedFile(1)$ temperature
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% temperature
+          commandLine: sh $embedded.EmbeddedFile(1)$ temperature
           timeout: 360
           keep: ^MSHW;Temperature;
           separators: ;
@@ -1622,10 +1617,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = stdout of %EmbeddedFile(1)% voltage
-          # voltageName;lowerThreshold;upperThreshold
+          # Source(1) = stdout of $embedded.EmbeddedFile(1)$ voltage
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% voltage
+          commandLine: sh $embedded.EmbeddedFile(1)$ voltage
           timeout: 360
           keep: ^MSHW;Voltage;
           separators: ;
@@ -1665,10 +1659,9 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% voltage"
-          # voltageName;CurrentValue;Status
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ voltage
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% voltage
+          commandLine: sh $embedded.EmbeddedFile(1)$ voltage
           timeout: 360
           keep: ^MSHW;Voltage;
           separators: ;
@@ -1704,10 +1697,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% powersupply"
-          # PowerSupplyName
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% powersupply
+          commandLine: sh $embedded.EmbeddedFile(1)$ powersupply
           timeout: 360
           keep: ^MSHW;PowerSupply;
           separators: ;
@@ -1724,10 +1716,9 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% powersupply"
-          # PowerSupplyName;Status
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% powersupply
+          commandLine: sh $embedded.EmbeddedFile(1)$ powersupply
           timeout: 360
           keep: ^MSHW;PowerSupply;
           separators: ;
@@ -1768,10 +1759,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% memory"
-          # MemoryID;Size
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ memory
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% memory
+          commandLine: sh $embedded.EmbeddedFile(1)$ memory
           timeout: 360
           keep: ^MSHW;Memory;
           separators: ;
@@ -1796,10 +1786,9 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = stdout of "%EmbeddedFile(1)% powersupply"
-          # MemoryID;Status
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply
           type: osCommand
-          commandLine: sh %EmbeddedFile(1)% memory
+          commandLine: sh $embedded.EmbeddedFile(1)$ memory
           timeout: 360
           keep: ^MSHW;Memory;
           separators: ;

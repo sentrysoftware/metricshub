@@ -119,6 +119,10 @@ public class ConversionHelper {
 		Pattern.CASE_INSENSITIVE
 	);
 
+	private static final Pattern EMBEDDED_FILE_PATTERN = Pattern.compile(
+		"(.*)%(EmbeddedFile\\(\\d+\\))%(.*)",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	/**
 	 * List of pattern function converters
@@ -126,7 +130,8 @@ public class ConversionHelper {
 	private static final List<PatternFunctionConverter> PATTERN_FUNCTION_CONVERTERS = List.of(
 		new PatternFunctionConverter(SOURCE_REF_PATTERN, ConversionHelper::convertSourceReference),
 		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, ConversionHelper::convertEntryReference),
-		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference)
+		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference),
+		new PatternFunctionConverter(EMBEDDED_FILE_PATTERN, ConversionHelper::convertEmbeddedFileReference)
 	);
 
 	/**
@@ -210,6 +215,13 @@ public class ConversionHelper {
 		return String.format("$%s", column);
 	}
 
+	private static String convertEmbeddedFileReference(final Matcher matcher, final String input) {
+		final String start = matcher.group(1);
+		final String ref = matcher.group(2);
+		final String end = matcher.group((3));
+
+		return String.format("%s$embedded.%s$%s", start, ref, end);
+	}
 	/**
 	 * Build a source key regex
 	 * 

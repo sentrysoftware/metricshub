@@ -116,7 +116,7 @@ monitors:
           # Source(1) = output of EmbeddedFile(1)
           # diskNumber;controllerID;deviceID;Vendor Model;size
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           timeout: 60
           keep: ^MSHW;
           separators: ;

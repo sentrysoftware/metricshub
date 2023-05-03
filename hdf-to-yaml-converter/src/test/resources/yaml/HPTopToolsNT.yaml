@@ -164,11 +164,11 @@ monitors:
         source(1):
           # Retrieve the path were the hpnst.exe CGI is installed
           type: osCommand
-          commandLine: CSCRIPT.EXE //E:VBScript //NoLogo %EmbeddedFile(2)%
+          commandLine: CSCRIPT.EXE //E:VBScript //NoLogo $embedded.EmbeddedFile(2)$
         source(2):
           # Execute hpnst.exe to get the computer model
           type: osCommand
-          commandLine: COPY %EmbeddedFile(3)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_ComputerModel.html"&&SET QUERY_STRING=c=p+i=MSHW_ComputerModel.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(3)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_ComputerModel.html"&&SET QUERY_STRING=c=p+i=MSHW_ComputerModel.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;ComputerModel;
           separators: ;
           selectColumns: 3
@@ -186,7 +186,7 @@ monitors:
         source(1):
           # Memory discovery
           type: osCommand
-          commandLine: COPY %EmbeddedFile(8)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(8)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Memory;
           separators: ;
           selectColumns: "3,4,5,6"
@@ -230,7 +230,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: COPY %EmbeddedFile(8)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(8)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Memory;
           separators: ;
           selectColumns: "3,4"
@@ -260,7 +260,7 @@ monitors:
         source(1):
           # Temperature discovery
           type: osCommand
-          commandLine: COPY %EmbeddedFile(4)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(4)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Temperature;
           separators: ;
           selectColumns: "3,5"
@@ -280,7 +280,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: COPY %EmbeddedFile(4)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(4)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Temperature;
           separators: ;
           selectColumns: "3,6"
@@ -299,7 +299,7 @@ monitors:
         source(1):
           # Fan discovery
           type: osCommand
-          commandLine: COPY %EmbeddedFile(5)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(5)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Fan;
           separators: ;
           selectColumns: "3,4,5"
@@ -324,7 +324,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: COPY %EmbeddedFile(5)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(5)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Fan;
           separators: ;
           selectColumns: "3,4,6"
@@ -352,7 +352,7 @@ monitors:
           # Voltage discovery
           # DeviceID;Status;Type
           type: osCommand
-          commandLine: COPY %EmbeddedFile(6)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(6)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Voltage;
           separators: ;
           selectColumns: "3,4,5"
@@ -394,7 +394,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: COPY %EmbeddedFile(6)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(6)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_VoltageSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Voltage;
           separators: ;
           selectColumns: "3,4,6"
@@ -427,7 +427,7 @@ monitors:
         source(1):
           # Power supply discovery
           type: osCommand
-          commandLine: COPY %EmbeddedFile(7)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(7)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;PowerSupply;
           separators: ;
           selectColumns: "3,5"
@@ -449,7 +449,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: COPY %EmbeddedFile(7)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
+          commandLine: COPY $embedded.EmbeddedFile(7)$ "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;PowerSupply;
           separators: ;
           selectColumns: "3,4"

@@ -103,7 +103,7 @@ monitors:
         source(1):
           # Get the outputs of ioscan and fcmsutil for all ports using EmbeddedFile 1
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           timeout: 90
           computes:
             # AWK the output to get the instance table

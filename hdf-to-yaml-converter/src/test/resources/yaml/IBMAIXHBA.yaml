@@ -150,7 +150,7 @@ monitors:
           # Source(2) = output of embedded script 1
           # DeviceID;Model;WWN;SerialNumber;PortType;Speed;
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5,6,7"
@@ -183,7 +183,7 @@ monitors:
           # Moved to Embedded file (3)
           # NetworkCard.Collect.Source(1).CommandLine="/usr/sbin/fcstat %NetworkCard.Collect.DeviceID%"
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$ %NetworkCard.Collect.DeviceID%
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5,6,7,8,9"

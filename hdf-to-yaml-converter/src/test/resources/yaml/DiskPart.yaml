@@ -130,7 +130,7 @@ connector:
       - NT
     # Diskpart must be int he path and return something meaningful. Please note that we're using CHCP 437 to make sure the locale is English.
     - type: osCommand
-      commandLine: CHCP 437&&DISKPART.EXE /S %EmbeddedFile(3)%
+      commandLine: CHCP 437&&DISKPART.EXE /S $embedded.EmbeddedFile(3)$
       expectedResult: Leaving DiskPart
       timeout: 120
 monitors:
@@ -140,7 +140,7 @@ monitors:
         source(1):
           # Source(1) = DISKPART.EXE running "list volume" and "exit
           type: osCommand
-          commandLine: CHCP 437&&DISKPART.EXE /S %EmbeddedFile(1)%
+          commandLine: CHCP 437&&DISKPART.EXE /S $embedded.EmbeddedFile(1)$
           timeout: 120
           computes:
             # Run Source(1) through an AWK script
@@ -179,7 +179,7 @@ monitors:
         source(1):
           # Source(1) = DISKPART.EXE running "list volume" and "exit
           type: osCommand
-          commandLine: CHCP 437&&DISKPART.EXE /S %EmbeddedFile(1)%
+          commandLine: CHCP 437&&DISKPART.EXE /S $embedded.EmbeddedFile(1)$
           timeout: 120
           computes:
             # Run Source(1) through an AWK script

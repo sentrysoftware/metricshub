@@ -135,7 +135,7 @@ monitors:
           # Source(1) = EF2
           # Note: A timeout here can indicate that there have been excessive failed authentication attempts
           type: osCommand
-          commandLine: "/bin/sh %EmbeddedFile(2)% %{USERNAME} %{PASSWORD};history -d $((HISTCMD-1))"
+          commandLine: "/bin/sh $embedded.EmbeddedFile(2)$ %{USERNAME} %{PASSWORD};history -d $((HISTCMD-1))"
           timeout: 600
         source(2):
           # Need to copy this into Enclosure 3 to match other NaviSphere Connectors
@@ -152,7 +152,7 @@ monitors:
           # Source(1) = EF2
           # Note: A timeout here can indicate that there have been excessive failed authentication attempts
           type: osCommand
-          commandLine: "/bin/sh %EmbeddedFile(2)% %{USERNAME} %{PASSWORD};history -d$((HISTCMD-1))"
+          commandLine: "/bin/sh $embedded.EmbeddedFile(2)$ %{USERNAME} %{PASSWORD};history -d$((HISTCMD-1))"
           timeout: 600
         source(2):
           type: copy

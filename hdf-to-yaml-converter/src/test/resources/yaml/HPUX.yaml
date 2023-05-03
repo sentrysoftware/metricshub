@@ -101,10 +101,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = sh -%EmbeddedFile(2)%
-          # cpuID;cpuSpeed;cpuModel
+          # Source(1) = sh -$embedded.EmbeddedFile(2)$
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           keep: ^MSHW;
           separators: ;
           selectColumns: "3,5,6"
@@ -124,10 +123,9 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = sh -f %EmbeddedFile(1)%
-          # cpuID;cpuStatus
+          # Source(1) = sh -f $embedded.EmbeddedFile(1)$
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           keep: ^MSHW;
           separators: ;
           selectColumns: "3,4"

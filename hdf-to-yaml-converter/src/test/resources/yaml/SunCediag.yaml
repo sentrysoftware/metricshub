@@ -229,7 +229,7 @@ monitors:
           # Source(1) = output of EmbeddedFile(1)
           # deviceID;predictedFailure;status;statusInformation
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"

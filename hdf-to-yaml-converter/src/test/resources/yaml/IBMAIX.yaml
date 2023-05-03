@@ -376,10 +376,9 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = sh -%EmbeddedFile(1)%
-          # cpuID;HzSpeed;Model
+          # Source(1) = sh -$embedded.EmbeddedFile(1)$
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(1)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           keep: '^MSHW:'
           separators: ':'
           selectColumns: "2,3,4"
@@ -446,7 +445,7 @@ monitors:
         source(1):
           # Source(1) = output of EmbeddedFile(6) (mix of lsdev and lscfg)
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(6)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(6)$
           computes:
             # Process the output of lscfg through awk EmbeddedFile(7)
             # DeviceID;Model;NicType;MACAddress;HWLocationCode;
@@ -458,7 +457,7 @@ monitors:
         source(2):
           # Source(2) = output of embedded script 3
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(2)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$
           computes:
             # Process the output of entstat through awk EmbeddedFile(3)
             # DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
@@ -496,7 +495,7 @@ monitors:
         source(1):
           # Source(1) = output of entstat -d for each card
           type: osCommand
-          commandLine: /bin/sh %EmbeddedFile(2)%
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$
           computes:
             # Process the output of entstat through awk EmbeddedFile(3)
             # DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
