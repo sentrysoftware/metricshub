@@ -2,9 +2,288 @@
 extends:
 - SunEthernetDriver-header
 embedded:
-  EmbeddedFile(1): "BEGIN {\n\tDeviceID = \"\"\n}\n/^[a-z0-9]+: flags=/ {\n\n\tif (DeviceID != \"\")\n\t{\n\t\tprint \"MSHW;\" DeviceID \";\" macAddress \";\" ipAddress\n\t\tDeviceID = \"\"\n\t\tmacAddress = \"\"\n\t\tipAddress = \"\"\n\t}\n\n\tltIndex = index($0, \"<\")\n\tif (ltIndex != 0)\n\t{\n\t\tgtIndex = index($0, \">\")\n\t\tif (gtIndex > ltIndex)\n\t\t{\n\t\t\tflags = substr($0, ltIndex + 1, gtIndex - ltIndex - 1)\n\n\t\t\tif (index(flags, \"LOOPBACK\") == 0 && index(flags, \"OFFLINE\") == 0 && index(flags, \"UP\") > 0)\n\t\t\t{\n\t\t\t\tDeviceID = substr($1, 1, length($1) - 1)\n\t\t\t}\n\t\t}\n\t}\n}\n/^[ \\t]+inet [0-9]/ {\n\tipAddress = $2\n}\n/^[ \\t]+ether [0-9A-Za-z]/ {\n\tmacAddress = $2\n}\nEND {\n\tif (DeviceID != \"\")\n\t{\n\t\tprint \"MSHW;\" DeviceID \";\" macAddress \";\" ipAddress\n\t}\n}"
-  EmbeddedFile(3): "BEGIN {\n\tdeviceID = \"\";\n\tlinkStatus = \"\";\n\tlinkDuplex = \"\";\n\tlinkSpeed = \"\";\n\treceivedPackets = \"\";\n\ttransmittedPackets = \"\";\n\tinputErrors = 0;\n\toutputErrors = 0;\n\tcollisions = 0;\n\treceivedBytes = \"\";\n\ttransmittedBytes = \"\";\n}\n($1 == \"DeviceID\") { deviceID = $2; }\n(($1 == \"link_up\" || $1 == \"link_status\") && linkStatus != \"OK\") { if ($2 == 1) { linkStatus = \"OK\"; } else { linkStatus = \"WARN\"; } }\n($1 == \"ifspeed\" || $1 == \"ifSpeed\" && linkSpeed == \"\") { linkSpeed = $2; }\n($1 == \"link_speed\") { linkSpeed = $2; }\n($1 == \"duplex\") { if ($2 == \"full\") { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; } }\n($1 == \"link_mode\") { if ($2 == 1) { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; } }\n($1 == \"link_duplex\") { if ($2 == 2) { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; } }\n($1 == \"ipackets64\") { receivedPackets = $2; }\n($1 == \"ipackets\" && receivedPackets == \"\") { receivedPackets = $2; }\n($1 == \"opackets64\") { transmittedPackets = $2; }\n($1 == \"opackets\" && transmittedPackets == \"\") { transmittedPackets = $2; }\n($1 == \"ierrors\") { inputErrors = $2; }\n($1 == \"oerrors\") { outputErrors = $2; }\n($1 == \"collisions\") { collisions = $2; }\n($1 == \"rbytes64\") { receivedBytes = $2; }\n($1 == \"rbytes\" && receivedBytes == \"\") { receivedBytes = $2; }\n($1 == \"obytes64\") { transmittedBytes = $2; }\n($1 == \"obytes\" && transmittedBytes == \"\") { transmittedBytes = $2; }\n\n\n# Solaris 10 Aggregate Section\n#\n($1 == deviceID) && ($2 ~ /[0-9]+/) && ($3 ~ /[0-9]+/) && ($4 ~ /[0-9]+/) && ($5 ~ /[0-9]+/) && ($6 ~ /[0-9]+/) && ($7 ~ /[0-9]+/) {\n \tprint deviceID\n\treceivedPackets = $2\n\treceivedBytes = $3\n\tinputErrors = $4\n\ttransmittedPackets = $5\n\ttransmittedBytes = $6\n\toutputErrors = $7\n\t}\n($1 == deviceID) && ($2 ~ /link=/) && ($3 ~ /speed=/) && ($4 ~ /duplex=/) {\n\tif ($2 ~ /up/) {linkStatus = \"OK\"} else { linkStatus = \"WARN\"; }\n  linkSpeed = $3 ; gsub (\"speed=\",\"\",linkSpeed)\n  if ($4 ~ /full/) { linkDuplex = \"full\"; } else { linkDuplex = \"half\"; }\n}\n\nEND {\n\tif (linkSpeed == 0) \t\t\t\t{ linkSpeed = 10; }\n\telse if (linkSpeed == 1)\t\t\t{ linkSpeed = 100; }\n\telse if (linkSpeed == 10000000)\t\t{ linkSpeed = 10; }\n\telse if (linkSpeed == 100000000)\t{ linkSpeed = 100; }\n\telse if (linkSpeed == 1000000000)\t{ linkSpeed = 1000; }\n\telse if (linkSpeed == \"10000000000\")\t{ linkSpeed = 10000; }\n\n\terrors = inputErrors + outputErrors + collisions;\n\n\tprint \"MSHW;\" deviceID \";\" linkStatus \";\" linkSpeed \";\" linkDuplex \";\" receivedPackets \";\" transmittedPackets \";\" errors \";\" receivedBytes \";\" transmittedBytes \";\"\n}"
-  EmbeddedFile(2): "#!/bin/sh\n\n# First of all, make sure the thing speaks english\nLANG=C\nexport LANG\n\n# Get the Solaris version, because kstat is not available in pre-Solaris 9\n# and netstat -k is not available in Solaris 10...\nOSVERSION=`/usr/bin/uname -r|/usr/bin/awk -F. '{print $2}'`\n\n# Extract the name of the driver and the instance number\nDRIVER=`/usr/bin/echo $1 | /usr/bin/sed -e \"s/[0-9]*$//\"`\nINSTANCE=`/usr/bin/echo $1 | /usr/bin/sed -e \"s/^$DRIVER//\"`\n\n# Print out the device ID\n/usr/bin/echo \"DeviceID $1\"\n\n####  KERNELSTAT Section (Statistics)\n\n#\n# Solaris 8 or earlier\n#\nif /usr/bin/test $OSVERSION -le 8; then\n\t# Check that ifconfig knows the card\n\t/usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;\n\tif [ $? -ne 0 ]; then\n\t\t/usr/sbin/ifconfig $1; exit;\n\tfi\n\n\t# Get KernelStat info (in this case netstat)\n\tKERNELSTAT=`/usr/bin/netstat -k $1|/usr/bin/awk '{\n\t\tfor (i=1 ; i<=NF ; i++)\n\t\t{\n\t\t\tstatName = $i;\n\t\t\ti++;\n\t\t\tstatValue = $i;\n\t\t\tif ($(i+1) ~ /^[0-9]+$/)\n\t\t\t{\n\t\t\t\ti++;\n\t\t\t\tstatValue = statValue * 4294967296 + $i;\n\t\t\t}\n\t\t\tprint statName,statValue;\n\t\t}\n\t}'`\nfi\n\n#\n# Solaris 9\n#\nif /usr/bin/test $OSVERSION -eq 9; then\n\t# Check that ifconfig knows the card\n\t/usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;\n\tif [ $? -ne 0 ]; then\n\t\t/usr/sbin/ifconfig $1; exit;\n\tfi\n\t# Get KernelStat Information\n\tKERNELSTAT=`/usr/bin/kstat -m $DRIVER -i $INSTANCE -n $1`\nfi\n\n#\n# Solaris 10\n#\nif /usr/bin/test $OSVERSION -eq 10; then\n\t# Check that ifconfig knows the card\n\t/usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;\n\tif [ $? -eq 0 ]; then\n\t\tKERNELSTAT=`/usr/bin/kstat -m $DRIVER -i $INSTANCE -n $1`\n\telse\n\t\t%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-aggr -p | grep $1 1>/dev/null;\n\t\tif [ $? -eq 0 ]; then\n\t\t\t# Port is part of a Solaris 10 Aggregate, so print information and exit\n\t\t\t%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev -s -p $1 ;%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev -p $1;exit\n\t\telse\n\t\t\techo\n\t\t\t/usr/sbin/ifconfig $1\n\t\t\techo /usr/sbin/ifconfig and dladm failed;\n\t\t\techo If port is part of an aggregate, check that patrol user has rights to execute \"/usr/sbin/dladm show-dev -s -p $1\" and \"/usr/sbin/dladm show-dev -p $1\" or enable sudo\n\t\t\techo Otherwise, check that port if plumbed and listed in the output of ifconfig -a\n\t\t\texit;\n\t\tfi\n\tfi\nfi\n\n#\n# Solaris 11\n#\nif /usr/bin/test $OSVERSION -eq 11; then\n\tKERNELSTAT=`/usr/bin/kstat link | /usr/bin/nawk -v port=\"$1\" '{if ($1 ~ /module:/) {correctPort=0};if ($2 == port) {correctPort=1}; if (correctPort==1) {print $0}}'`\nfi\n\n\n# Print out the information provided by the kernel\n/usr/bin/echo \"$KERNELSTAT\"\n\n# Now, check whether we got the link information that we need\nREQUIRESDLADM=0\nLINKUP=`/usr/bin/echo \"$KERNELSTAT\"|/usr/bin/grep link_up`\nif /usr/bin/test \"$LINKUP\" = \"\"; then\n\tREQUIRESDLADM=1\nfi\nLINKSPEED=`/usr/bin/echo \"$KERNELSTAT\"|/usr/xpg4/bin/grep -e link_speed -e ifspeed`\nif /usr/bin/test \"$LINKSPEED\" = \"\"; then\n\tREQUIRESDLADM=1\nfi\nLINKDUPLEX=`/usr/bin/echo \"$KERNELSTAT\"|/usr/xpg4/bin/grep -e link_duplex -e duplex`\nif /usr/bin/test \"$LINKDUPLEX\" = \"\"; then\n\tREQUIRESDLADM=1\nfi\n\n\n#### dladm and maybe ndd section (link status, etc.)\n\nif /usr/bin/test $REQUIRESDLADM = 1; then\n\n\t# We will try ndd if dladm fails (by default, we consider dladm is going to fail, and if successful, we cancel the ndd try)\n\tREQUIRESNDD=1\n\n\t# Solaris 10 or earlier\n\tif /usr/bin/test $OSVERSION -le 10; then\n\n\t\t# Try dladm if dladm is available\n \t\tif /usr/bin/test -x /usr/sbin/dladm; then\n \t\t\techo Trying dladm\n \t\t\tDLADMOUTPUT=`%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev $1`\n \t\t\tif /usr/bin/test $? = 0; then\n \t\t\t\tREQUIRESNDD=0\n \t\t\t\techo \"$DLADMOUTPUT\" | /usr/bin/awk '{\n\t\t\t\t\t\t\t\t\t\t\tif ($2 ~ /link:/ && $3 ~ /up/) {print \"link_status 1\"}\n\t\t\t\t\t\t\t\t\t\t\tif ($2 ~ /link:/ && $3 ~ /down/) {print \"link_status 0\"}\n\t\t\t\t\t\t\t\t\t\t\tif ($4 ~ /speed:/ && $6 ~ /[Mm]bps/) {print \"link_speed \" $5}\n\t\t\t\t\t\t\t\t\t\t\tif ($4 ~ /speed:/ && $6 ~ /[Gg]bps/) {print \"link_speed \" $5*1000}\n\t\t\t\t\t\t\t\t\t\t\tif ($7 ~ /duplex:/ ) {print \"duplex \" $8}\n\t                                                 }'\n\t\t\tfi\n\t\tfi\n\n\t\t# If dladm failed, we will have a last try with ndd\n\t\tif /usr/bin/test $REQUIRESNDD = 1; then\n\n\t\t\tif /usr/bin/test \"$DRIVER\" = \"dmfe\" -o \"$DRIVER\" = \"bge\" -o \"$DRIVER\" = \"e1000g\" -o \"$DRIVER\" = \"rge\"; then\n\t\t\t\tNDDDEV=/dev/$1\n\t\t\telse\n\t\t\t\t%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd -set /dev/$DRIVER instance $INSTANCE 2>/dev/null\n\t\t\t\tNDDDEV=/dev/$DRIVER\n\t\t\tfi\n\n\t\t\t# Check we have rights to execute ndd\n\t\t\tif `%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV ? >/dev/null 2>/dev/null`; then\n\n\t\t\t\tVALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_status 2>/dev/null`;  if /usr/bin/test $? = 0; then /usr/bin/echo \"link_status $VALUE\"; else $REQUIRESDLADM=1; fi\n\t\t\t\tVALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_speed 2>/dev/null`; if /usr/bin/test $? = 0; then /usr/bin/echo \"link_speed $VALUE\"; fi\n\t\t\t\tVALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_mode 2>/dev/null`; if /usr/bin/test $? -eq 0; then /usr/bin/echo \"link_mode $VALUE\"; fi\n\t\t\t\tVALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_duplex 2>/dev/null`; if /usr/bin/test $? -eq 0; then /usr/bin/echo \"link_duplex $VALUE\"; fi\n\n\t\t\telse\n\n\t\t\t\techo insufficient rights to execute ndd on $1\n\t\t\tfi\n\t\tfi\n\n\tfi\n\n\t# Solaris 11  (dladm only)\n\tif /usr/bin/test $OSVERSION -ge 11; then\n\t%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-ether -p -o LINK,STATE,SPEED-DUPLEX $1 | /usr/bin/nawk 'BEGIN{FS=\":\"} {\n\t\t\t                if ($2 ~ /up/ ) {print \"link_status 1\"}\n\t\t\t                if ($2 ~ /down/ ) {print \"link_status 0\"}\n                      if ($3 ~ /M/) {speed=$3\n                                     gsub(/M.*/,\"\",speed)\n                                     print \"link_speed \" speed}\n                      if ($3 ~ /G/) {speed=$3\n                                     gsub(/G.*/,\"000\",speed)\n                                     print \"link_speed \" speed}\n                      if ($3 ~ /-f/) {print \"duplex full\" }\n\t                                                                     }'\n\tfi\nfi"
+  EmbeddedFile(1): |-
+    BEGIN {
+        DeviceID = ""
+    }
+    /^[a-z0-9]+: flags=/ {
+
+        if (DeviceID != "")
+        {
+            print "MSHW;" DeviceID ";" macAddress ";" ipAddress
+            DeviceID = ""
+            macAddress = ""
+            ipAddress = ""
+        }
+
+        ltIndex = index($0, "<")
+        if (ltIndex != 0)
+        {
+            gtIndex = index($0, ">")
+            if (gtIndex > ltIndex)
+            {
+                flags = substr($0, ltIndex + 1, gtIndex - ltIndex - 1)
+
+                if (index(flags, "LOOPBACK") == 0 && index(flags, "OFFLINE") == 0 && index(flags, "UP") > 0)
+                {
+                    DeviceID = substr($1, 1, length($1) - 1)
+                }
+            }
+        }
+    }
+    /^[ \t]+inet [0-9]/ {
+        ipAddress = $2
+    }
+    /^[ \t]+ether [0-9A-Za-z]/ {
+        macAddress = $2
+    }
+    END {
+        if (DeviceID != "")
+        {
+            print "MSHW;" DeviceID ";" macAddress ";" ipAddress
+        }
+    }
+  EmbeddedFile(3): |-
+    BEGIN {
+        deviceID = "";
+        linkStatus = "";
+        linkDuplex = "";
+        linkSpeed = "";
+        receivedPackets = "";
+        transmittedPackets = "";
+        inputErrors = 0;
+        outputErrors = 0;
+        collisions = 0;
+        receivedBytes = "";
+        transmittedBytes = "";
+    }
+    ($1 == "DeviceID") { deviceID = $2; }
+    (($1 == "link_up" || $1 == "link_status") && linkStatus != "OK") { if ($2 == 1) { linkStatus = "OK"; } else { linkStatus = "WARN"; } }
+    ($1 == "ifspeed" || $1 == "ifSpeed" && linkSpeed == "") { linkSpeed = $2; }
+    ($1 == "link_speed") { linkSpeed = $2; }
+    ($1 == "duplex") { if ($2 == "full") { linkDuplex = "full"; } else { linkDuplex = "half"; } }
+    ($1 == "link_mode") { if ($2 == 1) { linkDuplex = "full"; } else { linkDuplex = "half"; } }
+    ($1 == "link_duplex") { if ($2 == 2) { linkDuplex = "full"; } else { linkDuplex = "half"; } }
+    ($1 == "ipackets64") { receivedPackets = $2; }
+    ($1 == "ipackets" && receivedPackets == "") { receivedPackets = $2; }
+    ($1 == "opackets64") { transmittedPackets = $2; }
+    ($1 == "opackets" && transmittedPackets == "") { transmittedPackets = $2; }
+    ($1 == "ierrors") { inputErrors = $2; }
+    ($1 == "oerrors") { outputErrors = $2; }
+    ($1 == "collisions") { collisions = $2; }
+    ($1 == "rbytes64") { receivedBytes = $2; }
+    ($1 == "rbytes" && receivedBytes == "") { receivedBytes = $2; }
+    ($1 == "obytes64") { transmittedBytes = $2; }
+    ($1 == "obytes" && transmittedBytes == "") { transmittedBytes = $2; }
+
+
+    # Solaris 10 Aggregate Section
+    #
+    ($1 == deviceID) && ($2 ~ /[0-9]+/) && ($3 ~ /[0-9]+/) && ($4 ~ /[0-9]+/) && ($5 ~ /[0-9]+/) && ($6 ~ /[0-9]+/) && ($7 ~ /[0-9]+/) {
+         print deviceID
+        receivedPackets = $2
+        receivedBytes = $3
+        inputErrors = $4
+        transmittedPackets = $5
+        transmittedBytes = $6
+        outputErrors = $7
+        }
+    ($1 == deviceID) && ($2 ~ /link=/) && ($3 ~ /speed=/) && ($4 ~ /duplex=/) {
+        if ($2 ~ /up/) {linkStatus = "OK"} else { linkStatus = "WARN"; }
+      linkSpeed = $3 ; gsub ("speed=","",linkSpeed)
+      if ($4 ~ /full/) { linkDuplex = "full"; } else { linkDuplex = "half"; }
+    }
+
+    END {
+        if (linkSpeed == 0)                 { linkSpeed = 10; }
+        else if (linkSpeed == 1)            { linkSpeed = 100; }
+        else if (linkSpeed == 10000000)        { linkSpeed = 10; }
+        else if (linkSpeed == 100000000)    { linkSpeed = 100; }
+        else if (linkSpeed == 1000000000)    { linkSpeed = 1000; }
+        else if (linkSpeed == "10000000000")    { linkSpeed = 10000; }
+
+        errors = inputErrors + outputErrors + collisions;
+
+        print "MSHW;" deviceID ";" linkStatus ";" linkSpeed ";" linkDuplex ";" receivedPackets ";" transmittedPackets ";" errors ";" receivedBytes ";" transmittedBytes ";"
+    }
+  EmbeddedFile(2): |-
+    #!/bin/sh
+
+    # First of all, make sure the thing speaks english
+    LANG=C
+    export LANG
+
+    # Get the Solaris version, because kstat is not available in pre-Solaris 9
+    # and netstat -k is not available in Solaris 10...
+    OSVERSION=`/usr/bin/uname -r|/usr/bin/awk -F. '{print $2}'`
+
+    # Extract the name of the driver and the instance number
+    DRIVER=`/usr/bin/echo $1 | /usr/bin/sed -e "s/[0-9]*$//"`
+    INSTANCE=`/usr/bin/echo $1 | /usr/bin/sed -e "s/^$DRIVER//"`
+
+    # Print out the device ID
+    /usr/bin/echo "DeviceID $1"
+
+    ####  KERNELSTAT Section (Statistics)
+
+    #
+    # Solaris 8 or earlier
+    #
+    if /usr/bin/test $OSVERSION -le 8; then
+        # Check that ifconfig knows the card
+        /usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;
+        if [ $? -ne 0 ]; then
+            /usr/sbin/ifconfig $1; exit;
+        fi
+
+        # Get KernelStat info (in this case netstat)
+        KERNELSTAT=`/usr/bin/netstat -k $1|/usr/bin/awk '{
+            for (i=1 ; i<=NF ; i++)
+            {
+                statName = $i;
+                i++;
+                statValue = $i;
+                if ($(i+1) ~ /^[0-9]+$/)
+                {
+                    i++;
+                    statValue = statValue * 4294967296 + $i;
+                }
+                print statName,statValue;
+            }
+        }'`
+    fi
+
+    #
+    # Solaris 9
+    #
+    if /usr/bin/test $OSVERSION -eq 9; then
+        # Check that ifconfig knows the card
+        /usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;
+        if [ $? -ne 0 ]; then
+            /usr/sbin/ifconfig $1; exit;
+        fi
+        # Get KernelStat Information
+        KERNELSTAT=`/usr/bin/kstat -m $DRIVER -i $INSTANCE -n $1`
+    fi
+
+    #
+    # Solaris 10
+    #
+    if /usr/bin/test $OSVERSION -eq 10; then
+        # Check that ifconfig knows the card
+        /usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;
+        if [ $? -eq 0 ]; then
+            KERNELSTAT=`/usr/bin/kstat -m $DRIVER -i $INSTANCE -n $1`
+        else
+            %{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-aggr -p | grep $1 1>/dev/null;
+            if [ $? -eq 0 ]; then
+                # Port is part of a Solaris 10 Aggregate, so print information and exit
+                %{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev -s -p $1 ;%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev -p $1;exit
+            else
+                echo
+                /usr/sbin/ifconfig $1
+                echo /usr/sbin/ifconfig and dladm failed;
+                echo If port is part of an aggregate, check that patrol user has rights to execute "/usr/sbin/dladm show-dev -s -p $1" and "/usr/sbin/dladm show-dev -p $1" or enable sudo
+                echo Otherwise, check that port if plumbed and listed in the output of ifconfig -a
+                exit;
+            fi
+        fi
+    fi
+
+    #
+    # Solaris 11
+    #
+    if /usr/bin/test $OSVERSION -eq 11; then
+        KERNELSTAT=`/usr/bin/kstat link | /usr/bin/nawk -v port="$1" '{if ($1 ~ /module:/) {correctPort=0};if ($2 == port) {correctPort=1}; if (correctPort==1) {print $0}}'`
+    fi
+
+
+    # Print out the information provided by the kernel
+    /usr/bin/echo "$KERNELSTAT"
+
+    # Now, check whether we got the link information that we need
+    REQUIRESDLADM=0
+    LINKUP=`/usr/bin/echo "$KERNELSTAT"|/usr/bin/grep link_up`
+    if /usr/bin/test "$LINKUP" = ""; then
+        REQUIRESDLADM=1
+    fi
+    LINKSPEED=`/usr/bin/echo "$KERNELSTAT"|/usr/xpg4/bin/grep -e link_speed -e ifspeed`
+    if /usr/bin/test "$LINKSPEED" = ""; then
+        REQUIRESDLADM=1
+    fi
+    LINKDUPLEX=`/usr/bin/echo "$KERNELSTAT"|/usr/xpg4/bin/grep -e link_duplex -e duplex`
+    if /usr/bin/test "$LINKDUPLEX" = ""; then
+        REQUIRESDLADM=1
+    fi
+
+
+    #### dladm and maybe ndd section (link status, etc.)
+
+    if /usr/bin/test $REQUIRESDLADM = 1; then
+
+        # We will try ndd if dladm fails (by default, we consider dladm is going to fail, and if successful, we cancel the ndd try)
+        REQUIRESNDD=1
+
+        # Solaris 10 or earlier
+        if /usr/bin/test $OSVERSION -le 10; then
+
+            # Try dladm if dladm is available
+             if /usr/bin/test -x /usr/sbin/dladm; then
+                 echo Trying dladm
+                 DLADMOUTPUT=`%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev $1`
+                 if /usr/bin/test $? = 0; then
+                     REQUIRESNDD=0
+                     echo "$DLADMOUTPUT" | /usr/bin/awk '{
+                                                if ($2 ~ /link:/ && $3 ~ /up/) {print "link_status 1"}
+                                                if ($2 ~ /link:/ && $3 ~ /down/) {print "link_status 0"}
+                                                if ($4 ~ /speed:/ && $6 ~ /[Mm]bps/) {print "link_speed " $5}
+                                                if ($4 ~ /speed:/ && $6 ~ /[Gg]bps/) {print "link_speed " $5*1000}
+                                                if ($7 ~ /duplex:/ ) {print "duplex " $8}
+                                                         }'
+                fi
+            fi
+
+            # If dladm failed, we will have a last try with ndd
+            if /usr/bin/test $REQUIRESNDD = 1; then
+
+                if /usr/bin/test "$DRIVER" = "dmfe" -o "$DRIVER" = "bge" -o "$DRIVER" = "e1000g" -o "$DRIVER" = "rge"; then
+                    NDDDEV=/dev/$1
+                else
+                    %{SUDO:/usr/sbin/ndd}/usr/sbin/ndd -set /dev/$DRIVER instance $INSTANCE 2>/dev/null
+                    NDDDEV=/dev/$DRIVER
+                fi
+
+                # Check we have rights to execute ndd
+                if `%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV ? >/dev/null 2>/dev/null`; then
+
+                    VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_status 2>/dev/null`;  if /usr/bin/test $? = 0; then /usr/bin/echo "link_status $VALUE"; else $REQUIRESDLADM=1; fi
+                    VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_speed 2>/dev/null`; if /usr/bin/test $? = 0; then /usr/bin/echo "link_speed $VALUE"; fi
+                    VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_mode 2>/dev/null`; if /usr/bin/test $? -eq 0; then /usr/bin/echo "link_mode $VALUE"; fi
+                    VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_duplex 2>/dev/null`; if /usr/bin/test $? -eq 0; then /usr/bin/echo "link_duplex $VALUE"; fi
+
+                else
+
+                    echo insufficient rights to execute ndd on $1
+                fi
+            fi
+
+        fi
+
+        # Solaris 11  (dladm only)
+        if /usr/bin/test $OSVERSION -ge 11; then
+        %{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-ether -p -o LINK,STATE,SPEED-DUPLEX $1 | /usr/bin/nawk 'BEGIN{FS=":"} {
+                                if ($2 ~ /up/ ) {print "link_status 1"}
+                                if ($2 ~ /down/ ) {print "link_status 0"}
+                          if ($3 ~ /M/) {speed=$3
+                                         gsub(/M.*/,"",speed)
+                                         print "link_speed " speed}
+                          if ($3 ~ /G/) {speed=$3
+                                         gsub(/G.*/,"000",speed)
+                                         print "link_speed " speed}
+                          if ($3 ~ /-f/) {print "duplex full" }
+                                                                             }'
+        fi
+    fi
   EmbeddedFile(5): |-
     if /usr/bin/test -x /usr/sbin/dladm; then
         if %{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-dev 2>/dev/null; then
@@ -22,7 +301,56 @@ embedded:
         fi
         else /usr/sbin/prtconf -D;
     fi
-  EmbeddedFile(4): "/driver name:/ {\n\tinstance = substr($3, 2, length($3) - 1);\n\tdriver = substr($NF, 1, length($NF) - 1);\n\tif (driver != \"lo\" && driver != \"lpfc\" && driver != \"jnet\" && driver != \"dman\" && driver != \"aggr\" && driver != \"clprivnet\" && driver != \"sppp\")\n\t{\n\t\tprint \"MSHW;\" driver instance \";\" driver\n\t}\n}\n/link:.*speed:.*duplex:/ {\n\tdeviceid = $1;\n\tdriver = deviceid;\n\tinstance = \"\";\n\twhile (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)\n\t{\n\t\tinstance = substr(driver, length(driver), 1) instance;\n\t\tdriver = substr(driver, 1, length(driver) - 1);\n\t}\n\tif (driver != \"lo\" && driver != \"lpfc\" && driver != \"jnet\" && driver != \"dman\" && driver != \"aggr\" && driver != \"clprivnet\" && driver != \"sppp\")\n\t{\n\t\tprint \"MSHW;\" driver instance \";\" driver\n\t}\n}\n/: flags=/ {\n\tdeviceid = substr($1, 1, length($1) - 1);\n\tdriver = deviceid;\n\tinstance = \"\";\n\twhile (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)\n\t{\n\t\tinstance = substr(driver, length(driver), 1) instance;\n\t\tdriver = substr(driver, 1, length(driver) - 1);\n\t}\n\tif (driver != \"lo\" && driver != \"lpfc\" && driver != \"jnet\" && driver != \"dman\" && driver != \"aggr\" && driver != \"clprivnet\" && driver != \"sppp\")\n\t{\n\t\tprint \"MSHW;\" driver instance \";\" driver\n\t}\n}\n/LinkID:.*DeviceID:/ {\n\tdeviceid = $2;\n\tdriver = $4;\n\tinstance = \"\";\n\twhile (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)\n\t{\n\t\tdriver = substr(driver, 1, length(driver) - 1);\n\t}\n\tif (driver != \"lo\" && driver != \"lpfc\" && driver != \"jnet\" && driver != \"dman\" && driver != \"aggr\" && driver != \"clprivnet\" && driver != \"sppp\")\n\t{\n\t\tprint \"MSHW;\" deviceid  \";\" driver\n\t}\n}"
+  EmbeddedFile(4): |-
+    /driver name:/ {
+        instance = substr($3, 2, length($3) - 1);
+        driver = substr($NF, 1, length($NF) - 1);
+        if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+        {
+            print "MSHW;" driver instance ";" driver
+        }
+    }
+    /link:.*speed:.*duplex:/ {
+        deviceid = $1;
+        driver = deviceid;
+        instance = "";
+        while (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)
+        {
+            instance = substr(driver, length(driver), 1) instance;
+            driver = substr(driver, 1, length(driver) - 1);
+        }
+        if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+        {
+            print "MSHW;" driver instance ";" driver
+        }
+    }
+    /: flags=/ {
+        deviceid = substr($1, 1, length($1) - 1);
+        driver = deviceid;
+        instance = "";
+        while (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)
+        {
+            instance = substr(driver, length(driver), 1) instance;
+            driver = substr(driver, 1, length(driver) - 1);
+        }
+        if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+        {
+            print "MSHW;" driver instance ";" driver
+        }
+    }
+    /LinkID:.*DeviceID:/ {
+        deviceid = $2;
+        driver = $4;
+        instance = "";
+        while (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)
+        {
+            driver = substr(driver, 1, length(driver) - 1);
+        }
+        if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+        {
+            print "MSHW;" deviceid  ";" driver
+        }
+    }
   EmbeddedFile(6): "%{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-phys -o LINK,DEVICE -p 2>/dev/null | /usr/bin/tr ':' ';'"
 translations:
   ifconfigFlagsTranslationTable:

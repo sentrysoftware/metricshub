@@ -1,6 +1,35 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN{RaidList=1;DKCHW=1;DKUH=1;FS=\"[;]\"};\n\n$1 == \"RaidList\" {\n\tif (RaidList==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; RaidList = 2 ; next}\n\telse if (RaidList==2) { EnclosureFullName = $2 \".\" EnclosureSerialNumber ; EnclosureFullNameList[EnclosureSerialNumber] = EnclosureFullName ; RaidList = 3 ; next}\n\telse if (RaidList==3) { EnclosureFirmwareVersion = $2 ; RaidList = 4 ; next}\n\telse if (RaidList==4) { EnclosureProductVersion = $2; RaidList = 1 ;\n\t\t                      print \"MSHW_ENC;\" EnclosureSerialNumber \";\" EnclosureFullName  \";\" EnclosureFirmwareVersion \";\" EnclosureProductVersion \";\"\n\t\t                      next}\n\t}\n$1 == \"DKCHW\" {\n\tif (DKCHW==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; DKCHW = 2 ; next}\n\telse if (DKCHW==2) { print \"MSHW_CPU;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-Controller\" \";DKC-Controllers;\" $2 \";\" ; DKCHW = 3 ; next}\n\telse if (DKCHW==3) { print \"MSHW_Other;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-CSW\" \";DKC-CSW;\" $2 \";\" ; DKCHW = 4 ; next}\n\telse if (DKCHW==4) { print \"MSHW_Memory;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-Cache\" \";DKC-Cache;\" $2 \";\" ; DKCHW = 5 ; next}\n\telse if (DKCHW==5) { print \"MSHW_Memory;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-SystemMemory\" \";DKC-SystemMemory;\" $2 \";\" ; DKCHW = 6 ; next}\n\telse if (DKCHW==6) { print \"MSHW_PSU;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-PSU\" \";DKC-PowerSupplies;\" $2 \";\"; DKCHW = 7 ; next}\n\telse if (DKCHW==7) { print \"MSHW_Battery;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-Batteries\" \";DKC-Batteries;\" $2 \";\"; DKCHW = 8 ; next}\n\telse if (DKCHW==8) { print \"MSHW_Fan;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-Fans\" \";DKC-Fans;\" $2 \";\"; DKCHW = 9 ; next}\n\telse if (DKCHW==9) { print \"MSHW_Temperature;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKC-Environment\" \";DKC-Environment;\" $2 \";\"; DKCHW = 1 ; next}\n\t}\n\n$1 == \"DKUH\" {\n\tif (DKUH==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; DKUH = 2 ; next}\n\telse if (DKUH==2) { print \"MSHW_PSU;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKU-PSU\" \";DKU-PowerSupplies;\" $2 \";\" ; DKUH = 3 ; next}\n\telse if (DKUH==3) { print \"MSHW_Fan;\" EnclosureSerialNumber  \";\"  EnclosureFullNameList[EnclosureSerialNumber]  \"-DKU-Fans\" \";DKU-Fans;\" $2 \";\"; DKUH = 4 ; next}\n\telse if (DKUH==4) { print \"MSHW_Temperature;\" EnclosureSerialNumber  \";\" EnclosureFullNameList[EnclosureSerialNumber] \"-DKU-Environment\" \";DKU-Environment;\" $2 \";\"; DKUH = 5 ; next}\n\telse if (DKUH==5) { print \"MSHW_PhysicalDisk;\" EnclosureSerialNumber  \";\" EnclosureFullNameList[EnclosureSerialNumber] \"-DKU-PhysicalDisks\" \";DKU-PhysicalDisks;\" $2 \";\"; DKUH = 1 ; next}\n\t}"
+  EmbeddedFile(1): |-
+    BEGIN{RaidList=1;DKCHW=1;DKUH=1;FS="[;]"};
+
+    $1 == "RaidList" {
+        if (RaidList==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; RaidList = 2 ; next}
+        else if (RaidList==2) { EnclosureFullName = $2 "." EnclosureSerialNumber ; EnclosureFullNameList[EnclosureSerialNumber] = EnclosureFullName ; RaidList = 3 ; next}
+        else if (RaidList==3) { EnclosureFirmwareVersion = $2 ; RaidList = 4 ; next}
+        else if (RaidList==4) { EnclosureProductVersion = $2; RaidList = 1 ;
+                                  print "MSHW_ENC;" EnclosureSerialNumber ";" EnclosureFullName  ";" EnclosureFirmwareVersion ";" EnclosureProductVersion ";"
+                                  next}
+        }
+    $1 == "DKCHW" {
+        if (DKCHW==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; DKCHW = 2 ; next}
+        else if (DKCHW==2) { print "MSHW_CPU;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Controller" ";DKC-Controllers;" $2 ";" ; DKCHW = 3 ; next}
+        else if (DKCHW==3) { print "MSHW_Other;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-CSW" ";DKC-CSW;" $2 ";" ; DKCHW = 4 ; next}
+        else if (DKCHW==4) { print "MSHW_Memory;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Cache" ";DKC-Cache;" $2 ";" ; DKCHW = 5 ; next}
+        else if (DKCHW==5) { print "MSHW_Memory;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-SystemMemory" ";DKC-SystemMemory;" $2 ";" ; DKCHW = 6 ; next}
+        else if (DKCHW==6) { print "MSHW_PSU;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-PSU" ";DKC-PowerSupplies;" $2 ";"; DKCHW = 7 ; next}
+        else if (DKCHW==7) { print "MSHW_Battery;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Batteries" ";DKC-Batteries;" $2 ";"; DKCHW = 8 ; next}
+        else if (DKCHW==8) { print "MSHW_Fan;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Fans" ";DKC-Fans;" $2 ";"; DKCHW = 9 ; next}
+        else if (DKCHW==9) { print "MSHW_Temperature;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Environment" ";DKC-Environment;" $2 ";"; DKCHW = 1 ; next}
+        }
+
+    $1 == "DKUH" {
+        if (DKUH==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; DKUH = 2 ; next}
+        else if (DKUH==2) { print "MSHW_PSU;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKU-PSU" ";DKU-PowerSupplies;" $2 ";" ; DKUH = 3 ; next}
+        else if (DKUH==3) { print "MSHW_Fan;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKU-Fans" ";DKU-Fans;" $2 ";"; DKUH = 4 ; next}
+        else if (DKUH==4) { print "MSHW_Temperature;" EnclosureSerialNumber  ";" EnclosureFullNameList[EnclosureSerialNumber] "-DKU-Environment" ";DKU-Environment;" $2 ";"; DKUH = 5 ; next}
+        else if (DKUH==5) { print "MSHW_PhysicalDisk;" EnclosureSerialNumber  ";" EnclosureFullNameList[EnclosureSerialNumber] "-DKU-PhysicalDisks" ";DKU-PhysicalDisks;" $2 ";"; DKUH = 1 ; next}
+        }
 translations:
   statusInformationTranslationTable:
     "1": ""

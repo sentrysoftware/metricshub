@@ -1,6 +1,32 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {FS=\";\";size=\"\"}\n$6 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != \"\" {model=$3;gsub (/\\\"/,\"\",model);\n                                 firmware=$4;gsub (/\\\"/,\"\",firmware);\n                                 serial=$5;gsub (/\\\"/,\"\",serial);\n                                 size=$6;gsub (/[Gg].?[Bb]/,\"\",size); gsub (/\\\"/,\"\",size) ;\n                                 status=$7\n                                 if ($6 ~ /[Tt].?[Bb]/)\n                                 \t{\n                                 \t\tgsub (/[Tt].?[Bb]/,\"\",size);\n                                 \t\tsize = size * 1024;\n                                 \t}\n                                 print (\"MSHW;\"$1\";\"$2\";\"model\";\"firmware\";\"serial\";\"size\";\"status\";\")\n                                 }\n\n$7 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != \"\"  {model=$4;gsub (/\\\"/,\"\",model);\n                                 firmware=$5;gsub (/\\\"/,\"\",firmware);\n                                 serial=$6;gsub (/\\\"/,\"\",serial);\n                                 size=$7;gsub (/[Gg].?[Bb]/,\"\",size); gsub (/\\\"/,\"\",size) ;\n                                 if ($7 ~ /[Tt].?[Bb]/)\n                                 \t{\n                                 \t\tgsub (/[Tt].?[Bb]/,\"\",size);\n                                 \t\tsize = size * 1024;\n                                 \t}\n                                 status=$8\n                                 print (\"MSHW;\"$1\";\"$2\";\"model\";\"firmware\";\"serial\";\"size\";\"status\";\")\n                                 }"
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";size=""}
+    $6 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != "" {model=$3;gsub (/\"/,"",model);
+                                     firmware=$4;gsub (/\"/,"",firmware);
+                                     serial=$5;gsub (/\"/,"",serial);
+                                     size=$6;gsub (/[Gg].?[Bb]/,"",size); gsub (/\"/,"",size) ;
+                                     status=$7
+                                     if ($6 ~ /[Tt].?[Bb]/)
+                                         {
+                                             gsub (/[Tt].?[Bb]/,"",size);
+                                             size = size * 1024;
+                                         }
+                                     print ("MSHW;"$1";"$2";"model";"firmware";"serial";"size";"status";")
+                                     }
+
+    $7 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != ""  {model=$4;gsub (/\"/,"",model);
+                                     firmware=$5;gsub (/\"/,"",firmware);
+                                     serial=$6;gsub (/\"/,"",serial);
+                                     size=$7;gsub (/[Gg].?[Bb]/,"",size); gsub (/\"/,"",size) ;
+                                     if ($7 ~ /[Tt].?[Bb]/)
+                                         {
+                                             gsub (/[Tt].?[Bb]/,"",size);
+                                             size = size * 1024;
+                                         }
+                                     status=$8
+                                     print ("MSHW;"$1";"$2";"model";"firmware";"serial";"size";"status";")
+                                     }
   EmbeddedFile(3): |-
     BEGIN {FS=";";}
     NF > 4 && $1 != "" {if ($1 ~ /^[0-9]+$/) {print "MSHW;" $2 ";" $3 ";" $5 ";"}

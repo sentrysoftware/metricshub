@@ -1,7 +1,37 @@
 ---
 embedded:
-  EmbeddedFile(1): "$1 ~ /^sissas[0-9]/ && $3 !~ /HA/ {ControllerID = $1;\n\t                                 if ($3 ~ /Primary/) {PrimaryControllerID = $1}\n\t                                 \telse {PrimaryControllerID = \"\"}\n\t                                 State = $3;\n\t                                 Description = $0;\n\t                                 gsub(/(.*Secondary *)|(.*Primary *)/,\"\",Description)\n\t                                 print (\"MSHW_CTRL;\" ControllerID \";\" State \";\" Description \";\")\n\t                                }\n# Only print Logical/Physical Disks if Controller is Primary\n$1 ~ /^[ph]disk[0-9]/ && PrimaryControllerID != \"\" {\n                     diskID = $1\n\t                   State = $3\n\t                   Start = index($0,$3) + length ($3)\n\t                   End = match($0,/[0-9.]+[MmGgTt][Bb]/); Length = End - Start\n\t                   Description = substr($0,Start,Length)\n                     gsub(/ +$/,\"\",Description);gsub(/^ +/,\"\",Description);\n                     Size = substr($0,End)\n                     gsub(/ +.+$/,\"\",Size)\n                     if (Size ~ /[Mm][Bb]/) {gsub (/[Mm][Bb]/,\"\",Size);Size = Size / 1024};\n                     if (Size ~ /[Tt][Bb]/) {gsub (/[Tt][Bb]/,\"\",Size);Size = Size * 1024};\n                     if (Size ~ /[Gg][Bb]/) {gsub (/[Gg][Bb]/,\"\",Size)}\n                     if ($1 ~ /hdisk/) {type=\"MSHW_LD\"}\n                     if ($1 ~ /pdisk/) {type=\"MSHW_PD\"}\n                     print type \";\" diskID \";\" State \";Description: \" Description \";\" Size \";\" PrimaryControllerID \";\"\n\t                 }"
-  EmbeddedFile(2): "BEGIN {FS=\"[:]\"}\n$1 ~ /RAID Adapter/ { Controller = $2 ; gsub(/ /,\"\",Controller);}\n$1 ~ /Battery State/ { State = $2 ; gsub(/^ +/,\"\",State); gsub(/ +$/,\"\",State);\n\t                     print \"MSHW;\" Controller \";\" State \";\"\n\t                    }"
+  EmbeddedFile(1): |-
+    $1 ~ /^sissas[0-9]/ && $3 !~ /HA/ {ControllerID = $1;
+                                         if ($3 ~ /Primary/) {PrimaryControllerID = $1}
+                                             else {PrimaryControllerID = ""}
+                                         State = $3;
+                                         Description = $0;
+                                         gsub(/(.*Secondary *)|(.*Primary *)/,"",Description)
+                                         print ("MSHW_CTRL;" ControllerID ";" State ";" Description ";")
+                                        }
+    # Only print Logical/Physical Disks if Controller is Primary
+    $1 ~ /^[ph]disk[0-9]/ && PrimaryControllerID != "" {
+                         diskID = $1
+                           State = $3
+                           Start = index($0,$3) + length ($3)
+                           End = match($0,/[0-9.]+[MmGgTt][Bb]/); Length = End - Start
+                           Description = substr($0,Start,Length)
+                         gsub(/ +$/,"",Description);gsub(/^ +/,"",Description);
+                         Size = substr($0,End)
+                         gsub(/ +.+$/,"",Size)
+                         if (Size ~ /[Mm][Bb]/) {gsub (/[Mm][Bb]/,"",Size);Size = Size / 1024};
+                         if (Size ~ /[Tt][Bb]/) {gsub (/[Tt][Bb]/,"",Size);Size = Size * 1024};
+                         if (Size ~ /[Gg][Bb]/) {gsub (/[Gg][Bb]/,"",Size)}
+                         if ($1 ~ /hdisk/) {type="MSHW_LD"}
+                         if ($1 ~ /pdisk/) {type="MSHW_PD"}
+                         print type ";" diskID ";" State ";Description: " Description ";" Size ";" PrimaryControllerID ";"
+                         }
+  EmbeddedFile(2): |-
+    BEGIN {FS="[:]"}
+    $1 ~ /RAID Adapter/ { Controller = $2 ; gsub(/ /,"",Controller);}
+    $1 ~ /Battery State/ { State = $2 ; gsub(/^ +/,"",State); gsub(/ +$/,"",State);
+                             print "MSHW;" Controller ";" State ";"
+                            }
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     default: Unknown Status

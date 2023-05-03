@@ -1,6 +1,17 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN  {section = \"\" ; module = \"\"}\n$1 ~ /^(Xbar)|(Mod)$/ && $2 ~ \"^Ports\" {section=$1 ; offset2 = index($0,\"Ports\") ; offset3 = index ($0,\"Module-Type\") ; offset4 = index ($0,\"Model\") ; offset5 = index ($0,\"Status\") }\n($1 ~ /^[0-9]/ && section ~ /^(Xbar)|(Mod)$/ ){\n\t             if (section == \"Mod\")  {module = $1}\n\t             if (section == \"Xbar\") {module = \"XBar\" $1}\n               port = $2 ;\n               moduleType = substr ($0,offset3,(offset4 - offset3)) ; gsub (/  /,\"\",moduleType) ;\n               model = substr ($0,offset4,(offset5 - offset4)) ; gsub (/ /,\"\",model) ;\n               status = substr ($0,offset5) ; gsub (/[ *]/,\"\",status) ;\n               print ( \"MSHW;\" module \";\" port \"-Port \" moduleType \";\" model \";\" status \";\") ; }\n$1 ~ /^(Xbar)|(Mod)$/ && $2 ~ /(Power)|(Sw)/ {section=\"\"}"
+  EmbeddedFile(1): |-
+    BEGIN  {section = "" ; module = ""}
+    $1 ~ /^(Xbar)|(Mod)$/ && $2 ~ "^Ports" {section=$1 ; offset2 = index($0,"Ports") ; offset3 = index ($0,"Module-Type") ; offset4 = index ($0,"Model") ; offset5 = index ($0,"Status") }
+    ($1 ~ /^[0-9]/ && section ~ /^(Xbar)|(Mod)$/ ){
+                     if (section == "Mod")  {module = $1}
+                     if (section == "Xbar") {module = "XBar" $1}
+                   port = $2 ;
+                   moduleType = substr ($0,offset3,(offset4 - offset3)) ; gsub (/  /,"",moduleType) ;
+                   model = substr ($0,offset4,(offset5 - offset4)) ; gsub (/ /,"",model) ;
+                   status = substr ($0,offset5) ; gsub (/[ *]/,"",status) ;
+                   print ( "MSHW;" module ";" port "-Port " moduleType ";" model ";" status ";") ; }
+    $1 ~ /^(Xbar)|(Mod)$/ && $2 ~ /(Power)|(Sw)/ {section=""}
   EmbeddedFile(3): |
     $0 ~ /Total Power Capacity/ { print ("MSHW;"$(NF-1)) }
   EmbeddedFile(2): |-
@@ -12,12 +23,157 @@ embedded:
     ( $0 ~ /Serial number is/ ) && ( bSwitch == "yes" ) {offset = (index($0,"is") + 3) ; serialNumber = substr ($0,offset)}
     /---/ { bSwitch = "" }
     END { print("MSHW;" model ";" serialNumber ";") }
-  EmbeddedFile(5): "BEGIN { offsetStatus = \"\" ; section = \"\"}\n(length($0) < 3) { section = \"\" ; offsetStatus = \"\" ; next }\n\n(section == \"Clock\" && offsetStatus > 1) {status = substr ($0,offsetStatus) ;\n\t                                        offsetSlash = index(status,\"/\") ;\n\t                                        if (offsetSlash > 1)  {status = substr (status,1,offsetSlash - 1)} ;\n\t                                        statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = \"\" } ;\n\t                                        if ((status !~ /[Nn]ot [Pp]resent/) && NF > 2 ){print (\"MSHW;Clock;\" $1 \";\" status \";\" statusinfo \";\") };\n\t                                        }\n\n$0 ~ /^Clock/ { section = \"Clock\" }\n$NF == \"Status\" { offsetStatus = (index($0,\"Status\")) }"
-  EmbeddedFile(4): "BEGIN  {attachToType=\"\"; module=\"\" ;port=\"\" ;portDescription=\"\"; wwn=\"\" ;portDesc=\"\"; portMode=\"\";speed=\"\" ; duplexMode=\"\";transmitPackets=\"\";receivePackets=\"\";transmitBytes=\"\"; receiveBytes=\"\";transmitErrors=\"\";receiveErrors=\"\";totalErrors=\"\";section=\"\";}\n($1 ~ /^fc[0-9]/) || ($1 ~ /^[Ee]thernet[0-9]/) || ($1 ~ /^[Ee]xt[0-9]/) || ($1 ~ /^[Bb]ay[0-9]/) {\n\t                  port = $1 ; gsub (/fc/,\"\",port) ; gsub (/[Ee]thernet/,\"\",port) ;\n                    if (port ~ \"/\") {attachToType = \"blade\" ; module = substr(port,1,2) ; gsub (\"/\",\"\",module); }\n\t                     else {attachToType = \"enclosure\" ; module = \"MDS9000Bay\" ; }\n\n                    offset = (index($0,\"is\") + 3)  ; statusInformation = substr ($0,offset) ; status=tolower(statusInformation);linkStatus=statusInformation;\n                    gsub (/(.*\\()|(\\))/,\"\",status); gsub (/[^a-z]/,\"\",status);\n                    gsub (/up /,\"\",statusInformation); gsub (/trunking /,\"\",statusInformation)\n                    gsub (/ \\(.+\\)/,\"\",linkStatus);\n                    if (($0 ~ /SFP not present/) || ($0 ~ /SFP not inserted/)){linkStatus = \"missing\"} ;\n                    if ($1 ~ /^fc[0-9]/) {portDesc = \"FC Port \"}\n                    if ($1 ~ /^[Ee]thernet[0-9]/) {portDesc = \"Ethernet Port \"}\n                    }\n\n$1 ~ /Port/ && $2 ~ /description/ && $3 ~ /is/ {offset = (index($0,\"is\") + 3) ;portDescription = substr ($0,offset)}\n$0 ~ /WWN/          { wwn = $NF }\n$0 ~ /Port mode is/ { portMode = $4 ; gsub (\",\",\"\",portMode) ; }\n\n($1 ~ /^mgmt[0-9]/) || ($1 ~ /sup-fc[0-9]/)   { module = \"MDS9000Bay\" ;\n\t                  attachToType = \"enclosure\" ;\n\t                  port = $1 ;\n                    offset = (index($0,\"is\") + 3)  ; statusInformation = substr ($0,offset) ; status=tolower(statusInformation);linkStatus=statusInformation;\n                    gsub (/(.*\\()|(\\))/,\"\",status); gsub (/[^a-z]/,\"\",status);\n                    gsub (/up /,\"\",statusInformation); gsub (/trunking /,\"\",statusInformation)\n                    gsub (/ \\(.+\\)/,\"\",linkStatus);\n                    portDesc = \"Ethernet Port\" ;\n                    }\n$0 ~ /Internet address is/ { wwn = $NF }\n$1 == \"MTU\"         { speed = $5 ; duplexMode = tolower($7) ;\n                      if ($6 ~ /[Gg]bps/) {speed=speed*1000} ;\n                      if ($6 ~ /[Kk]bit/) {speed=speed/1000} ;\n                      }\n($0 ~ /Speed is/ && $NF ~ /[GgMm]bps/) {speed = $(NF-1) ;  duplexMode=\"full\" ;\n                                        if ($NF ~ /[Gg]bps/) {speed=speed*1000} ;\n                                        }\n# FC Received\n($2 ~ /packets|frames/) && ($3 ~ /input/) && ($5 ~ /bytes/)  {receivePackets=$1 ; receiveBytes = $4 ; section=\"input\"; }\n($2 ~ /packets|frames/) && ($3 ~ /input,/) && ($4 ~ /bytes/)  {receivePackets=$1 ; receiveBytes = substr($3,7) ; section=\"input\"; }\n($2 ~ /input/) && ($3 ~ /errors/) && ($5 ~ /frame/) && ($7 ~ /overrun/) && ($9 ~ /fifo/) && (section==\"input\") {receiveErrors=($1 + $4 + $ 6 + $8);}\n($2 ~ /discards/) && ($4 ~ /errors/) && (section==\"input\") {receiveErrors=($1 + $3);}\n($2 ~ /CRC/) && ($4 ~ /unknown/) && (section==\"input\") {receiveErrors=(receiveErrors + $1 + $3);}\n($2 ~ /too/) && ($3 ~ /long/) && ($5 ~ /too/) && ($6 ~ /short/) && (section==\"input\") {receiveErrors=(receiveErrors + $1 + $4);}\n\n# FC Transmitted\n($2 ~ /packets|frames/) && ($3 ~ /output/) && ($5 ~ /bytes/) {transmitPackets=$1 ; transmitBytes = $4 ; section=\"output\"; }\n($2 ~ /packets|frames/) && ($3 ~ /output/) && ($4 ~ /bytes/) {transmitPackets=$1 ; transmitBytes = substr($3,8) ; section=\"output\"; }\n($2 ~ /output/) && ($3 ~ /errors/) && ($5 ~ /collisions/) && ($7 ~ /fifo/)  && (section==\"output\") {transmitErrors=($1 + $4 + $ 6);}\n($2 ~ /carrier/) && ($3 ~ /errors/) && (section==\"output\") {transmitErrors=(transmitErrors + $1)}\n($2 ~ /discards/) && ($4 ~ /errors/) && (section==\"output\") {transmitErrors=($1 + $3);}\n\n# Ethernet Received\n($1 ~ /^RX$/) && (NF == 1) {section=\"RX\"; }\n($2 ~ /input/ && $3 ~ /packets/ && $5 ~ /bytes/ && section==\"RX\") {receivePackets=$1; receiveBytes = $4}\n($2 ~ /input/) && ($3 ~ /error/) && ($5 ~ /short/) && ($6 ~ /frame/) && ($8 ~ /overrun/) && ($10 ~ /underrun/) && ($12 ~ /ignored/)&& (section==\"RX\") {receiveErrors=$1 + $4 + $7 + $9 + $11}\n($2 ~ /watchdog/) && ($4 ~ /bad/) && ($5 ~ /etype/) && ($6 ~ /drop/) && ($8 ~ /bad/) && ($9 ~ /proto/) && ($10 ~ /drop/) && ($12 ~ /if/) && ($13 ~ /down/) && ($14 ~ /drop/) && (section==\"RX\") {receiveErrors=receiveErrors + $1 + $3 + $7 + $11}\n($2 ~ /input/) && ($3 ~ /with/) && ($4 ~ /dribble/) && ($6 ~ /input/) && ($7 ~ /discard/) && (section==\"RX\") {receiveErrors=receiveErrors + $1 + $5}\n\n# Ethernet Transmitted\n($1 ~ /^TX$/) && (NF == 1) {section=\"TX\"; }\n($2 ~ /output/ && $3 ~ /packets/ && $5 ~ /bytes/ && section==\"TX\") {transmitPackets=$1; transmitBytes = $4}\n($2 ~ /output/) && ($3 ~ /errors/) && ($5 ~ /collision/) && ($7 ~ /deferred/) && ($9 ~ /late/) && ($10 ~ /collision/) && (section==\"RX\") {transmitErrors=$1 + $4 + $6 + $8}\n($2 ~ /lost/) && ($3 ~ /carrier/) && ($5 ~ /no/) && ($6 ~ /carrier/) && ($8 ~ /babble/) && ($10 ~ /proto/) && ($11 ~ /drop/) && (section==\"RX\") {transmitErrors=transmitErrors + $1 + $4 + $7 + $9}\n\n((length($0) < 1) &&(module != \"\"))  {totalErrors = (transmitErrors + receiveErrors);\n                                      print (\"MSHW;\" attachToType \";\" module \";\" port \";\" statusInformation \";\" wwn  \";\" portDesc portMode \";\" speed \";\" linkStatus \";\" duplexMode \";\" transmitPackets \";\" receivePackets \";\" transmitBytes \";\" receiveBytes \";\" totalErrors \";\" status \";\" portDescription \";\") ;\n                                      attachToType=\"\"; module=\"\" ;port=\"\" ;portDescription=\"\";wwn=\"\" ;portDesc=\"\"; portMode=\"\";speed=\"\" ; duplexMode=\"\";transmitPackets=\"\";receivePackets=\"\";transmitBytes=\"\"; receiveBytes=\"\";transmitErrors=\"\";receiveErrors=\"\";totalErrors=\"\";section=\"\";status=\"\";statusInformation=\"\";\n                                      }\nEND { if (module != \"\") {totalErrors = (transmitErrors + receiveErrors);\n\t                       print (\"MSHW;\" attachToType \";\" module \";\" port \";\" statusInformation \";\" wwn  \";\" portDesc portMode \";\" speed \";\" linkStatus \";\" duplexMode \";\" transmitPackets \";\" receivePackets \";\" transmitBytes \";\" receiveBytes \";\" totalErrors \";\" status \";\" portDescription \";\") ;\n\t                      }\n    }"
-  EmbeddedFile(7): "BEGIN { offsetStatus = \"\" ; section = \"\"}\n(length($0) < 3) { Outlet=0 ; Intake=0 ; next }\n(section == \"Temperature\" && offsetStatus > 1 && NF > 5) {\n\t                                      status = substr ($0,offsetStatus) ; gsub(/ /,\"\",status);\n\t                                      temp = $5 ;\n\t                                      tempWarn = $4 ;\n\t                                      tempAlarm = $3 ;\n\t                                      sensor = $1 \"/\" $2 ;\n\t                                      statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = \"\" } ;\n\t                                      module = $1 ; if (module ~ /^[0-9]/) { attachToType = \"blade\" } else { attachToType = \"enclosure\" ; module = \"MDS9000Bay\" } ;\n\t                                      if (sensor ~ /Outlet$/) {Outlet = Outlet + 1 ; print (\"MSHW;\" module \";\" sensor Outlet\";\" status \";\" statusinfo \";\"temp  \";\" tempWarn \";\" tempAlarm  \";\" attachToType \";\")}\n\t                                      else if (sensor ~ /Intake$/) {Intake = Intake + 1 ; print (\"MSHW;\" module \";\" sensor Intake\";\" status \";\" statusinfo \";\"temp  \";\" tempWarn \";\" tempAlarm  \";\" attachToType \";\")}\n\t                                      else {print (\"MSHW;\" module \";\" sensor \";\" status \";\" statusinfo \";\" temp  \";\" tempWarn \";\" tempAlarm  \";\" attachToType \";\")}\n\t                                      }\n\n(section == \"TemperatureOldStyle\" && offsetStatus > 1 && NF > 2 && $1 ~ /^[0-9]+$/) {\n                                       status = substr ($0,offsetStatus) ; gsub(/ /,\"\",status);\n                                       statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = \"\" } ;\n                                       temp = $2 ;\n                                       sensor = $1 ;\n                                       module = $1 ;\n                                       print (\"MSHW;\" module \";\" sensor \";\" status \";\" statusinfo \";\" temp  \";\"  \";\"   \";blade;\");\n                                       }\n\n$0 ~ /^Temperature/ { section = \"Temperature\" ; offsetStatus = \"\" }\n(section == \"Temperature\" && $2 ~ /CurTemp/ && $3 ~ /Status/) { section = \"TemperatureOldStyle\"}\n$NF == \"Status\" { offsetStatus = (index($0,\"Status\")) }"
-  EmbeddedFile(6): "BEGIN { offsetStatus = \"\" ; section = \"\"}\n(length($0) < 3) { section = \"\"; offsetStatus = \"\" ; next }\n(section == \"Fan\" && offsetStatus > 1) {if ($NF ~ /NotSupported/) { next}\n                                        status = substr ($0,offsetStatus) ;\n\t                                      gsub(/ /,\"\",status);\n\t                                      statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = \"\" } ;\n\t                                      if ((NF > 2) && ($1 ~ \"Chassis\") && ($1 !~ /[0-9]$/)) {chassis = chassis + 1 ; print (\"MSHW;\" $1 chassis \";\" status\";\"statusinfo\";\")}\n\t                                      else if ((NF > 2) && (status != \"\")) {print (\"MSHW;\" $1 \";\" status\";\"statusinfo\";\")} ;\n\t                                      }\n\n$0 ~ /^Fan/ { section = \"Fan\" ; chassis = 0 ; }\n$NF == \"Status\" { offsetStatus = (index($0,\"Status\")) }"
-  EmbeddedFile(9): "$1 ~ /^fc[0-9]/     {port = $1 ; gsub (/fc/,\"\",port) ;}\n$0 ~ /waits due to lack of transmit credits/ && $1 ~/^[0-9]+$/ {ZeroBufferCreditCount = $1\n\t                                                             print \"MSHW;\" port \";\" ZeroBufferCreditCount \";\"\n\t                                                             port = \"\"}"
-  EmbeddedFile(8): "BEGIN { offsetStatus = \"\" ; section = \"\"}\n(length($0) < 3) { section = \"\"; offsetStatus = \"\" ; Outlet=0 ; Intake=0 ; next }\n(section == \"Power Supply\" && offsetStatus > 1 && NF > 3) {\n\t                                      status = substr ($0,offsetStatus) ; gsub(/ /,\"\",status);\n\t                                      powerSupply = $1 ;\n\t                                      statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = \"\" } ;\n\t                                      print (\"MSHW;\" powerSupply \";\" status \";\" statusinfo \";\") ;\n\t                                      }\n(section == \"Power Supply Old Style\" && offsetStatus > 1 && $1 ~ /^[0-9]+$/ ) {\n\t                                      status = substr ($0,offsetStatus) ; gsub(/ /,\"\",status);\n\t                                      powerSupply = $1 ;\n\t                                      statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = \"\" } ;\n\t                                      print (\"MSHW;\" powerSupply \";\" status \";\" statusinfo \";\") ;\n\t                                     }\n\n$0 ~ /^Power Supply/ { section = \"Power Supply\" }\n$1 ~ /^PS$/ && $2 ~ /^Status$/ { section = \"Power Supply Old Style\" }\n$NF == \"Status\" { offsetStatus = (index($0,\"Status\")) }"
+  EmbeddedFile(5): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { section = "" ; offsetStatus = "" ; next }
+
+    (section == "Clock" && offsetStatus > 1) {status = substr ($0,offsetStatus) ;
+                                                offsetSlash = index(status,"/") ;
+                                                if (offsetSlash > 1)  {status = substr (status,1,offsetSlash - 1)} ;
+                                                statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                                if ((status !~ /[Nn]ot [Pp]resent/) && NF > 2 ){print ("MSHW;Clock;" $1 ";" status ";" statusinfo ";") };
+                                                }
+
+    $0 ~ /^Clock/ { section = "Clock" }
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
+  EmbeddedFile(4): |-
+    BEGIN  {attachToType=""; module="" ;port="" ;portDescription=""; wwn="" ;portDesc=""; portMode="";speed="" ; duplexMode="";transmitPackets="";receivePackets="";transmitBytes=""; receiveBytes="";transmitErrors="";receiveErrors="";totalErrors="";section="";}
+    ($1 ~ /^fc[0-9]/) || ($1 ~ /^[Ee]thernet[0-9]/) || ($1 ~ /^[Ee]xt[0-9]/) || ($1 ~ /^[Bb]ay[0-9]/) {
+                          port = $1 ; gsub (/fc/,"",port) ; gsub (/[Ee]thernet/,"",port) ;
+                        if (port ~ "/") {attachToType = "blade" ; module = substr(port,1,2) ; gsub ("/","",module); }
+                             else {attachToType = "enclosure" ; module = "MDS9000Bay" ; }
+
+                        offset = (index($0,"is") + 3)  ; statusInformation = substr ($0,offset) ; status=tolower(statusInformation);linkStatus=statusInformation;
+                        gsub (/(.*\()|(\))/,"",status); gsub (/[^a-z]/,"",status);
+                        gsub (/up /,"",statusInformation); gsub (/trunking /,"",statusInformation)
+                        gsub (/ \(.+\)/,"",linkStatus);
+                        if (($0 ~ /SFP not present/) || ($0 ~ /SFP not inserted/)){linkStatus = "missing"} ;
+                        if ($1 ~ /^fc[0-9]/) {portDesc = "FC Port "}
+                        if ($1 ~ /^[Ee]thernet[0-9]/) {portDesc = "Ethernet Port "}
+                        }
+
+    $1 ~ /Port/ && $2 ~ /description/ && $3 ~ /is/ {offset = (index($0,"is") + 3) ;portDescription = substr ($0,offset)}
+    $0 ~ /WWN/          { wwn = $NF }
+    $0 ~ /Port mode is/ { portMode = $4 ; gsub (",","",portMode) ; }
+
+    ($1 ~ /^mgmt[0-9]/) || ($1 ~ /sup-fc[0-9]/)   { module = "MDS9000Bay" ;
+                          attachToType = "enclosure" ;
+                          port = $1 ;
+                        offset = (index($0,"is") + 3)  ; statusInformation = substr ($0,offset) ; status=tolower(statusInformation);linkStatus=statusInformation;
+                        gsub (/(.*\()|(\))/,"",status); gsub (/[^a-z]/,"",status);
+                        gsub (/up /,"",statusInformation); gsub (/trunking /,"",statusInformation)
+                        gsub (/ \(.+\)/,"",linkStatus);
+                        portDesc = "Ethernet Port" ;
+                        }
+    $0 ~ /Internet address is/ { wwn = $NF }
+    $1 == "MTU"         { speed = $5 ; duplexMode = tolower($7) ;
+                          if ($6 ~ /[Gg]bps/) {speed=speed*1000} ;
+                          if ($6 ~ /[Kk]bit/) {speed=speed/1000} ;
+                          }
+    ($0 ~ /Speed is/ && $NF ~ /[GgMm]bps/) {speed = $(NF-1) ;  duplexMode="full" ;
+                                            if ($NF ~ /[Gg]bps/) {speed=speed*1000} ;
+                                            }
+    # FC Received
+    ($2 ~ /packets|frames/) && ($3 ~ /input/) && ($5 ~ /bytes/)  {receivePackets=$1 ; receiveBytes = $4 ; section="input"; }
+    ($2 ~ /packets|frames/) && ($3 ~ /input,/) && ($4 ~ /bytes/)  {receivePackets=$1 ; receiveBytes = substr($3,7) ; section="input"; }
+    ($2 ~ /input/) && ($3 ~ /errors/) && ($5 ~ /frame/) && ($7 ~ /overrun/) && ($9 ~ /fifo/) && (section=="input") {receiveErrors=($1 + $4 + $ 6 + $8);}
+    ($2 ~ /discards/) && ($4 ~ /errors/) && (section=="input") {receiveErrors=($1 + $3);}
+    ($2 ~ /CRC/) && ($4 ~ /unknown/) && (section=="input") {receiveErrors=(receiveErrors + $1 + $3);}
+    ($2 ~ /too/) && ($3 ~ /long/) && ($5 ~ /too/) && ($6 ~ /short/) && (section=="input") {receiveErrors=(receiveErrors + $1 + $4);}
+
+    # FC Transmitted
+    ($2 ~ /packets|frames/) && ($3 ~ /output/) && ($5 ~ /bytes/) {transmitPackets=$1 ; transmitBytes = $4 ; section="output"; }
+    ($2 ~ /packets|frames/) && ($3 ~ /output/) && ($4 ~ /bytes/) {transmitPackets=$1 ; transmitBytes = substr($3,8) ; section="output"; }
+    ($2 ~ /output/) && ($3 ~ /errors/) && ($5 ~ /collisions/) && ($7 ~ /fifo/)  && (section=="output") {transmitErrors=($1 + $4 + $ 6);}
+    ($2 ~ /carrier/) && ($3 ~ /errors/) && (section=="output") {transmitErrors=(transmitErrors + $1)}
+    ($2 ~ /discards/) && ($4 ~ /errors/) && (section=="output") {transmitErrors=($1 + $3);}
+
+    # Ethernet Received
+    ($1 ~ /^RX$/) && (NF == 1) {section="RX"; }
+    ($2 ~ /input/ && $3 ~ /packets/ && $5 ~ /bytes/ && section=="RX") {receivePackets=$1; receiveBytes = $4}
+    ($2 ~ /input/) && ($3 ~ /error/) && ($5 ~ /short/) && ($6 ~ /frame/) && ($8 ~ /overrun/) && ($10 ~ /underrun/) && ($12 ~ /ignored/)&& (section=="RX") {receiveErrors=$1 + $4 + $7 + $9 + $11}
+    ($2 ~ /watchdog/) && ($4 ~ /bad/) && ($5 ~ /etype/) && ($6 ~ /drop/) && ($8 ~ /bad/) && ($9 ~ /proto/) && ($10 ~ /drop/) && ($12 ~ /if/) && ($13 ~ /down/) && ($14 ~ /drop/) && (section=="RX") {receiveErrors=receiveErrors + $1 + $3 + $7 + $11}
+    ($2 ~ /input/) && ($3 ~ /with/) && ($4 ~ /dribble/) && ($6 ~ /input/) && ($7 ~ /discard/) && (section=="RX") {receiveErrors=receiveErrors + $1 + $5}
+
+    # Ethernet Transmitted
+    ($1 ~ /^TX$/) && (NF == 1) {section="TX"; }
+    ($2 ~ /output/ && $3 ~ /packets/ && $5 ~ /bytes/ && section=="TX") {transmitPackets=$1; transmitBytes = $4}
+    ($2 ~ /output/) && ($3 ~ /errors/) && ($5 ~ /collision/) && ($7 ~ /deferred/) && ($9 ~ /late/) && ($10 ~ /collision/) && (section=="RX") {transmitErrors=$1 + $4 + $6 + $8}
+    ($2 ~ /lost/) && ($3 ~ /carrier/) && ($5 ~ /no/) && ($6 ~ /carrier/) && ($8 ~ /babble/) && ($10 ~ /proto/) && ($11 ~ /drop/) && (section=="RX") {transmitErrors=transmitErrors + $1 + $4 + $7 + $9}
+
+    ((length($0) < 1) &&(module != ""))  {totalErrors = (transmitErrors + receiveErrors);
+                                          print ("MSHW;" attachToType ";" module ";" port ";" statusInformation ";" wwn  ";" portDesc portMode ";" speed ";" linkStatus ";" duplexMode ";" transmitPackets ";" receivePackets ";" transmitBytes ";" receiveBytes ";" totalErrors ";" status ";" portDescription ";") ;
+                                          attachToType=""; module="" ;port="" ;portDescription="";wwn="" ;portDesc=""; portMode="";speed="" ; duplexMode="";transmitPackets="";receivePackets="";transmitBytes=""; receiveBytes="";transmitErrors="";receiveErrors="";totalErrors="";section="";status="";statusInformation="";
+                                          }
+    END { if (module != "") {totalErrors = (transmitErrors + receiveErrors);
+                               print ("MSHW;" attachToType ";" module ";" port ";" statusInformation ";" wwn  ";" portDesc portMode ";" speed ";" linkStatus ";" duplexMode ";" transmitPackets ";" receivePackets ";" transmitBytes ";" receiveBytes ";" totalErrors ";" status ";" portDescription ";") ;
+                              }
+        }
+  EmbeddedFile(7): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { Outlet=0 ; Intake=0 ; next }
+    (section == "Temperature" && offsetStatus > 1 && NF > 5) {
+                                              status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                              temp = $5 ;
+                                              tempWarn = $4 ;
+                                              tempAlarm = $3 ;
+                                              sensor = $1 "/" $2 ;
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              module = $1 ; if (module ~ /^[0-9]/) { attachToType = "blade" } else { attachToType = "enclosure" ; module = "MDS9000Bay" } ;
+                                              if (sensor ~ /Outlet$/) {Outlet = Outlet + 1 ; print ("MSHW;" module ";" sensor Outlet";" status ";" statusinfo ";"temp  ";" tempWarn ";" tempAlarm  ";" attachToType ";")}
+                                              else if (sensor ~ /Intake$/) {Intake = Intake + 1 ; print ("MSHW;" module ";" sensor Intake";" status ";" statusinfo ";"temp  ";" tempWarn ";" tempAlarm  ";" attachToType ";")}
+                                              else {print ("MSHW;" module ";" sensor ";" status ";" statusinfo ";" temp  ";" tempWarn ";" tempAlarm  ";" attachToType ";")}
+                                              }
+
+    (section == "TemperatureOldStyle" && offsetStatus > 1 && NF > 2 && $1 ~ /^[0-9]+$/) {
+                                           status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                           statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                           temp = $2 ;
+                                           sensor = $1 ;
+                                           module = $1 ;
+                                           print ("MSHW;" module ";" sensor ";" status ";" statusinfo ";" temp  ";"  ";"   ";blade;");
+                                           }
+
+    $0 ~ /^Temperature/ { section = "Temperature" ; offsetStatus = "" }
+    (section == "Temperature" && $2 ~ /CurTemp/ && $3 ~ /Status/) { section = "TemperatureOldStyle"}
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
+  EmbeddedFile(6): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { section = ""; offsetStatus = "" ; next }
+    (section == "Fan" && offsetStatus > 1) {if ($NF ~ /NotSupported/) { next}
+                                            status = substr ($0,offsetStatus) ;
+                                              gsub(/ /,"",status);
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              if ((NF > 2) && ($1 ~ "Chassis") && ($1 !~ /[0-9]$/)) {chassis = chassis + 1 ; print ("MSHW;" $1 chassis ";" status";"statusinfo";")}
+                                              else if ((NF > 2) && (status != "")) {print ("MSHW;" $1 ";" status";"statusinfo";")} ;
+                                              }
+
+    $0 ~ /^Fan/ { section = "Fan" ; chassis = 0 ; }
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
+  EmbeddedFile(9): |-
+    $1 ~ /^fc[0-9]/     {port = $1 ; gsub (/fc/,"",port) ;}
+    $0 ~ /waits due to lack of transmit credits/ && $1 ~/^[0-9]+$/ {ZeroBufferCreditCount = $1
+                                                                     print "MSHW;" port ";" ZeroBufferCreditCount ";"
+                                                                     port = ""}
+  EmbeddedFile(8): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { section = ""; offsetStatus = "" ; Outlet=0 ; Intake=0 ; next }
+    (section == "Power Supply" && offsetStatus > 1 && NF > 3) {
+                                              status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                              powerSupply = $1 ;
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              print ("MSHW;" powerSupply ";" status ";" statusinfo ";") ;
+                                              }
+    (section == "Power Supply Old Style" && offsetStatus > 1 && $1 ~ /^[0-9]+$/ ) {
+                                              status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                              powerSupply = $1 ;
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              print ("MSHW;" powerSupply ";" status ";" statusinfo ";") ;
+                                             }
+
+    $0 ~ /^Power Supply/ { section = "Power Supply" }
+    $1 ~ /^PS$/ && $2 ~ /^Status$/ { section = "Power Supply Old Style" }
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
 translations:
   ModuleStatusTranslationTable:
     upgrading: ok

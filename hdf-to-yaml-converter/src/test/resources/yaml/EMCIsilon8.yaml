@@ -8,10 +8,48 @@ constants:
   _IsiBatteryCommand: /usr/bin/isi batterystatus list
   _IsiStatusCommand: /usr/bin/isi status -v
 embedded:
-  EmbeddedFile(3): "{nodeName = $1 ; gsub (/:/,\"\",nodeName);}\nNF > 7 {\n\tif ($0 ~ /.*[Rr]eady, [Ee]nabled, and [Ff]ully [Cc]harged.*/)\n          {\n          \tprint \"MSHW_BATTERY;\" nodeName \";\" nodeName\"-\"$2 \";\" nodeName\"-\"$2 \";\"\"Ready-enabled-fully charged\"\";\"\"Ready-enabled-fully charged\"\";\"\n  \t\t\t\t}\n  else\n  \t\tprint \"MSHW_BATTERY;\" nodeName \";\" nodeName\"-\"$2 \";\" nodeName\"-\"$2 \";\" $3\"-\"$5\";\"$3\"-\"$5\";\"\n\n\t}"
-  EmbeddedFile(5): "{nodeName = $1 ; gsub (/:/,\"\",nodeName);}\n\n$3 ~ /^Bay$/  {\n  nodeNumber = $2 ; nodeArray[nodeNumber] = nodeName ;\n  Location = $4 ; Location = \"Bay-\" Location\n\tLnum = $6 ; Lnum = \"Lnum-\" Lnum\n\tStatus = $7 ; gsub(/\\].*$/,\"\",Status);gsub(/^.*\\[/,\"\",Status);\n\tSerialNumber = $8 ; gsub (/^SN:/,\"\",SerialNumber)\n\tif ( Status != \"EMPTY\" ) {\n\t  print \"MSHW_PhysicalDisk;\" nodeName \";\" nodeName \"-\" Location \";\" Location \";\" Lnum \";\" SerialNumber \";\" Status \";\" Status \";\"\n\t  }\n\t}\nEND {\n  for (nodeNumber in nodeArray) {\n    print \"MSHW_Node;\" nodeArray[nodeNumber] \";\" nodeNumber \";\"\n    }\n  }"
-  EmbeddedFile(6): "$1 ~ /^IP/ && $2 ~ /Addresses/ {IPAddress = $NF}\n$1 ~ /^LNN/ {NodeNumber = $NF}\n$1 ~ /^Name/ {Interface = $NF }\n$1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}\n$1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,\"\",Status) ; gsub (/ +$/,\"\",Status)\n\t                          print \"MSHW;\" NodeNumber \";\" NICName \";\" NICName \";\" Interface \";\" IPAddress \";\" Status \";\"\n\t                          }"
-  EmbeddedFile(9): "BEGIN {FS=\"\\\"\";}\n{\n\tprint $1 $3;\n}"
+  EmbeddedFile(3): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+    NF > 7 {
+        if ($0 ~ /.*[Rr]eady, [Ee]nabled, and [Ff]ully [Cc]harged.*/)
+              {
+                  print "MSHW_BATTERY;" nodeName ";" nodeName"-"$2 ";" nodeName"-"$2 ";""Ready-enabled-fully charged"";""Ready-enabled-fully charged"";"
+                      }
+      else
+              print "MSHW_BATTERY;" nodeName ";" nodeName"-"$2 ";" nodeName"-"$2 ";" $3"-"$5";"$3"-"$5";"
+
+        }
+  EmbeddedFile(5): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+
+    $3 ~ /^Bay$/  {
+      nodeNumber = $2 ; nodeArray[nodeNumber] = nodeName ;
+      Location = $4 ; Location = "Bay-" Location
+        Lnum = $6 ; Lnum = "Lnum-" Lnum
+        Status = $7 ; gsub(/\].*$/,"",Status);gsub(/^.*\[/,"",Status);
+        SerialNumber = $8 ; gsub (/^SN:/,"",SerialNumber)
+        if ( Status != "EMPTY" ) {
+          print "MSHW_PhysicalDisk;" nodeName ";" nodeName "-" Location ";" Location ";" Lnum ";" SerialNumber ";" Status ";" Status ";"
+          }
+        }
+    END {
+      for (nodeNumber in nodeArray) {
+        print "MSHW_Node;" nodeArray[nodeNumber] ";" nodeNumber ";"
+        }
+      }
+  EmbeddedFile(6): |-
+    $1 ~ /^IP/ && $2 ~ /Addresses/ {IPAddress = $NF}
+    $1 ~ /^LNN/ {NodeNumber = $NF}
+    $1 ~ /^Name/ {Interface = $NF }
+    $1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}
+    $1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,"",Status) ; gsub (/ +$/,"",Status)
+                                  print "MSHW;" NodeNumber ";" NICName ";" NICName ";" Interface ";" IPAddress ";" Status ";"
+                                  }
+  EmbeddedFile(9): |-
+    BEGIN {FS="\"";}
+    {
+        print $1 $3;
+    }
 connector:
   displayName: EMC Isilon 8 (SSH)
   platforms: EMC Isilon

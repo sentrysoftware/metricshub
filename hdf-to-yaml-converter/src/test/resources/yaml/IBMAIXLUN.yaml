@@ -1,7 +1,63 @@
 ---
 embedded:
-  EmbeddedFile(1): "($2 ~ /hdisk[0-9]+/ && $3 ~ /fscsi/) {\n\tif ($2 in ExpectedPaths == 0)\n\t{\n\t\tExpectedPaths[$2] = 0;\n\t\tAvailablePaths[$2] = 0;\n\t}\n\n\tExpectedPaths[$2] = ExpectedPaths[$2] + 1;\n\tif ($1 ~ /[Ee]nabled/)\n\t{\n\t\tAvailablePaths[$2] = AvailablePaths[$2] + 1;\n\t}\n}\nEND {\n\tfor (id in ExpectedPaths)\n\t{\n\t\tprint \"MSHW;\" id \";\" ExpectedPaths[id] \";\" AvailablePaths[id] \";\"\n\t}\n}"
-  EmbeddedFile(2): "BEGIN {\n\tmanufacturer = \"\";\n\tmodel = \"\";\n\thardwareLocationCode = \"\";\n\twwn = \"\";\n\tdiskId = \"\";\n}\n($1 ~ /^hdisk[0-9]+$/) {\n\tif (diskId != \"\")\n\t{\n\t\tprint \"MSHW;\" diskId \";\" hardwareLocationCode \";\" manufacturer \" \" model \";\" wwn;\n\t\tmanufacturer = \"\";\n\t\tmodel = \"\";\n\t\thardwareLocationCode = \"\";\n\t\twwn = \"\";\n\t\tdiskId = \"\";\n\t}\n\n\tdiskId = $1;\n\thardwareLocationCode = $2;\n}\n/^ *Manufacturer/ {\n\tgsub(\"\\\\.+\", \" \");\n\tmanufacturer = $2;\n}\n/^ *Machine Type and Model/ {\n\tgsub(\"\\\\.+\", \" \");\n\tmodel = $5;\n\tfor (i=6 ; i<=NF ; i++) { model = model $i; }\n}\n/^ *Device Specific..Z0/ {\n\tgsub(\"\\\\.+\", \" \");\n\twwn = $4;\n}\nEND {\n\tprint \"MSHW;\" diskId \";\" hardwareLocationCode \";\" manufacturer \" \" model \";\" wwn\n}"
+  EmbeddedFile(1): |-
+    ($2 ~ /hdisk[0-9]+/ && $3 ~ /fscsi/) {
+        if ($2 in ExpectedPaths == 0)
+        {
+            ExpectedPaths[$2] = 0;
+            AvailablePaths[$2] = 0;
+        }
+
+        ExpectedPaths[$2] = ExpectedPaths[$2] + 1;
+        if ($1 ~ /[Ee]nabled/)
+        {
+            AvailablePaths[$2] = AvailablePaths[$2] + 1;
+        }
+    }
+    END {
+        for (id in ExpectedPaths)
+        {
+            print "MSHW;" id ";" ExpectedPaths[id] ";" AvailablePaths[id] ";"
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        manufacturer = "";
+        model = "";
+        hardwareLocationCode = "";
+        wwn = "";
+        diskId = "";
+    }
+    ($1 ~ /^hdisk[0-9]+$/) {
+        if (diskId != "")
+        {
+            print "MSHW;" diskId ";" hardwareLocationCode ";" manufacturer " " model ";" wwn;
+            manufacturer = "";
+            model = "";
+            hardwareLocationCode = "";
+            wwn = "";
+            diskId = "";
+        }
+
+        diskId = $1;
+        hardwareLocationCode = $2;
+    }
+    /^ *Manufacturer/ {
+        gsub("\\.+", " ");
+        manufacturer = $2;
+    }
+    /^ *Machine Type and Model/ {
+        gsub("\\.+", " ");
+        model = $5;
+        for (i=6 ; i<=NF ; i++) { model = model $i; }
+    }
+    /^ *Device Specific..Z0/ {
+        gsub("\\.+", " ");
+        wwn = $4;
+    }
+    END {
+        print "MSHW;" diskId ";" hardwareLocationCode ";" manufacturer " " model ";" wwn
+    }
 connector:
   displayName: IBM AIX - LUN
   platforms: IBM POWER

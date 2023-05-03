@@ -5,8 +5,61 @@ constants:
   GLOBAL_COMMAND_LINE: '"/sbin/ip a"'
   COLLECT_COMMAND_LINE: '"/sbin/ip -s link show dev %NetworkCard.Collect.DeviceID%"'
 embedded:
-  EmbeddedFile(1): "BEGIN {\n\tdeviceID = \"\"\n}\n/^lo[0-9]* / {deviceID = \"\" }\n# ip a\n$2 ~ /^lo[0-9]*/ {deviceID = \"\" }\n$2 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {\n\tdeviceID = $2 ; gsub(\":\",\"\",deviceID)\n        ports[deviceID]=deviceID\n        if ($2 ~ /UP/ || $3 ~ /UP/ ) {portActive[deviceID] = 1}\n        }\n$1 ~ /link.ether/ {macAddress[deviceID] = $2}\n/ +inet [0-9]+/ {\n\tipAddress[deviceID] = $2\n\tgsub(\"/.*\", \"\", ipAddress[deviceID])\n}\n(/ UP / ) {portActive[deviceID] = 1}\n\nEND {\nfor (deviceID in ports) {\n    if (ports[deviceID] != \"\" && portActive[deviceID] == 1) {\n        print \"MSHW;\" deviceID \";\" macAddress[deviceID] \";\" ipAddress[deviceID] \";\"\n\t}\n    }\n}"
-  EmbeddedFile(2): "BEGIN {\n\ttransmitPackets = \"\"\n\ttransmitErrors = \"\"\n\treceivePackets = \"\"\n\treceiveErrors = \"\"\n\ttransmitBytes = \"\"\n\treceiveBytes = \"\"\n}\n# ip a\n$2 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {\n\tdeviceID = $2 ; gsub(\":\",\"\",deviceID)\n}\n$1 ~ /RX:/ && $2 ~ /bytes/ && $3 ~ /packets/ {\n    getline\n    receiveBytes = $1\n    receivePackets = $2\n    receiveErrors = $3\n    }\n$1 ~ /TX:/ && $2 ~ /bytes/ && $3 ~ /packets/ {\n    getline\n    transmitBytes = $1\n    transmitPackets = $2\n    transmitErrors = $3\n    }\n\nEND {\n\t\tprint \"MSHW;\" deviceID \";\" receivePackets \";\" transmitPackets \";\" receiveErrors + transmitErrors \";\" receiveBytes \";\" transmitBytes\n}"
+  EmbeddedFile(1): |-
+    BEGIN {
+        deviceID = ""
+    }
+    /^lo[0-9]* / {deviceID = "" }
+    # ip a
+    $2 ~ /^lo[0-9]*/ {deviceID = "" }
+    $2 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {
+        deviceID = $2 ; gsub(":","",deviceID)
+            ports[deviceID]=deviceID
+            if ($2 ~ /UP/ || $3 ~ /UP/ ) {portActive[deviceID] = 1}
+            }
+    $1 ~ /link.ether/ {macAddress[deviceID] = $2}
+    / +inet [0-9]+/ {
+        ipAddress[deviceID] = $2
+        gsub("/.*", "", ipAddress[deviceID])
+    }
+    (/ UP / ) {portActive[deviceID] = 1}
+
+    END {
+    for (deviceID in ports) {
+        if (ports[deviceID] != "" && portActive[deviceID] == 1) {
+            print "MSHW;" deviceID ";" macAddress[deviceID] ";" ipAddress[deviceID] ";"
+        }
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        transmitPackets = ""
+        transmitErrors = ""
+        receivePackets = ""
+        receiveErrors = ""
+        transmitBytes = ""
+        receiveBytes = ""
+    }
+    # ip a
+    $2 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {
+        deviceID = $2 ; gsub(":","",deviceID)
+    }
+    $1 ~ /RX:/ && $2 ~ /bytes/ && $3 ~ /packets/ {
+        getline
+        receiveBytes = $1
+        receivePackets = $2
+        receiveErrors = $3
+        }
+    $1 ~ /TX:/ && $2 ~ /bytes/ && $3 ~ /packets/ {
+        getline
+        transmitBytes = $1
+        transmitPackets = $2
+        transmitErrors = $3
+        }
+
+    END {
+            print "MSHW;" deviceID ";" receivePackets ";" transmitPackets ";" receiveErrors + transmitErrors ";" receiveBytes ";" transmitBytes
+    }
 connector:
   displayName: Linux - Network (ip)
   platforms: Any system

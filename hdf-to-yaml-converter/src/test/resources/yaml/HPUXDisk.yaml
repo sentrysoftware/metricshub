@@ -1,6 +1,66 @@
 ---
 embedded:
-  EmbeddedFile(1): "echo \"Retrieving disk devices\"\ndiskList=`/usr/sbin/ioscan -kfnC disk|/bin/grep -e DEVICE -e /dev|/bin/awk '{\n\tif ($1 == \"disk\")\n\t{\n\t\tdiskNumber = $2\n\t\thardwarePath = $3\n\t\trawDevicePath = \"\"\n\t}\n\tif ($2 ~ \"^/dev/rdsk/\")\n\t{\n\t\tdeviceID = substr($2, 11)\n\t\tcontrollerIndex = match(hardwarePath, \"\\.[0-9]+\\.[0-9]+$\")\n\t\tif (diskNumber != \"\" && hardwarePath != \"\" && controllerIndex > 0)\n\t\t{\n\t\t\tcontrollerID = substr(hardwarePath, 1, controllerIndex - 1)\n\t\t\tprint diskNumber \";\" controllerID \";\" deviceID\n\t\t}\n\t\tdeviceID = \"\"\n\t\tdeviceNumber = \"\"\n\t\thardwarePath = \"\"\n\t}\n}'`\n\nfor diskInformation in $diskList\ndo\ndeviceID=`/bin/echo $diskInformation|/bin/awk -F\";\" '{print $3}'`\n%{SUDO:/usr/sbin/diskinfo}/usr/sbin/diskinfo /dev/rdsk/$deviceID|/bin/awk -v diskInformation=$diskInformation '{\n\tif ($0 ~ \"^SCSI describe of /dev/rdsk\")\n\t{\n\t\tvendor = \"\"\n\t\tproductID = \"\"\n\t\ttype = \"\";\n\t\tsize = \"\";\n\t}\n\n\tif ($1 == \"vendor:\")\n\t{\n\t\tvendor = $2\n\t}\n\n\tif ($1 == \"product\" && $2 == \"id:\")\n\t{\n\t\tproductID = $3\n\t}\n\n\tif ($1 == \"type:\")\n\t{\n\t\ttype = $2 \" \" $3\n\t}\n\n\tif ($1 == \"size:\")\n\t{\n\t\tsize = $2\n\t\tif (type == \"direct access\" && vendor != \"\" && productID != \"\" && size > 0)\n\t\t{\n\t\t\tprintf(\"MSHW;%s;%s;%.0f\\n\", diskInformation, vendor \" \" productID, size*1024)\n\t\t}\n\t}\n}'\ndone"
+  EmbeddedFile(1): |-
+    echo "Retrieving disk devices"
+    diskList=`/usr/sbin/ioscan -kfnC disk|/bin/grep -e DEVICE -e /dev|/bin/awk '{
+        if ($1 == "disk")
+        {
+            diskNumber = $2
+            hardwarePath = $3
+            rawDevicePath = ""
+        }
+        if ($2 ~ "^/dev/rdsk/")
+        {
+            deviceID = substr($2, 11)
+            controllerIndex = match(hardwarePath, "\.[0-9]+\.[0-9]+$")
+            if (diskNumber != "" && hardwarePath != "" && controllerIndex > 0)
+            {
+                controllerID = substr(hardwarePath, 1, controllerIndex - 1)
+                print diskNumber ";" controllerID ";" deviceID
+            }
+            deviceID = ""
+            deviceNumber = ""
+            hardwarePath = ""
+        }
+    }'`
+
+    for diskInformation in $diskList
+    do
+    deviceID=`/bin/echo $diskInformation|/bin/awk -F";" '{print $3}'`
+    %{SUDO:/usr/sbin/diskinfo}/usr/sbin/diskinfo /dev/rdsk/$deviceID|/bin/awk -v diskInformation=$diskInformation '{
+        if ($0 ~ "^SCSI describe of /dev/rdsk")
+        {
+            vendor = ""
+            productID = ""
+            type = "";
+            size = "";
+        }
+
+        if ($1 == "vendor:")
+        {
+            vendor = $2
+        }
+
+        if ($1 == "product" && $2 == "id:")
+        {
+            productID = $3
+        }
+
+        if ($1 == "type:")
+        {
+            type = $2 " " $3
+        }
+
+        if ($1 == "size:")
+        {
+            size = $2
+            if (type == "direct access" && vendor != "" && productID != "" && size > 0)
+            {
+                printf("MSHW;%s;%s;%.0f\n", diskInformation, vendor " " productID, size*1024)
+            }
+        }
+    }'
+    done
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     available/data-spared: Spared

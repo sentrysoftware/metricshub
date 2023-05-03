@@ -1,9 +1,95 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN { FS = \";\" }\n{\n\t__Path = $1;\n\tbusType = $2;\n\tdeviceId = $3;\n\tfirmwareVersion = $4;\n\tmediaType = $5;\n\tmodel = $6\n\tserialNumber = $7\n\tsize = $8\n\tspeed = $9\n\n\t# Media Type\n\tif (mediaType == 3) {\n\t\t# HDD\n\t\tif (speed == 15000) {\n\t\t\tmodel = model \" - 15K\"\n\t\t} else if (speed == 10000) {\n\t\t\tmodel = model \" - 10K\"\n\t\t} else if (speed > 1000 && speed < 100000) {\n\t\t\tmodel =  model \" - \" speed\n\t\t}\n\t} else if (mediaType == 4) {\n\t\t# SDD\n\t\tmodel = model \" - SSD\"\n\t} else if (mediaType == 5) {\n\t\t# SCM (fancy NVDIMM-N)\n\t\tmodel = model \" - NVDIMM\"\n\t}\n\n\t# Bus Type\n\tmodel = model \" - \" busType\n\n\t# Output\n\tprint \"MSHW;\" __Path \";\" deviceId \";\" model \";\" firmwareVersion \";\" serialNumber \";\" size\n}"
-  EmbeddedFile(3): "BEGIN {\n\tFS = \";\";\n\talphabet = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\n}\n{\n\tif ($2 > 64 && $2 < 91) {\n\t\tdeviceId = substr(alphabet, int($2) - 64, 1) \":\";\n\t} else {\n\t\tdeviceId = $1;\n\t}\n\tprint \"MSHW;\" deviceId \";\" $3 \";\" $4 \";\" $5;\n}"
-  EmbeddedFile(2): "BEGIN {\n\tFS = \";\";\n\talphabet = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\n}\n{\n\tif ($2 > 64 && $2 < 91) {\n\t\tdeviceId = substr(alphabet, int($2) - 64, 1) \":\";\n\t\tlabel = deviceId\n\t} else {\n\t\tdeviceId = $1;\n\t\tlabel = \"\"\n\t}\n\tif ($5 != \"\") {\n\t\tif (label != \"\") {\n\t\t\tlabel = label \" \";\n\t\t}\n\t\tlabel = label $5;\n\t}\n\tfilesystem = $4;\n\tsize = $6;\n\tprint \"MSHW;\" deviceId \";\" label \";File System: \" filesystem \";\" size;\n}"
-  EmbeddedFile(4): "BEGIN { FS = \";\" }\n{\n\twarningThreshold = \"\";\n\talarmThreshold = $2;\n\tmodel = $3;\n\tif (alarmThreshold == \"\" || alarmThreshold == 0) {\n\t\tif (tolower(model) ~ /ssd|nvm/) {\n\t\t\twarningThreshold = 65;\n\t\t\talarmThreshold = 70;\n\t\t} else {\n\t\t\twarningThreshold = 41;\n\t\t\talarmThreshold = 50;\n\t\t}\n\t}\n\tprint \"MSHW;\" $1 \";\" model \";\" warningThreshold \";\" alarmThreshold\n}"
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    {
+        __Path = $1;
+        busType = $2;
+        deviceId = $3;
+        firmwareVersion = $4;
+        mediaType = $5;
+        model = $6
+        serialNumber = $7
+        size = $8
+        speed = $9
+
+        # Media Type
+        if (mediaType == 3) {
+            # HDD
+            if (speed == 15000) {
+                model = model " - 15K"
+            } else if (speed == 10000) {
+                model = model " - 10K"
+            } else if (speed > 1000 && speed < 100000) {
+                model =  model " - " speed
+            }
+        } else if (mediaType == 4) {
+            # SDD
+            model = model " - SSD"
+        } else if (mediaType == 5) {
+            # SCM (fancy NVDIMM-N)
+            model = model " - NVDIMM"
+        }
+
+        # Bus Type
+        model = model " - " busType
+
+        # Output
+        print "MSHW;" __Path ";" deviceId ";" model ";" firmwareVersion ";" serialNumber ";" size
+    }
+  EmbeddedFile(3): |-
+    BEGIN {
+        FS = ";";
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    }
+    {
+        if ($2 > 64 && $2 < 91) {
+            deviceId = substr(alphabet, int($2) - 64, 1) ":";
+        } else {
+            deviceId = $1;
+        }
+        print "MSHW;" deviceId ";" $3 ";" $4 ";" $5;
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        FS = ";";
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    }
+    {
+        if ($2 > 64 && $2 < 91) {
+            deviceId = substr(alphabet, int($2) - 64, 1) ":";
+            label = deviceId
+        } else {
+            deviceId = $1;
+            label = ""
+        }
+        if ($5 != "") {
+            if (label != "") {
+                label = label " ";
+            }
+            label = label $5;
+        }
+        filesystem = $4;
+        size = $6;
+        print "MSHW;" deviceId ";" label ";File System: " filesystem ";" size;
+    }
+  EmbeddedFile(4): |-
+    BEGIN { FS = ";" }
+    {
+        warningThreshold = "";
+        alarmThreshold = $2;
+        model = $3;
+        if (alarmThreshold == "" || alarmThreshold == 0) {
+            if (tolower(model) ~ /ssd|nvm/) {
+                warningThreshold = 65;
+                alarmThreshold = 70;
+            } else {
+                warningThreshold = 41;
+                alarmThreshold = 50;
+            }
+        }
+        print "MSHW;" $1 ";" model ";" warningThreshold ";" alarmThreshold
+    }
 translations:
   PredictedFailureTranslationTable:
     default: "False"

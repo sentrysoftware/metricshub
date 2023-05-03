@@ -1,6 +1,859 @@
 ---
 embedded:
-  EmbeddedFile(1): "#\n# FUNCTIONS\n#\n\n# Set a value in an array (label optional)\n# A value should only be set once, so it will ignore future values\nfunction setArray(array,arrayID,value,label) {\n  if (ID == \"\") { return }\n  if (tolower(value)==\"available\" && tolower($(NF-1)) == \"not\") { value = \"Not Available\" }\n  if (label != \"\") { value = label \": \" value }\n  if (array[arrayID] == \"\") {\n    array[arrayID] = value\n  } else {\n    print \"MSHW;ERROR; - Multiple Values for same Component- ID: \" arrayID \" - LineNumber: \" NR \" - Section: \" section \" - SubSection: \" subsection \" - Line: \" $0\n  }\n}\n\n# Append a value to an array  (label optional)\nfunction appendArray(array,arrayID,value,label) {\n  if (ID == \"\") { return }\n  if (tolower(value)==\"available\" && tolower($(NF-1)) == \"not\") { value = \"Not Available\" }\n  gsub(/ *$/,\"\",value);\n  # Don't populate additional information with Not Available\n  if (value == \"Not Available\" || value == \"\") { return }\n  if (label != \"\") {\n    value = label \": \" value ;\n    # Check the exact label is already there\n    # Java Awk doesn't like building regexs on the fly, so putting them in variables first\n    labeltest1 = \" - \" label \":\"\n    labeltest2 = \"^\" label \":\"\n    if (array[arrayID] ~ labeltest1 || array[arrayID] ~ labeltest2) {\n      # Replacement Part Number / Part Number is often repeated, so if this is the problem, skip...\n      if (tolower(label) ~ /part number/) { return }\n      print \"MSHW;ERROR; - Label Already Added - ID: \" arrayID \" - LineNumber: \" NR \"- Line: \" $0 ;\n      return\n    }\n  }\n  if (array[arrayID] == \"\") {\n    array[arrayID] = value\n  } else {\n    array[arrayID] = array[arrayID] \" - \" value\n  }\n}\n\nfunction stripFormatting(value){\n  gsub(/.*: */,\"\",value);\n  gsub(/ *$/,\"\",value);\n  return value;\n}\n\n#\n# MAIN SECTION\n#\n\n# Reset Section\n$NF ~ /-------------------/ {\n  section = \"\" ;\n  ID = \"\" ;\n  subsection == \"\"\n}\n\n$1 ~ /^SUMMARY---*$/ { section = \"Summary\" }\n\nsection == \"Summary\" {\n  if ($1 ~ /Current/ && $2 ~ /configuration/) { subsection = \"currentConfiguration\"}\n  if (subsection == \"currentConfiguration\") {\n    if ($1 ~ /Pending/ && $2 ~ /configuration/) { subsection = \"\"}\n    if ($1 ~ /Firmware/ && $2 ~ /version/) { appendArray(Firmware,\"system\",$NF,\"Firmware Version\") }\n    if ($1 ~ /NVSRAM/ && $2 ~ /version/) { appendArray(Firmware,\"system\",$NF,\"NVSRAM Version\") }\n    if ($1 ~ /AMW/ && $2 ~ /version/) { appendArray(Firmware,\"system\",$NF,\"AMW Version\") }\n  }\n}\n\nsection != \"\" {\n  # LastSubSectionFlag\n  # Set conditions here to reset subsection when subsection header is missing\n  if (lastsubsectionFlag == \"1\") {\n    lastsubsectionFlag = \"0\"\n    if ($1 ~ /Status:/) {\n      subsection = lastsubsection\n      ID = \"\"\n    }\n  }\n\n  # Universal Fields\n  if ($1 ~ /Status/) {\n    statusInformationValue = $0 ;\n    gsub(/.*Status: */,\"\",statusInformationValue);\n    gsub(/ *$/,\"\",statusInformationValue);\n    setArray(statusInformation,ID,statusInformationValue,\"\")\n    statusValue = $2 ;\n    if ($3 != \"\") { statusValue = statusValue \" \" $3 }\n    setArray(status,ID,statusValue,\"\")\n  }\n  if ($1 ~ /Part/ && $2 ~ /number/) { appendArray(additionalInformation,ID,$NF,\"Part Number\") }\n  if ($1 ~ /Serial/ && $2 ~ /number/) { appendArray(additionalInformation,ID,$NF,\"Serial Number\") }\n  if ($1 ~ /Replacement/ && $2 ~ /part/) { appendArray(additionalInformation,ID,$NF,\"Alternate Part Number\") }\n  if ($1 ~ /Product/ && $2 ~ /ID/) { appendArray(additionalInformation,ID,stripFormatting($0),\"Part Number\") }\n  if ($1 ~ /Type:/) { appendArray(additionalInformation,ID,stripFormatting($0),\"Type\") }\n  if ($1 ~ /Manufacturer/ || $1 ~ /Vendor/) { appendArray(additionalInformation,ID,stripFormatting($NF),\"Vendor\") }\n  # Can be Revision or Revision Level or Product Revision\n  if (($1 ~ /Revision/ || $2 ~ /[Rr]evision/) && $NF !~/:/) { appendArray(additionalInformation,ID,$NF,\"Version\") }\n  if ($1 ~ /Link/ && $2 ~ /status/) { setArray(linkStatus,ID,$3,\"\") }\n}\n\n\n# Controller Information\n$1 ~ /^CONTROLLERS---*$/ { section = \"Controllers\" }\nsection == \"Controllers\" {\n  #MD3000\n  if ($0 ~ /RAID Controller Module in Enclosure /) {\n    ID = $0;\n    gsub(/.*RAID Controller Module in /,\"\",ID);\n\t  displayID[ID] = \"Controller in \" ID\n\t  controllerID = ID\n    type[ID] = \"Controller\"\n    enclosureID[ID] = $6;\n    gsub(/,/,\"\",enclosureID[ID]);\n    enclosureType[ID] = \"Enclosure\"\n  }\n  #               #DS3200                           #DS4500\n  if ($0 ~ /Controller in Enclosure/ || $0 ~ /Controller in Slot/) {\n    ID = $0;\n    gsub(/.*Controller in /,\"\",ID);\n    displayID[ID] = \"Controller in \" ID\n    controllerID = ID\n    type[ID] = \"Controller\"\n    # If the enclosure not specified, then set it to TemporaryEnclosureID and it will be replaced later\n    if ($0 ~ /Controller in Slot/) { enclosureID[ID] = \"TemporaryEnclosureID\" }\n    if ($0 ~ /Controller in Enclosure/) {\n      enclosureID[ID] = $4 ;\n      gsub(/,/,\"\",enclosureID[ID]);\n    }\n    enclosureType[ID] = \"Enclosure\"\n  }\n  if ($1 ~ /Location:/) { appendArray(additionalInformation,ID,$NF,\"Location\") }\n  if ($1 ~ /Current/ && $2 ~ /configuration/) { subsection = \"currentConfiguration\"}\n  if ($1 ~ /Pending/ && $2 ~ /configuration/) { subsection = \"\"}\n  if (subsection == \"currentConfiguration\") {\n    if ($1 ~ /Firmware/ && $2 ~ /version/) { appendArray(firmware,ID,$NF,\"Firmware Version\") }\n    if ($1 ~ /Appware/ && $2 ~ /version/) { appendArray(firmware,ID,$NF,\"Appware Version\") }\n    if ($1 ~ /Bootware/ && $2 ~ /version/) { appendArray(firmware,ID,$NF,\"Bootware Version\") }\n  }\n  if (subsection == \"\") {\n    if ($1 ~ /Model/ && $2 ~ /name/) { setArray(model,ID,stripFormatting($0),\"\") }\n    if ($1 ~ /Board/ && $2 ~ /ID/) { appendArray(additionalInformation,ID,$NF,\"Board ID\") }\n    if ($1 ~ /Submodel/ && $2 ~ /ID/) { appendArray(additionalInformation,ID,$NF,\"Submodel ID\") }\n    if ($1 ~ /Vendor:/) { appendArray(additionalInformation,ID,stripFormatting($0),\"Vendor\") }\n  }\n\n  # Data Cache Module\n  # Processor Cache Module\n  # Host Interface Board\n  # Cache Backup Device\n\n  if ($1 ~ /Data/ && $2 ~ /[Cc]ache/ && $3 ~ /[Mm]odule/) {\n    subsection = \"DataCacheModule\"\n    ID = \"\"\n  }\n  if ($1 ~ /Processor/ && $2 ~ /[Cc]ache/ && $3 ~ /[Mm]odule/) {\n    subsection = \"ProcessorCacheModule\"\n    ID = \"\"\n  }\n  if ($1 ~ /Host/ && $2 ~ /[Ii]nterface/ && $3 ~ /[Bb]oard/) {\n    subsection = \"HostInterfaceBoard\"\n    ID = \"\"\n  }\n  if ($1 ~ /Cache/ && $2 ~ /[Bb]ackup/ && $3 ~ /[Dd]evice/) {\n    subsection = \"CacheBackupDevice\"\n    ID = \"\"\n  }\n  if (subsection == \"DataCacheModule\" || subsection == \"ProcessorCacheModule\" || subsection == \"HostInterfaceBoard\" || subsection == \"CacheBackupDevice\") {\n    if ($1 ~ /[Ss]tatus:/) {\n      statusValue = $2;\n      if ($3 != \"\") { statusValue = statusValue $3 }\n      statusInformationValue = stripFormatting($0);\n    }\n    if ($2 ~ /[Ss]tatus:/) {\n      statusValue = $3;\n      if ($4 != \"\") { statusValue = statusValue $4 }\n      statusInformationValue = stripFormatting($0);\n    }\n    if ($3 ~ /[Ss]tatus:/) {\n      statusValue = $4;\n      if ($5 != \"\") { statusValue = statusValue $5 }\n      statusInformationValue = stripFormatting($0);\n    }\n    # If we get all the way to Vendor without finding a status, then print with no \"location\"\n    if ($1 ~ /Location:/ || ($1 ~ /Vendor/ && ID == \"\")) {\n      if ($1 ~ /Location:/) { location = stripFormatting($0) }\n      if ($1 ~ /Vendor/) { location = \"NoLocation\" }\n      ID = subsection \"-\" controllerID \"-\" location\n      displayID[ID] = location\n      type[ID] = subsection\n\t    setArray(statusInformation,ID,statusInformationValue,\"\")\n  \t  setArray(status,ID,statusValue,\"\")\n      enclosureType[ID] = \"Blade\"\n      enclosureID[ID] = controllerID\n    }\n    if ($1 ~ /Capacity:/) { appendArray(additionalInformation,ID,stripFormatting($0),\"Capacity\") }\n    if ($0 ~ /Date of manufacture/) {\n      ID = controllerID ;\n      lastsubsectionFlag = 1 ;\n      lastsubsection = subsection;\n      subsection = \"\" ;\n    }\n  }\n\n  # Ethernet Port\n  if ($1 ~ /Ethernet/ && $2 ~ /port:/) {\n    subsection = \"ethernetPort\"\n    ID = \"ETH-\" controllerID \"-\" $NF\n    displayID[ID] = \"Ethernet Port-\" $NF\n    type[ID] = \"EthernetPort\"\n    enclosureType[ID] = \"Blade\"\n    enclosureID[ID] = controllerID\n  }\n  if (subsection == \"ethernetPort\") {\n    if ($1 ~ /MAC/ && $2 ~ /address/) { setArray(macAddress,ID,$NF,\"\") }\n    if ($1 ~ /Port/ && $2 ~ /speed/) {\n      speed = $3 ;\n      if (speed ~ \"/\") { gsub(\".*/\",\"\",speed) }\n      gsub(/[Uu]nknown/,\"0\",speed)\n      if ($4 ~ /[Gg]bps/) { speed = speed * 1000 }\n      setArray(portSpeed,ID,speed,\"\")\n    }\n  }\n\n  # Physical Disk Interface\n  if (($1 ~ /Physical/ && $2 ~ /Disk/ && $3 ~ /[Ii]nterface:/) || ($1 ~ /Drive/ && $2 ~ /[Ii]nterface:/)) {\n    subsection = \"PhysicalDiskInterface\"\n    ID = \"PDI-\" controllerID \"-\" $NF\n    displayIDtemp = \"Physical Disk Interface-\" $NF\n    getline\n    ID = ID \"-Channel-\" $NF\n    displayIDtemp = displayIDtemp \"-Channel-\" $NF\n    getline\n    ID = ID \"-Port-\" $NF ;\n    displayID[ID] = displayIDtemp \"-Port-\" $NF ;\n    type[ID] = \"PhysicalDiskInterface\"\n    enclosureType[ID] = \"Blade\"\n    enclosureID[ID] = controllerID\n  }\n  if (subsection == \"PhysicalDiskInterface\") {\n    if ($1 ~ /Port/ && $2 ~ /speed/) {\n      speed = $3 ;\n      gsub(/[Uu]nknown/,\"\",speed)\n      gsub(/[Nn]ot/,\"\",speed)\n      if ($4 ~ /[Gg]bps/) { speed = speed * 1000 }\n      setArray(portSpeed,ID,speed,\"\")\n    }\n    if ($1 ~ /Current/ && $2 ~ /data/ && $3 ~ /rate/) {\n      speed = $4 ;\n      gsub(/[Uu]nknown/,\"\",speed)\n      gsub(/[Nn]ot/,\"\",speed)\n      if ($5 ~ /[Gg]bps/) { speed = speed * 1000 }\n      setArray(portSpeed,ID,speed,\"\")\n    }\n  }\n  # Host Interface\n  if ($1 ~ /Host/ && $2 ~ /interface:/) {\n    subsection = \"hostInterface\"\n    displayIDtemp = \"Host Interface-\" $NF\n    ID = \"HI-\" controllerID \"-\" $NF\n    getline\n    if ($1 ~ /Channel/) {\n      ID = ID \"-Channel-\" $NF;\n      displayIDtemp = displayIDtemp \"-Channel-\" $NF\n    }\n    if ($1 ~ /Port/) {\n      ID = ID \"-Port-\" $NF;\n      displayIDtemp = displayIDtemp \"-Port-\" $NF\n    }\n    getline\n    if ($1 ~ /Channel/) {\n      ID = ID \"-Channel-\" $NF;\n      displayIDtemp = displayIDtemp \"-Channel-\" $NF\n    }\n    if ($1 ~ /Port/) {\n      ID = ID \"-Port-\" $NF;\n      displayIDtemp = displayIDtemp \"-Port-\" $NF\n    }\n    displayID[ID] = displayIDtemp\n    type[ID] = \"HostInterface\"\n    enclosureType[ID] = \"Blade\"\n    enclosureID[ID] = controllerID\n  }\n  if (subsection == \"hostInterface\") {\n    if ($1 ~ /Vendor:/) { appendArray(additionalInformation,ID,stripFormatting($0),\"Vendor\") }\n    if ($1 ~ /MAC/ && $2 ~ /address/) { setArray(macAddress,ID,$NF,\"\") }\n    if ($1 ~ /Current/ && ($2 ~ /data/ || $2 ~ /port/)) {\n      speed = $4 ;\n      gsub(/[Uu]nknown/,\"\",speed)\n      gsub(/[Nn]ot/,\"\",speed)\n      if ($5 ~ /[Gg]bps/) { speed = speed * 1000 }\n      setArray(portSpeed,ID,speed,\"\")\n    }\n    if ($1 ~ /Part/ && $2 ~ /type/) {\n      appendArray(additionalInformation,ID,$3,\"Part Type\") ;\n      appendArray(additionalInformation,ID,$5,\"Version\")\n    }\n  }\n}\n\n# Arrays (Disk Group)\n$1 ~ /ARRAYS---*$/ { section = \"Arrays\" }\nsection == \"Arrays\" {\n  if ($1 ~ /Array/ && $3 ~ /RAID/) {\n    ID = \"DG-\" $2\n    displayID[ID] = \"Disk Group-\" $2\n    type[ID] = \"DiskGroup\"\n    enclosureType[ID] = \"Enclosure\"\n    enclosureID[ID] = \"Global\"\n    raidLevelTemp = $4;\n    gsub(/[)]/,\"\",raidLevelTemp)\n    appendArray(additionalInformation,ID,raidLevelTemp,\"Raid Level\")\n  }\n}\n\n# Disk Groups Information\n$1 ~ /DISK/ && $2 ~ /GROUPS---*$/ { section = \"DiskGroup\" }\nsection == \"DiskGroup\" {\n  if ($1 ~ /Name:/) {\n    ID = \"DG-\" $NF\n    displayID[ID] = \"Disk Group-\" $NF\n    type[ID] = \"DiskGroup\"\n    enclosureType[ID] = \"Enclosure\"\n    enclosureID[ID] = \"Global\"\n  }\n  if ($1 ~ /[Cc]apacity/) {\n    capacityTemp = $2 ;\n    gsub(/,/,\"\",capacityTemp)\n    # Covert to Megabytes\n    if ($3 == \"GB\") { capacityTemp = capacityTemp * 1.073509134 }\n    if ($3 == \"TB\") { capacityTemp = capacityTemp * 1073.509134369 }\n    if ($3 == \"MB\") { capacityTemp = capacityTemp * 0.001073509 }\n    setArray(size,ID,capacityTemp,\"\")\n  }\n  if ($1 ~ /RAID/ && $2 ~ /[Ll]evel/) { appendArray(additionalInformation,ID,$NF,\"Raid Level\") }\n  if ($3 ~ /[Ss]tatus:/) {\n    statusValue = $4;\n    if ($5 != \"\") { statusValue = statusValue $5 }\n    setArray(statusInformation,ID,stripFormatting($0),\"\")\n    setArray(status,ID,statusValue,\"\")\n  }\n}\n\n# Drives\n$1 ~ /DRIVES---*$/ {section = \"Drives\" }\nsection == \"Drives\" {\n  #MD3000\n  if ($0 ~ /Physical Disk at Enclosure/) {\n    ID = $0 ;\n    gsub(/.*Physical Disk at /,\"\",ID);\n    ID = \"PD-\" ID;\n    displayID[ID] = \"Slot \" $7;\n    enclosureType[ID] = \"Enclosure\"\n    enclosureID[ID] = $5;\n    gsub(/,/,\"\",enclosureID[ID])\n  \ttype[ID] = \"PhysicalDisk\"\n  }\n  #DS3200\n  if ($0 ~ /Drive at Enclosure/) {\n    ID = $0;\n    gsub(/.*Drive at /,\"\",ID);\n    ID = \"PD-\" ID;\n    displayID[ID] = \"Slot \" $6;\n    enclosureType[ID] = \"Enclosure\"\n    enclosureID[ID] = $4;\n    gsub(/,/,\"\",enclosureID[ID])\n    type[ID] = \"PhysicalDisk\"\n    # For systems with only one enclosure, sometimes the ID isn't specified, so we will extract and put it in an array\n    TemporaryEnclosureIDtemp = $4;\n    gsub(/,/,\"\",TemporaryEnclosureIDtemp)\n    TemporaryEnclosureArray[ID] = TemporaryEnclosureIDtemp\n  }\n\n  if ($1 ~ /Raw/ && $2 ~ /[Cc]apacity:/) {\n    capacityTemp = $(NF-1) ;\n    gsub(/,/,\"\",capacityTemp)\n    # Covert to Megabytes\n    if ($NF == \"GB\") { capacityTemp = capacityTemp *    1.073741824 }\n    if ($NF == \"TB\") { capacityTemp = capacityTemp *    1073.741824 }\n    if ($NF == \"MB\") { capacityTemp = capacityTemp * 0.001073741824 }\n    setArray(size,ID,capacityTemp,\"\")\n  }\n  if ($1 ~ /Mode:/) {\n    typeTemp = $0;\n    gsub(/.*: */,\"\",typeTemp);\n    appendArray(additionalInformation,ID,typeTemp,\"Mode\")\n  }\n  if ($1 ~ /Media/ && $2 ~ /type/) {\n    typeTemp = $0;\n    gsub(/.*: */,\"\",typeTemp);\n    appendArray(additionalInformation,ID,typeTemp,\"Media Type\")\n  }\n  if ($1 ~ /Interface/ && $2 ~ /type/) {\n    typeTemp = $0;\n    gsub(/.*: */,\"\",typeTemp);\n    appendArray(additionalInformation,ID,typeTemp,\"Interface Type\")\n  }\n  if ($0 ~ /Physical Disk Firmware Version:/) { appendArray(additionalInformation,ID,$NF,\"Firmware\") }\n  if ($1 ~ /Manufacturer:/) { setArray(vendor,ID,$NF,\"\") }\n  if ($1 ~ /Vendor:/) { setArray(vendor,ID,$NF,\"\") }\n  if ($1 ~ /Product/ && $2 ~ /ID/) { setArray(model,ID,stripFormatting($0),\"\") }\n  if ($1 ~ /Serial/ && $2 ~ /number/) { setArray(serialNumber,ID,$NF,\"\") }\n  # Some disks have information about ATA translators at the end we don't care about, but raise flags, so will reset ID to igrnore (DS4300)\n  if ($1 ~ /ATA/ && $2 ~ /Translator/) { ID = \"\" }\n}\n\n# Enclosure\n$1 ~ /ENCLOSURES---*$/ {\n  section = \"Enclosure\"\n  # Reset variables that shouldn't be carried between enclosure discoveries\n  attachedToTemp = \"\"\n}\n\nsection == \"Enclosure\" {\n  if ($0 ~ / Overall Component Information/) {\n    ID = $(NF-3)\n    # On some systems, system are titled \"Controller/Drive Enclosure Overall Component Information\", we will put a marker\n    if (ID ~ /Enclosure/) { ID = \"TemporaryEnclosureID\" }\n    currentEnclosureID = ID\n    displayID[ID] = $0 ; gsub(/ Overall Component Information/,\"\",displayID[ID]); gsub(/^ */,\"\",displayID[ID]);\n    type[ID] = \"Enclosure\"\n  }\n  if ($1 ~ /Service/ && $2 ~ /tag/) {\n    appendArray(additionalInformation,ID,$NF,\"Service Tag\")\n    setArray(serialNumber,ID,$NF,\"\")\n  }\n  if ($1 ~ /Asset/ && $2 ~ /tag/) { appendArray(additionalInformation,ID,$NF,\"Asset Tag\") }\n  if ($1 ~ /Chassis/ && $2 ~ /name/) { appendArray(additionalInformation,ID,$NF,\"Chassis Name\") }\n  if ($1 ~ /Vendor/) {\n    appendArray(additionalInformation,ID,$NF,\"Vendor\")\n    setArray(vendor,ID,$NF,\"\")\n  }\n\n  # Battery\n  # The ID is shown after the status, which causes issues all subsequent \"location\" will trigger a new instance, so we'll set a Flag to only trigger on the next location\n  if ($1 ~ /Battery/ && $2 ~ /[Ss]tatus/) {\n    statusInformationValue = stripFormatting($0);\n    statusValue = $3;\n    if ($4 != \"\") { statusValue = statusValue \" \" $4 }\n    subsection = \"battery\"\n    batteryFlag = \"true\"\n  }\n  if (subsection == \"battery\") {\n    if ($1 ~ /Location:/ && batteryFlag == \"true\") {\n      batteryFlag = \"false\"\n      location = stripFormatting($0);\n      ID = \"Battery-Enclosure-\" currentEnclosureID \"-\" location\n      displayID[ID] = location\n      type[ID] = \"Battery\"\n      setArray(statusInformation,ID,statusInformationValue,\"\")\n      setArray(status,ID,statusValue,\"\")\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n    }\n  }\n\n  # Interconnect battery Canister\n  # This is the overall status of the Interconnect Batteries (DS4800)\n  if ($1 ~ /Interconnect-[Bb]attery/ && $2 ~ /[Cc]anister/ && $3 ~ /[Ss]tatus:/) {\n    ID = \"Interconnect-Battery-Cannister-Enclosure-\" currentEnclosureID\n    displayID[ID] = \"Interconnect Battery Cannister\"\n    statusValue = $4 ;\n    if ($5 != \"\") { statusValue = statusValue \" \" $5 }\n\t  setArray(statusInformation,ID,stripFormatting($0),\"\")\n\t  setArray(status,ID,statusValue,\"\")\n    type[ID] = \"Battery\"\n    enclosureType[ID] = \"Enclosure\"\n    enclosureID[ID] = currentEnclosureID\n  }\n\n# # Interconnect battery CRUs\n# This is the overall status of the Interconnect Batteries (DS5100)\n  if ($1 ~ /Interconnect-[Bb]attery/ && $2 ~ /CRU/ && $3 ~ /[Ss]tatus:/) {\n    ID = \"Interconnect-Battery-CRU-Enclosure-\" currentEnclosureID\n    displayID[ID] = \"Interconnect Battery CRU\"\n    statusValue = $4 ; if ($5 != \"\") {statusValue = statusValue \" \" $5 } ;\n    setArray(statusInformation,ID,stripFormatting($0),\"\")\n    setArray(status,ID,statusValue,\"\")\n    type[ID] = \"Battery\"\n    enclosureType[ID] = \"Enclosure\"\n    enclosureID[ID] = currentEnclosureID\n  }\n\n  # Power Supply\n  #              MD3000                   DS3200\n  if ($0 ~ /Power [Ss]upply.*status:/ || $0 ~ /Power-fan.*status:/) {\n    subsection = \"PowerSupply\"\n    # Get Status first as we might need to getline\n    statusInformationValue = $0 ;\n    gsub(/.*status: */,\"\",statusInformationValue);\n    gsub(/ *$/,\"\",statusInformationValue);\n    # if the line does not contain a location (Something between Supply and Status), do a getline\n    if ($0 ~ /Power [Ss]upply status:/) {\n      getline\n      if ($1 ~ /Location:/) {\n        location = $0 ; gsub(/.*: */,\"\",location);\n        ID = \"PowerSupply-Enclosure-\" currentEnclosureID \"-\" location\n        displayID[ID] = location; gsub(/[Cc]anister ?/,\"\",displayID[ID]);\n      } else {\n        next\n      }\n    } else {\n      location = $0 ;\n      gsub(/ status:.*$/,\"\",location);\n      gsub(/^ */,\"\",location);\n      ID = \"PowerSupplyCanister-Enclosure-\" currentEnclosureID \"-\" location\n      displayID[ID] = location ;\n    }\n    gsub(/ *$/,\"\",location);\n    type[ID]=\"PowerSupply\"\n    # We only want the first two words of the statusInformation\n    split(statusInformationValue,statusValueArray,\" \")\n    statusValue = statusValueArray[1]\n    if (statusValueArray[2] != \"\") { statusValue = statusValue \" \" statusValueArray[2] }\n    setArray(statusInformation,ID,statusInformationValue,\"\")\n    setArray(status,ID,statusValue,\"\")\n    enclosureType[ID] = \"Enclosure\"\n    enclosureID[ID] = currentEnclosureID\n  }\n\n  # Power Supply Canisters\n  # Specific to DS4300-2-MSHW-1498 output, otherwise found in PSU section\n  # Also DS4500\n  # Instances can have no location so we will blank the ID to prevent an error from status set\n  if ($1 ~ /Power/ && $2 ~ /[Ss]upply/ && $3 ~ /[Cc]anister/) {\n    subsection = \"PowerSupplyCanister\"\n    canisterFlag=\"true\"\n    ID = \"\"\n  }\n\n  # Fan Canisters\n  # Specific to DS4300-2-MSHW-1498 output, otherwise found in Fan section\n  # Also DS4500\n  # Instances can have no location so we will blank the ID to prevent an error from status set\n  if ($1 ~ /Fan/ && $2 ~ /[Cc]anister/) {\n    subsection = \"FanCanister\"\n    canisterFlag=\"true\"\n    ID = \"\"\n  }\n\n  if (subsection == \"PowerSupplyCanister\" || subsection == \"FanCanister\") {\n    if ($1 ~ /Location:/ && canisterFlag == \"true\") {\n      canisterFlag=\"false\"\n      location = stripFormatting($0);\n      ID = subsection \"-\" currentEnclosureID \"-\" location\n      displayID[ID] = subsection \"-\" location\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n      if (subsection == \"PowerSupplyCanister\") { type[ID] = \"PowerSupply\" }\n      if (subsection == \"FanCanister\") { type[ID] = \"Fan\" }\n    }\n    if ($1 ~ /Status:/ && ID == \"\") {\n      canisterFlag=\"false\"\n      ID = subsection \"-\" currentEnclosureID \"-\" location\n      if (type[ID] != \"\") { ID = ID \"1\" }\n      displayID[ID] = subsection \"-\" location\n      if (subsection == \"PowerSupplyCanister\") { type[ID] = \"PowerSupply\" }\n      if (subsection == \"FanCanister\") { type[ID] = \"Fan\" }\n      statusValue = $2 ; if ($3 != \"\") {statusValue = statusValue \" \" $3 } ;\n      setArray(statusInformation,ID,stripFormatting($0),\"\")\n      setArray(status,ID,statusValue,\"\")\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n    }\n  }\n\n  # Fans\n  # The ID is shown after the status, which causes issues all subsequent \"location\" will trigger a new instance, so we'll set a Flag to only trigger on the next location\n  if ($1 ~ /Fan/ && $2 ~ /[Ss]tatus/) {\n    statusValue = $3 ;\n    if ($4 != \"\") { statusValue = statusValue \" \" $4 }\n    subsection = \"fan\"\n    fanFlag = \"true\" ;\n    fanStatusSet = \"true\" ;\n  }\n  if (subsection == \"fan\") {\n    if ($1 ~ /Location:/ && fanFlag == \"true\") {\n      fanFlag = \"false\"\n      location = stripFormatting($0);\n      ID = \"Fan-Enclosure-\" currentEnclosureID \"-\" location\n      # Sometimes the ID is not unique due to output, so we'll just add a \"1\".\n      if (type[ID] != \"\") { ID = ID \"1\" }\n      displayID[ID] = location\n      type[ID] = \"Fan\"\n      if (fanStatusSet == \"true\") {\n        setArray(statusInformation,ID,stripFormatting($0),\"\")\n        setArray(status,ID,statusValue,\"\")\n        fanStatusSet = \"false\"\n      }\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n    }\n  }\n\n  # EMM/ESM Cards\n  # The ID is shown after the status, which causes issues all subsequent \"location\" will trigger a new instance, so we'll set a Flag to only trigger on the next location\n  # The location is often several lines after the status line, so will set ID to nul\n  if ($1 ~ /EMM/ && $2 ~ /card/ && $3 ~ /[Ss]tatus/) {\n    statusInformationValue = stripFormatting($0);\n    statusValue = $4 ;\n    if ($5 != \"\") { statusValue = statusValue \" \" $5 }\n    subsection = \"EMM\"\n    emmFlag = \"true\" ;\n    emmStatusSet = \"true\"\n    ID = \"\"\n  }\n  if ($1 ~ /ESM/ && $2 ~ /card/ && $3 ~ /[Ss]tatus/) {\n    statusInformationValue = stripFormatting($0);\n    statusValue = $4 ;\n    if ($5 != \"\") { statusValue = statusValue \" \" $5 }\n    subsection = \"ESM\"\n    emmFlag = \"true\"\n    emmStatusSet = \"true\"\n    ID = \"\"\n  }\n  if ($1 ~ /ESM/ && $2 ~ /card/ && NF == 2) {\n    subsection = \"ESM\"\n    emmFlag = \"true\" ;\n    getline\n    if ($1 ~ /Status/) {\n      statusInformationValue = stripFormatting($0);\n      statusValue = $2;\n      if ($3 != \"\") { statusValue = statusValue \" \" $3 }\n      emmStatusSet = \"true\"\n    }\n  }\n  if (subsection == \"EMM\" || subsection == \"ESM\") {\n    if ($1 ~ /Location:/ && emmFlag == \"true\") {\n      emmFlag = \"false\"\n      location = stripFormatting($0);\n      ID = subsection \"-Enclosure-\" currentEnclosureID \"-\" location\n      displayID[ID] = location\n      type[ID] = subsection\n      if (emmStatusSet == \"true\") {\n        setArray(statusInformation,ID,statusInformationValue,\"\")\n        setArray(status,ID,statusValue,\"\")\n        emmStatusSet = \"false\"\n      }\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n      # to insert the mini-hub into the ID, we put it in attachedToTemp which is used by SFP\n      attachedToTemp = subsection \"-\" location \"-\"\n    }\n  }\n\n  # Mini Hubs\n  # Only found on one model. DS4500\n  if ($1 ~ /Host/ && $2 ~ /[Mm]ini.[Hh]ub/ && $3 ~ /[Cc]anister/) {\n    subsection = \"HostMiniHub\"\n    minihubflag = \"true\"\n    ID = \"\"\n  }\n  if ($1 ~ /Drive/ && $2 ~ /[Mm]ini.[Hh]ub/ && $3 ~ /[Cc]anister/) {\n    subsection = \"DriveMiniHub\"\n    minihubflag = \"true\"\n    ID = \"\"\n  }\n  if (subsection == \"DriveMiniHub\" || subsection == \"HostMiniHub\") {\n    if ($1 ~ /Status:/) {\n      statusValue = $2;\n      if ($3 != \"\") { statusValue = statusValue \" \" $3 }\n      canisterStatusFound = \"true\" ;\n    }\n    if ($1 ~ /Location:/) {\n      location = stripFormatting($0);\n      ID = subsection \"-\" currentEnclosureID \"-\" location\n      displayID[ID] = currentEnclosureID \"-\" location\n      type[ID] = subsection\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n      # to insert the mini-hub into the ID, we put it in attachedToTemp which is used by SFP\n      attachedToTemp = subsection \"-\" location \"-\"\n      if (canisterStatusFound == \"true\") {\n        setArray(statusInformation,ID,stripFormatting($0),\"\")\n        setArray(status,ID,statusValue,\"\")\n        canisterStatusFound = \"false\"\n      }\n    }\n  }\n\n  # SFP Cards\n  # The ID is shown after the status, which causes issues all subsequent \"location\" will trigger a new instance, so we'll set a Flag to only trigger on the next location\n  # The location is often several lines after the status line, so will set ID to nul\n  # SFPs can also be in \"mini-hub\" canisters.  See Mini-Hub section for these SFPs.\n  if ($1 ~ /SFP/ && $2 ~ /[Ss]tatus/) {\n    statusInformationValue = stripFormatting($0);\n    statusValue = $3;\n    if ($4 != \"\") { statusValue = statusValue \" \" $4 }\n    subsection = \"SFP\"\n    sfpFlag = \"true\" ;\n    sfpStatusFound = \"true\"\n    ID = \"\"\n  }\n  if ($1 ~ /SFP/ && NF == 1) {\n    subsection = \"SFP\"\n    sfpFlag = \"true\" ;\n    getline\n    if ($1 ~ /Status/) {\n      statusInformationValue = stripFormatting($0);\n      statusValue = $2;\n      if ($3 != \"\") { statusValue = statusValue \" \" $3 }\n      sfpStatusFound = \"true\"\n    }\n  }\n  if (subsection == \"SFP\") {\n    if ($1 ~ /Attached/ && $2 ~ /[Tt]o:/) { attachedToTemp = stripFormatting($0) }\n    if ($1 ~ /Location:/ && sfpFlag == \"true\") {\n      sfpFlag = \"false\"\n      location = stripFormatting($0);\n      ID = \"SFP-Enclosure-\" currentEnclosureID \"-\" attachedToTemp \"-\" location\n      # Sometimes the ID is not unique due to output, so we'll just add a \"1\".\n      if (type[ID] != \"\") { ID = ID \"1\" }\n      displayID[ID] =  attachedToTemp \"-\" location\n      type[ID] = \"SFP\"\n      if (sfpStatusFound == \"true\") {\n        setArray(statusInformation,ID,statusInformationValue,\"\")\n        setArray(status,ID,statusValue,\"\")\n        sfpStatusFound = \"false\"\n      }\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n    }\n  }\n\n  # Temperature\n  # The ID is shown after the status, which causes issues all subsequent \"location\" will trigger a new instance, so we'll set a Flag to only trigger on the next location\n  if ($0 ~ /Temperature.* [Ss]tatus:/) {\n    statusInformationValue = $0;\n    gsub(/.*status: */,\"\",statusInformationValue);\n    gsub(/ *$/,\"\",statusInformationValue);\n    subsection = \"temperature\"\n    temperatureFlag = \"true\" ;\n  }\n  if (subsection == \"temperature\") {\n    if ($1 ~ /Location:/ && temperatureFlag == \"true\") {\n      temperatureFlag = \"false\"\n      location = $0 ;\n      gsub(/.*: */,\"\",location) ;\n      ID = \"Temperature-Enclosure-\" currentEnclosureID \"-\" location\n      # Sometimes the ID is not unique due to output, so we'll just add a \"1\".\n      if (type[ID] != \"\") { ID = ID \"1\" }\n      displayID[ID] = location\n      type[ID] = \"Temperature\"\n      split(statusInformationValue,statusValueArray,\" \")\n      statusValue = statusValueArray[1]\n      if (statusValueArray[2] != \"\") { statusValue = statusValue \" \" statusValueArray[2] }\n      setArray(statusInformation,ID,statusInformationValue,\"\")\n      setArray(status,ID,statusValue,\"\")\n      enclosureType[ID] = \"Enclosure\"\n      enclosureID[ID] = currentEnclosureID\n    }\n  }\n}\n\nEND {\n  # Create a General enclosure\n  type[\"Global\"]=\"Enclosure\";\n  displayID[\"Global\"]=\"Global\";\n\n  # If we have an object with an ID of \"TemporaryEnclosureID\", then\n  # Search the TemporaryEnclosureArray for an enclosure number that is not known\n  if (type[\"TemporaryEnclosureID\"] != \"\") {\n    for (forID in TemporaryEnclosureArray) {\n      matchFound = \"false\"\n      for (ID in type) {\n        if (type[ID] == \"Enclosure\") {\n          if (ID == TemporaryEnclosureArray[forID]) { matchFound = \"true\" }\n        }\n      }\n      if (matchFound == \"false\") { TemporaryEnclosureID = TemporaryEnclosureArray[forID] }\n    }\n    # If we don't find a match, it means the ID-less enclosure doesn't have any disks... Uggh\n    # We will just have to make a name up\n    if (TemporaryEnclosureID == \"\") { TemporaryEnclosureID = \"Controller\" }\n  }\n\n  # Print the Array\n  for (ID in type) {\n    # Replace TemporaryEnclosureID in ID, displayID\n    IDtemp = ID ; gsub(/TemporaryEnclosureID/,TemporaryEnclosureID,IDtemp)\n    gsub(/TemporaryEnclosureID/,TemporaryEnclosureID,displayID[ID])\n    gsub(/TemporaryEnclosureID/,TemporaryEnclosureID,enclosureID[ID])\n    additionalfield1 = \"\" ; additionalfield2 = \"\" ; additionalfield3 = \"\" ; additionalfield4 = \"\" ;\n    # For network cards, put link status in status and speed in statusInformation\n    if (type[ID] == \"EthernetPort\" || type[ID] == \"HostInterface\" || type[ID] == \"PhysicalDiskInterface\") {\n      statusInformation[ID] = portSpeed[ID] ;\n      additionalfield1 = macAddress[ID]\n      if (macAddress[ID] != \"\") {additionalfield2 = \"MAC\"}\n      if (status[ID] == \"\") { status[ID] = linkStatus[ID] }\n      # if there is no link status still, use speed to determine up/down\n      if (status[ID] == \"\") {\n        if (statusInformation[ID] == \"0\" || statusInformation[ID] == \"\") {\n          status[ID] = \"Down\"\n        } else {\n          status[ID] = \"Up\"\n        }\n      }\n    }\n    # Some classes require additional information to be in separate fields, here we put then in additionalfields before printing (lets us only have one print statement)\n    if (type[ID] == \"Enclosure\") {\n      additionalfield1 = vendor[ID];\n      additionalfield2 = serialNumber[ID];\n    }\n    if (type[ID] == \"Controller\") {\n      additionalfield1 = model[ID];\n      additionalfield2 = serialNumber[ID];\n    }\n    if (type[ID] == \"DiskGroup\") { additionalfield1 = size[ID] }\n    if (type[ID] == \"PhysicalDisk\") {\n      additionalfield1 = size[ID];\n      additionalfield2 = serialNumber[ID];\n      additionalfield3 = model[ID];\n      additionalfield4 = vendor[ID];\n\n      # remove duplicate serialNumber if property exists in both addition information and parameter\n      labeltest1 = \" - Serial Number:\"\n      labeltest2 = \"^Serial Number:\"\n      if (additionalInformation[ID] ~ labeltest1 || additionalInformation[ID] ~ labeltest2) {\n        replace = \"Serial Number: \" additionalfield2;\n        gsub(replace, \"\", additionalInformation[ID]);\n        gsub(/ - $/, \"\", additionalInformation[ID]);\n      }\n\n      # remove duplicate vendor if property exists in both addition information and parameter\n      labeltest1 = \" - Vendor:\"\n      labeltest2 = \"^Vendor:\"\n      if (additionalInformation[ID] ~ labeltest1 || additionalInformation[ID] ~ labeltest2) {\n        replace = \"Vendor: \" additionalfield4;\n        gsub(replace, \"\", additionalInformation[ID]);\n        gsub(/ - $/, \"\", additionalInformation[ID]);\n      }\n\n      # remove duplicate PartNumber if property exists in both addition information and parameter\n      labeltest1 = \" - Part Number:\"\n      labeltest2 = \"^Part Number:\"\n      if (additionalInformation[ID] ~ labeltest1 || additionalInformation[ID] ~ labeltest2) {\n        replace = \"Part Number: \" additionalfield3;\n        gsub(replace, \"\", additionalInformation[ID]);\n        gsub(/ - $/, \"\", additionalInformation[ID]);\n      }\n\n      # remove trailing \" - \" which should not exist but it does.\n      gsub(/ - $/, \"\", additionalInformation[ID]);\n    }\n    if (type[ID] != \"\") {\n      print \"MSHW;\" type[ID] \";\" IDtemp \";\" displayID[ID] \";\" enclosureID[ID] \";\" enclosureType[ID] \";\" status[ID] \";\" statusInformation[ID] \";\" additionalInformation[ID] \";\" additionalfield1 \";\" additionalfield2 \";\" additionalfield3 \";\" additionalfield4 \";\"\n    }\n  }\n}"
+  EmbeddedFile(1): |-
+    #
+    # FUNCTIONS
+    #
+
+    # Set a value in an array (label optional)
+    # A value should only be set once, so it will ignore future values
+    function setArray(array,arrayID,value,label) {
+      if (ID == "") { return }
+      if (tolower(value)=="available" && tolower($(NF-1)) == "not") { value = "Not Available" }
+      if (label != "") { value = label ": " value }
+      if (array[arrayID] == "") {
+        array[arrayID] = value
+      } else {
+        print "MSHW;ERROR; - Multiple Values for same Component- ID: " arrayID " - LineNumber: " NR " - Section: " section " - SubSection: " subsection " - Line: " $0
+      }
+    }
+
+    # Append a value to an array  (label optional)
+    function appendArray(array,arrayID,value,label) {
+      if (ID == "") { return }
+      if (tolower(value)=="available" && tolower($(NF-1)) == "not") { value = "Not Available" }
+      gsub(/ *$/,"",value);
+      # Don't populate additional information with Not Available
+      if (value == "Not Available" || value == "") { return }
+      if (label != "") {
+        value = label ": " value ;
+        # Check the exact label is already there
+        # Java Awk doesn't like building regexs on the fly, so putting them in variables first
+        labeltest1 = " - " label ":"
+        labeltest2 = "^" label ":"
+        if (array[arrayID] ~ labeltest1 || array[arrayID] ~ labeltest2) {
+          # Replacement Part Number / Part Number is often repeated, so if this is the problem, skip...
+          if (tolower(label) ~ /part number/) { return }
+          print "MSHW;ERROR; - Label Already Added - ID: " arrayID " - LineNumber: " NR "- Line: " $0 ;
+          return
+        }
+      }
+      if (array[arrayID] == "") {
+        array[arrayID] = value
+      } else {
+        array[arrayID] = array[arrayID] " - " value
+      }
+    }
+
+    function stripFormatting(value){
+      gsub(/.*: */,"",value);
+      gsub(/ *$/,"",value);
+      return value;
+    }
+
+    #
+    # MAIN SECTION
+    #
+
+    # Reset Section
+    $NF ~ /-------------------/ {
+      section = "" ;
+      ID = "" ;
+      subsection == ""
+    }
+
+    $1 ~ /^SUMMARY---*$/ { section = "Summary" }
+
+    section == "Summary" {
+      if ($1 ~ /Current/ && $2 ~ /configuration/) { subsection = "currentConfiguration"}
+      if (subsection == "currentConfiguration") {
+        if ($1 ~ /Pending/ && $2 ~ /configuration/) { subsection = ""}
+        if ($1 ~ /Firmware/ && $2 ~ /version/) { appendArray(Firmware,"system",$NF,"Firmware Version") }
+        if ($1 ~ /NVSRAM/ && $2 ~ /version/) { appendArray(Firmware,"system",$NF,"NVSRAM Version") }
+        if ($1 ~ /AMW/ && $2 ~ /version/) { appendArray(Firmware,"system",$NF,"AMW Version") }
+      }
+    }
+
+    section != "" {
+      # LastSubSectionFlag
+      # Set conditions here to reset subsection when subsection header is missing
+      if (lastsubsectionFlag == "1") {
+        lastsubsectionFlag = "0"
+        if ($1 ~ /Status:/) {
+          subsection = lastsubsection
+          ID = ""
+        }
+      }
+
+      # Universal Fields
+      if ($1 ~ /Status/) {
+        statusInformationValue = $0 ;
+        gsub(/.*Status: */,"",statusInformationValue);
+        gsub(/ *$/,"",statusInformationValue);
+        setArray(statusInformation,ID,statusInformationValue,"")
+        statusValue = $2 ;
+        if ($3 != "") { statusValue = statusValue " " $3 }
+        setArray(status,ID,statusValue,"")
+      }
+      if ($1 ~ /Part/ && $2 ~ /number/) { appendArray(additionalInformation,ID,$NF,"Part Number") }
+      if ($1 ~ /Serial/ && $2 ~ /number/) { appendArray(additionalInformation,ID,$NF,"Serial Number") }
+      if ($1 ~ /Replacement/ && $2 ~ /part/) { appendArray(additionalInformation,ID,$NF,"Alternate Part Number") }
+      if ($1 ~ /Product/ && $2 ~ /ID/) { appendArray(additionalInformation,ID,stripFormatting($0),"Part Number") }
+      if ($1 ~ /Type:/) { appendArray(additionalInformation,ID,stripFormatting($0),"Type") }
+      if ($1 ~ /Manufacturer/ || $1 ~ /Vendor/) { appendArray(additionalInformation,ID,stripFormatting($NF),"Vendor") }
+      # Can be Revision or Revision Level or Product Revision
+      if (($1 ~ /Revision/ || $2 ~ /[Rr]evision/) && $NF !~/:/) { appendArray(additionalInformation,ID,$NF,"Version") }
+      if ($1 ~ /Link/ && $2 ~ /status/) { setArray(linkStatus,ID,$3,"") }
+    }
+
+
+    # Controller Information
+    $1 ~ /^CONTROLLERS---*$/ { section = "Controllers" }
+    section == "Controllers" {
+      #MD3000
+      if ($0 ~ /RAID Controller Module in Enclosure /) {
+        ID = $0;
+        gsub(/.*RAID Controller Module in /,"",ID);
+          displayID[ID] = "Controller in " ID
+          controllerID = ID
+        type[ID] = "Controller"
+        enclosureID[ID] = $6;
+        gsub(/,/,"",enclosureID[ID]);
+        enclosureType[ID] = "Enclosure"
+      }
+      #               #DS3200                           #DS4500
+      if ($0 ~ /Controller in Enclosure/ || $0 ~ /Controller in Slot/) {
+        ID = $0;
+        gsub(/.*Controller in /,"",ID);
+        displayID[ID] = "Controller in " ID
+        controllerID = ID
+        type[ID] = "Controller"
+        # If the enclosure not specified, then set it to TemporaryEnclosureID and it will be replaced later
+        if ($0 ~ /Controller in Slot/) { enclosureID[ID] = "TemporaryEnclosureID" }
+        if ($0 ~ /Controller in Enclosure/) {
+          enclosureID[ID] = $4 ;
+          gsub(/,/,"",enclosureID[ID]);
+        }
+        enclosureType[ID] = "Enclosure"
+      }
+      if ($1 ~ /Location:/) { appendArray(additionalInformation,ID,$NF,"Location") }
+      if ($1 ~ /Current/ && $2 ~ /configuration/) { subsection = "currentConfiguration"}
+      if ($1 ~ /Pending/ && $2 ~ /configuration/) { subsection = ""}
+      if (subsection == "currentConfiguration") {
+        if ($1 ~ /Firmware/ && $2 ~ /version/) { appendArray(firmware,ID,$NF,"Firmware Version") }
+        if ($1 ~ /Appware/ && $2 ~ /version/) { appendArray(firmware,ID,$NF,"Appware Version") }
+        if ($1 ~ /Bootware/ && $2 ~ /version/) { appendArray(firmware,ID,$NF,"Bootware Version") }
+      }
+      if (subsection == "") {
+        if ($1 ~ /Model/ && $2 ~ /name/) { setArray(model,ID,stripFormatting($0),"") }
+        if ($1 ~ /Board/ && $2 ~ /ID/) { appendArray(additionalInformation,ID,$NF,"Board ID") }
+        if ($1 ~ /Submodel/ && $2 ~ /ID/) { appendArray(additionalInformation,ID,$NF,"Submodel ID") }
+        if ($1 ~ /Vendor:/) { appendArray(additionalInformation,ID,stripFormatting($0),"Vendor") }
+      }
+
+      # Data Cache Module
+      # Processor Cache Module
+      # Host Interface Board
+      # Cache Backup Device
+
+      if ($1 ~ /Data/ && $2 ~ /[Cc]ache/ && $3 ~ /[Mm]odule/) {
+        subsection = "DataCacheModule"
+        ID = ""
+      }
+      if ($1 ~ /Processor/ && $2 ~ /[Cc]ache/ && $3 ~ /[Mm]odule/) {
+        subsection = "ProcessorCacheModule"
+        ID = ""
+      }
+      if ($1 ~ /Host/ && $2 ~ /[Ii]nterface/ && $3 ~ /[Bb]oard/) {
+        subsection = "HostInterfaceBoard"
+        ID = ""
+      }
+      if ($1 ~ /Cache/ && $2 ~ /[Bb]ackup/ && $3 ~ /[Dd]evice/) {
+        subsection = "CacheBackupDevice"
+        ID = ""
+      }
+      if (subsection == "DataCacheModule" || subsection == "ProcessorCacheModule" || subsection == "HostInterfaceBoard" || subsection == "CacheBackupDevice") {
+        if ($1 ~ /[Ss]tatus:/) {
+          statusValue = $2;
+          if ($3 != "") { statusValue = statusValue $3 }
+          statusInformationValue = stripFormatting($0);
+        }
+        if ($2 ~ /[Ss]tatus:/) {
+          statusValue = $3;
+          if ($4 != "") { statusValue = statusValue $4 }
+          statusInformationValue = stripFormatting($0);
+        }
+        if ($3 ~ /[Ss]tatus:/) {
+          statusValue = $4;
+          if ($5 != "") { statusValue = statusValue $5 }
+          statusInformationValue = stripFormatting($0);
+        }
+        # If we get all the way to Vendor without finding a status, then print with no "location"
+        if ($1 ~ /Location:/ || ($1 ~ /Vendor/ && ID == "")) {
+          if ($1 ~ /Location:/) { location = stripFormatting($0) }
+          if ($1 ~ /Vendor/) { location = "NoLocation" }
+          ID = subsection "-" controllerID "-" location
+          displayID[ID] = location
+          type[ID] = subsection
+            setArray(statusInformation,ID,statusInformationValue,"")
+            setArray(status,ID,statusValue,"")
+          enclosureType[ID] = "Blade"
+          enclosureID[ID] = controllerID
+        }
+        if ($1 ~ /Capacity:/) { appendArray(additionalInformation,ID,stripFormatting($0),"Capacity") }
+        if ($0 ~ /Date of manufacture/) {
+          ID = controllerID ;
+          lastsubsectionFlag = 1 ;
+          lastsubsection = subsection;
+          subsection = "" ;
+        }
+      }
+
+      # Ethernet Port
+      if ($1 ~ /Ethernet/ && $2 ~ /port:/) {
+        subsection = "ethernetPort"
+        ID = "ETH-" controllerID "-" $NF
+        displayID[ID] = "Ethernet Port-" $NF
+        type[ID] = "EthernetPort"
+        enclosureType[ID] = "Blade"
+        enclosureID[ID] = controllerID
+      }
+      if (subsection == "ethernetPort") {
+        if ($1 ~ /MAC/ && $2 ~ /address/) { setArray(macAddress,ID,$NF,"") }
+        if ($1 ~ /Port/ && $2 ~ /speed/) {
+          speed = $3 ;
+          if (speed ~ "/") { gsub(".*/","",speed) }
+          gsub(/[Uu]nknown/,"0",speed)
+          if ($4 ~ /[Gg]bps/) { speed = speed * 1000 }
+          setArray(portSpeed,ID,speed,"")
+        }
+      }
+
+      # Physical Disk Interface
+      if (($1 ~ /Physical/ && $2 ~ /Disk/ && $3 ~ /[Ii]nterface:/) || ($1 ~ /Drive/ && $2 ~ /[Ii]nterface:/)) {
+        subsection = "PhysicalDiskInterface"
+        ID = "PDI-" controllerID "-" $NF
+        displayIDtemp = "Physical Disk Interface-" $NF
+        getline
+        ID = ID "-Channel-" $NF
+        displayIDtemp = displayIDtemp "-Channel-" $NF
+        getline
+        ID = ID "-Port-" $NF ;
+        displayID[ID] = displayIDtemp "-Port-" $NF ;
+        type[ID] = "PhysicalDiskInterface"
+        enclosureType[ID] = "Blade"
+        enclosureID[ID] = controllerID
+      }
+      if (subsection == "PhysicalDiskInterface") {
+        if ($1 ~ /Port/ && $2 ~ /speed/) {
+          speed = $3 ;
+          gsub(/[Uu]nknown/,"",speed)
+          gsub(/[Nn]ot/,"",speed)
+          if ($4 ~ /[Gg]bps/) { speed = speed * 1000 }
+          setArray(portSpeed,ID,speed,"")
+        }
+        if ($1 ~ /Current/ && $2 ~ /data/ && $3 ~ /rate/) {
+          speed = $4 ;
+          gsub(/[Uu]nknown/,"",speed)
+          gsub(/[Nn]ot/,"",speed)
+          if ($5 ~ /[Gg]bps/) { speed = speed * 1000 }
+          setArray(portSpeed,ID,speed,"")
+        }
+      }
+      # Host Interface
+      if ($1 ~ /Host/ && $2 ~ /interface:/) {
+        subsection = "hostInterface"
+        displayIDtemp = "Host Interface-" $NF
+        ID = "HI-" controllerID "-" $NF
+        getline
+        if ($1 ~ /Channel/) {
+          ID = ID "-Channel-" $NF;
+          displayIDtemp = displayIDtemp "-Channel-" $NF
+        }
+        if ($1 ~ /Port/) {
+          ID = ID "-Port-" $NF;
+          displayIDtemp = displayIDtemp "-Port-" $NF
+        }
+        getline
+        if ($1 ~ /Channel/) {
+          ID = ID "-Channel-" $NF;
+          displayIDtemp = displayIDtemp "-Channel-" $NF
+        }
+        if ($1 ~ /Port/) {
+          ID = ID "-Port-" $NF;
+          displayIDtemp = displayIDtemp "-Port-" $NF
+        }
+        displayID[ID] = displayIDtemp
+        type[ID] = "HostInterface"
+        enclosureType[ID] = "Blade"
+        enclosureID[ID] = controllerID
+      }
+      if (subsection == "hostInterface") {
+        if ($1 ~ /Vendor:/) { appendArray(additionalInformation,ID,stripFormatting($0),"Vendor") }
+        if ($1 ~ /MAC/ && $2 ~ /address/) { setArray(macAddress,ID,$NF,"") }
+        if ($1 ~ /Current/ && ($2 ~ /data/ || $2 ~ /port/)) {
+          speed = $4 ;
+          gsub(/[Uu]nknown/,"",speed)
+          gsub(/[Nn]ot/,"",speed)
+          if ($5 ~ /[Gg]bps/) { speed = speed * 1000 }
+          setArray(portSpeed,ID,speed,"")
+        }
+        if ($1 ~ /Part/ && $2 ~ /type/) {
+          appendArray(additionalInformation,ID,$3,"Part Type") ;
+          appendArray(additionalInformation,ID,$5,"Version")
+        }
+      }
+    }
+
+    # Arrays (Disk Group)
+    $1 ~ /ARRAYS---*$/ { section = "Arrays" }
+    section == "Arrays" {
+      if ($1 ~ /Array/ && $3 ~ /RAID/) {
+        ID = "DG-" $2
+        displayID[ID] = "Disk Group-" $2
+        type[ID] = "DiskGroup"
+        enclosureType[ID] = "Enclosure"
+        enclosureID[ID] = "Global"
+        raidLevelTemp = $4;
+        gsub(/[)]/,"",raidLevelTemp)
+        appendArray(additionalInformation,ID,raidLevelTemp,"Raid Level")
+      }
+    }
+
+    # Disk Groups Information
+    $1 ~ /DISK/ && $2 ~ /GROUPS---*$/ { section = "DiskGroup" }
+    section == "DiskGroup" {
+      if ($1 ~ /Name:/) {
+        ID = "DG-" $NF
+        displayID[ID] = "Disk Group-" $NF
+        type[ID] = "DiskGroup"
+        enclosureType[ID] = "Enclosure"
+        enclosureID[ID] = "Global"
+      }
+      if ($1 ~ /[Cc]apacity/) {
+        capacityTemp = $2 ;
+        gsub(/,/,"",capacityTemp)
+        # Covert to Megabytes
+        if ($3 == "GB") { capacityTemp = capacityTemp * 1.073509134 }
+        if ($3 == "TB") { capacityTemp = capacityTemp * 1073.509134369 }
+        if ($3 == "MB") { capacityTemp = capacityTemp * 0.001073509 }
+        setArray(size,ID,capacityTemp,"")
+      }
+      if ($1 ~ /RAID/ && $2 ~ /[Ll]evel/) { appendArray(additionalInformation,ID,$NF,"Raid Level") }
+      if ($3 ~ /[Ss]tatus:/) {
+        statusValue = $4;
+        if ($5 != "") { statusValue = statusValue $5 }
+        setArray(statusInformation,ID,stripFormatting($0),"")
+        setArray(status,ID,statusValue,"")
+      }
+    }
+
+    # Drives
+    $1 ~ /DRIVES---*$/ {section = "Drives" }
+    section == "Drives" {
+      #MD3000
+      if ($0 ~ /Physical Disk at Enclosure/) {
+        ID = $0 ;
+        gsub(/.*Physical Disk at /,"",ID);
+        ID = "PD-" ID;
+        displayID[ID] = "Slot " $7;
+        enclosureType[ID] = "Enclosure"
+        enclosureID[ID] = $5;
+        gsub(/,/,"",enclosureID[ID])
+          type[ID] = "PhysicalDisk"
+      }
+      #DS3200
+      if ($0 ~ /Drive at Enclosure/) {
+        ID = $0;
+        gsub(/.*Drive at /,"",ID);
+        ID = "PD-" ID;
+        displayID[ID] = "Slot " $6;
+        enclosureType[ID] = "Enclosure"
+        enclosureID[ID] = $4;
+        gsub(/,/,"",enclosureID[ID])
+        type[ID] = "PhysicalDisk"
+        # For systems with only one enclosure, sometimes the ID isn't specified, so we will extract and put it in an array
+        TemporaryEnclosureIDtemp = $4;
+        gsub(/,/,"",TemporaryEnclosureIDtemp)
+        TemporaryEnclosureArray[ID] = TemporaryEnclosureIDtemp
+      }
+
+      if ($1 ~ /Raw/ && $2 ~ /[Cc]apacity:/) {
+        capacityTemp = $(NF-1) ;
+        gsub(/,/,"",capacityTemp)
+        # Covert to Megabytes
+        if ($NF == "GB") { capacityTemp = capacityTemp *    1.073741824 }
+        if ($NF == "TB") { capacityTemp = capacityTemp *    1073.741824 }
+        if ($NF == "MB") { capacityTemp = capacityTemp * 0.001073741824 }
+        setArray(size,ID,capacityTemp,"")
+      }
+      if ($1 ~ /Mode:/) {
+        typeTemp = $0;
+        gsub(/.*: */,"",typeTemp);
+        appendArray(additionalInformation,ID,typeTemp,"Mode")
+      }
+      if ($1 ~ /Media/ && $2 ~ /type/) {
+        typeTemp = $0;
+        gsub(/.*: */,"",typeTemp);
+        appendArray(additionalInformation,ID,typeTemp,"Media Type")
+      }
+      if ($1 ~ /Interface/ && $2 ~ /type/) {
+        typeTemp = $0;
+        gsub(/.*: */,"",typeTemp);
+        appendArray(additionalInformation,ID,typeTemp,"Interface Type")
+      }
+      if ($0 ~ /Physical Disk Firmware Version:/) { appendArray(additionalInformation,ID,$NF,"Firmware") }
+      if ($1 ~ /Manufacturer:/) { setArray(vendor,ID,$NF,"") }
+      if ($1 ~ /Vendor:/) { setArray(vendor,ID,$NF,"") }
+      if ($1 ~ /Product/ && $2 ~ /ID/) { setArray(model,ID,stripFormatting($0),"") }
+      if ($1 ~ /Serial/ && $2 ~ /number/) { setArray(serialNumber,ID,$NF,"") }
+      # Some disks have information about ATA translators at the end we don't care about, but raise flags, so will reset ID to igrnore (DS4300)
+      if ($1 ~ /ATA/ && $2 ~ /Translator/) { ID = "" }
+    }
+
+    # Enclosure
+    $1 ~ /ENCLOSURES---*$/ {
+      section = "Enclosure"
+      # Reset variables that shouldn't be carried between enclosure discoveries
+      attachedToTemp = ""
+    }
+
+    section == "Enclosure" {
+      if ($0 ~ / Overall Component Information/) {
+        ID = $(NF-3)
+        # On some systems, system are titled "Controller/Drive Enclosure Overall Component Information", we will put a marker
+        if (ID ~ /Enclosure/) { ID = "TemporaryEnclosureID" }
+        currentEnclosureID = ID
+        displayID[ID] = $0 ; gsub(/ Overall Component Information/,"",displayID[ID]); gsub(/^ */,"",displayID[ID]);
+        type[ID] = "Enclosure"
+      }
+      if ($1 ~ /Service/ && $2 ~ /tag/) {
+        appendArray(additionalInformation,ID,$NF,"Service Tag")
+        setArray(serialNumber,ID,$NF,"")
+      }
+      if ($1 ~ /Asset/ && $2 ~ /tag/) { appendArray(additionalInformation,ID,$NF,"Asset Tag") }
+      if ($1 ~ /Chassis/ && $2 ~ /name/) { appendArray(additionalInformation,ID,$NF,"Chassis Name") }
+      if ($1 ~ /Vendor/) {
+        appendArray(additionalInformation,ID,$NF,"Vendor")
+        setArray(vendor,ID,$NF,"")
+      }
+
+      # Battery
+      # The ID is shown after the status, which causes issues all subsequent "location" will trigger a new instance, so we'll set a Flag to only trigger on the next location
+      if ($1 ~ /Battery/ && $2 ~ /[Ss]tatus/) {
+        statusInformationValue = stripFormatting($0);
+        statusValue = $3;
+        if ($4 != "") { statusValue = statusValue " " $4 }
+        subsection = "battery"
+        batteryFlag = "true"
+      }
+      if (subsection == "battery") {
+        if ($1 ~ /Location:/ && batteryFlag == "true") {
+          batteryFlag = "false"
+          location = stripFormatting($0);
+          ID = "Battery-Enclosure-" currentEnclosureID "-" location
+          displayID[ID] = location
+          type[ID] = "Battery"
+          setArray(statusInformation,ID,statusInformationValue,"")
+          setArray(status,ID,statusValue,"")
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+        }
+      }
+
+      # Interconnect battery Canister
+      # This is the overall status of the Interconnect Batteries (DS4800)
+      if ($1 ~ /Interconnect-[Bb]attery/ && $2 ~ /[Cc]anister/ && $3 ~ /[Ss]tatus:/) {
+        ID = "Interconnect-Battery-Cannister-Enclosure-" currentEnclosureID
+        displayID[ID] = "Interconnect Battery Cannister"
+        statusValue = $4 ;
+        if ($5 != "") { statusValue = statusValue " " $5 }
+          setArray(statusInformation,ID,stripFormatting($0),"")
+          setArray(status,ID,statusValue,"")
+        type[ID] = "Battery"
+        enclosureType[ID] = "Enclosure"
+        enclosureID[ID] = currentEnclosureID
+      }
+
+    # # Interconnect battery CRUs
+    # This is the overall status of the Interconnect Batteries (DS5100)
+      if ($1 ~ /Interconnect-[Bb]attery/ && $2 ~ /CRU/ && $3 ~ /[Ss]tatus:/) {
+        ID = "Interconnect-Battery-CRU-Enclosure-" currentEnclosureID
+        displayID[ID] = "Interconnect Battery CRU"
+        statusValue = $4 ; if ($5 != "") {statusValue = statusValue " " $5 } ;
+        setArray(statusInformation,ID,stripFormatting($0),"")
+        setArray(status,ID,statusValue,"")
+        type[ID] = "Battery"
+        enclosureType[ID] = "Enclosure"
+        enclosureID[ID] = currentEnclosureID
+      }
+
+      # Power Supply
+      #              MD3000                   DS3200
+      if ($0 ~ /Power [Ss]upply.*status:/ || $0 ~ /Power-fan.*status:/) {
+        subsection = "PowerSupply"
+        # Get Status first as we might need to getline
+        statusInformationValue = $0 ;
+        gsub(/.*status: */,"",statusInformationValue);
+        gsub(/ *$/,"",statusInformationValue);
+        # if the line does not contain a location (Something between Supply and Status), do a getline
+        if ($0 ~ /Power [Ss]upply status:/) {
+          getline
+          if ($1 ~ /Location:/) {
+            location = $0 ; gsub(/.*: */,"",location);
+            ID = "PowerSupply-Enclosure-" currentEnclosureID "-" location
+            displayID[ID] = location; gsub(/[Cc]anister ?/,"",displayID[ID]);
+          } else {
+            next
+          }
+        } else {
+          location = $0 ;
+          gsub(/ status:.*$/,"",location);
+          gsub(/^ */,"",location);
+          ID = "PowerSupplyCanister-Enclosure-" currentEnclosureID "-" location
+          displayID[ID] = location ;
+        }
+        gsub(/ *$/,"",location);
+        type[ID]="PowerSupply"
+        # We only want the first two words of the statusInformation
+        split(statusInformationValue,statusValueArray," ")
+        statusValue = statusValueArray[1]
+        if (statusValueArray[2] != "") { statusValue = statusValue " " statusValueArray[2] }
+        setArray(statusInformation,ID,statusInformationValue,"")
+        setArray(status,ID,statusValue,"")
+        enclosureType[ID] = "Enclosure"
+        enclosureID[ID] = currentEnclosureID
+      }
+
+      # Power Supply Canisters
+      # Specific to DS4300-2-MSHW-1498 output, otherwise found in PSU section
+      # Also DS4500
+      # Instances can have no location so we will blank the ID to prevent an error from status set
+      if ($1 ~ /Power/ && $2 ~ /[Ss]upply/ && $3 ~ /[Cc]anister/) {
+        subsection = "PowerSupplyCanister"
+        canisterFlag="true"
+        ID = ""
+      }
+
+      # Fan Canisters
+      # Specific to DS4300-2-MSHW-1498 output, otherwise found in Fan section
+      # Also DS4500
+      # Instances can have no location so we will blank the ID to prevent an error from status set
+      if ($1 ~ /Fan/ && $2 ~ /[Cc]anister/) {
+        subsection = "FanCanister"
+        canisterFlag="true"
+        ID = ""
+      }
+
+      if (subsection == "PowerSupplyCanister" || subsection == "FanCanister") {
+        if ($1 ~ /Location:/ && canisterFlag == "true") {
+          canisterFlag="false"
+          location = stripFormatting($0);
+          ID = subsection "-" currentEnclosureID "-" location
+          displayID[ID] = subsection "-" location
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+          if (subsection == "PowerSupplyCanister") { type[ID] = "PowerSupply" }
+          if (subsection == "FanCanister") { type[ID] = "Fan" }
+        }
+        if ($1 ~ /Status:/ && ID == "") {
+          canisterFlag="false"
+          ID = subsection "-" currentEnclosureID "-" location
+          if (type[ID] != "") { ID = ID "1" }
+          displayID[ID] = subsection "-" location
+          if (subsection == "PowerSupplyCanister") { type[ID] = "PowerSupply" }
+          if (subsection == "FanCanister") { type[ID] = "Fan" }
+          statusValue = $2 ; if ($3 != "") {statusValue = statusValue " " $3 } ;
+          setArray(statusInformation,ID,stripFormatting($0),"")
+          setArray(status,ID,statusValue,"")
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+        }
+      }
+
+      # Fans
+      # The ID is shown after the status, which causes issues all subsequent "location" will trigger a new instance, so we'll set a Flag to only trigger on the next location
+      if ($1 ~ /Fan/ && $2 ~ /[Ss]tatus/) {
+        statusValue = $3 ;
+        if ($4 != "") { statusValue = statusValue " " $4 }
+        subsection = "fan"
+        fanFlag = "true" ;
+        fanStatusSet = "true" ;
+      }
+      if (subsection == "fan") {
+        if ($1 ~ /Location:/ && fanFlag == "true") {
+          fanFlag = "false"
+          location = stripFormatting($0);
+          ID = "Fan-Enclosure-" currentEnclosureID "-" location
+          # Sometimes the ID is not unique due to output, so we'll just add a "1".
+          if (type[ID] != "") { ID = ID "1" }
+          displayID[ID] = location
+          type[ID] = "Fan"
+          if (fanStatusSet == "true") {
+            setArray(statusInformation,ID,stripFormatting($0),"")
+            setArray(status,ID,statusValue,"")
+            fanStatusSet = "false"
+          }
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+        }
+      }
+
+      # EMM/ESM Cards
+      # The ID is shown after the status, which causes issues all subsequent "location" will trigger a new instance, so we'll set a Flag to only trigger on the next location
+      # The location is often several lines after the status line, so will set ID to nul
+      if ($1 ~ /EMM/ && $2 ~ /card/ && $3 ~ /[Ss]tatus/) {
+        statusInformationValue = stripFormatting($0);
+        statusValue = $4 ;
+        if ($5 != "") { statusValue = statusValue " " $5 }
+        subsection = "EMM"
+        emmFlag = "true" ;
+        emmStatusSet = "true"
+        ID = ""
+      }
+      if ($1 ~ /ESM/ && $2 ~ /card/ && $3 ~ /[Ss]tatus/) {
+        statusInformationValue = stripFormatting($0);
+        statusValue = $4 ;
+        if ($5 != "") { statusValue = statusValue " " $5 }
+        subsection = "ESM"
+        emmFlag = "true"
+        emmStatusSet = "true"
+        ID = ""
+      }
+      if ($1 ~ /ESM/ && $2 ~ /card/ && NF == 2) {
+        subsection = "ESM"
+        emmFlag = "true" ;
+        getline
+        if ($1 ~ /Status/) {
+          statusInformationValue = stripFormatting($0);
+          statusValue = $2;
+          if ($3 != "") { statusValue = statusValue " " $3 }
+          emmStatusSet = "true"
+        }
+      }
+      if (subsection == "EMM" || subsection == "ESM") {
+        if ($1 ~ /Location:/ && emmFlag == "true") {
+          emmFlag = "false"
+          location = stripFormatting($0);
+          ID = subsection "-Enclosure-" currentEnclosureID "-" location
+          displayID[ID] = location
+          type[ID] = subsection
+          if (emmStatusSet == "true") {
+            setArray(statusInformation,ID,statusInformationValue,"")
+            setArray(status,ID,statusValue,"")
+            emmStatusSet = "false"
+          }
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+          # to insert the mini-hub into the ID, we put it in attachedToTemp which is used by SFP
+          attachedToTemp = subsection "-" location "-"
+        }
+      }
+
+      # Mini Hubs
+      # Only found on one model. DS4500
+      if ($1 ~ /Host/ && $2 ~ /[Mm]ini.[Hh]ub/ && $3 ~ /[Cc]anister/) {
+        subsection = "HostMiniHub"
+        minihubflag = "true"
+        ID = ""
+      }
+      if ($1 ~ /Drive/ && $2 ~ /[Mm]ini.[Hh]ub/ && $3 ~ /[Cc]anister/) {
+        subsection = "DriveMiniHub"
+        minihubflag = "true"
+        ID = ""
+      }
+      if (subsection == "DriveMiniHub" || subsection == "HostMiniHub") {
+        if ($1 ~ /Status:/) {
+          statusValue = $2;
+          if ($3 != "") { statusValue = statusValue " " $3 }
+          canisterStatusFound = "true" ;
+        }
+        if ($1 ~ /Location:/) {
+          location = stripFormatting($0);
+          ID = subsection "-" currentEnclosureID "-" location
+          displayID[ID] = currentEnclosureID "-" location
+          type[ID] = subsection
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+          # to insert the mini-hub into the ID, we put it in attachedToTemp which is used by SFP
+          attachedToTemp = subsection "-" location "-"
+          if (canisterStatusFound == "true") {
+            setArray(statusInformation,ID,stripFormatting($0),"")
+            setArray(status,ID,statusValue,"")
+            canisterStatusFound = "false"
+          }
+        }
+      }
+
+      # SFP Cards
+      # The ID is shown after the status, which causes issues all subsequent "location" will trigger a new instance, so we'll set a Flag to only trigger on the next location
+      # The location is often several lines after the status line, so will set ID to nul
+      # SFPs can also be in "mini-hub" canisters.  See Mini-Hub section for these SFPs.
+      if ($1 ~ /SFP/ && $2 ~ /[Ss]tatus/) {
+        statusInformationValue = stripFormatting($0);
+        statusValue = $3;
+        if ($4 != "") { statusValue = statusValue " " $4 }
+        subsection = "SFP"
+        sfpFlag = "true" ;
+        sfpStatusFound = "true"
+        ID = ""
+      }
+      if ($1 ~ /SFP/ && NF == 1) {
+        subsection = "SFP"
+        sfpFlag = "true" ;
+        getline
+        if ($1 ~ /Status/) {
+          statusInformationValue = stripFormatting($0);
+          statusValue = $2;
+          if ($3 != "") { statusValue = statusValue " " $3 }
+          sfpStatusFound = "true"
+        }
+      }
+      if (subsection == "SFP") {
+        if ($1 ~ /Attached/ && $2 ~ /[Tt]o:/) { attachedToTemp = stripFormatting($0) }
+        if ($1 ~ /Location:/ && sfpFlag == "true") {
+          sfpFlag = "false"
+          location = stripFormatting($0);
+          ID = "SFP-Enclosure-" currentEnclosureID "-" attachedToTemp "-" location
+          # Sometimes the ID is not unique due to output, so we'll just add a "1".
+          if (type[ID] != "") { ID = ID "1" }
+          displayID[ID] =  attachedToTemp "-" location
+          type[ID] = "SFP"
+          if (sfpStatusFound == "true") {
+            setArray(statusInformation,ID,statusInformationValue,"")
+            setArray(status,ID,statusValue,"")
+            sfpStatusFound = "false"
+          }
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+        }
+      }
+
+      # Temperature
+      # The ID is shown after the status, which causes issues all subsequent "location" will trigger a new instance, so we'll set a Flag to only trigger on the next location
+      if ($0 ~ /Temperature.* [Ss]tatus:/) {
+        statusInformationValue = $0;
+        gsub(/.*status: */,"",statusInformationValue);
+        gsub(/ *$/,"",statusInformationValue);
+        subsection = "temperature"
+        temperatureFlag = "true" ;
+      }
+      if (subsection == "temperature") {
+        if ($1 ~ /Location:/ && temperatureFlag == "true") {
+          temperatureFlag = "false"
+          location = $0 ;
+          gsub(/.*: */,"",location) ;
+          ID = "Temperature-Enclosure-" currentEnclosureID "-" location
+          # Sometimes the ID is not unique due to output, so we'll just add a "1".
+          if (type[ID] != "") { ID = ID "1" }
+          displayID[ID] = location
+          type[ID] = "Temperature"
+          split(statusInformationValue,statusValueArray," ")
+          statusValue = statusValueArray[1]
+          if (statusValueArray[2] != "") { statusValue = statusValue " " statusValueArray[2] }
+          setArray(statusInformation,ID,statusInformationValue,"")
+          setArray(status,ID,statusValue,"")
+          enclosureType[ID] = "Enclosure"
+          enclosureID[ID] = currentEnclosureID
+        }
+      }
+    }
+
+    END {
+      # Create a General enclosure
+      type["Global"]="Enclosure";
+      displayID["Global"]="Global";
+
+      # If we have an object with an ID of "TemporaryEnclosureID", then
+      # Search the TemporaryEnclosureArray for an enclosure number that is not known
+      if (type["TemporaryEnclosureID"] != "") {
+        for (forID in TemporaryEnclosureArray) {
+          matchFound = "false"
+          for (ID in type) {
+            if (type[ID] == "Enclosure") {
+              if (ID == TemporaryEnclosureArray[forID]) { matchFound = "true" }
+            }
+          }
+          if (matchFound == "false") { TemporaryEnclosureID = TemporaryEnclosureArray[forID] }
+        }
+        # If we don't find a match, it means the ID-less enclosure doesn't have any disks... Uggh
+        # We will just have to make a name up
+        if (TemporaryEnclosureID == "") { TemporaryEnclosureID = "Controller" }
+      }
+
+      # Print the Array
+      for (ID in type) {
+        # Replace TemporaryEnclosureID in ID, displayID
+        IDtemp = ID ; gsub(/TemporaryEnclosureID/,TemporaryEnclosureID,IDtemp)
+        gsub(/TemporaryEnclosureID/,TemporaryEnclosureID,displayID[ID])
+        gsub(/TemporaryEnclosureID/,TemporaryEnclosureID,enclosureID[ID])
+        additionalfield1 = "" ; additionalfield2 = "" ; additionalfield3 = "" ; additionalfield4 = "" ;
+        # For network cards, put link status in status and speed in statusInformation
+        if (type[ID] == "EthernetPort" || type[ID] == "HostInterface" || type[ID] == "PhysicalDiskInterface") {
+          statusInformation[ID] = portSpeed[ID] ;
+          additionalfield1 = macAddress[ID]
+          if (macAddress[ID] != "") {additionalfield2 = "MAC"}
+          if (status[ID] == "") { status[ID] = linkStatus[ID] }
+          # if there is no link status still, use speed to determine up/down
+          if (status[ID] == "") {
+            if (statusInformation[ID] == "0" || statusInformation[ID] == "") {
+              status[ID] = "Down"
+            } else {
+              status[ID] = "Up"
+            }
+          }
+        }
+        # Some classes require additional information to be in separate fields, here we put then in additionalfields before printing (lets us only have one print statement)
+        if (type[ID] == "Enclosure") {
+          additionalfield1 = vendor[ID];
+          additionalfield2 = serialNumber[ID];
+        }
+        if (type[ID] == "Controller") {
+          additionalfield1 = model[ID];
+          additionalfield2 = serialNumber[ID];
+        }
+        if (type[ID] == "DiskGroup") { additionalfield1 = size[ID] }
+        if (type[ID] == "PhysicalDisk") {
+          additionalfield1 = size[ID];
+          additionalfield2 = serialNumber[ID];
+          additionalfield3 = model[ID];
+          additionalfield4 = vendor[ID];
+
+          # remove duplicate serialNumber if property exists in both addition information and parameter
+          labeltest1 = " - Serial Number:"
+          labeltest2 = "^Serial Number:"
+          if (additionalInformation[ID] ~ labeltest1 || additionalInformation[ID] ~ labeltest2) {
+            replace = "Serial Number: " additionalfield2;
+            gsub(replace, "", additionalInformation[ID]);
+            gsub(/ - $/, "", additionalInformation[ID]);
+          }
+
+          # remove duplicate vendor if property exists in both addition information and parameter
+          labeltest1 = " - Vendor:"
+          labeltest2 = "^Vendor:"
+          if (additionalInformation[ID] ~ labeltest1 || additionalInformation[ID] ~ labeltest2) {
+            replace = "Vendor: " additionalfield4;
+            gsub(replace, "", additionalInformation[ID]);
+            gsub(/ - $/, "", additionalInformation[ID]);
+          }
+
+          # remove duplicate PartNumber if property exists in both addition information and parameter
+          labeltest1 = " - Part Number:"
+          labeltest2 = "^Part Number:"
+          if (additionalInformation[ID] ~ labeltest1 || additionalInformation[ID] ~ labeltest2) {
+            replace = "Part Number: " additionalfield3;
+            gsub(replace, "", additionalInformation[ID]);
+            gsub(/ - $/, "", additionalInformation[ID]);
+          }
+
+          # remove trailing " - " which should not exist but it does.
+          gsub(/ - $/, "", additionalInformation[ID]);
+        }
+        if (type[ID] != "") {
+          print "MSHW;" type[ID] ";" IDtemp ";" displayID[ID] ";" enclosureID[ID] ";" enclosureType[ID] ";" status[ID] ";" statusInformation[ID] ";" additionalInformation[ID] ";" additionalfield1 ";" additionalfield2 ";" additionalfield3 ";" additionalfield4 ";"
+        }
+      }
+    }
 translations:
   linkStatusTranslationTable:
     connected: ok

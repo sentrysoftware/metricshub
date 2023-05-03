@@ -1,9 +1,72 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {SensorSection = 0 ; DriveSection = 0}\n\n$2 ~ /\\[safe.id.*\\]/ { SensorSection = 0\n\tif ($2 ~ \"[safe.id.sensors]\") { SensorSection = 1 }\n\tif ($2 ~ \"[safe.id.drives]\") { DriveSection = 1 }\n    }\n\nSensorSection == 1 && NF > 5 {\n\tnodeName = $1 ; gsub (/:/,\"\",nodeName);\n\tif (tolower($3) ~ /chassis/ && $4 ~ /=/) {nodeModelNumber = $5 ;\n                                            nodeModel = $6 $7 $8 $9;\n                                            gsub(/^[(]/,\"\",nodeModel);gsub(/[)]$/,\"\",nodeModel)\n                                            print \"MSHW_ENCLOSURE;Node;\" nodeName \";\" nodeModelNumber \";\" nodeModel \";\"\n                                           }\n\tif (tolower($3) ~ /power/ && $4 ~ /=/) {print \"MSHW_POWERSUPPLY;\" nodeName \";\" nodeName \"-Global;Global;\"}\n\n\tif (tolower($3) ~ /cpu/ && tolower($4) ~ /operation/ && $5 ~ /=/) {print \"MSHW_CPU;\" nodeName \";\" nodeName \"-Global;Global;\"}\n\n\tif ($(NF-5) ~ /\\[/ && $(NF-3)~ /\\]/ && $(NF-2) ~ /=/) {lowerThreshold = $(NF-5) ; gsub (/\\[/,\"\",lowerThreshold)\n                                                                upperThreshold = $(NF-3) ; gsub (/\\]/,\"\",upperThreshold )\n                                                                ID = $0 ; gsub (/^.*: +: +/,\"\",ID);gsub (/ *\\[.*$/,\"\",ID);\n                                                                if (tolower($NF) ~ /rpm/) {print \"MSHW_FAN;\" nodeName \";\" nodeName\"-\"ID \";\" ID \";\" lowerThreshold \";\" upperThreshold \";\"}\n                                                                if ($NF ~ /C/) {print \"MSHW_TEMPERATURE;\" nodeName \";\" nodeName\"-\"ID \";\" ID \";\" lowerThreshold \";\" upperThreshold \";\"}\n                                                                if ($NF ~ /V/) {print \"MSHW_VOLTAGE;\" nodeName \";\" nodeName\"-\"ID \";\" ID \";\" lowerThreshold \";\" upperThreshold \";\"}\n                                                               }\n\t}\n\nDriveSection == 1 && $3 ~ /Bay/ && $4 ~ /^[0-9]+$/ {\n\tnodeName = $1 ; gsub (/:/,\"\",nodeName);\n\tLocation = $4 ; Location = \"Bay-\" Location ;\n\tManufacturer = $6 ; Model = $7 ; Firmware = $(NF-3) ;\n\tSize = $(NF-2) ; gsub (/[(]/,\"\",Size) ; Size = Size * 512 ; SizeGB = Size / 1000000000 ;\n\tSerialNumber = $NF ; gsub (/sn:/,\"\",SerialNumber)\n\tprint \"MSHW_PhysicalDisk;\" nodeName \"-\" Location \";\" Manufacturer \";\" Model \";\" Firmware \";\" SizeGB \";\" SerialNumber \";\"\n\t}"
-  EmbeddedFile(2): "{nodeName = $1 ; gsub (/:/,\"\",nodeName);}\ntolower($2) ~ /power/ && tolower($3) ~ /supplies/ {print \"MSHW_POWERSUPPLY;\"nodeName\"-Global;\" $4 \";\"}\n\ntolower($2) ~ /cpu/ && tolower($3) ~ /operation/ {print \"MSHW_CPU;\" nodeName \"-Global;\" $NF \";\"}\n\nNF > 3 && $NF ~ /^[0-9.-]+$/ {\n\tif ($(NF-1) ~ /=/) {ID = $0 ; gsub (/^.*: */,\"\",ID);gsub (/ *=.*$/,\"\",ID);\n                           value = $NF\n                           print \"MSHW;\" nodeName \"-\" ID \";\" value \";\"\n                          }\n\t}"
-  EmbeddedFile(4): "BEGIN { FS=\"[|]\" }\n$1 ~ /Cluster Name:/   {ClusterName = $0 ; gsub (/^.*: +/,\"\",ClusterName) }\n$1 ~ /Cluster Health:/ {ClusterStatus = $0 ; gsub (/^.*\\[ */,\"\",ClusterStatus) ; gsub (/ *\\] *$/,\"\",ClusterStatus)\n\t                      print \"MSHW_ENCLOSURE;Cluster;\" ClusterName \";\" ClusterStatus \";\" ClusterStatus \";;\"\n\t                     }\n$1 ~ /^[0-9 ]+$/ && NF == 8 {NodeStatus = $3 ; gsub (/ /,\"\",NodeStatus);\n\t                           NodeID = $1 ; gsub (/ /,\"\",NodeID);\n\t                           NodeIP = $2 ; gsub (/ /,\"\",NodeIP);\n\t                           print \"MSHW_ENCLOSURE;Node;\" NodeID \";\" NodeStatus \";\"  NodeStatus \";\" NodeIP \";\"\n\t                          }"
-  EmbeddedFile(7): "$1 ~ /:/ { node = $1\n\t         SORT[node] = SORT[node] \"\\n\" $0\n\t       }\n\nEND { for (nodeList in SORT)\n          print SORT[nodeList]\n    }"
+  EmbeddedFile(1): |-
+    BEGIN {SensorSection = 0 ; DriveSection = 0}
+
+    $2 ~ /\[safe.id.*\]/ { SensorSection = 0
+        if ($2 ~ "[safe.id.sensors]") { SensorSection = 1 }
+        if ($2 ~ "[safe.id.drives]") { DriveSection = 1 }
+        }
+
+    SensorSection == 1 && NF > 5 {
+        nodeName = $1 ; gsub (/:/,"",nodeName);
+        if (tolower($3) ~ /chassis/ && $4 ~ /=/) {nodeModelNumber = $5 ;
+                                                nodeModel = $6 $7 $8 $9;
+                                                gsub(/^[(]/,"",nodeModel);gsub(/[)]$/,"",nodeModel)
+                                                print "MSHW_ENCLOSURE;Node;" nodeName ";" nodeModelNumber ";" nodeModel ";"
+                                               }
+        if (tolower($3) ~ /power/ && $4 ~ /=/) {print "MSHW_POWERSUPPLY;" nodeName ";" nodeName "-Global;Global;"}
+
+        if (tolower($3) ~ /cpu/ && tolower($4) ~ /operation/ && $5 ~ /=/) {print "MSHW_CPU;" nodeName ";" nodeName "-Global;Global;"}
+
+        if ($(NF-5) ~ /\[/ && $(NF-3)~ /\]/ && $(NF-2) ~ /=/) {lowerThreshold = $(NF-5) ; gsub (/\[/,"",lowerThreshold)
+                                                                    upperThreshold = $(NF-3) ; gsub (/\]/,"",upperThreshold )
+                                                                    ID = $0 ; gsub (/^.*: +: +/,"",ID);gsub (/ *\[.*$/,"",ID);
+                                                                    if (tolower($NF) ~ /rpm/) {print "MSHW_FAN;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
+                                                                    if ($NF ~ /C/) {print "MSHW_TEMPERATURE;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
+                                                                    if ($NF ~ /V/) {print "MSHW_VOLTAGE;" nodeName ";" nodeName"-"ID ";" ID ";" lowerThreshold ";" upperThreshold ";"}
+                                                                   }
+        }
+
+    DriveSection == 1 && $3 ~ /Bay/ && $4 ~ /^[0-9]+$/ {
+        nodeName = $1 ; gsub (/:/,"",nodeName);
+        Location = $4 ; Location = "Bay-" Location ;
+        Manufacturer = $6 ; Model = $7 ; Firmware = $(NF-3) ;
+        Size = $(NF-2) ; gsub (/[(]/,"",Size) ; Size = Size * 512 ; SizeGB = Size / 1000000000 ;
+        SerialNumber = $NF ; gsub (/sn:/,"",SerialNumber)
+        print "MSHW_PhysicalDisk;" nodeName "-" Location ";" Manufacturer ";" Model ";" Firmware ";" SizeGB ";" SerialNumber ";"
+        }
+  EmbeddedFile(2): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+    tolower($2) ~ /power/ && tolower($3) ~ /supplies/ {print "MSHW_POWERSUPPLY;"nodeName"-Global;" $4 ";"}
+
+    tolower($2) ~ /cpu/ && tolower($3) ~ /operation/ {print "MSHW_CPU;" nodeName "-Global;" $NF ";"}
+
+    NF > 3 && $NF ~ /^[0-9.-]+$/ {
+        if ($(NF-1) ~ /=/) {ID = $0 ; gsub (/^.*: */,"",ID);gsub (/ *=.*$/,"",ID);
+                               value = $NF
+                               print "MSHW;" nodeName "-" ID ";" value ";"
+                              }
+        }
+  EmbeddedFile(4): |-
+    BEGIN { FS="[|]" }
+    $1 ~ /Cluster Name:/   {ClusterName = $0 ; gsub (/^.*: +/,"",ClusterName) }
+    $1 ~ /Cluster Health:/ {ClusterStatus = $0 ; gsub (/^.*\[ */,"",ClusterStatus) ; gsub (/ *\] *$/,"",ClusterStatus)
+                              print "MSHW_ENCLOSURE;Cluster;" ClusterName ";" ClusterStatus ";" ClusterStatus ";;"
+                             }
+    $1 ~ /^[0-9 ]+$/ && NF == 8 {NodeStatus = $3 ; gsub (/ /,"",NodeStatus);
+                                   NodeID = $1 ; gsub (/ /,"",NodeID);
+                                   NodeIP = $2 ; gsub (/ /,"",NodeIP);
+                                   print "MSHW_ENCLOSURE;Node;" NodeID ";" NodeStatus ";"  NodeStatus ";" NodeIP ";"
+                                  }
+  EmbeddedFile(7): |-
+    $1 ~ /:/ { node = $1
+                 SORT[node] = SORT[node] "\n" $0
+               }
+
+    END { for (nodeList in SORT)
+              print SORT[nodeList]
+        }
   EmbeddedFile(10): |-
     {nodeName = $1 ; gsub (/:/,"",nodeName);}
     $2 ~ /SerNo/ { systemSerialNumber = $NF }

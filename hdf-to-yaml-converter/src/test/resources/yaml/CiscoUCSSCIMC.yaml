@@ -1,6 +1,24 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {FS=\";\"}\n{\n\ttruncateName=$(NF-1)\n\n\tif ($1==\"Enclosure\" || $1==\"Blade\" || $1==\"PhysicalDisk\")\n\t\tgsub(\"/[^/]+$\",\"\",truncateName);\n\n\tif ($1==\"Fan\")\n\t\tgsub(\"^[^/]+/[^/]+/\",\"\",truncateName);\n\n\tif ($1==\"CPU\" || $1==\"DiskController\")\n\t\tgsub(\"/[^/]+/[^/]+$\",\"\",truncateName);\n\n\tif ($1==\"Memory\" || $1==\"Battery\")\n\t\tgsub(\"/[^/]+/[^/]+/[^/]+$\",\"\",truncateName);\n\n\tprint \"MSHW;\"$0 truncateName\n}"
+  EmbeddedFile(1): |-
+    BEGIN {FS=";"}
+    {
+        truncateName=$(NF-1)
+
+        if ($1=="Enclosure" || $1=="Blade" || $1=="PhysicalDisk")
+            gsub("/[^/]+$","",truncateName);
+
+        if ($1=="Fan")
+            gsub("^[^/]+/[^/]+/","",truncateName);
+
+        if ($1=="CPU" || $1=="DiskController")
+            gsub("/[^/]+/[^/]+$","",truncateName);
+
+        if ($1=="Memory" || $1=="Battery")
+            gsub("/[^/]+/[^/]+/[^/]+$","",truncateName);
+
+        print "MSHW;"$0 truncateName
+    }
 translations:
   statusInformationTranslationTable:
     default: Unknown Status

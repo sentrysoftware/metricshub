@@ -19,7 +19,34 @@ embedded:
     $0 ~ /Driver state = / {status = $NF}
 
     END { if (speed != "") {print ( "MSHW;" speed ";" status ";" )}}
-  EmbeddedFile(2): "BEGIN {ioscanSection=0; ioscanFcmsutil = 0  }\n$1 ~ /MS_HW_START/ && $2 ~ /ioscan/ {ioscanSection=1}\n\n$1 == \"fc\" && ioscanSection==1 {path=$3\n\t                              description=$0; gsub (/^.*INTERFACE */,\"\",description) ; gsub (/ ?\\(.*\\)/,\"\",description)\n\t                              getline\n\t                              device=$1\n\t                              descriptionArray[device] = description\n\t                              pathArray[device] = path\n\t                             }\n\n$1 ~ /MS_HW_END/ && $2 ~ /ioscan/ {ioscanSection=0}\n\n$1 ~ /MS_HW_START/ && $2 ~ /fcmsutil/ {fcmsutilSection=1\n\t                                     device=$3 ;\n\t                                     portID=$3 ; gsub (\"/dev/\",\"\",portID)\n\t                                    }\n$1 ~ /N_Port/ && $0 ~ /Port World Wide Name =/ && $NF ~ /0x/ && fcmsutilSection==1 { portWWN = $NF ; gsub (/^0x/,\"\",portWWN)}\n$1 ~ /(Switch)|(Target)/ && $0 ~ /Port World Wide Name =/ && $NF ~ /0x/ && fcmsutilSection==1 { remoteWWN = $NF ; gsub (/^0x/,\"\",remoteWWN)}\n$0 ~ /Link Speed =/ && $NF ~ /[MmGg][Bb]/ && fcmsutilSection==1 {speed = $NF ; gsub (/ ?[Gg][Bb]/,\"000\",speed) ; gsub (/ ?[Mm][Bb]/,\"\",speed) }\n\n\n$1 ~ /MS_HW_END/ && $2 ~ /fcmsutil/ && fcmsutilSection==1 && device != \"\" {\n\t                                   fcmsutilSection=0\n\t\t                                 print ( \"MSHW;\" portID \";\" device \";\" descriptionArray[device] \";\" pathArray[device] \";\" speed \";\" portWWN \";\" remoteWWN \";\" )\n\t\t                                 device=\"\" ;\n\t\t                                }"
+  EmbeddedFile(2): |-
+    BEGIN {ioscanSection=0; ioscanFcmsutil = 0  }
+    $1 ~ /MS_HW_START/ && $2 ~ /ioscan/ {ioscanSection=1}
+
+    $1 == "fc" && ioscanSection==1 {path=$3
+                                      description=$0; gsub (/^.*INTERFACE */,"",description) ; gsub (/ ?\(.*\)/,"",description)
+                                      getline
+                                      device=$1
+                                      descriptionArray[device] = description
+                                      pathArray[device] = path
+                                     }
+
+    $1 ~ /MS_HW_END/ && $2 ~ /ioscan/ {ioscanSection=0}
+
+    $1 ~ /MS_HW_START/ && $2 ~ /fcmsutil/ {fcmsutilSection=1
+                                             device=$3 ;
+                                             portID=$3 ; gsub ("/dev/","",portID)
+                                            }
+    $1 ~ /N_Port/ && $0 ~ /Port World Wide Name =/ && $NF ~ /0x/ && fcmsutilSection==1 { portWWN = $NF ; gsub (/^0x/,"",portWWN)}
+    $1 ~ /(Switch)|(Target)/ && $0 ~ /Port World Wide Name =/ && $NF ~ /0x/ && fcmsutilSection==1 { remoteWWN = $NF ; gsub (/^0x/,"",remoteWWN)}
+    $0 ~ /Link Speed =/ && $NF ~ /[MmGg][Bb]/ && fcmsutilSection==1 {speed = $NF ; gsub (/ ?[Gg][Bb]/,"000",speed) ; gsub (/ ?[Mm][Bb]/,"",speed) }
+
+
+    $1 ~ /MS_HW_END/ && $2 ~ /fcmsutil/ && fcmsutilSection==1 && device != "" {
+                                           fcmsutilSection=0
+                                             print ( "MSHW;" portID ";" device ";" descriptionArray[device] ";" pathArray[device] ";" speed ";" portWWN ";" remoteWWN ";" )
+                                             device="" ;
+                                            }
 translations:
   NetworkStatusInfoTranslationTable:
     offline: Offline - The host bus adapter is not participating on the loop

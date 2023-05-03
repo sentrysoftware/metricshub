@@ -1,6 +1,21 @@
 ---
 embedded:
-  EmbeddedFile(1): "# Awk (or nawk)\nif [ -f /usr/xpg4/bin/awk ]; then\n\tAWK=\"/usr/xpg4/bin/awk\";\nelif [ -f /usr/bin/nawk ]; then\n\tAWK=\"/usr/bin/nawk\";\nelse\n\tAWK=\"awk\";\nfi\nCONTROLLERLIST=`%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu LIST | $AWK '$1~/^[0-9]+$/{print $1}'`\nfor CONTROLLER in $CONTROLLERLIST\n    do\n    echo MS_HW_CONTROLLER_START $CONTROLLER\n    %{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu $CONTROLLER DISPLAY\n    echo MS_HW_CONTROLLER_END $CONTROLLER\n    done\n"
+  EmbeddedFile(1): |
+    # Awk (or nawk)
+    if [ -f /usr/xpg4/bin/awk ]; then
+        AWK="/usr/xpg4/bin/awk";
+    elif [ -f /usr/bin/nawk ]; then
+        AWK="/usr/bin/nawk";
+    else
+        AWK="awk";
+    fi
+    CONTROLLERLIST=`%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu LIST | $AWK '$1~/^[0-9]+$/{print $1}'`
+    for CONTROLLER in $CONTROLLERLIST
+        do
+        echo MS_HW_CONTROLLER_START $CONTROLLER
+        %{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu $CONTROLLER DISPLAY
+        echo MS_HW_CONTROLLER_END $CONTROLLER
+        done
   EmbeddedFile(2): |-
     BEGIN {DriveCounter = 0}
     #CONTROLLER

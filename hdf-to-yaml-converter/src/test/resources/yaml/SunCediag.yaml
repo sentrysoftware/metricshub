@@ -1,6 +1,196 @@
 ---
 embedded:
-  EmbeddedFile(1): "#!/bin/sh\n\n# First, check that cediag is actually installed\nif /bin/test ! -f /opt/SUNWcest/bin/cediag ; then\n\t/bin/echo \"ERROR: cediag is not installed\"\n\texit 1\nfi\n\n# Check that we got cestat command (with maybe sudo) in $1 and cediag in $2\nCESTATCOMMAND=\"%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cestat\"\nCEDIAGCOMMAND=\"%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cediag\"\nCESTATOPTION=\"-v\"\nCEDIAGOPTION=\"-v\"\n\n# Debug settings\n#CESTATCOMMAND=\"cat /tmp/cestatexample\"\n#CEDIAGCOMMAND=\"cat /tmp/cediagexample\"\n#CESTATOPTION=\"\"\n#CEDIAGOPTION=\"\"\n\n# Accept the cediag license\nLICENSEFILE=$HOME/.cediag.licence.accepted\nif /bin/test \"$LOGNAME\" = \"root\" ; then\n\tif /bin/test ! -d /var/opt/SUNWcest/conf ; then\n\t\tif /bin/test ! -d /var/opt/SUNWcest ; then\n\t\t\tmkdir /var/opt/SUNWcest\n\t\tfi\n\t\t/bin/mkdir /var/opt/SUNWcest/conf\n\tfi\n\tLICENSEFILE=/var/opt/SUNWcest/conf/licence.accepted.for.root\nfi\n\nif /bin/test ! -f $LICENSEFILE ; then\n\t$CEDIAGCOMMAND -V|/usr/bin/awk '{ print(substr($0, 9)); }'>$LICENSEFILE\nfi\n\n# Parse cestat to show the discovered DIMMs\nDIMMLIST=`$CESTATCOMMAND $CESTATOPTION|/usr/bin/awk '{\n\tif ($NF == \"no\" || $NF == \"YES\")\n\t{\n\t\tdimmID = $1;\n\t\tfor (i=2 ; i<= NF-6 ; i++)\n\t\t{\n\t\t\tdimmID = dimmID \"_\" $i\n\t\t}\n\t\tprint dimmID;\n\t}\n}'`\n\n# Add 'Overall' as an object to be monitored, corresponding to the whole memory system\nDIMMLIST=\"$DIMMLIST Overall\"\n\n# Execute cediag and store its output in a temporary file\nCEDIAGOUTPUTFILE=/tmp/MS_HW_cediagoutput_$$\n\n$CEDIAGCOMMAND $CEDIAGOPTION|/usr/bin/awk 'BEGIN {\n\toverallPagesRetired = 0;\n\toverallPagesRetiredLimit = 1000000;\n\toverallDatapathFaults = 0;\n\toverallUE = 0;\n\toverallRule4 = 0;\n\toverallRule5 = 0;\n\toverallRule6 = 0;\n\tquoteChar = sprintf(\"%c\", 39);\n}\n/^cediag: / {\n\n\n\tif ($2 == \"Pages\" && $3 == \"Retired:\")\n\t{\n\t\toverallPagesRetired = $4;\n\t}\n\n\tif ($0 ~ /info: MPR \\(deduced\\) PRL pages:/)\n\t{\n\t\toverallPagesRetiredLimit = $7;\n\t}\n\n\tif ($0 ~ /info: MPR PRL pages:/)\n\t{\n\t\toverallPagesRetiredLimit = $6;\n\t}\n\n\tif ($2 == \"findings:\" && $4 == \"datapath\" && $5 == \"fault\")\n\t{\n\t\toverallDatapathFaults = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $4 == \"UE(s)\")\n\t{\n\t\toverallUE = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $0 ~ /DIMMs with a failure pattern matching rule#4$/)\n\t{\n\t\toverallRule4 = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $0 ~ /DIMMs with a failure pattern matching rule#5$/)\n\t{\n\t\toverallRule5 = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $0 ~ /DIMMs with a failure pattern matching rule#6$/)\n\t{\n\t\toverallRule6 = $3;\n\t}\n\n\tif ($2 ~ /advice:.*:/ && $3 == \"replace\" && $4 == \"DIMM\")\n\t{\n\t\tdimmID = \"\";\n\t\tstatus = \"OK\";\n\t\tstatusInformation = \"\";\n\t\tpredictedFailure = \"false\";\n\n\t\tquotePos = index($0, quoteChar);\n\t\tif (quotePos > 0)\n\t\t{\n\t\t\ttempID = substr($0, quotePos + 1);\n\t\t\tquotePos = index(tempID, quoteChar);\n\t\t\tif (quotePos > 0)\n\t\t\t{\n\t\t\t\ttempID = substr(tempID, 1, quotePos - 1);\n\t\t\t\tfor (i=1 ; i<=split(tempID, tempIDsplitted, \" \") ; i++)\n\t\t\t\t{\n\t\t\t\t\tdimmID = dimmID \"_\" tempIDsplitted[i]\n\t\t\t\t}\n\t\t\t\tdimmID = substr(dimmID, 2, length(dimmID) - 1);\n\t\t\t}\n\t\t}\n\n\t\tif ($2 == \"advice:HIGH:\")\n\t\t{\n\t\t\tstatus = \"ALARM\";\n\t\t\tstatusInformation = \"Replacement needed\";\n\t\t\tpredictedFailure = \"true\";\n\t\t}\n\t\telse if ($2 == \"advice:MEDIUM:\")\n\t\t{\n\t\t\tstatus = \"OK\";\n\t\t\tstatusInformation = \"Replacement advised\";\n\t\t\tpredictedFailure = \"true\";\n\t\t}\n\n\t\tif (dimmID != \"\")\n\t\t{\n\t\t\tprint \"MSHW;\" dimmID \";\" predictedFailure \";\" status \";\" statusInformation\n\t\t}\n\t}\n\n}\nEND {\n\tif (overallPagesRetired > overallPagesRetiredLimit)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Too many pages retired\";\n\t}\n\telse if (overallDatapathFaults > 0)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Datapath faults detected\";\n\t}\n\telse if (overallUE > 0)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Uncorrectable errors detected\";\n\t}\n\telse if (overallRule4 > 0)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Module replacement needed\";\n\t}\n\telse if (overallRule5 + overallRule6 > 0)\n\t{\n\t\tprint \"MSHW;Overall;true;OK;Module replacement advised\";\n\t}\n\n}'>$CEDIAGOUTPUTFILE\n\n# For each DIMM found with cestat, show its status found in cediag, or OK if nothing in cediag\nfor DIMM in $DIMMLIST\ndo\n\nDIMMRESULT=`/usr/bin/grep \"^MSHW;$DIMM;\" $CEDIAGOUTPUTFILE`\nif /bin/test \"$DIMMRESULT\" = \"\" ; then\n\t/bin/echo \"MSHW;$DIMM;false;OK;\"\nelse\n\t/bin/echo $DIMMRESULT\nfi\n\ndone\n\n# Remove the temporary file\n/bin/rm -f $CEDIAGOUTPUTFILE\n"
+  EmbeddedFile(1): |
+    #!/bin/sh
+
+    # First, check that cediag is actually installed
+    if /bin/test ! -f /opt/SUNWcest/bin/cediag ; then
+        /bin/echo "ERROR: cediag is not installed"
+        exit 1
+    fi
+
+    # Check that we got cestat command (with maybe sudo) in $1 and cediag in $2
+    CESTATCOMMAND="%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cestat"
+    CEDIAGCOMMAND="%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cediag"
+    CESTATOPTION="-v"
+    CEDIAGOPTION="-v"
+
+    # Debug settings
+    #CESTATCOMMAND="cat /tmp/cestatexample"
+    #CEDIAGCOMMAND="cat /tmp/cediagexample"
+    #CESTATOPTION=""
+    #CEDIAGOPTION=""
+
+    # Accept the cediag license
+    LICENSEFILE=$HOME/.cediag.licence.accepted
+    if /bin/test "$LOGNAME" = "root" ; then
+        if /bin/test ! -d /var/opt/SUNWcest/conf ; then
+            if /bin/test ! -d /var/opt/SUNWcest ; then
+                mkdir /var/opt/SUNWcest
+            fi
+            /bin/mkdir /var/opt/SUNWcest/conf
+        fi
+        LICENSEFILE=/var/opt/SUNWcest/conf/licence.accepted.for.root
+    fi
+
+    if /bin/test ! -f $LICENSEFILE ; then
+        $CEDIAGCOMMAND -V|/usr/bin/awk '{ print(substr($0, 9)); }'>$LICENSEFILE
+    fi
+
+    # Parse cestat to show the discovered DIMMs
+    DIMMLIST=`$CESTATCOMMAND $CESTATOPTION|/usr/bin/awk '{
+        if ($NF == "no" || $NF == "YES")
+        {
+            dimmID = $1;
+            for (i=2 ; i<= NF-6 ; i++)
+            {
+                dimmID = dimmID "_" $i
+            }
+            print dimmID;
+        }
+    }'`
+
+    # Add 'Overall' as an object to be monitored, corresponding to the whole memory system
+    DIMMLIST="$DIMMLIST Overall"
+
+    # Execute cediag and store its output in a temporary file
+    CEDIAGOUTPUTFILE=/tmp/MS_HW_cediagoutput_$$
+
+    $CEDIAGCOMMAND $CEDIAGOPTION|/usr/bin/awk 'BEGIN {
+        overallPagesRetired = 0;
+        overallPagesRetiredLimit = 1000000;
+        overallDatapathFaults = 0;
+        overallUE = 0;
+        overallRule4 = 0;
+        overallRule5 = 0;
+        overallRule6 = 0;
+        quoteChar = sprintf("%c", 39);
+    }
+    /^cediag: / {
+
+
+        if ($2 == "Pages" && $3 == "Retired:")
+        {
+            overallPagesRetired = $4;
+        }
+
+        if ($0 ~ /info: MPR \(deduced\) PRL pages:/)
+        {
+            overallPagesRetiredLimit = $7;
+        }
+
+        if ($0 ~ /info: MPR PRL pages:/)
+        {
+            overallPagesRetiredLimit = $6;
+        }
+
+        if ($2 == "findings:" && $4 == "datapath" && $5 == "fault")
+        {
+            overallDatapathFaults = $3;
+        }
+
+        if ($2 == "findings:" && $4 == "UE(s)")
+        {
+            overallUE = $3;
+        }
+
+        if ($2 == "findings:" && $0 ~ /DIMMs with a failure pattern matching rule#4$/)
+        {
+            overallRule4 = $3;
+        }
+
+        if ($2 == "findings:" && $0 ~ /DIMMs with a failure pattern matching rule#5$/)
+        {
+            overallRule5 = $3;
+        }
+
+        if ($2 == "findings:" && $0 ~ /DIMMs with a failure pattern matching rule#6$/)
+        {
+            overallRule6 = $3;
+        }
+
+        if ($2 ~ /advice:.*:/ && $3 == "replace" && $4 == "DIMM")
+        {
+            dimmID = "";
+            status = "OK";
+            statusInformation = "";
+            predictedFailure = "false";
+
+            quotePos = index($0, quoteChar);
+            if (quotePos > 0)
+            {
+                tempID = substr($0, quotePos + 1);
+                quotePos = index(tempID, quoteChar);
+                if (quotePos > 0)
+                {
+                    tempID = substr(tempID, 1, quotePos - 1);
+                    for (i=1 ; i<=split(tempID, tempIDsplitted, " ") ; i++)
+                    {
+                        dimmID = dimmID "_" tempIDsplitted[i]
+                    }
+                    dimmID = substr(dimmID, 2, length(dimmID) - 1);
+                }
+            }
+
+            if ($2 == "advice:HIGH:")
+            {
+                status = "ALARM";
+                statusInformation = "Replacement needed";
+                predictedFailure = "true";
+            }
+            else if ($2 == "advice:MEDIUM:")
+            {
+                status = "OK";
+                statusInformation = "Replacement advised";
+                predictedFailure = "true";
+            }
+
+            if (dimmID != "")
+            {
+                print "MSHW;" dimmID ";" predictedFailure ";" status ";" statusInformation
+            }
+        }
+
+    }
+    END {
+        if (overallPagesRetired > overallPagesRetiredLimit)
+        {
+            print "MSHW;Overall;false;ALARM;Too many pages retired";
+        }
+        else if (overallDatapathFaults > 0)
+        {
+            print "MSHW;Overall;false;ALARM;Datapath faults detected";
+        }
+        else if (overallUE > 0)
+        {
+            print "MSHW;Overall;false;ALARM;Uncorrectable errors detected";
+        }
+        else if (overallRule4 > 0)
+        {
+            print "MSHW;Overall;false;ALARM;Module replacement needed";
+        }
+        else if (overallRule5 + overallRule6 > 0)
+        {
+            print "MSHW;Overall;true;OK;Module replacement advised";
+        }
+
+    }'>$CEDIAGOUTPUTFILE
+
+    # For each DIMM found with cestat, show its status found in cediag, or OK if nothing in cediag
+    for DIMM in $DIMMLIST
+    do
+
+    DIMMRESULT=`/usr/bin/grep "^MSHW;$DIMM;" $CEDIAGOUTPUTFILE`
+    if /bin/test "$DIMMRESULT" = "" ; then
+        /bin/echo "MSHW;$DIMM;false;OK;"
+    else
+        /bin/echo $DIMMRESULT
+    fi
+
+    done
+
+    # Remove the temporary file
+    /bin/rm -f $CEDIAGOUTPUTFILE
 connector:
   displayName: Oracle/Sun Solaris - Memory Modules (cediag)
   platforms: Oracle/Sun

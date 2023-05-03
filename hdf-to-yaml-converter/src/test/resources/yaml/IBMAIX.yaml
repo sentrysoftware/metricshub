@@ -2,13 +2,224 @@
 extends:
 - IBMAIXModels-header
 embedded:
-  EmbeddedFile(1): "#!/bin/sh\nfor PROC in `/usr/sbin/lsdev -C -c processor -S as -F 'name'`\n\tdo\n\tPROCDETAILS=`/usr/sbin/lsattr -El $PROC -O -a frequency -a type|/usr/bin/grep -v ^#`\n\t/usr/bin/echo \"MSHW:$PROC:$PROCDETAILS\"\ndone"
-  EmbeddedFile(3): "/^ETHERNET STATISTICS/ { if ($3 ~ /(en[0-9].*)/) {nicdevice = $3; gsub(\"en\",\"ent\",nicdevice);gsub(/[\\050\\051]/,\"\",nicdevice); nicdevices[nicdevice]=nicdevice}\n\t\t\t\t\t\t     else { nicdevice = $3;gsub (/[\\050\\051]/,\"\",nicdevice); nicdevices[nicdevice]=nicdevice}\n \t\t\t\t\t\t}\n\n/^Device Type:/ {\n                 if ( ($3 ~ /EtherChannel/ || /Virtual/) || ($0 ~ /Shared Ethernet Adapter/) || ($0 ~ /Link Aggregation/) || ($0 ~ /VLAN/)) { EtherT[nicdevice] = \"Logical\"; lastLogical = nicdevice }\n                    else { EtherT[nicdevice] = \"Physical\" }\n                }\n\n/^Driver Flags:/ {\n                  nicStatus[nicdevice] = \"ALARM\";\n                  if ($0 ~ /Running/) { nicStatus[nicdevice] = \"OK\"; }\n                  else {\n                        getline\n                        if ($0 ~ /Running/) { nicStatus[nicdevice] = \"OK\";}\n                       }\n                 }\n\n$1 == \"Hardware\" && $2 == \"Address:\" { mac[nicdevice] = $3 ; gsub (/:/,\"\",mac[nicdevice])}\n\n# Link\n/Physical Port Link Stat/ {\n                           if ($NF == \"up\" || $NF == \"Up\" || $NF == \"UP\") {\n                                                                           linkStatus[nicdevice] = \"OK\";\n                                                                           if ( linkStatus[lastLogical] == \"WARN\" ) { linkStatus[lastLogical] = \"OK\" ; nicStatus[lastLogical] = \"WARN\" ; }\n                                                                          }\n                              else {\n                                    linkStatus[nicdevice] = \"WARN\";\n                                    if (linkStatus[lastLogical] == \"OK\") { nicStatus[lastLogical] = \"WARN\" }\n                                    if (linkStatus[lastLogical] == \"\") { linkStatus[lastLogical] = \"WARN\" ; nicStatus[lastLogical] = \"ALARM\" }\n                                   }\n                           if ($NF == \"Unknown\") {linkStatus[nicdevice] = \"ALARM\";}\n                          }\n\n$1 == \"Link\" && $2 == \"Status\" { if ($4 == \"up\" || $4 == \"Up\" || $4 == \"UP\") { linkStatus[nicdevice] = \"OK\"; }\n                                      else {linkStatus[nicdevice] = \"WARN\"; nicStatus[nicdevice] = \"OK\";}\n                                 }\n\n$1 == \"Link\" && $2 == \"Status:\" { if ($3 == \"up\" || $3 == \"Up\" || $3 == \"UP\") { linkStatus[nicdevice] = \"OK\";}\n                                       else { linkStatus[nicdevice] = \"WARN\"; nicStatus[nicdevice] = \"OK\"; }\n                                  }\n\n# Speed\n$0 ~ /Media Speed Running:/ || $0 ~ /Physical Port Speed:/ {\n                                 #linkSpeed[nicdevice] = $4; gsub(/Gbps/,\"000\",linkSpeed[nicdevice]);gsub(/Mbps/,\"\",linkSpeed[nicdevice]);\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t linkSpeed[nicdevice] = $4 $5; gsub(/Gbps/,\"000\",linkSpeed[nicdevice]);gsub(/Mbps/,\"\",linkSpeed[nicdevice]);\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t if ($0 ~ /[Hh]alf [Dd]uplex/) { duplexMode[nicdevice] = \"half\"; }\n                                    else { duplexMode[nicdevice] = \"full\"; }\n                                 }\n\n# Statistics\n$1 == \"Packets:\" && $3 == \"Packets:\" { transmitPackets[nicdevice] = $2; receivePackets[nicdevice] = $4; }\n\n$1 == \"Bytes:\" && $3 == \"Bytes:\" {transmitBytes[nicdevice] = $2;receiveBytes[nicdevice] = $4; }\n\n$1 == \"Transmit\" && $2 == \"Errors:\" && $4 == \"Receive\" && $5 == \"Errors:\" { transmitErrors[nicdevice] = $3; receiveErrors[nicdevice] = $6; totalErrors[nicdevice] = transmitErrors[nicdevice] + receiveErrors[nicdevice] ; }\n\nEND { for (nic in nicdevices) {\n          if (EtherT[nic] == \"Logical\") {\n             printf(\"MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;;;%s;;\\n\", nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],\"Logical\");\n             }\n             else {\n                   printf(\"MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;%s;%s;%s;%s;\\n\",nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],linkSpeed[nic],duplexMode[nic],\"Physical\", mac[nic]);\n                  }\n\n          }\n}"
-  EmbeddedFile(2): "#!/bin/sh\nif [ -f /etc/lsattr ]\n\tthen LSATTR=/etc/lsattr\n\telse LSATTR=/usr/sbin/lsattr\nfi\nfor NIC in `%{SUDO:/usr/sbin/netstat -D}/usr/sbin/netstat -D |awk '/ent_dd/ {print $1} ' |cut -b 7-9`\ndo\n\techo MS_HW_entstat_Start: $NIC\n\t/usr/bin/entstat -d en$NIC\n\techo MS_HW_entstat_End: $NIC\ndone"
-  EmbeddedFile(5): "BEGIN {\n\terrorCount = 0;\n\tlastErrorDescription = \"\";\n\tlastTimestamp = \"\";\n}\n($5 == \"sysplanar0\") {\n\terrorCount++;\n\tlastErrorDescription = $6;\n\tfor (i=7 ; i<=NF ; i++)\n\t{\n\t\tlastErrorDescription = lastErrorDescription \" \" $i;\n\t}\n\tlastTimestamp = \"20\" substr($2, 9, 2) \"-\" substr($2, 1, 2) \"-\" substr($2, 3, 2) \" \" substr($2, 5, 2) \":\" substr($2, 7, 2)\n}\nEND {\n\tif (errorCount == 0)\n\t{\n\t\tprint \"MSHW;OK;No error on sysplanar0 as of today\";\n\t}\n\telse if (errorCount == 1)\n\t{\n\t\tprint \"MSHW;ALARM;\" lastErrorDescription \" on \" lastTimestamp;\n\t}\n\telse\n\t{\n\t\tprint \"MSHW;ALARM;\" errorCount \" errors in errpt. Last error: \" lastErrorDescription \" on \" lastTimestamp;\n\t} # end else\n}"
-  EmbeddedFile(4): "BEGIN {\n\tMemoryObject = 0;\n\tDeviceID = \"\";\n\tSize = \"\";\n\tSerialNumber = \"\";\n\tPartNumber = \"\";\n}\n/Memory [DS]IMM:/ {\n\tMemoryObject = 1;\n}\n\n/Size\\.+/ {\n\tSize = $0;\n\tgsub(\" +Size\\\\.+\", \"\", Size);\n}\n/Serial Number\\.+/ {\n\tSerialNumber = $0;\n\tgsub(\" +Serial Number\\\\.+\", \"\", SerialNumber);\n}\n/Part Number\\.+/ {\n\tPartNumber = $0;\n\tgsub(\" +Part Number\\\\.+\", \"\", PartNumber);\n}\n/Physical Location:/ {\n\tif (MemoryObject == 1)\n\t{\n\t\tDeviceID = $3;\n\n\t\tif (Size == 0)\n\t\t{\n\t\t\tStatus = \"ALARM\";\n\t\t\tStatusInformation = \"Failed\";\n\t\t}\n\t\telse\n\t\t{\n\t\t\tStatus = \"OK\";\n\t\t\tStatusInformation = \"\";\n\t\t}\n\t\tprint \"MSHW;\" DeviceID \";\" Size \";\" SerialNumber \" - FRU: \" PartNumber \";\" Status \";\" StatusInformation\n\t}\n\tDeviceID = \"\";\n\tMemoryObject = 0;\n\tSerialNumber = \"\";\n\tPartNumber = \"\";\n}"
-  EmbeddedFile(7): "/MS_HW_lscfg_Start/ {\n\tnicID = \"\";\n\tmodel = \"\";\n\tMACaddress = \"\";\n\tnicType = \"\";\n\thwLocationCode = \"\";\n}\n($1 ~ /^ent[0-9]/) {\n\tnicID = $1;\n\thwLocationCode = $2;\n\tgetline;\n\tgsub(\"^ +\", \"\");\n\tmodel = $0;\n}\n/^ *Network Address/ {\n\tgsub(\"^ *Network Address\\\\.+\", \"\");\n\tMACaddress = $1;\n\tif (length(MACaddress) == 12)\n\t{\n\t\tMACaddress = substr(MACaddress, 1, 2) \":\" substr(MACaddress, 3, 2) \":\" substr(MACaddress, 5, 2) \":\" substr(MACaddress, 7, 2) \":\" substr(MACaddress, 9, 2) \":\" substr(MACaddress, 11, 2);\n\t}\n}\n/MS_HW_lscfg_End/ {\n\tif (nicID != \"\")\n\t{\n\t\tif (model ~ /Virtual/ || model ~ /EtherChannel/ || model ~ /VLAN/)\n\t\t{\n\t\t\tnicType = \"Logical\";\n\t\t}\n\t\telse\n\t\t{\n\t\t\tnicType = \"Physical\";\n\t\t}\n\t\tprint \"MSHW;\" nicID \";\" model \";\" nicType \";\" MACaddress \";Location: \" hwLocationCode \";\"\n\t}\n\n\tnicID = \"\";\n\tmodel = \"\";\n\tMACaddress = \"\";\n\tnicType = \"\";\n\thwLocationCode = \"\";\n\n}"
-  EmbeddedFile(6): "#!/bin/sh\nfor NIC in `/usr/sbin/lsdev -C -S a -c adapter -F 'name'|/usr/bin/grep ^ent[0-9]`\ndo\n\techo MS_HW_lscfg_Start: $NIC\n\t/usr/sbin/lscfg -v -s -l $NIC 2> /dev/null\n\tif [ $? -gt 0 ]; then\n\techo $NIC\n\tlsdev -l $NIC |cut -c 17-\n\tfi\n\techo MS_HW_lscfg_End: $NIC\ndone"
+  EmbeddedFile(1): |-
+    #!/bin/sh
+    for PROC in `/usr/sbin/lsdev -C -c processor -S as -F 'name'`
+        do
+        PROCDETAILS=`/usr/sbin/lsattr -El $PROC -O -a frequency -a type|/usr/bin/grep -v ^#`
+        /usr/bin/echo "MSHW:$PROC:$PROCDETAILS"
+    done
+  EmbeddedFile(3): |-
+    /^ETHERNET STATISTICS/ { if ($3 ~ /(en[0-9].*)/) {nicdevice = $3; gsub("en","ent",nicdevice);gsub(/[\050\051]/,"",nicdevice); nicdevices[nicdevice]=nicdevice}
+                                 else { nicdevice = $3;gsub (/[\050\051]/,"",nicdevice); nicdevices[nicdevice]=nicdevice}
+                             }
+
+    /^Device Type:/ {
+                     if ( ($3 ~ /EtherChannel/ || /Virtual/) || ($0 ~ /Shared Ethernet Adapter/) || ($0 ~ /Link Aggregation/) || ($0 ~ /VLAN/)) { EtherT[nicdevice] = "Logical"; lastLogical = nicdevice }
+                        else { EtherT[nicdevice] = "Physical" }
+                    }
+
+    /^Driver Flags:/ {
+                      nicStatus[nicdevice] = "ALARM";
+                      if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK"; }
+                      else {
+                            getline
+                            if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK";}
+                           }
+                     }
+
+    $1 == "Hardware" && $2 == "Address:" { mac[nicdevice] = $3 ; gsub (/:/,"",mac[nicdevice])}
+
+    # Link
+    /Physical Port Link Stat/ {
+                               if ($NF == "up" || $NF == "Up" || $NF == "UP") {
+                                                                               linkStatus[nicdevice] = "OK";
+                                                                               if ( linkStatus[lastLogical] == "WARN" ) { linkStatus[lastLogical] = "OK" ; nicStatus[lastLogical] = "WARN" ; }
+                                                                              }
+                                  else {
+                                        linkStatus[nicdevice] = "WARN";
+                                        if (linkStatus[lastLogical] == "OK") { nicStatus[lastLogical] = "WARN" }
+                                        if (linkStatus[lastLogical] == "") { linkStatus[lastLogical] = "WARN" ; nicStatus[lastLogical] = "ALARM" }
+                                       }
+                               if ($NF == "Unknown") {linkStatus[nicdevice] = "ALARM";}
+                              }
+
+    $1 == "Link" && $2 == "Status" { if ($4 == "up" || $4 == "Up" || $4 == "UP") { linkStatus[nicdevice] = "OK"; }
+                                          else {linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK";}
+                                     }
+
+    $1 == "Link" && $2 == "Status:" { if ($3 == "up" || $3 == "Up" || $3 == "UP") { linkStatus[nicdevice] = "OK";}
+                                           else { linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK"; }
+                                      }
+
+    # Speed
+    $0 ~ /Media Speed Running:/ || $0 ~ /Physical Port Speed:/ {
+                                     #linkSpeed[nicdevice] = $4; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);
+                                                                     linkSpeed[nicdevice] = $4 $5; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);
+                                                                     if ($0 ~ /[Hh]alf [Dd]uplex/) { duplexMode[nicdevice] = "half"; }
+                                        else { duplexMode[nicdevice] = "full"; }
+                                     }
+
+    # Statistics
+    $1 == "Packets:" && $3 == "Packets:" { transmitPackets[nicdevice] = $2; receivePackets[nicdevice] = $4; }
+
+    $1 == "Bytes:" && $3 == "Bytes:" {transmitBytes[nicdevice] = $2;receiveBytes[nicdevice] = $4; }
+
+    $1 == "Transmit" && $2 == "Errors:" && $4 == "Receive" && $5 == "Errors:" { transmitErrors[nicdevice] = $3; receiveErrors[nicdevice] = $6; totalErrors[nicdevice] = transmitErrors[nicdevice] + receiveErrors[nicdevice] ; }
+
+    END { for (nic in nicdevices) {
+              if (EtherT[nic] == "Logical") {
+                 printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;;;%s;;\n", nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],"Logical");
+                 }
+                 else {
+                       printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;%s;%s;%s;%s;\n",nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],linkSpeed[nic],duplexMode[nic],"Physical", mac[nic]);
+                      }
+
+              }
+    }
+  EmbeddedFile(2): |-
+    #!/bin/sh
+    if [ -f /etc/lsattr ]
+        then LSATTR=/etc/lsattr
+        else LSATTR=/usr/sbin/lsattr
+    fi
+    for NIC in `%{SUDO:/usr/sbin/netstat -D}/usr/sbin/netstat -D |awk '/ent_dd/ {print $1} ' |cut -b 7-9`
+    do
+        echo MS_HW_entstat_Start: $NIC
+        /usr/bin/entstat -d en$NIC
+        echo MS_HW_entstat_End: $NIC
+    done
+  EmbeddedFile(5): |-
+    BEGIN {
+        errorCount = 0;
+        lastErrorDescription = "";
+        lastTimestamp = "";
+    }
+    ($5 == "sysplanar0") {
+        errorCount++;
+        lastErrorDescription = $6;
+        for (i=7 ; i<=NF ; i++)
+        {
+            lastErrorDescription = lastErrorDescription " " $i;
+        }
+        lastTimestamp = "20" substr($2, 9, 2) "-" substr($2, 1, 2) "-" substr($2, 3, 2) " " substr($2, 5, 2) ":" substr($2, 7, 2)
+    }
+    END {
+        if (errorCount == 0)
+        {
+            print "MSHW;OK;No error on sysplanar0 as of today";
+        }
+        else if (errorCount == 1)
+        {
+            print "MSHW;ALARM;" lastErrorDescription " on " lastTimestamp;
+        }
+        else
+        {
+            print "MSHW;ALARM;" errorCount " errors in errpt. Last error: " lastErrorDescription " on " lastTimestamp;
+        } # end else
+    }
+  EmbeddedFile(4): |-
+    BEGIN {
+        MemoryObject = 0;
+        DeviceID = "";
+        Size = "";
+        SerialNumber = "";
+        PartNumber = "";
+    }
+    /Memory [DS]IMM:/ {
+        MemoryObject = 1;
+    }
+
+    /Size\.+/ {
+        Size = $0;
+        gsub(" +Size\\.+", "", Size);
+    }
+    /Serial Number\.+/ {
+        SerialNumber = $0;
+        gsub(" +Serial Number\\.+", "", SerialNumber);
+    }
+    /Part Number\.+/ {
+        PartNumber = $0;
+        gsub(" +Part Number\\.+", "", PartNumber);
+    }
+    /Physical Location:/ {
+        if (MemoryObject == 1)
+        {
+            DeviceID = $3;
+
+            if (Size == 0)
+            {
+                Status = "ALARM";
+                StatusInformation = "Failed";
+            }
+            else
+            {
+                Status = "OK";
+                StatusInformation = "";
+            }
+            print "MSHW;" DeviceID ";" Size ";" SerialNumber " - FRU: " PartNumber ";" Status ";" StatusInformation
+        }
+        DeviceID = "";
+        MemoryObject = 0;
+        SerialNumber = "";
+        PartNumber = "";
+    }
+  EmbeddedFile(7): |-
+    /MS_HW_lscfg_Start/ {
+        nicID = "";
+        model = "";
+        MACaddress = "";
+        nicType = "";
+        hwLocationCode = "";
+    }
+    ($1 ~ /^ent[0-9]/) {
+        nicID = $1;
+        hwLocationCode = $2;
+        getline;
+        gsub("^ +", "");
+        model = $0;
+    }
+    /^ *Network Address/ {
+        gsub("^ *Network Address\\.+", "");
+        MACaddress = $1;
+        if (length(MACaddress) == 12)
+        {
+            MACaddress = substr(MACaddress, 1, 2) ":" substr(MACaddress, 3, 2) ":" substr(MACaddress, 5, 2) ":" substr(MACaddress, 7, 2) ":" substr(MACaddress, 9, 2) ":" substr(MACaddress, 11, 2);
+        }
+    }
+    /MS_HW_lscfg_End/ {
+        if (nicID != "")
+        {
+            if (model ~ /Virtual/ || model ~ /EtherChannel/ || model ~ /VLAN/)
+            {
+                nicType = "Logical";
+            }
+            else
+            {
+                nicType = "Physical";
+            }
+            print "MSHW;" nicID ";" model ";" nicType ";" MACaddress ";Location: " hwLocationCode ";"
+        }
+
+        nicID = "";
+        model = "";
+        MACaddress = "";
+        nicType = "";
+        hwLocationCode = "";
+
+    }
+  EmbeddedFile(6): |-
+    #!/bin/sh
+    for NIC in `/usr/sbin/lsdev -C -S a -c adapter -F 'name'|/usr/bin/grep ^ent[0-9]`
+    do
+        echo MS_HW_lscfg_Start: $NIC
+        /usr/sbin/lscfg -v -s -l $NIC 2> /dev/null
+        if [ $? -gt 0 ]; then
+        echo $NIC
+        lsdev -l $NIC |cut -c 17-
+        fi
+        echo MS_HW_lscfg_End: $NIC
+    done
 translations:
   cpuStatusInformationTranslationTable:
     stopped: Stopped

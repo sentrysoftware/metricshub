@@ -1,6 +1,47 @@
 ---
 embedded:
-  EmbeddedFile(1): "{\n\tif ($1 == \"Status\" && $3 == \"processor\")\n\t{\n\t        processorId = $4\n\t        processorStatus = \"\"\n\t        processorType = \"\"\n\t        processorSpeed = \"\"\n\t}\n\n\tif ($1 == \"Status\" && $3 == \"virtual\" && $4 == \"processor\")\n\t{\n\t\t\tprocessorId = $5\n\t\t\tprocessorStatus = \"\"\n\t\t\tprocessorType = \"\"\n\t\t\tprocessorSpeed = \"\"\n\t}\n\n\tif ($1 == \"Processor\" && $2 == \"has\" && $3 == \"been\")\n\t{\n\t        processorStatus = $4\n\t}\n\n\tif ($2 == \"since\")\n\t{\n\t\t\tprocessorStatus = $1\n\t}\n\tif ($3 == \"since\")\n\t{\n\t\t\tprocessorStatus = $1 \" \" $2\n\t}\n\n\tif ($1 == \"The\" && $3 == \"processor\" && $4 == \"operates\" && length(processorId) > 0)\n\t{\n\t        processorType = $2\n\t        processorSpeed = $6\n\n\t        print \"MSHW;\" processorId \";\" processorType \";\" processorSpeed \";\" processorStatus\n\n\t        processorId = \"\"\n\t}\n}\n"
+  EmbeddedFile(1): |
+    {
+        if ($1 == "Status" && $3 == "processor")
+        {
+                processorId = $4
+                processorStatus = ""
+                processorType = ""
+                processorSpeed = ""
+        }
+
+        if ($1 == "Status" && $3 == "virtual" && $4 == "processor")
+        {
+                processorId = $5
+                processorStatus = ""
+                processorType = ""
+                processorSpeed = ""
+        }
+
+        if ($1 == "Processor" && $2 == "has" && $3 == "been")
+        {
+                processorStatus = $4
+        }
+
+        if ($2 == "since")
+        {
+                processorStatus = $1
+        }
+        if ($3 == "since")
+        {
+                processorStatus = $1 " " $2
+        }
+
+        if ($1 == "The" && $3 == "processor" && $4 == "operates" && length(processorId) > 0)
+        {
+                processorType = $2
+                processorSpeed = $6
+
+                print "MSHW;" processorId ";" processorType ";" processorSpeed ";" processorStatus
+
+                processorId = ""
+        }
+    }
 translations:
   cpuStatusInformationTranslationTable:
     default: Unknown Status

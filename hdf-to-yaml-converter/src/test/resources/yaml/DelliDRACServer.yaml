@@ -1,6 +1,18 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {FS=\";\";}\n{\n\tsplit($3,outputarray,\"-\");\n\tcardType = outputarray[1] ;\n\tsplit($4,outputarray,\".\");\n\tslotName = outputarray[3]\n\n\tif (slotName != \"\")\n\t{\n\t\tprint $1 \";\" $2 \";\" $3 \";\" $4 \";\" $5 \";\" slotName \".\" cardType\n\t}\n}"
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+        split($3,outputarray,"-");
+        cardType = outputarray[1] ;
+        split($4,outputarray,".");
+        slotName = outputarray[3]
+
+        if (slotName != "")
+        {
+            print $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" slotName "." cardType
+        }
+    }
 translations:
   EnvironmentStatusTranslationTable:
     default: UNKNOWN

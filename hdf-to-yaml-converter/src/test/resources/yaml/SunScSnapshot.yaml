@@ -1,7 +1,12 @@
 ---
 embedded:
   EmbeddedFile(1): "showplatform -v,13,14"
-  EmbeddedFile(3): "BEGIN { FS=\",\"; }\n/^SUNW,/ {\n\tprint \"MSHW;\" $2\n\texit\n}"
+  EmbeddedFile(3): |-
+    BEGIN { FS=","; }
+    /^SUNW,/ {
+        print "MSHW;" $2
+        exit
+    }
   EmbeddedFile(2): "showenvironment,7,8"
 translations:
   TemperatureStatusTranslationTable:

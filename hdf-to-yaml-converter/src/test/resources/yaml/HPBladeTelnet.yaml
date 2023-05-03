@@ -18,8 +18,44 @@ embedded:
                  print ("MSHW;" powerSupplyID ";" status ";" powerCapacity ";" powerCurrent ";" );
                  powerSupplyID = "" ; }
     { lastLine = $0 }
-  EmbeddedFile(2): "BEGIN  { powerConsumption = \"\"; status = \"\" ; lastLine = \"\" ;}\n\n( lastLine ~ /Enclosure/ && $0 ~ /Status/ ) { status = $2 }\n( $0 ~ /Present Power/ ) { powerConsumption = $3\t}\n{ lastLine = $0}\n\nEND  { print \"MSHW;\" status \";\" powerConsumption \";\"}"
-  EmbeddedFile(5): "BEGIN  {IDlength=\"\";BayNumFound=0}\n/show/,/show enclosure temp/ {next}\n$0 ~ /Bay #/ {BayNumFound=1}\n($1 ~ /^-+$/ && $2 ~ /^-+$/ && $3 ~ /^-+$/ && $4 ~ /^-+$/ && $5 ~ /^-+$/ ) { IDlength = length($1)\n\t                                                                                if (BayNumFound==1) {IDlength = IDlength + 1 + length($2)}\n\t                                                                              }\nNF < 5 { next }\n{tempSensorID = \"\"}\n{ if ($NF == \"---\" && $(NF-3) ~ /C/) { tempStatus = $(NF-4) ; temp = \"\" ; tempCaution = \"\" ; tempCritical = \"\" ; temperatureActivate = \"\" ; }\n        else if ($NF == \"---\" ) { tempStatus = $(NF-3) ; temp = \"\" ; tempCaution = \"\" ; tempCritical = \"\" ; temperatureActivate = \"\" ; }\n        else if ($NF ~ /C/ && $(NF-2) ~ /C/)  {tempStatus = $(NF-3) ; temp = $(NF-2) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = \"2\" }\n        else if ($NF ~ /C/ && $(NF-3) ~ /C/)  {tempStatus = $(NF-4) ; temp = $(NF-3) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = \"2\" }\n        else {next}\n        }\n{ if ( tempStatus  ~ /^[nN].?[aA]/ ) { statusActivate=\"\"}\n\t      else { statusActivate = \"2\" }\n      }\n{ tempSensorID = substr($0,1,IDlength) }\n\n#{ print ( \"MSHWDB;\" tempSensorID \";\" tempStatus \";\" temp \";\" tempCaution \";\" tempCritical \";\" statusActivate \";\" temperatureActivate \";\" ) }\n\n{ gsub (/ /,\"\",tempSensorID) }\n{ gsub (\"[ C/]\",\"\",temp) }\n{ gsub (/[ C]/,\"\",tempCaution) }\n{ gsub (/[ C]/,\"\",tempCritical) }\n{ gsub (/[oO]nboard[aA]dministrator/,\"OA\",tempSensorID) }\n{ gsub (/[iI]nterconnect[mM]odule/,\"IC\",tempSensorID) }\n\n(statusActivate != \"\" || temperatureActivate != \"\" ){ print ( \"MSHW;\" tempSensorID \";\" tempStatus \";\" temp \";\" tempCaution \";\" tempCritical \";\" statusActivate \";\" temperatureActivate \";\" ) }"
+  EmbeddedFile(2): |-
+    BEGIN  { powerConsumption = ""; status = "" ; lastLine = "" ;}
+
+    ( lastLine ~ /Enclosure/ && $0 ~ /Status/ ) { status = $2 }
+    ( $0 ~ /Present Power/ ) { powerConsumption = $3    }
+    { lastLine = $0}
+
+    END  { print "MSHW;" status ";" powerConsumption ";"}
+  EmbeddedFile(5): |-
+    BEGIN  {IDlength="";BayNumFound=0}
+    /show/,/show enclosure temp/ {next}
+    $0 ~ /Bay #/ {BayNumFound=1}
+    ($1 ~ /^-+$/ && $2 ~ /^-+$/ && $3 ~ /^-+$/ && $4 ~ /^-+$/ && $5 ~ /^-+$/ ) { IDlength = length($1)
+                                                                                        if (BayNumFound==1) {IDlength = IDlength + 1 + length($2)}
+                                                                                      }
+    NF < 5 { next }
+    {tempSensorID = ""}
+    { if ($NF == "---" && $(NF-3) ~ /C/) { tempStatus = $(NF-4) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+            else if ($NF == "---" ) { tempStatus = $(NF-3) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+            else if ($NF ~ /C/ && $(NF-2) ~ /C/)  {tempStatus = $(NF-3) ; temp = $(NF-2) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+            else if ($NF ~ /C/ && $(NF-3) ~ /C/)  {tempStatus = $(NF-4) ; temp = $(NF-3) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+            else {next}
+            }
+    { if ( tempStatus  ~ /^[nN].?[aA]/ ) { statusActivate=""}
+              else { statusActivate = "2" }
+          }
+    { tempSensorID = substr($0,1,IDlength) }
+
+    #{ print ( "MSHWDB;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
+
+    { gsub (/ /,"",tempSensorID) }
+    { gsub ("[ C/]","",temp) }
+    { gsub (/[ C]/,"",tempCaution) }
+    { gsub (/[ C]/,"",tempCritical) }
+    { gsub (/[oO]nboard[aA]dministrator/,"OA",tempSensorID) }
+    { gsub (/[iI]nterconnect[mM]odule/,"IC",tempSensorID) }
+
+    (statusActivate != "" || temperatureActivate != "" ){ print ( "MSHW;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
   EmbeddedFile(4): |-
     BEGIN  {fanID = ""; status ="" ; fanSpeedPercent ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; lastLine=$0 }
     {skip=1}

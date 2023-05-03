@@ -1,9 +1,132 @@
 ---
 embedded:
-  EmbeddedFile(1): "#  MonitoredDeviceID,Caption,HealthState,IpmiSensorType,Name,NumericOnly,CurrentState,DeviceID,SensorType\n\nBEGIN {FS=\"[;]\";}\n\n{\n#    MonitoredDeviceID = $1\n    Caption = $2\n    HealthState = $3\n    IpmiSensorType = $4\n    Name = $5\n    NumericOnly = $6\n    CurrentState = $7\n    DeviceID = $8 ; gsub(\"\\.[^.]*$\",\"\",DeviceID);\n    SensorType = $9\n    if ( SensorType == 11 && CurrentState == \"Deassert\" ) { MemoryNotPresent[DeviceID] = \"True\" ; print $0 }\n\n    if ( DeviceID in Devices ) {\n    \t                           if ( NumericOnly == 0 ) { NumericOnlyArray[DeviceID] = 0 }\n    \t                           if ( Status[DeviceID] < HealthState) { Status[DeviceID] = HealthState}\n\t\t                             if ( HealthState > 5) {\n\t\t                             \t  if (StatusInformation[DeviceID] == \"\") { StatusInformation[DeviceID] = Caption }\n\t\t                             \t  \telse { StatusInformation[DeviceID] = StatusInformation[DeviceID] \" - \" Caption }\n\t\t                             \t  \t}\n\t                       }\n\t                  else {\n\t                  \t     NumericOnlyArray[DeviceID] = NumericOnly\n\t                   \t     DisplayID[DeviceID] = Caption ; gsub (/\\(.*\\)/,\"\",DisplayID[DeviceID]); gsub (/:.*$/,\"\",DisplayID[DeviceID]);\n\t                   \t     if ( HealthState > 0 ) {\n\t                   \t     \t   Devices[DeviceID] = DeviceID\n\t\t                           Status[DeviceID] = HealthState\n\t\t                           if ( HealthState > 5) {\n                                    StatusInformation[DeviceID] = Caption\n\t\t                           \t  \t}\n\t\t                       }\n                         }\n}\nEND { for (DeviceID in Devices) {\n      if ( MemoryNotPresent[DeviceID] != \"True\" ) {\n          print (\"MSHW;\" DeviceID \";\" StatusInformation[DeviceID] \";\" Status[DeviceID] \";\" DisplayID[DeviceID]\";\" NumericOnlyArray[DeviceID] \";\")\n        }\n      }\n    }"
-  EmbeddedFile(3): "BEGIN { FS = \";\"; }\n{\n    BaseUnits = $1\n    Caption = $2\n    CurrentReading = $3\n    DeviceID = $4\n    HealthState = $5\n    UpperThresholdNonCritical = $6\n    UpperThresholdCritical = $7\n    SensorType = $8\n    if (length(CurrentReading) > 2 )\n    {\n    \t\t\tif (UpperThresholdNonCritical == \"\" && UpperThresholdCritical == \"\")\n      \t\t\t{\n            \t   print \"MSHW;\" BaseUnits \";\" Caption \";\" CurrentReading \";\" DeviceID \";\" HealthState \";;;\" SensorType \";\"\n            }\n          else\n            {\n      \t\t\t\t    print \"MSHW;\" BaseUnits \";\" Caption \";\" CurrentReading \";\" DeviceID \";;\" UpperThresholdNonCritical \";\" UpperThresholdCritical \";\" SensorType \";\"\n            }\n\n     }\n    else\n    {\n    \t\t\tprint \"MSHW;\" BaseUnits \";\" Caption \";;\" DeviceID \";\" HealthState \";;;\" SensorType \";\"\n    }\n\n}"
-  EmbeddedFile(2): "BEGIN {FS=\"[;]\";ipmiFound=\"false\";globalFound=\"false\";}\n{if ($1 ~ /Global/) {if ($2 > 0) {globalFound=(\"MSHW;\" $0)\n\t                               }\n\t                  }\n# If an OldInstance is found, then deactivate the GlobalFound as the previous discovery found individual modules\n else {if ($3 ~ /OldInstance-/) {globalFound=\"false\" ;  ipmiFound=\"true\"}\n# If it's not an OldInstance or Global or Blank, then print\n      else {if (NF > 3) {print (\"MSHW;\" $0);\n                         if ($4 != 1) {ipmiFound=\"true\";}\n                        }\n           }\n      }\n }\nEND {if (ipmiFound == \"false\" && globalFound != \"false\") {print globalFound}\n     if (ipmiFound == \"true\" ) {print \"MSHW;ipmiFound;99;ipmiFound;0;\"}\n    }"
-  EmbeddedFile(4): "BEGIN {FS=\"[;]\"}\n#IpmisensorID contains at least 3 dots\n$5 ~ /.*\\..*\\..*\\.*/ {\nIPMISensorID = $5\nHealthState = $2\nSensorName = $4\n\nID = IPMISensorID ; gsub(\"\\.[^.]*$\",\"\",ID);\n\n# if we've already found a status for this ID, then try and find a common sensor name root\n# We're going to assume the first 5 characters are the same to avoid a null DisplayID\n# Note this will only be run if a battery has 2 or more sensors\n if (ID in status) {\n   matchLength = 5\n   for (i=5 ; i <= length(DisplayID[ID]) ; i++ ) {\n     if ( substr(DisplayID[ID],5,i) == substr(SensorName,5,i) ) { matchLength = i }\n     }\n   DisplayID[ID] = substr(DisplayID[ID],1,matchLength)\n   gsub(/:? *$/,\"\",DisplayID[ID])\n   }\n else { DisplayID[ID] = SensorName }\n# See if we already have processed a valid statusInformation for this component\n# i.e. there's more than one fault, do a worse than and append the sensor ID\n if (ID in statusInformation) {\n\t                  if (status[ID] < HealthState) {status[ID] = (HealthState);}\n\t                  if (HealthState > 5) {if (statusInformation[ID]==\"\") {statusInformation[ID] = SensorName}\n\t                               else {statusInformation[ID] = (statusInformation[ID] \" - \" SensorName)}\n\t                              }\n\t                 }\n# If we haven't seen a fault, check if this sensor state and set statusInformation if there's an issue\n  else {if (HealthState > 0) {status[ID] = HealthState};\n\t\t    if (HealthState > 5) {statusInformation[ID] = SensorName};\n\t\t   }\n}\nEND { for (ID in status)\n      print (\"MSHW;\" ID \";\" DisplayID[ID] \";\" status[ID]\";\" statusInformation[ID] \";\")\n    }\n"
+  EmbeddedFile(1): |-
+    #  MonitoredDeviceID,Caption,HealthState,IpmiSensorType,Name,NumericOnly,CurrentState,DeviceID,SensorType
+
+    BEGIN {FS="[;]";}
+
+    {
+    #    MonitoredDeviceID = $1
+        Caption = $2
+        HealthState = $3
+        IpmiSensorType = $4
+        Name = $5
+        NumericOnly = $6
+        CurrentState = $7
+        DeviceID = $8 ; gsub("\.[^.]*$","",DeviceID);
+        SensorType = $9
+        if ( SensorType == 11 && CurrentState == "Deassert" ) { MemoryNotPresent[DeviceID] = "True" ; print $0 }
+
+        if ( DeviceID in Devices ) {
+                                       if ( NumericOnly == 0 ) { NumericOnlyArray[DeviceID] = 0 }
+                                       if ( Status[DeviceID] < HealthState) { Status[DeviceID] = HealthState}
+                                         if ( HealthState > 5) {
+                                               if (StatusInformation[DeviceID] == "") { StatusInformation[DeviceID] = Caption }
+                                                   else { StatusInformation[DeviceID] = StatusInformation[DeviceID] " - " Caption }
+                                                   }
+                               }
+                          else {
+                                   NumericOnlyArray[DeviceID] = NumericOnly
+                                    DisplayID[DeviceID] = Caption ; gsub (/\(.*\)/,"",DisplayID[DeviceID]); gsub (/:.*$/,"",DisplayID[DeviceID]);
+                                    if ( HealthState > 0 ) {
+                                           Devices[DeviceID] = DeviceID
+                                       Status[DeviceID] = HealthState
+                                       if ( HealthState > 5) {
+                                        StatusInformation[DeviceID] = Caption
+                                                 }
+                                   }
+                             }
+    }
+    END { for (DeviceID in Devices) {
+          if ( MemoryNotPresent[DeviceID] != "True" ) {
+              print ("MSHW;" DeviceID ";" StatusInformation[DeviceID] ";" Status[DeviceID] ";" DisplayID[DeviceID]";" NumericOnlyArray[DeviceID] ";")
+            }
+          }
+        }
+  EmbeddedFile(3): |-
+    BEGIN { FS = ";"; }
+    {
+        BaseUnits = $1
+        Caption = $2
+        CurrentReading = $3
+        DeviceID = $4
+        HealthState = $5
+        UpperThresholdNonCritical = $6
+        UpperThresholdCritical = $7
+        SensorType = $8
+        if (length(CurrentReading) > 2 )
+        {
+                    if (UpperThresholdNonCritical == "" && UpperThresholdCritical == "")
+                      {
+                       print "MSHW;" BaseUnits ";" Caption ";" CurrentReading ";" DeviceID ";" HealthState ";;;" SensorType ";"
+                }
+              else
+                {
+                              print "MSHW;" BaseUnits ";" Caption ";" CurrentReading ";" DeviceID ";;" UpperThresholdNonCritical ";" UpperThresholdCritical ";" SensorType ";"
+                }
+
+         }
+        else
+        {
+                    print "MSHW;" BaseUnits ";" Caption ";;" DeviceID ";" HealthState ";;;" SensorType ";"
+        }
+
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS="[;]";ipmiFound="false";globalFound="false";}
+    {if ($1 ~ /Global/) {if ($2 > 0) {globalFound=("MSHW;" $0)
+                                       }
+                          }
+    # If an OldInstance is found, then deactivate the GlobalFound as the previous discovery found individual modules
+     else {if ($3 ~ /OldInstance-/) {globalFound="false" ;  ipmiFound="true"}
+    # If it's not an OldInstance or Global or Blank, then print
+          else {if (NF > 3) {print ("MSHW;" $0);
+                             if ($4 != 1) {ipmiFound="true";}
+                            }
+               }
+          }
+     }
+    END {if (ipmiFound == "false" && globalFound != "false") {print globalFound}
+         if (ipmiFound == "true" ) {print "MSHW;ipmiFound;99;ipmiFound;0;"}
+        }
+  EmbeddedFile(4): |
+    BEGIN {FS="[;]"}
+    #IpmisensorID contains at least 3 dots
+    $5 ~ /.*\..*\..*\.*/ {
+    IPMISensorID = $5
+    HealthState = $2
+    SensorName = $4
+
+    ID = IPMISensorID ; gsub("\.[^.]*$","",ID);
+
+    # if we've already found a status for this ID, then try and find a common sensor name root
+    # We're going to assume the first 5 characters are the same to avoid a null DisplayID
+    # Note this will only be run if a battery has 2 or more sensors
+     if (ID in status) {
+       matchLength = 5
+       for (i=5 ; i <= length(DisplayID[ID]) ; i++ ) {
+         if ( substr(DisplayID[ID],5,i) == substr(SensorName,5,i) ) { matchLength = i }
+         }
+       DisplayID[ID] = substr(DisplayID[ID],1,matchLength)
+       gsub(/:? *$/,"",DisplayID[ID])
+       }
+     else { DisplayID[ID] = SensorName }
+    # See if we already have processed a valid statusInformation for this component
+    # i.e. there's more than one fault, do a worse than and append the sensor ID
+     if (ID in statusInformation) {
+                          if (status[ID] < HealthState) {status[ID] = (HealthState);}
+                          if (HealthState > 5) {if (statusInformation[ID]=="") {statusInformation[ID] = SensorName}
+                                       else {statusInformation[ID] = (statusInformation[ID] " - " SensorName)}
+                                      }
+                         }
+    # If we haven't seen a fault, check if this sensor state and set statusInformation if there's an issue
+      else {if (HealthState > 0) {status[ID] = HealthState};
+                if (HealthState > 5) {statusInformation[ID] = SensorName};
+               }
+    }
+    END { for (ID in status)
+          print ("MSHW;" ID ";" DisplayID[ID] ";" status[ID]";" statusInformation[ID] ";")
+        }
 translations:
   psuAvailabilityTranslationTable:
     "11": MISSING

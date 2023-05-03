@@ -1,8 +1,47 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN {\n\tWWN = \"\";\n\tPortNumber = \"\";\n\tModel = \"\";\n}\n\n($1 == \"Port\" && $2 == \"WWN\") { WWN = $4; gsub(\":\", \"\", WWN); }\n\n($1 == \"Model\") { Model = $3; }\n\n(NF == 0 && WWN != \"\") {\n\tprint \"MSHW;\" Model \";\" WWN \";\"\n\tWWN = \"\";\n\tModel = \"\";\n}"
-  EmbeddedFile(3): "BEGIN {FS=\"[:]\";WWN=\"\";}\n\n$1 ~ /Port Statistics for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,\"\",WWN)}\n\n$1 ~ /^Tx Frame Count +$/ {TxFrame=$2;gsub (/^ +/,\"\",TxFrame);}\n\n$1 ~ /^Rx Frame Count +$/ {RxFrame=$2;gsub (/^ +/,\"\",RxFrame);}\n\n$1 ~ /^Tx KB Count +$/ {TxB=$2;gsub (/^ +/,\"\",TxKB);TxB=TxB*1024;}\n\n$1 ~ /^Rx KB Count +$/ {RxB=$2;gsub (/^ +/,\"\",RxKB);RxB=RxB*1024;}\n\n$1 ~ /^Error Frame Count +$/ && WWN != \"\" {ErrorCount=$2;gsub (/^ +/,\"\",ErrorCount);\n\t                                         print (\"MSHW;\"TxFrame\";\"RxFrame\";\"TxB\";\"RxB\";\"ErrorCount\";\"WWN\";\")\n\t                                         WWN=\"\";}"
-  EmbeddedFile(2): "BEGIN {FS=\"[:]\";WWN=\"\";}\n\n$1 ~ /Port Attributes for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,\"\",WWN)}\n\n$1 ~ /^Port State +$/ {Status=$2;gsub (/^ +/,\"\",Status);}\n\n$1 ~ /^Port Speed +$/ {Speed=$2;gsub (/^ +/,\"\",Speed);Speed=$2;gsub (/[^0-9]/,\"\",Speed);\n\t                                  print (\"MSHW;\"Speed\";\"Status\";\"WWN\";\")\n\t                                  WWN=\"\";}"
+  EmbeddedFile(1): |-
+    BEGIN {
+        WWN = "";
+        PortNumber = "";
+        Model = "";
+    }
+
+    ($1 == "Port" && $2 == "WWN") { WWN = $4; gsub(":", "", WWN); }
+
+    ($1 == "Model") { Model = $3; }
+
+    (NF == 0 && WWN != "") {
+        print "MSHW;" Model ";" WWN ";"
+        WWN = "";
+        Model = "";
+    }
+  EmbeddedFile(3): |-
+    BEGIN {FS="[:]";WWN="";}
+
+    $1 ~ /Port Statistics for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
+
+    $1 ~ /^Tx Frame Count +$/ {TxFrame=$2;gsub (/^ +/,"",TxFrame);}
+
+    $1 ~ /^Rx Frame Count +$/ {RxFrame=$2;gsub (/^ +/,"",RxFrame);}
+
+    $1 ~ /^Tx KB Count +$/ {TxB=$2;gsub (/^ +/,"",TxKB);TxB=TxB*1024;}
+
+    $1 ~ /^Rx KB Count +$/ {RxB=$2;gsub (/^ +/,"",RxKB);RxB=RxB*1024;}
+
+    $1 ~ /^Error Frame Count +$/ && WWN != "" {ErrorCount=$2;gsub (/^ +/,"",ErrorCount);
+                                                 print ("MSHW;"TxFrame";"RxFrame";"TxB";"RxB";"ErrorCount";"WWN";")
+                                                 WWN="";}
+  EmbeddedFile(2): |-
+    BEGIN {FS="[:]";WWN="";}
+
+    $1 ~ /Port Attributes for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
+
+    $1 ~ /^Port State +$/ {Status=$2;gsub (/^ +/,"",Status);}
+
+    $1 ~ /^Port Speed +$/ {Speed=$2;gsub (/^ +/,"",Speed);Speed=$2;gsub (/[^0-9]/,"",Speed);
+                                          print ("MSHW;"Speed";"Status";"WWN";")
+                                          WWN="";}
 translations:
   NetworkStatusInfoTranslationTable:
     operational. need adapter port reset: Operational. Need Adapter Port Reset.

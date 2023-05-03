@@ -1,7 +1,144 @@
 ---
 embedded:
-  EmbeddedFile(1): "($0 ~ \"^rmt/[0-9]\") {\n\ttapeID = $1\n\tvendor = \"\"\n\tproduct = \"\"\n\tmodel = \"\"\n\tproductmodel = \"\"\n\tserial = \"\"\n}\n\n($0 ~ /Vendor: /) {\n\tindex1 = index($0, \"Vendor: \" ) + length(\"Vendor: \")\n\tvendor = substr($0, index1, length-index1)\n\tindex1 = index(vendor, \":\")\n\tif (index1 > 0)\n\t{\n\t\tvendor = substr(vendor, 1, index1-1)\n\t\tn = split(vendor, a, \" \")\n\t\tvendor = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tvendor = vendor a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tvendor = vendor \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Model: /) {\n\tindex1 = index($0, \"Model: \" ) + length(\"Model: \")\n\tmodel = substr($0, index1, length-index1)\n\tindex1 = index(model, \":\")\n\tif (index1 > 0)\n\t{\n\t\tmodel = substr(model, 1, index1-1)\n\t\tn = split(model, a, \" \")\n\t\tmodel = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tmodel = model a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tmodel = model \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Product: /) {\n\tindex1 = index($0, \"Product: \" ) + length(\"Product: \")\n\tproduct = substr($0, index1, length-index1)\n\tindex1 = index(product, \":\")\n\tif (index1 > 0)\n\t{\n\t\tproduct = substr(product, 1, index1-1)\n\t\tn = split(product, a, \" \")\n\t\tproduct = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tproduct = product a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tproduct = product \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Serial No: /) {\n\tindex1 = index($0, \"Serial No: \" ) + length(\"Serial No: \")\n\tserial = substr($0, index1, length-index1)\n\tindex1 = index(serial, \":\")\n\tif (index1 > 0)\n\t{\n\t\tserial = substr(serial, 1, index1-1)\n\t\tn = split(serial, a, \" \")\n\t\tserial = \"\"\n\t\tfor (i=1 ; i<n ; i++)\n\t\t{\n\t\t\tserial = serial a[i]\n\t\t\tif (i < n-1)\n\t\t\t\tserial = serial \" \"\n\t\t}\n\t}\n}\n\n($0 ~ /Serial No:/) {\n\tif (product != \"\" && model != \"\")\n\t{\n\t\tproductmodel = product \" \" model\n\t}\n\telse\n\t{\n\t\tproductmodel = product model\n\t}\n\n\tif (tapeID != \"\")\n\t{\n\t\tprint \"MSHW;\" tapeID \";\" vendor \";\" productmodel \";\" serial\n\t}\n\n\tdisk = \"\"\n\tvendor = \"\"\n\tproduct = \"\"\n\tmodel = \"\"\n\tproductmodel = \"\"\n\tserial = \"\"\n}"
-  EmbeddedFile(2): "($0 ~ \"^rmt/[0-9]\") {\n\ttapeID = $1\n\tsofterror = 0\n\tharderror = 0\n\ttransporterror = 0\n\ttotalerror = 0\n}\n\n($2 == \"Soft\" && $3 == \"Errors:\") {\n\tsofterror = $4\n}\n\n($5 == \"Hard\" && $6 == \"Errors:\") {\n\tharderror = $7\n}\n\n($8 == \"Transport\" && $9 == \"Errors:\") {\n\ttransporterror = $10\n}\n\n($0 ~ /Serial No:/) {\n\ttotalerror = transporterror + harderror\n\n\tif (tapeID != \"\")\n\t{\n\t\tprint \"MSHW;\" tapeID \";\" totalerror\n\t}\n\n\ttapeID = \"\"\n\tsofterror = 0\n\tharderror = 0\n\ttransporterror = 0\n\ttotalerror = 0\n}"
+  EmbeddedFile(1): |-
+    ($0 ~ "^rmt/[0-9]") {
+        tapeID = $1
+        vendor = ""
+        product = ""
+        model = ""
+        productmodel = ""
+        serial = ""
+    }
+
+    ($0 ~ /Vendor: /) {
+        index1 = index($0, "Vendor: " ) + length("Vendor: ")
+        vendor = substr($0, index1, length-index1)
+        index1 = index(vendor, ":")
+        if (index1 > 0)
+        {
+            vendor = substr(vendor, 1, index1-1)
+            n = split(vendor, a, " ")
+            vendor = ""
+            for (i=1 ; i<n ; i++)
+            {
+                vendor = vendor a[i]
+                if (i < n-1)
+                    vendor = vendor " "
+            }
+        }
+    }
+
+    ($0 ~ /Model: /) {
+        index1 = index($0, "Model: " ) + length("Model: ")
+        model = substr($0, index1, length-index1)
+        index1 = index(model, ":")
+        if (index1 > 0)
+        {
+            model = substr(model, 1, index1-1)
+            n = split(model, a, " ")
+            model = ""
+            for (i=1 ; i<n ; i++)
+            {
+                model = model a[i]
+                if (i < n-1)
+                    model = model " "
+            }
+        }
+    }
+
+    ($0 ~ /Product: /) {
+        index1 = index($0, "Product: " ) + length("Product: ")
+        product = substr($0, index1, length-index1)
+        index1 = index(product, ":")
+        if (index1 > 0)
+        {
+            product = substr(product, 1, index1-1)
+            n = split(product, a, " ")
+            product = ""
+            for (i=1 ; i<n ; i++)
+            {
+                product = product a[i]
+                if (i < n-1)
+                    product = product " "
+            }
+        }
+    }
+
+    ($0 ~ /Serial No: /) {
+        index1 = index($0, "Serial No: " ) + length("Serial No: ")
+        serial = substr($0, index1, length-index1)
+        index1 = index(serial, ":")
+        if (index1 > 0)
+        {
+            serial = substr(serial, 1, index1-1)
+            n = split(serial, a, " ")
+            serial = ""
+            for (i=1 ; i<n ; i++)
+            {
+                serial = serial a[i]
+                if (i < n-1)
+                    serial = serial " "
+            }
+        }
+    }
+
+    ($0 ~ /Serial No:/) {
+        if (product != "" && model != "")
+        {
+            productmodel = product " " model
+        }
+        else
+        {
+            productmodel = product model
+        }
+
+        if (tapeID != "")
+        {
+            print "MSHW;" tapeID ";" vendor ";" productmodel ";" serial
+        }
+
+        disk = ""
+        vendor = ""
+        product = ""
+        model = ""
+        productmodel = ""
+        serial = ""
+    }
+  EmbeddedFile(2): |-
+    ($0 ~ "^rmt/[0-9]") {
+        tapeID = $1
+        softerror = 0
+        harderror = 0
+        transporterror = 0
+        totalerror = 0
+    }
+
+    ($2 == "Soft" && $3 == "Errors:") {
+        softerror = $4
+    }
+
+    ($5 == "Hard" && $6 == "Errors:") {
+        harderror = $7
+    }
+
+    ($8 == "Transport" && $9 == "Errors:") {
+        transporterror = $10
+    }
+
+    ($0 ~ /Serial No:/) {
+        totalerror = transporterror + harderror
+
+        if (tapeID != "")
+        {
+            print "MSHW;" tapeID ";" totalerror
+        }
+
+        tapeID = ""
+        softerror = 0
+        harderror = 0
+        transporterror = 0
+        totalerror = 0
+    }
 connector:
   displayName: Oracle/Sun Solaris - Tape Drives
   platforms: Oracle/Sun

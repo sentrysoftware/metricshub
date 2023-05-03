@@ -1,16 +1,1020 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN{\n  # Set the name for each object level\n\tInstanceLevel = \"system-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"system-id\"\n\tproperty[2] = \"system-name\"\n\tproperty[3] = \"system-model\"\n\tproperty[4] = \"vendor-id\"\n\tproperty[5] = \"system-serial-number\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(11): "{\n\t# the line contains multiple objects\n\tif ($0 ~ />.*>.*>.*>/) {\n    line = $0\n    xmlArraySize = split(line,xmlArray,\">\")\n    for ( objectNumber = 1; objectNumber <= xmlArraySize ; objectNumber++ ) {\n      name = xmlArray[objectNumber]\n      gsub(/.*</,\"\",name)\n      nextobjectNumber = objectNumber + 1\n      nextname = xmlArray[nextobjectNumber]\n      gsub(/.*</,\"\",nextname)\n      # if the object is blank, or its the second part of an array ( data</objectname ), then skip\n      if ( name != \"\" || xmlArray[objectNumber] ~ /^</ ) {\n        # if the next object contains the same object name (basically it's the </object>) , then print both objects\n        if ( nextname ~ name && xmlArray[objectNumber] ) {\n          print xmlArray[objectNumber] \">\" xmlArray[nextobjectNumber] \">\" }\n        # else just print the current object\n        else { print xmlArray[objectNumber] \">\" }\n        }\n      }\n    }\n  # else if it's in the header, just print the line\n  else { print $0 }\n}"
-  EmbeddedFile(3): "BEGIN{\n  # Set the name for each object level\n\tInstanceLevel = \"power-supply-info\"\n\tParentLevel = \"power-supply-list\"\n\tGrandParentLevel = \"shelf-environ-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\n  property[1] = \"power-supply-element-number\"\n  property[2] = \"../../shelf-id\"\n  property[3] = \"power-supply-serial-no\"\n  property[4] = \"power-supply-is-error\"\n  property[5] = \"power-supply-is-not-installed\"\n\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(2): "BEGIN{\n# Set the name for each object level\n\n  \tInstanceLevel = \"ses-generic-info\"\n\t\tParentLevel = \"shelf-environ-shelf-info\"\n\t\tGrandParentLevel = \"\"\n\n# Set the Properties to Extract\n# The number indicates which column that property will be put in\n# If you specify property[1] and property[3], you will end up with:\n# MSHW;propertyvalue1;;propertyvalue3;\n\n\t#storage-shelf-info\n\tproperty[1] = \"../shelf-id\"\n\tproperty[2] = \"ses-product-id\"\n\tproperty[3] = \"ses-product-id\"\n\tproperty[4] = \"ses-vendor-id\"\n  property[6] = \"../shelf-status\"\n\n# The rest of this script is standardized\n# and does not need to be edited\n#\n#\n# System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(5): "BEGIN{\n  # Set the name for each object level\n\tInstanceLevel = \"temp-sensor-info\"\n\tParentLevel = \"temp-sensor-list\"\n\tGrandParentLevel = \"shelf-environ-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"temp-sensor-element-no\"\n\tproperty[2] = \"../../shelf-id\"\n  property[3] = \"temp-sensor-is-error\"\n  property[4] = \"temp-sensor-current-condition\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(4): "BEGIN{\n  # Set the name for each object level\n  InstanceLevel = \"cooling-element-info\"\n\tParentLevel = \"cooling-element-list\"\n\tGrandParentLevel = \"shelf-environ-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"cooling-element-number\"\n  property[2] = \"../../shelf-id\"\n\tproperty[3] = \"cooling-element-is-error\"\n\tproperty[4] = \"cooling-element-is-not-installed\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(7): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"interface-config-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"interface-name\"\n\tproperty[2] = \"mac-address\"\n\tproperty[3] = \"mediatype\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(6): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"disk-detail-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"shelf\"\n\tproperty[2] = \"name\"\n\tproperty[3] = \"disk-model\"\n  property[4] = \"vendor-id\"\n\tproperty[5] = \"serial-number\"\n\tproperty[6] = \"disk-type\"\n  property[7] = \"rpm\"\n  property[8] = \"firmware-revision\"\n  property[9] = \"physical-space\"\n  property[10] = \"is-prefailed\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(10): "BEGIN{\n# Set the name for each object level\n\n  \tInstanceLevel = \"fcp-config-adapter-info\"\n\t\tParentLevel = \"\"\n\t\tGrandParentLevel = \"\"\n\n# Set the Properties to Extract\n# The number indicates which column that property will be put in\n# If you specify property[1] and property[3], you will end up with:\n# MSHW;propertyvalue1;;propertyvalue3;\n\n\t#storage-shelf-info\n\tproperty[1] = \"adapter\"\n\tproperty[2] = \"port-name\"\n\tproperty[3] = \"state\"\n\tproperty[4] = \"speed\"\n\n# The rest of this script is standardized\n# and does not need to be edited\n#\n#\n# System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(9): "BEGIN{\n# Set the name for each object level\n\n  \tInstanceLevel = \"es-electronics-info\"\n\t\tParentLevel = \"shelf-environ-shelf-info\"\n\t\tGrandParentLevel = \"\"\n\n# Set the Properties to Extract\n# The number indicates which column that property will be put in\n# If you specify property[1] and property[3], you will end up with:\n# MSHW;propertyvalue1;;propertyvalue3;\n\n\t#storage-shelf-info\n\tproperty[1] = \"../shelf-id\"\n\tproperty[2] = \"es-electronics-element-no\"\n\tproperty[3] = \"es-electronics-is-error\"\n\tproperty[4] = \"es-electronics-is-reporting-element\"\n\n# The rest of this script is standardized\n# and does not need to be edited\n#\n#\n# System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
-  EmbeddedFile(8): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"aggr-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\n  property[1] = \"uuid\"\n\tproperty[2] = \"name\"\n\tproperty[3] = \"size-total\"\n\tproperty[4] = \"is-inconsistent\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(1): |-
+    BEGIN{
+      # Set the name for each object level
+        InstanceLevel = "system-info"
+        ParentLevel = ""
+        GrandParentLevel = ""
+
+      # Set the Properties to Extract
+      # The number indicates which column that property will be put in
+      # If you specify property[1] and property[3], you will end up with:
+      # MSHW;propertyvalue1;;propertyvalue3;
+        property[1] = "system-id"
+        property[2] = "system-name"
+        property[3] = "system-model"
+        property[4] = "vendor-id"
+        property[5] = "system-serial-number"
+
+      # The rest of this script is standardized
+      # and does not need to be edited
+      #
+      #
+      # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(11): |-
+    {
+        # the line contains multiple objects
+        if ($0 ~ />.*>.*>.*>/) {
+        line = $0
+        xmlArraySize = split(line,xmlArray,">")
+        for ( objectNumber = 1; objectNumber <= xmlArraySize ; objectNumber++ ) {
+          name = xmlArray[objectNumber]
+          gsub(/.*</,"",name)
+          nextobjectNumber = objectNumber + 1
+          nextname = xmlArray[nextobjectNumber]
+          gsub(/.*</,"",nextname)
+          # if the object is blank, or its the second part of an array ( data</objectname ), then skip
+          if ( name != "" || xmlArray[objectNumber] ~ /^</ ) {
+            # if the next object contains the same object name (basically it's the </object>) , then print both objects
+            if ( nextname ~ name && xmlArray[objectNumber] ) {
+              print xmlArray[objectNumber] ">" xmlArray[nextobjectNumber] ">" }
+            # else just print the current object
+            else { print xmlArray[objectNumber] ">" }
+            }
+          }
+        }
+      # else if it's in the header, just print the line
+      else { print $0 }
+    }
+  EmbeddedFile(3): |-
+    BEGIN{
+      # Set the name for each object level
+        InstanceLevel = "power-supply-info"
+        ParentLevel = "power-supply-list"
+        GrandParentLevel = "shelf-environ-shelf-info"
+
+      # Set the Properties to Extract
+      # The number indicates which column that property will be put in
+      # If you specify property[1] and property[3], you will end up with:
+      # MSHW;propertyvalue1;;propertyvalue3;
+
+      property[1] = "power-supply-element-number"
+      property[2] = "../../shelf-id"
+      property[3] = "power-supply-serial-no"
+      property[4] = "power-supply-is-error"
+      property[5] = "power-supply-is-not-installed"
+
+
+      # The rest of this script is standardized
+      # and does not need to be edited
+      #
+      #
+      # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(2): |-
+    BEGIN{
+    # Set the name for each object level
+
+          InstanceLevel = "ses-generic-info"
+            ParentLevel = "shelf-environ-shelf-info"
+            GrandParentLevel = ""
+
+    # Set the Properties to Extract
+    # The number indicates which column that property will be put in
+    # If you specify property[1] and property[3], you will end up with:
+    # MSHW;propertyvalue1;;propertyvalue3;
+
+        #storage-shelf-info
+        property[1] = "../shelf-id"
+        property[2] = "ses-product-id"
+        property[3] = "ses-product-id"
+        property[4] = "ses-vendor-id"
+      property[6] = "../shelf-status"
+
+    # The rest of this script is standardized
+    # and does not need to be edited
+    #
+    #
+    # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(5): |-
+    BEGIN{
+      # Set the name for each object level
+        InstanceLevel = "temp-sensor-info"
+        ParentLevel = "temp-sensor-list"
+        GrandParentLevel = "shelf-environ-shelf-info"
+
+      # Set the Properties to Extract
+      # The number indicates which column that property will be put in
+      # If you specify property[1] and property[3], you will end up with:
+      # MSHW;propertyvalue1;;propertyvalue3;
+        property[1] = "temp-sensor-element-no"
+        property[2] = "../../shelf-id"
+      property[3] = "temp-sensor-is-error"
+      property[4] = "temp-sensor-current-condition"
+
+      # The rest of this script is standardized
+      # and does not need to be edited
+      #
+      #
+      # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(4): |-
+    BEGIN{
+      # Set the name for each object level
+      InstanceLevel = "cooling-element-info"
+        ParentLevel = "cooling-element-list"
+        GrandParentLevel = "shelf-environ-shelf-info"
+
+      # Set the Properties to Extract
+      # The number indicates which column that property will be put in
+      # If you specify property[1] and property[3], you will end up with:
+      # MSHW;propertyvalue1;;propertyvalue3;
+        property[1] = "cooling-element-number"
+      property[2] = "../../shelf-id"
+        property[3] = "cooling-element-is-error"
+        property[4] = "cooling-element-is-not-installed"
+
+      # The rest of this script is standardized
+      # and does not need to be edited
+      #
+      #
+      # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(7): |-
+    BEGIN{
+        # Set the name for each object level
+      InstanceLevel = "interface-config-info"
+        ParentLevel = ""
+        GrandParentLevel = ""
+
+      # Set the Properties to Extract
+      # The number indicates which column that property will be put in
+      # If you specify property[1] and property[3], you will end up with:
+      # MSHW;propertyvalue1;;propertyvalue3;
+        property[1] = "interface-name"
+        property[2] = "mac-address"
+        property[3] = "mediatype"
+
+      # The rest of this script is standardized
+      # and does not need to be edited
+      #
+      #
+      # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(6): |-
+    BEGIN{
+        # Set the name for each object level
+      InstanceLevel = "disk-detail-info"
+        ParentLevel = ""
+        GrandParentLevel = ""
+
+      # Set the Properties to Extract
+      # The number indicates which column that property will be put in
+      # If you specify property[1] and property[3], you will end up with:
+      # MSHW;propertyvalue1;;propertyvalue3;
+        property[1] = "shelf"
+        property[2] = "name"
+        property[3] = "disk-model"
+      property[4] = "vendor-id"
+        property[5] = "serial-number"
+        property[6] = "disk-type"
+      property[7] = "rpm"
+      property[8] = "firmware-revision"
+      property[9] = "physical-space"
+      property[10] = "is-prefailed"
+
+      # The rest of this script is standardized
+      # and does not need to be edited
+      #
+      #
+      # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(10): |-
+    BEGIN{
+    # Set the name for each object level
+
+          InstanceLevel = "fcp-config-adapter-info"
+            ParentLevel = ""
+            GrandParentLevel = ""
+
+    # Set the Properties to Extract
+    # The number indicates which column that property will be put in
+    # If you specify property[1] and property[3], you will end up with:
+    # MSHW;propertyvalue1;;propertyvalue3;
+
+        #storage-shelf-info
+        property[1] = "adapter"
+        property[2] = "port-name"
+        property[3] = "state"
+        property[4] = "speed"
+
+    # The rest of this script is standardized
+    # and does not need to be edited
+    #
+    #
+    # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(9): |-
+    BEGIN{
+    # Set the name for each object level
+
+          InstanceLevel = "es-electronics-info"
+            ParentLevel = "shelf-environ-shelf-info"
+            GrandParentLevel = ""
+
+    # Set the Properties to Extract
+    # The number indicates which column that property will be put in
+    # If you specify property[1] and property[3], you will end up with:
+    # MSHW;propertyvalue1;;propertyvalue3;
+
+        #storage-shelf-info
+        property[1] = "../shelf-id"
+        property[2] = "es-electronics-element-no"
+        property[3] = "es-electronics-is-error"
+        property[4] = "es-electronics-is-reporting-element"
+
+    # The rest of this script is standardized
+    # and does not need to be edited
+    #
+    #
+    # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
+  EmbeddedFile(8): |-
+    BEGIN{
+        # Set the name for each object level
+      InstanceLevel = "aggr-info"
+        ParentLevel = ""
+        GrandParentLevel = ""
+
+      # Set the Properties to Extract
+      # The number indicates which column that property will be put in
+      # If you specify property[1] and property[3], you will end up with:
+      # MSHW;propertyvalue1;;propertyvalue3;
+
+      property[1] = "uuid"
+        property[2] = "name"
+        property[3] = "size-total"
+        property[4] = "is-inconsistent"
+
+      # The rest of this script is standardized
+      # and does not need to be edited
+      #
+      #
+      # System Constants
+      Level = "Unknown"
+      FS="[<>]"
+      skip = "0"
+      InstanceEnum = "0"
+      ParentEnum = "0"
+      GrandParentEnum = "0"
+      InstanceLevelEnd = "/" InstanceLevel
+      ParentLevelEnd = "/" ParentLevel
+      GrandParentLevelEnd = "/" GrandParentLevel
+      }
+    (NF == 3 ) && ($2 == GrandParentLevel) {
+      GrandParentEnum = GrandParentEnum + 1
+      Level = "GrandParent"
+      }
+    (NF == 3 ) && ($2 == GrandParentLevelEnd) {
+      Level = "Unknown"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevel) {
+      ParentEnum = ParentEnum + 1
+      Level = "Parent"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == ParentLevelEnd) {
+      Level = "GrandParent"
+      }
+    (NF == 3) && ($2 == InstanceLevel) {
+      InstanceEnum = InstanceEnum + 1
+      InstanceParentID[InstanceEnum] = ParentEnum
+      InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+      Level = "Instance"
+      skip = "0"
+      }
+    (NF == 3) && ($2 == InstanceLevelEnd) {
+      Level = "Parent"
+      }
+
+    # Skip unknown subsections
+    NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+      skip = "1"
+      skipTo = "/" $2
+      }
+    skip == "1" {
+      if ( $2 == skipTo ) { skip = "0"}
+        else { next }
+      }
+
+    # Values
+    # When we get a property, we search through the "property" array to see if it matches something we are looking for
+    # We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+    NF == 5 {
+      currentProperty = $2
+      value = $3
+      propertyID = InstanceEnum
+      if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+      if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+      for ( pID in property) {
+        if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+        }
+      }
+
+    END {
+      # figure out highest property value
+      highestProperty = "0"
+      for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+      for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+        printf("%s","MSHW;")
+        for ( pID = 1 ; pID <= highestProperty ; pID++) {
+          if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+          else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+          else { printID = instanceID ; Level = "Instance" }
+          printf("%s",outputArray[Level,printID,pID] ";" )
+          }
+        print " "
+        }
+      }
 translations:
   PhysicalDiskTranslationTable:
     default: failed

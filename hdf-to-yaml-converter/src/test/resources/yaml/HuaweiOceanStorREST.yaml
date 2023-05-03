@@ -7,8 +7,24 @@ embedded:
         print $0
       }
     }
-  EmbeddedFile(3): "BEGIN {FS=\":\";}\n{\nif ($1 == \"iBaseToken\")\n    {\n       ibt = $2 ; gsub(/;/, \"\", ibt) ;\n\t     print \"iBaseToken:\" ibt\n    }\n}"
-  EmbeddedFile(2): "BEGIN {FS=\":\";}\n{\nif ($1 == \"Set-Cookie\")\n    {\n       cookie = $2 ; gsub(/^[ \\t]+/, \"\", cookie) ;\n\t     print \"Cookie:\" cookie\n    }\n}"
+  EmbeddedFile(3): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "iBaseToken")
+        {
+           ibt = $2 ; gsub(/;/, "", ibt) ;
+             print "iBaseToken:" ibt
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "Set-Cookie")
+        {
+           cookie = $2 ; gsub(/^[ \t]+/, "", cookie) ;
+             print "Cookie:" cookie
+        }
+    }
 translations:
   PhysicalDiskTypeTranslationTable:
     "11": NL_SAS_SED

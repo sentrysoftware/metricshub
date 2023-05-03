@@ -1,8 +1,81 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN { FS=\";\" }\n{\n\tcomputerID = $1\n\telementName = $2\n\tchassisID = $3\n\tvendor1 = $4\n\tmodel1 = $5\n\tserialNumber1 = $6\n\tvendor2 = $7\n\tmodel2 = $8\n\tserialNumber2 = $9\n\n\tif (vendor2 != \"\")\n\t{\n\t\tvendor = vendor2\n\t}\n\telse\n\t{\n\t\tvendor = vendor1\n\t}\n\n\tif (model2 != \"\")\n\t{\n\t\tmodel = model2\n\t}\n\telse\n\t{\n\t\tmodel = model1\n\t}\n\n\tif (length(serialNumber2) > 10)\n\t{\n\t\tserialNumber = serialNumber2\n\t}\n\telse\n\t{\n\t\tserialNumber = serialNumber1\n\t}\n\n\tif (model != \"\")\n\t{\n\t\tmodel = model \" - \" elementName\n\t}\n\telse\n\t{\n\t\tmodel =  elementName\n\t}\n\n\tprint \"MSHW;\" computerID \";\" chassisID \";\" vendor \";\" model \";\" serialNumber\n}"
-  EmbeddedFile(3): "BEGIN { alreadyFoundList = \";\"; }\n{\n\tif (index(alreadyFoundList, \";\" $0 \";\") == 0)\n\t{\n\t\tprint $0\n\t\talreadyFoundList = alreadyFoundList $0 \";\"\n\t}\n}"
-  EmbeddedFile(2): "BEGIN { FS=\";\" }\n{\n\tdeviceID = $1\n\tparentID = $2\n\tgrandParentID = $5\n\n\tif (grandParentID != \"\")\n\t{\n\t\tprint deviceID \";\" grandParentID\n\t}\n\telse\n\t{\n\t\tprint deviceID \";\" parentID\n\t}\n}"
+  EmbeddedFile(1): |-
+    BEGIN { FS=";" }
+    {
+        computerID = $1
+        elementName = $2
+        chassisID = $3
+        vendor1 = $4
+        model1 = $5
+        serialNumber1 = $6
+        vendor2 = $7
+        model2 = $8
+        serialNumber2 = $9
+
+        if (vendor2 != "")
+        {
+            vendor = vendor2
+        }
+        else
+        {
+            vendor = vendor1
+        }
+
+        if (model2 != "")
+        {
+            model = model2
+        }
+        else
+        {
+            model = model1
+        }
+
+        if (length(serialNumber2) > 10)
+        {
+            serialNumber = serialNumber2
+        }
+        else
+        {
+            serialNumber = serialNumber1
+        }
+
+        if (model != "")
+        {
+            model = model " - " elementName
+        }
+        else
+        {
+            model =  elementName
+        }
+
+        print "MSHW;" computerID ";" chassisID ";" vendor ";" model ";" serialNumber
+    }
+  EmbeddedFile(3): |-
+    BEGIN { alreadyFoundList = ";"; }
+    {
+        if (index(alreadyFoundList, ";" $0 ";") == 0)
+        {
+            print $0
+            alreadyFoundList = alreadyFoundList $0 ";"
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { FS=";" }
+    {
+        deviceID = $1
+        parentID = $2
+        grandParentID = $5
+
+        if (grandParentID != "")
+        {
+            print deviceID ";" grandParentID
+        }
+        else
+        {
+            print deviceID ";" parentID
+        }
+    }
 translations:
   DMTFOperationStatusTranslationTable:
     "11": degraded

@@ -1,6 +1,1389 @@
 ---
 embedded:
-  EmbeddedFile(1): "#!/bin/sh\n\n# UNIX standard commands\nUNAME=\"/usr/bin/uname\"\nRM=\"/usr/bin/rm\"\nHEAD=\"/usr/bin/head\"\nCUT=\"/usr/bin/cut\"\nCAT=\"/usr/bin/cat\"\n\n# For the commands below, use the XPG4 Version by default, the /usr/bin otherwise.\n\n# Always avoid using simple names instead of the full path to the binary because this can cause\n# some serious issues.\n# First, it makes the shell seek all of the directories in the $PATH variable, which can be long\n# if there are some NFS stuff in there\n# Second, simple name (like 'rm') are often aliased by system administrators, making the command\n# not to behave as expected!\n\n# Sed\nif [ -f /usr/xpg4/bin/sed ]; then\n\tSED=\"/usr/xpg4/bin/sed\";\nelse\n\tSED=\"/usr/bin/sed\";\nfi\n\n# Grep\nif [ -f /usr/xpg4/bin/grep ]; then\n\tGREP=\"/usr/xpg4/bin/grep\";\nelse\n\tGREP=\"/usr/bin/grep\";\nfi\n\n# Egrep\nif [ -f /usr/xpg4/bin/egrep ]; then\n\tEGREP=\"/usr/xpg4/bin/egrep\";\nelse\n\tEGREP=\"/usr/bin/egrep\";\nfi\n\n# Tail\nif [ -f /usr/xpg4/bin/tail ]; then\n\tTAIL=\"/usr/xpg4/bin/tail\";\nelse\n\tTAIL=\"/usr/bin/tail\";\nfi\n\n# Expr\nif [ -f /usr/xpg4/bin/expr ]; then\n\tEXPR=\"/usr/xpg4/bin/expr\";\nelse\n\tEXPR=\"/usr/bin/expr\";\nfi\n\n# Awk (or nawk)\nif [ -f /usr/xpg4/bin/awk ]; then\n\tAWK=\"/usr/xpg4/bin/awk\";\nelif [ -f /usr/bin/nawk ]; then\n\tAWK=\"/usr/bin/nawk\";\nelse\n\tAWK=\"awk\";\nfi\n\n\n\n###############################################\n# The function that gathers fan information\n###############################################\nMS_HW_fan()\n{\n\t# First first, (before first step), check if prtpicl does it or not\n\tif [ $PRTPICLDOESIT = \"1\" ]; then\n\t\treturn;\n\tfi\n\n\t# If platform is sun4v or i86pc, don't try to do it\n\tif [ $HARDWARECLASS = \"sun4v\" -o $HARDWARECLASS = \"i86pc\" ]; then\n\t\treturn;\n\tfi\n\n\t# First, check if there is some fan information in the prtdiag output\n\tFANPRESENT=`$CAT $HARDINFOTEMPFILE | $EGREP '(ft_f|Fan.*:)' `\n\n\t# If there is some fan information, then _try_ to understand how it is formated\n\t# Good luck...\n\tif [ ! -z \"$FANPRESENT\" ]; then\n\n\t\tcase $MACHINEMODEL in\n\n        \tSun-Fire-280R)\n        \t\tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n        \t\t\t\t  $AWK '/Fan Bank/, /^====/ {print $0 \"|\"}' |\n        \t\t\t\t  $TAIL +5`\n\t\t\t;;\n\n\t\t\tSun-Fire-480R|Sun-Fire-V490)\n\t\t\t\tFANTABLE=`$AWK '/^Fan Status/, /^====/ { print $0 }' $HARDINFOTEMPFILE |\n\t\t\t\t\t\t  $TAIL +6 |\n\t\t\t\t\t\t  $AWK '\n\t\t\t\t\t\t  {\n\t\t\t\t\t\t      if (NF == 3)\n\t\t\t\t\t\t      {\n\t\t\t\t\t\t          print $1 \" \" $3 \"|\"\n\t\t\t\t\t\t      }\n\t\t\t\t\t\t      else if (NF == 4)\n\t\t\t\t\t\t      {\n\t\t\t\t\t\t          print $1 \"/\" $2 \" \" $4 \"|\"\n\t\t\t\t\t\t      }\n\t\t\t\t\t\t  }'`\n\t\t\t\tPOWERSUPPLYFANTABLE=`$AWK '/^Power Supplies/, /^=====/ { print $0 }' $HARDINFOTEMPFILE |\n\t\t\t\t\t\t\t\t\t $AWK '/^PS[0-9]/ {\n\t\t\t\t\t\t\t\t\t \tif (NF == 6)\n\t\t\t\t\t\t\t\t\t \t{\n\t\t\t\t\t\t\t\t\t \t\tif ($5 == \"ON\")\n\t\t\t\t\t\t\t\t\t \t\t{\n\t\t\t\t\t\t\t\t\t \t\t\tprint $1 \" Failed|\"\n\t\t\t\t\t\t\t\t\t \t\t}\n\t\t\t\t\t\t\t\t\t \t\telse\n\t\t\t\t\t\t\t\t\t \t\t{\n\t\t\t\t\t\t\t\t\t \t\t\tprint $1 \" OK|\"\n\t\t\t\t\t\t\t\t\t \t\t}\n\t\t\t\t\t\t\t\t\t \t}\n\t\t\t\t\t\t\t\t\t }'`\n\t\t\t\tFANTABLE=\"$FANTABLE $POWERSUPPLYFANTABLE\"\n\t\t\t;;\n\n\t\t\tSun-Fire-880|Sun-Fire-V890)\n\t\t\t\tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n\t\t\t\t\t\t  $AWK '/Fan Bank/, /^====/ {print $0 \"|\"}' |\n\t\t\t\t\t\t  $TAIL +6`\n            ;;\n\n\t\t\tSun-Fire-V1xx)\n\t\t\t\tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n\t\t\t\t\t\t  $AWK '/^Fans:/, /speed/ {print $1,$2 \"|\"}' |\n\t\t\t\t\t\t  $TAIL +2`\n\t    \t;;\n\n        \tUltra-Enterprise)\n        \t\tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n        \t\t\t\t  $AWK '/^Fans:/, /^$/ {print $0 \"|\"}' |\n        \t\t\t\t  $TAIL -1`\n\t    \t;;\n\n\t    \tUltra-4)\n\t    \t\tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n\t    \t\t\t\t  $AWK '/^Fans:/, /^$/ {print $0 \"|\"}' |\n\t    \t\t\t\t  $TAIL +5`\n\t    \t;;\n\n        \tNetra-T12)\n        \t\tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n        \t\t\t\t  $AWK '/^Fru Operational Status:/, /^====/ {print $0 \"|\"}' |\n        \t\t\t\t  $GREP FAN`\n            ;;\n\n            Sun-Blade-100|Sun-Blade-1000|Serverblade1)\n            \tFANTABLE=`$AWK '/^Fan (Speeds)|(Status):/, /^ *$/ {print $0}' $HARDINFOTEMPFILE |\n            \t\t\t $TAIL +5 |\n            \t\t\t $AWK '\n            \t\t\t {\n            \t\t\t \tif (NF == 2)\n            \t\t\t \t{\n            \t\t\t  \t\tif ($2 ~ \"[0-9]+%\")\n            \t\t\t  \t\t{\n            \t\t\t  \t\t\tspeedPercent = int(substr($2, 1, length($2)-1))\n            \t\t\t  \t\t\tif (speedPercent > 15)\n            \t\t\t  \t\t\t{\n            \t\t\t  \t\t\t\tprint $1 \" okay|\"\n            \t\t\t  \t\t\t}\n            \t\t\t  \t\t\telse if (speedPercent > 1)\n            \t\t\t  \t\t\t{\n            \t\t\t  \t\t\t\tprint $1 \" TooSlow|\"\n            \t\t\t  \t\t\t}\n            \t\t\t  \t\t\telse\n            \t\t\t  \t\t\t{\n            \t\t\t  \t\t\t\tprint $1 \" failed|\"\n            \t\t\t  \t\t\t}\n            \t\t\t  \t\t}\n            \t\t\t  \t}\n            \t\t\t  \telse if (NF == 3)\n            \t\t\t  \t{\n            \t\t\t  \t\tprint $2 \" \" $3 \"|\"\n            \t\t\t  \t}\n            \t\t\t  \telse if (NF == 4)\n            \t\t\t  \t{\n            \t\t\t  \t\tprint $2 \" \" $3 \"|\"\n            \t\t\t  \t}\n            \t\t\t  }'`\n            ;;\n\n\t        Sun-Fire-V[24][123456789][05])\n\n\t        \tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n\t        \t\t\t  $AWK '($2 == \"RS\" || $2 == \"FF_FAN\" || $2 == \"FF_PDCT_FAN\" || $2 == \"TACH\") {\n\t        \t\t\t      if ($3 ~ \"[0-9]+\")\n\t        \t\t\t      {\n\t        \t\t\t          if ($1 ~ \"MB.P[0-9].F[0-9]\")\n\t        \t\t\t          {\n\t        \t\t\t              if (int($3) == 0)\n\t        \t\t\t              {\n\t        \t\t\t          \t      print $1 \" failed|\"\n\t        \t\t\t              }\n\t        \t\t\t              else if (int($3) < 10000)\n\t        \t\t\t              {\n\t        \t\t\t                  print $1 \" TooSlow|\"\n\t        \t\t\t              }\n\t        \t\t\t              else\n\t        \t\t\t              {\n\t        \t\t\t                  print $1 \" okay|\"\n\t        \t\t\t              }\n\t        \t\t\t          }\n\t        \t\t\t          else\n\t        \t\t\t          {\n\t        \t\t\t  \t          if (int($3) == 0)\n\t        \t\t\t  \t          {\n\t        \t\t\t  \t              print $1 \" failed|\"\n\t        \t\t\t  \t          }\n\t        \t\t\t  \t          else if (int($3) < 3000)\n\t        \t\t\t  \t          {\n\t        \t\t\t  \t              print $1 \" TooSlow|\"\n\t        \t\t\t  \t          }\n\t        \t\t\t  \t          else\n\t        \t\t\t  \t          {\n\t        \t\t\t  \t              print $1 \" okay|\"\n\t        \t\t\t  \t          }\n\t        \t\t\t  \t      }\n\t        \t\t\t  \t  }\n\t        \t\t\t  \t  else\n\t        \t\t\t  \t  {\n\t        \t\t\t  \t      print $1 \" \" $3 \"|\"\n\t        \t\t\t  \t  }\n\t        \t\t\t }`\n\t        ;;\n\n\t        GPUS)\n\t        \tFANTABLE=`$AWK '/^Fans:/ { print \"OverallCooling \" $2 \"|\" }' $HARDINFOTEMPFILE`\n\n\t        ;;\n\n        \t*)\n        \t\tFANTABLE=`$CAT $HARDINFOTEMPFILE |\n        \t\t\t\t  $AWK '/^Fan.*:/, /^====/ {print $0 \"|\"}' |\n        \t\t\t\t  $TAIL +5`\n            ;;\n\n\t\tesac\n\n\t\t/usr/bin/echo $FANTABLE |\n\t\t$AWK '\n\t\t\tBEGIN { RS = \"|\" }\n\t\t\t{ print $0 }\n\t\t' |\n        $GREP -v \"====\" |\n        $GREP -v \"\\-\\-\\-\\-\" |\n        $GREP -v \"Status\" |\n        $GREP -v \"^$\" |\n        $AWK '\n        {\n        \tif (NF == 2)\n        \t{\n        \t\tfanName = $1\n        \t\tfanStatus = $2\n        \t}\n        \telse if (NF == 3)\n        \t{\n        \t\tfanName = $1\n        \t\tfanStatus = $3\n        \t}\n        \telse if (NF == 4)\n        \t{\n        \t\tfanName = $1\n        \t\tfanStatus = $4\n        \t}\n\n        \tif (NF == 2 || NF == 3 || NF == 4)\n        \t{\n        \t\tprint \"MSHW;Fan;\" fanName \";\" fanStatus\n        \t}\n        }'\n\n\tfi\n\n} # end check_fan_staus\n\n\n#########################################################\n# The function that gathers temperature information\n#########################################################\nMS_HW_temperature()\n{\n\t# First first, (before first step), check if prtpicl does it or not\n\tif [ $PRTPICLDOESIT = \"1\" ]; then\n\t\treturn;\n\tfi\n\n\t# If platform is sun4v or i86pc, don't try to do it\n\tif [ $HARDWARECLASS = \"sun4v\" -o $HARDWARECLASS = \"i86pc\" ]; then\n\t\treturn;\n\tfi\n\n\t# First, check that the machine we are running on does report system temperature\n\tNOTEMPERATURE_SYSTEMS=\"Ultra-1 Ultra-2 Ultra-5_10 Ultra-30 Ultra-60 Ultra-80 UltraAX-i2|UltraSPARC-IIi-cEngine Netra-T4\"\n\tNOTEMPERATURE=`/usr/bin/echo $NOTEMPERATURE_SYSTEMS | $EGREP \"$MACHINEMODEL\"`\n\tif [ -n \"$NOTEMPERATURE\" ]; then\n\t\treturn;\n\tfi\n\n\t# Now try to parse the prtdiag output and find out the temperatures\n\t# Not an easy task...\n\n\tcase $MACHINEMODEL in\n\n\t\tUltra-Enterprise)\n\t\t\tTEMPERATURETABLE=`$AWK '/^System Temperatures/, /^ *$/ { print $0 }' $HARDINFOTEMPFILE |\n\t\t\t\t\t\t\t  $TAIL +5 |\n\t\t\t\t\t\t\t  $AWK '\n\t\t\t\t\t\t\t  {\n\t\t\t\t\t\t\t  \tif ($2 ~ /^[0-9]+$/)\n\t\t\t\t\t\t\t  \t{\n\t\t\t\t\t\t\t  \t\tprint $1,$2 \",\"\n\t\t\t\t\t\t\t  \t}\n\t\t\t\t\t\t\t  \telse if ($3 ~ /^[0-9]+$/)\n\t\t\t\t\t\t\t  \t{\n\t\t\t\t\t\t\t  \t\tprint $1,$3,$2 \",\"\n\t\t\t\t\t\t\t  \t}\n\t\t\t\t\t\t\t  }'`\n        ;;\n\n        Ultra-4)\n            CPUTEMPERATURE=`$CAT $HARDINFOTEMPFILE |\n                \t\t\t$SED -n '/^System Temp/,/^======/p' |\n                 \t\t\t$SED 's/CPU /CPU/g' |\n                \t\t\t$EGREP '^[A-Z0-9]+ +[0-9]+$'|\n                \t\t\t$SED 's/ *\\([0-9A-Z]*\\) *\\([0-9]*\\)/\\1 \\2,/g'`\n            POWERSUPPLYTEMPERATURE=`$AWK '/^Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |\n            \t\t\t\t\t\t$TAIL +5 |\n            \t\t\t\t\t\t$AWK '/[0-9]/ {print \"PowerSupply\" $1,$4,\",\" }'`\n\t\t\tTEMPERATURETABLE=\"$CPUTEMPERATURE $POWERSUPPLYTEMPERATURE\"\n        ;;\n\n        Ultra-250)\n        \tTEMPERATURETABLE=`$AWK '/^System Temperatures/, /^======/ {print $0}' $HARDINFOTEMPFILE |\n        \t\t\t\t\t  $TAIL +3 |\n        \t\t\t\t\t  $AWK '\n        \t\t\t\t\t  {\n        \t\t\t\t\t  \tif (NF == 2 && $2 ~ /^[0-9]+$/)\n        \t\t\t\t\t  \t{\n        \t\t\t\t\t  \t\tprint $1,$2 \",\"\n        \t\t\t\t\t  \t}\n        \t\t\t\t\t  }'`\n        ;;\n\n        Sun-Blade-1000|Sun-Blade-100|Serverblade1)\n            TEMPERATURETABLE1=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t   $EGREP '^ +[0-9] .+[0-9]+ C +[0-9]+ C' |\n            \t\t\t\t   $AWK '{print \"CPU_\" $1 \"_Die\",$7,\"nostatus, CPU_\" $1 \"_Ambient\",$9,\"nostatus,\"}'`\n            TEMPERATURETABLE2=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t   $AWK '/^Temperature sensors:/, /^======|^Voltage/ { print $0 }' |\n            \t\t\t\t   $TAIL +5 |\n            \t\t\t\t   $AWK '{\n            \t\t\t\t   \t\t\tif (NF == 3)\n            \t\t\t\t   \t\t\t{\n            \t\t\t\t   \t\t\t\tprint $1 \"_\" $2,$3,\"novalue,\"\n            \t\t\t\t   \t\t\t}\n            \t\t\t\t   \t\t\telse if (NF == 8)\n            \t\t\t\t   \t\t\t{\n            \t\t\t\t   \t\t\t\tprint $1 \"_\" $2,$3,$6,$7,$8 \",\"\n            \t\t\t\t   \t\t\t}\n            \t\t\t\t   \t\t  }'`\n            TEMPERATURETABLE=\"$TEMPERATURETABLE1 $TEMPERATURETABLE2\"\n        ;;\n\n        Sun-Fire)\n            # Sun Fire 3800, 4800, 4810 & 6800 servers\n            CPUTEMPERATURES=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t $EGREP '^/N[0-9]+/.+ US-III .+[0-9]+ ' |\n            \t\t\t\t $AWK ' {print \"CPU_\" $1,$7,\",\"}'`\n            BOARDTEMPERATURES=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t   $EGREP '^/N[0-9]+/.+ ( on | off ) .+[0-9]+ ' |\n            \t\t\t\t   $AWK '{if (int($6) > 0) {print \"Board_\" $1 \"_0\",$6,\",\"};  \\\n            \t\t\t\t\t\t  if (int($7) > 0) {print \" Board_\" $1 \"_1\",$7,\",\"}; \\\n            \t\t\t\t\t\t  if (int($8) > 0) {print \" Board_\" $1 \"_2\",$8,\",\"}; \\\n            \t\t\t\t\t\t  if (int($9) > 0) {print \" Board_\" $1 \"_3\",$9,\",\"}}'`\n            PSTEMPERATURES=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t$EGREP \"^PS[0-9]+\" |\n            \t\t\t\t$AWK '{print $1,$4,\",\"}'`\n            TEMPERATURETABLE=\"$CPUTEMPERATURES $BOARDTEMPERATURES $PSTEMPERATURES\"\n        ;;\n\n        Sun-Fire-880|Sun-Fire-V890)\n        \tTEMPERATURETABLE=`$AWK '/^System Temperatures/, /^======/ { print $0 }' $HARDINFOTEMPFILE |\n        \t\t\t\t\t  $TAIL +5 |\n        \t\t\t\t\t  $AWK '\n        \t\t\t\t\t  {\n        \t\t\t\t\t  \tif (NF == 3 && $2 ~ /^[0-9]+$/)\n        \t\t\t\t\t  \t{\n        \t\t\t\t\t  \t\tprint $1,$2,$3 \",\"\n        \t\t\t\t\t  \t}\n        \t\t\t\t\t  }'`\n        ;;\n\n        Sun-Fire-280R)\n            CPULINE=`$CAT $HARDINFOTEMPFILE |\n                     $EGREP -n '^cpu(0|1)' |\n                     $AWK -F: '{print $1}'`\n            TEMPLINE=`$EXPR 0$CPULINE + 2`\n            TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t  $SED -n ${TEMPLINE}p |\n            \t\t\t\t  $AWK '{\n            \t\t\t\t\t\t\tif ( $1 ==\"xx\" ) {print \"cpu1\",$2 }\n\t\t\t\t\t\t\t\t\t\telse if ( $2 ==\"xx\" ) {print \"cpu0\",$1 }\n\t\t\t\t\t\t\t\t\t\telse { print \"cpu0\",$1,\",cpu1\",$2} }'`\n        ;;\n\n        Sun-Fire-480R|Sun-Fire-V490)\n            TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t  $AWK '/^System Temperatures/, /^====/ { print $0 }' |\n            \t\t\t\t  $EGREP '^(CPU[0-9]+|DBP0)[^a-zA-Z]+[0-9]+'|\n            \t\t\t\t  $AWK '{print $1,$2,$3,\",\"}'`\n\t\t\tPSTEMPERATURETABLE=`$AWK '/^Power Supplies/, /^=====/ { print $0 }' $HARDINFOTEMPFILE |\n\t\t\t\t\t\t\t\t$AWK '/^PS[0-9]/ {\n\t\t\t\t\t\t\t\t \tif (NF == 6)\n\t\t\t\t\t\t\t\t \t{\n\t\t\t\t\t\t\t\t \t\tif ($6 == \"ON\")\n\t\t\t\t\t\t\t\t \t\t{\n\t\t\t\t\t\t\t\t \t\t\tprint $1 \" Failed,\"\n\t\t\t\t\t\t\t\t \t\t}\n\t\t\t\t\t\t\t\t \t\telse\n\t\t\t\t\t\t\t\t \t\t{\n\t\t\t\t\t\t\t\t \t\t\tprint $1 \" OK,\"\n\t\t\t\t\t\t\t\t \t\t}\n\t\t\t\t\t\t\t\t \t}\n\t\t\t\t\t\t\t\t}'`\n\t\t\tTEMPERATURETABLE=\"$TEMPERATURETABLE $PSTEMPERATURETABLE\"\n        ;;\n\n        Sun-Fire-V[24][123456789][05])\n            TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t  $EGREP 'T_CORE|T_ENC|T_AMB|FF_OT' |\n            \t\t\t\t  $AWK '{print $1,$3,$6,$7,$8 \",\"}'`\n        ;;\n\n        Sun-Fire-V1xx)\n        \tENCLOSURETEMPERATURETABLE=`$AWK '/System Temperature Sensors:/, /^nOtHiNg/ { print $0 }' $HARDINFOTEMPFILE |\n        \t\t\t\t\t\t\t   $TAIL +2 |\n        \t\t\t\t\t\t\t   $AWK 'BEGIN { ignore = 0; }\n        \t\t\t\t\t\t\t   {\n        \t\t\t\t\t\t\t   \tif ($0 ~ /^[A-Z]/)\n        \t\t\t\t\t\t\t   \t{\n        \t\t\t\t\t\t\t   \t\tignore = 1;\n        \t\t\t\t\t\t\t   \t}\n        \t\t\t\t\t\t\t   \tif (ignore == 0)\n        \t\t\t\t\t\t\t   \t{\n        \t\t\t\t\t\t\t   \t\tprint \"Enclosure\",$3 \",\"\n        \t\t\t\t\t\t\t   \t}\n        \t\t\t\t\t\t\t   }'`\n        \tCPUTEMPERATURETABLE=`$AWK '/System Over-temperature Sensors:/, /^nOtHiNg/ { print $0 }' $HARDINFOTEMPFILE |\n        \t\t\t\t\t\t $TAIL +2 |\n        \t\t\t\t\t\t $AWK 'BEGIN { ignore = 0; }\n        \t\t\t\t\t\t /CPU status=/ {\n        \t\t\t\t\t\t \tif ($0 ~ /^[A-Z]/)\n        \t\t\t\t\t\t \t{\n        \t\t\t\t\t\t \t\tignore = 1;\n        \t\t\t\t\t\t \t}\n        \t\t\t\t\t\t \tif (ignore == 0)\n        \t\t\t\t\t\t \t{\n        \t\t\t\t\t\t \t\tstatus = substr($3, 8, length($3)-7);\n        \t\t\t\t\t\t \t\tprint \"CPU_\" $1,status \",\"\n        \t\t\t\t\t\t \t}\n        \t\t\t\t\t\t }'`\n        \tTEMPERATURETABLE=\"$ENCLOSURETEMPERATURETABLE $CPUTEMPERATURETABLE\"\n        ;;\n\n        Netra-T12)\n            TEMPERATURETABLE=`$AWK '/^Temperature sensors:/, /^====/ {print $0}' $HARDINFOTEMPFILE |\n            \t\t\t\t  $GREP \"[0-9]C.*[0-9]C.*[0-9]C\" |\n            \t\t\t\t  $AWK '{print $1 \"/\" $2,$3,$6,$7,$8 \",\"}'`\n        ;;\n\n        GPUS)\n        \tTEMPERATURETABLE=`$AWK '/^System Temperature/,/^$/ {print $0}' $HARDINFOTEMPFILE |\n        \t\t\t\t\t  $TAIL +2 |\n        \t\t\t\t\t  $AWK '{print $1 \" \" $2 \",\"}'`\n        ;;\n\n        *)\n            TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |\n            \t\t\t\t  $EGREP '^ +[0-9A-Z]+ +[0-9]+$'|\n            \t\t\t\t  $SED 's/ *\\([0-9A-Z]*\\) *\\([0-9]*\\)/\\1 \\2,/g'`;\n        ;;\n\n\tesac\n\n\t# Remove the trailing comma\n    TEMPERATURETABLE=`/usr/bin/echo $TEMPERATURETABLE | $SED 's/,$//'`\n\n\t# Re-format the TEMPERATURETABLE and try to provide warning and alarm thresholds\n    /usr/bin/echo $TEMPERATURETABLE |\n    $AWK -v MACHINEMODEL=$MACHINEMODEL '\n        BEGIN { RS = \",\" }\n\t\t{\n\t\t\tdeviceID = \"\";\n\t\t\tvalue = \"\";\n\t\t\tstatus = \"\";\n\t\t\tthresholdAlarm = \"\";\n\t\t\tthresholdWarn = \"\";\n\n            if (MACHINEMODEL == \"Ultra-4\")\n            {\n            \tdeviceID = $1;\n            \tvalue = $2;\n            \tstatus = \"\";\n            \tif (deviceID == \"AMBIENT\")\n            \t{\n            \t\tthresholdAlarm = 55;\n            \t\tthresholdWarn = 40;\n            \t}\n            \telse if (deviceID ~ /PowerSupply/)\n            \t{\n            \t\tthresholdAlarm = 65;\n            \t\tthresholdWarn = 50;\n            \t}\n            \telse\n            \t{\n            \t\tthresholdAlarm = 85;\n            \t\tthresholdWarn = 75;\n            \t}\n            }\n\n            else if (MACHINEMODEL == \"Ultra-Enterprise\")\n            {\n            \tif (NF == 2)\n            \t{\n            \t\tdeviceID = $1;\n            \t\tvalue = $2;\n            \t\tstatus = \"\";\n            \t\tthresholdWarn = 55;\n            \t\tthresholdAlarm = 65;\n            \t}\n            \telse\n            \t{\n            \t\tdeviceID = $1;\n            \t\tvalue = $2;\n            \t\tstatus = $3;\n            \t\tthresholdWarn = 55;\n            \t\tthresholdAlarm = 65;\n            \t}\n            }\n\n            else if (MACHINEMODEL == \"Ultra-250\")\n            {\n            \tdeviceID = $1;\n            \tvalue = $2;\n            \tstatus = \"\";\n            \tif (deviceID ~ /^CPU/)\n            \t{\n            \t\tthresholdWarn = 75;\n            \t\tthresholdAlarm = 85;\n            \t}\n            \telse\n            \t{\n            \t\tthresholdWarn = 40;\n            \t\tthresholdAlarm = 60;\n            \t}\n            }\n\n            else if (MACHINEMODEL == \"Sun-Blade-1000\" || MACHINEMODEL == \"Sun-Blade-100\" || MACHINEMODEL == \"Serverblade1\")\n            {\n            \tdeviceID = $1;\n            \tif ($3 == \"nostatus\")\n            \t{\n            \t\tvalue = $2;\n            \t\tstatus = \"\";\n            \t\tif (MACHINEMODEL == \"Sun-Blade-1000\")\n            \t\t{\n\t\t            \tif (deviceID ~ /Die/)\n\t\t            \t{\n\t\t                    thresholdAlarm = 90;\n\t\t                    thresholdWarn = 85;\n\t\t                }\n\t\t                if (deviceID ~ /Ambient/)\n\t\t                {\n\t\t                    thresholdAlarm = 60;\n\t\t                    thresholdWarn = 40;\n\t\t                }\n\t\t            }\n\t\t            else\n\t\t            {\n\t\t            \tif ($1 ~ /Die/)\n\t\t            \t{\n\t\t                    thresholdAlarm = 70;\n\t\t                    thresholdWarn = 65;\n\t\t                }\n\t\t                if ($1 ~ /Ambient/)\n\t\t                {\n\t\t                    thresholdAlarm = 60;\n\t\t                    thresholdWarn = 40;\n\t\t                }\n\t\t \t\t    }\n\t\t \t\t}\n\t\t \t\telse if ($3 == \"novalue\")\n\t\t \t\t{\n\t\t \t\t\tvalue = \"\";\n\t\t \t\t\tstatus = $2;\n\t\t \t\t\tthresholdAlarm = \"\";\n\t\t \t\t\tthresholdWarn = \"\";\n\t\t \t\t}\n\t\t \t\telse\n\t\t \t\t{\n\t\t \t\t\tvalue = $2;\n\t\t \t\t\tstatus = $5;\n\t\t \t\t\tthresholdWarn = $3;\n\t\t \t\t\tthresholdAlarm = $4;\n\t\t \t\t}\n            }\n\n            else if (MACHINEMODEL == \"Sun-Fire\")\n            {\n            \tdeviceID = $1;\n            \tvalue = $2;\n            \tstatus = \"\";\n            \tif (deviceID ~ /CPU/)\n            \t{\n                    thresholdAlarm=80;\n                    thresholdWarn=75;\n                }\n                if (deviceID ~ /Board/)\n                {\n                    thresholdAlarm=60;\n                    thresholdWarn=50;\n                }\n                if (deviceID ~ /PS/)\n                {\n                \tthresholdAlarm=60;\n                \tthresholdWarn=45;\n                }\n            }\n\n            else if (MACHINEMODEL == \"Sun-Fire-480R\" || MACHINEMODEL == \"Sun-Fire-V490\")\n            {\n            \tdeviceID = $1\n            \tif (NF == 3)\n            \t{\n\t            \tvalue = $2\n\t            \tstatus = $3\n\t            \tif (MACHINEMODEL == \"Sun-Fire-480R\")\n\t            \t{\n\t\t                thresholdAlarm = 70;\n\t\t                thresholdWarn = 65;\n\t\t            }\n\t\t            else\n\t\t            {\n\t\t            \tthresholdAlarm = 85;\n\t\t            \tthresholdWarn = 80;\n\t\t            }\n\t                if (deviceID ~ /BP[01]/)\n\t                {\n\t                \t# Guess here - typical is 20-30\n\t                    thresholdAlarm=60;\n\t                    thresholdWarn=50;\n\t                }\n\t            }\n\t            else\n\t            {\n\t            \tvalue = \"\";\n\t            \tstatus = $2;\n\t            \tthresholdAlarm = \"\";\n\t            \tthresholdWarn = \"\";\n\t            }\n\t\t\t}\n\n\t\t\telse if (MACHINEMODEL == \"Sun-Fire-880\" || MACHINEMODEL == \"Sun-Fire-V890\")\n\t\t\t{\n\t\t\t\tdeviceID = $1;\n\t\t\t\tvalue = $2;\n\t\t\t\tstatus = $3;\n                thresholdAlarm = 85;\n                thresholdWarn = 80;\n                if (deviceID ~ /BP[01]/)\n                {\n                    thresholdAlarm=52;\n                    thresholdWarn=47;\n                }\n                else if (deviceID ~ /IOB/)\n                {\n                    thresholdAlarm=49;\n                    thresholdWarn=44;\n                }\n                else if (deviceID ~ /MB/)\n                {\n                    thresholdAlarm=70;\n                    thresholdWarn=65;\n                }\n            }\n            else if (MACHINEMODEL == \"Sun-Fire-280R\")\n            {\n            \tdeviceID = $1;\n            \tvalue = $2;\n                thresholdAlarm = 80;\n                thresholdWarn = 75;\n                status = \"\";\n            }\n\n            else if (MACHINEMODEL ~ /Sun-Fire-V[24][123456789][05]/)\n            {\n            \tdeviceID = $1;\n            \tif (NF == 5)\n            \t{\n\t            \tvalue = $2;\n\t            \tstatus = $5;\n\t            \tif (value ~ /^[0-9]+C*$/)\n\t            \t{\n\t                \tthresholdAlarm = $4;\n\t                \tthresholdWarn = $3;\n\t                }\n\t                else\n\t                {\n\t                \tvalue = \"\";\n\t                \tthresholdWarn = \"\";\n\t                \tthresholdAlarm = \"\";\n\t                }\n\t            }\n\t            else if (NF == 2)\n\t            {\n\t            \tstatus = $2;\n\t            \tvalue = \"\";\n\t            \tthresholdWarn = \"\";\n\t            \tthresholdAlarm = \"\";\n\t            }\n\n            }\n\n            else if (MACHINEMODEL == \"Sun-Fire-V1xx\")\n            {\n            \tdeviceID = $1\n            \tif ($2 ~ /^[0-9]+$/)\n            \t{\n            \t\tvalue = $2;\n            \t\tstatus = \"\";\n\t                thresholdAlarm=72;\n\t                thresholdWarn=67;\n\t            }\n\t            else\n\t            {\n\t            \tvalue = \"\";\n\t            \tstatus = $2;\n\t            \tthresholdAlarm = \"\";\n\t            \tthresholdWarn = \"\";\n\t            }\n            }\n\n            else if (MACHINEMODEL == \"Netra-T12\")\n            {\n            \tdeviceID = $1;\n            \tvalue = $2;\n                thresholdAlarm = $4;\n                thresholdWarn = $3;\n                status = $5;\n            }\n\n            else if (MACHINEMODEL == \"GPUS\")\n            {\n            \tdeviceID = $1;\n            \tvalue = $2;\n            \tstatus = \"\";\n\n            \tif (deviceID ~ /Motherboard/ || deviceID ~ /Amb/)\n            \t{\n            \t\tthresholdAlarm = 50;\n            \t\tthresholdWarn = 45;\n            \t}\n            \telse\n            \t{\n            \t\tthresholdWarn = 70;\n            \t\tthresholdAlarm = 75;\n            \t}\n            }\n\n            else\n            {\n            \tdeviceID = $1;\n            \tif ($2 ~ /^[0-9]+C*$/)\n            \t{\n            \t\tvalue = $2;\n            \t\tstatus = \"\";\n\n\t            \t# Use sane values as default\n\t            \tthresholdWarn = 70;\n\t                thresholdAlarm = 75;\n\t            }\n\t            else\n\t            {\n\t            \tvalue = \"\";\n\t            \tstatus = $2;\n\t            \tthresholdWarn = \"\";\n\t            \tthresholdAlarm = \"\";\n\t            }\n            }\n\n\t\t\tif (deviceID != \"\")\n\t\t\t{\n\t\t\t\tif (substr(value, length(value), 1) == \"C\")\n\t\t\t\t{\n\t\t\t\t\tvalue = substr(value, 1, length(value)-1)\n\t\t\t\t}\n\t\t\t\tif (substr(thresholdWarn, length(thresholdWarn), 1) == \"C\")\n\t\t\t\t{\n\t\t\t\t\tthresholdWarn = substr(thresholdWarn, 1, length(thresholdWarn)-1)\n\t\t\t\t}\n\t\t\t\tif (substr(thresholdAlarm, length(thresholdAlarm), 1) == \"C\")\n\t\t\t\t{\n\t\t\t\t\tthresholdAlarm = substr(thresholdAlarm, 1, length(thresholdAlarm)-1)\n\t\t\t\t}\n\t\t\t\tprint \"MSHW;Temperature;\" deviceID \";\" value \";\" thresholdWarn \";\" thresholdAlarm \";\" status\n\t\t\t}\n\n        } '\n\n} # end MS_HW_temperature()\n\n\n######################################################\n# The function that gathers power supply information\n######################################################\n\nMS_HW_powersupply()\n{\n\t# If platform is sun4v or i86pc, don't try to do it\n\tif [ $HARDWARECLASS = \"sun4v\" -o $HARDWARECLASS = \"i86pc\" ]; then\n\t\treturn;\n\tfi\n\n\t# Verify if this machine gives some power supply-related information\n\tcase $MACHINEMODEL in\n\t\tNetra-T12)\n    \t\tPOWERSUPPLYPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"^PS0\"`\n    \t;;\n        Sun-Fire-V[24][123456789][05])\n        \tPOWERSUPPLYPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"^PS0\"`\n        ;;\n        *)\n    \t\tPOWERSUPPLYPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"Power Supplies\" `\n    \t;;\n    esac\n\n\tif [ -z \"$POWERSUPPLYPRESENT\" ]; then\n\t\treturn\n\tfi\n\n    case $MACHINEMODEL in\n\t    Sun-Fire-880|Sun-Fire-V890)\n            $AWK '/^Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |\n            $GREP \"^PS[0-9]\" |\n            $AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $2}'\n        ;;\n\n        Sun-Fire)\n        \t$AWK '/Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |\n            $EGREP \"^PS[0-9]\" |\n            $AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $7}'\n        ;;\n\n        Ultra-250)\n\t        $AWK '/Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |\n\t        $TAIL -5 |\n\t        $EGREP -v '(^$|^==|---|^Supply)' |\n\t        $AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $2}'\n        ;;\n\n        Sun-Fire-V1xx)\n            $AWK '/PSUs:/, /^1/ {print $0}' $HARDINFOTEMPFILE |\n\t        $TAIL +2 |\n            $AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $2}'\n        ;;\n\n        Ultra-Enterprise)\n            $AWK '/Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |\n            $EGREP -v \"(^$|^--|^Sup|^Power|^ )\" |\n            $AWK '\n            {\n            \tif (NF == 2)\n            \t{\n            \t\tprint \"MSHW;PowerSupply;\" $1 \";\" $2\n            \t}\n            \telse if (NF == 3)\n            \t{\n            \t\tprint \"MSHW;PowerSupply;\" $1 \" \" $2 \";\" $3\n            \t}\n            }'\n        ;;\n\n        Sun-Fire-480R|Sun-Fire-V490)\n            $AWK '/Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |\n            $EGREP \"^PS[0-9]\" |\n            $AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $2}'\n        ;;\n\n        Netra-T12)\n        \t$AWK '/^Fru Operational Status/, /^====/' $HARDINFOTEMPFILE |\n            $GREP \"^PS\" |\n            $AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $2}'\n        ;;\n\n\t\tUltra-4)\n            $AWK '/^Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |\n            $TAIL +5 |\n            $AWK '/[0-9]/ {print \"MSHW;PowerSupply;\" $1 \";\" $5}'\n        ;;\n\n        Sun-Fire-V[24][123456789][05])\n        \t$AWK '/^(Board Status)|(Fru Operational Status):/, /^====/ {print $0}' $HARDINFOTEMPFILE |\n        \t$TAIL +5 |\n        \t$GREP '^PS[0-9]' |\n        \t$AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $2}'\n        ;;\n\n        GPUS)\n        \t$AWK '/^Power Supplies:/ {print \"MSHW;PowerSupply;General;\" $3}' $HARDINFOTEMPFILE\n        ;;\n\n        *)\n            $AWK '/Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |\n            $GREP -v \"^$\" |\n            $TAIL +5 |\n            $AWK '{print \"MSHW;PowerSupply;\" $1 \";\" $2}'\n        ;;\n\n\tesac\n\n} # end MS_HW_powersupply()\n\n\n#######################################################\n# The function that gathers voltage information\n#######################################################\n\nMS_HW_voltage()\n{\n\t# First first, (before first step), check if prtpicl does it or not\n\tif [ $PRTPICLDOESIT = \"1\" ]; then\n\t\treturn;\n\tfi\n\n\t# If platform is sun4v or i86pc, don't try to do it\n\tif [ $HARDWARECLASS = \"sun4v\" -o $HARDWARECLASS = \"i86pc\" ]; then\n\t\treturn;\n\tfi\n\n\t# Is there some voltage-related information in the lom or prtdiag output?\n\tVOLTAGEPRESENT=\"\"\n\tcase $MACHINEMODEL in\n\t\tNetra-T12)\n        \tVOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"v_\"`\n        ;;\n        Sun-Fire-V1xx)\n    \t\tVOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"Supply voltages\"`\n    \t;;\n    \tSun-Fire-V[24][123456789][05])\n    \t\tVOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"Voltage sensors\"`\n    \t;;\n    \tSun-Fire)\n    \t\tVOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"1\\.5V 3\\.3V 5\\.0V 12\\.0V\"`\n    \t;;\n    \tUltra-Enterprise)\n    \t\tVOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"System 3\\.3v\"`\n    \t;;\n    \tServerblade1)\n    \t\tVOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP \"Voltage sensors\"`\n    \t;;\n    esac\n    if [ -z \"$VOLTAGEPRESENT\" ]; then\n    \treturn\n    fi\n\n    # Depending on the machine type, try to gather the voltage information\n    case $MACHINEMODEL in\n\n\t\tSun-Fire-V1xx)\n            $AWK '/^Supply voltages:/, /^System status flags:/ { print $0 }' $HARDINFOTEMPFILE |\n            $GREP status= |\n            $AWK '\n            {\n            \tstatusIndex = index($0, \"status=\")\n            \tvoltageStatus = substr($0, statusIndex+7, length($0)-statusIndex-6)\n\n            \tif ($2 == \"5V\")\n            \t{\n            \t\tprint \"MSHW;Voltage;+5 V;;;;\" voltageStatus\n            \t}\n            \telse if ($2 == \"3V3\")\n            \t{\n            \t\tprint \"MSHW;Voltage;+3.3 V;;;;\" voltageStatus\n            \t}\n            \telse if ($2 == \"+12V\")\n            \t{\n            \t\tprint \"MSHW;Voltage;+12 V;;;;\" voltageStatus\n            \t}\n            \telse if ($2 == \"-12V\")\n            \t{\n            \t\tprint \"MSHW;Voltage;-12 V;;;;\" voltageStatus\n            \t}\n            \telse if ($2 == \"VDD\" && $3 == \"core\")\n            \t{\n            \t\tprint \"MSHW;Voltage;VDD core;;;;\" voltageStatus\n            \t}\n            \telse\n            \t{\n            \t\tprint \"MSHW;Voltage;\" $2 \";;;;\" voltageStatus\n            \t}\n            }'\n\n        ;;\n\n        Netra-T12)\n            $GREP \"v_.*[0-9]V\" $HARDINFOTEMPFILE |\n            $AWK '\n            {\n            \tdeviceID = $1 \"/\" substr($2, 3, length($2)-2)\n            \tcurrentValue = substr($3, 1, length($3)-1)\n            \tlow = substr($5, 1, length($5)-1)\n            \thigh = substr($6, 1, length($6)-1)\n            \tstatus = $8\n            \tprint \"MSHW;Voltage;\" deviceID \";\" currentValue \";\" low \";\" high \";\" status\n            } '\n        ;;\n\n    \tSun-Fire-V[24][123456789][05]|Serverblade1)\n    \t\t$AWK '/^Voltage sensors:/, /^(Keyswitch:)|(Led State:)|(Current sensors:)/ {print $0}' $HARDINFOTEMPFILE |\n    \t\t$TAIL +5 |\n    \t\t$AWK '\n    \t\t{\n    \t\t\tcurrentValue = \"\";\n    \t\t\tstatus = \"\";\n\n\t\t\t\tif (substr($2, 1, 2) == \"V_\")\n\t\t\t\t{\n\t\t\t\t\tdeviceID = $1 \"/\" substr($2, 3, length($2) - 2)\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\tdeviceID = $1 \"/\" $2\n\t\t\t\t}\n\n    \t\t\tif (NF == 8)\n    \t\t\t{\n    \t\t\t\tif ($3 == \"-\")\n    \t\t\t\t{\n    \t\t\t\t\tcurrentValue = \"\";\n    \t\t\t\t\tlow = \"\";\n    \t\t\t\t\thigh = \"\";\n    \t\t\t\t\tstatus = $8;\n    \t\t\t\t}\n    \t\t\t\telse if ($3 ~ /^[0-9\\.]+V$/)\n    \t\t\t\t{\n\t\t            \tcurrentValue = substr($3, 1, length($3)-1)\n\t\t            \tlow = substr($5, 1, length($5)-1)\n\t\t            \thigh = substr($6, 1, length($6)-1)\n\t\t            \tstatus = $8\n\t            \t}\n            \t}\n            \telse if (NF == 3)\n            \t{\n            \t\tcurrentValue = \"\";\n            \t\tlow = \"\";\n            \t\thigh = \"\";\n            \t\tstatus = $3\n            \t}\n\n            \tif (currentValue != \"\" || status != \"\")\n            \t{\n\t            \tprint \"MSHW;Voltage;\" deviceID \";\" currentValue \";\" low \";\" high \";\" status\n\t            }\n\t\t\t} '\n\t\t;;\n\n\t\tSun-Fire)\n\t\t\t$AWK '/Active Boards for Domain/, /Available Boards/ { print $0 }' $HARDINFOTEMPFILE |\n\t\t\t$EGREP \"^/N[0-9]+/[SI]B[0-9]+\" |\n\t\t\t$AWK '\n\t\t\t{\n\t\t\t\tdeviceID = $1\n\t\t\t\tif ($10 ~ /^[0-9\\.]+$/)\n\t\t\t\t{\n\t\t\t\t\tif ($10 < 1.35 || $10 > 1.65)\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"ALARM\"\n\t\t\t\t\t}\n\t\t\t\t\telse\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"OK\"\n\t\t\t\t\t}\n\t\t\t\t\tprint \"MSHW;Voltage;\" deviceID \"/1.5V;\" $10 \";1.35;1.65;\" status\n\t\t\t\t}\n\t\t\t\tif ($11 ~ /^[0-9\\.]+$/)\n\t\t\t\t{\n\t\t\t\t\tif ($11 < 2.97 || $11 > 3.63)\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"ALARM\"\n\t\t\t\t\t}\n\t\t\t\t\telse\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"OK\"\n\t\t\t\t\t}\n\t\t\t\t\tprint \"MSHW;Voltage;\" deviceID \"/3.3V;\" $11 \";2.97;3.63;\" status\n\t\t\t\t}\n\t\t\t\tif ($12 ~ /^[0-9\\.]+$/)\n\t\t\t\t{\n\t\t\t\t\tif ($12 < 4.5 || $12 > 5.5)\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"ALARM\"\n\t\t\t\t\t}\n\t\t\t\t\telse\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"OK\"\n\t\t\t\t\t}\n\t\t\t\t\tprint \"MSHW;Voltage;\" deviceID \"/5V;\" $12 \";4.5;5.5;\" status\n\t\t\t\t}\n\t\t\t\tif ($13 ~ /^[0-9\\.]$/)\n\t\t\t\t{\n\t\t\t\t\tif ($13 < 10.8 || $13 > 13.2)\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"ALARM\"\n\t\t\t\t\t}\n\t\t\t\t\telse\n\t\t\t\t\t{\n\t\t\t\t\t\tstatus = \"OK\"\n\t\t\t\t\t}\n\t\t\t\t\tprint \"MSHW;Voltage;\" deviceID \"/12V;\" $13 \";10.8;13.2;\" status\n\t\t\t\t}\n\t\t\t}'\n\t\t;;\n\n\t\tUltra-Enterprise)\n\t\t\t$CAT $HARDINFOTEMPFILE |\n\t\t\t$AWK '/^Power Supplies/, /^====/ {print $0}' |\n\t\t\t$GREP \"^ \" |\n\t\t\t$AWK '\n\t\t\t{\n\t\t\t\tif (NF == 3)\n\t\t\t\t{\n\t\t\t\t\tvoltageName = $1 \" \" $2\n\t\t\t\t\tvoltageStatus = $3\n\t\t\t\t}\n\t\t\t\telse if (NF == 4)\n\t\t\t\t{\n\t\t\t\t\tvoltageName = $1 \" \" $2 \" \" $3\n\t\t\t\t\tvoltageStatus = $4\n\t\t\t\t}\n\t\t\t\tif ($2 == \"3.3v\")\n\t\t\t\t{\n\t\t\t\t\tprint \"MSHW;Voltage;\" voltageName \";;;;\" voltageStatus\n\t\t\t\t}\n\t\t\t\telse if ($2 == \"5.0v\")\n\t\t\t\t{\n\t\t\t\t\tprint \"MSHW;Voltage;\" voltageName \";;;;\" voltageStatus\n\t\t\t\t}\n\t\t\t\telse if ($2 == \"12v\")\n\t\t\t\t{\n\t\t\t\t\tprint \"MSHW;Voltage;\" voltageName \";;;;\" voltageStatus\n\t\t\t\t}\n\t\t\t}'\n\t\t;;\n\n\tesac\n} # end MS_HW_voltage\n\n######################################################\n# The function that gathers memory information\n######################################################\nMS_HW_memory()\n{\n    case $MACHINEMODEL in\n        Sun-Fire)\n        \t$AWK '/==== Memory/, /IO Cards ====/ {print $0}' $HARDINFOTEMPFILE |\n        \t$TAIL +7 |\n            $EGREP -v '(^$|^==)' |\n            $AWK '(NF == 8) {print \"MSHW;Memory;\" $1 \"_\" $3 \";\" $4 \";\" $5 }'\n        ;;\n\n        Ultra-250|Ultra-4)\n\t        $AWK '/==== Memory/, /IO Cards ====/ {print $0}' $HARDINFOTEMPFILE |\n\t        $TAIL +6 |\n\t        $EGREP -v '(^$|^==|^--|^Bank)' |\n\t        $AWK '(NF == 5) {print \"MSHW;Memory;\" $1 \"_\" $3 \";\" $4 \";\" $5}'\n        ;;\n\n        Ultra-Enterprise)\n\t        $AWK '/==== Memory/, /IO Cards ====/ {print $0}' $HARDINFOTEMPFILE |\n\t        $TAIL +6 |\n\t        $EGREP -v '(^$|^==)' |\n\t        $AWK '((NF == 8 || NF == 7) && $4 == \"Active\") {print \"MSHW;Memory;\" $1 \"_\" $2 \";\" $3 \";\" $5}'\n        ;;\n\n        Netra-T12)\n        \t$AWK '/^Memory Module Groups:/, /^====/' $HARDINFOTEMPFILE |\n        \t$TAIL +5 |\n            $EGREP -v '(^$|^==)' |\n            $AWK '(NF == 4) {print \"MSHW;Memory;\" $3 \";;\" $4}'\n        ;;\n\n\tesac\n\n} # end MS_HW_memory()\n\n####################################################\n# The function that displays the machine model\n####################################################\n\nMS_HW_computermodel()\n{\n\t# First first, (before first step), check if prtpicl does it or not\n\tif [ $PRTPICLDOESIT = \"1\" ]; then\n\t\treturn;\n\tfi\n\n\t/usr/bin/echo \"MSHW;ComputerModel;$MACHINEDISPLAYNAME\"\n} # end MS_HW_computermodel()\n\n###########################\n# The main() function\n###########################\n\n# On which machine are we running on?\nUNAMEPLATFORM=`$UNAME -i`\nOSVERSION=`$UNAME -r`\nMACHINEMODEL=`/usr/bin/echo $UNAMEPLATFORM | $SED 's/.*,//'`\nHARDWARECLASS=`$UNAME -m`\n\n# Sun diagnostic commands (prtdiag and lom)\nPRTDIAG_COMMAND=\"/usr/platform/$UNAMEPLATFORM/sbin/prtdiag\"\nPRTDIAG_OPT=\"-v\"\n\nLOM_COMMAND=\"%{SUDO:/usr/sbin/lom}/usr/sbin/lom\"\nLOM_OPT=\"-pfvt\"\n\nPRTPICL_COMMAND=\"/usr/sbin/prtpicl\"\nPRTPICL_OPT=\"-v -c temperature-sensor\"\n\n###############################################\n##\n## This section will help the debug\n## and will simulate that the script is running\n## on another computer model that the actual\n## one\n###############################################\n#PRTDIAG_COMMAND=$CAT\n#PRTDIAG_OPT=/tmp/pp400\n#MACHINEMODEL=GPUS\n#LOM_COMMAND=$CAT\n#LOM_OPT=/tmp/v120-lom\n#PRTPICL_COMMAND=$CAT\n#PRTPICL_OPT=/tmp/prtpicl_temp1\n###############################################\n\n\n# The temporary file where we are going to store the output of prtdiag and lom\n# Suffix = own pid\nHARDINFOTEMPFILE=/tmp/MS_HW_prtdiag_output_${$}\n\n# Get prtdiag output\n$PRTDIAG_COMMAND $PRTDIAG_OPT > $HARDINFOTEMPFILE\nif [ \"$?\" = \"2\" ]; then\n\t/usr/bin/echo \"MSHW;Error running $PRTDIAG_COMMAND\"\n\t# Remove the trailing temporary file\n\tif [ -f $HARDINFOTEMPFILE ]; then\n\t\t$RM $HARDINFOTEMPFILE\n\tfi\n\texit 1\nfi\n\n# Get the exact computer model from the prtdiag output\nMACHINEDISPLAYNAME=`$HEAD -1 $HARDINFOTEMPFILE |\n\t\t\t\t\t$AWK -v archCode=$UNAMEPLATFORM 'BEGIN {\n\t\t\t\t\t\t\tcapture = 0;\n\t\t\t\t\t\t\tmodel = \"\";\n\t\t\t\t\t\t}\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\tfor (i=1 ; i<=NF ; i++)\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\tif (capture == 1)\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\tmodel = model $i \" \"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\tif ($i ~ /^sun4/ || ($i == archCode && archCode != \"\"))\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\tcapture = 1;\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t\tEND { print model }'`\n\n# If the machine is a Sun Fire V1xx (in fact), then launch LOM instead of prtdiag\ncase $MACHINEMODEL in\n\tUltraAX-i2)\n\t\tISASUNFIREV1XX=`$CAT $HARDINFOTEMPFILE | $HEAD -1 | $GREP \"Sun Fire V1\"`\n\t\tif [ -n \"$ISASUNFIREV1XX\" ]; then\n\t\t\tMACHINEMODEL=\"Sun-Fire-V1xx\"\n\t\t\t# Get lom output\n\t\t\t$LOM_COMMAND $LOM_OPT > $HARDINFOTEMPFILE\n\t\t\tif [ ! \"$?\" = \"0\" ]; then\n\t\t\t\t/usr/bin/echo \"MSHW;Error running $LOM_COMMAND\"\n\t\t\t\t# Remove the trailing temporary file\n\t\t\t\tif [ -f $HARDINFOTEMPFILE ]; then\n\t\t\t\t\t$RM $HARDINFOTEMPFILE\n\t\t\t\tfi\n\t\t\t\texit 2\n\t\t\tfi\n\t\tfi\n\t;;\nesac\n\n# Check that we got a file\nCATCH_COMMAND=`$CAT $HARDINFOTEMPFILE`\nif /usr/bin/test ! \"$?\" = \"0\" ; then\n\t/usr/bin/echo \"MSHW;Error: no output received from $PRTDIAG_COMMAND and $LOM_COMMAND\"\n\texit 3\nfi\n\n# Last thing: does prtpicl show temperatures (and voltages and fans)?\n# Because in such case, we're going to let the prtpicl-based connector do the job\n# (better than us, based on prtdiag, I can tell you)\n# But the prtpicl connector can only do temperatures, voltages and fans. No love for power supplies\n# and memory modules, so, that stuff will still be made by us, the proud prtdiag-based connector, ha ha ha!\n#PRTPICLTEMPERATURESENSORCOUNT=`/usr/sbin/prtpicl -v -c temperature-sensor|$EGREP -c \":Temperature[ \t]+[0-9]\"`\n#PRTPICLTEMPERATUREINDICATORCOUNT=`/usr/sbin/prtpicl -v -c temperature-indicator|$EGREP -c \":Condition[ \t]+[A-Za-z]\"`\n#if [ $PRTPICLTEMPERATURESENSORCOUNT = \"0\" -a $PRTPICLTEMPERATUREINDICATORCOUNT = \"0\" ]; then\n#\tPRTPICLDOESIT=\"0\";\n#else\n#\tPRTPICLDOESIT=\"1\";\n#fi\n\n# Don't test the actual output of prtpicl. Just check whether the damn file is present.\n# 2012-01-02, Bertrand: I removed the actual test above because we just need to make sure prtpicl is present or not\n# Jira MSHW-132\nif /usr/bin/test -x /usr/sbin/prtpicl; then\n\tPRTPICLDOESIT=\"1\";\nelse\n\tPRTPICLDOESIT=\"0\";\nfi\n\n# Jira MSHW-99\n# prtpicl suck on Fujitsu PRIMEPOWER (sun4us) systems, so we'll pretend PRTPICLDOESIT=0, even though prtpicl is there\nif /usr/bin/test \"$HARDWARECLASS\" = \"sun4us\"; then\n\tPRTPICLDOESIT=\"0\";\nfi\n\n# Depending on the command-line options, run the appropriate test\ncase $1 in\n\ttemperature)\n\t\tMS_HW_temperature\n\t;;\n\tfan)\n\t\tMS_HW_fan\n\t;;\n\tpowersupply)\n\t\tMS_HW_powersupply\n\t;;\n\tcomputermodel)\n\t\tMS_HW_computermodel\n\t;;\n\tvoltage)\n\t\tMS_HW_voltage\n\t;;\n\tmemory)\n\t\tMS_HW_memory\n\t;;\n\tall)\n\t\tMS_HW_computermodel\n\t\tMS_HW_temperature\n\t\tMS_HW_fan\n\t\tMS_HW_voltage\n\t\tMS_HW_powersupply\n\t\tMS_HW_memory\n\t;;\n\t*)\n\t\t/usr/bin/echo \"Usage: $0 <temperature|fan|powersupply|computermodel|voltage|memory|all>\"\n\t;;\nesac\n\n# Remove the trailing temporary file\nif [ -f $HARDINFOTEMPFILE ]; then\n\t$RM $HARDINFOTEMPFILE\nfi\n"
+  EmbeddedFile(1): |
+    #!/bin/sh
+
+    # UNIX standard commands
+    UNAME="/usr/bin/uname"
+    RM="/usr/bin/rm"
+    HEAD="/usr/bin/head"
+    CUT="/usr/bin/cut"
+    CAT="/usr/bin/cat"
+
+    # For the commands below, use the XPG4 Version by default, the /usr/bin otherwise.
+
+    # Always avoid using simple names instead of the full path to the binary because this can cause
+    # some serious issues.
+    # First, it makes the shell seek all of the directories in the $PATH variable, which can be long
+    # if there are some NFS stuff in there
+    # Second, simple name (like 'rm') are often aliased by system administrators, making the command
+    # not to behave as expected!
+
+    # Sed
+    if [ -f /usr/xpg4/bin/sed ]; then
+        SED="/usr/xpg4/bin/sed";
+    else
+        SED="/usr/bin/sed";
+    fi
+
+    # Grep
+    if [ -f /usr/xpg4/bin/grep ]; then
+        GREP="/usr/xpg4/bin/grep";
+    else
+        GREP="/usr/bin/grep";
+    fi
+
+    # Egrep
+    if [ -f /usr/xpg4/bin/egrep ]; then
+        EGREP="/usr/xpg4/bin/egrep";
+    else
+        EGREP="/usr/bin/egrep";
+    fi
+
+    # Tail
+    if [ -f /usr/xpg4/bin/tail ]; then
+        TAIL="/usr/xpg4/bin/tail";
+    else
+        TAIL="/usr/bin/tail";
+    fi
+
+    # Expr
+    if [ -f /usr/xpg4/bin/expr ]; then
+        EXPR="/usr/xpg4/bin/expr";
+    else
+        EXPR="/usr/bin/expr";
+    fi
+
+    # Awk (or nawk)
+    if [ -f /usr/xpg4/bin/awk ]; then
+        AWK="/usr/xpg4/bin/awk";
+    elif [ -f /usr/bin/nawk ]; then
+        AWK="/usr/bin/nawk";
+    else
+        AWK="awk";
+    fi
+
+
+
+    ###############################################
+    # The function that gathers fan information
+    ###############################################
+    MS_HW_fan()
+    {
+        # First first, (before first step), check if prtpicl does it or not
+        if [ $PRTPICLDOESIT = "1" ]; then
+            return;
+        fi
+
+        # If platform is sun4v or i86pc, don't try to do it
+        if [ $HARDWARECLASS = "sun4v" -o $HARDWARECLASS = "i86pc" ]; then
+            return;
+        fi
+
+        # First, check if there is some fan information in the prtdiag output
+        FANPRESENT=`$CAT $HARDINFOTEMPFILE | $EGREP '(ft_f|Fan.*:)' `
+
+        # If there is some fan information, then _try_ to understand how it is formated
+        # Good luck...
+        if [ ! -z "$FANPRESENT" ]; then
+
+            case $MACHINEMODEL in
+
+                Sun-Fire-280R)
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '/Fan Bank/, /^====/ {print $0 "|"}' |
+                              $TAIL +5`
+                ;;
+
+                Sun-Fire-480R|Sun-Fire-V490)
+                    FANTABLE=`$AWK '/^Fan Status/, /^====/ { print $0 }' $HARDINFOTEMPFILE |
+                              $TAIL +6 |
+                              $AWK '
+                              {
+                                  if (NF == 3)
+                                  {
+                                      print $1 " " $3 "|"
+                                  }
+                                  else if (NF == 4)
+                                  {
+                                      print $1 "/" $2 " " $4 "|"
+                                  }
+                              }'`
+                    POWERSUPPLYFANTABLE=`$AWK '/^Power Supplies/, /^=====/ { print $0 }' $HARDINFOTEMPFILE |
+                                         $AWK '/^PS[0-9]/ {
+                                             if (NF == 6)
+                                             {
+                                                 if ($5 == "ON")
+                                                 {
+                                                     print $1 " Failed|"
+                                                 }
+                                                 else
+                                                 {
+                                                     print $1 " OK|"
+                                                 }
+                                             }
+                                         }'`
+                    FANTABLE="$FANTABLE $POWERSUPPLYFANTABLE"
+                ;;
+
+                Sun-Fire-880|Sun-Fire-V890)
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '/Fan Bank/, /^====/ {print $0 "|"}' |
+                              $TAIL +6`
+                ;;
+
+                Sun-Fire-V1xx)
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '/^Fans:/, /speed/ {print $1,$2 "|"}' |
+                              $TAIL +2`
+                ;;
+
+                Ultra-Enterprise)
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '/^Fans:/, /^$/ {print $0 "|"}' |
+                              $TAIL -1`
+                ;;
+
+                Ultra-4)
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '/^Fans:/, /^$/ {print $0 "|"}' |
+                              $TAIL +5`
+                ;;
+
+                Netra-T12)
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '/^Fru Operational Status:/, /^====/ {print $0 "|"}' |
+                              $GREP FAN`
+                ;;
+
+                Sun-Blade-100|Sun-Blade-1000|Serverblade1)
+                    FANTABLE=`$AWK '/^Fan (Speeds)|(Status):/, /^ *$/ {print $0}' $HARDINFOTEMPFILE |
+                             $TAIL +5 |
+                             $AWK '
+                             {
+                                 if (NF == 2)
+                                 {
+                                      if ($2 ~ "[0-9]+%")
+                                      {
+                                          speedPercent = int(substr($2, 1, length($2)-1))
+                                          if (speedPercent > 15)
+                                          {
+                                              print $1 " okay|"
+                                          }
+                                          else if (speedPercent > 1)
+                                          {
+                                              print $1 " TooSlow|"
+                                          }
+                                          else
+                                          {
+                                              print $1 " failed|"
+                                          }
+                                      }
+                                  }
+                                  else if (NF == 3)
+                                  {
+                                      print $2 " " $3 "|"
+                                  }
+                                  else if (NF == 4)
+                                  {
+                                      print $2 " " $3 "|"
+                                  }
+                              }'`
+                ;;
+
+                Sun-Fire-V[24][123456789][05])
+
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '($2 == "RS" || $2 == "FF_FAN" || $2 == "FF_PDCT_FAN" || $2 == "TACH") {
+                                  if ($3 ~ "[0-9]+")
+                                  {
+                                      if ($1 ~ "MB.P[0-9].F[0-9]")
+                                      {
+                                          if (int($3) == 0)
+                                          {
+                                                print $1 " failed|"
+                                          }
+                                          else if (int($3) < 10000)
+                                          {
+                                              print $1 " TooSlow|"
+                                          }
+                                          else
+                                          {
+                                              print $1 " okay|"
+                                          }
+                                      }
+                                      else
+                                      {
+                                            if (int($3) == 0)
+                                            {
+                                                print $1 " failed|"
+                                            }
+                                            else if (int($3) < 3000)
+                                            {
+                                                print $1 " TooSlow|"
+                                            }
+                                            else
+                                            {
+                                                print $1 " okay|"
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        print $1 " " $3 "|"
+                                    }
+                             }`
+                ;;
+
+                GPUS)
+                    FANTABLE=`$AWK '/^Fans:/ { print "OverallCooling " $2 "|" }' $HARDINFOTEMPFILE`
+
+                ;;
+
+                *)
+                    FANTABLE=`$CAT $HARDINFOTEMPFILE |
+                              $AWK '/^Fan.*:/, /^====/ {print $0 "|"}' |
+                              $TAIL +5`
+                ;;
+
+            esac
+
+            /usr/bin/echo $FANTABLE |
+            $AWK '
+                BEGIN { RS = "|" }
+                { print $0 }
+            ' |
+            $GREP -v "====" |
+            $GREP -v "\-\-\-\-" |
+            $GREP -v "Status" |
+            $GREP -v "^$" |
+            $AWK '
+            {
+                if (NF == 2)
+                {
+                    fanName = $1
+                    fanStatus = $2
+                }
+                else if (NF == 3)
+                {
+                    fanName = $1
+                    fanStatus = $3
+                }
+                else if (NF == 4)
+                {
+                    fanName = $1
+                    fanStatus = $4
+                }
+
+                if (NF == 2 || NF == 3 || NF == 4)
+                {
+                    print "MSHW;Fan;" fanName ";" fanStatus
+                }
+            }'
+
+        fi
+
+    } # end check_fan_staus
+
+
+    #########################################################
+    # The function that gathers temperature information
+    #########################################################
+    MS_HW_temperature()
+    {
+        # First first, (before first step), check if prtpicl does it or not
+        if [ $PRTPICLDOESIT = "1" ]; then
+            return;
+        fi
+
+        # If platform is sun4v or i86pc, don't try to do it
+        if [ $HARDWARECLASS = "sun4v" -o $HARDWARECLASS = "i86pc" ]; then
+            return;
+        fi
+
+        # First, check that the machine we are running on does report system temperature
+        NOTEMPERATURE_SYSTEMS="Ultra-1 Ultra-2 Ultra-5_10 Ultra-30 Ultra-60 Ultra-80 UltraAX-i2|UltraSPARC-IIi-cEngine Netra-T4"
+        NOTEMPERATURE=`/usr/bin/echo $NOTEMPERATURE_SYSTEMS | $EGREP "$MACHINEMODEL"`
+        if [ -n "$NOTEMPERATURE" ]; then
+            return;
+        fi
+
+        # Now try to parse the prtdiag output and find out the temperatures
+        # Not an easy task...
+
+        case $MACHINEMODEL in
+
+            Ultra-Enterprise)
+                TEMPERATURETABLE=`$AWK '/^System Temperatures/, /^ *$/ { print $0 }' $HARDINFOTEMPFILE |
+                                  $TAIL +5 |
+                                  $AWK '
+                                  {
+                                      if ($2 ~ /^[0-9]+$/)
+                                      {
+                                          print $1,$2 ","
+                                      }
+                                      else if ($3 ~ /^[0-9]+$/)
+                                      {
+                                          print $1,$3,$2 ","
+                                      }
+                                  }'`
+            ;;
+
+            Ultra-4)
+                CPUTEMPERATURE=`$CAT $HARDINFOTEMPFILE |
+                                $SED -n '/^System Temp/,/^======/p' |
+                                 $SED 's/CPU /CPU/g' |
+                                $EGREP '^[A-Z0-9]+ +[0-9]+$'|
+                                $SED 's/ *\([0-9A-Z]*\) *\([0-9]*\)/\1 \2,/g'`
+                POWERSUPPLYTEMPERATURE=`$AWK '/^Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |
+                                        $TAIL +5 |
+                                        $AWK '/[0-9]/ {print "PowerSupply" $1,$4,"," }'`
+                TEMPERATURETABLE="$CPUTEMPERATURE $POWERSUPPLYTEMPERATURE"
+            ;;
+
+            Ultra-250)
+                TEMPERATURETABLE=`$AWK '/^System Temperatures/, /^======/ {print $0}' $HARDINFOTEMPFILE |
+                                  $TAIL +3 |
+                                  $AWK '
+                                  {
+                                      if (NF == 2 && $2 ~ /^[0-9]+$/)
+                                      {
+                                          print $1,$2 ","
+                                      }
+                                  }'`
+            ;;
+
+            Sun-Blade-1000|Sun-Blade-100|Serverblade1)
+                TEMPERATURETABLE1=`$CAT $HARDINFOTEMPFILE |
+                                   $EGREP '^ +[0-9] .+[0-9]+ C +[0-9]+ C' |
+                                   $AWK '{print "CPU_" $1 "_Die",$7,"nostatus, CPU_" $1 "_Ambient",$9,"nostatus,"}'`
+                TEMPERATURETABLE2=`$CAT $HARDINFOTEMPFILE |
+                                   $AWK '/^Temperature sensors:/, /^======|^Voltage/ { print $0 }' |
+                                   $TAIL +5 |
+                                   $AWK '{
+                                               if (NF == 3)
+                                               {
+                                                   print $1 "_" $2,$3,"novalue,"
+                                               }
+                                               else if (NF == 8)
+                                               {
+                                                   print $1 "_" $2,$3,$6,$7,$8 ","
+                                               }
+                                             }'`
+                TEMPERATURETABLE="$TEMPERATURETABLE1 $TEMPERATURETABLE2"
+            ;;
+
+            Sun-Fire)
+                # Sun Fire 3800, 4800, 4810 & 6800 servers
+                CPUTEMPERATURES=`$CAT $HARDINFOTEMPFILE |
+                                 $EGREP '^/N[0-9]+/.+ US-III .+[0-9]+ ' |
+                                 $AWK ' {print "CPU_" $1,$7,","}'`
+                BOARDTEMPERATURES=`$CAT $HARDINFOTEMPFILE |
+                                   $EGREP '^/N[0-9]+/.+ ( on | off ) .+[0-9]+ ' |
+                                   $AWK '{if (int($6) > 0) {print "Board_" $1 "_0",$6,","};  \
+                                          if (int($7) > 0) {print " Board_" $1 "_1",$7,","}; \
+                                          if (int($8) > 0) {print " Board_" $1 "_2",$8,","}; \
+                                          if (int($9) > 0) {print " Board_" $1 "_3",$9,","}}'`
+                PSTEMPERATURES=`$CAT $HARDINFOTEMPFILE |
+                                $EGREP "^PS[0-9]+" |
+                                $AWK '{print $1,$4,","}'`
+                TEMPERATURETABLE="$CPUTEMPERATURES $BOARDTEMPERATURES $PSTEMPERATURES"
+            ;;
+
+            Sun-Fire-880|Sun-Fire-V890)
+                TEMPERATURETABLE=`$AWK '/^System Temperatures/, /^======/ { print $0 }' $HARDINFOTEMPFILE |
+                                  $TAIL +5 |
+                                  $AWK '
+                                  {
+                                      if (NF == 3 && $2 ~ /^[0-9]+$/)
+                                      {
+                                          print $1,$2,$3 ","
+                                      }
+                                  }'`
+            ;;
+
+            Sun-Fire-280R)
+                CPULINE=`$CAT $HARDINFOTEMPFILE |
+                         $EGREP -n '^cpu(0|1)' |
+                         $AWK -F: '{print $1}'`
+                TEMPLINE=`$EXPR 0$CPULINE + 2`
+                TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |
+                                  $SED -n ${TEMPLINE}p |
+                                  $AWK '{
+                                            if ( $1 =="xx" ) {print "cpu1",$2 }
+                                            else if ( $2 =="xx" ) {print "cpu0",$1 }
+                                            else { print "cpu0",$1,",cpu1",$2} }'`
+            ;;
+
+            Sun-Fire-480R|Sun-Fire-V490)
+                TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |
+                                  $AWK '/^System Temperatures/, /^====/ { print $0 }' |
+                                  $EGREP '^(CPU[0-9]+|DBP0)[^a-zA-Z]+[0-9]+'|
+                                  $AWK '{print $1,$2,$3,","}'`
+                PSTEMPERATURETABLE=`$AWK '/^Power Supplies/, /^=====/ { print $0 }' $HARDINFOTEMPFILE |
+                                    $AWK '/^PS[0-9]/ {
+                                         if (NF == 6)
+                                         {
+                                             if ($6 == "ON")
+                                             {
+                                                 print $1 " Failed,"
+                                             }
+                                             else
+                                             {
+                                                 print $1 " OK,"
+                                             }
+                                         }
+                                    }'`
+                TEMPERATURETABLE="$TEMPERATURETABLE $PSTEMPERATURETABLE"
+            ;;
+
+            Sun-Fire-V[24][123456789][05])
+                TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |
+                                  $EGREP 'T_CORE|T_ENC|T_AMB|FF_OT' |
+                                  $AWK '{print $1,$3,$6,$7,$8 ","}'`
+            ;;
+
+            Sun-Fire-V1xx)
+                ENCLOSURETEMPERATURETABLE=`$AWK '/System Temperature Sensors:/, /^nOtHiNg/ { print $0 }' $HARDINFOTEMPFILE |
+                                           $TAIL +2 |
+                                           $AWK 'BEGIN { ignore = 0; }
+                                           {
+                                               if ($0 ~ /^[A-Z]/)
+                                               {
+                                                   ignore = 1;
+                                               }
+                                               if (ignore == 0)
+                                               {
+                                                   print "Enclosure",$3 ","
+                                               }
+                                           }'`
+                CPUTEMPERATURETABLE=`$AWK '/System Over-temperature Sensors:/, /^nOtHiNg/ { print $0 }' $HARDINFOTEMPFILE |
+                                     $TAIL +2 |
+                                     $AWK 'BEGIN { ignore = 0; }
+                                     /CPU status=/ {
+                                         if ($0 ~ /^[A-Z]/)
+                                         {
+                                             ignore = 1;
+                                         }
+                                         if (ignore == 0)
+                                         {
+                                             status = substr($3, 8, length($3)-7);
+                                             print "CPU_" $1,status ","
+                                         }
+                                     }'`
+                TEMPERATURETABLE="$ENCLOSURETEMPERATURETABLE $CPUTEMPERATURETABLE"
+            ;;
+
+            Netra-T12)
+                TEMPERATURETABLE=`$AWK '/^Temperature sensors:/, /^====/ {print $0}' $HARDINFOTEMPFILE |
+                                  $GREP "[0-9]C.*[0-9]C.*[0-9]C" |
+                                  $AWK '{print $1 "/" $2,$3,$6,$7,$8 ","}'`
+            ;;
+
+            GPUS)
+                TEMPERATURETABLE=`$AWK '/^System Temperature/,/^$/ {print $0}' $HARDINFOTEMPFILE |
+                                  $TAIL +2 |
+                                  $AWK '{print $1 " " $2 ","}'`
+            ;;
+
+            *)
+                TEMPERATURETABLE=`$CAT $HARDINFOTEMPFILE |
+                                  $EGREP '^ +[0-9A-Z]+ +[0-9]+$'|
+                                  $SED 's/ *\([0-9A-Z]*\) *\([0-9]*\)/\1 \2,/g'`;
+            ;;
+
+        esac
+
+        # Remove the trailing comma
+        TEMPERATURETABLE=`/usr/bin/echo $TEMPERATURETABLE | $SED 's/,$//'`
+
+        # Re-format the TEMPERATURETABLE and try to provide warning and alarm thresholds
+        /usr/bin/echo $TEMPERATURETABLE |
+        $AWK -v MACHINEMODEL=$MACHINEMODEL '
+            BEGIN { RS = "," }
+            {
+                deviceID = "";
+                value = "";
+                status = "";
+                thresholdAlarm = "";
+                thresholdWarn = "";
+
+                if (MACHINEMODEL == "Ultra-4")
+                {
+                    deviceID = $1;
+                    value = $2;
+                    status = "";
+                    if (deviceID == "AMBIENT")
+                    {
+                        thresholdAlarm = 55;
+                        thresholdWarn = 40;
+                    }
+                    else if (deviceID ~ /PowerSupply/)
+                    {
+                        thresholdAlarm = 65;
+                        thresholdWarn = 50;
+                    }
+                    else
+                    {
+                        thresholdAlarm = 85;
+                        thresholdWarn = 75;
+                    }
+                }
+
+                else if (MACHINEMODEL == "Ultra-Enterprise")
+                {
+                    if (NF == 2)
+                    {
+                        deviceID = $1;
+                        value = $2;
+                        status = "";
+                        thresholdWarn = 55;
+                        thresholdAlarm = 65;
+                    }
+                    else
+                    {
+                        deviceID = $1;
+                        value = $2;
+                        status = $3;
+                        thresholdWarn = 55;
+                        thresholdAlarm = 65;
+                    }
+                }
+
+                else if (MACHINEMODEL == "Ultra-250")
+                {
+                    deviceID = $1;
+                    value = $2;
+                    status = "";
+                    if (deviceID ~ /^CPU/)
+                    {
+                        thresholdWarn = 75;
+                        thresholdAlarm = 85;
+                    }
+                    else
+                    {
+                        thresholdWarn = 40;
+                        thresholdAlarm = 60;
+                    }
+                }
+
+                else if (MACHINEMODEL == "Sun-Blade-1000" || MACHINEMODEL == "Sun-Blade-100" || MACHINEMODEL == "Serverblade1")
+                {
+                    deviceID = $1;
+                    if ($3 == "nostatus")
+                    {
+                        value = $2;
+                        status = "";
+                        if (MACHINEMODEL == "Sun-Blade-1000")
+                        {
+                            if (deviceID ~ /Die/)
+                            {
+                                thresholdAlarm = 90;
+                                thresholdWarn = 85;
+                            }
+                            if (deviceID ~ /Ambient/)
+                            {
+                                thresholdAlarm = 60;
+                                thresholdWarn = 40;
+                            }
+                        }
+                        else
+                        {
+                            if ($1 ~ /Die/)
+                            {
+                                thresholdAlarm = 70;
+                                thresholdWarn = 65;
+                            }
+                            if ($1 ~ /Ambient/)
+                            {
+                                thresholdAlarm = 60;
+                                thresholdWarn = 40;
+                            }
+                         }
+                     }
+                     else if ($3 == "novalue")
+                     {
+                         value = "";
+                         status = $2;
+                         thresholdAlarm = "";
+                         thresholdWarn = "";
+                     }
+                     else
+                     {
+                         value = $2;
+                         status = $5;
+                         thresholdWarn = $3;
+                         thresholdAlarm = $4;
+                     }
+                }
+
+                else if (MACHINEMODEL == "Sun-Fire")
+                {
+                    deviceID = $1;
+                    value = $2;
+                    status = "";
+                    if (deviceID ~ /CPU/)
+                    {
+                        thresholdAlarm=80;
+                        thresholdWarn=75;
+                    }
+                    if (deviceID ~ /Board/)
+                    {
+                        thresholdAlarm=60;
+                        thresholdWarn=50;
+                    }
+                    if (deviceID ~ /PS/)
+                    {
+                        thresholdAlarm=60;
+                        thresholdWarn=45;
+                    }
+                }
+
+                else if (MACHINEMODEL == "Sun-Fire-480R" || MACHINEMODEL == "Sun-Fire-V490")
+                {
+                    deviceID = $1
+                    if (NF == 3)
+                    {
+                        value = $2
+                        status = $3
+                        if (MACHINEMODEL == "Sun-Fire-480R")
+                        {
+                            thresholdAlarm = 70;
+                            thresholdWarn = 65;
+                        }
+                        else
+                        {
+                            thresholdAlarm = 85;
+                            thresholdWarn = 80;
+                        }
+                        if (deviceID ~ /BP[01]/)
+                        {
+                            # Guess here - typical is 20-30
+                            thresholdAlarm=60;
+                            thresholdWarn=50;
+                        }
+                    }
+                    else
+                    {
+                        value = "";
+                        status = $2;
+                        thresholdAlarm = "";
+                        thresholdWarn = "";
+                    }
+                }
+
+                else if (MACHINEMODEL == "Sun-Fire-880" || MACHINEMODEL == "Sun-Fire-V890")
+                {
+                    deviceID = $1;
+                    value = $2;
+                    status = $3;
+                    thresholdAlarm = 85;
+                    thresholdWarn = 80;
+                    if (deviceID ~ /BP[01]/)
+                    {
+                        thresholdAlarm=52;
+                        thresholdWarn=47;
+                    }
+                    else if (deviceID ~ /IOB/)
+                    {
+                        thresholdAlarm=49;
+                        thresholdWarn=44;
+                    }
+                    else if (deviceID ~ /MB/)
+                    {
+                        thresholdAlarm=70;
+                        thresholdWarn=65;
+                    }
+                }
+                else if (MACHINEMODEL == "Sun-Fire-280R")
+                {
+                    deviceID = $1;
+                    value = $2;
+                    thresholdAlarm = 80;
+                    thresholdWarn = 75;
+                    status = "";
+                }
+
+                else if (MACHINEMODEL ~ /Sun-Fire-V[24][123456789][05]/)
+                {
+                    deviceID = $1;
+                    if (NF == 5)
+                    {
+                        value = $2;
+                        status = $5;
+                        if (value ~ /^[0-9]+C*$/)
+                        {
+                            thresholdAlarm = $4;
+                            thresholdWarn = $3;
+                        }
+                        else
+                        {
+                            value = "";
+                            thresholdWarn = "";
+                            thresholdAlarm = "";
+                        }
+                    }
+                    else if (NF == 2)
+                    {
+                        status = $2;
+                        value = "";
+                        thresholdWarn = "";
+                        thresholdAlarm = "";
+                    }
+
+                }
+
+                else if (MACHINEMODEL == "Sun-Fire-V1xx")
+                {
+                    deviceID = $1
+                    if ($2 ~ /^[0-9]+$/)
+                    {
+                        value = $2;
+                        status = "";
+                        thresholdAlarm=72;
+                        thresholdWarn=67;
+                    }
+                    else
+                    {
+                        value = "";
+                        status = $2;
+                        thresholdAlarm = "";
+                        thresholdWarn = "";
+                    }
+                }
+
+                else if (MACHINEMODEL == "Netra-T12")
+                {
+                    deviceID = $1;
+                    value = $2;
+                    thresholdAlarm = $4;
+                    thresholdWarn = $3;
+                    status = $5;
+                }
+
+                else if (MACHINEMODEL == "GPUS")
+                {
+                    deviceID = $1;
+                    value = $2;
+                    status = "";
+
+                    if (deviceID ~ /Motherboard/ || deviceID ~ /Amb/)
+                    {
+                        thresholdAlarm = 50;
+                        thresholdWarn = 45;
+                    }
+                    else
+                    {
+                        thresholdWarn = 70;
+                        thresholdAlarm = 75;
+                    }
+                }
+
+                else
+                {
+                    deviceID = $1;
+                    if ($2 ~ /^[0-9]+C*$/)
+                    {
+                        value = $2;
+                        status = "";
+
+                        # Use sane values as default
+                        thresholdWarn = 70;
+                        thresholdAlarm = 75;
+                    }
+                    else
+                    {
+                        value = "";
+                        status = $2;
+                        thresholdWarn = "";
+                        thresholdAlarm = "";
+                    }
+                }
+
+                if (deviceID != "")
+                {
+                    if (substr(value, length(value), 1) == "C")
+                    {
+                        value = substr(value, 1, length(value)-1)
+                    }
+                    if (substr(thresholdWarn, length(thresholdWarn), 1) == "C")
+                    {
+                        thresholdWarn = substr(thresholdWarn, 1, length(thresholdWarn)-1)
+                    }
+                    if (substr(thresholdAlarm, length(thresholdAlarm), 1) == "C")
+                    {
+                        thresholdAlarm = substr(thresholdAlarm, 1, length(thresholdAlarm)-1)
+                    }
+                    print "MSHW;Temperature;" deviceID ";" value ";" thresholdWarn ";" thresholdAlarm ";" status
+                }
+
+            } '
+
+    } # end MS_HW_temperature()
+
+
+    ######################################################
+    # The function that gathers power supply information
+    ######################################################
+
+    MS_HW_powersupply()
+    {
+        # If platform is sun4v or i86pc, don't try to do it
+        if [ $HARDWARECLASS = "sun4v" -o $HARDWARECLASS = "i86pc" ]; then
+            return;
+        fi
+
+        # Verify if this machine gives some power supply-related information
+        case $MACHINEMODEL in
+            Netra-T12)
+                POWERSUPPLYPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "^PS0"`
+            ;;
+            Sun-Fire-V[24][123456789][05])
+                POWERSUPPLYPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "^PS0"`
+            ;;
+            *)
+                POWERSUPPLYPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "Power Supplies" `
+            ;;
+        esac
+
+        if [ -z "$POWERSUPPLYPRESENT" ]; then
+            return
+        fi
+
+        case $MACHINEMODEL in
+            Sun-Fire-880|Sun-Fire-V890)
+                $AWK '/^Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |
+                $GREP "^PS[0-9]" |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $2}'
+            ;;
+
+            Sun-Fire)
+                $AWK '/Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |
+                $EGREP "^PS[0-9]" |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $7}'
+            ;;
+
+            Ultra-250)
+                $AWK '/Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL -5 |
+                $EGREP -v '(^$|^==|---|^Supply)' |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $2}'
+            ;;
+
+            Sun-Fire-V1xx)
+                $AWK '/PSUs:/, /^1/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL +2 |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $2}'
+            ;;
+
+            Ultra-Enterprise)
+                $AWK '/Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |
+                $EGREP -v "(^$|^--|^Sup|^Power|^ )" |
+                $AWK '
+                {
+                    if (NF == 2)
+                    {
+                        print "MSHW;PowerSupply;" $1 ";" $2
+                    }
+                    else if (NF == 3)
+                    {
+                        print "MSHW;PowerSupply;" $1 " " $2 ";" $3
+                    }
+                }'
+            ;;
+
+            Sun-Fire-480R|Sun-Fire-V490)
+                $AWK '/Power Supplies:/, /^===/ {print $0}' $HARDINFOTEMPFILE |
+                $EGREP "^PS[0-9]" |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $2}'
+            ;;
+
+            Netra-T12)
+                $AWK '/^Fru Operational Status/, /^====/' $HARDINFOTEMPFILE |
+                $GREP "^PS" |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $2}'
+            ;;
+
+            Ultra-4)
+                $AWK '/^Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL +5 |
+                $AWK '/[0-9]/ {print "MSHW;PowerSupply;" $1 ";" $5}'
+            ;;
+
+            Sun-Fire-V[24][123456789][05])
+                $AWK '/^(Board Status)|(Fru Operational Status):/, /^====/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL +5 |
+                $GREP '^PS[0-9]' |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $2}'
+            ;;
+
+            GPUS)
+                $AWK '/^Power Supplies:/ {print "MSHW;PowerSupply;General;" $3}' $HARDINFOTEMPFILE
+            ;;
+
+            *)
+                $AWK '/Power Supplies:/, /^$/ {print $0}' $HARDINFOTEMPFILE |
+                $GREP -v "^$" |
+                $TAIL +5 |
+                $AWK '{print "MSHW;PowerSupply;" $1 ";" $2}'
+            ;;
+
+        esac
+
+    } # end MS_HW_powersupply()
+
+
+    #######################################################
+    # The function that gathers voltage information
+    #######################################################
+
+    MS_HW_voltage()
+    {
+        # First first, (before first step), check if prtpicl does it or not
+        if [ $PRTPICLDOESIT = "1" ]; then
+            return;
+        fi
+
+        # If platform is sun4v or i86pc, don't try to do it
+        if [ $HARDWARECLASS = "sun4v" -o $HARDWARECLASS = "i86pc" ]; then
+            return;
+        fi
+
+        # Is there some voltage-related information in the lom or prtdiag output?
+        VOLTAGEPRESENT=""
+        case $MACHINEMODEL in
+            Netra-T12)
+                VOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "v_"`
+            ;;
+            Sun-Fire-V1xx)
+                VOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "Supply voltages"`
+            ;;
+            Sun-Fire-V[24][123456789][05])
+                VOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "Voltage sensors"`
+            ;;
+            Sun-Fire)
+                VOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "1\.5V 3\.3V 5\.0V 12\.0V"`
+            ;;
+            Ultra-Enterprise)
+                VOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "System 3\.3v"`
+            ;;
+            Serverblade1)
+                VOLTAGEPRESENT=`$CAT $HARDINFOTEMPFILE | $GREP "Voltage sensors"`
+            ;;
+        esac
+        if [ -z "$VOLTAGEPRESENT" ]; then
+            return
+        fi
+
+        # Depending on the machine type, try to gather the voltage information
+        case $MACHINEMODEL in
+
+            Sun-Fire-V1xx)
+                $AWK '/^Supply voltages:/, /^System status flags:/ { print $0 }' $HARDINFOTEMPFILE |
+                $GREP status= |
+                $AWK '
+                {
+                    statusIndex = index($0, "status=")
+                    voltageStatus = substr($0, statusIndex+7, length($0)-statusIndex-6)
+
+                    if ($2 == "5V")
+                    {
+                        print "MSHW;Voltage;+5 V;;;;" voltageStatus
+                    }
+                    else if ($2 == "3V3")
+                    {
+                        print "MSHW;Voltage;+3.3 V;;;;" voltageStatus
+                    }
+                    else if ($2 == "+12V")
+                    {
+                        print "MSHW;Voltage;+12 V;;;;" voltageStatus
+                    }
+                    else if ($2 == "-12V")
+                    {
+                        print "MSHW;Voltage;-12 V;;;;" voltageStatus
+                    }
+                    else if ($2 == "VDD" && $3 == "core")
+                    {
+                        print "MSHW;Voltage;VDD core;;;;" voltageStatus
+                    }
+                    else
+                    {
+                        print "MSHW;Voltage;" $2 ";;;;" voltageStatus
+                    }
+                }'
+
+            ;;
+
+            Netra-T12)
+                $GREP "v_.*[0-9]V" $HARDINFOTEMPFILE |
+                $AWK '
+                {
+                    deviceID = $1 "/" substr($2, 3, length($2)-2)
+                    currentValue = substr($3, 1, length($3)-1)
+                    low = substr($5, 1, length($5)-1)
+                    high = substr($6, 1, length($6)-1)
+                    status = $8
+                    print "MSHW;Voltage;" deviceID ";" currentValue ";" low ";" high ";" status
+                } '
+            ;;
+
+            Sun-Fire-V[24][123456789][05]|Serverblade1)
+                $AWK '/^Voltage sensors:/, /^(Keyswitch:)|(Led State:)|(Current sensors:)/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL +5 |
+                $AWK '
+                {
+                    currentValue = "";
+                    status = "";
+
+                    if (substr($2, 1, 2) == "V_")
+                    {
+                        deviceID = $1 "/" substr($2, 3, length($2) - 2)
+                    }
+                    else
+                    {
+                        deviceID = $1 "/" $2
+                    }
+
+                    if (NF == 8)
+                    {
+                        if ($3 == "-")
+                        {
+                            currentValue = "";
+                            low = "";
+                            high = "";
+                            status = $8;
+                        }
+                        else if ($3 ~ /^[0-9\.]+V$/)
+                        {
+                            currentValue = substr($3, 1, length($3)-1)
+                            low = substr($5, 1, length($5)-1)
+                            high = substr($6, 1, length($6)-1)
+                            status = $8
+                        }
+                    }
+                    else if (NF == 3)
+                    {
+                        currentValue = "";
+                        low = "";
+                        high = "";
+                        status = $3
+                    }
+
+                    if (currentValue != "" || status != "")
+                    {
+                        print "MSHW;Voltage;" deviceID ";" currentValue ";" low ";" high ";" status
+                    }
+                } '
+            ;;
+
+            Sun-Fire)
+                $AWK '/Active Boards for Domain/, /Available Boards/ { print $0 }' $HARDINFOTEMPFILE |
+                $EGREP "^/N[0-9]+/[SI]B[0-9]+" |
+                $AWK '
+                {
+                    deviceID = $1
+                    if ($10 ~ /^[0-9\.]+$/)
+                    {
+                        if ($10 < 1.35 || $10 > 1.65)
+                        {
+                            status = "ALARM"
+                        }
+                        else
+                        {
+                            status = "OK"
+                        }
+                        print "MSHW;Voltage;" deviceID "/1.5V;" $10 ";1.35;1.65;" status
+                    }
+                    if ($11 ~ /^[0-9\.]+$/)
+                    {
+                        if ($11 < 2.97 || $11 > 3.63)
+                        {
+                            status = "ALARM"
+                        }
+                        else
+                        {
+                            status = "OK"
+                        }
+                        print "MSHW;Voltage;" deviceID "/3.3V;" $11 ";2.97;3.63;" status
+                    }
+                    if ($12 ~ /^[0-9\.]+$/)
+                    {
+                        if ($12 < 4.5 || $12 > 5.5)
+                        {
+                            status = "ALARM"
+                        }
+                        else
+                        {
+                            status = "OK"
+                        }
+                        print "MSHW;Voltage;" deviceID "/5V;" $12 ";4.5;5.5;" status
+                    }
+                    if ($13 ~ /^[0-9\.]$/)
+                    {
+                        if ($13 < 10.8 || $13 > 13.2)
+                        {
+                            status = "ALARM"
+                        }
+                        else
+                        {
+                            status = "OK"
+                        }
+                        print "MSHW;Voltage;" deviceID "/12V;" $13 ";10.8;13.2;" status
+                    }
+                }'
+            ;;
+
+            Ultra-Enterprise)
+                $CAT $HARDINFOTEMPFILE |
+                $AWK '/^Power Supplies/, /^====/ {print $0}' |
+                $GREP "^ " |
+                $AWK '
+                {
+                    if (NF == 3)
+                    {
+                        voltageName = $1 " " $2
+                        voltageStatus = $3
+                    }
+                    else if (NF == 4)
+                    {
+                        voltageName = $1 " " $2 " " $3
+                        voltageStatus = $4
+                    }
+                    if ($2 == "3.3v")
+                    {
+                        print "MSHW;Voltage;" voltageName ";;;;" voltageStatus
+                    }
+                    else if ($2 == "5.0v")
+                    {
+                        print "MSHW;Voltage;" voltageName ";;;;" voltageStatus
+                    }
+                    else if ($2 == "12v")
+                    {
+                        print "MSHW;Voltage;" voltageName ";;;;" voltageStatus
+                    }
+                }'
+            ;;
+
+        esac
+    } # end MS_HW_voltage
+
+    ######################################################
+    # The function that gathers memory information
+    ######################################################
+    MS_HW_memory()
+    {
+        case $MACHINEMODEL in
+            Sun-Fire)
+                $AWK '/==== Memory/, /IO Cards ====/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL +7 |
+                $EGREP -v '(^$|^==)' |
+                $AWK '(NF == 8) {print "MSHW;Memory;" $1 "_" $3 ";" $4 ";" $5 }'
+            ;;
+
+            Ultra-250|Ultra-4)
+                $AWK '/==== Memory/, /IO Cards ====/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL +6 |
+                $EGREP -v '(^$|^==|^--|^Bank)' |
+                $AWK '(NF == 5) {print "MSHW;Memory;" $1 "_" $3 ";" $4 ";" $5}'
+            ;;
+
+            Ultra-Enterprise)
+                $AWK '/==== Memory/, /IO Cards ====/ {print $0}' $HARDINFOTEMPFILE |
+                $TAIL +6 |
+                $EGREP -v '(^$|^==)' |
+                $AWK '((NF == 8 || NF == 7) && $4 == "Active") {print "MSHW;Memory;" $1 "_" $2 ";" $3 ";" $5}'
+            ;;
+
+            Netra-T12)
+                $AWK '/^Memory Module Groups:/, /^====/' $HARDINFOTEMPFILE |
+                $TAIL +5 |
+                $EGREP -v '(^$|^==)' |
+                $AWK '(NF == 4) {print "MSHW;Memory;" $3 ";;" $4}'
+            ;;
+
+        esac
+
+    } # end MS_HW_memory()
+
+    ####################################################
+    # The function that displays the machine model
+    ####################################################
+
+    MS_HW_computermodel()
+    {
+        # First first, (before first step), check if prtpicl does it or not
+        if [ $PRTPICLDOESIT = "1" ]; then
+            return;
+        fi
+
+        /usr/bin/echo "MSHW;ComputerModel;$MACHINEDISPLAYNAME"
+    } # end MS_HW_computermodel()
+
+    ###########################
+    # The main() function
+    ###########################
+
+    # On which machine are we running on?
+    UNAMEPLATFORM=`$UNAME -i`
+    OSVERSION=`$UNAME -r`
+    MACHINEMODEL=`/usr/bin/echo $UNAMEPLATFORM | $SED 's/.*,//'`
+    HARDWARECLASS=`$UNAME -m`
+
+    # Sun diagnostic commands (prtdiag and lom)
+    PRTDIAG_COMMAND="/usr/platform/$UNAMEPLATFORM/sbin/prtdiag"
+    PRTDIAG_OPT="-v"
+
+    LOM_COMMAND="%{SUDO:/usr/sbin/lom}/usr/sbin/lom"
+    LOM_OPT="-pfvt"
+
+    PRTPICL_COMMAND="/usr/sbin/prtpicl"
+    PRTPICL_OPT="-v -c temperature-sensor"
+
+    ###############################################
+    ##
+    ## This section will help the debug
+    ## and will simulate that the script is running
+    ## on another computer model that the actual
+    ## one
+    ###############################################
+    #PRTDIAG_COMMAND=$CAT
+    #PRTDIAG_OPT=/tmp/pp400
+    #MACHINEMODEL=GPUS
+    #LOM_COMMAND=$CAT
+    #LOM_OPT=/tmp/v120-lom
+    #PRTPICL_COMMAND=$CAT
+    #PRTPICL_OPT=/tmp/prtpicl_temp1
+    ###############################################
+
+
+    # The temporary file where we are going to store the output of prtdiag and lom
+    # Suffix = own pid
+    HARDINFOTEMPFILE=/tmp/MS_HW_prtdiag_output_${$}
+
+    # Get prtdiag output
+    $PRTDIAG_COMMAND $PRTDIAG_OPT > $HARDINFOTEMPFILE
+    if [ "$?" = "2" ]; then
+        /usr/bin/echo "MSHW;Error running $PRTDIAG_COMMAND"
+        # Remove the trailing temporary file
+        if [ -f $HARDINFOTEMPFILE ]; then
+            $RM $HARDINFOTEMPFILE
+        fi
+        exit 1
+    fi
+
+    # Get the exact computer model from the prtdiag output
+    MACHINEDISPLAYNAME=`$HEAD -1 $HARDINFOTEMPFILE |
+                        $AWK -v archCode=$UNAMEPLATFORM 'BEGIN {
+                                capture = 0;
+                                model = "";
+                            }
+                            {
+                                for (i=1 ; i<=NF ; i++)
+                                {
+                                    if (capture == 1)
+                                    {
+                                        model = model $i " "
+                                    }
+                                    if ($i ~ /^sun4/ || ($i == archCode && archCode != ""))
+                                    {
+                                        capture = 1;
+                                    }
+                                }
+                            }
+                            END { print model }'`
+
+    # If the machine is a Sun Fire V1xx (in fact), then launch LOM instead of prtdiag
+    case $MACHINEMODEL in
+        UltraAX-i2)
+            ISASUNFIREV1XX=`$CAT $HARDINFOTEMPFILE | $HEAD -1 | $GREP "Sun Fire V1"`
+            if [ -n "$ISASUNFIREV1XX" ]; then
+                MACHINEMODEL="Sun-Fire-V1xx"
+                # Get lom output
+                $LOM_COMMAND $LOM_OPT > $HARDINFOTEMPFILE
+                if [ ! "$?" = "0" ]; then
+                    /usr/bin/echo "MSHW;Error running $LOM_COMMAND"
+                    # Remove the trailing temporary file
+                    if [ -f $HARDINFOTEMPFILE ]; then
+                        $RM $HARDINFOTEMPFILE
+                    fi
+                    exit 2
+                fi
+            fi
+        ;;
+    esac
+
+    # Check that we got a file
+    CATCH_COMMAND=`$CAT $HARDINFOTEMPFILE`
+    if /usr/bin/test ! "$?" = "0" ; then
+        /usr/bin/echo "MSHW;Error: no output received from $PRTDIAG_COMMAND and $LOM_COMMAND"
+        exit 3
+    fi
+
+    # Last thing: does prtpicl show temperatures (and voltages and fans)?
+    # Because in such case, we're going to let the prtpicl-based connector do the job
+    # (better than us, based on prtdiag, I can tell you)
+    # But the prtpicl connector can only do temperatures, voltages and fans. No love for power supplies
+    # and memory modules, so, that stuff will still be made by us, the proud prtdiag-based connector, ha ha ha!
+    #PRTPICLTEMPERATURESENSORCOUNT=`/usr/sbin/prtpicl -v -c temperature-sensor|$EGREP -c ":Temperature[     ]+[0-9]"`
+    #PRTPICLTEMPERATUREINDICATORCOUNT=`/usr/sbin/prtpicl -v -c temperature-indicator|$EGREP -c ":Condition[     ]+[A-Za-z]"`
+    #if [ $PRTPICLTEMPERATURESENSORCOUNT = "0" -a $PRTPICLTEMPERATUREINDICATORCOUNT = "0" ]; then
+    #    PRTPICLDOESIT="0";
+    #else
+    #    PRTPICLDOESIT="1";
+    #fi
+
+    # Don't test the actual output of prtpicl. Just check whether the damn file is present.
+    # 2012-01-02, Bertrand: I removed the actual test above because we just need to make sure prtpicl is present or not
+    # Jira MSHW-132
+    if /usr/bin/test -x /usr/sbin/prtpicl; then
+        PRTPICLDOESIT="1";
+    else
+        PRTPICLDOESIT="0";
+    fi
+
+    # Jira MSHW-99
+    # prtpicl suck on Fujitsu PRIMEPOWER (sun4us) systems, so we'll pretend PRTPICLDOESIT=0, even though prtpicl is there
+    if /usr/bin/test "$HARDWARECLASS" = "sun4us"; then
+        PRTPICLDOESIT="0";
+    fi
+
+    # Depending on the command-line options, run the appropriate test
+    case $1 in
+        temperature)
+            MS_HW_temperature
+        ;;
+        fan)
+            MS_HW_fan
+        ;;
+        powersupply)
+            MS_HW_powersupply
+        ;;
+        computermodel)
+            MS_HW_computermodel
+        ;;
+        voltage)
+            MS_HW_voltage
+        ;;
+        memory)
+            MS_HW_memory
+        ;;
+        all)
+            MS_HW_computermodel
+            MS_HW_temperature
+            MS_HW_fan
+            MS_HW_voltage
+            MS_HW_powersupply
+            MS_HW_memory
+        ;;
+        *)
+            /usr/bin/echo "Usage: $0 <temperature|fan|powersupply|computermodel|voltage|memory|all>"
+        ;;
+    esac
+
+    # Remove the trailing temporary file
+    if [ -f $HARDINFOTEMPFILE ]; then
+        $RM $HARDINFOTEMPFILE
+    fi
 translations:
   PowerSupplyStatusTranslationTable:
     okay: ok

@@ -1,6 +1,18 @@
 ---
 embedded:
-  EmbeddedFile(1): "BEGIN { FS = \";\" }\n{ location = $4\n\tshelfID = $1\n\tpsCount = split($2, psIDArray, \",\")\n\tsplit($3, psSerialNumberArray, \",\")\n  split($5, psPartNumberArray, \",\")\n\tfor (i=1 ; i<=psCount ; i++)\n\t{if (psIDArray[i] ~ /[A-Za-z0-9]/) {\n\t\t                               print \"MSHW;\" shelfID \"-\" psIDArray[i] \";\" psSerialNumberArray[i] \";\" location \"-\" psIDArray[i] \";\" psPartNumberArray[i] \";\"\n\t\t                              }\n\t}\n}"
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    { location = $4
+        shelfID = $1
+        psCount = split($2, psIDArray, ",")
+        split($3, psSerialNumberArray, ",")
+      split($5, psPartNumberArray, ",")
+        for (i=1 ; i<=psCount ; i++)
+        {if (psIDArray[i] ~ /[A-Za-z0-9]/) {
+                                           print "MSHW;" shelfID "-" psIDArray[i] ";" psSerialNumberArray[i] ";" location "-" psIDArray[i] ";" psPartNumberArray[i] ";"
+                                          }
+        }
+    }
   EmbeddedFile(11): |-
     BEGIN {FS=";";}
     {
@@ -9,12 +21,125 @@ embedded:
           print "Unassigned Disks: "$2-$3";;;;;;;Unassigned Disks."$1";Unassigned Disks."$1";Unassigned Disks."$1";true;"
       }
     }
-  EmbeddedFile(3): "BEGIN { FS = \";\" }\n{ location = $3\n\tshelfID = $1\n\tfanCount = split($2, fanIDArray, \",\")\n\n\tfor (i=1 ; i<=fanCount ; i++)\n\t{if (fanIDArray[i] ~ /[A-Za-z0-9]/) {\n\t\t                               print \"MSHW;\" shelfID \"-\" fanIDArray[i] \";Shelf \" shelfID \";\" location \"-\" fanIDArray[i] \";\"\n\t\t                              }\n\t}\n}"
-  EmbeddedFile(2): "BEGIN { FS = \";\" }\n{\n\tshelfID = $1\n\tpsCount = split($2, psIDArray, \",\")\n\tfailedPsList = \",\" $3 \",\"\n\n\tfor (i=1 ; i<=psCount ; i++)\n\t{\n\t\tif (index(failedPsList, \",\" psIDArray[i] \",\") > 0)\n\t\t{\n\t\t\tprint \"MSHW;\" shelfID \"-\" psIDArray[i] \";ALARM;Failed;\"\n\t\t}\n\t\telse\n\t\t{\n\t\t\tprint \"MSHW;\" shelfID \"-\" psIDArray[i] \";OK;;\" location \";\"\n\t\t}\n\t}\n}"
-  EmbeddedFile(5): "BEGIN { FS = \";\" }\n{ location = $5\n\tshelfID = $1\n\ttemperatureCount = split($2, temperatureIDArray, \",\")\n\tsplit($3, alarmThresholdArray, \",\")\n\tsplit($4, warningThresholdArray, \",\")\n\n\tfor (i=1 ; i<=temperatureCount ; i++)\n\t{\n\t\tcIndex = index(warningThresholdArray[i], \"C\")\n\t\tif (cIndex > 0)\n\t\t{\n\t\t\twarningThreshold = substr(warningThresholdArray[i], 1, cIndex - 1)\n\t\t}\n\t\telse\n\t\t{\n\t\t\twarningThreshold = \"\"\n\t\t}\n\n\t\tcIndex = index(alarmThresholdArray[i], \"C\")\n\t\tif (cIndex > 0)\n\t\t{\n\t\t\talarmThreshold = substr(alarmThresholdArray[i], 1, cIndex - 1)\n\t\t}\n\t\telse\n\t\t{\n\t\t\talarmThreshold = \"\"\n\t\t}\n\n\t\tprint \"MSHW;\" shelfID \"-\" temperatureIDArray[i] \";\" shelfID \";\" warningThreshold \";\" alarmThreshold \";;\" location \";\"\n\t}\n}"
-  EmbeddedFile(4): "BEGIN { FS = \";\" }\n{\n\tshelfID = $1\n\tfanCount = split($2, fanIDArray, \",\")\n\tfailedFanList = \",\" $3 \",\"\n\n\tfor (i=1 ; i<=fanCount ; i++)\n\t{\n\t\tif (index(failedFanList, \",\" fanIDArray[i] \",\") > 0)\n\t\t{\n\t\t\tprint \"MSHW;\" shelfID \"-\" fanIDArray[i] \";ALARM;Failed;\"\n\t\t}\n\t\telse\n\t\t{\n\t\t\tprint \"MSHW;\" shelfID \"-\" fanIDArray[i] \";OK;;\"\n\t\t}\n\t}\n}"
-  EmbeddedFile(7): "BEGIN { FS = \";\"; totalUsedMB = 0; totalSizeMB = 0; }\n{\n\tusedMB = $1;\n\tsizeMB = $2;\n\n\ttotalUsedMB = totalUsedMB + usedMB;\n\ttotalSizeMB = totalSizeMB + sizeMB;\n}\nEND {\n\tunallocatedSpace = totalSizeMB - totalUsedMB;\n\tif (unallocatedSpace < 0) { unallocatedSpace = 0; }\n\tprintf(\"MSHW;PrimordialStoragePool;OK;;;%d\\n\", unallocatedSpace);\n}"
-  EmbeddedFile(6): "BEGIN { FS = \";\" }\n{\n\tshelfID = $1\n\ttemperatureCount = split($2, temperatureIDArray, \",\")\n\tsplit($3, temperatureArray, \",\")\n\n\tfor (i=1 ; i<=temperatureCount ; i++)\n\t{\n\t\tcIndex = index(temperatureArray[i], \"C\")\n\t\tif (cIndex > 0)\n\t\t{\n\t\t\ttemperature = substr(temperatureArray[i], 1, cIndex - 1)\n\t\t}\n\t\telse\n\t\t{\n\t\t\ttemperature = \"\"\n\t\t}\n\n\t\tprint \"MSHW;\" shelfID \"-\" temperatureIDArray[i] \";\" temperature \";;\"\n\t}\n}"
+  EmbeddedFile(3): |-
+    BEGIN { FS = ";" }
+    { location = $3
+        shelfID = $1
+        fanCount = split($2, fanIDArray, ",")
+
+        for (i=1 ; i<=fanCount ; i++)
+        {if (fanIDArray[i] ~ /[A-Za-z0-9]/) {
+                                           print "MSHW;" shelfID "-" fanIDArray[i] ";Shelf " shelfID ";" location "-" fanIDArray[i] ";"
+                                          }
+        }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { FS = ";" }
+    {
+        shelfID = $1
+        psCount = split($2, psIDArray, ",")
+        failedPsList = "," $3 ","
+
+        for (i=1 ; i<=psCount ; i++)
+        {
+            if (index(failedPsList, "," psIDArray[i] ",") > 0)
+            {
+                print "MSHW;" shelfID "-" psIDArray[i] ";ALARM;Failed;"
+            }
+            else
+            {
+                print "MSHW;" shelfID "-" psIDArray[i] ";OK;;" location ";"
+            }
+        }
+    }
+  EmbeddedFile(5): |-
+    BEGIN { FS = ";" }
+    { location = $5
+        shelfID = $1
+        temperatureCount = split($2, temperatureIDArray, ",")
+        split($3, alarmThresholdArray, ",")
+        split($4, warningThresholdArray, ",")
+
+        for (i=1 ; i<=temperatureCount ; i++)
+        {
+            cIndex = index(warningThresholdArray[i], "C")
+            if (cIndex > 0)
+            {
+                warningThreshold = substr(warningThresholdArray[i], 1, cIndex - 1)
+            }
+            else
+            {
+                warningThreshold = ""
+            }
+
+            cIndex = index(alarmThresholdArray[i], "C")
+            if (cIndex > 0)
+            {
+                alarmThreshold = substr(alarmThresholdArray[i], 1, cIndex - 1)
+            }
+            else
+            {
+                alarmThreshold = ""
+            }
+
+            print "MSHW;" shelfID "-" temperatureIDArray[i] ";" shelfID ";" warningThreshold ";" alarmThreshold ";;" location ";"
+        }
+    }
+  EmbeddedFile(4): |-
+    BEGIN { FS = ";" }
+    {
+        shelfID = $1
+        fanCount = split($2, fanIDArray, ",")
+        failedFanList = "," $3 ","
+
+        for (i=1 ; i<=fanCount ; i++)
+        {
+            if (index(failedFanList, "," fanIDArray[i] ",") > 0)
+            {
+                print "MSHW;" shelfID "-" fanIDArray[i] ";ALARM;Failed;"
+            }
+            else
+            {
+                print "MSHW;" shelfID "-" fanIDArray[i] ";OK;;"
+            }
+        }
+    }
+  EmbeddedFile(7): |-
+    BEGIN { FS = ";"; totalUsedMB = 0; totalSizeMB = 0; }
+    {
+        usedMB = $1;
+        sizeMB = $2;
+
+        totalUsedMB = totalUsedMB + usedMB;
+        totalSizeMB = totalSizeMB + sizeMB;
+    }
+    END {
+        unallocatedSpace = totalSizeMB - totalUsedMB;
+        if (unallocatedSpace < 0) { unallocatedSpace = 0; }
+        printf("MSHW;PrimordialStoragePool;OK;;;%d\n", unallocatedSpace);
+    }
+  EmbeddedFile(6): |-
+    BEGIN { FS = ";" }
+    {
+        shelfID = $1
+        temperatureCount = split($2, temperatureIDArray, ",")
+        split($3, temperatureArray, ",")
+
+        for (i=1 ; i<=temperatureCount ; i++)
+        {
+            cIndex = index(temperatureArray[i], "C")
+            if (cIndex > 0)
+            {
+                temperature = substr(temperatureArray[i], 1, cIndex - 1)
+            }
+            else
+            {
+                temperature = ""
+            }
+
+            print "MSHW;" shelfID "-" temperatureIDArray[i] ";" temperature ";;"
+        }
+    }
   EmbeddedFile(10): |-
     BEGIN {FS="[;]";individualFound="false";globalFound="false";}
     # Individual Found
@@ -36,7 +161,16 @@ embedded:
     (NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
     (NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
     END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;Global;;NetApp;Enclosure;"}}
-  EmbeddedFile(8): "BEGIN { FS = \";\"; totalSizeMB = 0; }\n{\n\tsizeMB = $1;\n\n\ttotalSizeMB = totalSizeMB + sizeMB;\n}\nEND {\n\tprintf(\"MSHW;PrimordialStoragePool;;;%d;Primordial Storage Pool;0\\n\", totalSizeMB);\n}"
+  EmbeddedFile(8): |-
+    BEGIN { FS = ";"; totalSizeMB = 0; }
+    {
+        sizeMB = $1;
+
+        totalSizeMB = totalSizeMB + sizeMB;
+    }
+    END {
+        printf("MSHW;PrimordialStoragePool;;;%d;Primordial Storage Pool;0\n", totalSizeMB);
+    }
 translations:
   BatteryStatusInformationTranslationTable:
     "1": ""

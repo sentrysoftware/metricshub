@@ -1,6 +1,83 @@
 ---
 embedded:
-  EmbeddedFile(1): "($1 == \"PPA\" && $2 == \"Number\") {\n\tdeviceID = $4\n\tmodel = \"\"\n\tbandwidth = \"\"\n\tstatus = \"\"\n\tinboundError = 0\n\toutboundError = 0\n\tinboundOctet = 0\n\toutboundOctet = 0\n\tinboundUnicastPackets = 0\n\tinbountNonUnicastPackets = 0\n\toutboundUnicastPackets = 0\n\toutboundNonUnicastPackets = 0\n\terrorCount = 0\n\tmacAddress = \"\"\n}\n\n($1 == \"Description\") {\n\tif ($3 ~ \"^lan[0-9]+\")\n\t{\n\t\tmodel = $4 \" \" $5 \" \" $6 \" \" $7\n\t}\n\telse\n\t{\n\t\tmodel = $3 \" \" $4 \" \" $5 \" \" $6\n\t}\n}\n\n($1 == \"Station\" && $2 == \"Address\" && $4 ~ /^0x[0-9a-fA-F]+$/) {\n\tmacAddress = substr($4, 3, length($4) - 2)\n}\n\n($1 == \"Speed\") {\n\tbandwidth = $3 / 1000000\n}\n\n($1 == \"Operation\" && $2 == \"Status\") {\n\tstatus = $5\n}\n\n($1 == \"Inbound\" && $2 == \"Errors\") {\n\tinboundError = $4\n}\n\n($1 == \"Inbound\" && $2 == \"Octets\") {\n\tinboundOctet = $4\n}\n\n($1 == \"Inbound\" && $2 == \"Unicast\" && $3 == \"Packets\") {\n\tinboundUnicastPackets = $5\n}\n\n($1 == \"Inbound\" && $2 == \"Non-Unicast\" && $3 == \"Packets\") {\n\tinboundNonUnicastPackets = $5\n}\n\n($1 == \"Outbound\" && $2 == \"Octets\") {\n\toutboundOctet = $4\n}\n\n($1 == \"Outbound\" && $2 == \"Unicast\" && $3 == \"Packets\") {\n\toutboundUnicastPackets = $5\n}\n\n($1 == \"Outbound\" && $2 == \"Non-Unicast\" && $3 == \"Packets\") {\n\toutboundNonUnicastPackets = $5\n}\n\n($1 == \"Outbound\" && $2 == \"Errors\") {\n\toutboundError = $4\n\n\tinboundPackets = inboundUnicastPackets + inboundNonUnicastPackets\n\toutboundPackets = outboundUnicastPackets + outboundNonUnicastPackets\n\terrorCount = inboundError + outboundError\n\n\tprintf(\"MSHW;%s;%s;%.0f;%s;%.0f;%.0f;%s;%.0f;%.0f;%.0f\\n\", deviceID, macAddress, bandwidth, status, errorCount, inboundPackets, model, outboundPackets, inboundOctet, outboundOctet)\n}"
+  EmbeddedFile(1): |-
+    ($1 == "PPA" && $2 == "Number") {
+        deviceID = $4
+        model = ""
+        bandwidth = ""
+        status = ""
+        inboundError = 0
+        outboundError = 0
+        inboundOctet = 0
+        outboundOctet = 0
+        inboundUnicastPackets = 0
+        inbountNonUnicastPackets = 0
+        outboundUnicastPackets = 0
+        outboundNonUnicastPackets = 0
+        errorCount = 0
+        macAddress = ""
+    }
+
+    ($1 == "Description") {
+        if ($3 ~ "^lan[0-9]+")
+        {
+            model = $4 " " $5 " " $6 " " $7
+        }
+        else
+        {
+            model = $3 " " $4 " " $5 " " $6
+        }
+    }
+
+    ($1 == "Station" && $2 == "Address" && $4 ~ /^0x[0-9a-fA-F]+$/) {
+        macAddress = substr($4, 3, length($4) - 2)
+    }
+
+    ($1 == "Speed") {
+        bandwidth = $3 / 1000000
+    }
+
+    ($1 == "Operation" && $2 == "Status") {
+        status = $5
+    }
+
+    ($1 == "Inbound" && $2 == "Errors") {
+        inboundError = $4
+    }
+
+    ($1 == "Inbound" && $2 == "Octets") {
+        inboundOctet = $4
+    }
+
+    ($1 == "Inbound" && $2 == "Unicast" && $3 == "Packets") {
+        inboundUnicastPackets = $5
+    }
+
+    ($1 == "Inbound" && $2 == "Non-Unicast" && $3 == "Packets") {
+        inboundNonUnicastPackets = $5
+    }
+
+    ($1 == "Outbound" && $2 == "Octets") {
+        outboundOctet = $4
+    }
+
+    ($1 == "Outbound" && $2 == "Unicast" && $3 == "Packets") {
+        outboundUnicastPackets = $5
+    }
+
+    ($1 == "Outbound" && $2 == "Non-Unicast" && $3 == "Packets") {
+        outboundNonUnicastPackets = $5
+    }
+
+    ($1 == "Outbound" && $2 == "Errors") {
+        outboundError = $4
+
+        inboundPackets = inboundUnicastPackets + inboundNonUnicastPackets
+        outboundPackets = outboundUnicastPackets + outboundNonUnicastPackets
+        errorCount = inboundError + outboundError
+
+        printf("MSHW;%s;%s;%.0f;%s;%.0f;%.0f;%s;%.0f;%.0f;%.0f\n", deviceID, macAddress, bandwidth, status, errorCount, inboundPackets, model, outboundPackets, inboundOctet, outboundOctet)
+    }
 translations:
   NetworkCardLinkStatusTranslationTable:
     "1": ok

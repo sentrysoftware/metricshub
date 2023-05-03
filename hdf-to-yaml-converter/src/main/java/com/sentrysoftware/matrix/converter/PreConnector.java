@@ -341,6 +341,8 @@ public class PreConnector {
 			String embeddedFileContent = embeddedFileMatcher.group(2);
 			Integer embeddedFileIndex = Integer.valueOf(embeddedFileMatcher.group(1).trim());
 
+			embeddedFileContent = embeddedFileContent.replace("\t", "    ");
+
 			// EmbeddedFiles index is the key
 			embeddedFiles.put(String.format("EmbeddedFile(%s)",embeddedFileIndex) , embeddedFileContent);
 

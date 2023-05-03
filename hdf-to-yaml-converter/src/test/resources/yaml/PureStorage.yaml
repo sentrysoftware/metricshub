@@ -13,7 +13,40 @@ embedded:
     #            MSHW;ID;Type;Status;Status;Capacity;Enclosure;DisplayID;
           print "MSHW;" $1 ";" $2 ";" $3 ";" $3 ";" size ";" enclosure ";" displayID ";"
         }
-  EmbeddedFile(2): "BEGIN {outputMatch = 0}\n$1 ~ /[Nn]ame/ && $2 ~ /[Ss]tatus/ && $3 ~ /[Ii]dentify/ {outputMatch = 1}\noutputMatch == 1 && $1 ~ /^[SC][HT][0-9]/ {\n      type = $1 ;\n      enclosure = $1 ; gsub (\"[.].+\",\"\",enclosure);\n      displayID = $1 ; gsub (\"^.+[.]\",\"\",displayID);\n      if ($2 ~ /not_installed/) {next}\n      if (type ~ /^[SC][HT][0-9]+\\.BAY/) {next}\n      if (type ~ /^[SC][HT][0-9]+\\.DRV/) {next}\n     \tif (type ~ /^CT[0-9]+$/) {type = \"MSHW_Enclosure;Controller\" }\n     \tif (type ~ /^[SC][HT][0-9]+\\.FAN/) {type = \"MSHW_Fan\" ;\n     \t\t                             CurrentReading = $6 ; gsub (/rpm/,\"\",CurrentReading);\n     \t\t                            }\n      if (type ~ /^[SC][HT][0-9]+\\.PWR/) {type = \"MSHW_PSU\" }\n      if (type ~ /^[SC][HT][0-9]+\\.ETH/ || type ~ /^[SC][HT][0-9]+\\.FC/ || type ~ /^[SC][HT][0-9]+\\.SAS/ || type ~ /^[SC][HT][0-9]+\\.IB/) {\n      \t                            type = \"MSHW_NetworkCard\"\n      \t      \t                    CurrentReading = $6\n      \t      \t                    LinkStatus = 1\n      \t      \t                    if ($7 ~ /Gb/) {\n      \t      \t                    \t                            CurrentReading = CurrentReading * 1000\n      \t      \t                    \t                           }\n      \t                            if (CurrentReading == 0) {\n      \t                            \tCurrentReading = \"\"\n      \t                            \tLinkStatus = 0\n      \t                            \t}\n      \t                           }\n      if (type ~ /^SH[0-9]+$/) {type = \"MSHW_Enclosure;Disk Shelf\" }\n      if (type ~ /^CH[0-9]+$/) {type = \"MSHW_Enclosure;Chassis\" }\n      if (type ~ /^[SC][HT][0-9]+\\.IOM/) {type = \"MSHW_OtherDevice\" }\n#All         MSHW_Type;ID;Status;Status;CurrentReading;Enclosure;DisplayID;\n#OtherDevice/Controller/Shelf MSHW_Type;DeviceType;ID;Status;Status;CurrentReading;Enclosure;DisplayID;LinkStatus;\n      print type \";\" $1 \";\" $2 \";\" $2\";\" CurrentReading \";\" enclosure \";\" displayID \";\" LinkStatus \";\"\n     }"
+  EmbeddedFile(2): |-
+    BEGIN {outputMatch = 0}
+    $1 ~ /[Nn]ame/ && $2 ~ /[Ss]tatus/ && $3 ~ /[Ii]dentify/ {outputMatch = 1}
+    outputMatch == 1 && $1 ~ /^[SC][HT][0-9]/ {
+          type = $1 ;
+          enclosure = $1 ; gsub ("[.].+","",enclosure);
+          displayID = $1 ; gsub ("^.+[.]","",displayID);
+          if ($2 ~ /not_installed/) {next}
+          if (type ~ /^[SC][HT][0-9]+\.BAY/) {next}
+          if (type ~ /^[SC][HT][0-9]+\.DRV/) {next}
+             if (type ~ /^CT[0-9]+$/) {type = "MSHW_Enclosure;Controller" }
+             if (type ~ /^[SC][HT][0-9]+\.FAN/) {type = "MSHW_Fan" ;
+                                              CurrentReading = $6 ; gsub (/rpm/,"",CurrentReading);
+                                             }
+          if (type ~ /^[SC][HT][0-9]+\.PWR/) {type = "MSHW_PSU" }
+          if (type ~ /^[SC][HT][0-9]+\.ETH/ || type ~ /^[SC][HT][0-9]+\.FC/ || type ~ /^[SC][HT][0-9]+\.SAS/ || type ~ /^[SC][HT][0-9]+\.IB/) {
+                                          type = "MSHW_NetworkCard"
+                                            CurrentReading = $6
+                                            LinkStatus = 1
+                                            if ($7 ~ /Gb/) {
+                                                                            CurrentReading = CurrentReading * 1000
+                                                                           }
+                                          if (CurrentReading == 0) {
+                                              CurrentReading = ""
+                                              LinkStatus = 0
+                                              }
+                                         }
+          if (type ~ /^SH[0-9]+$/) {type = "MSHW_Enclosure;Disk Shelf" }
+          if (type ~ /^CH[0-9]+$/) {type = "MSHW_Enclosure;Chassis" }
+          if (type ~ /^[SC][HT][0-9]+\.IOM/) {type = "MSHW_OtherDevice" }
+    #All         MSHW_Type;ID;Status;Status;CurrentReading;Enclosure;DisplayID;
+    #OtherDevice/Controller/Shelf MSHW_Type;DeviceType;ID;Status;Status;CurrentReading;Enclosure;DisplayID;LinkStatus;
+          print type ";" $1 ";" $2 ";" $2";" CurrentReading ";" enclosure ";" displayID ";" LinkStatus ";"
+         }
 translations:
   statusInformationTranslationTable:
     failed: Failed
