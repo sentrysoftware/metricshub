@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,29 +76,34 @@ public class PhysicalDiskConverter extends AbstractMappingConverter {
 			firstDisplayArgument = displayId;
 		}
 
-		final JsonNode model = existingAttributes.get(HDF_MODEL);
+		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode size = existingAttributes.get(HDF_SIZE);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode(
-						buildNameValue(firstDisplayArgument, deviceId, new JsonNode[] { model, size })));
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(firstDisplayArgument, vendor, size)
+			)
+		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the disk controller name value
+	 * Joins the given non-empty text nodes to build the physical disk name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param displayId            {@link JsonNode} representing the displayId
-	 * @param modelAndSize         {@link JsonNode} representing the model
+	 * @param vendor               {@link JsonNode} representing the physical disk's vendor
+	 * @param size                 {@link JsonNode} representing the physical disk's size
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId,
-			final JsonNode[] modelAndSize) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode vendor,
+		final JsonNode size
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (displayId == null && modelAndSize == null) {
+		if (Stream.of(vendor, size).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -106,40 +112,44 @@ public class PhysicalDiskConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-				Stream
-						.of(modelAndSize)
-						.filter(Objects::nonNull)
-						.map(JsonNode::asText)
-						.toList());
 
-		// Means model or size is not empty
-		if (!sprintfArgs.isEmpty()) {
+		// Means vendor or size is not null
+		if (vendor != null || size != null) {
 			format.append(
-				sprintfArgs
-				.stream()
-				.map(v -> "%s")
-				.collect(Collectors.joining(" - "," (",")\""))
+				Stream.concat(
+					Optional.ofNullable(vendor)
+						.map(v -> {
+							sprintfArgs.add(v.asText());
+							return "%s";
+						})
+						.stream(),
+					Optional.ofNullable(size)
+						.map(v -> {
+							sprintfArgs.add(v.asText());
+							return BYTES_TO_HUMAN_FORMAT_BASE_10; // Bytes to human format using base 10 conversion
+						})
+						.stream()
+				)
+				.collect(Collectors.joining(" - "," (",")"))
 			);
 		}
 
-		// Add the first argument at the beginning of the list
+		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
+		// sprint("%s (%s - %by10hf.s)", $column(1), $column(2), $column(3))
+		return format
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %by10hf.s)", 
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")"))
+			)
+			.toString();
 
-		format
-				.append(", ") // Here we will have a string like sprintf("%s %s (%s)"),
-				.append(
-						sprintfArgs
-								.stream()
-								.map(this::getFunctionArgument)
-								.collect(Collectors.joining(", ", "", ")")))
-				.toString();
-
-		return format.toString();
 	}
 
 	@Override

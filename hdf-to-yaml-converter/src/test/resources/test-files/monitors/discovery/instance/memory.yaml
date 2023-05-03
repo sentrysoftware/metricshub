@@ -36,11 +36,9 @@
               info: join($column(2), $column(11), $column(13), " ")
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s (%s) - %s - %s)", "1.1", "Vendor", "Model", "DDR4", "16384")
+              name: sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
-              errorcountwarningthreshold: $column(14)
-              errorcountalarmthreshold: $column(15)
 - name: testNoDisplayId
   input: |
     // The Instance Table
@@ -77,11 +75,10 @@
               info: join($column(2), $column(11), $column(13), " ")
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s (%s) - %s - %s)", "1.1", "Vendor", "Model", "DDR4", "16384")
+              name: sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
-              errorcountwarningthreshold: $column(14)
-              errorcountalarmthreshold: $column(15)
+
 - name: testNoVendor
   input: |
     // The Instance Table
@@ -118,11 +115,10 @@
               info: join($column(2), $column(11), $column(13), " ")
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s - %s)", "1.1", "Model", "DDR4", "16384")
+              name: sprintf("%s (%s - %s MB)", "1.1", "DDR4", "16384")
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
-              errorcountwarningthreshold: $column(14)
-              errorcountalarmthreshold: $column(15)
+
 - name: testNoModel
   input: |
     // The Instance Table
@@ -159,11 +155,10 @@
               info: join($column(2), $column(11), $column(13), " ")
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s - %s)", "1.1", "Vendor", "DDR4", "16384")
+              name: sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
-              errorcountwarningthreshold: $column(14)
-              errorcountalarmthreshold: $column(15)
+
 - name: testTypeOnly
   input: |
     // The Instance Table
@@ -198,9 +193,7 @@
               hw.parent.id: DIR5
               hw.parent.type: enclosure
               name: sprintf("%s (%s)", "1.1", "DDR4")
-            metrics:
-              errorcountwarningthreshold: $column(14)
-              errorcountalarmthreshold: $column(15)
+
 - name: testSizeOnly
   input: |
     // The Instance Table
@@ -233,11 +226,10 @@
               info: join($column(2), $column(11), $column(13), " ")
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s)", "1.1", "16384")
+              name: sprintf("%s (%s MB)", "1.1", "16384")
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
-              errorcountwarningthreshold: $column(14)
-              errorcountalarmthreshold: $column(15)
+
 - name: testIdOnly
   input: |
     // The Instance Table
@@ -270,6 +262,4 @@
               hw.parent.id: DIR5
               hw.parent.type: enclosure
               name: "1.1"
-            metrics:
-              errorcountwarningthreshold: $column(14)
-              errorcountalarmthreshold: $column(15)
+

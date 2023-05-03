@@ -107,7 +107,11 @@ public class BladeConverter extends AbstractMappingConverter {
 	 * @param bladeModel           The text node to be joined with bladeName. The value is then concatenated with open and close parenthesis.
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode bladeName, final JsonNode bladeModel) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode bladeName,
+		final JsonNode bladeModel
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
 		if (bladeName == null && bladeModel == null) {
@@ -142,9 +146,9 @@ public class BladeConverter extends AbstractMappingConverter {
 
 		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s)", $column(1), $column(2), $column(3))
+		// sprintf("%s (%s - %s)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)", 
 			.append(
 				sprintfArgs
 					.stream()

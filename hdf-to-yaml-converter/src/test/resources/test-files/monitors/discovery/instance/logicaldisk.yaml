@@ -24,9 +24,10 @@
             attributes:
               id: $column(1)
               __display_id: $column(2)
-              hw.logical_disk.limit: $column(3)
               type: $column(6)
               hw.parent.id: $column(7)
               hw.parent.type: "enclosure"
               raid_level: $column(8)
-              name: sprintf("%s (%s - %s)", $column(2), $column(8), $column(3))
+              name: sprintf("%s (%s - %by2hf.s)", $column(2), $column(8), $column(3))
+            metrics:
+              hw.logical_disk.limit: $column(3)

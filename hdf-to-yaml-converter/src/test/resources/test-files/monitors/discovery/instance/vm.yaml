@@ -2,9 +2,9 @@
   input: |
     VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
     VM.Discovery.Instance.DeviceID=InstanceTable.Column(1)
-    VM.Discovery.Instance.DisplayID=InstanceTable.Column(1)
-    VM.Discovery.Instance.Hostname=InstanceTable.Column(1)
-    VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    VM.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    VM.Discovery.Instance.Hostname=InstanceTable.Column(3)
+    VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
   expected:
     monitors:
       vm:
@@ -13,16 +13,17 @@
             source: $monitors.vm.discovery.sources.source(1)$
             attributes:
               id: $column(1)
-              __display_id: $column(1)
-              name: $column(1)
-              info: $column(2)
+              __display_id: $column(2)
+              name: sprintf("%s (%s)", $column(2), $column(3))
+              info: $column(4)
               hw.parent.type: enclosure
+              vm.host.name: $column(3)
 - name: testDefaultName
   input: |
     VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
     VM.Discovery.Instance.DeviceID=InstanceTable.Column(1)
-    VM.Discovery.Instance.Hostname=InstanceTable.Column(1)
-    VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    VM.Discovery.Instance.Hostname=InstanceTable.Column(2)
+    VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
   expected:
     monitors:
       vm:
@@ -31,6 +32,25 @@
             source: $monitors.vm.discovery.sources.source(1)$
             attributes:
               id: $column(1)
-              name: $column(1)
-              info: $column(2)
+              name: sprintf("%s (%s)", $column(1), $column(2))
+              info: $column(3)
+              hw.parent.type: enclosure
+              vm.host.name: $column(2)
+- name: testNoHostname
+  input: |
+    VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
+    VM.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    VM.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+  expected:
+    monitors:
+      vm:
+        discovery:
+          mapping:
+            source: $monitors.vm.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(2)
+              name: $column(2)
+              info: $column(3)
               hw.parent.type: enclosure

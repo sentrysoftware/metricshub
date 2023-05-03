@@ -107,7 +107,7 @@ public class CpuConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, maximumSpeed)
+				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, maximumSpeed)
 			)
 		);
 	}
@@ -116,12 +116,16 @@ public class CpuConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the CPU name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
+	 * @param vendorAndModel       {@link JsonNode} array of vendor and model to be joined 
 	 * @param maximumSpeed         {@link JsonNode} representing the max speed in MHz of the CPU
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, JsonNode maximumSpeed) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode[] vendorAndModel,
+		final JsonNode maximumSpeed
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
 		if (Stream.of(vendorAndModel).allMatch(Objects::isNull) && maximumSpeed == null) {
@@ -152,7 +156,7 @@ public class CpuConverter extends AbstractMappingConverter {
 							.filter(Objects::nonNull)
 							.map(v -> {
 								sprintfArgs.add(v.asText());
-								return MEGA_HERTZ_TO_HUMAN_FORMAT; // Hertz to Human Format
+								return MEGA_HERTZ_TO_HUMAN_FORMAT; // Hertz to human format
 							})
 					)
 					.collect(Collectors.joining(" - "," (",")"))

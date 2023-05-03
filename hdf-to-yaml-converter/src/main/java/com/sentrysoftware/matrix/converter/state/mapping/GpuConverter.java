@@ -7,8 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -100,27 +100,30 @@ public class GpuConverter extends AbstractMappingConverter {
 		final JsonNode size = existingAttributes.get(HDF_SIZE);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode(
-						buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, size)));
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, size)
+			)
+		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the battery name value
+	 * Joins the given non-empty text nodes to build the GPU name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to
-	 *                             be joined
-	 * @param sizeNode             {@link JsonNode} representing the type of the
-	 *                             battery
+	 * @param vendorAndModel       {@link JsonNode} array of vendor and model to be joined 
+	 * @param size                 {@link JsonNode} representing the GPU memory size in MB
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel,
-			final JsonNode sizeNode) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode[] vendorAndModel,
+		final JsonNode size
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (sizeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
+		if (Stream.of(vendorAndModel).allMatch(Objects::isNull) && size == null) {
 			return firstArg;
 		}
 
@@ -130,48 +133,46 @@ public class GpuConverter extends AbstractMappingConverter {
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
-				Stream
-						.of(vendorAndModel)
+			Stream
+				.of(vendorAndModel)
+				.filter(Objects::nonNull)
+				.map(JsonNode::asText)
+				.toList()
+		);
+
+		// Means vendor, model or size is not null
+		if (!sprintfArgs.isEmpty() || size != null) {
+			format.append(
+				Stream.concat(
+					sprintfArgs
+						.stream()
+						.map(v -> "%s"),
+					Stream.of(size)
 						.filter(Objects::nonNull)
-						.map(JsonNode::asText)
-						.toList());
-
-		// Means we have model or vendor but we don't know if have the type
-		if (sprintfArgs.size() == 1) {
-			format.append(" (%s");
-		} else if (sprintfArgs.size() == 2) {
-			// We have both model and vendor but we don't know if we have the type
-			format.append(" (%s %s");
+						.map(v -> {
+							sprintfArgs.add(v.asText());
+							return MEBI_BYTES_TO_HUMAN_FORMAT; // MiB to human format
+						})
+				)
+				.collect(Collectors.joining(" - "," (",")"))
+			);
 		}
 
-		// Do we have the size?
-		if (sizeNode != null) {
-
-			// Without vendor and model?
-			format.append(sprintfArgs.isEmpty() ? " (%s)" : " - %s)");
-
-			// Add the size to our list of arguments
-			sprintfArgs.add(sizeNode.asText());
-
-		} else if (!sprintfArgs.isEmpty()) {
-			// We have at least one of { vendor, model, type } let's close the parenthesis
-			format.append(")");
-		}
-
-		// Add the first argument at the beginning of the list
+		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4))
+		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		// sprintf("%s (%s - %s - %mibyhf.s)", $column(1), $column(2), $column(3), $column(4))
 		return format
-				.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)",
-				.append(
-						sprintfArgs
-								.stream()
-								.map(this::getFunctionArgument)
-								.collect(Collectors.joining(", ", "", ")")))
-				.toString();
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %mibyhf.s)", 
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")"))
+			)
+			.toString();
 
 	}
 

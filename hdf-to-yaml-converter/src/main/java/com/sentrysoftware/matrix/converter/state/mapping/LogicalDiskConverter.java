@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +26,7 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
 		attributesMap.put(HDF_RAID_LEVEL, IMappingKey.of(ATTRIBUTES, YAML_RAID_LEVEL));
 		attributesMap.put(HDF_LOGICALDISK_TYPE, IMappingKey.of(ATTRIBUTES, HDF_TYPE));
-		attributesMap.put(HDF_SIZE, IMappingKey.of(ATTRIBUTES, YAML_LOGICALDISK_LIMIT));
+		attributesMap.put(HDF_SIZE, IMappingKey.of(METRICS, YAML_LOGICALDISK_LIMIT));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
@@ -37,7 +38,6 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 		metricsMap.put(HDF_ERROR_COUNT, IMappingKey.of(METRICS, YAML_LOGICALDISK_ERRORS));
 		metricsMap.put(HDF_UNALLOCATED_SPACE, IMappingKey.of(METRICS, YAML_LOGICALDISK_USAGE_FREE));
 
-		
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
 
@@ -64,30 +64,34 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 			firstDisplayArgument = displayId;
 		}
 
-		final JsonNode raid = existingAttributes.get(HDF_RAID_LEVEL);
+		final JsonNode raidLevel = existingAttributes.get(HDF_RAID_LEVEL);
 		final JsonNode size = existingAttributes.get(HDF_SIZE);
 
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {raid, size})
+				buildNameValue(firstDisplayArgument, raidLevel, size)
 			)
 		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the CPU name value
+	 * Joins the given non-empty text nodes to build the Logical Disk name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param raidAndSize       {@link JsonNode[]} array of vendor and model to be joined 
-	 * @param maximumSpeed         {@link JsonNode} representing the max speed in MHz of the CPU
+	 * @param raidLevel            {@link JsonNode} representing the raid level 
+	 * @param size                 {@link JsonNode} representing the logical disk size
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] raidAndSize) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode raidLevel,
+		final JsonNode size
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (Stream.of(raidAndSize).allMatch(Objects::isNull)) {
+		if (Stream.of(raidLevel, size).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -96,32 +100,36 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(raidAndSize)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
 
-		// Means vendor, model or maximumSpeed is not empty
-		if (!sprintfArgs.isEmpty()) {
+		// Means raid level or size is not empty
+		if (raidLevel != null || size != null) {
 			format.append(
-				sprintfArgs
-				.stream()
-				.map(v -> "%s")
-				.collect(Collectors.joining(" - "," (",")"))
+					Stream.concat(
+						Optional.ofNullable(raidLevel)
+							.map(v -> {
+								sprintfArgs.add(v.asText());
+								return "%s";
+							})
+							.stream(),
+						Optional.ofNullable(size)
+							.map(v -> {
+								sprintfArgs.add(v.asText());
+								return BYTES_TO_HUMAN_FORMAT_BASE_2; // Bytes to human format using base 2 conversion
+							})
+							.stream()
+					)
+					.collect(Collectors.joining(" - "," (",")"))
 			);
 		}
 
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s - %mhhf.s)", $column(1), $column(2), $column(3), $column(4))
+		// sprintf("%s (%s - %by2hf.s)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %mhhf.s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s -  %by2hf.s)", 
 			.append(
 				sprintfArgs
 					.stream()

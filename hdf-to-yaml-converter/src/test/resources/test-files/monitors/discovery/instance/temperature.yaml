@@ -25,7 +25,7 @@
               hw.parent.type: $column(7)
               id: $column(8)
               __display_id: $column(9)
-              temperature_type: $column(11)
+              sensor_location: $column(11)
               name: sprintf("%s (%s)", $column(9), $column(11))
             metrics:
               hw.temperature.limit{limit_type="high.degraded"}: $column(12)
