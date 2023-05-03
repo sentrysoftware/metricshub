@@ -31,7 +31,8 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ computermodel
+          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ computermodel"
+          # ComputerModel;
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ computermodel
           timeout: 360
@@ -56,7 +57,8 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ fan
+          # Source(1) = the output of "$embedded.EmbeddedFile(1)$ fan"
+          # FanName;Status
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ fan
           timeout: 360
@@ -86,6 +88,7 @@ monitors:
       sources:
         source(1):
           # Source(1) = the $embedded.EmbeddedFile(1)$ fan OSCommand
+          # fanName;fanStatus
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ fan
           timeout: 360
@@ -120,6 +123,7 @@ monitors:
       sources:
         source(1):
           # Source(1) = the stdout of $embedded.EmbeddedFile(1)$ temperature
+          # TemperatureName;WarningThreshold;AlarmThreshold;Status
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ temperature
           timeout: 360
@@ -154,6 +158,7 @@ monitors:
       sources:
         source(1):
           # Source(1) = stdout of $embedded.EmbeddedFile(1)$ temperature
+          # TemperatureName;CurrentValue;Status
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ temperature
           timeout: 360
@@ -189,6 +194,7 @@ monitors:
       sources:
         source(1):
           # Source(1) = stdout of $embedded.EmbeddedFile(1)$ voltage
+          # voltageName;lowerThreshold;upperThreshold
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ voltage
           timeout: 360
@@ -230,7 +236,8 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ voltage
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ voltage"
+          # voltageName;CurrentValue;Status
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ voltage
           timeout: 360
@@ -268,7 +275,8 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply"
+          # PowerSupplyName
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ powersupply
           timeout: 360
@@ -287,7 +295,8 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply"
+          # PowerSupplyName;Status
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ powersupply
           timeout: 360
@@ -330,7 +339,8 @@ monitors:
     discovery:
       sources:
         source(1):
-          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ memory
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ memory"
+          # MemoryID;Size
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ memory
           timeout: 360
@@ -357,7 +367,8 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply
+          # Source(1) = stdout of "$embedded.EmbeddedFile(1)$ powersupply"
+          # MemoryID;Status
           type: osCommand
           commandLine: sh $embedded.EmbeddedFile(1)$ memory
           timeout: 360

@@ -29,7 +29,7 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: "copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat & %EmbeddedFile(1)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(1)$.bat"
+          commandLine: "copy $embedded.EmbeddedFile(1)$ $embedded.EmbeddedFile(1)$.bat & $embedded.EmbeddedFile(1)$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(1)$.bat"
           executeLocally: true
           timeout: 600
     collect:
@@ -37,7 +37,7 @@ monitors:
         source(1):
           # Source(1) = the output of "$embedded.EmbeddedFile(1)$
           type: osCommand
-          commandLine: "copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat > NUL & %EmbeddedFile(1)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(1)$.bat"
+          commandLine: "copy $embedded.EmbeddedFile(1)$ $embedded.EmbeddedFile(1)$.bat > NUL & $embedded.EmbeddedFile(1)$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(1)$.bat"
           executeLocally: true
           timeout: 600
   logical_disk:
@@ -45,14 +45,14 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: "copy %EmbeddedFile(3)% %EmbeddedFile(3)%.bat & %EmbeddedFile(3)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(3)$.bat"
+          commandLine: "copy $embedded.EmbeddedFile(3)$ $embedded.EmbeddedFile(3)$.bat & $embedded.EmbeddedFile(3)$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(3)$.bat"
           executeLocally: true
           timeout: 3600
     collect:
       sources:
         source(1):
           type: osCommand
-          commandLine: "copy %EmbeddedFile(3)% %EmbeddedFile(3)%.bat & %EmbeddedFile(3)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(3)$.bat"
+          commandLine: "copy $embedded.EmbeddedFile(3)$ $embedded.EmbeddedFile(3)$.bat & $embedded.EmbeddedFile(3)$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $embedded.EmbeddedFile(3)$.bat"
           executeLocally: true
           timeout: 3600
 embedded:

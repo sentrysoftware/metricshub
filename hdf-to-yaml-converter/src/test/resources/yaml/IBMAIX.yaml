@@ -147,6 +147,7 @@ monitors:
       sources:
         source(1):
           # Source(1) = sh -$embedded.EmbeddedFile(1)$
+          # cpuID;HzSpeed;Model
           type: osCommand
           commandLine: /bin/sh $embedded.EmbeddedFile(1)$
           keep: '^MSHW:'

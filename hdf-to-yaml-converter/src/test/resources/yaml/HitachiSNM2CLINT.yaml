@@ -3,7 +3,7 @@ extends:
 - HitachiSNM2CLI-header
 constants:
   _EF1_COMMAND_PART2: '& del /F /Q $embedded.EmbeddedFile(1)$.bat'
-  _EF1_COMMAND_PART1: "copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat & $embedded.EmbeddedFile(1)$.bat %{USERNAME} %{PASSWORD}"
+  _EF1_COMMAND_PART1: "copy $embedded.EmbeddedFile(1)$ $embedded.EmbeddedFile(1)$.bat & $embedded.EmbeddedFile(1)$.bat %{USERNAME} %{PASSWORD}"
 connector:
   displayName: Hitachi HDS AMS/HUS (SNM2 CLI on Windows)
   platforms: "Hitachi AMS,Hitachi HUS"

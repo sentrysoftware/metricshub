@@ -357,7 +357,8 @@ monitors:
           type: osCommand
           commandLine: showenvironment volt
           computes:
-          # Pipe showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
+            # Pipe showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
+            # DeviceID;VoltageType;LowerThreshold;UpperThreshold
           - type: awk
             script: EmbeddedFile(6)
             keep: ^MSHW;
@@ -384,7 +385,8 @@ monitors:
           type: osCommand
           commandLine: showenvironment volt
           computes:
-          # Piped showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
+            # Piped showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
+            # DeviceID;Voltage;
           - type: awk
             script: EmbeddedFile(6)
             keep: ^MSHW;
@@ -404,7 +406,8 @@ monitors:
           type: osCommand
           commandLine: showenvironment temp
           computes:
-          # Pipe showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
+            # Pipe showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
+            # MSHW;SensorID;Temperature;Warning;Alarm;
           - type: awk
             script: EmbeddedFile(10)
             keep: ^MSHW;
@@ -431,7 +434,8 @@ monitors:
           type: osCommand
           commandLine: showenvironment temp
           computes:
-          # Piped showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
+            # Piped showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
+            # MSHW;SensorID;Temperature;Warning;Alarm;
           - type: awk
             script: EmbeddedFile(10)
             keep: ^MSHW;
@@ -452,7 +456,8 @@ monitors:
           type: osCommand
           commandLine: showdomainstatus -a
           computes:
-          # Pipe showdomainsm's output into the $embedded.EmbeddedFile(8)$ awk script
+            # Pipe showdomainsm's output into the $embedded.EmbeddedFile(8)$ awk script
+            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
           - type: awk
             script: EmbeddedFile(8)
             keep: ^MSHW;Domain;
@@ -505,7 +510,8 @@ monitors:
           type: osCommand
           commandLine: showdomainstatus -a
           computes:
-          # Pipe showdomains' output into the $embedded.EmbeddedFile(8)$ awk script
+            # Pipe showdomains' output into the $embedded.EmbeddedFile(8)$ awk script
+            # DeviceID;State
           - type: awk
             script: EmbeddedFile(8)
             keep: ^MSHW;Domain;

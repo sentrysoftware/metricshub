@@ -121,10 +121,10 @@ public class ConversionHelper {
 
 	/**
 	 * A compiled representation of an EmbeddedFile reference regular expression.
-	 * We attempt to match input like "%EmbeddedFile(1)%" while preserving anything before or after.
+	 * We attempt to match input like "%EmbeddedFile(1)%"
 	 */
 	private static final Pattern EMBEDDED_FILE_PATTERN = Pattern.compile(
-		"(.*)%(EmbeddedFile\\(\\d+\\))%(.*)",
+		"%EmbeddedFile\\((\\d+)\\)%",
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -219,13 +219,23 @@ public class ConversionHelper {
 		return String.format("$%s", column);
 	}
 
+	/**
+	 * Convert embedded file reference. E.g.
+	 * <b><u>%EmbeddedFile(1)%</u></b> becomes
+	 * <b><u>$embedded.EmbeddedFile(1)$</u></b>
+	 * 
+	 * @param matcher matcher used to find groups
+	 * @param input   input value to be replaced
+	 * @return updated string value
+	 */
 	private static String convertEmbeddedFileReference(final Matcher matcher, final String input) {
-		final String start = matcher.group(1);
-		final String ref = matcher.group(2);
-		final String end = matcher.group((3));
-
-		return String.format("%s$embedded.%s$%s", start, ref, end);
+		final String index = matcher.group(1);
+		return input.replace(
+			matcher.group(),
+			String.format("$embedded.EmbeddedFile(%s)$", index)
+		);
 	}
+
 	/**
 	 * Build a source key regex
 	 * 
