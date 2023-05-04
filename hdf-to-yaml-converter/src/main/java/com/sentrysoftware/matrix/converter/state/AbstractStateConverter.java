@@ -170,6 +170,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 			return null;
 		}
 
+		// if the source definition is contained in the hdfs and not the hhdf
 		if(sources.get(sourceName) == null) {
 			sources.set(sourceName, 
 				JsonNodeFactory.instance.objectNode().set(COMPUTES, 
