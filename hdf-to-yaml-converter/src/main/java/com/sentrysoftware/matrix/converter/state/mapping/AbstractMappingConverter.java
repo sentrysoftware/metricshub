@@ -333,16 +333,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	public static String buildRateFunction(final String value) {
 		return String.format(RATE_FORMAT, value);
 	}
-	
-	/**
-	 * Build legacyLedStatus(...) function
-	 * @param value
-	 * @return
-	 */
-	public static String buildLegacyLedFunction(final String value) {
-		return String.format(LED_STATUS_FORMAT, value);
-	}
-	
+
 	/**
 	 * Build mebiByte2Byte(...) function
 	 * 
@@ -420,5 +411,15 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 */
 	public static String buildMegaBit2BitFunction(final String value) {
 		return String.format(MEGA_BIT_2_BIT_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyLedStatus(...) function
+	 *
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyLedStatusFunction(final String value) {
+		return String.format(LEGACY_LED_STATUS_FORMAT, value);
 	}
 }

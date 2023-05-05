@@ -33,7 +33,7 @@ public class LedConverter extends AbstractMappingConverter {
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
 	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
-		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_LED_STATUS));
+		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_LED_STATUS, AbstractMappingConverter::buildLegacyLedStatusFunction));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
 		metricsMap.put(HDF_LED_INDICATOR, IMappingKey.of(METRICS, YAML_LED_INDICATOR));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
@@ -68,16 +68,16 @@ public class LedConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {color, name})
+				buildNameValue(firstDisplayArgument, new JsonNode[] { color, name })
 			)
 		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the CPU name value
+	 * Joins the given non-empty text nodes to build the LED name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param colorAndName       {@link JsonNode[]} array of color and name to be joined 
+	 * @param colorAndName         {@link JsonNode} array of color and name to be joined 
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
@@ -101,23 +101,24 @@ public class LedConverter extends AbstractMappingConverter {
 				.toList()
 		);
 
-		// Means vendor, model or maximumSpeed is not empty
+		// Means color or name is not null
 		if (!sprintfArgs.isEmpty()) {
 			format.append(
-					sprintfArgs
-							.stream()
-							.map(v -> "%s").collect(Collectors.joining(" - "," (",")"))
+				sprintfArgs
+					.stream()
+					.map(v -> "%s")
+					.collect(Collectors.joining(" - "," (",")"))
 			);
 		}
 
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s - %mhhf.s)", $column(1), $column(2), $column(3), $column(4))
+		// sprint("%s (%s - %s)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %mhhf.s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)", 
 			.append(
 				sprintfArgs
 					.stream()
@@ -135,26 +136,6 @@ public class LedConverter extends AbstractMappingConverter {
 
 	@Override
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
-		final ObjectNode mapping = (ObjectNode) node;
-
-		convertOneToOneMetrics(key, value, mapping);
-
-		final JsonNode metrics = mapping.get(METRICS);
-
-		if (metrics != null) {
-			final JsonNode legacyLedStatus = metrics.get(YAML_LED_STATUS);
-			if (legacyLedStatus != null && !legacyLedStatus.asText().contains("legacyLedStatus")) {
-				((ObjectNode) metrics).set(
-					YAML_LED_STATUS,
-					new TextNode(
-						buildLegacyLedFunction(
-							getFunctionArgument(
-								legacyLedStatus.asText()
-							)
-						)
-					)
-				);
-			}
-		}
+		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
 }

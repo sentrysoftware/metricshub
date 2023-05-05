@@ -110,7 +110,7 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 	/**
 	 * Joins the given non-empty text nodes to build the disk controller name value
 	 *
-	 * @param firstDisplayArgument {@link JsonNode} representing the display name. Never null
+	 * @param firstDisplayArgument {@link JsonNode} representing the display name, never null
 	 * @param vendorAndModel       {@link JsonNode} array representing vendor and model
 	 *
 	 * @return {@link String} Joined text nodes
@@ -132,7 +132,7 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 				.toList()
 		);
 
-		// Means vendor or model are not null
+		// Means vendor or model is not null
 		if (!sprintfArgs.isEmpty()) {
 			format.append(
 				sprintfArgs

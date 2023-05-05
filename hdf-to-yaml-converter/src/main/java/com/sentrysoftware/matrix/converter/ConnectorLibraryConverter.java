@@ -55,7 +55,7 @@ public class ConnectorLibraryConverter {
 		}
 		validateOutputDirectory(outputDirectory);
 
-		// List all .yaml files in connectorDirectory
+		// List all .hdfs and .hhdf files in connectorDirectory
 		final List<String> connectorNameList;
 		try {
 			connectorNameList = getConnectorList(sourceDirectory);

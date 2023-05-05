@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +37,7 @@ public class PowerSupplyConverter extends AbstractMappingConverter {
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_POWER_SUPPLY_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
 		metricsMap.put(HDF_USED_PERCENT, IMappingKey.of(METRICS, YAML_POWER_SUPPLY_UTILIZATION, AbstractMappingConverter::buildPercent2RatioFunction));
-		metricsMap.put(HDF_USED_WATTS, IMappingKey.of(METRICS, YAML_POWER_SUPPLY_UTILIZATION));
+		metricsMap.put(HDF_USED_WATTS, IMappingKey.of(METRICS, YAML_POWER_SUPPLY_POWER));
 
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
@@ -69,23 +70,30 @@ public class PowerSupplyConverter extends AbstractMappingConverter {
 		final JsonNode power = existingAttributes.get(HDF_POWER_SUPPLY_POWER);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode(
-						buildNameValue(firstDisplayArgument, new JsonNode[] { type, power })));
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(firstDisplayArgument, type, power)
+			)
+		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the disk controller name value
+	 * Joins the given non-empty text nodes to build the disk name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param typeAndPower         {@link JsonNode} representing the type and power
+	 * @param type                 {@link JsonNode} representing the kind of the power supply
+	 * @param power                {@link JsonNode} representing the actual power supply power
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] typeAndPower) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode type,
+		final JsonNode power
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (typeAndPower == null) {
+		if (Stream.of(type, power).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -94,39 +102,44 @@ public class PowerSupplyConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-				Stream
-						.of(typeAndPower)
-						.filter(Objects::nonNull)
-						.map(JsonNode::asText)
-						.toList());
 
-		// Means model or size is not empty
-		if (!sprintfArgs.isEmpty()) {
+		// Means type or power is not empty
+		if (type != null || power != null) {
 			format.append(
-					sprintfArgs
-							.stream()
-							.map(v -> "%s")
-							.collect(Collectors.joining(" - ", " (", ")\"")));
+				Stream.concat(
+					Optional.ofNullable(type)
+						.map(v -> {
+							sprintfArgs.add(v.asText());
+							return "%s";
+						})
+						.stream(),
+					Optional.ofNullable(power)
+						.map(v -> {
+							sprintfArgs.add(v.asText());
+							return "%s W";
+						})
+						.stream()
+				)
+				.collect(Collectors.joining(" - "," (",")"))
+			);
 		}
 
 		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
+		// sprint("%s (%s - %s W)", $column(1), $column(2), $column(3))
+		return format
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s W)", 
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")"))
+			)
+			.toString();
 
-		format
-				.append(", ") // Here we will have a string like sprintf("%s %s (%s)"),
-				.append(
-						sprintfArgs
-								.stream()
-								.map(this::getFunctionArgument)
-								.collect(Collectors.joining(", ", "", ")")))
-				.toString();
-
-		return format.toString();
 	}
 
 	@Override
@@ -142,15 +155,13 @@ public class PowerSupplyConverter extends AbstractMappingConverter {
 		final JsonNode metrics = mapping.get(METRICS);
 
 		if (metrics != null) {
-			final JsonNode power = metrics.get(YAML_POWER_SUPPLY_UTILIZATION);
+			final JsonNode power = metrics.get(YAML_POWER_SUPPLY_POWER);
 
-			if (power != null && !power.asText().contains("percent2Ratio")) {
+			if (power != null && !metrics.has(YAML_POWER_SUPPLY_UTILIZATION)) {
 				((ObjectNode) metrics).set(
-						YAML_POWER_SUPPLY_POWER,
-						new TextNode(power.asText()));
-				((ObjectNode) metrics).set(
-						YAML_POWER_SUPPLY_UTILIZATION,
-						new TextNode(buildLegacyPowerSupplyUtilizationFunction(power.asText())));
+					YAML_POWER_SUPPLY_UTILIZATION,
+					new TextNode(buildLegacyPowerSupplyUtilizationFunction(power.asText()))
+				);
 			}
 		}
 	}

@@ -23,6 +23,7 @@ public class LunConverter extends AbstractMappingConverter {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
+		attributesMap.put(HDF_LOCAL_DEVICE_NAME, IMappingKey.of(ATTRIBUTES, YAML_LOCAL_DEVICE_NAME));
 		attributesMap.put(HDF_REMOTE_DEVICE_NAME, IMappingKey.of(ATTRIBUTES, YAML_REMOTE_DEVICE_NAME));
 		attributesMap.put(HDF_ARRAY_NAME, IMappingKey.of(ATTRIBUTES, YAML_ARRAY_NAME));
 		attributesMap.put(HDF_WWN, IMappingKey.of(ATTRIBUTES, HDF_WWN));
@@ -70,16 +71,16 @@ public class LunConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {local, remote})
+				buildNameValue(firstDisplayArgument, new JsonNode[] { local, remote })
 			)
 		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the CPU name value
+	 * Joins the given non-empty text nodes to build the LUN name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param localAndRemote       {@link JsonNode[]} array of local and remote to be joined 
+	 * @param localAndRemote       {@link JsonNode} array of local and remote to be joined 
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
@@ -116,11 +117,11 @@ public class LunConverter extends AbstractMappingConverter {
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s - %mhhf.s)", $column(1), $column(2), $column(3), $column(4))
+		// sprintf("%s (%s - %s)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %mhhf.s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)", 
 			.append(
 				sprintfArgs
 					.stream()
@@ -138,7 +139,6 @@ public class LunConverter extends AbstractMappingConverter {
 
 	@Override
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
-		final ObjectNode mapping = (ObjectNode) node;
-		convertOneToOneMetrics(key, value, mapping);
+		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
 }

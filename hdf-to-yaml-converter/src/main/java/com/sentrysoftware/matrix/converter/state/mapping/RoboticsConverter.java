@@ -23,9 +23,10 @@ public class RoboticsConverter extends AbstractMappingConverter {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
+		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
-		attributesMap.put(HDF_ROBOTIC_TYPE, IMappingKey.of(ATTRIBUTES, YAML_ROBOTIC_TYPE));
+		attributesMap.put(HDF_ROBOTIC_TYPE, IMappingKey.of(ATTRIBUTES, YAML_ROBOTICS_TYPE));
 		attributesMap.put(HDF_CORRECTED_ERROR_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED));
 		attributesMap.put(HDF_CORRECTED_ERROR_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
@@ -60,29 +61,41 @@ public class RoboticsConverter extends AbstractMappingConverter {
 			throw new IllegalStateException(String.format("%s cannot be null.", HDF_DEVICE_ID));
 		}
 
+		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
 		JsonNode firstDisplayArgument = deviceId;
+		if (displayId != null) {
+			firstDisplayArgument = displayId;
+		}
 
+		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 		final JsonNode roboticType = existingAttributes.get(HDF_ROBOTIC_TYPE);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode(
-						buildNameValue(firstDisplayArgument, new JsonNode[] { model, roboticType })));
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, roboticType)
+			)
+		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the disk controller name value
+	 * Joins the given non-empty text nodes to build the robotics name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param modelAndType         {@link JsonNode} representing the model
+	 * @param vendorAndModel       {@link JsonNode} array of vendor and model to be joined 
+	 * @param typeNode             {@link JsonNode} representing the type of the robotics
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] modelAndType) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode[] vendorAndModel,
+		final JsonNode typeNode
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (modelAndType == null) {
+		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -92,38 +105,57 @@ public class RoboticsConverter extends AbstractMappingConverter {
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
-				Stream
-						.of(modelAndType)
-						.filter(Objects::nonNull)
-						.map(JsonNode::asText)
-						.toList());
+			Stream
+				.of(vendorAndModel)
+				.filter(Objects::nonNull)
+				.map(JsonNode::asText)
+				.toList()
+		);
 
-		// Means model or size is not empty
-		if (!sprintfArgs.isEmpty()) {
-			format.append(
-					sprintfArgs
-							.stream()
-							.map(v -> "%s")
-							.collect(Collectors.joining(" - ", " (", ")\"")));
+		// Means we have model or vendor but we don't know if have the type
+		if (sprintfArgs.size() == 1) {
+			format.append(" (%s");
+		} else if (sprintfArgs.size() == 2) {
+			// We have both model and vendor but we don't know if we have the type
+			format.append(" (%s %s");
 		}
 
-		// Add the first argument at the beginning of the list
+		// Do we have the type?
+		if (typeNode != null) {
+
+			// Without vendor and model?
+			if (sprintfArgs.isEmpty()) {
+				// We append the type format only
+				format.append(" (%s)");
+			} else {
+				// Append the type format
+				format.append(" - %s)");
+			}
+
+			// Add the type to our list of arguments
+			sprintfArgs.add(typeNode.asText());
+
+		} else if (!sprintfArgs.isEmpty()) {
+			// We have at least one of { vendor, model, type } let's close the parenthesis
+			format.append(")");
+		}
+
+		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)
+		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
+		// sprintf("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		return format
+			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")"))
+			)
+			.toString();
 
-		format
-				.append(", ") // Here we will have a string like sprintf("%s %s (%s)"),
-				.append(
-						sprintfArgs
-								.stream()
-								.map(this::getFunctionArgument)
-								.collect(Collectors.joining(", ", "", ")")))
-				.toString();
-
-		return format.toString();
 	}
 
 	@Override
@@ -133,7 +165,6 @@ public class RoboticsConverter extends AbstractMappingConverter {
 
 	@Override
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
-		final ObjectNode mapping = (ObjectNode) node;
-		convertOneToOneMetrics(key, value, mapping);
+		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
 }

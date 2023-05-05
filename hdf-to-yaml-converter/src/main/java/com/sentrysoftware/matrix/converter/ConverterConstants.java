@@ -165,6 +165,8 @@ public class ConverterConstants {
 	public static final String HDF_UPPER_THRESHOLD = "upperthreshold";
 	public static final String HDF_VOLTAGE_TYPE = "voltagetype";
 	public static final String HDF_TEMPERATURE_TYPE = "temperaturetype";
+	public static final String HDF_FAN_TYPE = "fantype";
+	public static final String HDF_HOSTNAME = "hostname";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -199,12 +201,13 @@ public class ConverterConstants {
 	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"critical\"}";
 	public static final String YAML_DEVICE_TYPE = "device_type";
 	public static final String YAML_REMOTE_DEVICE_NAME = "remote_device_name";
+	public static final String YAML_LOCAL_DEVICE_NAME = "local_device_name";
 	public static final String YAML_ARRAY_NAME = "array_name";
 	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
-	public static final String YAML_ROBOTIC_TYPE = "robotic_type";
+	public static final String YAML_ROBOTICS_TYPE = "robotics_type";
 	public static final String YAML_VOLTAGE_LOW_CRITICAL = "hw.voltage.limit{limit_type=\"low.critical\"}";
 	public static final String YAML_VOLTAGE_HIGH_DEGRADED = "hw.voltage.limit{limit_type=\"high.degraded\"}";
-	public static final String YAML_VOLTAGE_TYPE = "voltage_type";
+	public static final String YAML_SENSOR_LOCATION = "sensor_location";
 	public static final String YAML_TEMPERATURE_TYPE = "temperature_type";
 	public static final String YAML_TEMPERATURE_LIMIT_DEGRADED = "hw.temperature.limit{limit_type=\"high.degraded\"}";
 	public static final String YAML_TEMPERATURE_LIMIT_CRITICAL = "hw.temperature.limit{limit_type=\"high.critical\"}";
@@ -212,6 +215,7 @@ public class ConverterConstants {
 	public static final String YAML_PHYSICAL_ADDRESS_TYPE = "physical_address_type";
 	public static final String YAML_LOGICAL_ADDRESS = "logical_address";
 	public static final String YAML_LOGICAL_ADDRESS_TYPE = "logical_address_type";
+	public static final String YAML_VM_HOSTNAME = "vm.host.name";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -393,8 +397,10 @@ public class ConverterConstants {
 	public static final String BOOLEAN_FORMAT = "boolean(%s)";
 	public static final String FAKE_COUNTER_FORMAT = "fakeCounter(%s)";
 	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
-	public static final String BYTES_TO_HUMAN_FORMAT = "%byhf.s";
+	public static final String BYTES_TO_HUMAN_FORMAT_BASE_2 = "%by2hf.s";
+	public static final String BYTES_TO_HUMAN_FORMAT_BASE_10 = "%by10hf.s";
 	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
+	public static final String MEBI_BYTES_TO_HUMAN_FORMAT = "%mibyhf.s";
 	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
 	public static final String LEGACY_PREDICTED_FAILURE_FORMAT = "legacyPredictedFailure(%s)";
@@ -405,4 +411,5 @@ public class ConverterConstants {
 	public static final String LINK_STATUS_FORMAT = "legacyLinkStatus(%s)";
 	public static final String FULL_DUPLEX_FORMAT = "legacyFullDuplex(%s)";
 	public static final String MEGA_BIT_2_BIT_FORMAT = "megaBit2Bit(%s)";
+	public static final String LEGACY_LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 }

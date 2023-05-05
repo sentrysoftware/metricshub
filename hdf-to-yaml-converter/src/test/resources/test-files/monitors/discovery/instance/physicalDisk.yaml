@@ -5,6 +5,7 @@
     PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
     PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
     PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(5)
+    PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(13)
     PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
     PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(8)
     PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
@@ -26,10 +27,11 @@
               __display_id: $column(4)
               firmware_version: $column(5)
               model: $column(6)
+              vendor: $column(13)
               serial_number: $column(8)
               info: join($column(9), "Blabla", "OtherBlabla", " ")
               hw.parent.id: lookup("disk_controller", "id", "controller_number", $column(12))
               hw.parent.type: disk_controller
-              name: sprintf("%s (%s - %s)", $column(4), $column(6), $column(11))
+              name: sprintf("%s (%s - %by10hf.s)", $column(4), $column(13), $column(11))
             metrics:
               hw.physical_disk.size: $column(11)
