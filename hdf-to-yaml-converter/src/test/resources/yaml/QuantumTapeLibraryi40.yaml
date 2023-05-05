@@ -33,7 +33,7 @@ monitors:
           serial_number: $column(2)
           bios_version: $column(4)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", \"Quantum Library\", $column(1), $column(3), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(1), $column(3))"
     collect:
       type: multiInstance
       sources:
@@ -84,10 +84,11 @@ monitors:
         # ID;Status
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
+          sensor_location: Overall Cooling Status
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Cooling Status\")"
     collect:
       type: multiInstance
       sources:
@@ -191,7 +192,7 @@ monitors:
         # ID;Status
         source: $monitors.robotics.discovery.sources.source(1)$
         attributes:
-          robotic_type: Overall Robotics Status
+          robotics_type: Overall Robotics Status
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
@@ -239,11 +240,12 @@ monitors:
         source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
           id: $column(4)
+          vendor: $column(3)
           model: $column(2)
           serial_number: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
-          name: "sprintf(\"%s (%s)\", $column(4), $column(2))"
+          name: "sprintf(\"%s (%s %s)\", $column(4), $column(3), $column(2))"
     collect:
       type: multiInstance
       sources:

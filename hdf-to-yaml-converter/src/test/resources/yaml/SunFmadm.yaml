@@ -71,7 +71,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s MB)\", $column(1), $column(3))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:

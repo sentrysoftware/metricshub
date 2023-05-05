@@ -53,10 +53,11 @@ monitors:
           id: $column(1)
           __display_id: $column(2)
           raid_level: $column(4)
-          hw.logical_disk.limit: $column(6)
           info: "join($column(5), $column(8), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(6))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(4), $column(6))"
+        metrics:
+          hw.logical_disk.limit: $column(6)
     collect:
       # Collection is multi-instance
       type: multiInstance

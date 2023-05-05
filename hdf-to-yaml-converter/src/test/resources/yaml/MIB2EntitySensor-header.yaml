@@ -55,7 +55,7 @@ monitors:
           serial_number: $column(7)
           bios_version: $column(5)
           type: _ENCLOSURE_TYPE
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), $column(8), $column(9), \"_ENCLOSURE_TYPE\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), $column(8), $column(9))"
     collect:
       sources:
         source(1):
@@ -144,7 +144,7 @@ monitors:
         attributes:
           id: $column(11)
           __display_id: $column(2)
-          voltage_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: _DEVICE_ID
           name: "sprintf(\"%s (%s)\", $column(2), $column(2))"

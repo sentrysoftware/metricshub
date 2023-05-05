@@ -72,7 +72,7 @@ monitors:
           serial_number: $column(3)
           type: Storage
           info: "join($column(4), $column(5), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", \"STKLSeries\", $column(1), $column(2), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(1), $column(2))"
     collect:
       # Collect
       type: monoInstance
@@ -110,7 +110,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: STKLSeries
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
@@ -140,9 +140,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: STKLSeries
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collect-type = multi-instance
       type: multiInstance
@@ -392,7 +393,7 @@ monitors:
           info: "join($column(3), $column(4), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: STKLSeries
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect
       # Collect-type = mono-instance
@@ -469,11 +470,12 @@ monitors:
         attributes:
           id: $column(1)
           model: $column(5)
+          vendor: $column(6)
           serial_number: $column(7)
           info: "join($column(2), $column(3), $column(4), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: STKLSeries
-          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+          name: "sprintf(\"%s (%s %s)\", $column(1), $column(6), $column(5))"
     collect:
       # Collect
       type: multiInstance

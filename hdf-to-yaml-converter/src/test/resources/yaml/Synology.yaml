@@ -35,7 +35,7 @@ monitors:
           model: $column(2)
           serial_number: $column(3)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Synology\", $column(2), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", \"Synology\", $column(2))"
     collect:
       # Collect type = multi-instance
       type: monoInstance
@@ -175,7 +175,7 @@ monitors:
           __display_id: $column(2)
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type: MonoInstance
       type: monoInstance
@@ -237,7 +237,7 @@ monitors:
           model: $column(2)
           info: $column(3)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: $column(1)
     collect:
       # Collect type: MultiInstance
       type: multiInstance

@@ -39,11 +39,12 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(8)
+          vendor: $column(2)
           physical_address: $column(4)
           physical_address_type: MAC
           device_type: $column(3)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(8), $column(3))"
+          name: "sprintf(\"%s (%s - %s)\", $column(8), $column(3), $column(2))"
     collect:
       sources:
         source(1):

@@ -56,7 +56,7 @@ monitors:
           model: $column(4)
           serial_number: $column(5)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(4), \"Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", \"Dell\", $column(4))"
     collect:
       # Collect
       type: multiInstance
@@ -137,7 +137,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(5)
+          sensor_location: $column(5)
           info: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
@@ -198,10 +198,11 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(5)
           info: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(7)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(6)
@@ -253,7 +254,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(4)
+          sensor_location: $column(4)
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
@@ -504,7 +505,7 @@ monitors:
           info: "join($column(4), $column(3), $column(8), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(7), $column(5))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(7), $column(5))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(5))
     collect:

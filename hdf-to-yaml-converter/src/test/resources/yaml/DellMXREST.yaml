@@ -57,7 +57,7 @@ monitors:
           serial_number: $column(4)
           vendor: Dell
           type: $column(6)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Dell\", $column(5), $column(6))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), \"Dell\", $column(5))"
     collect:
       # Collection
       type: multiInstance
@@ -384,7 +384,7 @@ monitors:
           model: $column(7)
           serial_number: $column(8)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s (%s) - %s)\", $column(4), $column(6), $column(7), $column(5))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(4), $column(6), $column(5))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(5))
     collect:
@@ -607,7 +607,7 @@ monitors:
           model: $column(7)
           info: "join($column(10), $column(9), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(7), $column(8))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(5), $column(8))"
         metrics:
           hw.physical_disk.size: $column(8)
     collect:
@@ -676,10 +676,11 @@ monitors:
           __display_id: $column(4)
           raid_level: $column(5)
           type: $column(6)
-          hw.logical_disk.limit: $column(7)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(7))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(4), $column(5), $column(7))"
+        metrics:
+          hw.logical_disk.limit: $column(7)
     collect:
       # Collect
       type: multiInstance
@@ -752,7 +753,7 @@ monitors:
           power_supply_type: $column(6)
           hw.parent.type: Chassis
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(6), $column(5))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(6), $column(5))"
         metrics:
           hw.power_supply.limit: $column(5)
     collect:
@@ -1017,10 +1018,11 @@ monitors:
           __display_id: $column(3)
           physical_address: $column(4)
           model: $column(5)
+          vendor: $column(6)
           device_type: $column(7)
           physical_address_type: $column(8)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(7), $column(5))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(3), $column(7), $column(6), $column(5))"
     collect:
       # Collection
       type: multiInstance

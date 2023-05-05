@@ -39,7 +39,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
@@ -99,8 +99,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -159,7 +160,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:

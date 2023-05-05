@@ -34,7 +34,7 @@ monitors:
           model: $column(3)
           serial_number: $column(4)
           type: Switch
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(5), $column(3), \"Switch\")"
+          name: "sprintf(\"Switch: (%s %s)\", $column(5), $column(3))"
   temperature:
     discovery:
       sources:
@@ -55,7 +55,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(3)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
@@ -169,13 +169,14 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(10)
+          vendor: $column(7)
           physical_address: $column(5)
           physical_address_type: WWN
           serial_number: $column(6)
           device_type: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(10), $column(3))"
+          name: "sprintf(\"%s (%s - %s)\", $column(10), $column(3), $column(7))"
     collect:
       # Collect type = multi-instance
       type: multiInstance

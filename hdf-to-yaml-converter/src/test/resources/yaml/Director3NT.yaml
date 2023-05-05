@@ -44,7 +44,7 @@ monitors:
           vendor: IBM
           model: $column(1)
           id: IBM
-          name: "sprintf(\"%s (%s %s)\", \"IBM\", \"IBM\", $column(1))"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"IBM\", $column(1))"
   fan:
     discovery:
       sources:
@@ -61,8 +61,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
           hw.fan.speed.limit{limit_type="low.critical"}: 0
@@ -96,7 +97,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(4)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
@@ -133,7 +134,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(4)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
@@ -166,7 +167,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type : multi instance (one source for several instances)
       type: multiInstance
@@ -239,7 +240,7 @@ monitors:
           serial_number: $column(7)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(4))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(5), $column(4))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
@@ -289,11 +290,12 @@ monitors:
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(3)
-          hw.logical_disk.limit: $column(2)
           raid_level: $column(4)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(2))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(4), $column(2))"
+        metrics:
+          hw.logical_disk.limit: $column(2)
     collect:
       # It's a "MultiInstance" collect
       # One WBEM query will be executed in order to get the info for all the logical drives

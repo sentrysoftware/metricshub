@@ -83,7 +83,7 @@ monitors:
           info: "join($column(3), $column(4), $column(5), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(10), $column(2))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(9), $column(2))"
         metrics:
           hw.physical_disk.size: $column(2)
     collect:
@@ -264,13 +264,14 @@ monitors:
         source: $monitors.logical_disk.discovery.sources.source(10)$
         attributes:
           id: $column(1)
-          hw.logical_disk.limit: $column(2)
           raid_level: $column(3)
           type: $column(6)
           info: $column(13)
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.logical_disk.limit: $column(2)
     collect:
       # The LogicalDisk  collect is a "MultiInstance" collect
       type: multiInstance

@@ -81,7 +81,7 @@ monitors:
         attributes:
           id: sun4v
           model: $column(1)
-          name: "sprintf(\"%s (%s)\", \"sun4v\", $column(1))"
+          name: "sprintf(\"Enclosure: (%s)\", $column(1))"
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -138,8 +138,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(1)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
@@ -210,7 +211,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(1)
+          sensor_location: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
@@ -282,7 +283,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(1)
+          sensor_location: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
@@ -371,7 +372,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance

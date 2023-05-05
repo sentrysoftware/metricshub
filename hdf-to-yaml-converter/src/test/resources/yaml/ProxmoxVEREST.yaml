@@ -74,8 +74,9 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
+          vm.host.name: $column(2)
           hw.parent.type: enclosure
-          name: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(2), $column(2))"
     collect:
       type: multiInstance
       sources:

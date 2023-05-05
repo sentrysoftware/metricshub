@@ -99,7 +99,7 @@ monitors:
           serial_number: $column(2)
           bios_version: $column(4)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Hitachi\", $column(5), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(3), \"Hitachi\", $column(5))"
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -203,7 +203,7 @@ monitors:
         attributes:
           __display_id: $column(4)
           id: $column(3)
-          temperature_type: Global
+          sensor_location: Global
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
@@ -366,7 +366,7 @@ monitors:
           info: "Type: Global"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(4))"
+          name: $column(4)
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -443,9 +443,10 @@ monitors:
         attributes:
           __display_id: $column(4)
           id: $column(3)
+          sensor_location: Global
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: $column(4)
+          name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance

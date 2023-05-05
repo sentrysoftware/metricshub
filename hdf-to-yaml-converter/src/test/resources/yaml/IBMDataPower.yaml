@@ -57,7 +57,7 @@ monitors:
           model: $column(3)
           __display_id: $column(4)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(1), $column(3), \"Computer\")"
+          name: "sprintf(\"Computer: %s (%s %s)\", $column(4), $column(1), $column(3))"
   temperature:
     discovery:
       sources:
@@ -241,7 +241,7 @@ monitors:
           model: $column(3)
           vendor: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -299,7 +299,7 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect
       type: multiInstance

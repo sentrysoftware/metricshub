@@ -140,7 +140,7 @@ monitors:
           info: $column(9)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(10))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(4))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(5), $column(4))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
@@ -210,13 +210,14 @@ monitors:
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           raid_level: $column(6)
-          hw.logical_disk.limit: $column(7)
           id: $column(3)
           __display_id: $column(2)
           info: $column(5)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(8))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(7))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(6), $column(7))"
+        metrics:
+          hw.logical_disk.limit: $column(7)
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance

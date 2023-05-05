@@ -29,7 +29,7 @@ monitors:
           id: EthernetSwitch
           __display_id: $column(1)
           type: Switch
-          name: "sprintf(\"%s (%s)\", $column(1), \"Switch\")"
+          name: "sprintf(\"Switch: %s\", $column(1))"
   network:
     discovery:
       sources:

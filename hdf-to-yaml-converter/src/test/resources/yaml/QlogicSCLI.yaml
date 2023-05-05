@@ -57,13 +57,14 @@ monitors:
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          vendor: QLogic
           model: $column(2)
           serial_number: $column(6)
           physical_address: $column(3)
           physical_address_type: WWN
           device_type: $column(5)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), \"QLogic\", $column(2))"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance

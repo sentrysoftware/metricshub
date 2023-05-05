@@ -56,7 +56,7 @@ monitors:
           model: $column(1)
           type: Chassis
           info: "join($column(5), $column(6), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", \"BladeCenter\", $column(4), $column(1), \"Chassis\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(4), $column(1))"
     collect:
       # Collect
       type: multiInstance
@@ -926,7 +926,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: BladeCenter
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"

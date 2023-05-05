@@ -20,4 +20,4 @@ monitors:
         attributes:
           id: $column(1)
           device_hostname: $column(2)
-          name: $column(1)
+          name: "sprintf(\"Enclosure: %s\", $column(1))"

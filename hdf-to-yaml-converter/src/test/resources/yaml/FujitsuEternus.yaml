@@ -155,7 +155,7 @@ monitors:
           serial_number: $column(6)
           type: Storage
           info: $column(5)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), $column(4), $column(3), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(2), $column(4), $column(3))"
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -280,7 +280,7 @@ monitors:
           info: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(4))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(5), $column(4))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
@@ -862,7 +862,7 @@ monitors:
           __display_id: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(3))"
+          name: "sprintf(\"%s (%s MB)\", $column(2), $column(3))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
@@ -1329,7 +1329,7 @@ monitors:
           __display_id: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -1517,12 +1517,13 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
-          hw.logical_disk.limit: $column(3)
           raid_level: $column(8)
           type: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(8), $column(3))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(8), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
     collect:
       # Collect type is multiinstance
       type: multiInstance

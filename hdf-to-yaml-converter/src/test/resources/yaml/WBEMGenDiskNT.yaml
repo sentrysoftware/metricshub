@@ -152,7 +152,7 @@ monitors:
           vendor: $column(8)
           hw.parent.type: disk_controller
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s)\", $column(6), $column(10))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(6), $column(8), $column(10))"
         metrics:
           hw.physical_disk.size: $column(10)
     collect:

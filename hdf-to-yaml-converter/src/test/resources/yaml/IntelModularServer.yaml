@@ -32,7 +32,7 @@ monitors:
           id: IntelChassis
           vendor: $column(1)
           type: Computer
-          name: "sprintf(\"%s (%s - %s)\", \"IntelChassis\", $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: (%s)\", $column(1))"
   blade:
     discovery:
       sources:
@@ -177,7 +177,7 @@ monitors:
           info: $column(7)
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: "sprintf(\"%s (%s)\", $column(1), $column(6))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(3), $column(6))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
@@ -282,9 +282,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(4)$
         attributes:
           id: $column(1)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
         metrics:
           hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
     collect:
@@ -386,7 +387,7 @@ monitors:
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance

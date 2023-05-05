@@ -49,7 +49,7 @@ monitors:
           model: $column(3)
           serial_number: $column(5)
           info: $column(4)
-          name: "sprintf(\"%s (%s %s)\", $column(2), \"Huawei\", $column(3))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"Huawei\", $column(3))"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -168,7 +168,7 @@ monitors:
           info: "join($column(6), $column(7), $column(12), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(8), $column(5))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(10), $column(5))"
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
@@ -261,7 +261,7 @@ monitors:
           info: "join($column(4), $column(5), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -678,11 +678,12 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          hw.logical_disk.limit: $column(2)
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: CTE0
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(1), $column(2))"
+        metrics:
+          hw.logical_disk.limit: $column(2)
     collect:
       # Collect type is multi-instance
       type: multiInstance

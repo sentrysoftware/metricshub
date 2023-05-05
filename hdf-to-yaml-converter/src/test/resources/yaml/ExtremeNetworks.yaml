@@ -41,7 +41,7 @@ monitors:
           serial_number: $column(3)
           vendor: Extreme Networks
           type: Switch
-          name: "sprintf(\"%s (%s - %s)\", $column(2), \"Extreme Networks\", \"Switch\")"
+          name: "sprintf(\"Switch: %s (%s)\", $column(2), \"Extreme Networks\")"
     collect:
       type: multiInstance
       sources:
@@ -122,7 +122,7 @@ monitors:
           power_supply_type: $column(5)
           info: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(4))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(2), $column(5), $column(4))"
         metrics:
           hw.power_supply.limit: $column(4)
     collect:

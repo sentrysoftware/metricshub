@@ -66,7 +66,7 @@ monitors:
           serial_number: $column(4)
           model: $column(2)
           type: $column(3)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Fujitsu-Siemens\", $column(2), $column(3))"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"Fujitsu-Siemens\", $column(2))"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -431,7 +431,7 @@ monitors:
           __display_id: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type is "Multi-instance
       type: multiInstance
@@ -505,7 +505,7 @@ monitors:
           type: $column(5)
           info: $column(7)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(6), $column(5), $column(4))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(6), $column(5), $column(4))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
@@ -699,7 +699,7 @@ monitors:
           __display_id: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type = "multi instance
       type: multiInstance

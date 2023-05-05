@@ -44,7 +44,7 @@ monitors:
           model: $column(2)
           serial_number: $column(3)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"FujitsuServer\", $column(1), $column(2), \"Computer\")"
+          name: "sprintf(\"Computer: %s (%s %s)\", \"FujitsuServer\", $column(1), $column(2))"
   cpu:
     discovery:
       sources:
@@ -155,7 +155,7 @@ monitors:
           type: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: "sprintf(\"%s (%s (%s) - %s - %s)\", $column(3), $column(6), $column(5), $column(2), $column(1))"
+          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(3), $column(6), $column(2), $column(1))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(1))
     collect:
@@ -269,7 +269,7 @@ monitors:
           __display_id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       type: multiInstance
       sources:

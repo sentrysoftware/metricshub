@@ -45,7 +45,7 @@ monitors:
           type: DiskSystem
           model: EVA System
           vendor: HP
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"HP\", \"EVA System\", \"DiskSystem\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"HP\", \"EVA System\")"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -298,12 +298,13 @@ monitors:
         attributes:
           id: $column(4)
           __display_id: $column(5)
-          hw.logical_disk.limit: $column(8)
           type: $column(3)
           info: $column(10)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(5), $column(8))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(5), $column(8))"
+        metrics:
+          hw.logical_disk.limit: $column(8)
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -541,7 +542,7 @@ monitors:
           info: "join($column(18), $column(14), $column(16), \" \")"
           hw.parent.type: blade
           hw.parent.id: $column(20)
-          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(12), $column(9))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(7), $column(11), $column(9))"
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
@@ -611,7 +612,7 @@ monitors:
           __display_id: $column(3)
           hw.parent.type: blade
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type: MultiInstance
       type: multiInstance

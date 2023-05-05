@@ -43,7 +43,7 @@ monitors:
           model: $column(2)
           serial_number: $column(4)
           type: Chassis
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(2), \"Chassis\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(3), $column(2))"
   temperature:
     discovery:
       sources:
@@ -76,7 +76,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(5)
+          sensor_location: $column(5)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
     collect:
@@ -135,8 +135,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(5)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
     collect:
       # Collect type = multi-instance
       type: multiInstance

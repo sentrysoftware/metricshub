@@ -124,7 +124,7 @@ monitors:
           bios_version: $column(10)
           type: Storage
           info: "join($column(11), $column(12), $column(13), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(8), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(1), \"HP\", $column(8))"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -651,7 +651,7 @@ monitors:
           info: $column(7)
           hw.parent.type: blade
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s (%s) - %s)\", $column(3), $column(4), $column(5), $column(2))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(4), $column(2))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(2))
     collect:
@@ -768,7 +768,7 @@ monitors:
           info: "join($column(4), $column(7), $column(8), \" \")"
           hw.parent.type: $column(9)
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -1244,7 +1244,7 @@ monitors:
           info: "join($column(3), $column(4), $column(5), \" \")"
           hw.parent.type: $column(12)
           hw.parent.id: $column(11)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(7), $column(9))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(6), $column(9))"
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
@@ -1401,12 +1401,13 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(1)
-          hw.logical_disk.limit: $column(3)
           raid_level: $column(5)
           type: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(3))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(5), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
     collect:
       # Collect type is multiinstance
       type: multiInstance

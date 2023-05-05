@@ -56,7 +56,7 @@ monitors:
           model: $column(1)
           serial_number: $column(2)
           type: blade
-          name: "sprintf(\"%s (%s - %s)\", \"DellBladeChassis\", $column(1), \"blade\")"
+          name: "sprintf(\"Blade Enclosure: (%s)\", $column(1))"
     collect:
       type: monoInstance
       sources:
@@ -123,7 +123,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
@@ -183,8 +183,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(4)
@@ -249,7 +250,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "sprintf(\"%s (%s W)\", $column(1), $column(2))"
         metrics:
           hw.power_supply.limit: $column(2)
     collect:

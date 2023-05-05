@@ -204,12 +204,13 @@ monitors:
         source: $monitors.network.discovery.sources.source(10)$
         attributes:
           id: $column(1)
+          vendor: $column(10)
           model: $column(11)
           physical_address: $column(4)
           physical_address_type: WWN
           device_type: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(11))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(2), $column(10), $column(11))"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance

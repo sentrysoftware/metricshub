@@ -165,6 +165,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(3)
+          local_device_name: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(1))"
     collect:

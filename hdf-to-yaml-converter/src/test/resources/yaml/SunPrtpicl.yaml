@@ -81,7 +81,7 @@ monitors:
           id: SUN
           model: $column(1)
           type: Computer
-          name: "sprintf(\"%s (%s - %s)\", \"SUN\", $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: (%s)\", $column(1))"
   fan:
     discovery:
       sources:

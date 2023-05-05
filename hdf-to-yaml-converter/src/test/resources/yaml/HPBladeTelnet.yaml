@@ -61,7 +61,7 @@ monitors:
           model: $column(1)
           serial_number: $column(2)
           type: blade
-          name: "sprintf(\"%s (%s - %s)\", \"HPBladeChassis\", $column(1), \"blade\")"
+          name: "sprintf(\"Blade Enclosure: (%s)\", $column(1))"
     collect:
       type: monoInstance
       sources:
@@ -129,7 +129,7 @@ monitors:
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: HPBladeChassis
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "sprintf(\"%s (%s W)\", $column(1), $column(2))"
         metrics:
           hw.power_supply.limit: $column(2)
     collect:
@@ -166,8 +166,8 @@ monitors:
         deviceId: $column(1)
         metrics:
           hw.status{hw.type="power_supply"}: $column(2)
-          hw.power_supply.utilization: legacyPowerSupplyUtilization($column(4))
           hw.power_supply.power: $column(4)
+          hw.power_supply.utilization: legacyPowerSupplyUtilization($column(4))
         legacyTextParameters:
           StatusInformation: $column(3)
   fan:

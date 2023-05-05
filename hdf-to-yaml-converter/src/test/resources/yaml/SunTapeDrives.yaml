@@ -39,10 +39,11 @@ monitors:
         source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          vendor: $column(2)
           model: $column(3)
           serial_number: $column(4)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s %s)\", $column(1), $column(2), $column(3))"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance

@@ -62,7 +62,7 @@ monitors:
           type: Computer
           serial_number: $column(4)
           bios_version: $column(6)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(2), \"Computer\")"
+          name: "sprintf(\"Computer: %s (%s)\", $column(3), $column(2))"
   temperature:
     discovery:
       sources:
@@ -126,7 +126,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
-          voltage_type: Planar
+          sensor_location: Planar
           hw.parent.type: enclosure
           hw.parent.id: Computer
           name: "sprintf(\"%s (%s)\", $column(2), \"Planar\")"
@@ -171,9 +171,10 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
+          sensor_location: Planar
           hw.parent.type: enclosure
           hw.parent.id: Computer
-          name: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(2), \"Planar\")"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(5)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(6)

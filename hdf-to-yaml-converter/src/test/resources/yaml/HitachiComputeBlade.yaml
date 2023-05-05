@@ -69,7 +69,7 @@ monitors:
           serial_number: $column(4)
           bios_version: $column(7)
           info: $column(8)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(5), $column(2), $column(3), \"Blade Chassis\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(2), $column(3))"
     collect:
       type: multiInstance
       sources:
@@ -1342,8 +1342,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(17)$
         attributes:
           id: $column(2)
+          sensor_location: $column(1)
           hw.parent.type: enclosure
-          name: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(2), $column(1))"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -1611,7 +1612,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is "multi-instance
       type: multiInstance

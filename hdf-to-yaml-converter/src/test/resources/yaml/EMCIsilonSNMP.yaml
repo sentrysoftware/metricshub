@@ -65,7 +65,7 @@ monitors:
           model: $column(4)
           type: Storage
           serial_number: $column(3)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(6), \"EMC\", $column(4), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(6), \"EMC\", $column(4))"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -134,7 +134,7 @@ monitors:
           serial_number: $column(5)
           firmware_version: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(7))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(2), $column(7))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:

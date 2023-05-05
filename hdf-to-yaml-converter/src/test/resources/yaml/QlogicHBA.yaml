@@ -62,12 +62,13 @@ monitors:
           id: $column(1)
           __display_id: $column(4)
           model: $column(7)
+          vendor: QLogic
           physical_address: $column(3)
           physical_address_type: WWN
           device_type: $column(2)
           info: $column(8)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(2), $column(7))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(4), $column(2), \"QLogic\", $column(7))"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance

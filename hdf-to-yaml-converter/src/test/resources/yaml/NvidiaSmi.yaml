@@ -50,7 +50,7 @@ monitors:
           firmware_version: $column(19)
           info: "join($column(16), $column(18), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"NVIDIA\", $column(14), $column(20))"
+          name: "sprintf(\"%s (%s - %s - %mibyhf.s)\", $column(2), \"NVIDIA\", $column(14), $column(20))"
         metrics:
           hw.gpu.memory.limit: mebiByte2Byte($column(20))
     collect:
@@ -92,7 +92,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
-          temperature_type: gpu
+          sensor_location: gpu
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
         metrics:
@@ -131,7 +131,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
-          voltage_type: gpu
+          sensor_location: gpu
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
     collect:
@@ -167,8 +167,9 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
+          sensor_location: gpu
           hw.parent.type: enclosure
-          name: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
         metrics:
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
           hw.fan.speed_ratio.limit{limit_type="low.critical"}: percent2Ratio("0")

@@ -80,7 +80,7 @@ monitors:
           model: $column(8)
           bios_version: $column(10)
           info: $column(9)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(8), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s)\", $column(4), $column(8))"
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -449,7 +449,7 @@ monitors:
           info: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(9)
-          name: "sprintf(\"%s, $column(4))"
+          name: $column(4)
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -667,7 +667,7 @@ monitors:
           info: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(9)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(4), $column(5))"
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
@@ -743,11 +743,12 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(4)
-          hw.logical_disk.limit: $column(5)
           info: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(9)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance

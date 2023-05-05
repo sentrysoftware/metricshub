@@ -49,7 +49,7 @@ monitors:
           model: $column(1)
           serial_number: $column(2)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"HPWMI\", \"HP\", $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: %s (%s %s)\", \"HPWMI\", \"HP\", $column(1))"
   cpu:
     discovery:
       sources:
@@ -134,7 +134,7 @@ monitors:
           type: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: HPWMI
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(2), $column(1))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(2), $column(1))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(1))
     collect:
@@ -180,8 +180,9 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       type: multiInstance
       sources:
@@ -242,7 +243,7 @@ monitors:
           __display_id: $column(1)
           power_supply_type: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(1), $column(2), $column(3))"
         metrics:
           hw.power_supply.limit: $column(3)
     collect:
@@ -360,7 +361,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:

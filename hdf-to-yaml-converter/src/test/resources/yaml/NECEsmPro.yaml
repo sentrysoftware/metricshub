@@ -30,7 +30,7 @@ monitors:
           vendor: $column(2)
           model: $column(1)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"Computer01\", $column(2), $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", $column(2), $column(1))"
   cpu:
     discovery:
       sources:
@@ -105,7 +105,7 @@ monitors:
           id: $column(1)
           type: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(2), $column(3))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
@@ -155,7 +155,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
@@ -188,8 +188,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Fan collect
       type: monoInstance
@@ -253,7 +254,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
@@ -283,7 +284,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Power supply collect
       type: monoInstance

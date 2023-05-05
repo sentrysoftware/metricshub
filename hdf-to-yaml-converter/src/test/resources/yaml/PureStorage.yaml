@@ -62,7 +62,7 @@ monitors:
           __display_id: $column(8)
           vendor: Pure Storage
           model: $column(2)
-          name: "sprintf(\"%s (%s %s)\", $column(8), \"Pure Storage\", $column(2))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(8), \"Pure Storage\", $column(2))"
     collect:
       # MultiInstance
       type: multiInstance
@@ -268,7 +268,7 @@ monitors:
           __display_id: $column(7)
           hw.parent.type: enclosure
           hw.parent.id: $column(6)
-          name: "sprintf(\"%s, $column(7))"
+          name: $column(7)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -397,7 +397,7 @@ monitors:
           __display_id: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s)\", $column(8), $column(6))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(8), $column(6))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:

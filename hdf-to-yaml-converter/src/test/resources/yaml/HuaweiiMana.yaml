@@ -36,7 +36,7 @@ monitors:
           model: $column(1)
           type: Computer
           serial_number: $column(2)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Huawei\", $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: %s (%s %s)\", $column(3), \"Huawei\", $column(1))"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -191,7 +191,7 @@ monitors:
           __display_id: $column(5)
           info: "join($column(2), $column(3), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(5))"
+          name: $column(5)
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -316,7 +316,7 @@ monitors:
           vendor: $column(2)
           info: $column(4)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(6), $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(6), $column(2), $column(3))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
@@ -514,7 +514,7 @@ monitors:
           id: $column(1)
           __display_id: $column(3)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type is mono-instance
       type: multiInstance

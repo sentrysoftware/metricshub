@@ -35,7 +35,7 @@ monitors:
           serial_number: $column(2)
           type: PDU
           info: $column(3)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(4), \"Eaton\", $column(1), \"PDU\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"Eaton\", $column(1))"
     collect:
       type: monoInstance
       sources:
@@ -131,7 +131,7 @@ monitors:
         attributes:
           id: $column(4)
           __display_id: $column(4)
-          temperature_type: enclosure
+          sensor_location: enclosure
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"enclosure\")"

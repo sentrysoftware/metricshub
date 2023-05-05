@@ -227,7 +227,7 @@ monitors:
           model: $column(4)
           serial_number: $column(5)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(3), $column(4))"
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -323,12 +323,13 @@ monitors:
           physical_address: $column(4)
           physical_address_type: WWN
           device_type: $column(2)
+          vendor: $column(9)
           model: $column(10)
           serial_number: $column(11)
           info: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(10))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(2), $column(9), $column(10))"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -558,7 +559,7 @@ monitors:
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # The PowerSupply collect is a "MultiInstance" collect
       type: multiInstance

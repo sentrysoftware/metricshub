@@ -97,7 +97,7 @@ monitors:
           serial_number: $column(6)
           vendor: $column(7)
           type: Server
-          name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(7), $column(5), \"Server\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(4), $column(7), $column(5))"
     collect:
       type: multiInstance
       sources:
@@ -226,7 +226,7 @@ monitors:
           vendor: $column(7)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s (%s) - %s)\", $column(4), $column(7), $column(6), $column(8))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(4), $column(7), $column(8))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(8))
     collect:
@@ -376,7 +376,7 @@ monitors:
           info: $column(8)
           hw.parent.type: disk_controller
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(9))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(4), $column(9))"
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
@@ -472,10 +472,11 @@ monitors:
           id: $column(3)
           __display_id: $column(4)
           raid_level: $column(5)
-          hw.logical_disk.limit: $column(6)
           hw.parent.type: disk_controller
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(6))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(4), $column(5), $column(6))"
+        metrics:
+          hw.logical_disk.limit: $column(6)
     collect:
       type: multiInstance
       sources:
@@ -765,7 +766,7 @@ monitors:
           power_supply_type: $column(7)
           info: "join($column(5), $column(6), $column(9), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(7), $column(8))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(7), $column(8))"
         metrics:
           hw.power_supply.limit: $column(8)
     collect:

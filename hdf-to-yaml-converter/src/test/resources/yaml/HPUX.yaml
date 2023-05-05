@@ -41,7 +41,7 @@ monitors:
           vendor: HP
           model: $column(1)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"HPUX\", \"HP\", $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", \"HP\", $column(1))"
   cpu:
     discovery:
       sources:

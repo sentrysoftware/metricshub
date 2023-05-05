@@ -116,7 +116,7 @@ monitors:
           serial_number: $column(7)
           bios_version: $column(8)
           info: "join($column(1), $column(5), $column(4), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(7), \"IBM\", $column(3), \"Computer\")"
+          name: "sprintf(\"Computer: %s (%s %s)\", $column(7), \"IBM\", $column(3))"
     collect:
       # Collect type is mono-instance (as there is only one instance anyway)
       type: monoInstance
@@ -347,7 +347,7 @@ monitors:
           serial_number: $column(6)
           info: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+          name: "sprintf(\"%s (%s MB)\", $column(1), $column(5))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(5))
     collect:

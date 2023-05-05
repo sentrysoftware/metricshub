@@ -62,7 +62,7 @@ monitors:
           serial_number: $column(3)
           vendor: EMC
           type: enclosure
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"EMC\", \"X-Brick Cluster\", \"enclosure\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"EMC\", \"X-Brick Cluster\")"
     collect:
       # Collection
       type: multiInstance
@@ -423,7 +423,7 @@ monitors:
           info: $column(9)
           hw.parent.type: $column(10)
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(6), $column(11))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(7), $column(11))"
         metrics:
           hw.physical_disk.size: $column(11)
     collect:
@@ -497,11 +497,12 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          hw.logical_disk.limit: $column(5)
           type: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
     collect:
       # Collect
       type: multiInstance
@@ -580,7 +581,7 @@ monitors:
           power_supply_type: $column(6)
           hw.parent.type: $column(7)
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(6), $column(5))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(6), $column(5))"
         metrics:
           hw.power_supply.limit: $column(5)
     collect:

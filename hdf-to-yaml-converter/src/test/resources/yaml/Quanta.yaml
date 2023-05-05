@@ -73,7 +73,7 @@ monitors:
           bios_version: $monitors.enclosure.discovery.sources.source(2)$
           type: $column(3)
           info: $column(6)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(3))"
+          name: "sprintf(\"Enclosure: %s (%s)\", $column(2), $column(5))"
     collect:
       # Collect
       type: monoInstance
@@ -211,7 +211,7 @@ monitors:
           type: $column(5)
           info: "join($column(2), $column(6), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(4))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(2), $column(5), $column(4))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
@@ -287,7 +287,7 @@ monitors:
           id: $column(2)
           __display_id: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is mono-instance
       type: monoInstance

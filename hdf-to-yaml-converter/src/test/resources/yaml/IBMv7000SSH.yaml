@@ -65,7 +65,7 @@ monitors:
           model: $column(2)
           serial_number: $column(3)
           type: enclosure
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"IBM\", $column(2), \"enclosure\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(1), \"IBM\", $column(2))"
     collect:
       # Collect type is multiinstance (acutally it's no-instance, but nevermind...)
       type: multiInstance
@@ -349,7 +349,7 @@ monitors:
           info: "join($column(1), $column(2), $column(4), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s - %s)\", $column(6), $column(9), $column(3))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(6), $column(8), $column(3))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
@@ -449,7 +449,7 @@ monitors:
           __display_id: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is multiinstance
       type: multiInstance

@@ -97,7 +97,7 @@ monitors:
           serial_number: $column(3)
           vendor: $column(6)
           type: Server
-          name: "sprintf(\"%s (%s %s - %s)\", $column(3), $column(6), $column(4), \"Server\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), $column(6), $column(4))"
     collect:
       # Collect
       type: multiInstance
@@ -283,7 +283,7 @@ monitors:
           vendor: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s (%s) - %s)\", $column(3), $column(6), $column(5), $column(7))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(6), $column(7))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(7))
     collect:
@@ -533,7 +533,7 @@ monitors:
           __display_id: $column(7)
           hw.parent.type: disk_controller
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(5), $column(8))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(7), $column(4), $column(8))"
         metrics:
           hw.physical_disk.size: $column(8)
     collect:
@@ -601,7 +601,7 @@ monitors:
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), $column(5))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(3), $column(6), $column(5))"
         metrics:
           hw.power_supply.limit: $column(5)
     collect:
@@ -736,7 +736,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          temperature_type: $column(5)
+          sensor_location: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
@@ -914,13 +914,14 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(3)
+          vendor: $column(4)
           model: $column(5)
           serial_number: $column(6)
           physical_address_type: $column(8)
           physical_address: $column(9)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(5))"
     collect:
       # Collect
       type: multiInstance

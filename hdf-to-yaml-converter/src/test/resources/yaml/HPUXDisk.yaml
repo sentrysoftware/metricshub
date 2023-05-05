@@ -80,7 +80,7 @@ monitors:
           vendor: $column(4)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(4), $column(5))"
         metrics:
           hw.physical_disk.size: $column(5)
     collect:

@@ -46,7 +46,7 @@ monitors:
           model: $column(1)
           type: Storage
           info: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", \"IBM FlashSystem\", $column(1), \"Storage\")"
+          name: "sprintf(\"Storage: (%s)\", $column(1))"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -310,7 +310,7 @@ monitors:
           id: $column(1)
           __display_id: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -541,7 +541,7 @@ monitors:
           id: $column(1)
           __display_id: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(2), $column(3))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:

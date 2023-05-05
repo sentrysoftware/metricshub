@@ -74,7 +74,7 @@ monitors:
           vendor: HP Enterprise
           type: Chassis
           info: $column(6)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(5), \"HP Enterprise\", $column(3), \"Chassis\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(5), \"HP Enterprise\", $column(3))"
     collect:
       # Collect
       type: multiInstance
@@ -261,7 +261,7 @@ monitors:
           info: "Type: Disk"
           hw.parent.type: blade
           hw.parent.id: $column(11)
-          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+          name: $column(2)
     collect:
       # collect
       type: multiInstance
@@ -405,7 +405,7 @@ monitors:
           type: $column(9)
           hw.parent.type: blade
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s (%s) - %s - %s)\", $column(4), $column(7), $column(8), $column(9), $column(6))"
+          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(4), $column(7), $column(9), $column(6))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(6))
     collect:
@@ -737,7 +737,7 @@ monitors:
           info: "join($column(10), $column(11), $column(6), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(7), $column(9))"
+          name: "sprintf(\"%s (%s W)\", $column(7), $column(9))"
         metrics:
           hw.power_supply.limit: $column(9)
     collect:

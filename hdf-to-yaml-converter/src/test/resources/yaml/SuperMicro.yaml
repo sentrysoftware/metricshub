@@ -92,7 +92,7 @@ monitors:
           vendor: $column(6)
           model: $column(7)
           type: enclosure
-          name: "sprintf(\"%s (%s %s - %s)\", $column(3), $column(6), $column(7), \"enclosure\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), $column(6), $column(7))"
     collect:
       # Collection Type
       type: multiInstance
@@ -302,7 +302,7 @@ monitors:
           type: $column(9)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s (%s) - %s - %s)\", $column(4), $column(6), $column(7), $column(9), $column(5))"
+          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(4), $column(6), $column(9), $column(5))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(5))
     collect:
@@ -473,7 +473,7 @@ monitors:
           model: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
+          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
     collect:
       # Collection
       type: multiInstance
@@ -561,7 +561,7 @@ monitors:
           info: "join($column(8), $column(9), $column(10), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(6), $column(7))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(6), $column(7))"
         metrics:
           hw.power_supply.limit: $column(7)
     collect:

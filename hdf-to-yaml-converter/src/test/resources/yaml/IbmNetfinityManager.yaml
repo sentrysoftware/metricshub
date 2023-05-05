@@ -29,7 +29,7 @@ monitors:
           vendor: IBM
           model: $column(1)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"1\", \"IBM\", $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", \"IBM\", $column(1))"
   temperature:
     discovery:
       sources:
@@ -60,7 +60,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
@@ -101,7 +101,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:

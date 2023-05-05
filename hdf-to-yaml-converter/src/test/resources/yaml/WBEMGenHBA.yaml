@@ -122,12 +122,13 @@ monitors:
         source: $monitors.network.discovery.sources.source(5)$
         attributes:
           id: $column(5)
+          vendor: $column(9)
           model: $column(10)
           physical_address: $column(6)
           physical_address_type: WWN
           device_type: $column(7)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(5), $column(7), $column(10))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(5), $column(7), $column(9), $column(10))"
     collect:
       # Collect type is multi-instance
       type: multiInstance

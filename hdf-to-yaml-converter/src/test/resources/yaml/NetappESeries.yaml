@@ -95,7 +95,7 @@ monitors:
           type: Storage
           vendor: NetApp
           info: "join($column(9), $column(11), $column(5), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(4), \"NetApp\", $column(10), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(4), \"NetApp\", $column(10))"
     collect:
       # Collection Type
       type: multiInstance
@@ -193,7 +193,7 @@ monitors:
           info: "join($column(8), $column(9), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(10)
-          name: "sprintf(\"%s (%s - %s)\", $column(5), $column(3), $column(7))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(5), $column(2), $column(7))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
@@ -261,7 +261,7 @@ monitors:
           info: "join($column(3), $column(5), $column(4), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(6)
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collection Type
       type: multiInstance
@@ -541,7 +541,7 @@ monitors:
           vendor: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s (%s) - %s)\", $column(2), $column(5), $column(4), $column(6))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(2), $column(5), $column(6))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(6))
     collect:
@@ -887,10 +887,11 @@ monitors:
           id: $column(3)
           __display_id: $column(3)
           raid_level: $column(4)
-          hw.logical_disk.limit: $column(5)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(5))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(4), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
     collect:
       # Collection type
       type: multiInstance

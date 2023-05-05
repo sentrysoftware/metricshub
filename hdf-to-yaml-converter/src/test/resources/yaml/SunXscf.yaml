@@ -57,7 +57,7 @@ monitors:
           model: $column(4)
           serial_number: $column(5)
           info: $column(6)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), $column(2))"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(3), $column(4))"
     collect:
       # Collect type is multi-instance (of course)
       type: multiInstance
@@ -192,7 +192,7 @@ monitors:
           serial_number: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: Main
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(2), $column(3))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
@@ -259,7 +259,7 @@ monitors:
           info: "join($column(4), $column(3), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collet type is multi-instance
       type: multiInstance
@@ -313,9 +313,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: Main
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collet type is multi-instance
       type: multiInstance
@@ -369,7 +370,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          voltage_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: Main
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
@@ -418,7 +419,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(1)
+          sensor_location: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: Main
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"

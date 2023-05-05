@@ -38,7 +38,7 @@ monitors:
           serial_number: $column(2)
           type: PDU
           info: "join($column(1), $column(3), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(5), \"Raritan\", $column(4), \"PDU\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"Raritan\", $column(4))"
     collect:
       sources:
         source(1):
@@ -96,7 +96,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
-          temperature_type: enclosure
+          sensor_location: enclosure
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(2), \"enclosure\")"
@@ -185,7 +185,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
-          voltage_type: enclosure
+          sensor_location: enclosure
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
           name: "sprintf(\"%s (%s)\", $column(2), \"enclosure\")"

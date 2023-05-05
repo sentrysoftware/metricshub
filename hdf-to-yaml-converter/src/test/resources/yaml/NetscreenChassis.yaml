@@ -25,7 +25,7 @@ monitors:
           model: Netscreen
           vendor: Juniper
           type: Switch
-          name: "sprintf(\"%s (%s %s - %s)\", \"Switch\", \"Juniper\", \"Netscreen\", \"Switch\")"
+          name: "sprintf(\"Switch: %s (%s %s)\", \"Switch\", \"Juniper\", \"Netscreen\")"
   other_device:
     discovery:
       sources:
@@ -87,7 +87,7 @@ monitors:
           __display_id: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: Chassis
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type = multi-instance
       type: multiInstance

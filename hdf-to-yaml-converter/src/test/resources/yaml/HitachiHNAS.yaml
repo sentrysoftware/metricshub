@@ -61,7 +61,7 @@ monitors:
           serial_number: $column(6)
           type: Storage
           info: $column(3)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"Hitachi\", \"HNAS\", \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(2), \"Hitachi\", \"HNAS\")"
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -265,7 +265,7 @@ monitors:
           __display_id: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -387,7 +387,7 @@ monitors:
           vendor: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(4), $column(5))"
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
@@ -548,11 +548,12 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           raid_level: $column(6)
-          hw.logical_disk.limit: $column(5)
           info: "join($column(2), $column(3), $column(7), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: 1
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(6), $column(5))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(6), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance

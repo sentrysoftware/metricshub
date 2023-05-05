@@ -43,7 +43,7 @@ monitors:
           vendor: ""
           model: X86-based PC
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"MBM\", \"\", \"X86-based PC\", \"Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", \"\", \"X86-based PC\")"
   temperature:
     discovery:
       sources:
@@ -62,7 +62,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(3)
-          temperature_type: ""
+          sensor_location: ""
           hw.parent.type: enclosure
           hw.parent.id: MBM
           name: "sprintf(\"%s (%s)\", $column(3), \"\")"
@@ -113,7 +113,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(3)
-          voltage_type: ""
+          sensor_location: ""
           hw.parent.type: enclosure
           hw.parent.id: MBM
           name: "sprintf(\"%s (%s)\", $column(3), \"\")"
@@ -162,9 +162,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(3)
+          sensor_location: ""
           hw.parent.type: enclosure
           hw.parent.id: MBM
-          name: $column(3)
+          name: "sprintf(\"%s (%s)\", $column(3), \"\")"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(5)
     collect:

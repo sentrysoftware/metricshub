@@ -166,7 +166,7 @@ monitors:
           info: "join($column(2), $column(4), \"Type: Fusion ioDrive\", \" \")"
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(8))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(6))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(1), $column(6))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:

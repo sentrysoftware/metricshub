@@ -59,7 +59,7 @@ monitors:
           serial_number: $column(5)
           vendor: $column(3)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"ESX4iServer\", $column(3), $column(4), \"Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", $column(3), $column(4))"
     collect:
       type: multiInstance
       sources:
@@ -375,7 +375,7 @@ monitors:
           id: $column(3)
           __display_id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       type: multiInstance
       sources:

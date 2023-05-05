@@ -138,7 +138,7 @@ monitors:
           info: "join($column(5), $column(10), $column(3), \" \")"
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(12))"
-          name: "sprintf(\"%s (%s)\", $column(2), $column(7))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(4), $column(7))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
@@ -254,12 +254,13 @@ monitors:
         source: $monitors.logical_disk.discovery.sources.source(7)$
         attributes:
           id: $column(1)
-          hw.logical_disk.limit: $column(5)
           raid_level: $column(6)
           __display_id: $column(3)
           hw.parent.type: disk_controller
           hw.parent.id: $column(10)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), $column(5))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(6), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
     collect:
       # Collect type = mono-instance
       type: monoInstance
@@ -397,7 +398,7 @@ monitors:
           model: $column(3)
           serial_number: $column(8)
           info: "join($column(4), $column(5), $column(7), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(6), \"Dell\", $column(3), \"External Storage\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"Dell\", $column(3))"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -554,7 +555,7 @@ monitors:
           info: $column(4)
           hw.parent.type: External Storage
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type is multi-instance
       type: multiInstance

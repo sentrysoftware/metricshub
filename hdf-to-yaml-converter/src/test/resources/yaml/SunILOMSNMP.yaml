@@ -137,7 +137,7 @@ monitors:
           model: $column(7)
           serial_number: $column(5)
           info: "join($column(10), $column(4), \" \")"
-          name: "sprintf(\"%s (%s %s)\", $column(3), $column(6), $column(7))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), $column(6), $column(7))"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -417,7 +417,7 @@ monitors:
           __display_id: $column(3)
           info: "join($column(4), $column(6), $column(9), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -538,7 +538,7 @@ monitors:
           model: $column(7)
           info: $column(10)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s (%s) - %s)\", $column(3), $column(6), $column(7), $column(4))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(6), $column(4))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
@@ -714,7 +714,7 @@ monitors:
           model: $column(6)
           info: $column(9)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
+          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
     collect:
       # Collect type is mono-instance
       type: multiInstance

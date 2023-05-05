@@ -39,9 +39,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
       # Collect type = multi-instance
       type: multiInstance

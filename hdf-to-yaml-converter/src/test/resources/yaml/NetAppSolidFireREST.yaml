@@ -65,7 +65,7 @@ monitors:
           model: Solid Fire
           type: enclosure
           serial_number: $column(3)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"NetApp\", \"Solid Fire\", \"enclosure\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"NetApp\", \"Solid Fire\")"
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
@@ -228,7 +228,7 @@ monitors:
           __display_id: memory
           hw.parent.type: disk_controller
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", \"memory\", $column(4))"
+          name: "sprintf(\"%s (%s MB)\", \"memory\", $column(4))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
@@ -457,7 +457,7 @@ monitors:
           info: $column(8)
           hw.parent.type: disk_controller
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(5), $column(7))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(4), $column(7))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
@@ -509,10 +509,11 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          hw.logical_disk.limit: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
     collect:
       # CollectionType (Multi-instance)
       type: multiInstance
@@ -572,7 +573,7 @@ monitors:
           __display_id: $column(4)
           hw.parent.type: disk_controller
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(4))"
+          name: $column(4)
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance

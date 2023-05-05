@@ -74,7 +74,7 @@ monitors:
           id: $column(1)
           vendor: $column(3)
           model: $column(2)
-          name: "sprintf(\"%s (%s %s)\", $column(1), $column(3), $column(2))"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(3), $column(2))"
     collect:
       # COLLECT
       # Collect type is "multi-instance"
@@ -167,7 +167,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
           id: $column(1)
-          temperature_type: $column(1)
+          sensor_location: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
@@ -267,7 +267,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(3)$
         attributes:
           id: $column(1)
-          voltage_type: $column(1)
+          sensor_location: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
         metrics:
@@ -411,7 +411,7 @@ monitors:
           vendor: $column(3)
           model: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s (%s))\", $column(1), $column(3), $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
       # COLLECT
       # Collect type is "multi-instance"
@@ -502,7 +502,7 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # COLLECT
       # Collect type is "multi-instance"

@@ -32,7 +32,7 @@ monitors:
           model: $column(2)
           serial_number: $column(3)
           info: $column(4)
-          name: "sprintf(\"%s (%s %s)\", $column(1), \"IBM\", $column(2))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(1), \"IBM\", $column(2))"
     collect:
       # Collect type is multi-instance
       type: multiInstance

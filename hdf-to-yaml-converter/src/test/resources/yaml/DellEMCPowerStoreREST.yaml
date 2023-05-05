@@ -75,7 +75,7 @@ monitors:
           serial_number: $column(6)
           type: Storage
           vendor: Dell EMC
-          name: "sprintf(\"%s (%s %s - %s)\", $column(4), \"Dell EMC\", $column(5), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(4), \"Dell EMC\", $column(5))"
     collect:
       # Collect
       type: multiInstance
@@ -302,7 +302,7 @@ monitors:
           model: $column(8)
           hw.parent.type: $column(2)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(8), $column(11))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(7), $column(11))"
         metrics:
           hw.physical_disk.size: $column(11)
     collect:
@@ -360,7 +360,7 @@ monitors:
           info: $column(5)
           hw.parent.type: disk_controller
           hw.parent.id: $column(4)
-          name: "sprintf(\"%s, $column(6))"
+          name: $column(6)
     collect:
       # Collect
       type: multiInstance

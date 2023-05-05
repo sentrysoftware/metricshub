@@ -31,7 +31,7 @@ monitors:
           bios_version: $column(4)
           type: Storage
           info: $column(1)
-          name: "sprintf(\"%s (%s %s - %s)\", \"_LIBRARY_ID\", $column(3), $column(2), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", \"_LIBRARY_ID\", $column(3), $column(2))"
     collect:
       type: multiInstance
       sources:
@@ -80,12 +80,13 @@ monitors:
         source: $monitors.robotics.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          vendor: $column(2)
           model: $column(3)
           serial_number: $column(5)
-          robotic_type: Media Transfer
+          robotics_type: Media Transfer
           info: $column(4)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), \"Media Transfer\")"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(2), $column(3), \"Media Transfer\")"
     collect:
       type: multiInstance
       sources:
@@ -127,11 +128,12 @@ monitors:
         source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          vendor: $column(2)
           model: $column(3)
           serial_number: $column(5)
           info: $column(4)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s %s)\", $column(1), $column(2), $column(3))"
     collect:
       type: multiInstance
       sources:

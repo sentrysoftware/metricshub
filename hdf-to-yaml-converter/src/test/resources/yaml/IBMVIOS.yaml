@@ -83,7 +83,7 @@ monitors:
           type: Computer
           serial_number: $column(1)
           info: "join($column(2), $column(6), $column(5), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"IBM\", $column(4), \"Computer\")"
+          name: "sprintf(\"Computer: %s (%s %s)\", $column(3), \"IBM\", $column(4))"
   cpu:
     discovery:
       sources:
@@ -184,7 +184,7 @@ monitors:
           id: $column(1)
           serial_number: $column(5)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "sprintf(\"%s (%s MB)\", $column(1), $column(4))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
@@ -388,7 +388,7 @@ monitors:
           serial_number: $column(6)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(5), $column(4))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:

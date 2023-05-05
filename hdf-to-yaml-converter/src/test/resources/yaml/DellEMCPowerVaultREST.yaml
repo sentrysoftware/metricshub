@@ -126,7 +126,7 @@ monitors:
           vendor: $column(7)
           model: $column(8)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(6), $column(7), $column(8), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(6), $column(7), $column(8))"
     collect:
       # Collect
       type: multiInstance
@@ -365,8 +365,9 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(3)
+          sensor_location: PSU
           hw.parent.type: enclosure
-          name: $column(3)
+          name: "sprintf(\"%s (%s)\", $column(3), \"PSU\")"
     collect:
       type: multiInstance
       sources:
@@ -414,7 +415,7 @@ monitors:
           serial_number: $column(8)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), $column(9))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(5), $column(9))"
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
@@ -464,7 +465,7 @@ monitors:
           info: "join($column(5), $column(6), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect
       type: multiInstance
@@ -528,6 +529,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(3)
+          vendor: $column(5)
           model: $column(6)
           device_type: $column(7)
           physical_address: $column(8)
@@ -536,7 +538,7 @@ monitors:
           logical_address: $column(11)
           hw.parent.type: disk_controller
           hw.parent.id: $column(4)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(7), $column(6))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(3), $column(7), $column(5), $column(6))"
     collect:
       # Collect
       type: multiInstance

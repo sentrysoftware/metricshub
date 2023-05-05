@@ -11,7 +11,7 @@ monitors:
           model: $column(1)
           serial_number: $column(2)
           type: Chassis
-          name: "sprintf(\"%s (%s - %s)\", \"Dell Blade Chassis\", $column(1), \"Chassis\")"
+          name: "sprintf(\"Enclosure: %s (%s)\", \"Dell Blade Chassis\", $column(1))"
     collect:
       sources:
         source(2):
@@ -134,7 +134,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DellBladeChassis
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
@@ -187,9 +187,10 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DellBladeChassis
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(4)
@@ -241,7 +242,7 @@ monitors:
           __display_id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: DellBladeChassis
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -347,7 +348,7 @@ monitors:
           serial_number: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: DellBladeChassis
-          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(4), $column(3))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
@@ -503,11 +504,12 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
-          hw.logical_disk.limit: $column(4)
           raid_level: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: DellBladeChassis
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), $column(4))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(3), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
     collect:
       # Collect type is multi-instance
       type: multiInstance

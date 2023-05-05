@@ -71,12 +71,13 @@ monitors:
         source: $monitors.network.discovery.sources.source(3)$
         attributes:
           id: $column(2)
+          vendor: Emulex
           model: $column(1)
           physical_address: $column(2)
           physical_address_type: WWN
           device_type: HBA FC Port
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), \"HBA FC Port\", $column(1))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), \"HBA FC Port\", \"Emulex\", $column(1))"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance

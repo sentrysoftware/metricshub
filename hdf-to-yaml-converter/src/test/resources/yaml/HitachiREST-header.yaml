@@ -46,7 +46,7 @@ monitors:
           model: $column(3)
           serial_number: $column(4)
           vendor: Hitachi
-          name: "sprintf(\"%s (%s %s)\", $column(2), \"Hitachi\", $column(3))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"Hitachi\", $column(3))"
     collect:
       # Collect
       type: multiInstance
@@ -431,7 +431,7 @@ monitors:
           model: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(4), $column(6), $column(5), $column(7))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(4), $column(5), $column(7))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(7))
     collect:
@@ -678,7 +678,7 @@ monitors:
           model: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(6))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(4), $column(6))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
@@ -907,7 +907,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          temperature_type: Disk Controller
+          sensor_location: Disk Controller
           hw.parent.type: disk_controller
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s)\", $column(4), \"Disk Controller\")"

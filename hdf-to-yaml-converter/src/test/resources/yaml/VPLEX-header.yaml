@@ -37,7 +37,7 @@ monitors:
           model: $column(4)
           serial_number: $column(12)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(9), \"EMC\", $column(4), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(9), \"EMC\", $column(4))"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -186,7 +186,7 @@ monitors:
           info: "join($column(6), $column(8), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(10)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       type: multiInstance
       sources:
@@ -495,7 +495,7 @@ monitors:
           serial_number: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(6)
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # PhysicalDisk
       # Collect

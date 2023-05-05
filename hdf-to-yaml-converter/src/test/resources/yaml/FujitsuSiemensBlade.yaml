@@ -29,7 +29,7 @@ monitors:
           vendor: Fujitsu-Siemens
           model: $column(1)
           type: blade
-          name: "sprintf(\"%s (%s %s - %s)\", \"FSCBlade\", \"Fujitsu-Siemens\", $column(1), \"blade\")"
+          name: "sprintf(\"Blade Enclosure: (%s %s)\", \"Fujitsu-Siemens\", $column(1))"
   temperature:
     discovery:
       sources:
@@ -48,7 +48,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(3)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: FSCBlade
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
@@ -82,9 +82,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: FSCBlade
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
       # Source(1) = same SNMP table as in discovery
       # DeviceID;Status;Speed

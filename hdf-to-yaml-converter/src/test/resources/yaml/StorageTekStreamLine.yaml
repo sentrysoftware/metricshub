@@ -32,7 +32,7 @@ monitors:
           model: $column(1)
           serial_number: $column(2)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", \"STKStreamLine\", \"StorageTek\", $column(1), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", \"StorageTek\", $column(1))"
     collect:
       # Collect
       type: monoInstance
@@ -89,11 +89,12 @@ monitors:
         attributes:
           id: $column(1)
           model: $column(3)
+          vendor: $column(4)
           serial_number: $column(5)
           info: "join($column(2), $column(7), $column(6), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: STKStreamLine
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s %s)\", $column(1), $column(4), $column(3))"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -170,7 +171,7 @@ monitors:
           info: "join($column(2), $column(4), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: STKStreamLine
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect
       # Collect-type = mono-instance

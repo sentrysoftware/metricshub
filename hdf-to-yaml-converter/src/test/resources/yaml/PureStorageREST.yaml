@@ -111,7 +111,7 @@ monitors:
           serial_number: $column(3)
           type: $column(5)
           vendor: Pure Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Pure Storage\", $column(2), $column(5))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(1), \"Pure Storage\", $column(2))"
     collect:
       # Collect
       # MultiInstance
@@ -319,7 +319,7 @@ monitors:
           info: "join($column(4), $column(5), \" \")"
           hw.parent.type: $column(7)
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect
       # MultiInstance
@@ -471,7 +471,7 @@ monitors:
           info: $column(5)
           hw.parent.type: $column(8)
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(4))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:

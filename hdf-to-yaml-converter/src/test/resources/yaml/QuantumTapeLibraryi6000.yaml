@@ -71,7 +71,7 @@ monitors:
           bios_version: $column(7)
           type: Storage
           info: $column(4)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), $column(6), $column(5), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(6), $column(5))"
     collect:
       type: multiInstance
       sources:
@@ -132,11 +132,12 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(6)
+          vendor: $column(2)
           model: $column(3)
           serial_number: $column(4)
           info: $column(7)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s %s)\", $column(6), $column(2), $column(3))"
     collect:
       type: multiInstance
       sources:
@@ -234,7 +235,7 @@ monitors:
           id: $column(2)
           __display_id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       type: multiInstance
       sources:
@@ -316,7 +317,7 @@ monitors:
           id: $column(2)
           __display_id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(1)
     collect:
       type: multiInstance
       sources:

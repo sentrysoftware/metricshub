@@ -31,7 +31,7 @@ monitors:
           vendor: $column(2)
           model: $column(3)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(2), $column(3), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(2), $column(3))"
   physical_disk:
     discovery:
       sources:
@@ -72,7 +72,7 @@ monitors:
           info: "join($column(1), $column(2), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: DDNSA
-          name: "sprintf(\"%s, $column(4))"
+          name: $column(4)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -146,7 +146,7 @@ monitors:
           __display_id: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DDNSA
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is multi-instance
       type: multiInstance

@@ -230,7 +230,7 @@ monitors:
           serial_number: $column(9)
           vendor: Huawei
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Huawei\", $column(4), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(3), \"Huawei\", $column(4))"
     collect:
       type: multiInstance
       sources:
@@ -511,7 +511,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          temperature_type: $column(6)
+          sensor_location: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(6))"
@@ -711,7 +711,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          voltage_type: $column(5)
+          sensor_location: $column(5)
           hw.parent.type: $column(6)
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
@@ -949,7 +949,7 @@ monitors:
           __display_id: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(4))"
+          name: $column(4)
     collect:
       type: multiInstance
       sources:
@@ -1280,7 +1280,7 @@ monitors:
           serial_number: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(9), $column(5), $column(10))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(9), $column(7), $column(10))"
         metrics:
           hw.physical_disk.size: $column(10)
     collect:
@@ -1397,11 +1397,12 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          hw.logical_disk.limit: $column(6)
           type: Volume
           hw.parent.type: disk_controller
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(6))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(6))"
+        metrics:
+          hw.logical_disk.limit: $column(6)
     collect:
       sources:
         source(1):

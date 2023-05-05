@@ -56,7 +56,7 @@ monitors:
           model: $column(2)
           serial_number: $column(4)
           vendor: Lenovo
-          name: "sprintf(\"%s (%s %s)\", $column(5), \"Lenovo\", $column(2))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(5), \"Lenovo\", $column(2))"
     collect:
       # Collect
       type: multiInstance
@@ -148,7 +148,7 @@ monitors:
           serial_number: $column(6)
           info: "join($column(5), $column(7), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(4), $column(3))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
@@ -392,7 +392,7 @@ monitors:
           __display_id: $column(1)
           info: "join($column(2), $column(3), $column(4), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -518,10 +518,11 @@ monitors:
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          hw.logical_disk.limit: $column(3)
           hw.parent.type: disk_controller
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(1), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -635,7 +636,7 @@ monitors:
           serial_number: $column(10)
           info: "join($column(4), $column(11), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(13))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(8), $column(13))"
         metrics:
           hw.physical_disk.size: $column(13)
     collect:

@@ -41,7 +41,7 @@ monitors:
           model: $column(1)
           serial_number: $column(3)
           type: Switch
-          name: "sprintf(\"%s (%s %s - %s)\", \"CiscoSwitch\", \"Cisco\", $column(1), \"Switch\")"
+          name: "sprintf(\"Switch: (%s %s)\", \"Cisco\", $column(1))"
   temperature:
     discovery:
       sources:
@@ -246,7 +246,7 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type = multi-instance
       type: multiInstance

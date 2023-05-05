@@ -86,7 +86,7 @@ monitors:
           __display_id: $column(2)
           model: $column(2)
           vendor: Cisco
-          name: "sprintf(\"%s (%s %s)\", $column(2), \"Cisco\", $column(2))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"Cisco\", $column(2))"
   blade:
     discovery:
       sources:
@@ -268,7 +268,7 @@ monitors:
           __display_id: $column(2)
           info: "join($column(3), $column(4), $column(5), \" \")"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -422,7 +422,7 @@ monitors:
           info: "join($column(2), $column(6), \" \")"
           hw.parent.type: blade
           hw.parent.id: $column(11)
-          name: "sprintf(\"%s (%s (%s) - %s - %s)\", $column(1), $column(9), $column(7), $column(8), $column(4))"
+          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(1), $column(9), $column(8), $column(4))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
@@ -637,7 +637,7 @@ monitors:
           serial_number: $column(2)
           hw.parent.type: disk_controller
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(6), $column(3))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(4), $column(3))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:

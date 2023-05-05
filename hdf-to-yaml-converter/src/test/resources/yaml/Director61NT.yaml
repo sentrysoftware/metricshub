@@ -51,7 +51,7 @@ monitors:
           model: $column(1)
           serial_number: $column(2)
           type: Computer
-          name: "sprintf(\"%s (%s %s - %s)\", \"DIR6\", \"IBM\", $column(1), \"Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", \"IBM\", $column(1))"
   cpu:
     discovery:
       sources:
@@ -145,7 +145,7 @@ monitors:
           info: "join($column(2), $column(3), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: DIR6
-          name: "sprintf(\"%s (%s)\", $column(4), $column(1))"
+          name: "sprintf(\"%s (%s MB)\", $column(4), $column(1))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(1))
     collect:
@@ -383,7 +383,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          voltage_type: $column(3)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: DIR6
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
@@ -426,7 +426,7 @@ monitors:
           __display_id: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DIR6
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type : multi instance (one source for several instances)
       type: multiInstance

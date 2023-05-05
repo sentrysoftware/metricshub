@@ -82,7 +82,7 @@ monitors:
           type: $column(4)
           serial_number: $column(5)
           info: "join($column(6), $column(7), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(3), $column(4))"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"HP\", $column(3))"
     collect:
       type: multiInstance
       sources:
@@ -242,7 +242,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(4)$
         attributes:
           id: $column(1)
-          temperature_type: $column(4)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
@@ -311,9 +311,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -383,7 +384,7 @@ monitors:
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "sprintf(\"%s (%s W)\", $column(1), $column(4))"
         metrics:
           hw.power_supply.limit: $column(4)
     collect:

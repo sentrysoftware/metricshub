@@ -40,7 +40,7 @@ monitors:
           model: $column(2)
           serial_number: $column(3)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", \"SNIA Library\", $column(1), $column(2), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(1), $column(2))"
     collect:
       type: monoInstance
       sources:
@@ -89,11 +89,12 @@ monitors:
         source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          vendor: $column(2)
           model: $column(3)
           serial_number: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: SNIA Library
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s %s)\", $column(1), $column(2), $column(3))"
     collect:
       type: multiInstance
       sources:
@@ -145,7 +146,7 @@ monitors:
         source: $monitors.robotics.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          robotic_type: Cassette Robot
+          robotics_type: Cassette Robot
           hw.parent.type: enclosure
           hw.parent.id: SNIA Library
           name: "sprintf(\"%s (%s)\", $column(1), \"Cassette Robot\")"

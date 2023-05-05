@@ -127,7 +127,7 @@ monitors:
           serial_number: $column(14)
           bios_version: $column(15)
           info: $column(16)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"Juniper\", $column(12), \"Switch\")"
+          name: "sprintf(\"Switch: %s (%s %s)\", $column(2), \"Juniper\", $column(12))"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -282,7 +282,7 @@ monitors:
           info: "join($column(13), $column(12), $column(15), \" \")"
           hw.parent.type: $column(9)
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s, $column(10))"
+          name: $column(10)
     collect:
       # Collect type = multi-instance
       type: multiInstance

@@ -44,7 +44,7 @@ monitors:
           bios_version: $column(4)
           type: Chassis
           info: $column(7)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(5), $column(2), $column(3), \"Chassis\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(5), $column(2), $column(3))"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -219,7 +219,7 @@ monitors:
           id: $column(1)
           __display_id: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type = multi-instance
       type: multiInstance

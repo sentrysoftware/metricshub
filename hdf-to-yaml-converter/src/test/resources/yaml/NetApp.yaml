@@ -50,7 +50,7 @@ monitors:
           bios_version: $column(5)
           serial_number: $column(6)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", \"NetApp\", $column(3), $column(4), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(3), $column(4))"
   physical_disk:
     discovery:
       sources:
@@ -187,7 +187,7 @@ monitors:
           info: $column(2)
           hw.parent.type: $column(15)
           hw.parent.id: $column(13)
-          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(7), $column(5))"
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
@@ -442,11 +442,12 @@ monitors:
         attributes:
           id: $column(1)
           raid_level: $column(2)
-          hw.logical_disk.limit: $column(4)
           type: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: NetApp
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(4))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(2), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -745,7 +746,7 @@ monitors:
           info: "join($column(3), $column(4), $column(2), \" \")"
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is multi-instance
       type: multiInstance

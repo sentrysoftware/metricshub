@@ -296,10 +296,11 @@ monitors:
           __display_id: $column(10)
           model: $column(4)
           serial_number: $column(5)
+          vendor: $column(6)
           physical_address_type: $column(8)
           physical_address: $column(9)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(10), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(10), $column(6), $column(4))"
     collect:
       # Collect
       # EthernetInterfaces

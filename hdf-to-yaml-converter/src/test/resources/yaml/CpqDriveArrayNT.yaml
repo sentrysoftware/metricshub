@@ -190,7 +190,7 @@ monitors:
           info: $column(6)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(3), $column(4))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
@@ -257,11 +257,12 @@ monitors:
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          hw.logical_disk.limit: $column(4)
           raid_level: $column(3)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(4))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(3), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
     collect:
       # Collect type = MultiInstance
       type: multiInstance
@@ -386,7 +387,7 @@ monitors:
           serial_number: $column(7)
           bios_version: $column(4)
           info: "join($column(10), $column(8), $column(6), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(5), $column(3), \"MSADiskBay\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(5), $column(3))"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -440,9 +441,10 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: Overall Fan Status
           hw.parent.type: MSADiskBay
           hw.parent.id: $column(1)
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Fan Status\")"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -496,7 +498,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: Overall Temperature Status
+          sensor_location: Overall Temperature Status
           hw.parent.type: MSADiskBay
           hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(1), \"Overall Temperature Status\")"

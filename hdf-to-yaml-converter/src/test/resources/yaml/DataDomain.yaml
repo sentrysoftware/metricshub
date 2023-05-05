@@ -23,7 +23,7 @@ monitors:
           id: Data Domain Appliance
           vendor: Data Domain
           type: Storage
-          name: "sprintf(\"%s (%s - %s)\", \"Data Domain Appliance\", \"Data Domain\", \"Storage\")"
+          name: "sprintf(\"Storage: (%s)\", \"Data Domain\")"
   physical_disk:
     discovery:
       sources:
@@ -57,7 +57,7 @@ monitors:
           model: $column(3)
           serial_number: $column(5)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(6))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(1), $column(6))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
@@ -133,9 +133,10 @@ monitors:
         attributes:
           __display_id: $column(1)
           id: $column(1)
-          hw.logical_disk.limit: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(1), $column(2))"
+        metrics:
+          hw.logical_disk.limit: $column(2)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -229,8 +230,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -299,7 +301,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(3)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:

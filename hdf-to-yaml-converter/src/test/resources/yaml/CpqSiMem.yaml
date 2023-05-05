@@ -56,7 +56,7 @@ monitors:
           type: $column(3)
           serial_number: $column(5)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(3), $column(2))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(2))
     collect:

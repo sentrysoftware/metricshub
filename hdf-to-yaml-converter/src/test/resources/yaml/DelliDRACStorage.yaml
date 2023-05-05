@@ -102,7 +102,7 @@ monitors:
           model: $column(2)
           serial_number: $column(3)
           type: $column(6)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), $column(6))"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"Dell\", $column(2))"
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -253,7 +253,7 @@ monitors:
           info: "join($column(8), $column(6), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(12)
-          name: "sprintf(\"%s (%s)\", $column(9), $column(5))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(9), $column(2), $column(5))"
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
@@ -318,12 +318,13 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(7)
-          hw.logical_disk.limit: $column(3)
           raid_level: $column(4)
           info: "join($column(6), $column(2), \" \")"
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(5))"
-          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(4), $column(3))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(7), $column(4), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -460,7 +461,7 @@ monitors:
           info: "join($column(4), $column(2), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is MultiInstance
       type: multiInstance

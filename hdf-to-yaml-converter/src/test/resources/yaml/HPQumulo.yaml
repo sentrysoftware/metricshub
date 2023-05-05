@@ -44,7 +44,7 @@ monitors:
           serial_number: $column(4)
           vendor: HP
           info: $column(5)
-          name: "sprintf(\"%s (%s %s)\", $column(2), \"HP\", $column(3))"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"HP\", $column(3))"
     collect:
       sources:
         source(1):
@@ -98,7 +98,7 @@ monitors:
           info: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(5), $column(3), $column(7))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(5), $column(7))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:

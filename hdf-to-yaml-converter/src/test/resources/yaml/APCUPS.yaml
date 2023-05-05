@@ -73,7 +73,7 @@ monitors:
           serial_number: $column(6)
           type: UPS
           info: "join($column(4), $column(5), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"APC\", $column(2), \"UPS\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"APC\", $column(2))"
     collect:
       # Collect
       type: monoInstance
@@ -261,7 +261,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(5)$
         attributes:
           id: $column(1)
-          voltage_type: $column(3)
+          sensor_location: $column(3)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:
@@ -326,7 +326,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
         metrics:

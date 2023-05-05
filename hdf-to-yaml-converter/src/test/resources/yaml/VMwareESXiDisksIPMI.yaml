@@ -66,7 +66,7 @@ monitors:
           id: $column(7)
           __display_id: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # The DiskController collect is a "MultiInstance" collect
       type: multiInstance

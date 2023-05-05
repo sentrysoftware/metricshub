@@ -78,7 +78,7 @@ monitors:
           type: Switch
           bios_version: $column(4)
           info: $column(3)
-          name: "sprintf(\"%s (%s)\", $column(2), \"Switch\")"
+          name: "sprintf(\"Switch: %s\", $column(2))"
     collect:
       sources:
         source(1):
@@ -113,7 +113,7 @@ monitors:
           id: $column(1)
           __display_id: $column(3)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type = multi-instance
       type: multiInstance

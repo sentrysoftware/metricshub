@@ -107,7 +107,7 @@ monitors:
           id: $column(1)
           model: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(1), $column(3))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
@@ -167,9 +167,10 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
-          hw.logical_disk.limit: $column(3)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(2), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers

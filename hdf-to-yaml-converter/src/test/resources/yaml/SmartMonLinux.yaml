@@ -60,7 +60,7 @@ monitors:
           serial_number: $column(3)
           vendor: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collect type is "one instance per instance
       type: monoInstance
@@ -122,7 +122,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: Harddisk
+          sensor_location: Harddisk
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), \"Harddisk\")"
         metrics:

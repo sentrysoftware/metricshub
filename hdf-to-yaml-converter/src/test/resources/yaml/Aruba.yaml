@@ -41,7 +41,7 @@ monitors:
           vendor: Aruba
           device_hostname: $monitors.enclosure.discovery.sources.source(1)$
           type: Switch
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Aruba\", \"$monitors.enclosure.discovery.sources.source(2)$\", \"Switch\")"
+          name: "sprintf(\"Switch: %s (%s %s)\", $column(1), \"Aruba\", \"$monitors.enclosure.discovery.sources.source(2)$\")"
   power_supply:
     discovery:
       sources:
@@ -66,7 +66,7 @@ monitors:
           __display_id: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: Chassis
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type = multi-instance
       type: multiInstance

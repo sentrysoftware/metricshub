@@ -73,7 +73,7 @@ monitors:
           vendor: EMC
           type: Storage
           info: $column(5)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(6), \"EMC\", $column(4), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(6), \"EMC\", $column(4))"
     collect:
       # Collect
       type: multiInstance
@@ -408,7 +408,7 @@ monitors:
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect
       # Collect type: MultiInstance
@@ -528,7 +528,7 @@ monitors:
           serial_number: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(6))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(6))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
@@ -789,11 +789,12 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
-          hw.logical_disk.limit: $column(3)
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: Cluster
-          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(2), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
     collect:
       # Collect type is MultiInstance
       type: multiInstance

@@ -37,7 +37,7 @@ monitors:
           model: $column(1)
           serial_number: $column(2)
           type: Switch
-          name: "sprintf(\"%s (%s %s - %s)\", \"F5-BigIP\", \"F5\", $column(1), \"Switch\")"
+          name: "sprintf(\"Switch: (%s %s)\", \"F5\", $column(1))"
   temperature:
     discovery:
       sources:
@@ -242,7 +242,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type = multi-instance
       type: multiInstance

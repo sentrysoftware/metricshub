@@ -66,7 +66,7 @@ monitors:
           vendor: $column(6)
           model: $column(7)
           type: Chassis
-          name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(6), $column(7), \"Chassis\")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(4), $column(6), $column(7))"
     collect:
       # Collect
       type: multiInstance
@@ -167,7 +167,7 @@ monitors:
           info: "join($column(4), $column(5), $column(6), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: Chassis
-          name: "sprintf(\"%s, $column(3))"
+          name: $column(3)
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -242,7 +242,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(4)
-          voltage_type: DC
+          sensor_location: DC
           hw.parent.type: enclosure
           hw.parent.id: Chassis
           name: "sprintf(\"%s (%s)\", $column(4), \"DC\")"

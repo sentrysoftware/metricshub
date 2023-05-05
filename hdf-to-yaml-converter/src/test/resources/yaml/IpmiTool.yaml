@@ -51,7 +51,7 @@ monitors:
           model: $column(3)
           serial_number: $column(4)
           info: $column(8)
-          name: "sprintf(\"%s (%s %s)\", \"IPMI\", $column(2), $column(3))"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(2), $column(3))"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -148,10 +148,11 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(3)
+          sensor_location: $column(6)
           info: $column(10)
           hw.parent.type: enclosure
           hw.parent.id: IPMI
-          name: $column(3)
+          name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(8)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(9)
@@ -241,7 +242,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(3)
-          temperature_type: $column(4)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: IPMI
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
@@ -289,7 +290,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(3)
-          voltage_type: $column(4)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: IPMI
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
@@ -344,7 +345,7 @@ monitors:
           info: "join($column(9), $column(6), $column(5), \" \")"
           hw.parent.type: enclosure
           hw.parent.id: IPMI
-          name: "sprintf(\"%s, $column(2))"
+          name: $column(2)
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -467,7 +468,7 @@ monitors:
           info: $column(10)
           hw.parent.type: enclosure
           hw.parent.id: IPMI
-          name: "sprintf(\"%s (%s (%s) - %s)\", $column(3), $column(4), $column(5), $column(6))"
+          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(4), $column(6))"
         metrics:
           hw.memory.limit: mebiByte2Byte($column(6))
     collect:
@@ -521,7 +522,7 @@ monitors:
           info: $column(9)
           hw.parent.type: enclosure
           hw.parent.id: IPMI
-          name: "sprintf(\"%s (%s)\", $column(2), $column(5))"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
     collect:
       # Collect type is: multi-instance
       type: multiInstance

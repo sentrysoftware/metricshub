@@ -63,7 +63,7 @@ monitors:
           serial_number: $column(11)
           type: Storage
           info: $column(9)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(10), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s)\", $column(4), $column(10))"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -284,7 +284,7 @@ monitors:
           info: $column(9)
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s, $column(4))"
+          name: $column(4)
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -386,7 +386,7 @@ monitors:
           info: $column(9)
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(12), $column(10))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(13), $column(10))"
         metrics:
           hw.physical_disk.size: $column(10)
     collect:
@@ -437,11 +437,12 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          hw.logical_disk.limit: $column(10)
           info: $column(9)
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(10))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(10))"
+        metrics:
+          hw.logical_disk.limit: $column(10)
     collect:
       # Collect type: MultiInstance
       type: multiInstance

@@ -31,7 +31,7 @@ monitors:
           vendor: $column(2)
           model: $column(3)
           type: Storage
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(2), $column(3), \"Storage\")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(2), $column(3))"
   physical_disk:
     discovery:
       sources:
@@ -61,7 +61,7 @@ monitors:
           vendor: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DDN
-          name: "sprintf(\"%s, $column(1))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -118,7 +118,7 @@ monitors:
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: DDN
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -215,7 +215,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          temperature_type: $column(2)
+          sensor_location: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: DDN
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"

@@ -52,7 +52,7 @@ monitors:
           serial_number: $column(3)
           type: Storage
           info: $column(4)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell Equallogic\", $column(2), \"Storage\")"
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(1), \"Dell Equallogic\", $column(2))"
   fan:
     discovery:
       sources:
@@ -114,9 +114,10 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(3)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: $column(3)
+          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(8)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
@@ -205,7 +206,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(3)
-          temperature_type: $column(4)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
@@ -401,7 +402,7 @@ monitors:
           info: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(7))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(7))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
@@ -460,11 +461,12 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          hw.logical_disk.limit: $column(3)
           type: $column(2)
           hw.parent.type: enclosure
           hw.parent.id: Global
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(1), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
     collect:
       # Collect type: MultiInstance
       type: multiInstance

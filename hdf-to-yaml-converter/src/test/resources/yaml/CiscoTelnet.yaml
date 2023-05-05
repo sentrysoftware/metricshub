@@ -50,7 +50,7 @@ monitors:
           type: Switch
           model: $column(1)
           serial_number: $column(2)
-          name: "sprintf(\"%s (%s %s - %s)\", \"MDS9000Bay\", \"Cisco\", $column(1), \"Switch\")"
+          name: "sprintf(\"Switch: (%s %s)\", \"Cisco\", $column(1))"
     collect:
       type: multiInstance
       sources:
@@ -463,7 +463,7 @@ monitors:
           id: $column(1)
           hw.parent.type: enclosure
           hw.parent.id: MDS9000Bay
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # Collect type is multi-instance
       type: multiInstance

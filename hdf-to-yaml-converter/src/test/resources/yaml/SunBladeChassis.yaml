@@ -40,7 +40,7 @@ monitors:
           id: /CH
           vendor: Sun
           model: Blade Chassis
-          name: "sprintf(\"%s (%s %s)\", \"/CH\", \"Sun\", \"Blade Chassis\")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"Sun\", \"Blade Chassis\")"
   temperature:
     discovery:
       sources:
@@ -92,7 +92,7 @@ monitors:
         source: $monitors.temperature.discovery.sources.source(4)$
         attributes:
           id: $column(1)
-          temperature_type: $column(7)
+          sensor_location: $column(7)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(7))"
         metrics:
@@ -244,8 +244,9 @@ monitors:
         source: $monitors.fan.discovery.sources.source(6)$
         attributes:
           id: $column(1)
+          sensor_location: $column(7)
           hw.parent.type: enclosure
-          name: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(7))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
@@ -386,7 +387,7 @@ monitors:
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s, $column(1))"
+          name: $column(1)
     collect:
       # COLLECT
       # Collect type is "Multi-instance"
@@ -496,7 +497,7 @@ monitors:
         source: $monitors.voltage.discovery.sources.source(2)$
         attributes:
           id: $column(1)
-          voltage_type: $column(4)
+          sensor_location: $column(4)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
     collect:
