@@ -1,0 +1,155 @@
+---
+connector:
+  displayName: Oracle/Sun Solaris - Multi-core Processors (psrinfo)
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (psrinfo, etc.)"
+  information: "This connector discovers and monitors the multi-core processors (SPARC T1, T2, T2+ and Intel Xeon) through the psrinfo system command."
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    supersedes:
+    - SunPsrinfo
+    criteria:
+    # OS should be SunOS or Solaris
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    # psrinfo should return that we have more than one virtual processor
+    - type: osCommand
+      commandLine: /usr/sbin/psrinfo -vp
+      expectedResult: "physical processor has [0-9]+.* virtual processors"
+monitors:
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = psrinfo -vp
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -vp
+          computes:
+            # Send psrinfo'soutput through awk $embedded.EmbeddedFile(1)$
+            # cpuID;cpuModel;cpuSpeed
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # Instance table = source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = psrinfo -vp
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -vp
+          computes:
+            # Send psrinfo'soutput through awk $embedded.EmbeddedFile(1)$
+            # cpuID;cpuModel;cpuSpeed
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        cpuID = 0;
+    }
+    /clock [0-9]+ MHz\)/ {
+        printf("MSHW;%d;%s;%d\n", cpuID, $1, $(NF-1));
+        cpuID++;
+    }
+  EmbeddedFile(3): |-
+    ($1 == "Status" && $3 == "processor") {
+            processorId = $4
+            processorStatus = ""
+            processorType = ""
+            processorSpeed = ""
+    }
+
+    ($1 == "Status" && $3 == "virtual" && $4 == "processor") {
+            processorId = $5
+            processorStatus = ""
+            processorType = ""
+            processorSpeed = ""
+    }
+
+    ($1 == "Processor" && $2 == "has" && $3 == "been") {
+            processorStatus = $4
+    }
+
+    ($2 == "since") {
+            processorStatus = $1
+    }
+
+    ($3 == "since") {
+            processorStatus = $1 " " $2
+    }
+
+    ($1 == "The" && $3 == "processor" && $4 == "operates" && length(processorId) > 0) {
+            processorType = $2
+            processorSpeed = $6
+
+            print "MSHW;" processorId ";" processorType ";" processorSpeed ";" processorStatus
+
+            processorId = ""
+    }
+  EmbeddedFile(2): |-
+    BEGIN {
+        cpuID = 0;
+    }
+    /physical processor has [0-9]+.* virtual processors \([0-9\- ,]+\)/ {
+        gsub(",", " ");
+        split($0, temporaryList, "[\(\)]");
+        coreCount = split(temporaryList[2], coreArray, " ");
+        for (i=1; i<=coreCount; i++)
+        {
+            if (index(coreArray[i], "-") > 0)
+            {
+                split(coreArray[i], rangeArray, "-");
+                for (coreID=rangeArray[1]; coreID<=rangeArray[2]; coreID++)
+                {
+                    printf("MSHW;%d;%d\n", coreID, cpuID);
+                }
+            }
+            else
+            {
+                printf("MSHW;%d;%d\n", coreArray[i], cpuID);
+            }
+        }
+
+        cpuID++;
+    }
+translations:
+  cpuStatusInformationTranslationTable:
+    default: Unknown Status
+    powered: Powered off
+    faulted: Faulted
+    on-line: On-line
+    off-line: Off-line
+    no-intr: Non-interruptible
+  cpuStatusTranslationTable:
+    default: UNKNOWN
+    powered: failed
+    faulted: failed
+    on-line: ok
+    off-line: failed
+    no-intr: ok

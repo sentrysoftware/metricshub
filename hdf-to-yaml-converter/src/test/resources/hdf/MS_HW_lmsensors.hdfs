@@ -1,0 +1,334 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                  MS_HW_Sensors.hdf
+//
+//      Supports: Linux Machine sensors
+//                      Monitors: sensors
+//      Connects to: Lm_sensors
+//  Need enable /etc/sudoers NOPASSWD for sensors and dmidecode
+//  patrol  ALL=(ALL:ALL) NOPASSWD: /usr/bin/sensors
+//  patrol  ALL=(ALL:ALL) NOPASSWD: /usr/sbin/dmidecode
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="lm_sensors"
+hdf.TypicalPlatform="Any system"
+hdf.ReliesOn="lm_sensors"
+hdf.Comments="Provides the monitoring environment sensors on Linux, through the sensors command."
+hdf.Version="1.1"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux"
+
+//
+// DETECTION
+//
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="Linux"
+
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="%{SUDO:/usr/bin/sensors} /usr/bin/sensors -h"
+Detection.Criteria(2).ExpectedResult="Usage: sensors "
+Detection.Criteria(2).ErrorMessage="lm_sensors is not installed on this server."
+
+
+//Detection.Criteria(3).Type="OSCommand"
+//Detection.Criteria(3).CommandLine="%{SUDO:sensors} sensors -j"
+//Detection.Criteria(3).ExpectedResult="{"
+//Detection.Criteria(3).ErrorMessage="Verify sensors Version >= 3.6"
+
+//
+// SUDO-able commands
+//
+Sudo(1).Command="/usr/sbin/dmidecode"
+Sudo(2).Command="/usr/bin/sensors"
+
+//
+// NO COMPUTER
+//
+
+// Discovery Enclosure
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="%{SUDO:/usr/sbin/dmidecode} /usr/sbin/dmidecode -t system"
+
+// "MSHW;"Manufacturer";"Type";"SN";"
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+
+Enclosure.Discovery.Source(2).Type="OsCommand"
+Enclosure.Discovery.Source(2).CommandLine="%{SUDO:/usr/sbin/dmidecode} /usr/sbin/dmidecode -t bios"
+
+// "MSHW;"Bios Info"
+Enclosure.Discovery.Source(2).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(2)
+Enclosure.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(2).Compute(1).Separators=";"
+// "MSHW;"Manufacturer";"Type";"SN";"
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).LeftKeyColumn="1"
+Enclosure.Discovery.Source(3).RightKeyColumn="1"
+
+// Enclosure Instance Table
+// "MSHW;"Name";"Type";"SN";""MSHW;"Bios Info"
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Instance.DeviceID="Computer"
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Type="Computer"
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.BiosVersion=InstanceTable.Column(6)
+//  NO Collection
+
+
+
+// Discovery Temperature
+Temperature.Discovery.Source(1).Type="OsCommand"
+Temperature.Discovery.Source(1).CommandLine="%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
+
+
+Temperature.Discovery.Source(1).Compute(1).Type="Awk"
+Temperature.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+Temperature.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Discovery.Source(1).Compute(1).Separators=";"
+//Temperature.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// Temperature Instance Table
+// "MSHW;"Name";"Type";"Value";"Max";"Critical";"
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+//Temperature.Discovery.Instance.TemperatureType="CPU"
+Temperature.Discovery.Instance.AttachedToDeviceID="Computer"
+Temperature.Discovery.Instance.AttachedToDeviceType="Enclosure"
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(5)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(6)
+// Collection
+
+// Collection Type
+Temperature.Collect.Type="MultiInstance"
+
+Temperature.Collect.Source(1).Type="OsCommand"
+Temperature.Collect.Source(1).CommandLine="%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
+
+Temperature.Collect.Source(1).Compute(1).Type="Awk"
+Temperature.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+Temperature.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Collect.Source(1).Compute(1).Separators=";"
+//Temperature.Collect.Source(1).Compute(1).SelectColumns="3,4"
+
+
+// Temperature Value Table
+// "MSHW;"Name";"Type";"Value";"Max";"Critical";"
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+//Temperature.Collect.Status=ValueTable.Column(3)
+//Temperature.Collect.StatusInformation=ValueTable.Column(4)
+Temperature.Collect.Temperature=ValueTable.Column(4)
+
+
+
+//
+// Voltage
+//
+
+
+// Discovery Voltage
+Voltage.Discovery.Source(1).Type="OsCommand"
+Voltage.Discovery.Source(1).CommandLine="%{SUDO:/usr/bin/sensors} /usr/bin/sensors -A"
+
+
+Voltage.Discovery.Source(1).Compute(1).Type="Awk"
+Voltage.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Voltage.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Voltage.Discovery.Source(1).Compute(1).Separators=";"
+
+
+// Voltage Instance Table
+// "MSHW;"Name";"Type";"Value";Lower";"Upper";"
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Voltage.Discovery.Instance.AttachedToDeviceID="Computer"
+Voltage.Discovery.Instance.AttachedToDeviceType="Enclosure"
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(5)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(6)
+Voltage.Discovery.Instance.VoltageType="Planar"
+
+// Collection
+
+// Collection Type
+Voltage.Collect.Type="MultiInstance"
+
+Voltage.Collect.Source(1).Type="OsCommand"
+Voltage.Collect.Source(1).CommandLine="%{SUDO:/usr/bin/sensors} /usr/bin/sensors -A"
+
+Voltage.Collect.Source(1).Compute(1).Type="Awk"
+Voltage.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Voltage.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Voltage.Collect.Source(1).Compute(1).Separators=";"
+
+
+// Voltage Value Table
+// "MSHW;"Name";"Type";"Value";
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Voltage=ValueTable.Column(4)
+
+
+//
+// FAN
+//
+
+
+// Discovery FAN
+Fan.Discovery.Source(1).Type="OsCommand"
+Fan.Discovery.Source(1).CommandLine="%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
+
+
+Fan.Discovery.Source(1).Compute(1).Type="Awk"
+Fan.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+Fan.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(1).Compute(1).Separators=";"
+
+
+// FAN Instance Table
+// ""MSHW;"DName"-"FName";"Value";"Min";"Max";"Alarm";"
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Fan.Discovery.Instance.AttachedToDeviceID="Computer"
+Fan.Discovery.Instance.AttachedToDeviceType="Enclosure"
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(5)
+Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(6)
+Fan.Discovery.Instance.FanType="Planar"
+
+// Collection
+
+// Collection Type
+Fan.Collect.Type="MultiInstance"
+
+Fan.Collect.Source(1).Type="OsCommand"
+Fan.Collect.Source(1).CommandLine="%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
+
+Fan.Collect.Source(1).Compute(1).Type="Awk"
+Fan.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+Fan.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Collect.Source(1).Compute(1).Separators=";"
+
+
+// Voltage Value Table
+// "MSHW;"Name";"Type";"Value";
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Speed=ValueTable.Column(3)
+
+// Awk only for Enclosure dmidecode -t system
+// "MSHW;"Manufacturer";"Type";"SN";"
+EmbeddedFile(1):
+BEGIN {
+        FS=":" ; Manufacturer="" ; Type=""
+}
+{
+if ( $1 ~  /Manufacturer/ )  { Manufacturer = $2; }
+if  ($1 ~ /Product Name/ ) { Type = $2 }
+if ($1 ~ /Serial Number/ ) {SN = $2 ;  print ("MSHW;"Manufacturer";"Type";"SN";" ); }
+}
+EmbeddedFile(1).End
+
+// Awk only for Enclosure dmidecode -t bios
+// "MSHW;"Bios Info"
+EmbeddedFile(2):
+BEGIN {
+        FS=":" ; Vendor="" ; Version =""; Date=""
+}
+{
+if ( $1 ~  /Vendor/ ) { Vendor = $2; }
+if  ($1 ~ /Version/ ) { Version = $2 ; }
+if  ($1 ~ /Release Date/ ) { Date = $2 ; print("MSHW;""Vendor:"Vendor " Version:" Version " Date:" Date) }
+}
+EmbeddedFile(2).End
+
+// Awk only for temperature
+// "MSHW;"Name";"Type";"Value";"Max";"Critical";"
+
+EmbeddedFile(3):
+BEGIN {
+        Name="" ; Type="" ; Sensor=""; Value="";Max="";Critical=""; TEMP=0
+}
+{
+if(NF == 1 && $0 !~ /:/)  {Name = $1}
+if(NF == 1 && $0 ~ /:/ && TEMP == 1 ) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP =0 }
+if(NF == 1 && $0 ~ /:/ && TEMP == 0) {Type = $0; gsub(/:/,"",Type)}
+if(NF == 2 && $2 ~ /:/ && TEMP == 1) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical = ""; TEMP=0}
+if(NF == 2 && $2 ~ /:/ && TEMP == 0) {Type = $0; gsub(/:/,"",Type); gsub(" ","",Type)}
+if(NF == 2 && $1 ~ /temp/) { Sensor = $1 ; gsub(/:/,"",Sensor) ;
+        if ($1 ~ /temp[0-9]_input:/ || $1 ~ /temp[0-9][0-9]_input:/) { Value = $2; TEMP=1 }
+        if ($1 ~ /temp[0-9]_max:/ || $1 ~ /temp[0-9][0-9]_max:/) { Max = $2; if (Max <=0) {Max=""}}
+        if ($1 ~ /temp[0-9]_crit:/ || $1 ~ /temp[0-9][0-9]_crit:/&& length($1) == 11 ) { Critical = $2 ; if (Critical <=0) {Critical = ""};
+                if ( Max == Value && Value == Critical) { Max = ""; Critical = ""}
+                if ( Max == Critical && Max > 0) { Max = Max - Critical/10 }
+                if ( Max == 0 && Critical > 0 ) { Max = Critical - Critical/10 }
+                print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical ="" ; TEMP=0}
+     }
+if(NF == 1 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
+if(NF == 0 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
+if(NF >= 3 && TEMP ==1 && $0 !~ /temp/)  {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0}
+if(NF >= 3 && $0 !~ /temp/)  {Type = $0; gsub(/:/,"",Type)}
+}
+END { if (TEMP == 1) {print ("MSHW;"Name"-"Type";"Type";"Value";"Max";"Critical";"); Value = ""; Max = ""; Critical =""; TEMP=0} }
+EmbeddedFile(3).End
+
+
+// Awk only for Voltages
+// "MSHW;"Name";"Type";"Value";
+EmbeddedFile(4):
+BEGIN {
+        FS=" " ; Name="" ; Type="" ; Unit=""; Value=""; Lower=""; Upper=""
+}
+{
+if(NF == 1 && $0 !~ /:/) {Name = $1}
+
+if ($3 ~ /V/ ) {Value= $2 ; Unit= $3 ; if (Unit == "V") { Value=Value*1000}
+         Lower=$6; gsub(/\+/,"",Lower); if (Lower == 0) {Lower=""};
+         Upper=$10; gsub(/\+/,"",Upper); if (Upper == 0) {Upper=""} else {Upper = Upper*1000};
+         {Type = $1; gsub(/:/,"",Type)};
+          print ("MSHW;"Name"-"Type";"Type";" Value ";"Lower";"Upper";")}
+}
+EmbeddedFile(4).End
+
+
+// Awk only for FAN
+// "MSHW;"Name";"Type";"Value";
+EmbeddedFile(5):
+BEGIN {
+
+         DName="" ;  FName="" ; Value=""; Min=""; Max=""; Alarm=""
+}
+{
+if(NF == 1 && $1 !~ /:/)  {DName = $1}
+if(NF == 1 && $1 ~ /fan/ && $1 ~ /:/)  {FName = $1 ; gsub(/:/,"",FName)}
+if(NF == 2) {
+        if ($1 ~ /fan[0-9]_input/) { Value = $2 ; if (Value <= 0) {Value=""}}
+        if ($1 ~ /fan[0-9]_min/ ) { Min = $2 ; if (Min <= 0) {Min=""}}
+        if ($1 ~ /fan[0-9]_max/ ) { Max = $2 ; if (Max <= 0) {Max=""}}
+        if ($1 ~ /fan[0-9]_alarm/) { Alarm = $2 ; if (Alarm <= 0) {Alarm =""}}
+        if ($1 ~ /fan[0-9]_pulses/  ) {
+                print ("MSHW;"DName"-"FName";"Value";"Min";"Max";"Alarm";")}
+     }
+}
+EmbeddedFile(5).End

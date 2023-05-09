@@ -1,0 +1,194 @@
+---
+connector:
+  displayName: Motherboard Monitor
+  platforms: Any system with Motherboard Monitor
+  reliesOn: Motherboard Monitor
+  version: 1.1
+  information: This connector provides hardware monitoring through Motherboard Monitor version 5.x which supports almost all non-branded PCs under Windows.
+  detection:
+    appliesTo:
+    - NT
+    criteria:
+    - type: deviceType
+      keep:
+      - NT
+    - type: process
+      commandLine: "MBM[5-9]\\.exe"
+    - type: osCommand
+      commandLine: MS_HW_MBMClient.exe
+      expectedResult: Connected to MBM
+      errorMessage: |-
+        Unable to connect to MBM although Motherboard Monitor seems to be running.
+        Please check that MBM is properly running or that MS_HW_MBMClient.Exe is properly installed.
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Trick: Computer.Discovery.Source(1) will contain the output
+          # of MS_HW_MBMClient and will be used by all the other discoveries:
+          # Fans, Temperatures and Voltages
+          # We do that in order to save up MBMClient calls
+          # DeviceID;Type;Label;Value;Threshold1;Threshold2
+          type: osCommand
+          commandLine: MS_HW_MBMClient.exe
+          keep: "^[0-9][0-9]*;"
+          separators: ;
+          selectColumns: "1,2,3,4,5,6"
+      mapping:
+        # No instance table. All values are hardcoded
+        source: any
+        attributes:
+          id: MBM
+          vendor: ""
+          model: X86-based PC
+          type: Computer
+          name: "sprintf(\"Computer: (%s %s)\", \"\", \"X86-based PC\")"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) is a copy of Computer.Discovery.Source(1)
+          # It's not necessary to re-execute MS_HW_MBMClient.exe
+          # Just have to filter the temperature lines
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: temperature
+      mapping:
+        # The instance table
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          sensor_location: ""
+          hw.parent.type: enclosure
+          hw.parent.id: MBM
+          name: "sprintf(\"%s (%s)\", $column(3), \"\")"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
+    collect:
+      # Collect type: MultiInstance (of course, one MBMClient call is enough to get
+      # all the hardware information
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the Temperatures lines of MS_HW_MBMClient.exe
+          # DeviceID;TemperatureValue
+          type: osCommand
+          commandLine: MS_HW_MBMClient.exe
+          keep: "^[0-9][0-9]*;Temperature;"
+          separators: ;
+          selectColumns: "3,4"
+      mapping:
+        # The value table
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) is a copy of Computer.Discovery.Source(1)
+          # It's not necessary to re-execute MS_HW_MBMClient.exe
+          # Just have to filter the voltage lines
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: voltage
+          # Convert volts to millivolts
+          - type: multiply
+            column: 5
+            value: 1000
+          # Convert volts to millivolts
+          - type: multiply
+            column: 6
+            value: 1000
+      mapping:
+        # The instance table
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          sensor_location: ""
+          hw.parent.type: enclosure
+          hw.parent.id: MBM
+          name: "sprintf(\"%s (%s)\", $column(3), \"\")"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(5)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+    collect:
+      # Collect type: MultiInstance (of course, one MBMClient call is enough to get
+      # all the hardware information
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the Voltage lines of MS_HW_MBMClient.exe
+          # DeviceID;Voltage
+          type: osCommand
+          commandLine: MS_HW_MBMClient.exe
+          keep: "^[0-9][0-9]*;Voltage;"
+          separators: ;
+          selectColumns: "3,4"
+          computes:
+          # Convert volts to millivolts
+          - type: multiply
+            column: 2
+            value: 1000
+      mapping:
+        # The value table
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) is a copy of Computer.Discovery.Source(1)
+          # It's not necessary to re-execute MS_HW_MBMClient.exe
+          # Just have to filter the Fan lines
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: fan
+      mapping:
+        # The instance table
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          sensor_location: ""
+          hw.parent.type: enclosure
+          hw.parent.id: MBM
+          name: "sprintf(\"%s (%s)\", $column(3), \"\")"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(5)
+    collect:
+      # Collect type: MultiInstance (of course, one MBMClient call is enough to get
+      # all the hardware information
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the Fan lines of MS_HW_MBMClient.exe
+          # DeviceID;FanSpeed
+          type: osCommand
+          commandLine: MS_HW_MBMClient.exe
+          keep: "^[0-9][0-9]*;Fan;"
+          separators: ;
+          selectColumns: "3,4"
+      mapping:
+        # The value table
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(2)
+  power_supply:
+    discovery:
+      mapping:
+        # No power supply in MBM
+        source: ""

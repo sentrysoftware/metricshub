@@ -1,0 +1,162 @@
+---
+extends:
+- EMCNavisphereCLI-header
+connector:
+  displayName: EMC Celerra/VNX Unified System (SSH)
+  platforms: "EMC Celerra,EMC VNX Unified"
+  reliesOn: EMC naviseccli and nas_inventory utilities
+  information: This connector provides hardware monitoring by connecting to the Control Server of EMC Celerra and EMC VNX Unified Systems.
+  detection:
+    connectionTypes:
+    - local
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - EMCuemcli
+    - EMCNavisphereCLI
+    - EMCNavisphereCLIGlobal
+    criteria:
+    # SSSU Should Exist
+    - type: osCommand
+      commandLine: /nas/bin/nas_inventory
+      errorMessage: nas_inventory command not found
+      expectedResult: Error 2100
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = EF2
+          # Note: A timeout here can indicate that there have been excessive failed authentication attempts
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(2)$ %{USERNAME} %{PASSWORD};history -d $((HISTCMD-1))"
+          timeout: 600
+        source(2):
+          # Need to copy this into Enclosure 3 to match other NaviSphere Connectors
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+        source(3):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(5)$
+    collect:
+      sources:
+        source(1):
+          # Source(1) = EF2
+          # Note: A timeout here can indicate that there have been excessive failed authentication attempts
+          type: osCommand
+          commandLine: "/bin/sh $embedded.EmbeddedFile(2)$ %{USERNAME} %{PASSWORD};history -d$((HISTCMD-1))"
+          timeout: 600
+        source(2):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+        source(3):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+embedded:
+  EmbeddedFile(2): |-
+    #!/bin/bash
+    testCredentials () {
+        output=`/opt/Navisphere/bin/naviseccli -User $username -Password $password -Address $address -Scope $scope getagent`
+        if [ $? -eq 0 ]; then
+            serviceprocessor=$address
+            echo -e 'scope\t' $scope > ~/MS_HW_navispherecli
+            echo -e 'address\t' $address >> ~/MS_HW_navispherecli
+        else
+            erroroutput+=" username=$username \n scope=$scope \n address=$address \n $output \n\n"
+        fi
+        }
+
+
+    #Main
+    echo MS_HW_NAS_INVENTORY_START
+    /nas/bin/nas_inventory -info -all
+    echo MS_HW_NAS_INVENTORY_END
+
+    username=$1
+    password=$2
+
+    if [[ $username =~ "USERNAME" ]]; then
+        echo MS_HW_NAS_Not_Compatible
+        exit
+    fi
+
+    # See if we've already run the tests and know the answer
+    scope=`grep -i scope ~/MS_HW_navispherecli | cut -f 2`
+    address=`grep -i address ~/MS_HW_navispherecli | cut -f 2`
+    if [ -z "$scope" ]; then
+        testCredentials
+    fi
+
+    # Run tests to find a working service processor address
+    if [ -z "$serviceprocessor" ]; then
+        # SPA Host File, Scope 0 (Global)
+        address=`grep -i SPA /etc/hosts | cut -f 1 -d " "| cut -f 1`
+        scope=0
+        testCredentials
+    fi
+    if [ -z "$serviceprocessor" ]; then
+        # SPA Host File, Scope 1 (Global)
+        address=`grep -i SPA /etc/hosts | cut -f 1 -d " "| cut -f 1`
+        scope=1
+        testCredentials
+    fi
+    if [ -z "$serviceprocessor" ]; then
+        # SPA Host File, Scope 2 (LDAP)
+        address=`grep -i SPA /etc/hosts | cut -f 1 -d " "| cut -f 1`
+        scope=2
+        testCredentials
+    fi
+    if [ -z "$serviceprocessor" ]; then
+        # SPB Host File, Scope 0 (Global)
+        address=`grep -i SPB /etc/hosts | cut -f 1 -d " "| cut -f 1`
+        scope=0
+        testCredentials
+    fi
+    if [ -z "$serviceprocessor" ]; then
+        # SPB Host File, Scope 1 (Global)
+        address=`grep -i SPB /etc/hosts | cut -f 1 -d " "| cut -f 1`
+        scope=1
+        testCredentials
+    fi
+    if [ -z "$serviceprocessor" ]; then
+        # SPB Host File, Scope 2 (LDAP)
+        address=`grep -i SPB /etc/hosts | cut -f 1 -d " "| cut -f 1`
+        scope=2
+        testCredentials
+    fi
+
+    # If we have good credentials, run the commands
+    if [ -n "$serviceprocessor" ]; then
+        /opt/Navisphere/bin/naviseccli -User $username -Password $password -Address $serviceprocessor -Scope $scope getall
+        /opt/Navisphere/bin/naviseccli -User $username -Password $password -Address $serviceprocessor -Scope $scope storagepool -list
+        if [ -f ~/MS_HW_NaviSphereCLI_Failure3 ]; then
+        echo MS_HW_NAS_NaviSphereCLI_OK
+        rm -f ~/MS_HW_NaviSphereCLI_Failure3
+        fi
+        if [ -f ~/MS_HW_NaviSphereCLI_Failure2 ]; then
+        echo MS_HW_NAS_NaviSphereCLI_OK
+        mv ~/MS_HW_NaviSphereCLI_Failure2 ~/MS_HW_NaviSphereCLI_Failure3
+        fi
+        if [ -f ~/MS_HW_NaviSphereCLI_Failure ]; then
+        echo MS_HW_NAS_NaviSphereCLI_OK
+        mv ~/MS_HW_NaviSphereCLI_Failure ~/MS_HW_NaviSphereCLI_Failure2
+        fi
+    else
+    # Echo error output
+        echo -e $erroroutput
+        echo -e $erroroutput > ~/MS_HW_NaviSphereCLI_Failure
+    # If we get excessive failed authentication attempts, then we want the collect to fail with a timeout to avoid lots of missings
+        if [[ $erroroutput =~ "excessive failed authentication attempts" ]] ; then
+            echo MS_HW_NAS_Authentication_blocked
+        elif [[ $erroroutput =~ "Authentication failed" ]] ; then
+            echo MS_HW_NAS_Authentication_failed
+        elif grep -i SP[AB] /etc/hosts; then
+            echo MS_HW_NAS_No_SP_In_Hosts
+        else
+            echo MS_HW_NAS_NaviSphereCLI_Failure
+        fi
+
+    fi

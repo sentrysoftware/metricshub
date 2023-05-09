@@ -1,0 +1,132 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                  Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: Hyper-V servers
+//                Uses PowerShell cmdlets to gather information
+//
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="Hyper-V"
+hdf.TypicalPlatform="Hyper-V Servers"
+hdf.ReliesOn="PowerShell"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring through Hyper-V PowerShell cmdlets. The user requires Hyper-V Administrators membership."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT"
+
+//
+// DETECTION
+
+// Verifying that the KMVersion is 11.3.00 or above, as the VM class did not exist prior to that version
+
+Detection.Criteria(1).Type="KMVersion"
+Detection.Criteria(1).Version="11.3.00"
+
+// Launches a PowerShell Command to see if this device contains Hyper-V VMs
+
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="Powershell.exe Get-VM"
+Detection.Criteria(2).ExpectedResult="State"
+
+//
+// VM
+//
+
+// Source (1)
+// ID; GUID
+
+VM.Discovery.Source(1).Type="OsCommand"
+VM.Discovery.Source(1).CommandLine="PowerShell.exe "Get-VM | Select-Object VMName, Id | ConvertTo-CSV -Delimiter ';'""
+VM.Discovery.Source(1).RemoveHeader=3
+
+// Remove quotation marks from output for all columns
+
+VM.Discovery.Source(1).Compute(1).Type="Replace"
+VM.Discovery.Source(1).Compute(1).Column=1
+VM.Discovery.Source(1).Compute(1).Replace=""""
+VM.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+// Remove quotation marks from output
+
+VM.Discovery.Source(1).Compute(2).Type="Replace"
+VM.Discovery.Source(1).Compute(2).Column=2
+VM.Discovery.Source(1).Compute(2).Replace=""""
+VM.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// Add "GUID: " to AdditionalInformation1
+
+VM.Discovery.Source(1).Compute(3).Type="LeftConcat"
+VM.Discovery.Source(1).Compute(3).Column=2
+VM.Discovery.Source(1).Compute(3).String="GUID: "
+
+// InstanceTable = source (1)
+// ID; GUID
+
+VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
+VM.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+VM.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+VM.Discovery.Instance.Hostname=InstanceTable.Column(1)
+VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+VM.Discovery.Instance.ParameterActivation.PowerConsumption=0
+
+// Collect
+
+VM.Collect.Type="MultiInstance"
+
+// ID; processorCount; state
+
+VM.Collect.Source(1).Type="OsCommand"
+VM.Collect.Source(1).CommandLine="PowerShell.exe "Get-VM | Select-Object VMName, ProcessorCount, State | ConvertTo-CSV -Delimiter ';'""
+VM.Collect.Source(1).RemoveHeader=3
+
+// Remove quotation marks from output for all columns
+
+VM.Collect.Source(1).Compute(1).Type="Replace"
+VM.Collect.Source(1).Compute(1).Column=1
+VM.Collect.Source(1).Compute(1).Replace=""""
+VM.Collect.Source(1).Compute(1).ReplaceBy=""
+
+VM.Collect.Source(1).Compute(2).Type="Replace"
+VM.Collect.Source(1).Compute(2).Column=2
+VM.Collect.Source(1).Compute(2).Replace=""""
+VM.Collect.Source(1).Compute(2).ReplaceBy=""
+
+VM.Collect.Source(1).Compute(3).Type="Replace"
+VM.Collect.Source(1).Compute(3).Column=3
+VM.Collect.Source(1).Compute(3).Replace=""""
+VM.Collect.Source(1).Compute(3).ReplaceBy=""
+
+// Translate state to recognized values
+
+VM.Collect.Source(1).Compute(4).Type="Translate"
+VM.Collect.Source(1).Compute(4).Column=3
+VM.Collect.Source(1).Compute(4).TranslationTable="stateTranslationTable"
+
+// ValueTable = source (1)
+// ID; processorCount; state
+
+VM.Collect.ValueTable=%VM.Collect.Source(1)%
+VM.Collect.DeviceID=ValueTable.Column(1)
+VM.Collect.Powershare=ValueTable.Column(2)
+VM.Collect.PowerState=ValueTable.Column(3)
+
+// Translation Table
+
+stateTranslationTable("Running")="ON"
+stateTranslationTable("OffCritical")="OFF"
+stateTranslationTable("Off")="OFF"
+stateTranslationTable("Suspended")="SUSPENDED"
+stateTranslationTable(default)="OFF"

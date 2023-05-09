@@ -1,0 +1,485 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                  Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: Eaton PDU
+//                Connects to an SNMP agent
+//
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="Eaton PDU (SNMP)"
+hdf.TypicalPlatform="Eaton PDU"
+hdf.ReliesOn="PDU SNMP Enabled"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring through Eaton PDU SNMP interface. Data gathered includes temperature, inlet/outlet voltages, and power consumption."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+//
+// DETECTION
+// Does a SnmpGet to see if this device is an Eaton PDU device
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGet="1.3.6.1.4.1.534.6.6.7.1.2.1.3.0"
+Detection.Criteria(1).ExpectedResult="."
+
+//
+// Enclosure
+//
+
+// Source(1)
+// model; serialNumber; firmwareVersion; ID;
+
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.1.2.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="3,4,5,6"
+
+// Add "Firmware Version: " to firmwareVersion
+
+Enclosure.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column=3
+Enclosure.Discovery.Source(1).Compute(1).String="Firmware Version: "
+
+// InstanceTable = Source(1)
+// model; serialNumber; firmwareVersion; ID;
+
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Vendor="Eaton"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type="PDU"
+
+// Collect
+// Collect type = mono-instance
+
+Enclosure.Collect.Type="MonoInstance"
+
+// ID; status; status;
+
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.1.2.1"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="6,31,31"
+
+// Add an identifier to enable table Joints
+// MSHW; ID; status; status;
+
+Enclosure.Collect.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(1).Compute(1).Column=1
+Enclosure.Collect.Source(1).Compute(1).String="MSHW;"
+
+// Translate status into statusInformation
+// MSHW; ID; status; statusInformation;
+
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=3
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// Translate status into statusInformation
+// MSHW; ID; status; statusInformation;
+
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column=4
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+// Source(2) = Inlet Power Consumption;
+// inletPowerConsumption;
+
+Enclosure.Collect.Source(2).Type="SnmpGet"
+Enclosure.Collect.Source(2).SnmpOid="1.3.6.1.4.1.534.6.6.7.3.4.1.4.0.1.1"
+
+// Add an identifier to enable table Joints
+// MSHW; inletPowerConsumption;
+
+Enclosure.Collect.Source(2).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(2).Compute(1).Column=1
+Enclosure.Collect.Source(2).Compute(1).String="MSHW;"
+
+// Source(3) = Outlet Power Consumption;
+// outletPowerConsumption;
+
+Enclosure.Collect.Source(3).Type="SnmpTable"
+Enclosure.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.6.5.1"
+Enclosure.Collect.Source(3).SnmpTableSelectColumns="3"
+
+// Add an identifier to enable table Joints
+// MSHW; outletPowerConsumption;
+
+Enclosure.Collect.Source(3).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(3).Compute(1).Column=1
+Enclosure.Collect.Source(3).Compute(1).String="MSHW;"
+
+// TableJoin of Source(2) and Source(3) into Source(4)
+// MSHW; inletPowerConsumption; MSHW; outletPowerConsumption;
+
+Enclosure.Collect.Source(4).Type="TableJoint"
+Enclosure.Collect.Source(4).LeftTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(4).RightTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(4).LeftKeyColumn=1
+Enclosure.Collect.Source(4).RightKeyColumn=1
+Enclosure.Collect.Source(4).DefaultRightLine="MSHW;;"
+
+// Use of awk script to calculate the overall power consumption or return an empty string if either output or input is empty
+// MSHW; powerConsumption;
+
+Enclosure.Collect.Source(4).Compute(1).Type="Awk"
+Enclosure.Collect.Source(4).Compute(1).AwkScript=EmbeddedFile(1)
+
+// TableJoin of Source(1) and Source(4) into Source(5)
+// MSHW; ID; status; statusInformation; MSHW; powerConsumption;
+
+Enclosure.Collect.Source(5).Type="TableJoint"
+Enclosure.Collect.Source(5).LeftTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(5).RightTable=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(5).LeftKeyColumn=1
+Enclosure.Collect.Source(5).RightKeyColumn=1
+
+// ValueTable = Source(5)
+// MSHW; ID; status; statusInformation; MSHW; powerConsumption;
+
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.Status=ValueTable.Column(3)
+Enclosure.Collect.StatusInformation=ValueTable.Column(4)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(6)
+
+//
+// Temperature
+//
+
+// Source(1) = EnclosureID
+// enclosureID;
+
+Temperature.Discovery.Source(1).Type="SnmpGet"
+Temperature.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.534.6.6.7.1.2.1.6.0"
+
+// Add an identifier to enable table Joints
+// MSHW; enclosureID;
+
+Temperature.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(1).Column=1
+Temperature.Discovery.Source(1).Compute(1).String="MSHW;"
+
+// Source(2) = Temperature Thresholds
+// ID; unitTempUpperWarning; unitTempUpperCritical;
+
+Temperature.Discovery.Source(2).Type="SnmpTable"
+Temperature.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.7.1.1"
+Temperature.Discovery.Source(2).SnmpTableSelectColumns="2,8,9"
+
+// Convert temperature thresholds into degrees Celsius from tenth of degrees Celsius
+
+Temperature.Discovery.Source(2).Compute(1).Type="Divide"
+Temperature.Discovery.Source(2).Compute(1).Column=2
+Temperature.Discovery.Source(2).Compute(1).DivideBy=10
+
+Temperature.Discovery.Source(2).Compute(2).Type="Divide"
+Temperature.Discovery.Source(2).Compute(2).Column=3
+Temperature.Discovery.Source(2).Compute(2).DivideBy=10
+
+// Add an identifier to enable table Joints
+// MSHW; ID; unitTempUpperWarning; unitTempUpperCritical;
+
+Temperature.Discovery.Source(2).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(3).Column=1
+Temperature.Discovery.Source(2).Compute(3).String="MSHW;"
+
+// Keep only lines that have a Temperature ID
+
+Temperature.Discovery.Source(2).Compute(4).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(2).Compute(4).Column=2
+Temperature.Discovery.Source(2).Compute(4).RegExp="."
+
+// Join the Enclosure ID with the collected data
+// MSHW; enclosureID; MSHW; ID; unitTempUpperWarning; unitTempUpperCritical;
+
+Temperature.Discovery.Source(3).Type="TableJoint"
+Temperature.Discovery.Source(3).LeftTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(3).RightTable=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Source(3).LeftKeyColumn=1
+Temperature.Discovery.Source(3).RightKeyColumn=1
+
+// Mapping to Instance table for source(3)
+// MSHW; enclosureID; MSHW; ID; unitTempUpperWarning; unitTempUpperCritical;
+
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(3)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(5)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(6)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.TemperatureType="Enclosure"
+
+// Collect
+// Collect type = mono-instance
+
+Temperature.Collect.Type="MonoInstance"
+
+// Source(1) = ID; temperature
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.7.1.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="2,4"
+
+// Convert temperature into degrees Celsius from tenth of degrees Celsius
+
+Temperature.Collect.Source(1).Compute(1).Type="Divide"
+Temperature.Collect.Source(1).Compute(1).Column=2
+Temperature.Collect.Source(1).Compute(1).DivideBy=10
+
+// ValueTable = Source(1)
+// ID; temperature;
+
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+
+//
+// Voltage
+//
+
+// Source(1) = EnclosureID
+// enclosureID;
+
+Voltage.Discovery.Source(1).Type="SnmpGet"
+Voltage.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.534.6.6.7.1.2.1.6.0"
+
+// Add an identifier to enable table Joints
+// MSHW; enclosureID;
+
+Voltage.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Voltage.Discovery.Source(1).Compute(1).Column=1
+Voltage.Discovery.Source(1).Compute(1).String="MSHW;"
+
+// Source(2) = Voltage thresholds
+// ; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(2).Type="SnmpTable"
+Voltage.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.3.2.1"
+Voltage.Discovery.Source(2).SnmpTableSelectColumns="6,8"
+
+// Add an identifier to enable table Joints
+// MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Voltage.Discovery.Source(2).Compute(1).Column=1
+Voltage.Discovery.Source(2).Compute(1).String="MSHW;"
+
+// Keep only lines with voltage Thresholds
+
+Voltage.Discovery.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(2).Compute(2).Column=2
+Voltage.Discovery.Source(2).Compute(2).RegExp="."
+
+// Source(3) = Join the Enclosure ID with the thresholds
+// MSHW; enclosureID; MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(3).Type="TableJoint"
+Voltage.Discovery.Source(3).LeftTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Source(3).RightTable=%Voltage.Discovery.Source(2)%
+Voltage.Discovery.Source(3).LeftKeyColumn=1
+Voltage.Discovery.Source(3).RightKeyColumn=1
+Voltage.Discovery.Source(3).DefaultRightLine="MSHW;;"
+
+// Source(4) = Copy of Source(3) for inletID
+// MSHW; enclosureID; MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(4)=%Voltage.Discovery.Source(3)%
+
+// Add an identifier to match outlet table as well as the inlet ID
+// MSHW; inletID; MSHW; enclosureID; MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(4).Compute(1).Type="LeftConcat"
+Voltage.Discovery.Source(4).Compute(1).Column=1
+Voltage.Discovery.Source(4).Compute(1).String="MSHW;Inlet;"
+
+// Source(5) = outletID
+// outletID;
+
+Voltage.Discovery.Source(5).Type="SnmpTable"
+Voltage.Discovery.Source(5).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.6.1.1"
+Voltage.Discovery.Source(5).SnmpTableSelectColumns="3"
+
+// Add an identifier to enable table Joints
+// MSHW; outletID;
+
+Voltage.Discovery.Source(5).Compute(1).Type="LeftConcat"
+Voltage.Discovery.Source(5).Compute(1).Column=1
+Voltage.Discovery.Source(5).Compute(1).String="MSHW;"
+
+// Source(6) = voltage (to verify if we should collect outlets)
+// voltage;
+
+Voltage.Discovery.Source(6).Type="SnmpTable"
+Voltage.Discovery.Source(6).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.6.3.1"
+Voltage.Discovery.Source(6).SnmpTableSelectColumns="2"
+
+// Add an identifier to enable table Joints
+// MSHW; voltage;
+
+Voltage.Discovery.Source(6).Compute(1).Type="LeftConcat"
+Voltage.Discovery.Source(6).Compute(1).Column=1
+Voltage.Discovery.Source(6).Compute(1).String="MSHW;"
+
+// Source(7) = Join all the information for the outlets
+// MSHW; inletID; MSHW; enclosureID; MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(7).Type="TableJoint"
+Voltage.Discovery.Source(7).LeftTable=%Voltage.Discovery.Source(5)%
+Voltage.Discovery.Source(7).RightTable=%Voltage.Discovery.Source(3)%
+Voltage.Discovery.Source(7).LeftKeyColumn=1
+Voltage.Discovery.Source(7).RightKeyColumn=1
+
+// Source(8) = Join all the information for the outlets
+// MSHW; inletID; MSHW; enclosureID; MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(8).Type="TableJoint"
+Voltage.Discovery.Source(8).LeftTable=%Voltage.Discovery.Source(5)%
+Voltage.Discovery.Source(8).RightTable=%Voltage.Discovery.Source(6)%
+Voltage.Discovery.Source(8).LeftKeyColumn=1
+Voltage.Discovery.Source(8).RightKeyColumn=1
+
+// Source(9) = Union of inlets and outlets
+// MSHW; outletID; MSHW; enclosureID; MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.Source(9).Type="TableUnion"
+Voltage.Discovery.Source(9).Table1=%Voltage.Discovery.Source(4)%
+Voltage.Discovery.Source(9).Table2=%Voltage.Discovery.Source(8)%
+
+// Mapping to Instance table for source(9)
+// MSHW; ID; MSHW; enclosureID; MSHW; lowerVoltageCritical; upperVoltageCritical;
+
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(9)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(6)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(7)
+Voltage.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+Voltage.Discovery.Instance.AttachedToDeviceType="Enclosure"
+
+// Collect
+// Collect type = multi-instance
+
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = Inlet Voltage
+// inletVoltage;
+
+Voltage.Collect.Source(1).Type="SnmpGet"
+Voltage.Collect.Source(1).SnmpOid="1.3.6.1.4.1.534.6.6.7.3.2.1.3.0.1.1"
+
+// Add an identifier to enable table Joints and Inlet ID
+// MSHW; inletID; MSHW; inletVoltage
+
+Voltage.Collect.Source(1).Compute(1).Type="LeftConcat"
+Voltage.Collect.Source(1).Compute(1).Column=1
+Voltage.Collect.Source(1).Compute(1).String="MSHW;Inlet;MSHW;"
+
+// Source(2) = Outlet ID
+// outletID;
+
+Voltage.Collect.Source(2).Type="SnmpTable"
+Voltage.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.6.1.1"
+Voltage.Collect.Source(2).SnmpTableSelectColumns="3"
+
+// Add an identifier to enable table Joints
+// MSHW; outletID;
+
+Voltage.Collect.Source(2).Compute(1).Type="LeftConcat"
+Voltage.Collect.Source(2).Compute(1).Column=1
+Voltage.Collect.Source(2).Compute(1).String="MSHW;"
+
+// Source(3) = Voltage
+// voltage;
+
+Voltage.Collect.Source(3).Type="SnmpTable"
+Voltage.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.534.6.6.7.6.1.1"
+Voltage.Collect.Source(3).SnmpTableSelectColumns="2"
+
+// Add an identifier to enable table Joints
+// MSHW; voltage;
+
+Voltage.Collect.Source(3).Compute(1).Type="LeftConcat"
+Voltage.Collect.Source(3).Compute(1).Column=1
+Voltage.Collect.Source(3).Compute(1).String="MSHW;"
+
+// Source(4) = Join all the information for the outlets
+// MSHW; outletID; MSHW; voltage;
+
+Voltage.Collect.Source(4).Type="TableJoint"
+Voltage.Collect.Source(4).LeftTable=%Voltage.Discovery.Source(2)%
+Voltage.Collect.Source(4).RightTable=%Voltage.Discovery.Source(3)%
+Voltage.Collect.Source(4).LeftKeyColumn=1
+Voltage.Collect.Source(4).RightKeyColumn=1
+
+// Source(5) = Union of inlets and outlets
+// MSHW; ID; MSHW; voltage;
+
+Voltage.Collect.Source(5).Type="TableUnion"
+Voltage.Collect.Source(5).Table1=%Voltage.Collect.Source(1)%
+Voltage.Collect.Source(5).Table2=%Voltage.Collect.Source(4)%
+
+// ValueTable = Source(5)
+// MSHW; ID; MSHW; voltage;
+
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(5)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Voltage=ValueTable.Column(4)
+
+//Enclosure Status Translation Table
+
+statusTranslationTable(0)="OK"
+statusTranslationTable(1)="ALARM"
+
+//Enclosure Status Translation Table
+
+statusInformationTranslationTable(0)="Good"
+statusInformationTranslationTable(1)="Internal Failure"
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that calculates the power consumption of the PDU
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+
+BEGIN { FS = ";"; powerConsumption=0;outletPowerSum=0;inletPower=0}
+
+
+# MSHW; inletPowerConsumption; MSHW; outletPowerConsumption;
+# Populate inlet power consumption and the sum of all outlet power consumption
+
+{inletPower = $2;}
+{outletPowerSum += $4;}
+
+# Calculate the overall power consumption (inlet - sum of outlets)
+
+END {
+  powerConsumption = inletPower - outletPowerSum;
+}
+
+# Print empty string if no outlet power consumption or difference if we have power consumption
+
+END {
+  if (outletPowerSum == 0)
+    print "MSHW;;"
+  else
+    print "MSHW;" + powerConsumption + ";";
+}
+
+EmbeddedFile(1).End

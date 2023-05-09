@@ -1,0 +1,298 @@
+---
+connector:
+  displayName: IBM AIX - SCSI disks
+  platforms: IBM POWER
+  reliesOn: "IBM AIX system commands (lsdev, pvdisplay, etc.)"
+  information: Provides hardware status information of the non-RAID SCSI physical disks on IBM AIX systems.
+  version: 1.2
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - RS6000
+    criteria:
+    # OS should be RS6000 (for AIX, whatever version)
+    - type: deviceType
+      keep:
+      - RS6000
+    # The various following tools have to be present
+    - type: osCommand
+      commandLine: which lsdev
+      expectedResult: /lsdev$
+sudoCommands:
+- /usr/bin/dd
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of lsdev -c disk
+          # diskDevicePath
+          type: osCommand
+          commandLine: /usr/sbin/lsdev -C -c disk -F 'class;location'
+          keep: ^disk;
+          separators: ;
+          selectColumns: 2
+          computes:
+            # Retrieve the controller device path from the disk device path
+            # controllerDevicePath; (may be several identical instances)
+          - type: substring
+            column: 1
+            start: 1
+            length: 5
+        source(2):
+          # Source(2) = output of lsdev -c adapter
+          # adapterDevicePath;DeviceID;HardwareLocationCode;displayName
+          type: osCommand
+          commandLine: /usr/sbin/lsdev -C -c adapter -F 'class;location;name;physloc;description'
+          keep: "^[Aa]dapter;"
+          separators: ;
+          selectColumns: "2,3,4,5"
+          computes:
+            # Keep only scsi[0-9]* disk controllers (not RAID or SSA)
+            # adapterDevicePath;DeviceID;HardwareLocationCode;displayName
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: "\\(^sisscsi[A-Za-z0-9]+$\\)\\|\\(^scsi[A-Za-z0-9]+$\\)\\|\\(^sisio[A-Za-z0-9]+$\\)\\|\\(^sissas[A-Za-z0-9]+$\\)"
+            # Add "Hardware Location Code: " to the HardwareLocationCode column
+            # adapterDevicePath;DeviceID;HardwareLocationCode;displayName
+          - type: leftConcat
+            column: 3
+            value: "Location: "
+        source(3):
+          # Source(3) = Table joint of Source(1) and Source(2)
+          # This jointure will make MSHW keep only adapters that are disk controllers
+          # with disks attached to them
+          # adapterDevicePath;DeviceID;HardwareLocationCode;displayName;controllerDevicePath
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(2)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(1)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # InstanceTable = Source(5)
+        source: $monitors.disk_controller.discovery.sources.source(3)$
+        attributes:
+          id: $column(2)
+          controller_number: $column(5)
+          model: $column(4)
+          info: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(5), $column(4))"
+    collect:
+      # Collect type is "mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = output of the pvdisplay command
+          # ErrorCount;LastError;
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(4)$ %DiskController.Collect.DeviceID%
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4,5"
+          computes:
+            # Translate the errorcount into a status (as errorcount does not exist for Disk Controllers)
+            # ErrorCount;LastError;
+          - type: translate
+            column: 1
+            translationTable: ErrorcounttoStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of lsdev -C -c disk
+          # diskName;diskPath;HardwareLocationCode
+          type: osCommand
+          commandLine: /usr/sbin/lsdev -C -c disk -F 'class;name;location;physloc'
+          keep: ^disk;
+          separators: ;
+          selectColumns: "2,3,4"
+          computes:
+            # Keep only the first 5 chars of the diskPath to obtain the diskControllerID
+            # DeviceID;controllerID;HardwareLocationCode
+          - type: substring
+            column: 2
+            start: 1
+            length: 5
+            # Add "Hardware Location Code:" to the HardwareLocationCode column
+            # DeviceID;controllerID;HardwareLocationCode
+          - type: leftConcat
+            column: 3
+            value: "Location: "
+        source(2):
+          # Source(2) = output of EmbeddedFile(1)
+          # DeviceID;Manufacturer;SerialNumber
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4"
+          timeout: 180
+        source(3):
+          # Source(3) = Table joint of Source(1) and Source(2)
+          # DeviceID;controllerID;HardwareLocationCode;DeviceID;Manufacturer;SerialNumber
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+        source(4):
+          # Source(4) = output of EmbeddedFile(2)
+          # DeviceID;SizeMB
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3"
+          timeout: 180
+          computes:
+            # Convert SizeMB into bytes
+            # DeviceID;Size
+          - type: multiply
+            column: 2
+            value: 1000000
+        source(5):
+          # Source(5) = Table joint of Source(3) and Source(4)
+          # DeviceID;controllerID;HardwareLocationCode;DeviceID;Manufacturer;SerialNumber;DeviceID;Size
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(3)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+        source(6):
+          # Source(6) = Table joint of Source(5) and DiskController.Discovery.Source(3)
+          # To keep only disks that have an existing disk controller
+          # DeviceID;controllerID;HardwareLocationCode;DeviceID;Manufacturer;SerialNumber;DeviceID;Size;controllerDevicePath;adapterDevicePath;DeviceID;ControllerHardwareLocationCode;displayName
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(5)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(3)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+      mapping:
+        # Now we are ready to go
+        # InstanceTable = Source(5)
+        source: $monitors.physical_disk.discovery.sources.source(6)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          vendor: $column(5)
+          serial_number: $column(6)
+          info: $column(3)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(5), $column(8))"
+        metrics:
+          hw.physical_disk.size: $column(8)
+    collect:
+      # Collect type is "mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = output of the pvdisplay command
+          # Status;StatusInformation;ErrorCount;LastError
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$ %PhysicalDisk.Collect.DeviceID%
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+embedded:
+  EmbeddedFile(1): |-
+    #!/bin/sh
+    for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`
+    do
+        /usr/sbin/lscfg -vp -l $DISK|/bin/tr "." " "|/usr/bin/awk -v diskId=$DISK 'BEGIN {
+            manufacturer = "";
+            fruNumber = "";
+            serialNumber = "";
+        }
+        /.*/ {
+            if ($1 == "Manufacturer")
+            {
+                manufacturer = $2;
+            }
+
+            if ($1 == "FRU" && $2 == "Number")
+            {
+                fruNumber = $3;
+            }
+
+            if ($1 == "Serial" && $2 == "Number")
+            {
+                serialNumber = $3;
+            }
+        }
+        END {
+            print "MSHW;" diskId ";" manufacturer ";" serialNumber " (FRU: " fruNumber ")"
+        }'
+    done
+  EmbeddedFile(3): |+
+    #!/bin/sh
+    LANG=C
+    export LANG
+
+    ERRORMESSAGE=`%{SUDO:/usr/bin/dd}/usr/bin/dd if=/dev/r$1 of=/dev/null count=20 2>&1`
+    if /usr/bin/test "$?" = "0" ; then
+        STATUS="OK;Working"
+    else
+        STATUS=`/usr/bin/echo $ERRORMESSAGE|/usr/bin/awk -F: '{
+                if ($3 ~ /ermission/)
+                {
+                    print "UNKNOWN;Insufficient privileges"
+                }
+                else if ($3 ~ /o such file/)
+                {
+                    print "UNKNOWN;" $3
+                }
+                else
+                {
+                    print "ALARM;" $3
+                }
+            }'`
+    fi
+    TODAY=`/usr/bin/date +%m%d0000%y`
+    ERRORCOUNT=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/tail -n +2|/usr/bin/wc -l|/usr/bin/awk '{print $1}'`
+    if /usr/bin/test $ERRORCOUNT -gt 0 ; then
+        LASTERROR=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/head -n 2|/usr/bin/tail -n 1|/usr/bin/awk '{printf $1 " ("; for (i=6 ; i<NF ; i++) { printf $i " " } print $NF ")"}'`
+    fi
+    /usr/bin/echo "MSHW;$STATUS;$ERRORCOUNT;$LASTERROR"
+    exit
+
+  EmbeddedFile(2): |-
+    #!/bin/sh
+    for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`
+    do
+        SIZE=`/usr/sbin/lscfg -vp -l $DISK|/usr/bin/awk -F "[() ]" '/hdisk.*[0-9]+ MB)/ { print $(NF-2) }'`
+        /bin/echo "MSHW;$DISK;$SIZE"
+    done
+  EmbeddedFile(4): |-
+    #!/bin/sh
+    LANG=C
+    export LANG
+    TODAY=`/usr/bin/date +%m%d0000%y`
+    ERRORCOUNT=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/tail -n +2|/usr/bin/wc -l|/usr/bin/awk '{print $1}'`
+    if /usr/bin/test $ERRORCOUNT -gt 0 ; then
+        LASTERROR=`/usr/bin/errpt -d H -s $TODAY -N $1|/usr/bin/head -n 2|/usr/bin/tail -n 1|/usr/bin/awk '{printf $1 " ("; for (i=6 ; i<NF ; i++) { printf $i " " } print $NF ")"}'`
+    fi
+    /usr/bin/echo "MSHW;$ERRORCOUNT;$LASTERROR"
+    exit
+translations:
+  ErrorcounttoStatusTranslationTable:
+    "0": ok
+    default: failed

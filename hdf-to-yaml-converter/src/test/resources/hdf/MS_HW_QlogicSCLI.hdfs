@@ -1,0 +1,244 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_QlogicSCLI.hdf
+//
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="QLogic HBAs (scli)"
+hdf.TypicalPlatform="Any system with QLogic"
+hdf.ReliesOn="QLogic's SCLI utility"
+hdf.Comments="This connector discovers QLogic HBAs of servers running Linux using the scli utility provided with the QLogic Drivers."
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux,Solaris"
+hdf.Supersedes="MS_HW_CpqHBA.hdf,MS_HW_SMISHBA.hdf"
+
+//
+// SUDO-able commands
+//
+Sudo(1).Command="scli"
+
+//
+// DETECTION
+//
+
+// OS should be Linux
+// Detection.Criteria(1).Type="OS"
+// Detection.Criteria(1).KeepOnly="Linux"
+
+// SCLI should be in the path
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="which scli"
+Detection.Criteria(1).ExpectedResult="/scli$"
+
+// Test the scli command
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="%{SUDO:scli} scli -g"
+Detection.Criteria(2).ExpectedResult="Total QLogic HBA(s) : [1-9]"
+
+//
+// FC (Network Cards)
+//
+
+//
+// Discovery
+
+// Get the list of Ports from SCLI -i -x2
+//
+NetworkCard.Discovery.Source(1).Type="OsCommand"
+NetworkCard.Discovery.Source(1).CommandLine="%{SUDO:scli} scli -i -x2"
+
+// AWK it
+// PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7,8"
+
+// Exclude Ports with SFP not Installed
+// PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+NetworkCard.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(2).Column=7
+NetworkCard.Discovery.Source(1).Compute(2).ValueList="SFP not installed,Disable"
+
+// Convert Speed from Gbps to Mbps (multiply by 1000)
+// PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+NetworkCard.Discovery.Source(1).Compute(3).Type="Multiply"
+NetworkCard.Discovery.Source(1).Compute(3).Column=4
+NetworkCard.Discovery.Source(1).Compute(3).MultiplyBy=1000
+
+// InstanceTable = Source(1)
+// PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.Vendor="QLogic"
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.BandWidth=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(5)
+
+//
+// Collect
+
+// The NetworkCard collect is a "MultiInstance" collect
+NetworkCard.Collect.Type="MultiInstance"
+
+// Get the list of Ports and Status from SCLI -i -x2
+//
+NetworkCard.Collect.Source(1).Type="OsCommand"
+NetworkCard.Collect.Source(1).CommandLine="%{SUDO:scli} scli -i -x2"
+
+// AWK it
+// PortID;Speed;Status;
+NetworkCard.Collect.Source(1).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+NetworkCard.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(1).Compute(1).Separators=";"
+NetworkCard.Collect.Source(1).Compute(1).SelectColumns="2,5,8"
+
+// Duplicate Staus Column
+// PortID;Speed;Status;Status;Status;
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column=3
+NetworkCard.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(3).Column=3
+
+// Translate Network Status
+// PortID;Speed;PatrolStatus;Status;Status;
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=3
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="NetworkStatusTranslationTable"
+
+// The NetworkStatusTranslationTable
+NetworkStatusTranslationTable("SFP not installed")="ALARM"
+NetworkStatusTranslationTable("Online")="OK"
+NetworkStatusTranslationTable("Link Down")="OK"
+NetworkStatusTranslationTable("Loop Down")="OK"
+NetworkStatusTranslationTable("System Error")="OK"
+NetworkStatusTranslationTable("Lip occurred")="WARN"
+NetworkStatusTranslationTable("Link Up")="OK"
+NetworkStatusTranslationTable("Loop Up")="OK"
+NetworkStatusTranslationTable("Port update")="OK"
+NetworkStatusTranslationTable("Currently Up")="OK"
+NetworkStatusTranslationTable("Disable")="ALARM"
+NetworkStatusTranslationTable("Alt WWN sctive")="OK"
+NetworkStatusTranslationTable("Send link down update")="OK"
+NetworkStatusTranslationTable("Send loop down update")="OK"
+NetworkStatusTranslationTable("Unknown")="UNKNOWN"
+NetworkStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate Network Status Information
+// PortID;Speed;PatrolStatus;StatusInformation;Status;
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=4
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="NetworkStatusInfoTranslationTable"
+
+// The NetworkStatusInfoTranslationTable
+NetworkStatusInfoTranslationTable("SFP not installed")="ALARM"
+NetworkStatusInfoTranslationTable("Online")=""
+NetworkStatusInfoTranslationTable("Link Down")="Link Down"
+NetworkStatusInfoTranslationTable("Loop Down")="Loop Down"
+NetworkStatusInfoTranslationTable("System Error")="System Error"
+NetworkStatusInfoTranslationTable("Lip occurred")="Lip occurred"
+NetworkStatusInfoTranslationTable("Link Up")="Link Up"
+NetworkStatusInfoTranslationTable("Loop Up")="Loop Up"
+NetworkStatusInfoTranslationTable("Port update")="Port update"
+NetworkStatusInfoTranslationTable("Currently Up")="Currently Up"
+NetworkStatusInfoTranslationTable("Disable")="Disable"
+NetworkStatusInfoTranslationTable("Alt WWN sctive")="Alt WWN sctive"
+NetworkStatusInfoTranslationTable("Send link down update")="Send link down update"
+NetworkStatusInfoTranslationTable("Send loop down update")="Send loop down update"
+NetworkStatusInfoTranslationTable("Unknown")="UNKNOWN"
+NetworkStatusInfoTranslationTable(Default)="UNKNOWN"
+
+// Translate Network Status Information
+// PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
+NetworkCard.Collect.Source(1).Compute(6).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(6).Column=5
+NetworkCard.Collect.Source(1).Compute(6).TranslationTable="NetworkLinkStatusTranslationTable"
+
+// The NetworkLinkStatusTranslationTable
+// NetworkLinkStatusTranslationTable("SFP not installed")="ALARM"
+NetworkLinkStatusTranslationTable("Online")="OK"
+NetworkLinkStatusTranslationTable("Link Down")="WARN"
+NetworkLinkStatusTranslationTable("Loop Down")="WARN"
+// NetworkLinkStatusTranslationTable("System Error")="OK"
+// NetworkLinkStatusTranslationTable("Lip occurred")="WARN"
+NetworkLinkStatusTranslationTable("Link Up")="OK"
+NetworkLinkStatusTranslationTable("Loop Up")="OK"
+// NetworkLinkStatusTranslationTable("Port update")="OK"
+// NetworkLinkStatusTranslationTable("Currently Up")="OK"
+// NetworkLinkStatusTranslationTable("Disable")="OK"
+// NetworkLinkStatusTranslationTable("Alt WWN sctive")="OK"
+NetworkLinkStatusTranslationTable("Send link down update")="WARN"
+NetworkLinkStatusTranslationTable("Send loop down update")="WARN"
+NetworkLinkStatusTranslationTable("Unknown")="UNKNOWN"
+NetworkLinkStatusTranslationTable(Default)="UNKNOWN"
+
+// Convert Speed from Gbps to Mbps (multiply by 1000)
+// PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
+NetworkCard.Collect.Source(1).Compute(7).Type="Multiply"
+NetworkCard.Collect.Source(1).Compute(7).Column=2
+NetworkCard.Collect.Source(1).Compute(7).MultiplyBy=1000
+
+// ValueTable = Source(1)
+// PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(2)
+NetworkCard.Collect.Status=ValueTable.Column(3)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parses
+///    MSHW;PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+$1 ~ /<HBA>/ {PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
+
+$1 ~ /HBAID/ {PortID=$0;gsub(/^.*="/,"",PortID);gsub(/"$/,"",PortID);}
+
+$1 ~ /HBAModel/ {Model=$0;gsub(/^.*="/,"",Model);gsub(/"$/,"",Model);}
+
+$1 ~ /WWPN/ {WWPN=$0;gsub(/^.*="/,"",WWPN);gsub(/"$/,"",WWPN);gsub(/-/,"",WWPN);}
+
+$1 ~ /ActualDataRate/ {ActualDataRate=$0;gsub(/^.*="/,"",ActualDataRate);gsub(/ Gbps"$/,"",ActualDataRate);}
+
+$1 ~ /PortType/ {PortType=$0;gsub(/^.*="/,"",PortType);gsub(/"$/,"",PortType);gsub(/-/,"",PortType);}
+
+$1 ~ /SerialNumber/ {SerialNumber=$0;gsub(/^.*="/,"",SerialNumber);gsub(/"$/,"",SerialNumber);gsub(/-/,"",SerialNumber);}
+
+$1 ~ /Status/ {Status=$0;gsub(/^.*="/,"",Status);gsub(/" .>$/,"",Status);gsub(/-/,"",Status);}
+
+$1 ~ "</HBA>" {print ("MSHW;"PortID";"Model";"WWPN";"ActualDataRate";"PortType";"SerialNumber";"Status";")
+	             PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

@@ -1,0 +1,364 @@
+---
+connector:
+  displayName: MegaCLI Managed RAID Controllers
+  platforms: Any system with LSI MegaCli
+  reliesOn: MegaCli (LSI) managed RAID card
+  information: "Provides the monitoring of LSI RAID controllers in Oracle/Sun Solaris systems, and in IBM servers with EXP3000 external bays. This connector relies on MegaCli."
+  version: 1.1
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    - Linux
+    supersedes:
+    - SunIostat
+    - SunIostatNonSun
+    - Director52ServeRAIDLinux
+    criteria:
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+      - Linux
+    - type: osCommand
+      commandLine: MegaCli -v -NoLog
+      expectedResult: "Exit Code: 0x00"
+      errorMessage: MegaCli not installed on this server.
+    - type: osCommand
+      commandLine: "%{SUDO:MegaCli} MegaCli -AdpAllInfo -aALL -NoLog"
+      expectedResult: "Exit Code: 0x00"
+      errorMessage: No MegaCli Controllers or Insufficient Rights to Execute MegaCli.
+    - type: osCommand
+      commandLine: "%{SUDO:MegaCli} MegaCli -PDList -aALL -NoLog"
+      expectedResult: "Exit Code: 0x00"
+      errorMessage: PD Type
+sudoCommands:
+- MegaCli
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli} MegaCli -AdpAllInfo -aALL -NoLog"
+          computes:
+            # Reformat MegaCli's output through awk see EmbeddedFile(1)
+            # MSHW;controllerID;model;serialnumber;firmwareversion;biosversion;
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+        source(2):
+          # Source(2) = lsiutil output
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli} MegaCli -PDList -aALL -NoLog"
+          computes:
+            # Reformat lsiutil's output through awk see EmbeddedFile(2)
+            # MSHW;controllernumber;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: 2
+        source(3):
+          # Source (3) Table Join of Source (1) and Source (2) to keep only controllers that have physical disks associated with them
+          # controllerID;model;serialnumber;firmwareversion;biosversion;controllerID
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(4):
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli} MegaCli -AdpBbuCmd -aALL -NoLog"
+          computes:
+            # Reformat lsiutil's output through awk see EmbeddedFile(2)
+            #    MSHW;ControllerNumber;BatteryPatrolStatus;
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+        source(5):
+          # Source (5) Table Join of Source (1) and Source (2) to activate / deactivate the battery parameter
+          # controllerID;model;serialnumber;firmwareversion;biosversion;controllerID;ControllerNumber;BatteryPatrolStatus;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # InstanceTable = Source(5)
+        # controllerID;model;serialnumber;firmwareversion;biosversion;controllerID;ControllerNumber;BatteryPatrolStatus;
+        source: $monitors.disk_controller.discovery.sources.source(5)$
+        attributes:
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(2)
+          serial_number: $column(3)
+          firmware_version: $column(4)
+          bios_version: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli} MegaCli -AdpBbuCmd -aALL -NoLog"
+          computes:
+            # Reformat lsiutil's output through awk see EmbeddedFile(2)
+            #    MSHW;ControllerNumber;PatrolStatus;
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+      mapping:
+        # ValueTable = Source(1)
+        # ControllerNumber;PatrolStatus;
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lsiutil output
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli} MegaCli -PDList -aALL -NoLog"
+          computes:
+            # Reformat lsiutil's output through awk see EmbeddedFile(2)
+            # MSHW;controllernumber;location;type;size;model;status;statusinformation;deviceID;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,9"
+            # Translate size into bytes
+            # controllernumber;location;type;size;model;deviceID;
+          - type: multiply
+            column: 4
+            value: 1073741824
+          - type: leftConcat
+            column: 2
+            value: "Location: "
+          - type: leftConcat
+            column: 3
+            value: "Type: "
+      mapping:
+        # InstanceTable = Source(1)
+        # controllernumber;location;type;size;model;deviceID;
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          model: $column(5)
+          id: $column(6)
+          info: "join($column(2), $column(3), \" \")"
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(6), $column(4))"
+        metrics:
+          hw.physical_disk.size: $column(4)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lsiutil output
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli} MegaCli -PDList -aALL -NoLog"
+          computes:
+            # Reformat lsiutil's output through awk see EmbeddedFile(2)
+            # status;statusinformation;deviceID;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "7,8,9"
+            # Translate the first status column into a PATROL status
+            # Patrolstatus;statusinformation;deviceID;
+          - type: translate
+            column: 1
+            translationTable: PhysicalDiskStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lsiutil output
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli}MegaCli -LDInfo -Lall -aALL -NoLog"
+          computes:
+            # Reformat lsiutil's output through awk see EmbeddedFile(3)
+            # MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+            # Translate size into bytes
+            # controllernumber;deviceID;name;raidLevel;size;
+          - type: multiply
+            column: 5
+            value: 1073741824
+      mapping:
+        # InstanceTable = Source(1)
+        # controllernumber;deviceID;name;raidLevel;size;
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(3)
+          raid_level: $column(4)
+          id: $column(2)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(4), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lsiutil output
+          type: osCommand
+          commandLine: "%{SUDO:MegaCli}MegaCli -LDInfo -Lall -aALL -NoLog"
+          computes:
+            # Reformat lsiutil's output through awk see EmbeddedFile(3)
+            # MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "3,7,8"
+            # Translate the first status column into a PATROL status
+            # deviceID;Patrolstatus;statusinformation;
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # deviceID;Patrolstatus;statusinformation;
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        controllerID="" ; model="" ; serialnumber="";firmwareversion="";
+    }
+
+    $1 ~ /^[Aa]dapter$/ && $2 ~ /#[0-9]+/ {controllerID = $2}
+    $1 ~ /^[Pp]roduct$/ && $2 ~ /^[Nn]ame$/ {colonIndex = index($0, ":") ;
+                                             model = substr($0, colonIndex + 2) ;
+                                            }
+    $1 ~ /^[Ss]erial$/ && $2 ~ /^[Nn]/      {colonIndex = index($0, ":") ;
+                                             serialnumber = substr($0, colonIndex + 2) ;
+                                            }
+    $1 ~ /^[Ff][Ww]$/ && $2 ~ /^[Pp]ackage/ {colonIndex = index($0, ":") ;
+                                             firmwareversion = substr($0, colonIndex + 2) ;
+                                            }
+    tolower($1) ~ /^bios$/ && $2 ~ /^[Vv]ersion/ && controllerID != "" {colonIndex = index($0, ":") ;
+                                             biosversion = substr($0, colonIndex + 2) ;
+                                            print ("MSHW;"controllerID";"model";"serialnumber";"firmwareversion";"biosversion";");
+                                            controllerID="" ; model="" ; serialnumber="";firmwareversion="";
+                                            }
+  EmbeddedFile(3): |-
+    BEGIN {
+        controllerID="" ; deviceID="" ; name="" ; raidLevel=""; size="";status="";statusInformation="";
+    }
+
+    $1 ~ /^[Aa]dapter$/ && $2 ~ /[0-9]+/ {controllerID = ("#"$2)}
+
+    $1 ~ /^[Vv]irtual/ && $2 ~ /^[Dd]isk/ {deviceID = (controllerID "-VD" $3)}
+
+    $1 ~ /^[Nn]ame:/ {colonIndex = index($1, ":") ;
+                        name = substr($1, colonIndex + 1) ;
+                       }
+
+    tolower($1) ~ /raid/ && $2 ~ /^[Ll]evel/ && $3 ~ /^Primary-/ {raidLevel=$3 ; gsub (/Primary-/,"",raidLevel);gsub (/,/,"",raidLevel);
+                                                                   if (raidLevel=="1" && $4 ~ /Secondary-3/) {raidLevel=10}
+                                                                   }
+
+    $1 ~ /^[Ss]ize:/ && $2 ~ /[TtGgMm][Bb]/{colonIndex = index($1, ":") ;
+                                              size = substr($1, colonIndex + 1) ;
+                                              if ($2 ~ /[Mm][Bb]/) {size = size / 1024};
+                                            if ($2 ~ /[Tt][Bb]/) {size = size * 1024};
+                                             }
+
+    $1 ~ /^[Ss]tate:/ && controllerID != "" && deviceID != "" {status = $2;
+                         colonIndex = index($0, ":") ;
+                         statusInformation = substr($0, colonIndex + 1) ;
+                         print ("MSHW;"controllerID";" deviceID ";" name ";" raidLevel ";" size";"status";"statusInformation";");
+                         controllerID="" ; deviceID="" ; name="" ; raidLevel=""; size="";status="";statusInformation="";
+                        }
+  EmbeddedFile(2): |-
+    BEGIN {
+        controllerID="" ; enclosureID=""; location=""; type="";size="";status="";statusinformation="";deviceID="";
+    }
+
+    $1 ~ /^[Aa]dapter$/ && $2 ~ /#[0-9]+/ {controllerID = $2}
+
+    $1 ~ /^[Ee]nclosure$/ && $2 ~ /^[Dd]evice/ && $3 ~ /[Ii][Dd]/ {enclosureID = $NF}
+    $1 ~ /^[Ss]lot$/ && $2 ~ /^[Nn]umber/ {deviceID = (controllerID"["enclosureID":"$NF"]");
+                                             location = ("Adapter " controllerID " - Enclosure " enclosureID " - Slot "$NF)
+                                            }
+
+    $1 ~ /^[Pp][Dd]$/ && $2 ~ /^[Tt]ype/  {type = $NF}
+
+    $1 ~ /^[Rr]aw$/ && $2 ~ /^[Ss]ize/ && $4 ~ /[TtGgMm][Bb]/ {size = $3 ;
+                                                                 if ($4 ~ /[Mm][Bb]/) {size = size / 1024};
+                                                               if ($4 ~ /[Tt][Bb]/) {size = size * 1024};
+                                                              }
+
+    $1 ~ /^[Ff]irmware$/ && $2 ~ /^[Ss]tate/ {colonIndex = index($0, ":") ;
+                                               status = $3 ; gsub (/,/,"",status);
+                                             statusinformation = substr($0, colonIndex + 2) ;
+                                             }
+
+    $1 ~ /^[Ii]nquiry$/ && $2 ~ /^[Dd]ata/ && controllerID != "" && deviceID != "" {colonIndex = index($0, ":") ;
+                                               model = substr($0, colonIndex + 2) ;
+                                               gsub(/  +/," ",model) ;
+                                             print ("MSHW;"controllerID";"location";"type";"size";"model";"status";"statusinformation";"deviceID";");
+                                             enclosureID=""; location=""; type="";size="";status="";statusinformation="";deviceID="";
+                                            }
+  EmbeddedFile(4): |-
+    BEGIN {
+        controllerID="" ; status="OK";statusInformation="";
+          }
+
+    tolower($1) ~ /^bbu$/ && $2 ~ /^[Ss]tatus$/ && $4 ~ /^[Aa]dapter/ {controllerID=("#" $NF)}
+
+    tolower ($1) ~ /^issohgood/ {if (tolower($NF) ~ /no/) {status = "ALARM"}
+                                   print ("MSHW;"controllerID";" status";");
+                                   controllerID="" ; status="";
+                                  }
+translations:
+  LogicalDiskStatusTranslationTable:
+    offline: failed
+    default: UNKNOWN
+    optimal: ok
+    degraded: degraded
+    partially: degraded
+  PhysicalDiskStatusTranslationTable:
+    rebuild: degraded
+    offline: ok
+    copyback: degraded
+    unconfigured(good): ok
+    default: UNKNOWN
+    hotspare: failed
+    online: ok
+    failed: failed
+    unconfigured(bad): degraded

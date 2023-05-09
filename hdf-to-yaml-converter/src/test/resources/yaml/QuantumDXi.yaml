@@ -1,0 +1,1108 @@
+---
+connector:
+  displayName: Quantum DXi (SSH)
+  platforms: Quantum DXi
+  reliesOn: Commands on the Quantum DXi controller
+  version: 1.0
+  information: "This connector discovers the enclosure, fans, memory, voltages and temperatures of the DXi appliance."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    # host should respond to telnet the way described below
+    - type: osCommand
+      commandLine: syscli --getstatus syscomponent --systemboard
+      expectedResult: System Component
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(1)$
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          - $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+        source(6):
+          # Make a copy of the discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+          # Add \"Location: \" to AdditionalInformation
+          - type: leftConcat
+            column: 8
+            value: "Location: "
+        source(7):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "Enclosure"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: enclosure
+          # Add \"Configuration: \" to AdditionalInformation1
+          - type: leftConcat
+            column: 9
+            value: "Configuration: "
+      mapping:
+        # Instance Table
+        # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+        source: $monitors.enclosure.discovery.sources.source(7)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(4)
+          type: Storage
+          model: $column(8)
+          bios_version: $column(10)
+          info: $column(9)
+          name: "sprintf(\"Storage: %s (%s)\", $column(4), $column(8))"
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(1)$
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          - $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+        source(6):
+          # Make a copy of the discovery
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(5)$
+          computes:
+            # Keep only "Enclosure"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: enclosure
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Model;Configuration;SystemVersion;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(6)$
+        deviceId: $column(4)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "Temperature"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: "Temperature,Thermal"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.temperature.collect.sources.source(1)$
+          - $monitors.temperature.collect.sources.source(2)$
+          - $monitors.temperature.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "Temperature"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: "Temperature,Thermal"
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(6)
+          hw.temperature: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "Voltage"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: voltage
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.voltage.collect.sources.source(1)$
+          - $monitors.voltage.collect.sources.source(2)$
+          - $monitors.voltage.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "Voltage"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: voltage
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+            # Multiply Voltage by 1000 to get mV
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: multiply
+            column: 5
+            value: 1000
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="voltage"}: $column(6)
+          hw.voltage: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "DIMM"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: DIMM
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.memory.collect.sources.source(1)$
+          - $monitors.memory.collect.sources.source(2)$
+          - $monitors.memory.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "DIMM"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: DIMM
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="memory"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "Fan"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: fan
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.fan.collect.sources.source(1)$
+          - $monitors.fan.collect.sources.source(2)$
+          - $monitors.fan.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "Fan"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: fan
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="fan"}: $column(6)
+          hw.fan.speed: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "PowerSupply"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Power
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.power_supply.collect.sources.source(1)$
+          - $monitors.power_supply.collect.sources.source(2)$
+          - $monitors.power_supply.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "PowerSupply"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Power
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "Battery"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Batteries
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.battery.collect.sources.source(1)$
+          - $monitors.battery.collect.sources.source(2)$
+          - $monitors.battery.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "Battery"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Batteries
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="battery"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "DiskController"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Controllers
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: "sprintf(\"Disk Controller: %s\", $column(4))"
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.disk_controller.collect.sources.source(1)$
+          - $monitors.disk_controller.collect.sources.source(2)$
+          - $monitors.disk_controller.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "DiskController"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Controllers
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "PhysicalDisk"
+            # MSHW;ID;Type;Name;Size;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Drives
+            # Translate size into bytes
+            # MSHW;ID;Type;Name;Size;Status;StatusInformation;Location;AttachedTo;
+          - type: multiply
+            column: 5
+            value: 1000000000
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: "sprintf(\"%s (%by10hf.s)\", $column(4), $column(5))"
+        metrics:
+          hw.physical_disk.size: $column(5)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: |
+            for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.physical_disk.collect.sources.source(1)$
+          - $monitors.physical_disk.collect.sources.source(2)$
+          - $monitors.physical_disk.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "PhysicalDisk"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Drives
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "LogicalDisk"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Volumes
+            # Translate size into bytes
+            # MSHW;ID;Type;Name;Size;Status;StatusInformation;Location;AttachedTo;
+          - type: multiply
+            column: 5
+            value: 1073741824
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.logical_disk.collect.sources.source(1)$
+          - $monitors.logical_disk.collect.sources.source(2)$
+          - $monitors.logical_disk.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "LogicalDisk"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Volumes
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "OtherDevice"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: "IPMI,FCC"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(4)
+          info: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: $column(4)
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: syscli --getstatus storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus systemboard
+        source(3):
+          type: osCommand
+          commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
+        source(4):
+          type: osCommand
+          commandLine: syscli --getstatus hostbusadapter
+        source(5):
+          type: tableUnion
+          tables:
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+          - $monitors.other_device.collect.sources.source(4)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            # Keep only "OtherDevice"
+            # MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: "IPMI,FCC"
+            # Translate Status into PATROLStatus
+            # MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+          - type: translate
+            column: 6
+            translationTable: StatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          type: osCommand
+          commandLine: syscli --getstatus commoncomponent --storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus networkport
+        source(3):
+          type: osCommand
+          commandLine: syscli --show netcfg
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(2)$
+          - $monitors.network.collect.sources.source(3)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+      mapping:
+        # InstanceTable = Source(1)
+        # MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+        source: $monitors.network.discovery.sources.source(4)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          physical_address: $column(10)
+          physical_address_type: $column(11)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(12)
+          name: $column(2)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          type: osCommand
+          commandLine: syscli --getstatus commoncomponent --storagearray
+        source(2):
+          type: osCommand
+          commandLine: syscli --getstatus networkport
+        source(3):
+          type: osCommand
+          commandLine: syscli --show netcfg
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(2)$
+          - $monitors.network.collect.sources.source(3)$
+          computes:
+            # Run the Command Outputs through an AWK Script
+            # MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            # Translate the Link Status
+            # MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+          - type: translate
+            column: 4
+            translationTable: LinkTranslationTable
+      mapping:
+        # And here is the ValueTable
+        source: $monitors.network.collect.sources.source(4)$
+        deviceId: $column(2)
+        metrics:
+          hw.network.packets{direction="receive"}: $column(5)
+          hw.network.packets{direction="transmit"}: $column(6)
+          hw.errors{hw.type="network"}: $column(7)
+          hw.network.io{direction="receive"}: $column(8)
+          hw.network.io{direction="transmit"}: $column(9)
+          hw.network.up: legacyLinkStatus($column(4))
+          hw.network.bandwidth.limit: megaBit2Bit($column(3))
+embedded:
+  EmbeddedFile(1): |-
+    # header
+    $1 ~ /Product/ && $2 ~ /Model/ {Model = $NF}
+    $1 ~ /Hardware/ && $2 ~ /Configuration/ {Configuration = $NF}
+    $1 ~ /System/ && $2 ~ /Version/ {SystemVersion = $NF}
+    $1 ~ /System/ && $2 ~ /Serial/ && $3 ~ /Number/ {SystemSerialNumber = $NF}
+
+    # syscli --getstatus storagearray
+    # SECTION storagearray
+    $0 ~ /syscli --getstatus storagearray/ {Section = "storagearray"}
+
+    Section == "storagearray" && $1 ~ /Array/ && $2 ~ /=/ { ID = $NF ; gsub(/[\]]/,"",ID) ; ID = "Array_" ID
+                               Type[ID] = "Enclosure"
+                             }
+    Section == "storagearray" && $1 ~ /Name/ && $2 ~ /=/ { Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID]) }
+
+    Section == "storagearray" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                                StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                              }
+
+    # syscli --getstatus systemboard
+    # SECTION systemboard
+    $0 ~ /syscli --getstatus systemboard/ {Section = "systemboard"}
+
+    Section == "systemboard" && $1 ~ /Component/ && $2 ~ /=/ { ID = "SysBoard_" $NF ; gsub(/[\]]/,"",ID) }
+
+    Section == "systemboard" && $1 ~ /Type/ && $2 ~ /=/ { Type[ID] = $NF }
+
+    Section == "systemboard" && $1 ~ /Value/ && $2 ~ /=/ { Value[ID] = $3 }
+
+    Section == "systemboard" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                                StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                              }
+    Section == "systemboard" && $1 ~ /Name/ && $2 ~ /=/ { Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID])
+    #Attaching to Array One
+                                              AttachedTo[ID] = Name["Array_1"]
+                                            }
+
+
+
+    # SECTION storagearraydetails
+    #  for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done
+
+    $1 ~ /MSHW_START/ { SectionEnclosure = $2 ; Section = "storagearraydetails" }
+
+    Section == "storagearraydetails" && $1 ~ /Name/ { SectionType = $3 }
+
+    Section == "storagearraydetails" && $1 ~ /subcomponent/ {Section = "storagearraydetails_subcomponent"}
+
+
+
+    # SECTION storagearraydetails_subcomponent
+    Section == "storagearraydetails_subcomponent" && $1 ~ /[\[]component/ {Section = "storagearraydetails"}
+
+    Section == "storagearraydetails_subcomponent" && $1 ~ /subcomponent/ && SectionEnclosure != "" {
+        ID = SectionEnclosure "_" SectionType "_" $NF ; gsub(/[\]]/,"",ID)
+        AttachedTo[ID] = SectionEnclosure
+        Type[ID] = SectionType
+        }
+
+    Section == "storagearraydetails_subcomponent" && $1 ~ /Name/ && $2 ~ /=/ {
+        Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID]) ;
+        }
+
+    Section == "storagearraydetails_subcomponent" && $1 ~ /Location/ && $2 ~ /=/ {
+        Location[ID] = $0 ; gsub(/^.*= /,"",Location[ID])
+        }
+
+    Section == "storagearraydetails_subcomponent" && $1 ~ /Value/ && $2 ~ /=/ { Value[ID] = $3 }
+
+    Section == "storagearraydetails_subcomponent" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                                StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                              }
+
+    # syscli --getstatus hostbusadapter
+    # SECTION hostbusadapter
+    $0 ~ /syscli --getstatus hostbusadapter/ {Section = "hostbusadapter"}
+
+    Section == "hostbusadapter" && $1 ~ /Hostbus/ && $2 ~ Adapter && $3 ~ /=/ { ID = "HBA_" $NF ; gsub(/[\]]/,"",ID) ; Type[ID] = "FCC"}
+
+    Section == "hostbusadapter" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                                StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                              }
+    Section == "hostbusadapter" && $1 ~ /Name/ && $2 ~ /=/ { Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID])
+    #Attaching to Array One
+                                              AttachedTo[ID] = Name["Array_1"]
+                                            }
+
+
+    END { for (ID in Name) {
+    #Clean Up
+              if ( Type[ID] == "Voltage" && Name[ID] ~ /Power/ ) { Type[ID] = "Power" }
+              if ( Value[ID] == "NA" ) { Value[ID] = ""}
+    #Print
+              if ( Name[ID] != "" ) {
+                  if ( Type[ID] == "Enclosure" ) {print "MSHW;" ID ";" Type[ID] ";" Name[ID] ";" Value[ID] ";" Status[ID] ";" StatusInformation[ID] ";" Model ";" Configuration ";" SystemVersion ";" }
+                      else {print "MSHW;" ID ";" Type[ID] ";" Name[ID] ";" Value[ID] ";" Status[ID] ";" StatusInformation[ID] ";" Location[ID] ";" AttachedTo[ID] ";"}
+                  }
+              }
+        }
+  EmbeddedFile(2): |-
+    # syscli --getstatus commoncomponent --storagearray
+    $0 ~ /Component Name =/ { AttachedTo = $NF}
+
+    # syscli --getstatus networkport
+    $1 ~ /Name/ && $2 ~ /=/ {deviceID = $NF}
+    $1 ~ /Value/ && $2 ~ /=/ { Speed[deviceID] = $3 ;
+                               if ( Speed[deviceID] ~ /NA/ ) { Speed[deviceID] = ""}
+                               if ( $4 ~ /[Gg][Bb]/ ) { Speed[deviceID] = Speed[deviceID] * 1000 }
+                             }
+    $1 ~ /Status/ && $2 ~ /=/ { LinkStatus[deviceID] = $3 }
+
+    # syscli --show netcfg
+    /^eth[0-9][0-9]* |^vmnic[0-9][0-9]* |^em[0-9][0-9]* |^[Pp][0-9][0-9]*[Pp][0-9][0-9]* / {
+        deviceID = $1 ; MAC[deviceID] = $NF ;
+    }
+    /^ +RX packets:/ {
+        receivePackets[deviceID] = substr($2, 9, length($2) - 8)
+        receiveErrors[deviceID] = substr($3, 8, length($3) - 7)
+    }
+    /^ +TX packets:/ {
+        transmitPackets[deviceID] = substr($2, 9, length($2) - 8)
+        transmitErrors[deviceID] = substr($3, 8, length($3) - 7)
+    }
+    /^ +RX bytes:.*TX bytes:/ {
+        receiveBytes[deviceID] = substr($2, 7, length($2) - 6)
+        transmitBytes[deviceID] = substr($6, 7, length($6) - 6)
+    }
+
+    END { for (deviceID in Speed) {
+          print "MSHW;" deviceID ";" Speed[deviceID] ";" LinkStatus[deviceID] ";" receivePackets[deviceID] ";" transmitPackets[deviceID]";" receiveErrors[deviceID] + transmitErrors[deviceID] ";" receiveBytes[deviceID] ";" transmitBytes[deviceID] ";" MAC[deviceID] ";MAC;" AttachedTo ";"
+          }
+        }
+translations:
+  LinkTranslationTable:
+    default: UNKNOWN
+    up: ok
+    down: degraded
+  StatusTranslationTable:
+    normal: ok
+    rebuilding: degraded
+    initializing: degraded
+    global: ok
+    unassigned: ok
+    down: degraded
+    unknown: UNKNOWN
+    running: ok
+    default: failed
+    na: UNKNOWN
+    ready: ok
+    failure: failed
+    attention: degraded
+    warning: degraded
+    online: ok
+    up: ok

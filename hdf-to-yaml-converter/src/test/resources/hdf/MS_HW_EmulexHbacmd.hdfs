@@ -1,0 +1,314 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_EmulexHbacmd
+//
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="Emulex HBAs (hbacmd)"
+hdf.TypicalPlatform="Any system with Emulex"
+hdf.ReliesOn="Emulex's hbacmd utility"
+hdf.Comments="This connector discovers Emulex HBAs of servers running UNIX or Linux using the hbacmd utility provided with the Emulex Drivers."
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux,Solaris"
+hdf.Supersedes="MS_HW_CpqHBA.hdf,MS_HW_SMISHBA.hdf"
+
+//
+// SUDO-able commands
+//
+Sudo(1).Command="hbacmd"
+
+//
+// DETECTION
+//
+
+// OS should be Linux
+// Detection.Criteria(1).Type="OS"
+// Detection.Criteria(1).KeepOnly="Linux"
+
+// Test the hbacmd command for ports
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="%{SUDO:hbacmd} hbacmd ListHBAs"
+Detection.Criteria(1).ExpectedResult="Port WWN"
+Detection.Criteria(1).Timeout=120
+
+
+//
+// Discovery
+
+// Get the list of Ports from hbacmd ListHBAs
+//
+NetworkCard.Discovery.Source(1).Type="OsCommand"
+NetworkCard.Discovery.Source(1).CommandLine="%{SUDO:hbacmd} hbacmd ListHBAs"
+NetworkCard.Discovery.Source(1).Timeout=120
+
+// AWK it
+// Model;WWN;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// Get the list of Ports from hbacmd PortAttrib
+//
+NetworkCard.Discovery.Source(2).Type="OsCommand"
+NetworkCard.Discovery.Source(2).CommandLine="for HBA in `%{SUDO:hbacmd} hbacmd ListHBAs | /usr/bin/awk '($1 == ""Port"" && $2 == ""WWN"") {print $4}'`;do %{SUDO:hbacmd} hbacmd PortAttrib $HBA;done;"
+NetworkCard.Discovery.Source(2).Timeout=120
+
+// AWK it
+// Speed;Status;WWN;
+NetworkCard.Discovery.Source(2).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(2)
+NetworkCard.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(2).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(2).Compute(1).SelectColumns="2,3,4"
+
+// Convert Speed from Gbps to Mbps (multiply by 1000)
+// Speed;Status;WWN;
+NetworkCard.Discovery.Source(2).Compute(2).Type="Multiply"
+NetworkCard.Discovery.Source(2).Compute(2).Column=1
+NetworkCard.Discovery.Source(2).Compute(2).MultiplyBy=1000
+
+// Source (3) = TJ of 1 & 2
+// Model;WWN;Speed;Status;WWN;
+NetworkCard.Discovery.Source(3).Type="TableJoint"
+NetworkCard.Discovery.Source(3).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).RightTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(3).LeftKeyColumn=2
+NetworkCard.Discovery.Source(3).RightKeyColumn=3
+
+// InstanceTable = Source(3)
+// Model;WWN;Speed;Status;WWN;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.Vendor="Emulex"
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.BandWidth=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.DeviceType="HBA FC Port"
+
+
+//
+// Collect
+
+// The NetworkCard collect is a "MultiInstance" collect
+NetworkCard.Collect.Type="MultiInstance"
+
+// Get the list of Ports from hbacmd PortAttrib
+//
+NetworkCard.Collect.Source(1).Type="OsCommand"
+NetworkCard.Collect.Source(1).CommandLine="for HBA in `%{SUDO:hbacmd} hbacmd ListHBAs | /usr/bin/awk '($1 == ""Port"" && $2 == ""WWN"") {print $4}'`;do %{SUDO:hbacmd} hbacmd PortAttrib $HBA;done;"
+NetworkCard.Collect.Source(1).Timeout=120
+
+// AWK it
+// Speed;Status;WWN;
+NetworkCard.Collect.Source(1).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+NetworkCard.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(1).Compute(1).Separators=";"
+NetworkCard.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Duplicate Staus Column
+// Speed;Status;Status;Status;WWN;
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column=2
+NetworkCard.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(3).Column=2
+
+// Translate Network Status
+// Speed;PatrolStatus;Status;Status;WWN;
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=2
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="NetworkStatusTranslationTable"
+
+// The NetworkStatusTranslationTable
+NetworkStatusTranslationTable("Down")="ALARM"
+NetworkStatusTranslationTable("Operational")="OK"
+NetworkStatusTranslationTable("User Offline")="WARN"
+NetworkStatusTranslationTable("Bypassed")="WARN"
+NetworkStatusTranslationTable("In Diagnostic Mode")="WARN"
+NetworkStatusTranslationTable("Link Down")="OK"
+NetworkStatusTranslationTable("Port Error")="ALARM"
+NetworkStatusTranslationTable("Loopback")="WARN"
+NetworkStatusTranslationTable("Operational. Need Adapter Port Reset")="WARN"
+NetworkStatusTranslationTable("Link Down. Need Adapter Port Reset")="WARN"
+NetworkStatusTranslationTable("Other")="UNKNOWN"
+NetworkStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate Network Status Information
+// Speed;PatrolStatus;StatusInformation;Status;WWN;
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=3
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="NetworkStatusInfoTranslationTable"
+
+// The NetworkStatusInfoTranslationTable
+NetworkStatusInfoTranslationTable("Down")="Port Down"
+NetworkStatusInfoTranslationTable("Operational")=""
+NetworkStatusInfoTranslationTable("User Offline")="User Offline"
+NetworkStatusInfoTranslationTable("Bypassed")="Bypassed"
+NetworkStatusInfoTranslationTable("In Diagnostic Mode")="In Diagnostic Mode"
+NetworkStatusInfoTranslationTable("Link Down")="Link Down"
+NetworkStatusInfoTranslationTable("Port Error")="Port Error"
+NetworkStatusInfoTranslationTable("Loopback")="Loopback"
+NetworkStatusInfoTranslationTable("Operational. Need Adapter Port Reset")="Operational. Need Adapter Port Reset."
+NetworkStatusInfoTranslationTable("Link Down. Need Adapter Port Reset")="Link Down. Need Adapter Port Reset."
+NetworkStatusInfoTranslationTable("Other")="Other"
+NetworkStatusInfoTranslationTable(Default)="UNKNOWN"
+
+// Translate Network Status Information
+// Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;
+NetworkCard.Collect.Source(1).Compute(6).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(6).Column=4
+NetworkCard.Collect.Source(1).Compute(6).TranslationTable="NetworkLinkStatusTranslationTable"
+
+// The NetworkLinkStatusTranslationTable
+// NetworkLinkStatusTranslationTable("Down")="WARN"
+NetworkLinkStatusTranslationTable("Operational")="OK"
+// NetworkLinkStatusTranslationTable("User Offline")=""
+// NetworkLinkStatusTranslationTable("Bypassed")=""
+// NetworkLinkStatusTranslationTable("In Diagnostic Mode")=""
+NetworkLinkStatusTranslationTable("Link Down")="WARN"
+// NetworkLinkStatusTranslationTable("Port Error")=""
+// NetworkLinkStatusTranslationTable("Loopback")=""
+// NetworkLinkStatusTranslationTable("Operational. Need Adapter Port Reset")=""
+// NetworkLinkStatusTranslationTable("Link Down. Need Adapter Port Reset")=""
+// NetworkLinkStatusTranslationTable("Other")=""
+NetworkLinkStatusTranslationTable(Default)="UNKNOWN"
+
+// Convert Speed from Gbps to Mbps (multiply by 1000)
+// Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;
+NetworkCard.Collect.Source(1).Compute(7).Type="Multiply"
+NetworkCard.Collect.Source(1).Compute(7).Column=1
+NetworkCard.Collect.Source(1).Compute(7).MultiplyBy=1000
+
+
+// Get the list of Ports from hbacmd PortStat
+//
+NetworkCard.Collect.Source(2).Type="OsCommand"
+NetworkCard.Collect.Source(2).CommandLine="for HBA in `%{SUDO:hbacmd} hbacmd ListHBAs | /usr/bin/awk '($1 == ""Port"" && $2 == ""WWN"") {print $4}'`;do %{SUDO:hbacmd} hbacmd PortStat $HBA;done;"
+NetworkCard.Collect.Source(2).Timeout=120
+
+// AWK it
+// TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
+NetworkCard.Collect.Source(2).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(2).Compute(1).AwkScript=EmbeddedFile(3)
+NetworkCard.Collect.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(2).Compute(1).Separators=";"
+NetworkCard.Collect.Source(2).Compute(1).SelectColumns="2,3,4,5,6,7"
+
+// Source (3) = TJ of 1 & 2
+// Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
+NetworkCard.Collect.Source(3).Type="TableJoint"
+NetworkCard.Collect.Source(3).LeftTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).RightTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(3).LeftKeyColumn=5
+NetworkCard.Collect.Source(3).RightKeyColumn=6
+
+// ValueTable = Source(1)
+// Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(5)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(7)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(6)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(10)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(9)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(8)
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parses
+///    MSHW;PortNum;Model;WWN;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	WWN = "";
+	PortNumber = "";
+	Model = "";
+}
+
+($1 == "Port" && $2 == "WWN") { WWN = $4; gsub(":", "", WWN); }
+
+($1 == "Model") { Model = $3; }
+
+(NF == 0 && WWN != "") {
+	print "MSHW;" Model ";" WWN ";"
+	WWN = "";
+	Model = "";
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that parses
+///    MSHW;Speed;Status;WWN;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {FS="[:]";WWN="";}
+
+$1 ~ /Port Attributes for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
+
+$1 ~ /^Port State +$/ {Status=$2;gsub (/^ +/,"",Status);}
+
+$1 ~ /^Port Speed +$/ {Speed=$2;gsub (/^ +/,"",Speed);Speed=$2;gsub (/[^0-9]/,"",Speed);
+	                                  print ("MSHW;"Speed";"Status";"WWN";")
+	                                  WWN="";}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that parses
+///    MSHW;TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN {FS="[:]";WWN="";}
+
+$1 ~ /Port Statistics for/ {WWNNF=split($0,WWNArray,/ /);WWN=WWNArray[WWNNF];gsub(/:/,"",WWN)}
+
+$1 ~ /^Tx Frame Count +$/ {TxFrame=$2;gsub (/^ +/,"",TxFrame);}
+
+$1 ~ /^Rx Frame Count +$/ {RxFrame=$2;gsub (/^ +/,"",RxFrame);}
+
+$1 ~ /^Tx KB Count +$/ {TxB=$2;gsub (/^ +/,"",TxKB);TxB=TxB*1024;}
+
+$1 ~ /^Rx KB Count +$/ {RxB=$2;gsub (/^ +/,"",RxKB);RxB=RxB*1024;}
+
+$1 ~ /^Error Frame Count +$/ && WWN != "" {ErrorCount=$2;gsub (/^ +/,"",ErrorCount);
+	                                         print ("MSHW;"TxFrame";"RxFrame";"TxB";"RxB";"ErrorCount";"WWN";")
+	                                         WWN="";}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////
+
+
+
+
+

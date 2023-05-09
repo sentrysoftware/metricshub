@@ -1,0 +1,230 @@
+---
+connector:
+  displayName: WMI - Disks
+  platforms: Any system
+  reliesOn: WMI
+  version: 1.1
+  information: This connector provides monitoring of the S.M.A.R.T.-enabled disks that are directly handled by Windows (and WBEM through the WMI service). It tries to exclude disks that are actually logical disks exposed by some RAID controllers.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    criteria:
+    - type: deviceType
+      keep:
+      - NT
+    - type: service
+      name: WINMGMT
+    - type: wmi
+      namespace: root\WMI
+      query: SELECT InstanceName FROM MSStorageDriver_FailurePredictStatus WHERE Active=TRUE
+      expectedResult: "\\(^[^M]...\\)\\|\\(^.[^P]..\\)\\|\\(^..[^I].\\)\\|\\(^...[^O]\\)"
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = list of the disks that supports S.M.A.R.T. and that are directly
+          # exposed through the WMI WBEM provider
+          # InstanceName;
+          type: wmi
+          namespace: root\WMI
+          query: SELECT InstanceName FROM MSStorageDriver_FailurePredictStatus WHERE Active=TRUE
+        source(2):
+          # Source(2) = table that translate the InstanceName of the WMI provider into a PnPDeviceID
+          # PnPDeviceID;InstanceNameList
+          type: wmi
+          namespace: root\WMI
+          query: "SELECT InstanceName,InstanceNameList FROM MSWMI_PnPInstanceNames"
+          computes:
+            # Extract the first instance name within the instancenamelist
+            # PnPDeviceID;InstanceName
+          - type: extract
+            column: 2
+            subColumn: 1
+            subSeparators: '|'
+        source(3):
+          # Source(3) = jointure of source(1) and source(2) in order to have the PnPDeviceID
+          # of the disks that supports S.M.A.R.T.
+          # InstanceName;PnPDeviceID;InstanceName
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+        source(4):
+          # Source(4) = Table that links the PnP Devices (who controls who)
+          # Antecedent;Dependent   (that will contain ControllerPnPDeviceID;DiskPnPDeviceID)
+          type: wmi
+          query: "SELECT Antecedent,Dependent FROM CIM_ControlledBy"
+          computes:
+          - type: extract
+            column: 1
+            subColumn: 2
+            subSeparators: '"'
+          - type: extract
+            column: 2
+            subColumn: 2
+            subSeparators: '"'
+          - type: replace
+            column: 1
+            existingValue: \\
+            newValue: \
+          - type: replace
+            column: 2
+            existingValue: \\
+            newValue: \
+        source(5):
+          # Source(5) = jointure of source(4) with source(3)
+          # ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(4)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(3)$
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          computes:
+            # Exclude disks that have a PNP ID that begins with MPIO (Multipath IO Disks can only occur in external Disks Bays), or contain PROD_LOGICAL_VOLUME (HP Raid Logical Disks)
+            # ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName
+          - type: excludeMatchingLines
+            column: 2
+            regExp: \(^MPIO\)\|\(PROD_LOGICAL_VOLUME\)
+        source(6):
+          # Source(6) = the CIM_ControllerTable (more information about them)
+          # Name;PnPDeviceID
+          type: wmi
+          query: "SELECT Name,PNPDeviceID FROM CIM_Controller"
+          computes:
+            # Remove HBA controllers (Emulex, QLogic, etc.)
+            # Name;PnPDeviceID
+          - type: excludeMatchingLines
+            column: 1
+            regExp: \(Emulex\)\|\(QLogic\)\|\(EMS Device Bus\)
+        source(7):
+          # Source(7) = jointure of source(6) and source(5) (will contain only one line per disk controller)
+          # ControllerName;ControllerPnPDeviceID;ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskInstanceName;DiskPnPDeviceID
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(6)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(5)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+      mapping:
+        # Pfew... that's end, folks! here is the InstanceTable: Source(7)
+        source: $monitors.disk_controller.discovery.sources.source(7)$
+        attributes:
+          id: $column(2)
+          controller_number: $column(2)
+          vendor: ""
+          model: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), \"\", $column(1))"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the Win32_DiskDrive table (more information about those disks)
+          # DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;
+          type: wmi
+          query: "SELECT Index,Manufacturer,Model,PNPDeviceID,Size FROM Win32_DiskDrive"
+        source(2):
+          # Source(2) = jointure of DiskController.Discovery.Source(5) with Source(1)
+          # ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName;DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(1)$
+          leftKeyColumn: 2
+          rightKeyColumn: 4
+        source(3):
+          # Source(3) = jointure of Source(2) with DiskController.Discovery.Source(6) to keep only
+          # disks attached to actual disk controllers that are not HBAs
+          # ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName;DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;ControllerName;ControllerPnPDeviceID;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(2)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(6)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+      mapping:
+        # The instance table...
+        source: $monitors.physical_disk.discovery.sources.source(3)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(6)
+          vendor: $column(8)
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(1)
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(6), $column(8), $column(10))"
+        metrics:
+          hw.physical_disk.size: $column(10)
+    collect:
+      # This a multi-instance collect (please minimize the number of wbem queries...)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the Win32_DiskDrive table
+          # PnPDeviceID;Status
+          type: wmi
+          query: "SELECT PnPDeviceID,Status FROM Win32_DiskDrive"
+        source(2):
+          # Source(2) = jointure of Source(1) with DiskController.Discovery.Source(2)
+          # in order to link PnPDeviceID with InstanceName in the WMI namespace
+          # PnPDeviceID;Status;PnPDeviceID;InstanceName
+          type: tableJoin
+          leftTable: $monitors.physical_disk.collect.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(3):
+          # Source(3) = the list of the disks that supports S.M.A.R.T. and that are directly
+          # exposed through the WMI WBEM provider
+          # InstanceName;PredictFailure
+          type: wmi
+          namespace: root\WMI
+          query: "SELECT InstanceName,PredictFailure FROM MSStorageDriver_FailurePredictStatus WHERE Active=TRUE"
+        source(4):
+          # Source(4) = jointure of source(2) with source(3) (to have all information
+          # in the same table
+          # PnPDeviceID;Status;PnPDeviceID;InstanceName;InstanceName;PredictFailure
+          type: tableJoin
+          leftTable: $monitors.physical_disk.collect.sources.source(2)$
+          rightTable: $monitors.physical_disk.collect.sources.source(3)$
+          leftKeyColumn: 4
+          rightKeyColumn: 1
+          computes:
+            # Duplicate the Status column (to be translated two times)
+            # PnPDeviceID;Status;PatrolStatus;InformationStatus;PnPDeviceID;InstanceName;InstanceName;PredictFailure
+          - type: duplicateColumn
+            column: 2
+          - type: duplicateColumn
+            column: 2
+          # Translate the WBEM Status field into PATROL status
+          - type: translate
+            column: 3
+            translationTable: PhysicalDiskStatusTranslationTable
+          # Translate the WBEM Status field into a more readable string
+          - type: translate
+            column: 4
+            translationTable: PhysicalDiskInformationStatusTranslationTable
+      mapping:
+        # And here is the ValueTable
+        source: $monitors.physical_disk.collect.sources.source(4)$
+        deviceId: $column(6)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(3)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(8))
+        legacyTextParameters:
+          StatusInformation: $column(4)
+translations:
+  PhysicalDiskInformationStatusTranslationTable:
+    default: Unknown
+    service: Service
+    ok: ""
+    error: Error
+    degraded: Degraded
+    pred fail: Predicted Failure
+  PhysicalDiskStatusTranslationTable:
+    default: UNKNWON
+    service: degraded
+    ok: ok
+    error: failed
+    degraded: degraded
+    pred fail: degraded

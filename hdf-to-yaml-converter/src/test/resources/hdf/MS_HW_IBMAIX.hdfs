@@ -1,0 +1,793 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_AIX.hdf
+//
+//      Supports: IBM AIX machines
+//		Monitors: network interfaces, processors
+//      Connects to: different AIX standard tools
+//
+//
+
+// Include MS_HW_IBMAIXModels.hhdf, which contains the translation table for the AIX model codes
+#include MS_HW_IBMAIXModels.hhdf
+
+//
+// HEADER
+//
+
+hdf.DisplayName="IBM AIX - Common"
+hdf.TypicalPlatform="IBM POWER"
+hdf.ReliesOn="IBM AIX system commands (lsdev, entstat, etc.)"
+hdf.Comments="Provides hardware status information (processors, memory modules, network interfaces) on IBM AIX systems."
+hdf.Version="1.3"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="RS6000"
+
+// Sudo-able commands
+Sudo(1).Command="/usr/sbin/netstat -D"
+
+
+//
+// DETECTION
+//
+
+// OS should be AIX (whatever version)
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="RS6000"
+
+// Check for the ability to run lsdev, at least
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/usr/bin/ls /usr/sbin/lsdev"
+Detection.Criteria(2).ExpectedResult="^/usr/sbin/lsdev$"
+
+//Detection.Criteria(3).Type="OSCommand"
+//Detection.Criteria(3).CommandLine="which lsdev"
+//Detection.Criteria(3).ExpectedResult="/lsdev$"
+//
+//Detection.Criteria(4).Type="OSCommand"
+//Detection.Criteria(4).CommandLine="which entstat"
+//Detection.Criteria(4).ExpectedResult="/entstat$"
+
+//
+// COMPUTER
+//
+
+//
+// Discovery
+
+// Source(1) = the output of uname -M
+// MachineIDNumber;ModelCode;SystemID;LPARSystemID;
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="/usr/bin/uname -mMfF"
+Enclosure.Discovery.Source(1).KeepOnlyRegExp=" IBM,"
+Enclosure.Discovery.Source(1).Separators=" "
+Enclosure.Discovery.Source(1).SelectColumns="1,2,3,4"
+
+// Remove the IBM,  (We, unfortunately, already know it's an IBM)
+// MachineIDNumber;ModelCode;LPARSystemID;SystemID;
+Enclosure.Discovery.Source(1).Compute(1).Type="Replace"
+Enclosure.Discovery.Source(1).Compute(1).Column=2
+Enclosure.Discovery.Source(1).Compute(1).Replace="IBM,"
+Enclosure.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+// Add descriptive prefixes to the different IDs
+// MachineIDNumber;ModelCode;LPARSystemID;SystemID;
+Enclosure.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(2).Column=1
+Enclosure.Discovery.Source(1).Compute(2).String="Machine ID: "
+
+Enclosure.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(3).Column=3
+Enclosure.Discovery.Source(1).Compute(3).String="LPAR System ID: "
+
+Enclosure.Discovery.Source(1).Compute(4).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(4).Column=4
+Enclosure.Discovery.Source(1).Compute(4).String="System ID: "
+
+// Duplicate the ModelCode
+// MachineIDNumber;ModelCode;ModelCode;LPARSystemID;SystemID;
+Enclosure.Discovery.Source(1).Compute(5).Type="DuplicateColumn"
+Enclosure.Discovery.Source(1).Compute(5).Column=2
+
+// Translate the 2nd Model Code into a Model Name
+// The translation table will need to be regularly updated
+// MachineIDNumber;ModelCode;ModelName;LPARSystemID;SystemID;
+Enclosure.Discovery.Source(1).Compute(6).Type="Translate"
+Enclosure.Discovery.Source(1).Compute(6).Column=3
+Enclosure.Discovery.Source(1).Compute(6).TranslationTable="ModelTranslationTable"
+
+// Concatenate ModelCode and ModelName
+// MachineIDNumber;ModelCode;ModelCode, ModelName;LPARSystemID;SystemID;
+Enclosure.Discovery.Source(1).Compute(7).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(7).Column=3
+Enclosure.Discovery.Source(1).Compute(7).String=", "
+
+Enclosure.Discovery.Source(1).Compute(8).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(8).Column=3
+Enclosure.Discovery.Source(1).Compute(8).String=Column(2)
+
+
+// Source(2) = the output of lsattr -E -l sys0 -O -a modelname -a systemid -a fwversion
+// ModelCode;SystemID;FirmwareVersion;
+Enclosure.Discovery.Source(2).Type="OsCommand"
+Enclosure.Discovery.Source(2).CommandLine="/usr/sbin/lsattr -E -l sys0 -O -a modelname -a systemid -a fwversion"
+Enclosure.Discovery.Source(2).KeepOnlyRegExp="^IBM,"
+Enclosure.Discovery.Source(2).Separators=":"
+Enclosure.Discovery.Source(2).SelectColumns="1,2,3"
+
+// Remove mentions to "IBM," in the different fields
+// ModelCode;SystemID;FirmwareVersion;
+Enclosure.Discovery.Source(2).Compute(1).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(1).Column=1
+Enclosure.Discovery.Source(2).Compute(1).Replace="IBM,"
+Enclosure.Discovery.Source(2).Compute(1).ReplaceBy=""
+
+Enclosure.Discovery.Source(2).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(2).Column=2
+Enclosure.Discovery.Source(2).Compute(2).Replace="IBM,"
+Enclosure.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+Enclosure.Discovery.Source(2).Compute(3).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(3).Column=3
+Enclosure.Discovery.Source(2).Compute(3).Replace="IBM,"
+Enclosure.Discovery.Source(2).Compute(3).ReplaceBy=""
+
+// Source(3) = Table Join of Source(1) and Source(2)
+// MachineIDNumber;ModelCode;ModelCode, ModelName;LPARSystemID;SystemID;ModelCode;SystemID;FirmwareVersion;
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).LeftKeyColumn=2
+Enclosure.Discovery.Source(3).RightKeyColumn=1
+Enclosure.Discovery.Source(3).DefaultRightLine=";;;"
+
+
+// The discovery table
+// MachineIDNumber;ModelCode;ModelCode, ModelName;LPARSystemID;SystemID;ModelCode;SystemID;FirmwareVersion;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.Vendor="IBM"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type="Computer"
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.BiosVersion=InstanceTable.Column(8)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+
+
+//
+// Collet
+
+// Collect type is mono-instance (as there is only one instance anyway)
+Enclosure.Collect.Type="MonoInstance"
+
+// Source(1) = Number of events reported by errpt of type "SCAN_ERROR_CHRP" on sysplanar0
+// Please note that we're echoing ERRPT_BEGIN to make sure the result is not empty, else the computing is not done and the awk script is not executed
+// ErrorCount
+Enclosure.Collect.Source(1).Type="OsCommand"
+Enclosure.Collect.Source(1).CommandLine="echo ERRPT_BEGIN;/usr/bin/errpt -d H -N sysplanar0 -s `/bin/date +%%m%%d0000%%y` -J SCAN_ERROR_CHRP"
+
+// Process the output of errpt through awk EmbeddedFile(5)
+// Status;StatusInformation;
+Enclosure.Collect.Source(1).Compute(1).Type="Awk"
+Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+Enclosure.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Collect.Source(1).Compute(1).Separators=";"
+Enclosure.Collect.Source(1).Compute(1).SelectColumns="2,3"
+
+// ValueTable = source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Status=ValueTable.Column(1)
+Enclosure.Collect.StatusInformation=ValueTable.Column(2)
+
+
+//
+// Processors
+//
+
+//
+// Discovery
+
+// Source(1) = sh -%EmbeddedFile(1)%
+// cpuID;HzSpeed;Model
+cpu.Discovery.Source(1).Type="OsCommand"
+cpu.Discovery.Source(1).CommandLine="/bin/sh %EmbeddedFile(1)%"
+cpu.Discovery.Source(1).KeepOnlyRegExp="^MSHW:"
+cpu.Discovery.Source(1).Separators=":"
+cpu.Discovery.Source(1).SelectColumns="2,3,4"
+
+// Remove the "PowerPC_" prefix in the model column
+// cpuID;HzSpeed;Model
+cpu.Discovery.Source(1).Compute(1).Type="Replace"
+cpu.Discovery.Source(1).Compute(1).Column=3
+cpu.Discovery.Source(1).Compute(1).Replace="PowerPC_"
+cpu.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+// Convert Hz to MHz
+// cpuID;MHzSpeed;Model
+cpu.Discovery.Source(1).Compute(2).Type="Divide"
+cpu.Discovery.Source(1).Compute(2).Column=2
+cpu.Discovery.Source(1).Compute(2).DivideBy=1000000
+
+// Instance table = source(1)
+cpu.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+cpu.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+cpu.Discovery.Instance.MaximumSpeed=InstanceTable.Column(2)
+cpu.Discovery.Instance.Model=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type = multi-instance
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = lsdev -c processor
+// cpuID;cpuStatus
+cpu.Collect.Source(1).Type="OsCommand"
+cpu.Collect.Source(1).CommandLine="/usr/sbin/lsdev -C -c processor -F 'class;name;status'"
+cpu.Collect.Source(1).KeepOnlyRegExp="^processor;"
+cpu.Collect.Source(1).Separators=";"
+cpu.Collect.Source(1).SelectColumns="2,3"
+
+// Duplicate the status column
+// cpuID;cpuStatus;cpuStatus
+cpu.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+cpu.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status column into a PATROL status
+// cpuID;PATROLStatus;cpuStatus
+cpu.Collect.Source(1).Compute(2).Type="Translate"
+cpu.Collect.Source(1).Compute(2).Column="2"
+cpu.Collect.Source(1).Compute(2).TranslationTable="cpuStatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// cpuID;PATROLStatus;statusInformation
+cpu.Collect.Source(1).Compute(3).Type="Translate"
+cpu.Collect.Source(1).Compute(3).Column="3"
+cpu.Collect.Source(1).Compute(3).TranslationTable="cpuStatusInformationTranslationTable"
+
+// ValueTable = source(1)
+cpu.Collect.ValueTable=%cpu.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(1)
+cpu.Collect.Status=ValueTable.Column(2)
+cpu.Collect.StatusInformation=ValueTable.Column(3)
+
+// The cpuStatusTranslationTable
+cpuStatusTranslationTable("Available")="OK"
+cpuStatusTranslationTable("Defined")="OK"
+cpuStatusTranslationTable("Stopped")="WARN"
+cpuStatusTranslationTable(Default)="UNKNOWN"
+
+// The cpuStatusInformationTranslationTable
+cpuStatusInformationTranslationTable("Available")="Available"
+cpuStatusInformationTranslationTable("Defined")="Defined"
+cpuStatusInformationTranslationTable("Stopped")="Stopped"
+cpuStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+
+//
+// Network cards
+//
+
+//
+// Discovery
+
+// Source(1) = output of EmbeddedFile(6) (mix of lsdev and lscfg)
+NetworkCard.Discovery.Source(1).Type="OsCommand"
+NetworkCard.Discovery.Source(1).CommandLine="/bin/sh %EmbeddedFile(6)%"
+
+// Process the output of lscfg through awk EmbeddedFile(7)
+// DeviceID;Model;NicType;MACAddress;HWLocationCode;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(7)
+NetworkCard.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6"
+
+// Source(2) = output of embedded script 3
+NetworkCard.Discovery.Source(2).Type="OsCommand"
+NetworkCard.Discovery.Source(2).CommandLine="/bin/sh %EmbeddedFile(2)%"
+
+// Process the output of entstat through awk EmbeddedFile(3)
+// DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+NetworkCard.Discovery.Source(2).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(3)
+NetworkCard.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(2).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(2).Compute(1).SelectColumns="2,3,4,5,6,7,8,9,10,11"
+
+// Source(3) = joint of Source(1) and Source(2)
+// DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+NetworkCard.Discovery.Source(3).Type="TableJoint"
+NetworkCard.Discovery.Source(3).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).RightTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(3).LeftKeyColumn=1
+NetworkCard.Discovery.Source(3).RightKeyColumn=1
+NetworkCard.Discovery.Source(3).DefaultRightLine=";OK;WARN;0;0;0;0;0;;;"
+
+
+// InstanceTable = Source(1)
+// DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.Bandwidth=InstanceTable.Column(14)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+//NetworkCard.Discovery.Instance.AttachedToDeviceID="AIX"
+//NetworkCard.Discovery.Instance.AttachedToDeviceType="Computer"
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(14)
+NetworkCard.Discovery.Instance.ParameterActivation.DuplexMode=InstanceTable.Column(15)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkStatus=InstanceTable.Column(8)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = output of entstat -d for each card
+NetworkCard.Collect.Source(1).Type="OsCommand"
+NetworkCard.Collect.Source(1).CommandLine="/bin/sh %EmbeddedFile(2)%"
+
+// Process the output of entstat through awk EmbeddedFile(3)
+// DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+NetworkCard.Collect.Source(1).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+NetworkCard.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(1).Compute(1).Separators=";"
+NetworkCard.Collect.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7,8,9,10,11"
+
+// Source(2) = joint of %NetworkCard.Discovery.Source(1)% and NetworkCard.Collect.Source(1)
+// DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+NetworkCard.Collect.Source(2).Type="TableJoint"
+NetworkCard.Collect.Source(2).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Collect.Source(2).RightTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(2).LeftKeyColumn=1
+NetworkCard.Collect.Source(2).RightKeyColumn=1
+NetworkCard.Collect.Source(2).DefaultRightLine=";OK;WARN;0;0;0;0;0;;;"
+
+
+
+// Value table = Source(1)
+// DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(7)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(8)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(9)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(10)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(11)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(12)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(13)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(14)
+NetworkCard.Collect.DuplexMode=ValueTable.Column(15)
+
+
+//
+// Memory Modules
+//
+
+//
+// Discovery
+
+// Source(1) = output of lscfg -vp -l sysplanar0
+Memory.Discovery.Source(1).Type="OsCommand"
+Memory.Discovery.Source(1).CommandLine="/usr/sbin/lscfg -vp -l sysplanar0"
+
+// Reformat lscfg's output through awk (see EmbeddedFile(4))
+// DeviceID;Size;SerialNumber
+Memory.Discovery.Source(1).Compute(1).Type="Awk"
+Memory.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Memory.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Memory.Discovery.Source(1).Compute(1).Separators=";"
+Memory.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Duplicate the DeviceID column (which is actually phys location code)
+// DeviceID;DeviceID;Size;SerialNumber
+Memory.Discovery.Source(1).Compute(2).Type="DuplicateColumn"
+Memory.Discovery.Source(1).Compute(2).Column=1
+
+// Add "Hardware Location Code: " to the second DeviceID, to show it in the identifying information
+// DeviceID;HardwareLocationCode;Size;SerialNumber
+Memory.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(3).Column=2
+Memory.Discovery.Source(1).Compute(3).String="Location: "
+
+// Add ";1;" to the HardwareLocationCode that will correspond to the Status and ErrorCount ParameterActivation values
+// DeviceID;HardwareLocationCode;StatusActivation;ErrorCountActivation;Size;SerialNumber
+Memory.Discovery.Source(1).Compute(4).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(4).Column=2
+Memory.Discovery.Source(1).Compute(4).String=";1;"
+
+// Source(2) = Static table to represent the global memory stuff
+Memory.Discovery.Source(2)="Memory Controller;;;1;;;"
+
+// Source(3) = Union of Source(1) and Source(2)
+// DeviceID;HardwareLocationCode;StatusActivation;ErrorCountActivation;Size;SerialNumber
+Memory.Discovery.Source(3).Type="TableUnion"
+Memory.Discovery.Source(3).Table1=%Memory.Discovery.Source(1)%
+Memory.Discovery.Source(3).Table2=%Memory.Discovery.Source(2)%
+
+// InstanceTable = Source(1)
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(3)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.Size=InstanceTable.Column(5)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Memory.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(3)
+Memory.Discovery.Instance.ParameterActivation.ErrorCount=InstanceTable.Column(4)
+//Memory.Discovery.Instance.AttachedToDeviceID="AIX"
+//Memory.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = output of lscfg -vp -l sysplanar0
+Memory.Collect.Source(1).Type="OsCommand"
+Memory.Collect.Source(1).CommandLine="/usr/sbin/lscfg -vp -l sysplanar0"
+
+// Reformat lscfg's output through awk (see EmbeddedFile(4))
+// DeviceID;Status;StatusInformation;
+Memory.Collect.Source(1).Compute(1).Type="Awk"
+Memory.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Memory.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Memory.Collect.Source(1).Compute(1).Separators=";"
+Memory.Collect.Source(1).Compute(1).SelectColumns="2,5,6"
+
+// Add ";" to the right, as an empty ErrorCount column
+// DeviceID;Status;StatusInformation;ErrorCount
+Memory.Collect.Source(1).Compute(2).Type="RightConcat"
+Memory.Collect.Source(1).Compute(2).Column=3
+Memory.Collect.Source(1).Compute(2).String=";"
+
+// Source(2) = Number of events reported by errpt of type "memory"
+// MemoryErrorCount
+Memory.Collect.Source(2).Type="OsCommand"
+Memory.Collect.Source(2).CommandLine="/usr/bin/errpt -d H -s `/bin/date +%%m%%d0000%%y` -J CORRECTED_SCRUB,MEM1,MEM2,MEM3,MEMORY,RECOV_ECC_ERR,UNRECOV_ECC_ERR|/bin/wc -l"
+Memory.Collect.Source(2).KeepOnlyRegExp="^ *[0-9]+$"
+Memory.Collect.Source(2).Separators=" "
+Memory.Collect.Source(2).SelectColumns="1"
+
+// Add "Memory Controller;;;" as the device ID;Status;StatusInformation
+// DeviceID;Status;StatusInformation;MemoryErrorCount
+Memory.Collect.Source(2).Compute(1).Type="LeftConcat"
+Memory.Collect.Source(2).Compute(1).Column=1
+Memory.Collect.Source(2).Compute(1).String="Memory Controller;;;"
+
+// Source(3) = Union of Source(1) and Source(2)
+Memory.Collect.Source(3).Type="TableUnion"
+Memory.Collect.Source(3).Table1=%Memory.Collect.Source(1)%
+Memory.Collect.Source(3).Table2=%Memory.Collect.Source(2)%
+
+// Value table = Source(1)
+Memory.Collect.ValueTable=%Memory.Collect.Source(3)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)
+Memory.Collect.ErrorCount=ValueTable.Column(4)
+
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = shell script that lists processors
+///
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+#!/bin/sh
+for PROC in `/usr/sbin/lsdev -C -c processor -S as -F 'name'`
+	do
+	PROCDETAILS=`/usr/sbin/lsattr -El $PROC -O -a frequency -a type|/usr/bin/grep -v ^#`
+	/usr/bin/echo "MSHW:$PROC:$PROCDETAILS"
+done
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = shell script that gives the link speed
+///    of each network card that is configured as UP
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+#!/bin/sh
+if [ -f /etc/lsattr ]
+	then LSATTR=/etc/lsattr
+	else LSATTR=/usr/sbin/lsattr
+fi
+for NIC in `%{SUDO:/usr/sbin/netstat -D}/usr/sbin/netstat -D |awk '/ent_dd/ {print $1} ' |cut -b 7-9`
+do
+	echo MS_HW_entstat_Start: $NIC
+	/usr/bin/entstat -d en$NIC
+	echo MS_HW_entstat_End: $NIC
+done
+EmbeddedFile(2).End
+////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that takes the output
+///    of entstat and report its status, link status and errors
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+/^ETHERNET STATISTICS/ { if ($3 ~ /(en[0-9].*)/) {nicdevice = $3; gsub("en","ent",nicdevice);gsub(/[\050\051]/,"",nicdevice); nicdevices[nicdevice]=nicdevice}
+						     else { nicdevice = $3;gsub (/[\050\051]/,"",nicdevice); nicdevices[nicdevice]=nicdevice}
+ 						}
+
+/^Device Type:/ {
+                 if ( ($3 ~ /EtherChannel/ || /Virtual/) || ($0 ~ /Shared Ethernet Adapter/) || ($0 ~ /Link Aggregation/) || ($0 ~ /VLAN/)) { EtherT[nicdevice] = "Logical"; lastLogical = nicdevice }
+                    else { EtherT[nicdevice] = "Physical" }
+                }
+
+/^Driver Flags:/ {
+                  nicStatus[nicdevice] = "ALARM";
+                  if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK"; }
+                  else {
+                        getline
+                        if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK";}
+                       }
+                 }
+
+$1 == "Hardware" && $2 == "Address:" { mac[nicdevice] = $3 ; gsub (/:/,"",mac[nicdevice])}
+
+# Link
+/Physical Port Link Stat/ {
+                           if ($NF == "up" || $NF == "Up" || $NF == "UP") {
+                                                                           linkStatus[nicdevice] = "OK";
+                                                                           if ( linkStatus[lastLogical] == "WARN" ) { linkStatus[lastLogical] = "OK" ; nicStatus[lastLogical] = "WARN" ; }
+                                                                          }
+                              else {
+                                    linkStatus[nicdevice] = "WARN";
+                                    if (linkStatus[lastLogical] == "OK") { nicStatus[lastLogical] = "WARN" }
+                                    if (linkStatus[lastLogical] == "") { linkStatus[lastLogical] = "WARN" ; nicStatus[lastLogical] = "ALARM" }
+                                   }
+                           if ($NF == "Unknown") {linkStatus[nicdevice] = "ALARM";}
+                          }
+
+$1 == "Link" && $2 == "Status" { if ($4 == "up" || $4 == "Up" || $4 == "UP") { linkStatus[nicdevice] = "OK"; }
+                                      else {linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK";}
+                                 }
+
+$1 == "Link" && $2 == "Status:" { if ($3 == "up" || $3 == "Up" || $3 == "UP") { linkStatus[nicdevice] = "OK";}
+                                       else { linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK"; }
+                                  }
+
+# Speed
+$0 ~ /Media Speed Running:/ || $0 ~ /Physical Port Speed:/ {
+                                 #linkSpeed[nicdevice] = $4; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);
+																 linkSpeed[nicdevice] = $4 $5; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);
+																 if ($0 ~ /[Hh]alf [Dd]uplex/) { duplexMode[nicdevice] = "half"; }
+                                    else { duplexMode[nicdevice] = "full"; }
+                                 }
+
+# Statistics
+$1 == "Packets:" && $3 == "Packets:" { transmitPackets[nicdevice] = $2; receivePackets[nicdevice] = $4; }
+
+$1 == "Bytes:" && $3 == "Bytes:" {transmitBytes[nicdevice] = $2;receiveBytes[nicdevice] = $4; }
+
+$1 == "Transmit" && $2 == "Errors:" && $4 == "Receive" && $5 == "Errors:" { transmitErrors[nicdevice] = $3; receiveErrors[nicdevice] = $6; totalErrors[nicdevice] = transmitErrors[nicdevice] + receiveErrors[nicdevice] ; }
+
+END { for (nic in nicdevices) {
+          if (EtherT[nic] == "Logical") {
+             printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;;;%s;;\n", nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],"Logical");
+             }
+             else {
+                   printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;%s;%s;%s;%s;\n",nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],linkSpeed[nic],duplexMode[nic],"Physical", mac[nic]);
+                  }
+
+          }
+}
+EmbeddedFile(3).End
+////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(4) = awk script that reformats lscfg's output
+///    in order to list memory modules
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(4):
+BEGIN {
+	MemoryObject = 0;
+	DeviceID = "";
+	Size = "";
+	SerialNumber = "";
+	PartNumber = "";
+}
+/Memory [DS]IMM:/ {
+	MemoryObject = 1;
+}
+
+/Size\.+/ {
+	Size = $0;
+	gsub(" +Size\\.+", "", Size);
+}
+/Serial Number\.+/ {
+	SerialNumber = $0;
+	gsub(" +Serial Number\\.+", "", SerialNumber);
+}
+/Part Number\.+/ {
+	PartNumber = $0;
+	gsub(" +Part Number\\.+", "", PartNumber);
+}
+/Physical Location:/ {
+	if (MemoryObject == 1)
+	{
+		DeviceID = $3;
+
+		if (Size == 0)
+		{
+			Status = "ALARM";
+			StatusInformation = "Failed";
+		}
+		else
+		{
+			Status = "OK";
+			StatusInformation = "";
+		}
+		print "MSHW;" DeviceID ";" Size ";" SerialNumber " - FRU: " PartNumber ";" Status ";" StatusInformation
+	}
+	DeviceID = "";
+	MemoryObject = 0;
+	SerialNumber = "";
+	PartNumber = "";
+}
+EmbeddedFile(4).End
+////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = awk script that reformats errpt's output
+///    to list problems on the main system (notably power issues)
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+BEGIN {
+	errorCount = 0;
+	lastErrorDescription = "";
+	lastTimestamp = "";
+}
+($5 == "sysplanar0") {
+	errorCount++;
+	lastErrorDescription = $6;
+	for (i=7 ; i<=NF ; i++)
+	{
+		lastErrorDescription = lastErrorDescription " " $i;
+	}
+	lastTimestamp = "20" substr($2, 9, 2) "-" substr($2, 1, 2) "-" substr($2, 3, 2) " " substr($2, 5, 2) ":" substr($2, 7, 2)
+}
+END {
+	if (errorCount == 0)
+	{
+		print "MSHW;OK;No error on sysplanar0 as of today";
+	}
+	else if (errorCount == 1)
+	{
+		print "MSHW;ALARM;" lastErrorDescription " on " lastTimestamp;
+	}
+	else
+	{
+		print "MSHW;ALARM;" errorCount " errors in errpt. Last error: " lastErrorDescription " on " lastTimestamp;
+	} # end else
+}
+EmbeddedFile(5).End
+////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(6) = shell script that runs lcfg to retrieve the
+///    model, type (Physical or Virtual) and MAC address of each entX card
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(6):
+#!/bin/sh
+for NIC in `/usr/sbin/lsdev -C -S a -c adapter -F 'name'|/usr/bin/grep ^ent[0-9]`
+do
+	echo MS_HW_lscfg_Start: $NIC
+	/usr/sbin/lscfg -v -s -l $NIC 2> /dev/null
+	if [ $? -gt 0 ]; then
+	echo $NIC
+	lsdev -l $NIC |cut -c 17-
+	fi
+	echo MS_HW_lscfg_End: $NIC
+done
+EmbeddedFile(6).End
+////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(7) = awk script that reformats lscfg's output
+///    from EmbeddedFile(6) and returns one line per entX card
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(7):
+/MS_HW_lscfg_Start/ {
+	nicID = "";
+	model = "";
+	MACaddress = "";
+	nicType = "";
+	hwLocationCode = "";
+}
+($1 ~ /^ent[0-9]/) {
+	nicID = $1;
+	hwLocationCode = $2;
+	getline;
+	gsub("^ +", "");
+	model = $0;
+}
+/^ *Network Address/ {
+	gsub("^ *Network Address\\.+", "");
+	MACaddress = $1;
+	if (length(MACaddress) == 12)
+	{
+		MACaddress = substr(MACaddress, 1, 2) ":" substr(MACaddress, 3, 2) ":" substr(MACaddress, 5, 2) ":" substr(MACaddress, 7, 2) ":" substr(MACaddress, 9, 2) ":" substr(MACaddress, 11, 2);
+	}
+}
+/MS_HW_lscfg_End/ {
+	if (nicID != "")
+	{
+		if (model ~ /Virtual/ || model ~ /EtherChannel/ || model ~ /VLAN/)
+		{
+			nicType = "Logical";
+		}
+		else
+		{
+			nicType = "Physical";
+		}
+		print "MSHW;" nicID ";" model ";" nicType ";" MACaddress ";Location: " hwLocationCode ";"
+	}
+
+	nicID = "";
+	model = "";
+	MACaddress = "";
+	nicType = "";
+	hwLocationCode = "";
+
+}
+EmbeddedFile(7).End
+////////////////////////////////////////////////////////////////////

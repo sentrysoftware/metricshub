@@ -1,0 +1,810 @@
+---
+monitors:
+  enclosure:
+    discovery:
+      mapping:
+        # The discovery table = source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: DellBladeChassis
+          __display_id: Dell Blade Chassis
+          model: $column(1)
+          serial_number: $column(2)
+          type: Chassis
+          name: "sprintf(\"Enclosure: %s (%s)\", \"Dell Blade Chassis\", $column(1))"
+    collect:
+      sources:
+        source(2):
+          # Source(2) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Retrieve the overall status of the chassis and its power consumption with a smart AWK script
+            # Status;StatusInformation;PowerConsumption
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(2)$
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(1)
+          hw.enclosure.power: $column(3)
+          hw.enclosure.energy: fakeCounter($column(3))
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the blades thanks to a smart AWK script
+            # BladeID;BladeModel;
+          - type: awk
+            script: EmbeddedFile(7)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,6"
+        source(2):
+          computes:
+            # Now, extract the blades hostnames
+            # BladeID;SlotName;HostName;
+          - type: awk
+            script: EmbeddedFile(12)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+        source(3):
+          # Source 3 = Join of Blade info and host info
+          # BladeID;BladeModel;BladeID;SlotName;HostName;
+          type: tableJoin
+          leftTable: $monitors.blade.discovery.sources.source(1)$
+          rightTable: $monitors.blade.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+      mapping:
+        # InstanceTable = Source(3)
+        # BladeID;BladeModel;BladeID;SlotName;HostName;
+        source: $monitors.blade.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          blade_name: $column(5)
+          model: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the power supplies status thanks to a smart AWK script
+            # PowerSupplyID;Status;StatusInformation;PowerState
+          - type: awk
+            script: EmbeddedFile(7)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="blade"}: $column(2)
+          hw.blade.power_state: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the temperatures thanks to a smart AWK script
+            # TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;
+          - type: awk
+            script: EmbeddedFile(3)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5,6,7"
+            # Replace "Unknown" status with blank to deactivate teh parameter
+            # TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;
+          - type: replace
+            column: 6
+            existingValue: UNKNOWN
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the temperatures thanks to a smart AWK script
+            # TemperatureID;Temperature;Status;StatusInformation;
+          - type: awk
+            script: EmbeddedFile(3)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,6,7,8"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the fans thanks to a smart AWK script
+            # FanID;Location;WarningThreshold;AlarmThreshold
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(4)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the fans thanks to a smart AWK script
+            # FanID;Speed;Status;StatusInformation;
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,6,7,8"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(2)
+          hw.status{hw.type="fan"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            # PowerSupplyID;
+          - type: awk
+            script: EmbeddedFile(5)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: 2
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: $column(1)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the power supplies status thanks to a smart AWK script
+            # PowerSupplyID;Status;StatusInformation
+          - type: awk
+            script: EmbeddedFile(5)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
+            # OtherDeviceID;DeviceType;
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          device_type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: "sprintf(\"%s: %s\", $column(2), $column(1))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
+            # OtherDeviceID;Status;StatusInformation
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            # MSHW;DeviceID;DisplayID;Status;StatusInformation;size;failurepredicted;Model;SerialNumber;
+            # DeviceID;DisplayID;size;Model;SerialNumber;
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,6,8,9"
+            # Convert the size into bytes
+            # DeviceID;DisplayID;size;Model;SerialNumber;
+          - type: multiply
+            column: 3
+            value: 1073741824
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID;DisplayID;size;Model;SerialNumber;
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: $column(4)
+          serial_number: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(4), $column(3))"
+        metrics:
+          hw.physical_disk.size: $column(3)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the power supplies status thanks to a smart AWK script
+            # MSHW;DeviceID;DisplayID;Status;StatusInformation;size;failurepredicted;Model;SerialNumber;
+            # DeviceID;Status;StatusInformation;PredictedFailure
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,4,5,7"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            # MSHW;DeviceID;status;statusInformation;Model;Firmware;
+            # DeviceID;Model;Firmware;
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,5,6"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the power supplies status thanks to a smart AWK script
+            # MSHW;DeviceID;status;statusInformation;Model;Firmware;
+            # DeviceID;Status;StatusInformation;
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            # DeviceID;Status;StatusInformation;
+            # DeviceID;
+          - type: awk
+            script: EmbeddedFile(10)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: 2
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: $column(1)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the power supplies status thanks to a smart AWK script
+            # DeviceID;Status;StatusInformation;
+          - type: awk
+            script: EmbeddedFile(10)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: static
+          value: ENCLO_SOURCE_DISCO
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            # MSHW;DeviceID;Status;StatusInformation;Name;RaidLevel;Size;
+            # DeviceID;Name;RaidLevel;Size;
+          - type: awk
+            script: EmbeddedFile(11)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,5,6,7"
+            # Convert the size into bytes
+            # DeviceID;Name;RaidLevel;Size;
+          - type: multiply
+            column: 4
+            value: 1073741824
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          raid_level: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: DellBladeChassis
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(3), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: static
+          value: ENCLO_SOURCE_COL
+          computes:
+            # Now, extract the power supplies status thanks to a smart AWK script
+            # DeviceID;Status;StatusInformation;
+          - type: awk
+            script: EmbeddedFile(11)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = "="; model = ""; serialNumber = ""; }
+    $1 ~ /^System Model *$/ { model = "Dell" $2 $3; }
+    $1 ~ /^Service Tag *$/ { serialNumber = $2; }
+    END { gsub (/Power[Ee]dge ?/,"PE-",model);gsub (/Control ?[Pp]anel/,"",model);
+            print "MSHW;" model ";" serialNumber";" }
+  EmbeddedFile(11): |-
+    $NF ~ /Disk.Virtual./ {DeviceID = $NF ; gsub (/Disk.Virtual./,"",DeviceID) }
+    tolower($1) ~ /^status$/ {if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                              else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                              else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                              else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                           }
+    tolower($1) ~ /name/ {Name = $3}
+    tolower($1) ~ /layout/ {RaidLevel = $3}
+    tolower($1) ~ /^size$/ && DeviceID != "" {
+                              Size = $3 ; if (toupper($4) ~ /TB/) {size = size * 1024}
+    # DeviceID;Status;StatusInformation;Name;RaidLevel;Size;
+                              print "MSHW;" DeviceID ";" status ";" statusInformation ";" Name ";" RaidLevel ";" Size ";"
+                              DeviceID="" ; status="" ; statusInformation="" ; Name = "" ; RaidLevel = "" ; Size = "" ;
+                             }
+  EmbeddedFile(12): |-
+    # MSHW;BladeID;SlotName;HostName;
+    $1 ~ /^[0-9]+$/ {print "MSHW;" $1 ";" $2 ";" $3 ";" }
+  EmbeddedFile(3): |-
+    # m1000e / MX7000
+    # Find the location of the rawStatus and sensorName as they now contain spaces
+    $4 ~ /.status./ { rawStatusStart = index($0,"status") - 1  ; rawStatusLength = index($0,$5) - rawStatusStart  }
+    $3 ~ /.sensorName./ { sensorNameStart = index($0,"sensorName") - 1 ; sensorNameLength = index($0,$4) - sensorNameStart  }
+
+    # Extract the rawStatus and sensorName
+    ($1 == "Temp" && $(NF-2) ~ /[Cc]el[cs]ius/ && NF > 7) {
+        rawStatus = substr($0,rawStatusStart,rawStatusLength) ; gsub(/ *$/,"",rawStatus)
+        sensorName = substr($0,sensorNameStart ,sensorNameLength ) ; gsub(/ *$/,"",sensorName)
+        if (rawStatus  ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+        else if (rawStatus  ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+        else if (rawStatus  ~ /^[Nn]ot [Oo][Kk]$/ ) { status = "ALARM"; statusInformation = "Not OK"; }
+        else { status = "WARN"; statusInformation = rawStatus; }
+
+      # TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;StatusInformation;
+      print ("MSHW;" $2 ";" sensorName  ";;" $NF ";" $(NF-3) ";" status ";" statusInformation ";")
+    }
+
+
+    # VRTX
+    $1 ~ /Sensor/ && $2 ~ /Type/ && $4 ~ /Temperature/ {Section = "VRTX_TEMP"}
+    NF < 2 {Section = ""}
+    $1 ~ "<Sensor" && $2 ~ "Name>" && Section == "VRTX_TEMP" {statusOffset = index ($0,"<Status>")
+                                      readingOffset = index ($0,"<Reading>")
+                                      UWOffset = index ($0,"<UW>")
+                                      UCOffset = index ($0,"<UC>")
+                                      getline
+                                     }
+    Section == "VRTX_TEMP"  && statusOffset != "" {
+                                      deviceID = substr ($0,1,statusOffset-2) ; gsub(/ *$/,"",deviceID)
+                                      status = substr ($0,statusOffset,6)
+                                        if (status ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                        else if (status ~ /^[Oo][Kk]/) { status = "OK"; statusInformation = ""; }
+                                        else if (status ~ /[^Nn]ot [Oo][Kk]/) { status = "ALARM"; statusInformation = "Not OK"; }
+                                        else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                        Reading = substr ($0,readingOffset,4) ; gsub (/ /,"",Reading); gsub ("^[Nn]/[Aa]$","",Reading)
+                                        UW = substr ($0,UWOffset,4) ; gsub (/ /,"",UW);
+                                        UC = substr ($0,UCOffset,4) ; gsub (/ /,"",UC);
+    # TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;StatusInformation;
+                                        print "MSHW;" deviceID ";" ";" UW ";" UC ";" Reading ";" status ";" statusInformation ";"
+                                        deviceID=""; UW =""; UC=""; Reading=""; status=""; statusInformation="";
+                                       }
+    # VRTX RAID
+    $1 ~ /TempSensor./ {DeviceID = $1 ; gsub (/TempSensor.Embedded./,"",DeviceID) }
+    tolower($1) ~ /name/ {Location = $0 ;  gsub (/.*= /,"",Location) }
+    tolower($1) ~ /status/ {if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                              else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                              else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                              else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                             }
+    tolower($1) ~ /readingdegreecelcius/ && ($3 > 0) {Temperature = $3 ;}
+    tolower($1) ~ /maximumwarningthreshold/ && ($3 > 0) {WarningThreshold = $3 ; }
+    tolower($1) ~ /maximumfailurethreshold/ && DeviceID != "" {
+                                               if ($3 > 0) {AlarmThreshold = $3 }
+    # TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;StatusInformation;
+                                               print "MSHW;" DeviceID ";" Location ";" WarningThreshold ";" AlarmThreshold ";" Temperature ";" status ";" statusInformation ";"
+                                               DeviceID="" ; Location="" ; WarningThreshold="" ; AlarmThreshold="" ; Temperature="" ; status="" ; statusInformation="" ;
+                                              }
+  EmbeddedFile(2): |-
+    ($1 == "Chassis" && $2 == "Present") {
+        if ($4 ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+        else if ($4 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+        else if ($4 ~ /^[Nn]ot$/ && $5 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+        else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    }
+    /^ *System Input Power/ && $5 ~ /[0-9][0-9]/ {powerConsumption = $5}
+    END {
+        print "MSHW;" status ";" statusInformation ";" powerConsumption ";"
+    }
+  EmbeddedFile(5): |-
+    # m1000e
+    ($1 == "PWR" && $3 ~ /^PS-[0-9]$/ && NF > 4) {
+      if ($4 ~ /^Slot$/ && $5 ~ /^Empty$/) {next}
+      else if ($4 ~ /^Redundant$/) {status="OK";statusInformation="Redundant"}
+      else if ($4 ~ /^Online$/) {status="OK";statusInformation="Online"}
+      else if ($4 ~ /^Failed$/) {status="ALARM";statusInformation="Failed"}
+      else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+        if ($(NF-1) ~ /^[Nn]ot$/ && $NF ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = statusInformation " - No AC"; }
+    # PowerSupplyID;Status;StatusInformation
+        print "MSHW;" $3 ";" status ";" statusInformation ";"
+    }
+
+    # Both VRTX and M1000e
+    $0 ~ /^Overall Power Health/ {deviceID = "Overall Power Health"
+                                  if ($NF ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                    else if ($(NF-1) ~ /^[Nn]ot$/ && $NF ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                                  else if ($NF ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                                    else { status = "UNKNOWN"; statusInformation = "Unknown Status"; } ;
+                                    print "MSHW;" deviceID ";" status ";" statusInformation ";"
+                                 }
+
+    # VRTX
+    $1 ~ /Sensor/ && $2 ~ /Type/ && $4 ~ /Power/ {Section = "VRTX_PSU"}
+    NF < 2 {Section = ""}
+    $1 ~ "<Sensor" && $2 ~ "Name>" && Section == "VRTX_PSU" {statusOffset = index ($0,"<Status>")
+                                      getline
+                                     }
+    Section == "VRTX_PSU"  && statusOffset != "" {
+                                      deviceID = substr ($0,1,statusOffset-2) ; gsub(/ *$/,"",deviceID)
+                                      status = substr ($0,statusOffset,10)
+                                      if (status ~ /^Slot Empty/) {next}
+                                    else if (status ~ /^Redundant/) {status="OK";statusInformation="Redundant"}
+                                    else if (status ~ /^Online/) {status="OK";statusInformation="Online"}
+                                    else if (status ~ /^Failed/) {status="ALARM";statusInformation="Failed"}
+                                    else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                    if ($(NF-1) ~ /^[Nn]ot$/ && $NF ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = statusInformation " - No AC"; }
+    # PowerSupplyID;Status;StatusInformation
+                                        print "MSHW;" deviceID ";" status ";" statusInformation ";"
+                                       }
+  EmbeddedFile(4): |-
+    # m1000e
+    ($1 == "FanSpeed" && $(NF-2) ~ /rpm/ && NF > 7) {
+        if ($4 ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+        else if ($4 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+        else if ($4 ~ /^[Nn]ot$/ && $5 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+        else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+        WarningThreshold = $(NF-1) ; gsub(/N.A/,"",WarningThreshold )
+        AlarmThreshold = $(NF-3) ; gsub(/N.A/,"",AlarmThreshold )
+        # FanID;Location;WarningThreshold;AlarmThreshold;Speed;Status;StatusInformation;
+        print ("MSHW;" $2 ";" $3 ";;" WarningThreshold  ";" AlarmThreshold ";" status ";" statusInformation ";")
+    }
+
+    # MX7000
+    ($1 == "FanSpeed" && $(NF-3) ~ /rpm/ && NF > 7) {
+        if ($4 ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+        else if ($4 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+        else if ($4 ~ /^[Nn]ot$/ && $5 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+        else { status = "WARN"; statusInformation = $4 ; }
+        WarningThreshold = $(NF-2) ; gsub(/N.A/,"",WarningThreshold)
+        AlarmThreshold = $(NF-4) ; gsub(/N.A/,"",AlarmThreshold )
+        # FanID;Location;WarningThreshold;AlarmThreshold;Speed;Status;StatusInformation;
+        print ("MSHW;" $2 ";" $3 ";;" WarningThreshold ";" AlarmThreshold ";" status ";" statusInformation ";")
+    }
+
+    # VRTX
+    $1 ~ /Sensor/ && $2 ~ /Type/ && $4 ~ /FanSpeed/ {Section = "VRTX_FAN"}
+    NF < 2 {Section = ""}
+    $1 ~ "<Sensor" && $2 ~ "Name>" && Section == "VRTX_FAN" {statusOffset = index ($0,"<Status>")
+                                      readingOffset = index ($0,"<Reading>")
+                                      LWOffset = index ($0,"<LW>")
+                                      LCOffset = index ($0,"<LC>")
+                                      getline
+                                     }
+    Section == "VRTX_FAN"  && statusOffset != "" {
+                                      deviceID = substr ($0,1,statusOffset-2) ; gsub(/ *$/,"",deviceID)
+                                      status = substr ($0,statusOffset,6)
+                                        if (status ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                        else if (status ~ /^[Oo][Kk]/) { status = "OK"; statusInformation = ""; }
+                                        else if (status ~ /[^Nn]ot [Oo][Kk]/) { status = "ALARM"; statusInformation = "Not OK"; }
+                                        else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                        Reading = substr ($0,readingOffset,4) ; gsub (/ /,"",Reading); gsub ("^[Nn]/[Aa]$","",Reading)
+                                        LW = substr ($0,LWOffset,4) ; gsub (/ /,"",LW);
+                                        LC = substr ($0,LCOffset,4) ; gsub (/ /,"",LC);
+    # FanID;Location;WarningThreshold;AlarmThreshold;Speed;Status;StatusInformation;
+                                        print "MSHW;" deviceID ";" ";" LW ";" LC ";" Reading ";" status ";" statusInformation ";"
+                                       }
+  EmbeddedFile(7): |-
+    ($1 ~ /Server-[0-9]+/ && $2 == "Present") {
+        ServerID = $1 ; gsub (/Server-/,"",ServerID);
+        if ($4 ~ "^[Nn]/[Aa]$" ) { status[ServerID] = "UNKNOWN"; statusInformation[ServerID] = "Unknown Status"; }
+        else if ($4 ~ /^[Oo][Kk]$/) { status[ServerID] = "OK"; statusInformation[ServerID] = ""; }
+        else if ($4 ~ /^[Nn]ot$/ || $5 ~ /^[Oo][Kk]$/) { status[ServerID] = "ALARM"; statusInformation[ServerID] = "Not OK"; }
+        else { status[ServerID] = "UNKNOWN"; statusInformation[ServerID] = "Unknown Status"; } ;
+      deviceType[ServerID] = $1 ; gsub (/-[0-9]+/,"",deviceType[ServerID]) ;
+      powerstate[ServerID] = tolower($3);
+      }
+
+    ($1 ~ /^[0-9]+$/ && $5 ~ /^W$/) && $6 ~ /^[0-9]+$/ {
+        ServerID = $1
+        BladeModel[ServerID] = $7
+        if ($NF != $7) {BladeModel[ServerID] = BladeModel[ServerID] " " $NF}
+      }
+    ($1 ~ /^[0-9]+$/ && $4 ~ /^W$/) && $5 ~ /^[0-9]+$/ {
+        ServerID = $1
+        BladeModel[ServerID] = $6
+        if ($NF != $6) {BladeModel[ServerID] = BladeModel[ServerID] " " $NF}
+      }
+    END {for (ServerID in status) {
+               print"MSHW;" ServerID ";" status[ServerID] ";" statusInformation[ServerID] ";" powerstate[ServerID] ";" BladeModel[ServerID] ";"
+               }
+          }
+  EmbeddedFile(6): |-
+    BEGIN {chassislogStatus = "" ; chassislogStatusInformation = "Event Messages" ; EventTrigger = 0 }
+    $0 ~ /^[ ]*No records available to display[ ]*$/ {chassislogStatus = "OK"}
+
+    $1 ~ /Severity/ && $3 ~ /[Cc]ritical/ {chassislogStatus = "ALARM" ; EventTrigger = 1}
+    $0 ~ /^Message[ ]*=[ ]*/ && EventTrigger == 1  {Message = $0 ; gsub(/^Message[ ]*=[ ]*/,"",Message) ;
+                                           if ( Message !~ /log *in/ && Message !~ /user/) {chassislogStatusInformation = chassislogStatusInformation " - " Message}
+                                           EventTrigger = 0
+                                          }
+
+    # VRTX and M1000e
+    (($1 ~ /Storage-[0-9]+/ || $1 ~ /MM-[0-9]+/ || $1 ~ /CMC-[0-9]+/ || $1 ~ /Switch-[0-9]+/ || $1 ~ /KVM/ || $1 ~ /DVD/ || $1 ~ /IO-Cable/ || $1 ~ /FPC-Cable/ || $1 ~ /Main-Board/ ) && $2 ~ /Present/ ) {
+        if ($4 ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+        else if ($4 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+        else if ($4 ~ /^[Nn]ot$/ || $5 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+        else { status = "UNKNOWN"; statusInformation = "Unknown Status"; } ;
+        deviceType = $1 ; gsub (/-[0-9]+/,"",deviceType) ;
+        print "MSHW;" $1 ";" deviceType ";" status ";" statusInformation ";"
+    }
+
+    #ChassisLog Section (VRTX / MX7000 only)
+    END {  # if no true events were found reset the status
+        if ( chassislogStatusInformation ~ /^Event Messages$/ ) {chassislogStatus = "OK" ;  chassislogStatusInformation = "No Critical Events Found (Login / User events ignored)" }
+        # print
+        if (chassislogStatus != "") {print "MSHW;ChassisLog;EventLog;"chassislogStatus";" chassislogStatusInformation ";"}
+        }
+  EmbeddedFile(10): |-
+    $1 ~ /^Battery.Integrated./ {DeviceID = $1 ; gsub (/Battery.Integrated./,"",DeviceID) }
+    tolower($1) ~ /^status$/ && DeviceID != "" {
+                              if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                              else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                              else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                              else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    # DeviceID;Status;StatusInformation;
+                              print "MSHW;" DeviceID ";" status ";" statusInformation ";"
+                              DeviceID="" ; status="" ; statusInformation="" ;
+                             }
+  EmbeddedFile(9): |-
+    $1 ~ /RAID.ChassisIntegrated/ {DeviceID = $1 ; gsub (/RAID.ChassisIntegrated./,"",DeviceID) }
+    tolower($1) ~ /status/ {if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                              else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                              else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                              else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                             }
+
+    tolower($1) ~ /name/ {Model = $0 ;  gsub (/.*= /,"",Model) }
+    tolower($1) ~ /firmwareversion/ && DeviceID != "" {
+                                       Firmware = $3
+                                       print "MSHW;" DeviceID ";" status ";" statusInformation ";" Model ";" Firmware ";"
+                                       DeviceID = "" ; status = "" ; statusInformation = "" ; Model = "" ; Firmware = "" ;
+                                      }
+  EmbeddedFile(8): |-
+    $1 ~ /Disk.Bay./ {DeviceID = $1 ; DisplayID = DeviceID ; gsub (/:.*/,"",DisplayID) ;}
+    tolower($1) ~ /^status$/ {if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                              else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                              else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                              else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                             }
+    tolower($1) ~ /^size$/ {Size = $3 ; if (toupper($4) ~ /TB/) {size = size * 1024} }
+    tolower($1) ~ /failurepredicted/ { if ($3 ~ /NO/) {FailurePredicted = "FALSE"}
+                                       else {FailurePredicted = "TRUE" }
+                                     }
+    tolower($1) ~ /productid/ {Model = $3}
+    tolower($1) ~ /serialnumber/ && DeviceID != "" {
+                              SerialNumber = $3
+    # DeviceID;DisplayID;Status;StatusInformation;size;failurepredicted;Model;SerialNumber;
+                              print "MSHW;" DeviceID ";" DisplayID ";" status ";" statusInformation ";" Size ";" FailurePredicted ";" Model ";" SerialNumber ";"
+                              DeviceID="" ; DisplayID="" ; status="" ; statusInformation="" ; Size=""; FailurePredicted=""; Model=""; SerialNumber="";
+                             }

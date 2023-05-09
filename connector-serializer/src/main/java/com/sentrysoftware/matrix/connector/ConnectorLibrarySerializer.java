@@ -173,7 +173,7 @@ public class ConnectorLibrarySerializer {
 					.filter(path -> path.toString().endsWith(".yaml"))
 					.filter(ConnectorLibrarySerializer::isConnectorSource)
 					.map(path -> path.getFileName().toString())
-					.sorted((c1, c2) -> c1.compareToIgnoreCase(c2))
+					.sorted(String::compareToIgnoreCase)
 					.toList();
 		}
 	}

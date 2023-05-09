@@ -1,0 +1,69 @@
+---
+extends:
+- EMCIsilon-header
+constants:
+  _IsiDevicesCommand: /usr/bin/isi devices drive list
+  _IsiDrivesCommand: /usr/bin/isi devices drive list
+  _IsiNetworkCommand: /usr/bin/isi network interfaces list --verbose --show-inactive
+  _IsiBatteryCommand: /usr/bin/isi batterystatus list
+  _IsiStatusCommand: /usr/bin/isi status -v
+connector:
+  displayName: EMC Isilon 8 (SSH)
+  platforms: EMC Isilon
+  reliesOn: EMC Isilon SSH interface
+  version: 1.0
+  information: This connector discovers the status of an EMC Isilon Storage Cluster 8
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    # Check that sudo is working by running /usr/bin/isi status -v
+    - type: osCommand
+      commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -v\" "
+      errorMessage: Unable to run /usr/bin/isi status -v.  Check rights / sudo status.
+      expectedResult: 'Cluster Name:'
+embedded:
+  EmbeddedFile(3): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+    NF > 7 {
+        if ($0 ~ /.*[Rr]eady, [Ee]nabled, and [Ff]ully [Cc]harged.*/)
+              {
+                  print "MSHW_BATTERY;" nodeName ";" nodeName"-"$2 ";" nodeName"-"$2 ";""Ready-enabled-fully charged"";""Ready-enabled-fully charged"";"
+                      }
+      else
+              print "MSHW_BATTERY;" nodeName ";" nodeName"-"$2 ";" nodeName"-"$2 ";" $3"-"$5";"$3"-"$5";"
+
+        }
+  EmbeddedFile(5): |-
+    {nodeName = $1 ; gsub (/:/,"",nodeName);}
+
+    $3 ~ /^Bay$/  {
+      nodeNumber = $2 ; nodeArray[nodeNumber] = nodeName ;
+      Location = $4 ; Location = "Bay-" Location
+        Lnum = $6 ; Lnum = "Lnum-" Lnum
+        Status = $7 ; gsub(/\].*$/,"",Status);gsub(/^.*\[/,"",Status);
+        SerialNumber = $8 ; gsub (/^SN:/,"",SerialNumber)
+        if ( Status != "EMPTY" ) {
+          print "MSHW_PhysicalDisk;" nodeName ";" nodeName "-" Location ";" Location ";" Lnum ";" SerialNumber ";" Status ";" Status ";"
+          }
+        }
+    END {
+      for (nodeNumber in nodeArray) {
+        print "MSHW_Node;" nodeArray[nodeNumber] ";" nodeNumber ";"
+        }
+      }
+  EmbeddedFile(6): |-
+    $1 ~ /^IP/ && $2 ~ /Addresses/ {IPAddress = $NF}
+    $1 ~ /^LNN/ {NodeNumber = $NF}
+    $1 ~ /^Name/ {Interface = $NF }
+    $1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}
+    $1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,"",Status) ; gsub (/ +$/,"",Status)
+                                  print "MSHW;" NodeNumber ";" NICName ";" NICName ";" Interface ";" IPAddress ";" Status ";"
+                                  }
+  EmbeddedFile(9): |-
+    BEGIN {FS="\"";}
+    {
+        print $1 $3;
+    }

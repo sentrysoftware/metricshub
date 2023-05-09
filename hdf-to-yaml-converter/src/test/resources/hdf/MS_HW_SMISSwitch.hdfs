@@ -1,0 +1,54 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: SMI-S compliant switches
+//                Connects to a SMI-S WBEM agent
+//				  (namespace is supposed to be dynamically discovered)
+//
+
+
+// Constants
+#define _COMPUTERSYSTEM_DEDICATED_REGEXP "\(^5|\)\|\(|5|\)"
+#define _FCPORT_TYPE_VALUELIST "14,15,16,17,18"
+
+// Includes
+#include MS_HW_SMISShared.hhdf
+
+//
+// Header
+//
+
+hdf.DisplayName="SMI-S Compliant SAN Switches"
+hdf.TypicalPlatform="Any SMI-S compliant SAN switch"
+hdf.ReliesOn="SMI-S Agent provided by the switch vendor"
+hdf.Version="1.1"
+hdf.Comments="This connector discovers the enclosure and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant switches only."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+
+//
+// Detection
+//
+
+// There must be ComputerSystem of type Switch (5)
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace=Automatic
+Detection.Criteria(1).WbemQuery="SELECT Dedicated FROM CIM_ComputerSystem"
+Detection.Criteria(1).ExpectedResult="^5|;*$"
+
+// There must be FC Ports declared in the automatically discovered namespace
+Detection.Criteria(2).Type="WBEM"
+Detection.Criteria(2).WbemQuery="SELECT PortType FROM CIM_FCPort"
+Detection.Criteria(2).WbemNameSpace=Automatic
+Detection.Criteria(2).ExpectedResult="^\(14\)\|\(15\)\|\(16\)\|\(17\)\|\(18\);$"
+
+

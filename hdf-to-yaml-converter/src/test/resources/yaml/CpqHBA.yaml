@@ -1,0 +1,218 @@
+---
+connector:
+  displayName: HP Insight Management Agent - HBA
+  version: 1.0
+  information: This connector monitors the HBA cards present in an HP ProLiant system by connecting to the HP Insight Management agent.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    - Linux
+    - OSF1
+    - VMS
+    - OOB
+    - Solaris
+    criteria:
+    # The system must have at least one HBA
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.16.2.7.1.1
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaHostCntlr SNMP table
+          # DeviceID;ModelCode;WWNAddress;SerialNumber;HWLocation;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.16.2.7.1.1
+          selectColumns: "ID,3,6,10,11"
+          computes:
+            # Translate ModelCode into a more readable string
+            # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
+          - type: translate
+            column: 2
+            translationTable: HostControllerModelTranslationTable
+          # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
+          - type: leftConcat
+            column: 5
+            value: "Location: "
+      mapping:
+        # InstanceTable
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          device_type: FC Port
+          physical_address: $column(3)
+          physical_address_type: WWN
+          serial_number: $column(4)
+          info: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), \"FC Port\", $column(2))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaHostCntlr snmp table
+          # ID;Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.16.2.7.1.1
+          selectColumns: "ID,4"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status;Status;
+          - type: duplicateColumn
+            column: 2
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLStatus;Status;Status;
+          - type: translate
+            column: 2
+            translationTable: NetworkCardStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;StatusInformation;Status;
+          - type: translate
+            column: 3
+            translationTable: NetworkCardStatusInformationTranslationTable
+            # Translate the third status column into LinkStatus
+            # ID;PATROLStatus;StatusInformation;LinkStatus;
+          - type: translate
+            column: 4
+            translationTable: NetworkCardLinkStatusTranslationTable
+      mapping:
+        # The ValueTable = source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(4))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  NetworkCardLinkStatusTranslationTable:
+    "2": ok
+    default: ok
+    "3": degraded
+    "4": ok
+    "5": ok
+    "6": degraded
+    "7": degraded
+  NetworkCardStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Failed
+    "4": Shutdown
+    "5": Loop Degraded
+    "6": Loop Failed
+    "7": Not Connected
+  HostControllerModelTranslationTable:
+    "88": HPE Synergy 4820C 10/20/25Gb CNA
+    "89": HPE StoreFabric CN1200R 10Gb T CNA
+    "90": HPE StoreFabric CN1300R 10/25Gb CNA
+    "91": HPE Eth 10/25Gb 2p 622FLR-SFP28 CNA
+    "92": HPE Synergy 5330C 32Gb FC HBA
+    "93": HPE Synergy 5830C 32Gb FC HBA
+    "94": HPE Synergy 6820C 25/50Gb CNA
+    "95": HPE SN1610E 32Gb 1p FC HBA
+    "96": HPE SN1610E 32Gb 2p FC HBA
+    "97": HPE SN1610Q 32Gb 1p FC HBA
+    "10": PCI-X 2Gb FCA2404 FC HBA
+    "98": HPE SN1610Q 32Gb 2p FC HBA
+    "11": PCI-X 2Gb FCA2214 FC HBA
+    "12": PCI-X 2Gb A7298A FC HBA
+    "13": PCI-X 2Gb FCA2214DC FC HBA
+    "14": PCI-X Dual Channel 2GB A6826A FC HBA
+    "15": FC Mezzaine Card G3
+    "16": FC Mezzaine Card G4
+    "17": PCI-X 2GB AB466A/AB467A FC HBA
+    "18": FC HBA
+    "19": HP FC1143 4Gb PCI-X 2.0 HBA
+    "2": Compaq StorageWorks FC HBA/P
+    "3": Compaq StorageWorks FC HBA/E
+    "4": Compaq StorageWorks 64-Bit/66-Mhz FC HBA
+    "5": "Compaq Smart Array, SAN Access Module"
+    "6": FCA-2101
+    "7": Compaq StorageWorks 64bit/33Mhz PCI to FC HBA
+    "8": FCA-221x
+    "9": Dual Port Fibre Channel Mezzanine Card (2 Gb)
+    "20": HP FC1243 4Gb PCI-X 2.0 DC HBA
+    "21": HP FC2143 4Gb PCI-X 2.0 HBA
+    "22": HP FC2243 4Gb PCI-X 2.0 DC HBA
+    "23": HP StorageWorks 1050 HBA
+    "24": Emulex LPe1105-HP 4Gb FC HBA
+    "25": Qlogic QMH2462 4Gb FC HBA
+    "26": HP FC1142SR 4Gb PCI-e HBA
+    "27": HP FC1242SR 4Gb PCI-e DC HBA
+    "28": HP FC2142SR 4Gb PCI-e HBA
+    "29": HP FC2242SR 4Gb PCI-e DC HBA
+    default: FC HBA
+    "30": Emulex based BL20p FC Mezz HBA
+    "31": HP StorageWorks 81Q 8Gb PCI-e FC HBA
+    "32": HP StorageWorks 82Q 8Gb PCI-e Dual Port FC HBA
+    "33": QLogic QMH2562 8Gb FC HBA
+    "34": HP StorageWorks 81E 8Gb PCI-e FC HBA
+    "35": HP StorageWorks 82E 8Gb PCI-e Dual Port FC HBA
+    "36": Emulex LPe 1205-HP 8Gb FC HBA
+    "37": HP SN1000E 16Gb Single Port FC HBA
+    "38": HP SN1000E 16Gb Dual Port FC HBA
+    "39": HP SN1000Q 16Gb Single Port FC HBA
+    "40": HP SN1000Q 16Gb Dual Port FC HBA
+    "41": HP SN1100E 16Gb Single Port FC HBA
+    "42": HP SN1100E 16Gb Dual Port FC HBA
+    "43": HP StorageWorks 81B 8Gb Single Port PCI-e FC HBA
+    "44": HP StorageWorks 82B 8Gb Dual Port PCI-e FC HBA
+    "45": HP StorageWorks CN1100E Dual Port Converged Network Adapter
+    "46": HP FlexFabric 10Gb 2-port 554FLB Adapter
+    "47": HP FlexFabric 10Gb 2-port 554M Adapter
+    "48": HP FlexFabric 10Gb 2-port 554FLR-SFP+ Adapter
+    "49": HP Fibre Channel 8Gb LPe1205A Mezz
+    "50": HP StorageWorks CN1000Q Dual Port Converged Network Adapter
+    "51": HP QMH2572 8Gb FC HBA for c-Class BladeSystem
+    "52": HP FlexFabric 10Gb 2-port 526FLR-SFP+ Adapter
+    "53": HP QMH2672 16Gb FC HBA for c-Class BladeSystem
+    "54": HP FlexFabric 10Gb 2-port 534FLB Adapter
+    "55": HP FlexFabric 10Gb 2-port 534FLR-SFP+ Adapter
+    "56": HP FlexFabric 10Gb 2-port 534M Adapter
+    "57": HP StoreFabric CN1100R Dual Port Converged Network Adapter
+    "58": HP Fibre Channel 16Gb LPe1605 Mezz
+    "59": HP FlexFabric 20Gb 2-port 630FLB Adapter
+    "60": HP FlexFabric 20Gb 2-port 630M Adapter
+    "61": HP FlexFabric 10Gb 2-port 556FLR-SFP+ Adapter
+    "62": HP FlexFabric 20Gb 2-port 650M Adapter
+    "63": HP FlexFabric 20Gb 2-port 650FLB FIO Adapter
+    "64": HP StoreFabric CN1200e Dual Port Converged Network Adapter
+    "65": HP FlexFabric 10Gb 2-port 536FLB Adapter
+    "66": HPE FlexFabric 10Gb 2-port 533FLR-T Adapter
+    "67": HPE FlexFabric 10Gb 2-port 556FLR-T Adapter
+    "68": HPE StoreFabric CN1100R-T Adapter
+    "69": HPE StoreFabric CN1200E-T Dual Port CNA
+    "70": HPE FlexFabric 10Gb 4-port 536FLR-T Adapter
+    "71": HPE FlexFabric 10G 2-port 556FLB Adapter
+    "72": HPE Synergy 2820C 10Gb Converged Network Adapter
+    "73": HPE Synergy 3520C 10/20Gb Converged Network Adapter
+    "74": HPE Synergy 3530C 16G FC HBA
+    "75": HPE Synergy 3820C 10/20Gb CNA
+    "76": HPE Synergy 3830C 16G FC HBA
+    "77": HPE StoreFabric 84Q 4P 8Gb FC HBA
+    "78": HPE StoreFabric SN1100Q 16Gb 1P FC HBA
+    "79": HPE StoreFabric SN1100Q 16Gb 2P FC HBA
+    "80": HPE StoreFabric 84E 4P 8Gb FC HBA
+    "81": HPE StoreFabric SN1100E 4-port 16Gb FC HBA
+    "82": HPE SN1600Q 32Gb 1p FC HBA
+    "83": HPE SN1600Q 32Gb 2p FC HBA
+    "84": HPE SN1600E 32Gb 1p FC HBA
+    "85": HPE SN1600E 32Gb 2p FC HBA
+    "86": HPE SN1200E 32Gb 1p FC HBA
+    "87": HPE SN1200E 32Gb 2p FC HBA
+  NetworkCardStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+    "5": degraded
+    "6": ok
+    "7": ok

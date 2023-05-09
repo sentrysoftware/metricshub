@@ -1,0 +1,623 @@
+---
+connector:
+  displayName: Pure Storage FA Series (REST)
+  platforms: Pure Storage
+  reliesOn: Pure Storage REST API
+  version: 1.0
+  information: "This connector discovers the environmental, physical disks, management network cards and fiber ports on Pure Storage FA Series arrays. It relies on the Pure Storage API version 1.13 and higher."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    # Try and get a token
+    - type: http
+      method: POST
+      url: /api/1.13/auth/apitoken
+      body: "{\"password\":\"%{PASSWORD}\",\"username\":\"%{USERNAME}\"}"
+      header: EmbeddedFile(1)
+      expectedResult: api_token
+      errorMessage: Authentication Failed.  Check user credentials
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Get Token
+          type: http
+          method: POST
+          url: /api/1.13/auth/apitoken
+          header: EmbeddedFile(1)
+          body: "{\"password\":\"%{PASSWORD}\",\"username\":\"%{USERNAME}\"}"
+          computes:
+            # Convert JSON to CSV
+            # JSON;api_token;
+          - type: json2csv
+            entryKey: /
+            properties: /api_token;
+          # AuthenticationToken
+          - type: keepColumns
+            columnNumbers: 2
+        source(2):
+          # Get Session
+          type: http
+          method: POST
+          url: /api/1.13/auth/session
+          header: EmbeddedFile(1)
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          body: "{\"api_token\": \"%{AUTHENTICATIONTOKEN}\"}"
+          resultContent: all
+          computes:
+          # Parse Cookie
+          - type: awk
+            script: EmbeddedFile(2)
+        source(3):
+          # For use in Fan, Temperature, PowerSupply
+          type: http
+          method: GET
+          url: /api/1.13/hardware
+          header: EmbeddedFile(3)
+          authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
+          computes:
+            # Convert JSON to CSV
+            # Name is taken 3 times. Unique ID, Controller, and Name
+            # json;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+          - type: json2csv
+            entryKey: /
+            properties: /status;/slot;/name;/temperature;/index;/identify;/voltage;/model;/speed;/serial;/details;
+          # Parse Hardware query results
+          - type: awk
+            script: EmbeddedFile(4)
+        source(4):
+          # For use in other discoveries
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Keep Only Enclosures
+            # name;model;serial;MSHW_Enclosure;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 4
+            regExp: MSHW_Enclosure
+        source(5):
+          # Get drive for otherdevice and PhysicalDisk
+          type: http
+          method: GET
+          url: /api/1.13/drive
+          header: EmbeddedFile(3)
+          authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
+          computes:
+            # Convert JSON to CSV
+            # JSON;protocol;name;name;name;capacity;type;
+          - type: json2csv
+            entryKey: /
+            properties: /name;/capacity;/type;/status;
+            # Parse Drive query results
+            # name;enclosure;displayID;capacity;type;status;MSHW_DRIVE;DeviceType
+          - type: awk
+            script: EmbeddedFile(5)
+          - type: excludeMatchingLines
+            column: 6
+            regExp: unused
+      mapping:
+        # InstanceTable
+        # name;model;serial;MSHW_Enclosure;DeviceType
+        source: $monitors.enclosure.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          model: $column(2)
+          serial_number: $column(3)
+          type: $column(5)
+          vendor: Pure Storage
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(1), \"Pure Storage\", $column(2))"
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: http
+          method: GET
+          url: /api/1.13/hardware
+          header: EmbeddedFile(3)
+          authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
+          computes:
+            # Convert JSON to CSV
+            # Status is collected 2 times. Status; StatusInformation
+            # json;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+          - type: json2csv
+            entryKey: /
+            properties: /status;/status;/slot;/name;/temperature;/index;/identify;/voltage;/model;/speed;/serial;/details;
+            # Translate PatrolStatus
+            # json;PatrolStatus;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+          - type: translate
+            column: 2
+            translationTable: StatusTranslationTable
+            # Translate Status Information
+            # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+          - type: translate
+            column: 3
+            translationTable: StatusInformationTranslationTable
+        source(2):
+          type: http
+          method: GET
+          url: /api/1.13/drive
+          header: EmbeddedFile(3)
+          authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
+          computes:
+            # Convert JSON to CSV
+            # JSON;name;status;status;
+          - type: json2csv
+            entryKey: /
+            properties: /name;/status;/status;
+            # Translate PatrolStatus
+            # JSON;name;PatrolStatus;status;
+          - type: translate
+            column: 3
+            translationTable: DriveTranslationTable
+            # Translate Status Information
+            # JSON;name;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 4
+            translationTable: DriveInformationTranslationTable
+      mapping:
+        # ValueTable
+        # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Keep Only Blades
+            # name;model;serial;MSHW_Blade;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 4
+            regExp: MSHW_Blade
+          - type: leftConcat
+            column: 5
+            value: "Type: "
+      mapping:
+        # InstanceTable
+        # name;model;serial;MSHW_Blade;DeviceType
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          blade_name: $column(1)
+          model: $column(2)
+          serial_number: $column(3)
+          info: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(1), $column(2))"
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+      mapping:
+        # InstanceTable
+        # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.status{hw.type="blade"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # name;enclosure;displayID;MSHW_Temperature;DeviceType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # name;enclosure;displayID;MSHW_Temperature;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 4
+            regExp: MSHW_Temperature
+      mapping:
+        # InstanceTable
+        # name;enclosure;displayID;MSHW_Temperature;DeviceType
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          hw.parent.type: $column(5)
+          hw.parent.id: $column(2)
+          name: $column(3)
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      mapping:
+        # ValueTable
+        # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.temperature: $column(6)
+          hw.status{hw.type="temperature"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # name;enclosure;displayID;MSHW_FAN;DeviceType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # name;enclosure;displayID;MSHW_FAN;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 4
+            regExp: MSHW_FAN
+      mapping:
+        # InstanceTable
+        # name;enclosure;displayID;MSHW_FAN;DeviceType
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          hw.parent.type: $column(5)
+          hw.parent.id: $column(2)
+          name: $column(3)
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      mapping:
+        # ValueTable
+        # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 6
+            regExp: MSHW_PWR
+          - type: leftConcat
+            column: 4
+            value: "Model: "
+          - type: leftConcat
+            column: 5
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable
+        # name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          info: "join($column(4), $column(5), \" \")"
+          hw.parent.type: $column(7)
+          hw.parent.id: $column(2)
+          name: $column(3)
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      mapping:
+        # ValueTable
+        # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          # name;enclosure;displayID;MSHW_NetworkCard;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 4
+            regExp: MSHW_NetworkCard
+        source(2):
+          type: http
+          method: GET
+          url: /api/1.13/network
+          header: EmbeddedFile(3)
+          authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
+          computes:
+          # json;name;hwaddr;enabled;
+          - type: json2csv
+            entryKey: /
+            properties: /name;/hwaddr;/enabled
+            # Extract Name
+            # json;name;hwaddr;enabled;
+          - type: extract
+            column: 2
+            subColumn: 2
+            subSeparators: .
+        source(3):
+          # Table Join
+          # Left Table :  name;enclosure;displayID;MSHW_NetworkCard;DeviceType
+          # Right Table : json;name;hwaddr;enabled;
+          # Result: name;enclosure;displayID;MSHW_NetworkCard;DeviceType;json;name;hwaddr;enabled;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          computes:
+          # Translate "enabled" to Link Speed Activation
+          - type: translate
+            column: 9
+            translationTable: LinkSpeedActivationTable
+      mapping:
+        # InstanceTable
+        # name;enclosure;displayID;MSHW_NetworkCard;DeviceType;json;name;hwaddr;enabled;
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          physical_address: $column(7)
+          physical_address_type: $column(10)
+          hw.parent.type: $column(5)
+          hw.parent.id: $column(2)
+          name: $column(3)
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          # status;status;name;speed;
+          - type: keepColumns
+            columnNumbers: "2,3,5"
+        source(2):
+          # Get Network information
+          type: http
+          method: GET
+          url: /api/1.13/network
+          header: EmbeddedFile(3)
+          authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
+          computes:
+            # Convert JSON to CSV
+            # json;name;speed;
+          - type: json2csv
+            entryKey: /
+            properties: /name;/speed;/enabled;
+            # Network Speed in b. Convert to Mb
+            # json;name;speed;enabled;
+          - type: divide
+            column: 3
+            value: 1000000
+        source(3):
+          # Join Tables
+          # Table 1 : PatrolStatus;StatusInformation;name;
+          # Table 2 : json;name;speed;enabled;
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(2)$
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          computes:
+          # PatrolStatus;StatusInformation;name;json;name;speed;enabled;
+          - type: translate
+            column: 7
+            translationTable: LinkStatusTranslationTable
+      mapping:
+        # ValueTable
+        # PatrolStatus;StatusInformation;name;json;name;speed;
+        source: $monitors.network.collect.sources.source(3)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="network"}: $column(1)
+          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.network.up: legacyLinkStatus($column(7))
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "MSHW_Drive"
+            # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 7
+            regExp: MSHW_Drive
+          - type: leftConcat
+            column: 5
+            value: "Type: "
+      mapping:
+        # InstanceTable
+        # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          info: $column(5)
+          hw.parent.type: $column(8)
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(4))"
+        metrics:
+          hw.physical_disk.size: $column(4)
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      mapping:
+        # ValueTable
+        # JSON;name;PatrolStatus;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(5)$
+          computes:
+            # Keep only "MSHW_OtherDevice"
+            # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+          - type: keepOnlyMatchingLines
+            column: 7
+            regExp: MSHW_OtherDevice
+      mapping:
+        # InstanceTable
+        # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          device_type: $column(5)
+          hw.parent.type: $column(8)
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s: %s\", $column(5), $column(3))"
+    collect:
+      # Collect
+      # MultiInstance
+      type: multiInstance
+      mapping:
+        # ValueTable
+        # JSON;name;PatrolStatus;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    Content-Type:application/json
+    Accept:application/json
+  EmbeddedFile(3): |-
+    Content-Type: application/json
+    Accept: application/json
+    Cookie: %{AUTHENTICATIONTOKEN}
+  EmbeddedFile(2): |-
+    BEGIN {FS=":";}
+    {
+    if ($1 == "Set-Cookie")
+        {
+             split($2,outputarray,";")
+             AuthenticationToken=outputarray[1]
+             print AuthenticationToken
+        }
+    }
+  EmbeddedFile(5): |-
+    BEGIN {FS=";";}
+    {
+      enclosure = $2 ; gsub ("[.].+","",enclosure);
+      displayID = $2 ; gsub ("^.+[.]","",displayID);
+
+      if ($2 ~ /^CT[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;DiskController"}
+      if ($2 ~ /^CH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Enclosure"}
+      if ($2 ~ /^SH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Disk Shelf"}
+
+      if ($2 ~ /^CT[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;DiskController"}
+      if ($2 ~ /^CH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Enclosure"}
+      if ($2 ~ /^SH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Disk Shelf"}
+
+    }
+  EmbeddedFile(4): |-
+    BEGIN {FS=";";}
+    {
+      enclosure = $4 ; gsub ("[.].+","",enclosure);
+      displayID = $4 ; gsub ("^.+[.]","",displayID);
+      if ($4 ~ /^CH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Enclosure;Enclosure" }
+
+      if ($4 ~ /^SH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+      if ($4 ~ /^CT[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+
+      if ($4 ~ /^CT[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+      if ($4 ~ /^CH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Enclosure"}
+      if ($4 ~ /^SH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+
+      if ($4 ~ /^CT[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+      if ($4 ~ /^CH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Enclosure"}
+      if ($4 ~ /^SH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+
+      if ($4 ~ /^CT[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+      if ($4 ~ /^CH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Enclosure"}
+      if ($4 ~ /^SH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+
+      if ($4 ~ /^CT[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+      if ($4 ~ /^CH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;MAC"}
+      if ($4 ~ /^SH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+
+      if ($4 ~ /^CT[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+      if ($4 ~ /^CH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;WWN"}
+      if ($4 ~ /^SH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+    }
+translations:
+  DriveInformationTranslationTable:
+    healthy: healthy
+    missing: 'Missing - '
+    failed: 'Failed - '
+    reachable: 'Reachable but not initialized - '
+    foreign: 'Drive is foreign to the array - '
+  LinkStatusTranslationTable:
+    default: ok
+    "false": degraded
+  DriveTranslationTable:
+    default: failed
+    healthy: ok
+    missing: failed
+    failed: failed
+    reachable: degraded
+    foreign: degraded
+  LinkSpeedActivationTable:
+    "true": "true"
+    "false": ""
+  StatusInformationTranslationTable:
+    ready: ok
+    failed: Failed
+    ok: ""
+    degraded: Degraded
+    not_installed: Missing
+  StatusTranslationTable:
+    default: failed
+    ready: ok
+    failed: failed
+    ok: ok
+    degraded: degraded
+    not_installed: failed

@@ -1,0 +1,194 @@
+//
+//
+//                 C o n n e c t o r
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//           MS_HW_HpNetRaidController.hdf
+//
+//      Supports: HP NetRaid disk controll
+//                (through the HP NetRaid SNMP sub-agent)
+//
+//
+
+// HEADER
+
+hdf.DisplayName="HP TopTools NetRaid Agent"
+hdf.TypicalPlatform="HP NetServer"
+hdf.ReliesOn="HP TopTools NetRaid Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector monitors the RAID disks (physical and logical) attached to an HP NetRAID controller. It uses the information provided by the HP NetRAID SNMP Sub-Agent, installed with the HP TopTools Server Agent."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux,NT"
+
+// DETECTION
+
+// Simply check that the hpnr MIB is populated
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.16.1.1.1.1"
+
+
+// DISK CONTROLLERS
+
+// HP NetRAID controllers table
+DiskController.Discovery.Source(1).Type="SNMPTable"
+DiskController.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.16.1.1.1.1"
+DiskController.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,4,23"
+
+// Physical disk table
+DiskController.Discovery.Source(2).Type="SNMPTable"
+DiskController.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.16.1.1.3.1"
+DiskController.Discovery.Source(2).SnmpTableSelectColumns="1"
+
+// We joint the controllers and the physical disk table
+// in order to keep only controllers for which there is disks attached
+DiskController.Discovery.Source(3).Type="TableJoint"
+DiskController.Discovery.Source(3).LeftTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Source(3).RightTable=%DiskController.Discovery.Source(2)%
+DiskController.Discovery.Source(3).LeftKeyColumn="2"
+DiskController.Discovery.Source(3).RightKeyColumn="1"
+
+// The Instance table...
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Vendor="HP"
+DiskController.Discovery.Instance.Model=InstanceTable.Column(5)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(3)
+DiskController.Discovery.Instance.BIOSVersion=InstanceTable.Column(4)
+
+
+// PHYSICAL DISKS
+
+//
+// Discovery
+
+PhysicalDisk.Discovery.Source(1).Type="SNMPTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.16.1.1.3.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,4,6,7,8"
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column="3"
+PhysicalDisk.Discovery.Source(1).Compute(1).ValueList="20"
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column="5"
+PhysicalDisk.Discovery.Source(1).Compute(2).ValueList="0"
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column="4"
+PhysicalDisk.Discovery.Source(1).Compute(3).MultiplyBy="1048576"
+
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Vendor="HP"
+
+//
+// Collect
+
+// This is a mono-instance collect (execute the collect for each disk)
+PhysicalDisk.Collect.Type="MonoInstance"
+
+// Source(1) = the state column of the physical disk table
+PhysicalDisk.Collect.Source(1).Type="SnmpGet"
+PhysicalDisk.Collect.Source(1).SnmpOid="1.3.6.1.4.1.16.1.1.3.1.4.%PhysicalDisk.Collect.DeviceID%"
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="1"
+PhysicalDisk.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="1"
+
+// translate the snmp state into PATROL status and into a more readable string
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+PhysicalDiskStatusTranslationTable(1)="OK"
+PhysicalDiskStatusTranslationTable(3)="OK"
+PhysicalDiskStatusTranslationTable(4)="ALARM"
+PhysicalDiskStatusTranslationTable(5)="WARN"
+PhysicalDiskStatusTranslationTable(6)="OK"
+PhysicalDiskStatusTranslationTable(20)="OK"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+PhysicalDiskStatusInformationTranslationTable(1)=""
+PhysicalDiskStatusInformationTranslationTable(3)="On-line"
+PhysicalDiskStatusInformationTranslationTable(4)="Failed"
+PhysicalDiskStatusInformationTranslationTable(5)="Rebuild"
+PhysicalDiskStatusInformationTranslationTable(6)="Hot-spare"
+PhysicalDiskStatusInformationTranslationTable(20)="Non-disk"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+// LOGICAL DISKS
+
+//
+// Discovery
+
+// Source(1) = the snmp logical drive table
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.16.1.1.2.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,4,5"
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column="3"
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1048576"
+
+// The instance table
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Type = MonoInstance (executed for each logical drive instance)
+LogicalDisk.Collect.Type="MonoInstance"
+
+// Source(1) = the status of the drive in the logical drive snmp table
+LogicalDisk.Collect.Source(1).Type="SnmpGet"
+LogicalDisk.Collect.Source(1).SnmpOid="1.3.6.1.4.1.16.1.1.2.1.3.%LogicalDisk.Collect.DeviceID%"
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column="1"
+LogicalDisk.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(2).Column="1"
+
+// translate the snmp status into PATROL status and into a more readable string
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column="2"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="LogicalDiskStatusTranslationTable"
+
+LogicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(4).Column="3"
+LogicalDisk.Collect.Source(1).Compute(4).TranslationTable="LogicalDiskStatusInformationTranslationTable"
+
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+LogicalDiskStatusTranslationTable(0)="ALARM"
+LogicalDiskStatusTranslationTable(1)="WARN"
+LogicalDiskStatusTranslationTable(2)="OK"
+LogicalDiskStatusTranslationTable(3)="WARN"
+LogicalDiskStatusTranslationTable(4)="WARN"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+LogicalDiskStatusInformationTranslationTable(0)="Off-line"
+LogicalDiskStatusInformationTranslationTable(1)="Degraded"
+LogicalDiskStatusInformationTranslationTable(2)=""
+LogicalDiskStatusInformationTranslationTable(3)="Initializing"
+LogicalDiskStatusInformationTranslationTable(4)="Check consistency"
+LogicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+

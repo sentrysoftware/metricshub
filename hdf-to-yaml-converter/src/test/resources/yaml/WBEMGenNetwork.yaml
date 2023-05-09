@@ -1,0 +1,308 @@
+---
+connector:
+  displayName: WMI - Network
+  platforms: Any system
+  reliesOn: WMI
+  version: 1.3
+  information: This connector provides the monitoring of network cards on all Windows-based systems through the WMI layer (root/WMI namespace).
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    criteria:
+    # OS must be Windows NT-derivative
+    - type: deviceType
+      keep:
+      - NT
+    # WMI must be available
+    - type: service
+      name: WINMGMT
+    # The root\wmi namespace must have the MSNdis_MediaConnectStatus
+    - type: wmi
+      query: SELECT InstanceName FROM MSNdis_MediaConnectStatus
+      namespace: root\wmi
+    # There must be at least one Ethernet network adapter
+    - type: wmi
+      query: SELECT AdapterType FROM Win32_NetworkAdapter
+      namespace: root\cimv2
+      expectedResult: ^Ethernet 802\.3;$
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Win32_NetworkAdapter WMI class
+          # AdapterType;MACAddress;Name;PNPDeviceID;
+          type: wmi
+          namespace: root\cimv2
+          query: "SELECT AdapterType,MACAddress,Name,PNPDeviceID FROM Win32_NetworkAdapter"
+          computes:
+            # Keep only Ethernet cards
+            # AdapterType;MACAddress;Name;PNPDeviceID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^Ethernet 802\.3$
+            # Avoid any network interface whose PnPDeviceID looks like ROOT\something,
+            # which means that it's actually not a real device
+            # AdapterType;MACAddress;Name;PNPDeviceID;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: ^ROOT\\
+            # Avoid any network interface whose PnPDeviceID looks like COMPOSITEBUS\something,
+            # These are virtual ports
+            # AdapterType;MACAddress;Name;PNPDeviceID;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: ^COMPOSITEBUS\\
+            # Avoid any network interface whose PnPDeviceID looks like ...\MSRRAS\...,
+            # These are WAN ports (not physical)
+            # AdapterType;MACAddress;Name;PNPDeviceID;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: \\MSRRAS\\
+            # Avoid any network interface whose name contains "Virtual"
+            # These are obviously virtual
+            # AdapterType;MACAddress;Name;PNPDeviceID;
+          - type: excludeMatchingLines
+            column: 3
+            regExp: Virtual
+            # Keep only the network card name and PNPDeviceID (which will be referred to in the root/WMI namespace)
+            # MACAddress;Name;PNPDeviceID;
+          - type: keepColumns
+            columnNumbers: "2,3,4"
+        source(2):
+          # Source(2) = Win32_PnPEntity WMI class
+          # MSNdisID;PNPDeviceID;
+          type: wmi
+          namespace: root\cimv2
+          query: "SELECT Name,PNPDeviceID FROM Win32_PnPEntity"
+        source(3):
+          # Source(3) = Table joint of Source(1) and Source(2)
+          # MACAddress;Name;PNPDeviceID;MSNdisID;PNPDeviceID;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          computes:
+            # Add "PnPDeviceId: " to the PnPDeviceId column
+            # MACAddress;Name;PNPDeviceID;MSNdisID;PNPDeviceID;
+          - type: leftConcat
+            column: 3
+            value: "PnP Device Id: "
+      mapping:
+        # InstanceTable = Source(3)
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(4)
+          model: $column(2)
+          physical_address: $column(1)
+          physical_address_type: MAC
+          info: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(4), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Status
+          # DeviceID;HardwareStatus
+          type: wmi
+          namespace: root\wmi
+          query: "SELECT InstanceName,NdisHardwareStatus FROM MSNdis_HardwareStatus"
+          computes:
+          # DeviceID;HardwareStatus;HardwareStatus
+          - type: duplicateColumn
+            column: 2
+          # DeviceID;PATROLStatus;HardwareStatus
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+          # DeviceID;PATROLStatus;StatusInformation
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+        source(2):
+          # LinkStatus
+          # DeviceID;MediaConnectStatus
+          type: wmi
+          namespace: root\wmi
+          query: "SELECT InstanceName,NdisMediaConnectStatus FROM MSNdis_MediaConnectStatus"
+          computes:
+          # DeviceID;LinkStatus
+          - type: translate
+            column: 2
+            translationTable: GenericLinkStatusTranslationTable
+        source(3):
+          # Transmitted errors
+          # DeviceID;TransmitError
+          type: wmi
+          namespace: root\wmi
+          query: "SELECT InstanceName,NdisTransmitsError FROM MSNdis_TransmitsError"
+        source(4):
+          # Received errors
+          # DeviceID;ReceiveError
+          type: wmi
+          namespace: root\wmi
+          query: "SELECT InstanceName,NdisReceiveError FROM MSNdis_ReceiveError"
+        source(5):
+          # TransmitsOK
+          # DeviceID;TransmitsOK
+          type: wmi
+          namespace: root\wmi
+          query: "SELECT InstanceName,NdisTransmitsOK FROM MSNdis_TransmitsOK"
+        source(6):
+          # ReceivesOK
+          # DeviceID;ReceivesOK
+          type: wmi
+          namespace: root\wmi
+          query: "SELECT InstanceName,NdisReceivesOK FROM MSNdis_ReceivesOK"
+        source(7):
+          # Source(7) = Source(3) + Source(4)
+          # DeviceID;TransmitError;DeviceID;ReceiveError
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(3)$
+          rightTable: $monitors.network.collect.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(8):
+          # Source(8) = Source(5) + Source(6)
+          # DeviceID;TransmitsOK;DeviceID;ReceivesOK
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(5)$
+          rightTable: $monitors.network.collect.sources.source(6)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(9):
+          # Source(9) = Source(8) + Source(7)
+          # DeviceID;TransmitsOK;DeviceID;ReceivesOK;DeviceID;TransmitError;DeviceID;ReceiveError;
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(8)$
+          rightTable: $monitors.network.collect.sources.source(7)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;0;;0;
+          computes:
+            # Computes TransmittedPackets ( = TransmitErrors + TransmitsOK )
+            # DeviceID;TransmittedPackets;DeviceID;ReceivesOK;DeviceID;TransmitError;DeviceID;ReceiveError
+          - type: add
+            column: 2
+            value: Column(6)
+            # Computes ReceivedPackets ( = ReceivedErrors + ReceivesOK)
+            # DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TransmitError;DeviceID;ReceiveError;
+          - type: add
+            column: 4
+            value: Column(8)
+            # Computes totalErrors ( = TransmitError + ReceiveError )
+            # DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;
+          - type: add
+            column: 6
+            value: Column(8)
+        source(10):
+          # Join LinkStatus and Status tables
+          # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(2)$
+          rightTable: $monitors.network.collect.sources.source(1)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+        source(11):
+          # Link Speed
+          # DeviceID;LinkSpeed
+          type: wmi
+          namespace: root\wmi
+          query: "SELECT InstanceName,NdisLinkSpeed FROM MSNdis_LinkSpeed"
+          computes:
+            # Convert LinkSpeed into Mbp/s
+            # DeviceID;LinkSpeed
+          - type: divide
+            column: 2
+            value: 10000
+        source(12):
+          # Join Status/LinkStatus with LinkSpeed
+          # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(10)$
+          rightTable: $monitors.network.collect.sources.source(11)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(13):
+          # Join Source(12) + Source(9)
+          # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(12)$
+          rightTable: $monitors.network.collect.sources.source(9)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;;;;;
+          computes:
+            # Now replace some "special" chars in one of the DeviceID columns with underscores
+            # as it looks like the perfmon instances can't have '#' or '/'
+            # This allow us to make proper table join with Win32_PerfRawData_Tcpip_NetworkInterface
+          - type: replace
+            column: 8
+            existingValue: '#'
+            newValue: _
+          - type: replace
+            column: 8
+            existingValue: /
+            newValue: _
+        source(14):
+          # Traffic in bytes (through performance counters)
+          # Name;BytesReceived;BytesTransmitted
+          type: wmi
+          namespace: root\cimv2
+          query: "SELECT Name,BytesReceivedPersec,BytesSentPersec FROM Win32_PerfRawData_Tcpip_NetworkInterface"
+          computes:
+          # Replace [] with () (weird difference between these 2 WMI classes)
+          - type: replace
+            column: 1
+            existingValue: "["
+            newValue: (
+          - type: replace
+            column: 1
+            existingValue: "]"
+            newValue: )
+        source(15):
+          # Final Join: Source(13) + Source(14)
+          # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;Name;BytesReceived;BytesTransmitted
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(13)$
+          rightTable: $monitors.network.collect.sources.source(14)$
+          leftKeyColumn: 8
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+      mapping:
+        # And here is the ValueTable (at last!)
+        source: $monitors.network.collect.sources.source(15)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(4)
+          hw.network.up: legacyLinkStatus($column(2))
+          hw.network.bandwidth.limit: megaBit2Bit($column(7))
+          hw.errors{hw.type="network"}: $column(13)
+          hw.network.packets{direction="transmit"}: $column(9)
+          hw.network.packets{direction="receive"}: $column(11)
+          hw.network.io{direction="receive"}: $column(17)
+          hw.network.io{direction="transmit"}: $column(18)
+        legacyTextParameters:
+          StatusInformation: $column(5)
+translations:
+  GenericStatusTranslationTable:
+    "0": ok
+    "1": ok
+    "2": ok
+    "3": degraded
+    "4": failed
+  GenericStatusInformationTranslationTable:
+    "0": ""
+    "1": Initializing
+    "2": Reset
+    "3": Closing
+    "4": Not-ready
+  GenericLinkStatusTranslationTable:
+    "0": ok
+    "1": degraded

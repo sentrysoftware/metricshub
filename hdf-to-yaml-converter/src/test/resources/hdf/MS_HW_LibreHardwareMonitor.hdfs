@@ -1,0 +1,696 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//             MS_HW_LibreHardwareMonitor.hdf
+//
+//         Supports: Computer
+//
+//
+
+// HEADER
+
+hdf.DisplayName="Libre Hardware Monitor"
+hdf.TypicalPlatform="Any Windows system"
+hdf.ReliesOn="Libre Hardware Monitor"
+hdf.Comments="This connector provides the hardware monitoring of Processors, Temperatures, Fans, Voltages, GPU, Memory Modules, Physical Disk of a computer."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT"
+
+// DETECTION
+// OS must be NT
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+// The root\LibreHardwareMonitor must be available
+Detection.Criteria(2).Type="WMI"
+Detection.Criteria(2).WbemQuery="SELECT Name FROM WMINET_InstrumentedAssembly"
+Detection.Criteria(2).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Hardware Discovery (no information about Enclosure)
+// Identifier, Name, HardwareType
+Enclosure.Discovery.Source(1).Type="WMI"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, HardwareType FROM Hardware"
+Enclosure.Discovery.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Hardware Discovery (no information about Enclosure)
+// Manufacturer, Model
+Enclosure.Discovery.Source(2).Type="WMI"
+Enclosure.Discovery.Source(2).WbemQuery="SELECT Manufacturer, Model FROM Win32_ComputerSystem"
+Enclosure.Discovery.Source(2).WbemNameSpace="root\cimv2"
+
+// InstanceTable
+// Manufacturer, Model
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Instance.DeviceID="PC"
+Enclosure.Discovery.Instance.Type="Computer"
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+
+//
+// Discovery
+// Source 1 = Voltage Sensor
+// Identifier, Name, SensorType, Parent
+Voltage.Discovery.Source(1).Type="WMI"
+Voltage.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, Parent FROM Sensor WHERE SensorType = 'Voltage'"
+Voltage.Discovery.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+
+// Source 2 = Merge source 1 (voltage) and enclosure Hardware source
+// SensorIdentifier, SensorName,SensorParent, HardwareIdentifier, HardwareName, HardwareType
+Voltage.Discovery.Source(2).Type="TableJoint"
+Voltage.Discovery.Source(2).LeftTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(1)%
+Voltage.Discovery.Source(2).LeftKeyColumn="3"
+Voltage.Discovery.Source(2).RightKeyColumn="1"
+
+// Instance table
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(2)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(5)
+Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(2)
+Voltage.Discovery.Instance.AttachedToDeviceID="PC"
+Voltage.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WMI class
+// Identifier, Value, SensorType
+Voltage.Collect.Source(1).Type="WMI"
+Voltage.Collect.Source(1).WbemQuery="SELECT Identifier, Value FROM Sensor WHERE SensorType = 'Voltage'"
+Voltage.Collect.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Convert volts to millivolts
+// Identifier, Value, SensorType
+Voltage.Collect.Source(1).Compute(1).Type="Multiply"
+Voltage.Collect.Source(1).Compute(1).Column="2"
+Voltage.Collect.Source(1).Compute(1).MultiplyBy="1000"
+
+// Value Table
+// Identifier, Value
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(1)
+Voltage.Collect.Voltage=ValueTable.Column(2)
+
+//
+// Discovery
+// Source 1 = Temperature Sensor
+// Identifier, Name, Parent, Value
+Temperature.Discovery.Source(1).Type="WMI"
+Temperature.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, Parent, Value FROM Sensor WHERE SensorType ='Temperature'"
+Temperature.Discovery.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Source 3 = Merge Source 1 and 2 Together
+// SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
+Temperature.Discovery.Source(2).Type="TableJoint"
+Temperature.Discovery.Source(2).LeftTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(1)%
+Temperature.Discovery.Source(2).LeftKeyColumn="3"
+Temperature.Discovery.Source(2).RightKeyColumn="1"
+
+// Perform some computation to exclude non-real sensors, and calculate alarm thresholds when possible
+// SensorId;Name;WarningThreshold;AlarmThreshold;
+Temperature.Discovery.Source(2).Compute(1).Type="AWK"
+Temperature.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(2)
+Temperature.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Discovery.Source(2).Compute(1).Separators=";"
+Temperature.Discovery.Source(2).Compute(1).SelectColumns="2,3,4,5"
+
+// Instance table
+// SensorId;Name;WarningThreshold;AlarmThreshold;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(2)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AttachedToDeviceID="PC"
+Temperature.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WMI class
+// Identifier, Value
+Temperature.Collect.Source(1).Type="WMI"
+Temperature.Collect.Source(1).WbemQuery="SELECT Identifier, Value FROM Sensor where SensorType = 'Temperature'"
+Temperature.Collect.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Value Table
+// Identifier, Value
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+
+//
+// Discovery
+
+// Source 1 = Hardware Storage
+// Identifier, Name, HardwareType
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only Storage Type
+// Identifier, Name, HardwareType
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(1).RegExp="Storage"
+
+// Source 2 = Storage Sensor
+// Parent
+PhysicalDisk.Discovery.Source(2).Type="WMI"
+PhysicalDisk.Discovery.Source(2).WbemQuery="SELECT Parent FROM Sensor where Name = 'Available Spare' OR Name = 'Remaining Life'"
+PhysicalDisk.Discovery.Source(2).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Source 3 = Table join to keep only disks that do have an Endurance Remaining sensor
+// Identifier, Name, HardwareType, Identifier
+PhysicalDisk.Discovery.Source(3).Type="TableJoint"
+PhysicalDisk.Discovery.Source(3).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(3).RightTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(3).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(3).RightKeyColumn=1
+
+
+// Instance table
+// Identifier, Name, HardwareType
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID="PC"
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source 1 = Storage Sensor
+// Identifier, Parent, Value, Name
+PhysicalDisk.Collect.Source(1).Type="WMI"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT Identifier, Parent, Value, Name FROM Sensor where Name = 'Available Spare' OR Name = 'Remaining Life'"
+PhysicalDisk.Collect.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// LeftTable = SensorIdentifier, SensorParent, SensorValue, SensorName
+// RightTable = Identifier, Name, HardwareType
+// Match SensorParent with HardwareIdentifier
+// TableJoint = SensorIdentifier, SensorParent, SensorValue, SensorName, HardwareIdentifier,  HardwareName, HardwareType
+PhysicalDisk.Collect.Source(2).Type="TableJoint"
+PhysicalDisk.Collect.Source(2).LeftTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.Source(2).RightTable=%Enclosure.Discovery.Source(1)%
+PhysicalDisk.Collect.Source(2).LeftKeyColumn="2"
+PhysicalDisk.Collect.Source(2).RightKeyColumn="1"
+
+// Instance table
+// SensorIdentifier, SensorParent, SensorValue, SensorName, HardwareIdentifier,  HardwareName, HardwareType
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(2)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.EnduranceRemaining=ValueTable.Column(3)
+
+//
+// Discovery
+
+// Source 1 = Fan Sensor
+// Identifier, Name, Parent
+Fan.Discovery.Source(1).Type="WMI"
+Fan.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, Parent FROM Sensor WHERE SensorType = 'Fan'"
+Fan.Discovery.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Source 3 = Merge Source 1 and 2 Together
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+Fan.Discovery.Source(2).Type="TableJoint"
+Fan.Discovery.Source(2).LeftTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(1)%
+Fan.Discovery.Source(2).LeftKeyColumn="3"
+Fan.Discovery.Source(2).RightKeyColumn="1"
+
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+Fan.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Fan.Discovery.Source(2).Compute(1).Column=5
+Fan.Discovery.Source(2).Compute(1).String=" - "
+
+// Concatene SensorName and HardwareName
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+Fan.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Fan.Discovery.Source(2).Compute(2).Column=5
+Fan.Discovery.Source(2).Compute(2).String=Column(2)
+
+// Instance table
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(2)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(5)
+Fan.Discovery.Instance.AttachedToDeviceID="PC"
+Fan.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WMI class
+// Identifier, Value
+Fan.Collect.Source(1).Type="WMI"
+Fan.Collect.Source(1).WbemQuery="SELECT Identifier, Value FROM Sensor where SensorType ='Fan'"
+Fan.Collect.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Value Table
+// Identifier, Value
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Speed=ValueTable.Column(2)
+
+//
+// Discovery
+
+// Source 1 = Hardware CPU
+// Identifier, Name, HardwareType
+CPU.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only Storage Type
+// HardwareIdentifier, HardwareName, HardwareType
+CPU.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+CPU.Discovery.Source(1).Compute(1).Column=3
+CPU.Discovery.Source(1).Compute(1).RegExp="Cpu"
+
+// Source 2 = CPU Power Consumption
+// Name, Parent, CPUPowerConsumption
+CPU.Discovery.Source(2).Type="WMI"
+CPU.Discovery.Source(2).WbemQuery="SELECT Name, Parent, Value FROM Sensor where SensorType='Power' and Name = 'CPU Package' or Name ='Package'"
+CPU.Discovery.Source(2).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Source 1 : Hardware ID and Name
+// Source 2 : CPUPowerConsumption
+// HardwareIdentifier, HardwareName, HardwareType, Name, Parent, CPUPowerConsumption
+CPU.Discovery.Source(3).Type="TableJoint"
+CPU.Discovery.Source(3).LeftTable=%CPU.Discovery.Source(1)%
+CPU.Discovery.Source(3).RightTable=%CPU.Discovery.Source(2)%
+CPU.Discovery.Source(3).LeftKeyColumn="1"
+CPU.Discovery.Source(3).RightKeyColumn="2"
+CPU.Discovery.Source(3).DefaultRightLine=";;;;"
+
+// If CPUPowerConsumption < 1 then disable PowerConsumption parameter
+CPU.Discovery.Source(3).Compute(1).Type="Extract"
+CPU.Discovery.Source(3).Compute(1).Column=6
+CPU.Discovery.Source(3).Compute(1).Subcolumn=1
+CPU.Discovery.Source(3).Compute(1).Subseparators="."
+
+// Replace 0 by empty: ParameterActivation must be empty to be disabled
+CPU.Discovery.Source(3).Compute(2).Type="Replace"
+CPU.Discovery.Source(3).Compute(2).Column=6
+CPU.Discovery.Source(3).Compute(2).Replace="0"
+CPU.Discovery.Source(3).Compute(2).ReplaceBy=""
+
+// Instance table
+// HardwareIdentifier, HardwareName, HardwareType, Name, Parent, CPUPowerConsumption
+CPU.Discovery.InstanceTable=%CPU.Discovery.Source(3)%
+CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+CPU.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+CPU.Discovery.Instance.Model=InstanceTable.Column(2)
+CPU.Discovery.Instance.ParameterActivation.PowerConsumption=InstanceTable.Column(6)
+CPU.Discovery.Instance.AttachedToDeviceID="PC"
+CPU.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+CPU.Collect.Type="MultiInstance"
+
+// Source(1) = Sensor type 'Clock'
+// SensorName;CpuDeviceID;Clock
+CPU.Collect.Source(1).Type="WMI"
+CPU.Collect.Source(1).WbemQuery="SELECT Name, Parent, Value FROM Sensor where SensorType ='Clock'"
+CPU.Collect.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Process that through an AWK script that will compute the clock speed average
+// (yes, we have the clock speed for each core, and they can be different)
+// CpuDeviceID;AverageClock
+CPU.Collect.Source(1).Compute(1).Type="AWK"
+CPU.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+CPU.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+CPU.Collect.Source(1).Compute(1).Separators=";"
+CPU.Collect.Source(1).Compute(1).SelectColumns="2,3"
+
+// SensorName;CpuDeviceID;CPUPowerConsumption
+CPU.Collect.Source(2).Type="WMI"
+CPU.Collect.Source(2).WbemQuery="SELECT Name, Parent, Value FROM Sensor where SensorType='Power' and Name = 'CPU Package' or Name ='Package'"
+CPU.Collect.Source(2).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Source 1 : Hardware ID and Name
+// Source 2 : CPUPowerConsumption
+// CpuDeviceID;AverageClock;SensorName;CpuDeviceID;CPUPowerConsumption
+CPU.Collect.Source(3).Type="TableJoint"
+CPU.Collect.Source(3).LeftTable=%CPU.Collect.Source(1)%
+CPU.Collect.Source(3).RightTable=%CPU.Collect.Source(2)%
+CPU.Collect.Source(3).LeftKeyColumn="1"
+CPU.Collect.Source(3).RightKeyColumn="2"
+CPU.Collect.Source(3).DefaultRightLine=";;;;"
+
+// The Collect Table
+// CpuDeviceID;AverageClock;SensorName;CpuDeviceID;CPUPowerConsumption
+Cpu.Collect.ValueTable=%Cpu.Collect.Source(3)%
+Cpu.Collect.DeviceID=ValueTable.Column(1)
+Cpu.Collect.CurrentSpeed=ValueTable.Column(2)
+Cpu.Collect.PowerConsumption=ValueTable.Column(5)
+
+//
+// Discovery
+
+// Source 1 = Hardware Memory
+// Identifier, Name, HardwareType
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only Storage Type
+// Identifier, Name, HardwareType
+Memory.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column=3
+Memory.Discovery.Source(1).Compute(1).RegExp="Memory"
+
+// Source 2 = Memory Sensor
+// Name, Parent, MemoryAvailable
+Memory.Discovery.Source(2).Type="WMI"
+Memory.Discovery.Source(2).WbemQuery="SELECT Name, Parent, Value FROM Sensor where Name = 'Memory Available' OR Name ='Memory Used'"
+Memory.Discovery.Source(2).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Keep only Memory Available
+// Name, Parent, MemoryAvailable
+Memory.Discovery.Source(3)=%Memory.Discovery.Source(2)%
+Memory.Discovery.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(3).Compute(1).Column=1
+Memory.Discovery.Source(3).Compute(1).RegExp="Memory Available"
+
+// Keep only ram
+// Name, Parent, MemoryUsed
+Memory.Discovery.Source(4)=%Memory.Discovery.Source(2)%
+Memory.Discovery.Source(4).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(4).Compute(1).Column=1
+Memory.Discovery.Source(4).Compute(1).RegExp="Memory Used"
+
+// Source 2 : MemoryAvailable
+// Source 3 : MemoryUsed
+// Name, Parent, MemoryAvailable, Name, Parent, MemoryUsed
+Memory.Discovery.Source(5).Type="TableJoint"
+Memory.Discovery.Source(5).LeftTable=%Memory.Discovery.Source(3)%
+Memory.Discovery.Source(5).RightTable=%Memory.Discovery.Source(4)%
+Memory.Discovery.Source(5).LeftKeyColumn="2"
+Memory.Discovery.Source(5).RightKeyColumn="2"
+
+// Clean duplicate column
+// Parent, MemoryAvailable; MemoryUsed
+Memory.Discovery.Source(5).Compute(1).Type="KeepColumns"
+Memory.Discovery.Source(5).Compute(1).ColumnNumbers="2,3,6"
+
+// Sum up MemoryAvailable and MemoryUsed to get MemorySize
+// Parent, MemorySize; MemoryUsed
+Memory.Discovery.Source(5).Compute(2).Type="Add"
+Memory.Discovery.Source(5).Compute(2).Column="2"
+Memory.Discovery.Source(5).Compute(2).Add=Column(3)
+
+// Convert to GB
+// Parent, MemorySize; MemoryUsed
+Memory.Discovery.Source(5).Compute(3).Type="Multiply"
+Memory.Discovery.Source(5).Compute(3).Column=2
+Memory.Discovery.Source(5).Compute(3).MultiplyBy="1024"
+
+// Source 1 : MemoryName
+// Source 6 : MemorySize
+// Identifier, Name, HardwareType, Parent, MemorySize; MemoryUsed
+Memory.Discovery.Source(6).Type="TableJoint"
+Memory.Discovery.Source(6).LeftTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Source(6).RightTable=%Memory.Discovery.Source(5)%
+Memory.Discovery.Source(6).LeftKeyColumn="1"
+Memory.Discovery.Source(6).RightKeyColumn="1"
+
+// Instance table
+// Identifier, Name, HardwareType, Parent, MemorySize; MemoryUsed
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(6)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Memory.Discovery.Instance.Size=InstanceTable.Column(5)
+Memory.Discovery.Instance.AttachedToDeviceID="PC"
+Memory.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Discovery
+// Source 1 = Hardware GPU
+// Identifier, Name, HardwareType
+GPU.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only GPU
+// Identifier, Name, HardwareType
+GPU.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+GPU.Discovery.Source(1).Compute(1).Column=3
+GPU.Discovery.Source(1).Compute(1).RegExp="Gpu"
+
+// Remove the Gpu word in HardwareVendor
+// Identifier, Name, HardwareType
+GPU.Discovery.Source(1).Compute(2).Type="Replace"
+GPU.Discovery.Source(1).Compute(2).Column=3
+GPU.Discovery.Source(1).Compute(2).Replace="Gpu"
+GPU.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// Source 2 = Retrieve GPU Memory Size from Sensor
+// Parent, Name, Value
+GPU.Discovery.Source(2).Type="WMI"
+GPU.Discovery.Source(2).WbemQuery="SELECT Parent, Name, Value FROM Sensor WHERE Name = 'GPU Memory Total'"
+GPU.Discovery.Source(2).WbemNameSpace="root\LibreHardwareMonitor"
+
+// Source 3 = Joint source
+// Source 1 : Get the Hardware Name
+// Source 2 : Get the Memory Size
+// Identifier, Name, HardwareType, ParentSensor, SensorName, MemorySize
+GPU.Discovery.Source(3).Type="TableJoint"
+GPU.Discovery.Source(3).LeftTable=%GPU.Discovery.Source(1)%
+GPU.Discovery.Source(3).RightTable=%GPU.Discovery.Source(2)%
+GPU.Discovery.Source(3).LeftKeyColumn="1"
+GPU.Discovery.Source(3).RightKeyColumn="1"
+GPU.Discovery.Source(3).DefaultRightLine=";;;"
+
+// Instance table
+// Identifier, Name, HardwareType, ParentSensor, SensorName, MemorySize
+GPU.Discovery.InstanceTable=%GPU.Discovery.Source(3)%
+GPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+GPU.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+GPU.Discovery.Instance.Vendor=InstanceTable.Column(3)
+GPU.Discovery.Instance.Size=InstanceTable.Column(6)
+GPU.Discovery.Instance.AttachedToDeviceID="PC"
+GPU.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+GPU.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WMI class
+// Name, Parent, Value, SensorType
+GPU.Collect.Source(1).Type="WMI"
+GPU.Collect.Source(1).WbemQuery="SELECT Name, Parent, Value, SensorType FROM Sensor"
+GPU.Collect.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
+
+
+// Name, gpuId, Value, SensorType
+GPU.Collect.Source(1).Compute(1).Type=Awk
+GPU.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+GPU.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+GPU.Collect.Source(1).Compute(1).Separators=";"
+GPU.Collect.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7,8,9"
+
+// Value Table
+// gpuID, VideoDecode, VideoEncode, Memory, PowerConsumption, ReveivedBytes, TransmittedBytes, UsedTimePercent
+GPU.Collect.ValueTable=%GPU.Collect.Source(1)%
+GPU.Collect.DeviceID=ValueTable.Column(1)
+GPU.Collect.DecoderUsedTimePercent=ValueTable.Column(2)
+GPU.Collect.EncoderUsedTimePercent=ValueTable.Column(3)
+GPU.Collect.MemoryUtilization=ValueTable.Column(4)
+GPU.Collect.PowerConsumption=ValueTable.Column(5)
+Gpu.Collect.ReceivedBytesRate=ValueTable.Column(6)
+GPU.Collect.TransmittedBytesRate=ValueTable.Column(7)
+GPU.Collect.UsedTimePercent=ValueTable.Column(8)
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = Find Sensors
+///
+///    gpuID, VideoDecode, VideoEncode, Memory, PowerConsumption, TransmittedBytes, ReveivedBytes
+///    Description : Compute parameters for multiple GPU
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	FS = ";";
+}
+{
+	if ($2 ~ /gpu-/) { gpuId = $2; gpuIds[gpuId] = gpuId}
+	if ($1 ~ /D3D Video Decode/)  { gpuId = $2; VideoDecode[gpuId] = $3 }
+	if ($1 ~ /D3D Video Encode/) { gpuId = $2; VideoEncode[gpuId] = $3 }
+	if ($1 ~ /GPU Package/) { gpuId = $2; PowerConsumption[gpuId] = $3 }
+	if ($1 ~ /GPU PCIe Tx/) { gpuId = $2; TransmittedBytes[gpuId] = $3 }
+	if ($1 ~ /GPU PCIe Rx/) { gpuId = $2; ReceivedBytes[gpuId] = $3 }
+	if ($1 ~ /GPU Core/ && $4 ~ /Load/) { gpuId = $2; UsedTimePercent[gpuId] = $3 }
+	if ($1 ~ /GPU Memory$/ && $4 ~ /Load/) { gpuId = $2; Memory[gpuId] = $3}
+}
+END {
+	for (gpuId in gpuIds) {
+		print ("MSHW;"gpuId";"VideoDecode[gpuId]";"VideoEncode[gpuId]";"Memory[gpuId]";"PowerConsumption[gpuId]";"int(ReceivedBytes[gpuId])";"int(TransmittedBytes[gpuId])";"UsedTimePercent[gpuId]";" );
+	}
+}
+EmbeddedFile(1).End
+////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2)
+///
+/// Put custom threshold for temperature sensors and remove non-real sensors
+///
+/// Input:
+/// SensorIdentifier;SensorName;SensorParent;SensorValue;HardwareIdentifier;HardwareName;HardwareType;
+///
+/// Output:
+/// MSHW;SensorId;Name;WarningThreshold;AlarmThreshold;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN { FS = ";" }
+
+# Skip sensors that mention "Max" or "Average" (they are not real sensors anyway)
+($2 ~ " Max" || $2 ~ " Average") { next; }
+
+# Distance to TjMax sensors value are stored in an array to be retrieved later
+($2 ~ / Distance to TjMax$/) {
+	name = $2;
+	gsub(/ Distance to TjMax$/, "", name);
+	distanceToThreshold[name] = $4
+	next;
+}
+
+# Parse all remaining lines and store the values in arrays that will be parsed
+# in the END section (and reconciled with the distanceToThreshold array)
+{
+	sensorId = $1;
+	sensorName[sensorId] = $2;
+	sensorParent[sensorId] = $3;
+	sensorValue[sensorId] = $4;
+	parentId[sensorId] = $5;
+	parentType[sensorId] = $7;
+}
+
+# Now process what we got in our arrays and join with the thresholds
+END {
+	for (sensorId in sensorName) {
+
+		# Retrieve the sensor properties from the arrays
+		name = sensorName[sensorId];
+		parent = sensorParent[sensorId];
+		value = sensorValue[sensorId];
+		parentDeviceId = parentId[sensorId];
+		deviceType = parentType[sensorId];
+
+		# Clean-up deviceType
+		if (deviceType == "Cpu") { deviceType = "CPU"; }
+		else if (deviceType ~ "Gpu") { deviceType = "GPU"; }
+		else if (deviceType == "Psu") { deviceType = "Power Supply"; }
+
+		# Do we have a distance to TjMax?
+		distanceToTjMax = distanceToThreshold[name]; # not sensorId!
+		if (distanceToTjMax != "") {
+			wThres = "";
+			aThres = value + distanceToTjMax;
+		} else {
+			# If no threshold from TjMax, try to figure something out
+			if (deviceType == "CPU") {
+				wThres = 80;
+				aThres = 90;
+			} else if (deviceType == "GPU") {
+				wThres = 85;
+				aThres = 100;
+			} else if (parentDeviceId ~ "^/(ssd|nvme)") {
+				wThres = 65;
+				aThres = 70;
+			} else if (parentDeviceId ~ "^/hdd") {
+				wThres = 41;
+				aThres = 50;
+			} else if (deviceType == "Motherboard") {
+				wThres = 40;
+				aThres = 45;
+			} else if (deviceType == "Memory" || deviceType == "Network") {
+				wThres = 50;
+				aThres = 60;
+			} else if (deviceType == "Power Supply") {
+				wThres = 55;
+				aThres = 65;
+			} else {
+				wThres = "";
+				aThres = "";
+			}
+		}
+
+		# Build label
+		label = deviceType " " parentDeviceId;
+		if (name != "Temperature" && name != "") {
+			label = label " - " name
+		}
+
+		# Print
+		print "MSHW;" sensorId ";" label ";" wThres ";" aThres ";"
+	}
+}
+EmbeddedFile(2).End
+////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3)
+///
+/// Calculate the average clock speed of each processor
+///
+/// Input:
+/// Bus Speed;/intelcpu/0;850;
+/// CPU Core #0;/intelcpu/0;2305;
+/// CPU Core #1;/intelcpu/0;1754;
+///
+/// Output:
+/// MSHW;/intelcpu/0;2029.5;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN { FS = ";" }
+
+# Skip bus clock speed
+($1 ~ /[Bb]us/) { next; }
+
+# Process all remaining lines
+{
+	if (clockCount[$2] == "") {
+		clockCount[$2] = 0;
+		clockSum[$2] = 0;
+	}
+	clockCount[$2] = clockCount[$2] + 1;
+	clockSum[$2] = clockSum[$2] + $3
+}
+
+# Print the result at the end
+END {
+	for (cpuId in clockCount) {
+		print "MSHW;" cpuId ";" clockSum[cpuId] / clockCount[cpuId]
+	}
+}
+EmbeddedFile(3).End
+////////////////////////////////////////////////////////////////

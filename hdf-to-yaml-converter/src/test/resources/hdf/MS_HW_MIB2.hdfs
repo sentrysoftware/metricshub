@@ -1,0 +1,64 @@
+///////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: Switches that support the MIB-2 MIB
+//                Connects to a SNMP agent
+//
+//
+
+// Include the MIB-2 HDF header
+#include MS_HW_MIB2.hhdf
+
+//
+// Header
+//
+
+hdf.DisplayName="MIB-2 Standard SNMP Agent - Network Interfaces"
+hdf.TypicalPlatform="Any system with SNMP"
+hdf.AppliesToOS="Network,OOB,HP,Storage,VMS,OSF1"
+hdf.Supersedes="MS_HW_HPUXNetwork.hdf"
+
+
+//Replace a blank name with the description.
+
+// Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
+// PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+NetworkCard.Discovery.Source(3).Compute(1).Type="LeftConcat"
+NetworkCard.Discovery.Source(3).Compute(1).Column=7
+NetworkCard.Discovery.Source(3).Compute(1).String="MSHW"
+
+NetworkCard.Discovery.Source(3).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(3).Compute(2).Column=7
+NetworkCard.Discovery.Source(3).Compute(2).String="MSHW"
+
+// Replace "MSHWMSHW", i.e. a blank column with the ifTable value.
+// PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+NetworkCard.Discovery.Source(3).Compute(3).Type="Replace"
+NetworkCard.Discovery.Source(3).Compute(3).Column=7
+NetworkCard.Discovery.Source(3).Compute(3).Replace="MSHWMSHW"
+NetworkCard.Discovery.Source(3).Compute(3).ReplaceBy=Column(2)
+
+// Now get rid of any remaining MSHWs
+// PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+NetworkCard.Discovery.Source(3).Compute(4).Type="Replace"
+NetworkCard.Discovery.Source(3).Compute(4).Column=7
+NetworkCard.Discovery.Source(3).Compute(4).Replace="MSHW"
+NetworkCard.Discovery.Source(3).Compute(4).ReplaceBy=""
+
+// InstanceTable = Source(1)
+// PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(7)
+//NetworkCard.Discovery.Instance.Vendor=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(3)

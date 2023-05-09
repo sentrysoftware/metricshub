@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import lombok.AllArgsConstructor;
@@ -86,6 +87,18 @@ public class MappingConvertersWrapper {
 	) {
 		getConverterForMonitorType(monitorType)
 			.convertCollectProperty(key.replace("parameteractivation.", ""), value, conditionalCollection);
+	}
+
+	/**
+	 * Removes the specified monitor from the MONITORS object
+	 * @param connector connector
+	 * @param monitor monitor to remove
+	 */
+	public void removeMonitor(final JsonNode connector, final String monitor) {
+		final ObjectNode monitors = (ObjectNode) connector.get(MONITORS);
+		if (monitors != null) {
+			monitors.remove(monitor);
+		}
 	}
 
 	/**
@@ -146,7 +159,7 @@ public class MappingConvertersWrapper {
 	 */
 	private void postConvertDiscovery(final String monitorType, final JsonNode discovery) {
 		final JsonNode mapping = discovery.get(MAPPING);
-		if (mapping != null && mapping.get(ATTRIBUTES) != null) {
+		if (mapping != null && mapping.get(ATTRIBUTES) != null && getConverterForMonitorType(monitorType) != null) {
 			getConverterForMonitorType(monitorType).postConvertDiscoveryProperties(mapping);
 		}
 	}

@@ -1,0 +1,1508 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: Switches that support Brocade Switches
+//                Connects to a SNMP agent
+//				        Improves the monitoring over standard Fiber Alliance Connector
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="Brocade SAN Switch SMI Agent"
+hdf.TypicalPlatform="Brocade SAN"
+hdf.ReliesOn="Brocade SMI Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosures and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the Brocade SMI Agent Proxy and can monitor multiple switches."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+// Supersedes Fiber Alliance Switch and the generic MIB-2 based connector
+hdf.Supersedes="MS_HW_FibreAllianceSwitch.hdf,MS_HW_BrocadeSwitch.hdf,MS_HW_SMISSwitch.hdf"
+
+// There must be a Brocade_Switch
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace="root/brocade1"
+Detection.Criteria(1).WbemQuery="SELECT Name FROM Brocade_Switch"
+
+
+// ENCLOSURES
+
+// Discovery (Chassis)
+
+// Get a List of Chassis
+// Source(1) = Brocade_Chassis
+// ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+Enclosure.Discovery.Source(1).Type="WBEM"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT Tag,ElementName,Model,SerialNumber,__PATH FROM Brocade_Chassis"
+Enclosure.Discovery.Source(1).WbemNameSpace="root/brocade1"
+
+// Remove "NAME=" from the ChassisID as it is sometimes added by the Brocade CIM Agent....
+// ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+Enclosure.Discovery.Source(1).Compute(1).Type="Replace"
+Enclosure.Discovery.Source(1).Compute(1).Column=1
+Enclosure.Discovery.Source(1).Compute(1).Replace="NAME="
+Enclosure.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+// Discovery (Chassisless switches)
+
+// Smaller Brocade Switches have no chassis, so we're going to get a list of all switches and find those with no chassis and then create a dummy chassis
+// Source(2) = Brocade_Switch
+// Switch__PATH;SwitchID;Hostname;
+Enclosure.Discovery.Source(2).Type="WBEM"
+Enclosure.Discovery.Source(2).WbemQuery="SELECT __PATH,Name,ElementName FROM Brocade_Switch"
+Enclosure.Discovery.Source(2).WbemNameSpace="root/brocade1"
+
+// Source(3) = Brocade_Product
+// Product__PATH;Model;Vendor;SerialNumber;FRUNumber;
+Enclosure.Discovery.Source(3).Type="WBEM"
+Enclosure.Discovery.Source(3).WbemQuery="SELECT __PATH,Name,Vendor,IdentifyingNumber,SKUNumber FROM Brocade_Product"
+Enclosure.Discovery.Source(3).WbemNameSpace="root/brocade1"
+
+// Source(4) = Brocade_ChassisProduct
+// Product__PATH;Chassis__PATH;
+Enclosure.Discovery.Source(4).Type="WBEM"
+Enclosure.Discovery.Source(4).WbemQuery="SELECT GroupComponent,PartComponent FROM Brocade_ChassisProduct"
+Enclosure.Discovery.Source(4).WbemNameSpace="root/brocade1"
+
+// Source(5) = Brocade_SwitchInChassis
+// Chassis__PATH;Switch_PATH;
+Enclosure.Discovery.Source(5).Type="WBEM"
+Enclosure.Discovery.Source(5).WbemQuery="SELECT Antecedent,Dependent FROM Brocade_SwitchInChassis"
+Enclosure.Discovery.Source(5).WbemNameSpace="root/brocade1"
+
+// Source(6) = Table joint between Source(2) and source(5)
+// Switch__PATH;SwitchID;Hostname;Chassis__PATH;Switch_PATH;
+Enclosure.Discovery.Source(6).Type="TableJoint"
+Enclosure.Discovery.Source(6).LeftTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(6).RightTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(6).LeftKeyColumn=1
+Enclosure.Discovery.Source(6).RightKeyColumn=2
+Enclosure.Discovery.Source(6).KeyType="Wbem"
+
+// Source(7) = Table joint between Source(3) and source(4)
+// Product__PATH;Model;Vendor;SerialNumber;FRUNumber;Product__PATH;Chassis__PATH;
+Enclosure.Discovery.Source(7).Type="TableJoint"
+Enclosure.Discovery.Source(7).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(7).RightTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(7).LeftKeyColumn=1
+Enclosure.Discovery.Source(7).RightKeyColumn=1
+Enclosure.Discovery.Source(7).KeyType="Wbem"
+
+// Source(7) = Table joint between Source(5) and source(6)
+// Switch__PATH;SwitchID;Hostname;Chassis__PATH;Switch_PATH;Product__PATH;Model;Vendor;SerialNumber;FRUNumber;Product__PATH;Chassis__PATH;
+Enclosure.Discovery.Source(8).Type="TableJoint"
+Enclosure.Discovery.Source(8).LeftTable=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(8).RightTable=%Enclosure.Discovery.Source(7)%
+Enclosure.Discovery.Source(8).LeftKeyColumn=4
+Enclosure.Discovery.Source(8).RightKeyColumn=7
+Enclosure.Discovery.Source(8).KeyType="Wbem"
+
+// Keep only useful columns
+//      1         2         3          4             5           6           7    8         9          10           11          12
+// Switch__PATH;SwitchID;Hostname;Chassis__PATH;Switch_PATH;Product__PATH;Model;Vendor;SerialNumber;FRUNumber;Product__PATH;Chassis__PATH;
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;
+Enclosure.Discovery.Source(8).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(8).Compute(1).ColumnNumbers="2,3,7,8,9,10,12"
+
+// Source(9) = Table joint between Source(7) and source(8)
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+Enclosure.Discovery.Source(9).Type="TableJoint"
+Enclosure.Discovery.Source(9).LeftTable=%Enclosure.Discovery.Source(8)%
+Enclosure.Discovery.Source(9).RightTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(9).LeftKeyColumn=7
+Enclosure.Discovery.Source(9).RightKeyColumn=5
+Enclosure.Discovery.Source(9).KeyType="Wbem"
+Enclosure.Discovery.Source(9).DefaultRightLine="MS_HW_NOCHASSIS;;;;"
+
+// Keep only the switches with no maching chassis.
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+Enclosure.Discovery.Source(9).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(9).Compute(1).Column=8
+Enclosure.Discovery.Source(9).Compute(1).ValueList="MS_HW_NOCHASSIS"
+
+// Transform the No-Chassis Switch information into a Chassis
+//      1        2     3      4          5           6           7           8         9        10         11      12
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+// ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+Enclosure.Discovery.Source(9).Compute(2).Type="KeepColumns"
+Enclosure.Discovery.Source(9).Compute(2).ColumnNumbers="1,2,3,5,7"
+
+// Union the Chassis derived from Switches with the Real Chassis
+// ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+Enclosure.Discovery.Source(10).Type="TableUnion"
+Enclosure.Discovery.Source(10).Table1=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(10).Table2=%Enclosure.Discovery.Source(9)%
+
+// ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
+Enclosure.Discovery.Source(10).Compute(1).Type="RightConcat"
+Enclosure.Discovery.Source(10).Compute(1).Column=5
+Enclosure.Discovery.Source(10).Compute(1).String=";Storage"
+
+// InstanceTable = Source(10)
+// ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(10)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Vendor="Brocade"
+Enclosure.Discovery.Instance.Type=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.DeviceHostname=InstanceTable.Column(1)
+
+// Let's make a copy of the results so that we can device a Enclosure ID to Enclosure PATH mapping for later use
+Enclosure.Discovery.Source(11)=%Enclosure.Discovery.Source(10)%
+
+// Trim it down so that we can map component paths to Chassis ID
+// ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
+// ChassisID;ChassisName;Chassis__PATH;
+Enclosure.Discovery.Source(11).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(11).Compute(1).ColumnNumbers="1,2,5"
+
+//
+// Blades (Switch Modules)
+//
+
+// We already have a list of switches that are parts of Chassis (Enclosure 8)
+// So let's attach them to the chassis in (Enclosure 10)
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+Blade.Discovery.Source(1).Type="TableJoint"
+Blade.Discovery.Source(1).LeftTable=%Enclosure.Discovery.Source(8)%
+Blade.Discovery.Source(1).RightTable=%Enclosure.Discovery.Source(10)%
+Blade.Discovery.Source(1).LeftKeyColumn=7
+Blade.Discovery.Source(1).RightKeyColumn=5
+Blade.Discovery.Source(1).KeyType="Wbem"
+
+// Let's trim it down
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;              ChassisID;
+Blade.Discovery.Source(1).Compute(1).Type="KeepColumns"
+Blade.Discovery.Source(1).Compute(1).ColumnNumbers="1,2,3,4,5,6,8"
+
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+Blade.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Blade.Discovery.Source(1).Compute(2).Column=4
+Blade.Discovery.Source(1).Compute(2).String="Vendor: "
+
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+Blade.Discovery.Source(1).Compute(2).Type="RightConcat"
+Blade.Discovery.Source(1).Compute(2).Column=7
+Blade.Discovery.Source(1).Compute(2).String=";Type: Switch"
+
+
+
+// Instance Table
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(3)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+
+// Let's create a BladeID,BladePATH to EnclosureID table for later use:
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;Switch__PATH;SwitchID;Hostname;
+Blade.Discovery.Source(2).Type="TableJoint"
+Blade.Discovery.Source(2).LeftTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(2)%
+Blade.Discovery.Source(2).LeftKeyColumn=1
+Blade.Discovery.Source(2).RightKeyColumn=2
+Blade.Discovery.Source(2).KeyType="Wbem"
+
+// Create a table to match the SwitchPath to either the EnclosureID (PM) or Blade ID (KM)
+// SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;Switch__PATH;SwitchID;Hostname;
+// SwitchID;Hostname;ChassisID;
+Blade.Discovery.Source(2).Compute(1).Type="KeepColumns"
+Blade.Discovery.Source(2).Compute(1).ColumnNumbers="1,2,7"
+
+//
+// Collect
+
+// The Temperature collect is a "MultiInstance" collect
+Blade.Collect.Type="MultiInstance"
+
+// Brocade_Blade
+// SystemName,DeviceID,OperationalStatus
+Blade.Collect.Source(1).Type="Wbem"
+Blade.Collect.Source(1).WbemNameSpace="root/brocade1"
+Blade.Collect.Source(1).WbemQuery="SELECT Name,OperationalStatus FROM Brocade_Switch"
+
+// Duplicate the "OperationalStatusArray" column
+// SystemName,DeviceID,OperationalStatus
+Blade.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Blade.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus
+Blade.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Blade.Collect.Source(1).Compute(2).Column=2
+Blade.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+Blade.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Blade.Collect.Source(1).Compute(3).Column=3
+Blade.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Blade.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+Blade.Collect.Source(1).Compute(4).Type="Convert"
+Blade.Collect.Source(1).Compute(4).Column=2
+Blade.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID,PATROLStatus,StatusInformation
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(1)
+Blade.Collect.Status=ValueTable.Column(2)
+Blade.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// FC and FCoE Ports ("Network cards")
+//
+
+// FC
+
+// Source(1) = Brocade_SwitchFCPort
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
+NetworkCard.Discovery.Source(1).Type="WBEM"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,PortIndex,ElementName FROM Brocade_SwitchFCPort"
+NetworkCard.Discovery.Source(1).WbemNameSpace="root/brocade1"
+
+// Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
+NetworkCard.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=3
+NetworkCard.Discovery.Source(1).Compute(1).ValueList="14,15,16,17,18"
+
+// Keep only activated ports
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
+NetworkCard.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(2).Column=4
+NetworkCard.Discovery.Source(1).Compute(2).ValueList="3"
+
+// Exclude Ports that have no Port Number as these are FCoE ports that will be collected in the FCoE section
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
+NetworkCard.Discovery.Source(1).Compute(3).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(3).Column=2
+NetworkCard.Discovery.Source(1).Compute(3).RegExp="."
+
+// Translate PortType into a more readable string
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
+NetworkCard.Discovery.Source(1).Compute(4).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(4).Column=3
+NetworkCard.Discovery.Source(1).Compute(4).TranslationTable="PortTypeTranslationTable"
+
+// The PortTypeTranslationTable (Both FC and Ethernet)
+PortTypeTranslationTable(0)="Unknown Network Port Type"
+PortTypeTranslationTable(1)="Other Network Port Type"
+PortTypeTranslationTable(10)="HBA FC Port N (Node)"
+PortTypeTranslationTable(11)="HBA FC Port NL (Node/Loop)"
+PortTypeTranslationTable(12)="HBA FC Port F/NL (Node/Loop/Fabric)"
+PortTypeTranslationTable(14)="FC Port E"
+PortTypeTranslationTable(15)="FC Port F"
+PortTypeTranslationTable(16)="FC Port FL"
+PortTypeTranslationTable(17)="FC Port B"
+PortTypeTranslationTable(18)="FC Port G"
+PortTypeTranslationTable(50)="Ethernet Port"
+PortTypeTranslationTable(51)="Ethernet Port"
+PortTypeTranslationTable(52)="Ethernet Port"
+PortTypeTranslationTable(53)="Ethernet Port"
+PortTypeTranslationTable(54)="Ethernet Port"
+PortTypeTranslationTable(55)="Ethernet Port"
+PortTypeTranslationTable(56)="Ethernet Port"
+PortTypeTranslationTable(100)="Ethernet Port"
+PortTypeTranslationTable(101)="Ethernet Port"
+PortTypeTranslationTable(102)="Ethernet Port"
+PortTypeTranslationTable(103)="Ethernet Port"
+PortTypeTranslationTable(104)="Ethernet Port"
+PortTypeTranslationTable(105)="Ethernet Port"
+PortTypeTranslationTable(106)="Ethernet Port"
+PortTypeTranslationTable(107)="Ethernet Port"
+PortTypeTranslationTable(108)="Ethernet Port"
+PortTypeTranslationTable(109)="Ethernet Port"
+PortTypeTranslationTable(110)="Ethernet Port"
+PortTypeTranslationTable(Default)="Unknown Network Port Type"
+
+// Convert Speed from bps to Mbps (divide by 1062500)
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
+NetworkCard.Discovery.Source(1).Compute(5).Type="Divide"
+NetworkCard.Discovery.Source(1).Compute(5).Column=5
+NetworkCard.Discovery.Source(1).Compute(5).DivideBy=1062500
+
+// Identify the Permanent and RemoteNode Addresses as WWN
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PermanentAddressType,RemoteNodeAddressType,PortName
+NetworkCard.Discovery.Source(1).Compute(6).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(6).Column=8
+NetworkCard.Discovery.Source(1).Compute(6).String=";WWN;WWN"
+
+// Process the AssociatedNodeInfo through an Awk Script to extract the remote Node Info
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName
+NetworkCard.Discovery.Source(1).Compute(7).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(7).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(7).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(7).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(7).SelectColumns="2,3,4,5,6,7,8,9,10,11,12"
+
+// Now we know about the FC port, let's associate it to a port module and a switch
+
+// Source(2) = Brocade_ModulePort
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort
+NetworkCard.Discovery.Source(2).Type="WBEM"
+NetworkCard.Discovery.Source(2).WbemQuery="SELECT PermanentAddress,PortNumber,ElementName,__Path FROM Brocade_SwitchFCPort"
+NetworkCard.Discovery.Source(2).WbemNameSpace="root/brocade1"
+
+// PortModule to FCPort association table
+// Brocade_PortModule,Brocade_SwitchFCPort
+NetworkCard.Discovery.Source(3).Type="WBEM"
+NetworkCard.Discovery.Source(3).WbemQuery="SELECT GroupComponent,PartComponent FROM Brocade_ModulePort"
+NetworkCard.Discovery.Source(3).WbemNameSpace="root/brocade1"
+
+// Brocade_ModulePort information
+// ModuleID,Brocade_PortModule
+NetworkCard.Discovery.Source(4).Type="WBEM"
+NetworkCard.Discovery.Source(4).WbemQuery="SELECT ModuleNumber,__Path FROM Brocade_PortModule"
+NetworkCard.Discovery.Source(4).WbemNameSpace="root/brocade1"
+
+// Switch to PortModule association table
+// Brocade_Switch,Brocade_PortModule
+NetworkCard.Discovery.Source(5).Type="WBEM"
+NetworkCard.Discovery.Source(5).WbemQuery="SELECT GroupComponent,PartComponent FROM Brocade_PortModuleInSwitch"
+NetworkCard.Discovery.Source(5).WbemNameSpace="root/brocade1"
+
+// Brocade_Switch information
+// Brocade_Switch,SwitchID,Hostname,
+NetworkCard.Discovery.Source(6).Type="WBEM"
+NetworkCard.Discovery.Source(6).WbemQuery="SELECT __PATH,Name,ElementName FROM Brocade_Switch"
+NetworkCard.Discovery.Source(6).WbemNameSpace="root/brocade1"
+
+// Port Info to Association Table
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort
+NetworkCard.Discovery.Source(7).Type="TableJoint"
+NetworkCard.Discovery.Source(7).LeftTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(7).RightTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Source(7).LeftKeyColumn=4
+NetworkCard.Discovery.Source(7).RightKeyColumn=2
+NetworkCard.Discovery.Source(7).KeyType="Wbem"
+
+// Port Info to Portmodule
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort,ModuleID,Brocade_PortModule
+NetworkCard.Discovery.Source(8).Type="TableJoint"
+NetworkCard.Discovery.Source(8).LeftTable=%NetworkCard.Discovery.Source(7)%
+NetworkCard.Discovery.Source(8).RightTable=%NetworkCard.Discovery.Source(4)%
+NetworkCard.Discovery.Source(8).LeftKeyColumn=5
+NetworkCard.Discovery.Source(8).RightKeyColumn=2
+NetworkCard.Discovery.Source(8).KeyType="Wbem"
+
+// Port Info to Portmodule to Association Table
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort,ModuleID,Brocade_PortModule,Brocade_Switch,Brocade_PortModule
+NetworkCard.Discovery.Source(9).Type="TableJoint"
+NetworkCard.Discovery.Source(9).LeftTable=%NetworkCard.Discovery.Source(8)%
+NetworkCard.Discovery.Source(9).RightTable=%NetworkCard.Discovery.Source(5)%
+NetworkCard.Discovery.Source(9).LeftKeyColumn=8
+NetworkCard.Discovery.Source(9).RightKeyColumn=2
+NetworkCard.Discovery.Source(9).KeyType="Wbem"
+
+// Port Info to Portmodule to Association Table
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort,ModuleID,Brocade_PortModule,Brocade_Switch,Brocade_PortModule,Brocade_Switch,SwitchID,Hostname
+NetworkCard.Discovery.Source(10).Type="TableJoint"
+NetworkCard.Discovery.Source(10).LeftTable=%NetworkCard.Discovery.Source(9)%
+NetworkCard.Discovery.Source(10).RightTable=%NetworkCard.Discovery.Source(6)%
+NetworkCard.Discovery.Source(10).LeftKeyColumn=9
+NetworkCard.Discovery.Source(10).RightKeyColumn=1
+NetworkCard.Discovery.Source(10).KeyType="Wbem"
+
+// Trim it down to useful information
+//       1              2             3                 4                      5               6             7                8             9                 10            11         12       13
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort,ModuleID,Brocade_PortModule,Brocade_Switch,Brocade_PortModule,Brocade_Switch,SwitchID,Hostname
+// PermanentAddress,PortNumber,ElementName,                                                             ModuleID,                                                                    SwitchID,Hostname
+NetworkCard.Discovery.Source(10).Compute(1).Type="KeepColumns"
+NetworkCard.Discovery.Source(10).Compute(1).ColumnNumbers="1,2,3,7,12,13"
+
+// Build the Display (PortModuleID_PortNumber ElementName) from Right to Left
+// PermanentAddress,PortNumber,DisplayID,ModuleID,SwitchID,Hostname
+NetworkCard.Discovery.Source(10).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(2).Column=3
+NetworkCard.Discovery.Source(10).Compute(2).String=" "
+
+NetworkCard.Discovery.Source(10).Compute(3).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(3).Column=3
+NetworkCard.Discovery.Source(10).Compute(3).String=Column(2)
+
+NetworkCard.Discovery.Source(10).Compute(4).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(4).Column=3
+NetworkCard.Discovery.Source(10).Compute(4).String="_"
+
+NetworkCard.Discovery.Source(10).Compute(5).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(5).Column=3
+NetworkCard.Discovery.Source(10).Compute(5).String=Column(4)
+
+// Build the DeviceID (SwitchID_PortModuleID_PortNumber) from Left to Right
+// PermanentAddress,DeviceID,DisplayID,ModuleID,SwitchID,Hostname
+NetworkCard.Discovery.Source(10).Compute(6).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(6).Column=2
+NetworkCard.Discovery.Source(10).Compute(6).String="_"
+
+NetworkCard.Discovery.Source(10).Compute(7).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(7).Column=2
+NetworkCard.Discovery.Source(10).Compute(7).String=Column(4)
+
+NetworkCard.Discovery.Source(10).Compute(8).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(8).Column=2
+NetworkCard.Discovery.Source(10).Compute(8).String="_"
+
+NetworkCard.Discovery.Source(10).Compute(9).Type="LeftConcat"
+NetworkCard.Discovery.Source(10).Compute(9).Column=2
+NetworkCard.Discovery.Source(10).Compute(9).String=Column(5)
+
+// Trim it again
+// PermanentAddress,DeviceID,DisplayID,ModuleID,SwitchID,Hostname
+// PermanentAddress,DeviceID,DisplayID,         SwitchID
+NetworkCard.Discovery.Source(10).Compute(10).Type="KeepColumns"
+NetworkCard.Discovery.Source(10).Compute(10).ColumnNumbers="1,2,3,5"
+
+// Remove switch id of -1 from the Device and DisplayID
+// PermanentAddress,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(10).Compute(11).Type="Replace"
+NetworkCard.Discovery.Source(10).Compute(11).Column=2
+NetworkCard.Discovery.Source(10).Compute(11).Replace="_-1_"
+NetworkCard.Discovery.Source(10).Compute(11).ReplaceBy="_"
+
+NetworkCard.Discovery.Source(10).Compute(12).Type="Replace"
+NetworkCard.Discovery.Source(10).Compute(12).Column=3
+NetworkCard.Discovery.Source(10).Compute(12).Replace="-1_"
+NetworkCard.Discovery.Source(10).Compute(12).ReplaceBy=""
+
+// Join the tables
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,PermanentAddress,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(11).Type="TableJoint"
+NetworkCard.Discovery.Source(11).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(11).RightTable=%NetworkCard.Discovery.Source(10)%
+NetworkCard.Discovery.Source(11).LeftKeyColumn=6
+NetworkCard.Discovery.Source(11).RightKeyColumn=1
+NetworkCard.Discovery.Source(11).DefaultRightLine=";;;MSHW_NOSWITCHFOUND;"
+
+// Remove the Second Permananent Address as this will become the EthernetSystemName
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,(EthernetSystemName),DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(11).Compute(1).Type="Replace"
+NetworkCard.Discovery.Source(11).Compute(1).Column=12
+NetworkCard.Discovery.Source(11).Compute(1).Replace=Column(12)
+NetworkCard.Discovery.Source(11).Compute(1).ReplaceBy=""
+
+// FCoE
+
+// Source(12) = Brocade_FCOEEthernetPort
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID
+NetworkCard.Discovery.Source(12).Type="WBEM"
+NetworkCard.Discovery.Source(12).WbemQuery="SELECT SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,PortNumber FROM Brocade_FCOEEthernetPort"
+NetworkCard.Discovery.Source(12).WbemNameSpace="root/brocade1"
+
+// Keep only activated ports
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID
+NetworkCard.Discovery.Source(12).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(12).Compute(1).Column=4
+NetworkCard.Discovery.Source(12).Compute(1).ValueList="3"
+
+// Translate PortType into a more readable string
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID
+NetworkCard.Discovery.Source(12).Compute(2).Type="Translate"
+NetworkCard.Discovery.Source(12).Compute(2).Column=3
+NetworkCard.Discovery.Source(12).Compute(2).TranslationTable="PortTypeTranslationTable"
+
+// Convert Speed from bps to Mbps (divide by 1062500)
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID
+NetworkCard.Discovery.Source(12).Compute(3).Type="Divide"
+NetworkCard.Discovery.Source(12).Compute(3).Column=5
+NetworkCard.Discovery.Source(12).Compute(3).DivideBy=1062500
+
+// Remove dots from MAC Address
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID
+NetworkCard.Discovery.Source(12).Compute(4).Type="Replace"
+NetworkCard.Discovery.Source(12).Compute(4).Column=6
+NetworkCard.Discovery.Source(12).Compute(4).Replace="."
+NetworkCard.Discovery.Source(12).Compute(4).ReplaceBy=""
+
+//  Now going to construct the table to link the Ethernet System Name to the Switch
+
+// Source(3) = Brocade_EthernetSwitch
+// EthernetSwitch__Path,EthernetSystemName
+NetworkCard.Discovery.Source(13).Type="WBEM"
+NetworkCard.Discovery.Source(13).WbemQuery="SELECT __Path,Name FROM Brocade_EthernetSwitch"
+NetworkCard.Discovery.Source(13).WbemNameSpace="root/brocade1"
+
+// Source(4) = Brocade_Switch
+// Switch_PATH;SwitchID;
+NetworkCard.Discovery.Source(14).Type="WBEM"
+NetworkCard.Discovery.Source(14).WbemQuery="SELECT __Path,Name FROM Brocade_Switch"
+NetworkCard.Discovery.Source(14).WbemNameSpace="root/brocade1"
+
+// Source(5) = Brocade_EthernetSwitchInPCS
+// PCS__Path;EthernetSwitch__Path;
+NetworkCard.Discovery.Source(15).Type="WBEM"
+NetworkCard.Discovery.Source(15).WbemQuery="SELECT Antecedent,Dependent FROM Brocade_EthernetSwitchInPCS"
+NetworkCard.Discovery.Source(15).WbemNameSpace="root/brocade1"
+
+// Source(6) = Brocade_SwitchInPCS
+// PCS__Path;Switch_PATH;
+NetworkCard.Discovery.Source(16).Type="WBEM"
+NetworkCard.Discovery.Source(16).WbemQuery="SELECT Antecedent,Dependent FROM Brocade_SwitchInPCS"
+NetworkCard.Discovery.Source(16).WbemNameSpace="root/brocade1"
+
+// Source(7) = Table joint between Source(3) and source(5)
+// EthernetSwitch__Path,EthernetSystemName,PCS__Path,EthernetSwitch__Path
+NetworkCard.Discovery.Source(17).Type="TableJoint"
+NetworkCard.Discovery.Source(17).LeftTable=%NetworkCard.Discovery.Source(13)%
+NetworkCard.Discovery.Source(17).RightTable=%NetworkCard.Discovery.Source(15)%
+NetworkCard.Discovery.Source(17).LeftKeyColumn=1
+NetworkCard.Discovery.Source(17).RightKeyColumn=2
+NetworkCard.Discovery.Source(17).KeyType="Wbem"
+
+// Source(8) = Table joint between Source(7) and source(6)
+// EthernetSwitch__Path,EthernetSystemName,PCS__Path,EthernetSwitch__Path,PCS__Path,Switch_PATH
+NetworkCard.Discovery.Source(18).Type="TableJoint"
+NetworkCard.Discovery.Source(18).LeftTable=%NetworkCard.Discovery.Source(17)%
+NetworkCard.Discovery.Source(18).RightTable=%NetworkCard.Discovery.Source(16)%
+NetworkCard.Discovery.Source(18).LeftKeyColumn=3
+NetworkCard.Discovery.Source(18).RightKeyColumn=1
+NetworkCard.Discovery.Source(18).KeyType="Wbem"
+
+// Source(9) = Table joint between Source(8) and source(4)
+// EthernetSwitch__Path,EthernetSystemName,PCS__Path,EthernetSwitch__Path,PCS__Path,Switch_PATH,Switch_PATH,SwitchID
+NetworkCard.Discovery.Source(19).Type="TableJoint"
+NetworkCard.Discovery.Source(19).LeftTable=%NetworkCard.Discovery.Source(18)%
+NetworkCard.Discovery.Source(19).RightTable=%NetworkCard.Discovery.Source(14)%
+NetworkCard.Discovery.Source(19).LeftKeyColumn=6
+NetworkCard.Discovery.Source(19).RightKeyColumn=1
+NetworkCard.Discovery.Source(19).KeyType="Wbem"
+
+// Keep only the EthernetSystemName & SystemName
+//         1                     2            3                4              5          6           7          8
+// EthernetSwitch__Path,EthernetSystemName,PCS__Path,EthernetSwitch__Path,PCS__Path,Switch_PATH,Switch_PATH,SwitchID
+// EthernetSystemName,SwitchID
+NetworkCard.Discovery.Source(19).Compute(1).Type="KeepColumns"
+NetworkCard.Discovery.Source(19).Compute(1).ColumnNumbers="2,8"
+
+// Source(10) = Table joint between Source(12) and source(19)
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID,EthernetSystemName,SwitchID
+NetworkCard.Discovery.Source(20).Type="TableJoint"
+NetworkCard.Discovery.Source(20).LeftTable=%NetworkCard.Discovery.Source(12)%
+NetworkCard.Discovery.Source(20).RightTable=%NetworkCard.Discovery.Source(19)%
+NetworkCard.Discovery.Source(20).LeftKeyColumn=1
+NetworkCard.Discovery.Source(20).RightKeyColumn=1
+
+// Add TE to FCoE ports to identify them uniquely.
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID,EthernetSystemName,SwitchID
+NetworkCard.Discovery.Source(20).Compute(1).Type="LeftConcat"
+NetworkCard.Discovery.Source(20).Compute(1).Column=2
+NetworkCard.Discovery.Source(20).Compute(1).String="TE"
+
+// Add Columns in Preparation to match the FC Ports Table
+// Add RemoteNodeAddress
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,EthernetSystemName,SwitchID
+NetworkCard.Discovery.Source(20).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(20).Compute(2).Column=6
+NetworkCard.Discovery.Source(20).Compute(2).String=";"
+
+// Add PermanentAddressType,(AssociatedNodeAddressType),(PortName)
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,SwitchID
+NetworkCard.Discovery.Source(20).Compute(3).Type="RightConcat"
+NetworkCard.Discovery.Source(20).Compute(3).Column=7
+NetworkCard.Discovery.Source(20).Compute(3).String=";MAC;;"
+
+// Add two blank columns to construct the DeviceID and DisplayID
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,(DeviceID),(DisplayID),SwitchID
+NetworkCard.Discovery.Source(20).Compute(4).Type="RightConcat"
+NetworkCard.Discovery.Source(20).Compute(4).Column=12
+NetworkCard.Discovery.Source(20).Compute(4).String=";;"
+
+// Copy the Port Number into DeviceID
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,(DisplayID),SwitchID
+NetworkCard.Discovery.Source(20).Compute(5).Type="Replace"
+NetworkCard.Discovery.Source(20).Compute(5).Column=13
+NetworkCard.Discovery.Source(20).Compute(5).Replace=Column(13)
+NetworkCard.Discovery.Source(20).Compute(5).ReplaceBy=Column(2)
+
+// Add an underscore and the switchname to the deviceID
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,(DisplayID),SwitchID
+NetworkCard.Discovery.Source(20).Compute(6).Type="LeftConcat"
+NetworkCard.Discovery.Source(20).Compute(6).Column=13
+NetworkCard.Discovery.Source(20).Compute(6).String="_"
+
+NetworkCard.Discovery.Source(20).Compute(7).Type="LeftConcat"
+NetworkCard.Discovery.Source(20).Compute(7).Column=13
+NetworkCard.Discovery.Source(20).Compute(7).String=Column(15)
+
+// Copy the Port Number into DisplayID
+// EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(20).Compute(8).Type="Replace"
+NetworkCard.Discovery.Source(20).Compute(8).Column=14
+NetworkCard.Discovery.Source(20).Compute(8).Replace=Column(14)
+NetworkCard.Discovery.Source(20).Compute(8).ReplaceBy=Column(2)
+
+// Add an Identifier to the EthernetSystemName
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(20).Compute(9).Type="LeftConcat"
+NetworkCard.Discovery.Source(20).Compute(9).Column=12
+NetworkCard.Discovery.Source(20).Compute(9).String="Ethernet Switch ID: "
+
+// Now add a section to deal with FC Ports that don't have a module
+
+// FCPort to Swtich association table
+// Brocade_Switch,Brocade_SwitchFCPort
+NetworkCard.Discovery.Source(21).Type="WBEM"
+NetworkCard.Discovery.Source(21).WbemQuery="SELECT GroupComponent,PartComponent FROM Brocade_PortInSwitch"
+NetworkCard.Discovery.Source(21).WbemNameSpace="root/brocade1"
+
+// Make a Port to Switch Table
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_Switch,Brocade_SwitchFCPort
+NetworkCard.Discovery.Source(22).Type="TableJoint"
+NetworkCard.Discovery.Source(22).LeftTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(22).RightTable=%NetworkCard.Discovery.Source(21)%
+NetworkCard.Discovery.Source(22).LeftKeyColumn=4
+NetworkCard.Discovery.Source(22).RightKeyColumn=2
+
+// Make a Port to Switch Table (2nd association)
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_Switch,Brocade_SwitchFCPort,Brocade_Switch,SwitchID,Hostname
+NetworkCard.Discovery.Source(23).Type="TableJoint"
+NetworkCard.Discovery.Source(23).LeftTable=%NetworkCard.Discovery.Source(22)%
+NetworkCard.Discovery.Source(23).RightTable=%NetworkCard.Discovery.Source(6)%
+NetworkCard.Discovery.Source(23).LeftKeyColumn=5
+NetworkCard.Discovery.Source(23).RightKeyColumn=1
+
+// Trim it down to useful information
+//       1              2             3                 4                   5           6              7                8        9
+// PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_Switch,Brocade_SwitchFCPort,Brocade_Switch,SwitchID,Hostname
+// PermanentAddress,PortNumber,ElementName,                                                                        SwitchID,Hostname
+NetworkCard.Discovery.Source(23).Compute(1).Type="KeepColumns"
+NetworkCard.Discovery.Source(23).Compute(1).ColumnNumbers="1,2,3,8,9"
+
+// Build the DeviceID (SwitchID_PortNumber)
+// PermanentAddress,DeviceID,DisplayID,SwitchID,Hostname
+NetworkCard.Discovery.Source(23).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(23).Compute(2).Column=2
+NetworkCard.Discovery.Source(23).Compute(2).String="_"
+
+NetworkCard.Discovery.Source(23).Compute(3).Type="LeftConcat"
+NetworkCard.Discovery.Source(23).Compute(3).Column=2
+NetworkCard.Discovery.Source(23).Compute(3).String=Column(5)
+
+// Trim it again
+// PermanentAddress,DeviceID,DisplayID,SwitchID,Hostname
+// PermanentAddress,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(23).Compute(4).Type="KeepColumns"
+NetworkCard.Discovery.Source(23).Compute(4).ColumnNumbers="1,2,3,4"
+
+// Make a copy of Source(11) The FC Discovery Table
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(24)=%NetworkCard.Discovery.Source(11)%
+
+// Keep only ports that we did not find a switch
+//       1        2         3          4          5            6             7               8         9                10                        11       12                   13      14         15
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(24).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(24).Compute(1).Column=15
+NetworkCard.Discovery.Source(24).Compute(1).ValueList="MSHW_NOSWITCHFOUND"
+
+// Exclude Ports that have a slot as these should have modules
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(24).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(24).Compute(2).Column=11
+NetworkCard.Discovery.Source(24).Compute(2).RegExp="slot"
+
+// Remove the default value columns
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName
+NetworkCard.Discovery.Source(24).Compute(3).Type="KeepColumns"
+NetworkCard.Discovery.Source(24).Compute(3).ColumnNumbers="1,2,3,4,5,6,7,8,9,10,11"
+
+// Join the non-module switch port list, and its associated switch table
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,PermanentAddress,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(25).Type="TableJoint"
+NetworkCard.Discovery.Source(25).LeftTable=%NetworkCard.Discovery.Source(24)%
+NetworkCard.Discovery.Source(25).RightTable=%NetworkCard.Discovery.Source(23)%
+NetworkCard.Discovery.Source(25).LeftKeyColumn=6
+NetworkCard.Discovery.Source(25).RightKeyColumn=1
+
+// Make a copy of Source(11) The FC Discovery Table
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(26)=%NetworkCard.Discovery.Source(11)%
+
+// Exclude non-module switch
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(26).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(26).Compute(1).Column=15
+NetworkCard.Discovery.Source(26).Compute(1).ValueList="MSHW_NOSWITCHFOUND"
+
+// Union the FC Module, FC non-Module and FCoE discovery tables
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
+NetworkCard.Discovery.Source(27).Type="TableUnion"
+NetworkCard.Discovery.Source(27).Table1=%NetworkCard.Discovery.Source(26)%
+NetworkCard.Discovery.Source(27).Table2=%NetworkCard.Discovery.Source(20)%
+NetworkCard.Discovery.Source(27).Table3=%NetworkCard.Discovery.Source(25)%
+
+// Use the Blade Discovery Table to associate Switch ID to Chassis ID (for attaching to Chassis for the PM)
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID,SwitchID,Hostname,ChassisID
+NetworkCard.Discovery.Source(28).Type="TableJoint"
+NetworkCard.Discovery.Source(28).LeftTable=%NetworkCard.Discovery.Source(27)%
+NetworkCard.Discovery.Source(28).RightTable=%Blade.Discovery.Source(2)%
+NetworkCard.Discovery.Source(28).LeftKeyColumn=15
+NetworkCard.Discovery.Source(28).RightKeyColumn=1
+
+// Instance Table
+//    1           2         3          4          5             6              7            8          9                    10                    11           12             13        14      15         16       17       18
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID,SwitchID,Hostname,ChassisID
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(28)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(13)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(12)
+// NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.BandWidth=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(9)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.RemotePhysicalAddress=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.RemotePhysicalAddressType=InstanceTable.Column(10)
+// KM
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(15)
+NetworkCard.Discovery.Instance.AttachedToDeviceType="Blade"
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(14)
+// PM
+// NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(13)
+// NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(18)
+// NetworkCard.Discovery.Instance.AttachedToDeviceType="Chassis"
+
+
+//  Trim it down to use in the Collect
+NetworkCard.Discovery.Source(29)=%NetworkCard.Discovery.Source(28)%
+
+//    1           2         3          4          5             6              7            8          9                    10                    11           12             13        14      15         16       17       18
+// SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID,SwitchID,Hostname,ChassisID
+// PermanentAddress,DeviceID
+NetworkCard.Discovery.Source(29).Compute(1).Type="KeepColumns"
+NetworkCard.Discovery.Source(29).Compute(1).ColumnNumbers="6,13"
+
+
+// Collect
+
+// The NetworkCard collect is a "MultiInstance" collect
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = Brocade_SwitchFCPort
+//  PermanentAddress,Speed,OperationalStatus,EnabledState,FCPort__Path
+NetworkCard.Collect.Source(1).Type="WBEM"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT PermanentAddress,Speed,OperationalStatus,EnabledState,__Path FROM Brocade_SwitchFCPort"
+NetworkCard.Collect.Source(1).WbemNameSpace="root/brocade1"
+
+// Convert Speed from bps to Mbps (divide by 1062500)
+//  PermanentAddress,Speed,OperationalStatus,EnabledState,FCPort__Path
+NetworkCard.Collect.Source(1).Compute(1).Type="Divide"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(1).DivideBy=1062500
+
+// Source(2) = Brocade_PortStatsForSwitchFCPort
+// FCPort__Path,SwitchFCPortStats__Path
+NetworkCard.Collect.Source(2).Type="WBEM"
+NetworkCard.Collect.Source(2).WbemQuery="SELECT ManagedElement,Stats FROM Brocade_PortStatsForSwitchFCPort"
+NetworkCard.Collect.Source(2).WbemNameSpace="root/brocade1"
+
+// Source(3) = Brocade_SwitchFCPortStats
+// SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
+NetworkCard.Collect.Source(3).Type="WBEM"
+NetworkCard.Collect.Source(3).WbemQuery="SELECT __Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys FROM Brocade_SwitchFCPortStats"
+NetworkCard.Collect.Source(3).WbemNameSpace="root/brocade1"
+
+// Add the errorcounts together 7 = 7+8+9+10+11+12+13+14+15
+// SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
+//     1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8               ;      9  ;   10          ;    11                 ;  12         ;  13                        ;   14    ;   15
+NetworkCard.Collect.Source(3).Compute(1).Type="Add"
+NetworkCard.Collect.Source(3).Compute(1).Column=7
+NetworkCard.Collect.Source(3).Compute(1).Add=Column(7)
+NetworkCard.Collect.Source(3).Compute(2).Type="Add"
+NetworkCard.Collect.Source(3).Compute(2).Column=7
+NetworkCard.Collect.Source(3).Compute(2).Add=Column(8)
+NetworkCard.Collect.Source(3).Compute(3).Type="Add"
+NetworkCard.Collect.Source(3).Compute(3).Column=7
+NetworkCard.Collect.Source(3).Compute(3).Add=Column(9)
+NetworkCard.Collect.Source(3).Compute(4).Type="Add"
+NetworkCard.Collect.Source(3).Compute(4).Column=7
+NetworkCard.Collect.Source(3).Compute(4).Add=Column(10)
+NetworkCard.Collect.Source(3).Compute(5).Type="Add"
+NetworkCard.Collect.Source(3).Compute(5).Column=7
+NetworkCard.Collect.Source(3).Compute(5).Add=Column(11)
+NetworkCard.Collect.Source(3).Compute(6).Type="Add"
+NetworkCard.Collect.Source(3).Compute(6).Column=7
+NetworkCard.Collect.Source(3).Compute(6).Add=Column(12)
+NetworkCard.Collect.Source(3).Compute(7).Type="Add"
+NetworkCard.Collect.Source(3).Compute(7).Column=7
+NetworkCard.Collect.Source(3).Compute(7).Add=Column(13)
+NetworkCard.Collect.Source(3).Compute(8).Type="Add"
+NetworkCard.Collect.Source(3).Compute(8).Column=7
+NetworkCard.Collect.Source(3).Compute(8).Add=Column(14)
+NetworkCard.Collect.Source(3).Compute(9).Type="Add"
+NetworkCard.Collect.Source(3).Compute(9).Column=7
+NetworkCard.Collect.Source(3).Compute(9).Add=Column(15)
+
+// Remove all the unwanted Network Columns
+// SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(3).Compute(10).Type="KeepColumns"
+NetworkCard.Collect.Source(3).Compute(10).ColumnNumbers="1,2,3,4,5,6,7,8,9,10,20"
+
+// Source (4)  Joint of 2 and 3
+// FCPort__Path,SwitchFCPortStats__Path,SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(4).Type="TableJoint"
+NetworkCard.Collect.Source(4).LeftTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(4).RightTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.Source(4).LeftKeyColumn=2
+NetworkCard.Collect.Source(4).RightKeyColumn=1
+NetworkCard.Collect.Source(4).KeyType="Wbem"
+
+// Source (5)  Joint of 1 and 4
+//  SystemName,Speed,OperationalStatus,EnabledState,FCPort__Path,FCPort__Path,SwitchFCPortStats__Path,SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(5).Type="TableJoint"
+NetworkCard.Collect.Source(5).LeftTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(5).RightTable=%NetworkCard.Collect.Source(4)%
+NetworkCard.Collect.Source(5).LeftKeyColumn=5
+NetworkCard.Collect.Source(5).RightKeyColumn=1
+NetworkCard.Collect.Source(5).KeyType="Wbem"
+
+// Get rid of unused columns
+//     1              2        3              4               5             6           7                            8                   9                10              11               12              13        14
+//  PermanentAddress,Speed,OperationalStatus,EnabledState,FCPort__Path,FCPort__Path,SwitchFCPortStats__Path,SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+//  PermanentAddress,Speed,OperationalStatus,EnabledState,                                                                          BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(5).Compute(1).Type="KeepColumns"
+NetworkCard.Collect.Source(5).Compute(1).ColumnNumbers="1,2,3,4,9,10,11,12,13,14"
+
+
+// Source(6) = Brocade_FCOEEthernetPort
+// PermanentAddress,Speed,OperationalStatus,EnabledState
+NetworkCard.Collect.Source(6).Type="WBEM"
+NetworkCard.Collect.Source(6).WbemQuery="SELECT PermanentAddress,Speed,OperationalStatus,EnabledState FROM Brocade_FCOEEthernetPort"
+NetworkCard.Collect.Source(6).WbemNameSpace="root/brocade1"
+
+// Add 6 Blank columns as stats are not available on FCoE Ports
+// PermanentAddress,Speed,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(6).Compute(1).Type="RightConcat"
+NetworkCard.Collect.Source(6).Compute(1).Column=4
+NetworkCard.Collect.Source(6).Compute(1).String=";;;;;;"
+
+// Remove dots from MAC Address
+// PermanentAddress,Speed,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(6).Compute(2).Type="Replace"
+NetworkCard.Collect.Source(6).Compute(2).Column=1
+NetworkCard.Collect.Source(6).Compute(2).Replace="."
+NetworkCard.Collect.Source(6).Compute(2).ReplaceBy=""
+
+// Source (8) = table union of FC (source 5) and FCoE (source 6)
+// PermanentAddress,Speed,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(7).Type="TableUnion"
+NetworkCard.Collect.Source(7).Table1=%NetworkCard.Collect.Source(5)%
+NetworkCard.Collect.Source(7).Table2=%NetworkCard.Collect.Source(6)%
+
+// Duplicate the "OperationalStatusArray" column
+// PermanentAddress,Speed,OperationalStatus,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(7).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(7).Compute(1).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// PermanentAddress,Speed,PATROLStatusArray,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(7).Compute(2).Type="ArrayTranslate"
+NetworkCard.Collect.Source(7).Compute(2).Column=3
+NetworkCard.Collect.Source(7).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// PermanentAddress,Speed,PATROLStatusArray,StatusInformation,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(7).Compute(3).Type="ArrayTranslate"
+NetworkCard.Collect.Source(7).Compute(3).Column=4
+NetworkCard.Collect.Source(7).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+NetworkCard.Collect.Source(7).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// PermanentAddress,Speed,PATROLStatus,StatusInformation,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(7).Compute(4).Type="Convert"
+NetworkCard.Collect.Source(7).Compute(4).Column=3
+NetworkCard.Collect.Source(7).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Convert EnabledState to a LinkStatus
+// PermanentAddress,Speed,PATROLStatus,StatusInformation,LinkStatus,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
+NetworkCard.Collect.Source(7).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(7).Compute(5).Column=5
+NetworkCard.Collect.Source(7).Compute(5).TranslationTable="EnabledStateStatusTranslationTable"
+
+// The SpeedToLinkStatusTranslationTable
+// If we get issues, it might be worth adding this information to the Status Information
+// Enabled
+EnabledStateStatusTranslationTable(2)="OK"
+// Disabled
+EnabledStateStatusTranslationTable(3)="WARN"
+// Shutting Down
+EnabledStateStatusTranslationTable(4)="WARN"
+// Not Applicable
+EnabledStateStatusTranslationTable(5)="WARN"
+// Enabled but Offline (the expected Link Down)
+EnabledStateStatusTranslationTable(6)="WARN"
+// Test
+EnabledStateStatusTranslationTable(7)="WARN"
+// Deferred
+EnabledStateStatusTranslationTable(8)="WARN"
+// Quiesce
+EnabledStateStatusTranslationTable(9)="WARN"
+// Starting
+EnabledStateStatusTranslationTable(10)="WARN"
+EnabledStateStatusTranslationTable(Default)="WARN"
+
+// Match the collected information to the device ID using the permananent address
+// PermanentAddress,Speed,PATROLStatus,StatusInformation,LinkStatus,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount,PermanentAddress,DeviceID
+NetworkCard.Collect.Source(8).Type="TableJoint"
+NetworkCard.Collect.Source(8).LeftTable=%NetworkCard.Collect.Source(7)%
+NetworkCard.Collect.Source(8).RightTable=%NetworkCard.Discovery.Source(29)%
+NetworkCard.Collect.Source(8).LeftKeyColumn=1
+NetworkCard.Collect.Source(8).RightKeyColumn=1
+
+// Value Table
+//     1              2      3             4                5          6            7                    8               9                10          11          12             13
+// PermanentAddress,Speed,PATROLStatus,StatusInformation,LinkStatus,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount,PermanentAddress,DeviceID
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(8)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(13)
+NetworkCard.Collect.Status=ValueTable.Column(3)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(2)
+NetworkCard.Collect.DuplexMode="full"
+NetworkCard.Collect.ErrorCount=ValueTable.Column(11)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(9)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(8)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(7)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(6)
+NetworkCard.Collect.ZeroBufferCreditCount=ValueTable.Column(10)
+
+//
+// Other Devices
+// Port Modules, Control Processors, CR Switching Blades
+
+//
+// Discovery
+
+// Source(1) = Brocade_PortModule -
+// SwitchID,DeviceID
+OtherDevice.Discovery.Source(1).Type="Wbem"
+OtherDevice.Discovery.Source(1).WbemNameSpace="root/brocade1"
+OtherDevice.Discovery.Source(1).WbemQuery="SELECT SystemName,ModuleNumber FROM Brocade_PortModule"
+
+// Duplicate the DeviceID
+// SwitchID,DeviceID,DeviceID
+OtherDevice.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+OtherDevice.Discovery.Source(1).Compute(1).Column=2
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SwitchID,DeviceID,DisplayID
+OtherDevice.Discovery.Source(1).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(2).Column=2
+OtherDevice.Discovery.Source(1).Compute(2).String="_"
+
+OtherDevice.Discovery.Source(1).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(3).Column=2
+OtherDevice.Discovery.Source(1).Compute(3).String=Column(1)
+
+// Use the Blade Discovery Table to associate Switch ID to Chassis ID (for attaching to Chassis for the PM)
+// SwitchID,DeviceID,DisplayID,SwitchID,Hostname,ChassisID
+OtherDevice.Discovery.Source(2).Type="TableJoint"
+OtherDevice.Discovery.Source(2).LeftTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(2).RightTable=%Blade.Discovery.Source(2)%
+OtherDevice.Discovery.Source(2).LeftKeyColumn=1
+OtherDevice.Discovery.Source(2).RightKeyColumn=1
+
+// Keep only the SwitchID and ChassisID
+// SwitchID,DeviceID,DisplayID,ChassisID
+OtherDevice.Discovery.Source(2).Compute(1).Type="KeepColumns"
+OtherDevice.Discovery.Source(2).Compute(1).ColumnNumbers="1,2,3,6"
+
+// Add Columns to specify details about Port Modules
+// SwitchID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
+OtherDevice.Discovery.Source(2).Compute(2).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(2).Column=4
+OtherDevice.Discovery.Source(2).Compute(2).String=";Blade;PortModule"
+
+// Source(3) = Brocade_PortModule -
+// ChassisID,DeviceID
+OtherDevice.Discovery.Source(3).Type="Wbem"
+OtherDevice.Discovery.Source(3).WbemNameSpace="root/brocade1"
+OtherDevice.Discovery.Source(3).WbemQuery="SELECT SystemName,DeviceID FROM Brocade_CPModule"
+
+// Duplicate the DeviceID
+// ChassisID,DeviceID,DeviceID
+OtherDevice.Discovery.Source(3).Compute(1).Type="DuplicateColumn"
+OtherDevice.Discovery.Source(3).Compute(1).Column=2
+
+// Add the SwitchID and an Underscore to the DeviceID and CP
+// ChassisID,DeviceID,DisplayID
+OtherDevice.Discovery.Source(3).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(3).Compute(2).Column=2
+OtherDevice.Discovery.Source(3).Compute(2).String="_CP"
+
+OtherDevice.Discovery.Source(3).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(3).Compute(3).Column=2
+OtherDevice.Discovery.Source(3).Compute(3).String=Column(1)
+
+// Add CP to the DisplayID
+// ChassisID,DeviceID,DisplayID
+OtherDevice.Discovery.Source(3).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(3).Compute(4).Column=3
+OtherDevice.Discovery.Source(3).Compute(4).String="CP"
+
+// Add Additional Column information to match ModuleDiscovery
+// ChassisID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
+OtherDevice.Discovery.Source(3).Compute(5).Type="RightConcat"
+OtherDevice.Discovery.Source(3).Compute(5).Column=3
+OtherDevice.Discovery.Source(3).Compute(5).String=";;Enclosure;CP Module"
+
+// Copy the ChassisID into column 4
+// ChassisID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
+OtherDevice.Discovery.Source(3).Compute(6).Type="Replace"
+OtherDevice.Discovery.Source(3).Compute(6).Column=4
+OtherDevice.Discovery.Source(3).Compute(6).Replace=Column(4)
+OtherDevice.Discovery.Source(3).Compute(6).ReplaceBy=Column(1)
+
+// Union of Port Module and CP Module
+// ChassisID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
+OtherDevice.Discovery.Source(4).Type="TableUnion"
+OtherDevice.Discovery.Source(4).Table1=%OtherDevice.Discovery.Source(2)%
+OtherDevice.Discovery.Source(4).Table2=%OtherDevice.Discovery.Source(3)%
+
+// InstanceTable
+// SwitchID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(4)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(6)
+// KM
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+// PM
+// OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+// OtherDevice.Discovery.Instance.AttachedToDeviceType="Chassis"
+// OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// The Temperature collect is a "MultiInstance" collect
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = Brocade_PortModule
+// SystemName,DeviceID,OperationalStatus
+OtherDevice.Collect.Source(1).Type="Wbem"
+OtherDevice.Collect.Source(1).WbemNameSpace="root/brocade1"
+OtherDevice.Collect.Source(1).WbemQuery="SELECT SystemName,ModuleNumber,OperationalStatus FROM Brocade_PortModule"
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,OperationalStatus
+OtherDevice.Collect.Source(1).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(1).Compute(1).Column=2
+OtherDevice.Collect.Source(1).Compute(1).String="_"
+
+OtherDevice.Collect.Source(1).Compute(2).Type="LeftConcat"
+OtherDevice.Collect.Source(1).Compute(2).Column=2
+OtherDevice.Collect.Source(1).Compute(2).String=Column(1)
+
+// Source(2) = Brocade_CPModule
+// SystemName,DeviceID,OperationalStatus
+OtherDevice.Collect.Source(2).Type="Wbem"
+OtherDevice.Collect.Source(2).WbemNameSpace="root/brocade1"
+OtherDevice.Collect.Source(2).WbemQuery="SELECT SystemName,ModuleNumber,OperationalStatus FROM Brocade_CPModule"
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,OperationalStatus
+OtherDevice.Collect.Source(2).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(2).Compute(1).Column=2
+OtherDevice.Collect.Source(2).Compute(1).String="_CP"
+
+OtherDevice.Collect.Source(2).Compute(2).Type="LeftConcat"
+OtherDevice.Collect.Source(2).Compute(2).Column=2
+OtherDevice.Collect.Source(2).Compute(2).String=Column(1)
+
+// Union of Port Module and CP Module
+// SystemName,DeviceID,OperationalStatus
+OtherDevice.Collect.Source(3).Type="TableUnion"
+OtherDevice.Collect.Source(3).Table1=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(3).Table2=%OtherDevice.Collect.Source(2)%
+
+// Duplicate the "OperationalStatusArray" column
+// SystemName,DeviceID,OperationalStatus
+OtherDevice.Collect.Source(3).Compute(1).Type="DuplicateColumn"
+OtherDevice.Collect.Source(3).Compute(1).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus
+OtherDevice.Collect.Source(3).Compute(2).Type="ArrayTranslate"
+OtherDevice.Collect.Source(3).Compute(2).Column=3
+OtherDevice.Collect.Source(3).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+OtherDevice.Collect.Source(3).Compute(3).Type="ArrayTranslate"
+OtherDevice.Collect.Source(3).Compute(3).Column=4
+OtherDevice.Collect.Source(3).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+OtherDevice.Collect.Source(3).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+OtherDevice.Collect.Source(3).Compute(4).Type="Convert"
+OtherDevice.Collect.Source(3).Compute(4).Column=3
+OtherDevice.Collect.Source(3).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(2)
+OtherDevice.Collect.Status=ValueTable.Column(3)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = Brocade_Fan
+// SystemName,DeviceID,Speed
+Fan.Discovery.Source(1).Type="Wbem"
+Fan.Discovery.Source(1).WbemNameSpace="root/brocade1"
+Fan.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID,Speed FROM Brocade_Fan"
+
+// Duplicate the DeviceID
+// SystemName,DeviceID,DisplayID,Speed
+Fan.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Discovery.Source(1).Compute(1).Column=2
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,DisplayID,Speed
+Fan.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(2).Column=2
+Fan.Discovery.Source(1).Compute(2).String="_"
+
+Fan.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(3).Column=2
+Fan.Discovery.Source(1).Compute(3).String=Column(1)
+
+// InstanceTable = Source(1)
+// SystemName,DeviceID,DisplayID,Speed
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.ParameterActivation.Speed=InstanceTable.Column(4)
+
+//
+// Collect
+
+// The Temperature collect is a "MultiInstance" collect
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_NumericSensor
+// SystemName,DeviceID,Speed,OperationalStatus
+Fan.Collect.Source(1).Type="Wbem"
+Fan.Collect.Source(1).WbemNameSpace="root/brocade1"
+Fan.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,Speed,OperationalStatus FROM Brocade_Fan"
+
+// Duplicate the "OperationalStatusArray" column
+// SystemName,DeviceID,Speed,OperationalStatus
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=4
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,Speed,PATROLStatusArray,OperationalStatus
+Fan.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(2).Column=4
+Fan.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,Speed,PATROLStatusArray,StatusInformation
+Fan.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(3).Column=5
+Fan.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Fan.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
+Fan.Collect.Source(1).Compute(4).Type="Convert"
+Fan.Collect.Source(1).Compute(4).Column=4
+Fan.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
+Fan.Collect.Source(1).Compute(5).Type="LeftConcat"
+Fan.Collect.Source(1).Compute(5).Column=2
+Fan.Collect.Source(1).Compute(5).String="_"
+
+Fan.Collect.Source(1).Compute(6).Type="LeftConcat"
+Fan.Collect.Source(1).Compute(6).Column=2
+Fan.Collect.Source(1).Compute(6).String=Column(1)
+
+// SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Speed=ValueTable.Column(3)
+Fan.Collect.Status=ValueTable.Column(4)
+Fan.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// Power Supplies
+//
+
+//
+// Discovery
+
+// Source(1) = Brocade_Fan
+// SystemName,DeviceID
+PowerSupply.Discovery.Source(1).Type="Wbem"
+PowerSupply.Discovery.Source(1).WbemNameSpace="root/brocade1"
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID FROM Brocade_PowerSupply"
+
+// Duplicate the DeviceID
+// SystemName,DeviceID,DisplayID
+PowerSupply.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,DisplayID
+PowerSupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column=2
+PowerSupply.Discovery.Source(1).Compute(2).String="_"
+
+PowerSupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(3).Column=2
+PowerSupply.Discovery.Source(1).Compute(3).String=Column(1)
+
+// InstanceTable = Source(1)
+// SystemName,DeviceID
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+//
+// Collect
+
+// The Temperature collect is a "MultiInstance" collect
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_NumericSensor
+// SystemName,DeviceID,OperationalStatus
+PowerSupply.Collect.Source(1).Type="Wbem"
+PowerSupply.Collect.Source(1).WbemNameSpace="root/brocade1"
+PowerSupply.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,OperationalStatus FROM Brocade_PowerSupply"
+
+// Duplicate the "OperationalStatusArray" column
+// SystemName,DeviceID,OperationalStatus
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus
+PowerSupply.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+PowerSupply.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(3).Column=4
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+PowerSupply.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+PowerSupply.Collect.Source(1).Compute(4).Type="Convert"
+PowerSupply.Collect.Source(1).Compute(4).Column=3
+PowerSupply.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+PowerSupply.Collect.Source(1).Compute(5).Type="LeftConcat"
+PowerSupply.Collect.Source(1).Compute(5).Column=2
+PowerSupply.Collect.Source(1).Compute(5).String="_"
+
+PowerSupply.Collect.Source(1).Compute(6).Type="LeftConcat"
+PowerSupply.Collect.Source(1).Compute(6).Column=2
+PowerSupply.Collect.Source(1).Compute(6).String=Column(1)
+
+// ValueTable = Source(1)
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(3)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// Termperatures
+//
+
+//
+// Discovery
+
+// Source(1) = Brocade_TemperatureSensor
+// SystemName,DeviceID,CurrentReading
+Temperature.Discovery.Source(1).Type="Wbem"
+Temperature.Discovery.Source(1).WbemNameSpace="root/brocade1"
+Temperature.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID,Speed FROM Brocade_TemperatureSensor"
+
+// Duplicate the DeviceID
+// SystemName,DeviceID,DisplayID,Speed
+Temperature.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Discovery.Source(1).Compute(1).Column=2
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,DisplayID,Speed
+Temperature.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(2).Column=2
+Temperature.Discovery.Source(1).Compute(2).String="_"
+
+Temperature.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(3).Column=2
+Temperature.Discovery.Source(1).Compute(3).String=Column(1)
+
+// InstanceTable = Source(1)
+// SystemName,DeviceID,DisplayID,Speed
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(4)
+
+//
+// Collect
+
+// The Temperature collect is a "MultiInstance" collect
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = Brocade_TemperatureSensor
+// SystemName,DeviceID,CurrentReading,OperationalStatus
+Temperature.Collect.Source(1).Type="Wbem"
+Temperature.Collect.Source(1).WbemNameSpace="root/brocade1"
+Temperature.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,CurrentReading,OperationalStatus FROM Brocade_TemperatureSensor"
+
+// Duplicate the "OperationalStatusArray" column
+// SystemName,DeviceID,Speed,OperationalStatus
+Temperature.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(1).Column=4
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,Speed,PATROLStatusArray,OperationalStatus
+Temperature.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Temperature.Collect.Source(1).Compute(2).Column=4
+Temperature.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,Speed,PATROLStatusArray,StatusInformation
+Temperature.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Temperature.Collect.Source(1).Compute(3).Column=5
+Temperature.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Temperature.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
+Temperature.Collect.Source(1).Compute(4).Type="Convert"
+Temperature.Collect.Source(1).Compute(4).Column=4
+Temperature.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Add the SwitchID and an Underscore to the DeviceID
+// SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
+Temperature.Collect.Source(1).Compute(5).Type="LeftConcat"
+Temperature.Collect.Source(1).Compute(5).Column=2
+Temperature.Collect.Source(1).Compute(5).String="_"
+
+Temperature.Collect.Source(1).Compute(6).Type="LeftConcat"
+Temperature.Collect.Source(1).Compute(6).Column=2
+Temperature.Collect.Source(1).Compute(6).String=Column(1)
+
+// SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(3)
+Temperature.Collect.Status=ValueTable.Column(4)
+Temperature.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+
+
+
+
+
+
+// The DMTFOperationStatusTranslationTable
+DMTFOperationStatusTranslationTable(1)="OK"
+DMTFOperationStatusTranslationTable(2)="OK"
+DMTFOperationStatusTranslationTable(3)="WARN"
+DMTFOperationStatusTranslationTable(4)="WARN"
+DMTFOperationStatusTranslationTable(5)="WARN"
+DMTFOperationStatusTranslationTable(6)="ALARM"
+DMTFOperationStatusTranslationTable(7)="ALARM"
+DMTFOperationStatusTranslationTable(8)="WARN"
+DMTFOperationStatusTranslationTable(9)="WARN"
+DMTFOperationStatusTranslationTable(10)="ALARM"
+DMTFOperationStatusTranslationTable(11)="WARN"
+DMTFOperationStatusTranslationTable(12)="ALARM"
+DMTFOperationStatusTranslationTable(13)="ALARM"
+DMTFOperationStatusTranslationTable(14)="ALARM"
+DMTFOperationStatusTranslationTable(15)="OK"
+DMTFOperationStatusTranslationTable(16)="WARN"
+DMTFOperationStatusTranslationTable(17)="OK"
+DMTFOperationStatusTranslationTable(18)="OK"
+DMTFOperationStatusTranslationTable(Default)="UNKNOWN"
+
+// The DMTFOperationStatusInformationTranslationTable
+DMTFOperationStatusInformationTranslationTable(1)="Dormant"
+DMTFOperationStatusInformationTranslationTable(2)=""
+DMTFOperationStatusInformationTranslationTable(3)="Degraded"
+DMTFOperationStatusInformationTranslationTable(4)="Stressed"
+DMTFOperationStatusInformationTranslationTable(5)="Predicted Failure"
+DMTFOperationStatusInformationTranslationTable(6)="Error"
+DMTFOperationStatusInformationTranslationTable(7)="Non-Recoverable Error"
+DMTFOperationStatusInformationTranslationTable(8)="Starting"
+DMTFOperationStatusInformationTranslationTable(9)="Stopping"
+DMTFOperationStatusInformationTranslationTable(10)="Stopped"
+DMTFOperationStatusInformationTranslationTable(11)="In Service"
+DMTFOperationStatusInformationTranslationTable(12)="No Contact"
+DMTFOperationStatusInformationTranslationTable(13)="Lost Communication"
+DMTFOperationStatusInformationTranslationTable(14)="Aborted"
+DMTFOperationStatusInformationTranslationTable(15)="Dormant"
+DMTFOperationStatusInformationTranslationTable(16)="Supporting Entity in Error"
+DMTFOperationStatusInformationTranslationTable(17)="Completed"
+DMTFOperationStatusInformationTranslationTable(18)="Power Mode"
+DMTFOperationStatusInformationTranslationTable(Default)=""
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parses
+///    SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,PermanentAddressType,AssociatedNodeAddressType,DeviceID
+///          1        2         3        4           5          6                7                    8                   9
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {FS="[;]"}
+{RemoteWWN = $7
+ gsub(/^.*<portname>/,"",RemoteWWN)
+ gsub(/<\057portname>.*$/,"",RemoteWWN)
+ gsub(/:/,"",RemoteWWN)
+ print ("MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" $6 ";" RemoteWWN ";" $8 ";" $9 ";" $10 ";" $11 ";")
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

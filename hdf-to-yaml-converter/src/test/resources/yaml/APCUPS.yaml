@@ -1,0 +1,381 @@
+---
+connector:
+  displayName: APC UPS
+  platforms: APC UPS
+  reliesOn: UPS SNMP Enabled
+  version: 1.0
+  information: This connector provides hardware monitoring through APC UPS SNMP interface.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    supersedes:
+    - GenericUPS
+    criteria:
+      # DETECTION
+      # Does a SnmpGet to see if this device is an APC UPS device
+    - type: snmpGet
+      oid: 1.3.6.1.4.1.318.1.1.1.1.1.1.0
+      expectedResult: UPS
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # Model;
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.1.1.1.0
+          computes:
+            # Add an "fake" identifier to enable table Joins later
+            # DeviceID;ModelNumber;
+          - type: leftConcat
+            column: 1
+            value: ups;
+        source(2):
+          # Source(2)
+          # FirmwareRevision;DateOfManufacture;SerialNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.318.1.1.1.1.2
+          selectColumns: "1,2,3"
+          computes:
+            # Add an identifier to enable table Joints
+            # DeviceID;FirmwareRevision;DateOfManufacture;SerialNumber;
+          - type: leftConcat
+            column: 1
+            value: ups;
+        source(3):
+          # Join the Battery ID with the collected data
+          # DeviceID;ModelNumber;DeviceID;FirmwareRevision;DateOfManufacture;SerialNumber;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          # Add \"Date of Manufacture: \" to AdditionalInformation1
+          - type: leftConcat
+            column: 5
+            value: "Date of Manufacture: "
+          # Add \"Firmware Revision: \" to AdditionalInformation2
+          - type: leftConcat
+            column: 4
+            value: "Firmware Revision: "
+      mapping:
+        # InstanceTable = Source(1)
+        # MSHW;ModelNumber;ID;MSHW;FirmwareRevision;DateOfManufacture;SerialNumber;
+        source: $monitors.enclosure.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          vendor: APC
+          model: $column(2)
+          serial_number: $column(6)
+          type: UPS
+          info: "join($column(4), $column(5), \" \")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"APC\", $column(2))"
+    collect:
+      # Collect
+      type: monoInstance
+      sources:
+        source(1):
+          # Status;
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.7.2.3.0
+          computes:
+            # Translate Status of the UPS
+            # Status;
+          - type: translate
+            column: 1
+            translationTable: EnclosureStatusTranslationTable
+            # Translate 2nd Status to a more readaly string
+            # Status;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: EnclosureStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # Status;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Battery Table
+          # Model;
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.1.1.1.0
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: bat
+          model: $column(1)
+          vendor: APC
+          type: UPS
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s %s - %s)\", \"bat\", \"APC\", $column(1), \"UPS\")"
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Capacity;RuntimeRemaining_100th_s;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.318.1.1.1.2.2
+          selectColumns: "1,3,4"
+          computes:
+            # Add an identifier to enable table Joints
+            # DeviceID;Capacity;RuntimeRemaining_100th_s;Status;
+          - type: leftConcat
+            column: 1
+            value: bat;
+            # Duplicate status column
+            # DeviceID;Capacity;RuntimeRemaining_100th_s;Status;Status;
+          - type: duplicateColumn
+            column: 4
+            # Translate Status of the Battery
+            # DeviceID;Capacity;RuntimeRemaining_100th_s;Status;Status;
+          - type: translate
+            column: 4
+            translationTable: BatteryStatusTranslationTable
+            # Translate 2nd Status of the Battery into more readable information
+            # DeviceID;Capacity;RuntimeRemaining_100th_s;Status;StatusInformation;
+          - type: translate
+            column: 5
+            translationTable: BatteryStatusInformationTranslationTable
+            # Convert the 100th_s into minutes
+            # DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
+          - type: divide
+            column: 3
+            value: 6000
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.battery.time_left: $column(3)
+          hw.battery.charge: percent2Ratio($column(2))
+          hw.status{hw.type="battery"}: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(5)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) hardcoded
+          # DeviceID;Type;
+          type: static
+          value: ps-out;Output;
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID;Type;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          power_supply_type: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type: MonoInstance
+      type: monoInstance
+      sources:
+        source(1):
+          # Collect of PowerSupply current Load
+          # UsedPercent;
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.4.2.3.0
+      mapping:
+        # ValueTable = Source(1)
+        # UsedPercent;
+        source: $monitors.power_supply.collect.sources.source(1)$
+        metrics:
+          hw.power_supply.utilization: percent2Ratio($column(1))
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Hardcoded
+          # ID;Type;SensorLocation;
+          type: tableUnion
+          tables:
+          - in;ac;AC Input;
+          - out;ac;AC Output;
+        source(2):
+          # Source(2) = SNMP Get 1.3.6.1.4.1.318.1.1.1.5.2.3.0 (voltage lower threshold)
+          # LowerThreshold_V
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.5.2.3.0
+          computes:
+            # Add "ac" type
+            # Type;LowerThreshold_V
+          - type: leftConcat
+            column: 1
+            value: ac;
+            # Convert V to mV
+            # Type;LowerThreshold_mV
+          - type: multiply
+            column: 2
+            value: 1000
+        source(3):
+          # Source(3) = SNMP Get 1.3.6.1.4.1.318.1.1.1.5.2.2.0 (voltage upper threshold)
+          # UpperThreshold_V
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.5.2.2.0
+          computes:
+            # Add "ac" type
+            # Type;UpperThreshold_V
+          - type: leftConcat
+            column: 1
+            value: ac;
+            # Convert V to mV
+            # Type;UpperThreshold_mV
+          - type: multiply
+            column: 2
+            value: 1000
+        source(4):
+          # Source(4) = Table Join of Source(2) and Source(3)
+          # Type;LowerThreshold_mV;Type;UpperThreshold_mV
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(2)$
+          rightTable: $monitors.voltage.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(5):
+          # Source(5) = Table Join of Source(1) and Source(4)
+          # ID;Type;SensorLocation;Type;LowerThreshold_mV;Type;UpperThreshold_mV
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(1)$
+          rightTable: $monitors.voltage.discovery.sources.source(4)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;
+      mapping:
+        # Mapping to Instance table for source(6)
+        # ID;Type;SensorLocation;Type;LowerThreshold_mV;Type;UpperThreshold_mV
+        source: $monitors.voltage.discovery.sources.source(5)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(5)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(7)
+    collect:
+      # Collect type: Multi-Instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = SNMP Get of voltage in
+          # Voltage_10th_V
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.3.3.1.0
+          computes:
+            # Add the "in" ID
+            # DeviceID;Voltage_10th_V
+          - type: leftConcat
+            column: 1
+            value: in;
+        source(2):
+          # Source(1) = SNMP Get of voltage out
+          # Voltage_10th_V
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.4.3.1.0
+          computes:
+            # Add the "out" ID
+            # DeviceID;Voltage_10th_V
+          - type: leftConcat
+            column: 1
+            value: out;
+        source(3):
+          # Source(3) = TableUnion for source(1) and source(2)
+          # DeviceID;Voltage_10th_V
+          type: tableUnion
+          tables:
+          - $monitors.voltage.collect.sources.source(1)$
+          - $monitors.voltage.collect.sources.source(2)$
+          computes:
+            # Convert 10th_V to mV
+            # DeviceID;Voltage_mV
+          - type: multiply
+            column: 2
+            value: 100
+      mapping:
+        # ValueTable = Source(3)
+        # DeviceID;Voltage_mV
+        source: $monitors.voltage.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) hardcoded
+          # DeviceID;SensorLocation;
+          type: static
+          value: bat;Battery
+      mapping:
+        # For thresholds, see https://www.linkedin.com/pulse/operating-temperature-range-ups-battery-sarah-gui/
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: 35
+          hw.temperature.limit{limit_type="high.critical"}: 45
+    collect:
+      # Collect Type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Temperature_10th_C
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.1.2.3.2.0
+          computes:
+            # Add the "bat" ID
+            # DeviceID;Temperature_10th_C;
+          - type: leftConcat
+            column: 1
+            value: bat;
+            # Convert 10th_C to degrees C
+            # DeviceID;Temperature
+          - type: divide
+            column: 2
+            value: 10
+      mapping:
+        # ValueTable = Source(3)
+        # DeviceID;Temperature
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": ""
+    "2": Needs replacing
+    default: UNKNOWN
+  BatteryStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  EnclosureStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+  EnclosureStatusInformationTranslationTable:
+    "1": ""
+    "2": Failed
+    default: Unknown
+    "3": Invalid test
+    "4": In progress

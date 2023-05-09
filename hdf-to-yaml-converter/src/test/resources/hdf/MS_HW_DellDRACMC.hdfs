@@ -1,0 +1,626 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//                  MS_HW_DellDRAC.hdf
+//
+//      Supports: Dell Blade chassis with DRAC
+//		Monitors: the chassis'environment (temperatures, fans, power supplies)
+//      Connects to: the DRAC through Telnet
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="Dell DRAC/MC (Dell Remote Access Controller/Modular Chassis)"
+hdf.TypicalPlatform="Dell PowerEdge"
+hdf.ReliesOn="Dell Remote Access Controller/Modular Chassis (DRAC/MC)"
+hdf.Comments="Provides environmental information (temperatures, fans and power supplies) on Dell Blade servers through the Dell Remote Access Card (DRAC)"
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+// SUDO-ABLE COMMANDS
+// None.
+
+//
+// DETECTION
+//
+
+// Host should respond to telnet the way described below
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="getsysinfo"
+Detection.Criteria(1).ExpectedResult="RAC"
+
+//
+// Discovery
+
+// Source(1) = Output of the getsysinfo command through telnet
+// Look for the "System Model=" line
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="getsysinfo -c"
+
+//Enclosure.Discovery.Source(1).Separators=""
+
+// Parse the output of getsysinfo with an AWK script
+// Model;SerialNumber
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+
+// Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="getsensorinfo"
+
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="getmodinfo -A"
+
+Enclosure.Discovery.Source(4).Type="OSCommand"
+Enclosure.Discovery.Source(4).CommandLine="getpbinfo"
+
+Enclosure.Discovery.Source(5).Type="TableUnion"
+Enclosure.Discovery.Source(5).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(5).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(5).Table3=%Enclosure.Discovery.Source(4)%
+
+// The discovery table = source(1)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="DellBladeChassis"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Type="Blade"
+
+//
+// Collect
+
+Enclosure.Collect.Type="MonoInstance"
+
+// Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="getsensorinfo"
+
+Enclosure.Collect.Source(2).Type="OSCommand"
+Enclosure.Collect.Source(2).CommandLine="getmodinfo -A"
+
+Enclosure.Collect.Source(3).Type="OSCommand"
+Enclosure.Collect.Source(3).CommandLine="getpbinfo"
+
+Enclosure.Collect.Source(4).Type="TableUnion"
+Enclosure.Collect.Source(4).Table1=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(4).Table2=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(4).Table3=%Enclosure.Collect.Source(3)%
+
+// Source(2) = copy of Enclosure.Collect.Source(1)
+Enclosure.Collect.Source(5)=%Enclosure.Collect.Source(4)%
+
+// Retrieve the overall status of the chassis and its power consumption with a smart AWK script
+// Status;StatusInformation;PowerConsumption
+Enclosure.Collect.Source(5).Compute(1).Type="Awk"
+Enclosure.Collect.Source(5).Compute(1).AwkScript=EmbeddedFile(2)
+Enclosure.Collect.Source(5).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Collect.Source(5).Compute(1).Separators=";"
+Enclosure.Collect.Source(5).Compute(1).SelectColumns="2,3,4"
+
+// Remove the trailing "W" in the PowerConsumption value
+// Status;StatusInformation;PowerConsumption
+Enclosure.Collect.Source(5).Compute(2).Type="Replace"
+Enclosure.Collect.Source(5).Compute(2).Column=3
+Enclosure.Collect.Source(5).Compute(2).Replace="W"
+Enclosure.Collect.Source(5).Compute(2).ReplaceBy=""
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.Status=ValueTable.Column(1)
+Enclosure.Collect.StatusInformation=ValueTable.Column(2)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
+
+
+
+//
+// Temperatures
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
+
+// Now, extract the temperatures thanks to a smart AWK script
+// TemperatureID;Location;WarningThreshold;AlarmThreshold
+Temperature.Discovery.Source(1).Compute(1).Type="Awk"
+Temperature.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+Temperature.Discovery.Source(1).Compute(1).Separators=";"
+Temperature.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5"
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(2)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Temperature.Collect.Source(1)=%Enclosure.collect.Source(4)%
+
+// Now, extract the temperatures thanks to a smart AWK script
+// TemperatureID;Temperature;Status;
+Temperature.Collect.Source(1).Compute(1).Type="Awk"
+Temperature.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+Temperature.Collect.Source(1).Compute(1).Separators=";"
+Temperature.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Collect.Source(1).Compute(1).SelectColumns="2,6,7"
+
+// Duplicate the status column
+// TemperatureID;Temperature;Status;Status;
+Temperature.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(2).Column=3
+
+// Translate the first status column into a PATROLStatus
+// TemperatureID;Temperature;PATROLStatus;Status;
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=3
+Temperature.Collect.Source(1).Compute(3).TranslationTable="DRACStatusTranslationTable"
+
+// The DRACStatusTranslationTable
+DRACStatusTranslationTable("OK")="OK"
+DRACStatusTranslationTable("Warning")="WARN"
+DRACStatusTranslationTable("Alarm")="ALARM"
+DRACStatusTranslationTable("Failed")="ALARM"
+DRACStatusTranslationTable("Failure")="ALARM"
+DRACStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+Temperature.Collect.Status=ValueTable.Column(3)
+Temperature.Collect.StatusInformation=ValueTable.Column(4)
+
+
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
+
+// Now, extract the fans thanks to a smart AWK script
+// FanID;Location;WarningThreshold;AlarmThreshold
+Fan.Discovery.Source(1).Compute(1).Type="Awk"
+Fan.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Fan.Discovery.Source(1).Compute(1).Separators=";"
+Fan.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5"
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Fan.Collect.Source(1)=%Enclosure.collect.Source(4)%
+
+// Now, extract the fans thanks to a smart AWK script
+// FanID;Speed;Status;
+Fan.Collect.Source(1).Compute(1).Type="Awk"
+Fan.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Fan.Collect.Source(1).Compute(1).Separators=";"
+Fan.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Collect.Source(1).Compute(1).SelectColumns="2,6,7"
+
+// Duplicate the status column
+// FanID;Speed;Status;Status;
+Fan.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(2).Column=3
+
+// Translate the first status column into a PATROLStatus
+// FanID;Speed;PATROLStatus;Status;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="DRACStatusTranslationTable"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Speed=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(3)
+Fan.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// POwer Supplies
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
+
+// Now, extract the power supplies thanks to a smart AWK script
+// PowerSupplyID;PowerCapacity
+PowerSupply.Discovery.Source(1).Compute(1).Type="Awk"
+PowerSupply.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+PowerSupply.Discovery.Source(1).Compute(1).Separators=";"
+PowerSupply.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// Remove the trailing "W" in PowerCapacity
+// PowerSupplyID;PowerCapacity
+PowerSupply.Discovery.Source(1).Compute(2).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(2).Column=2
+PowerSupply.Discovery.Source(1).Compute(2).Replace="W"
+PowerSupply.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+PowerSupply.Collect.Source(1)=%Enclosure.collect.Source(4)%
+
+// Now, extract the power supplies status thanks to a smart AWK script
+// PowerSupplyID;Status;StatusInformation
+PowerSupply.Collect.Source(1).Compute(1).Type="Awk"
+PowerSupply.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(6)
+PowerSupply.Collect.Source(1).Compute(1).Separators=";"
+PowerSupply.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Translate the status column into a PATROLStatus
+// PowerSupplyID;PATROLStatus;StatusInformation
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="DRACStatusTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Blades
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
+
+// Now, extract the blades thanks to a smart AWK script
+// BladeID;BladeName;SerialNumber
+Blade.Discovery.Source(1).Compute(1).Type="Awk"
+Blade.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(7)
+Blade.Discovery.Source(1).Compute(1).Separators=";"
+Blade.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Blade.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Source(1) = copy of Enclosure.Discovery.Source(2) (again)
+Blade.Discovery.Source(2)=%Enclosure.Discovery.Source(5)%
+
+// But now, extract the model of the blades, always thanks to a smart AWK script
+// BladeName;Model
+Blade.Discovery.Source(2).Compute(1).Type="Awk"
+Blade.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(8)
+Blade.Discovery.Source(2).Compute(1).Separators=";"
+Blade.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+Blade.Discovery.Source(2).Compute(1).SelectColumns="2,3"
+
+// Source(3) = Table joint of Source(1) and source(2)
+// BladeID;BladeName;SerialNumber;BladeName;Model
+Blade.Discovery.Source(3).Type="TableJoint"
+Blade.Discovery.Source(3).LeftTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Source(3).RightTable=%Blade.Discovery.Source(2)%
+Blade.Discovery.Source(3).LeftKeyColumn=2
+Blade.Discovery.Source(3).RightKeyColumn=1
+Blade.Discovery.Source(3).DefaultRightLine=";;"
+
+
+// InstanceTable = Source(3)
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(3)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.BladeName=InstanceTable.Column(2)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(5)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Blade.Collect.Source(1)=%Enclosure.collect.Source(4)%
+
+// Now, extract the blade status thanks to a smart AWK script
+// BladeID;Status;StatusInformation;PowerState;
+Blade.Collect.Source(1).Compute(1).Type="Awk"
+Blade.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(7)
+Blade.Collect.Source(1).Compute(1).Separators=";"
+Blade.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Blade.Collect.Source(1).Compute(1).SelectColumns="2,5,6,7"
+
+// ValueTable = Source(1)
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(1)
+Blade.Collect.Status=ValueTable.Column(2)
+Blade.Collect.StatusInformation=ValueTable.Column(3)
+Blade.Collect.PowerState=ValueTable.Column(4)
+
+
+//
+// Other Devices (switches, DRAC/MC, KVM)
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
+
+// Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
+// OtherDeviceID;DeviceType;DeviceName
+OtherDevice.Discovery.Source(1).Compute(1).Type="Awk"
+OtherDevice.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(9)
+OtherDevice.Discovery.Source(1).Compute(1).Separators=";"
+OtherDevice.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// InstanceTable = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+OtherDevice.Collect.Source(1)=%Enclosure.collect.Source(4)%
+
+// Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
+// OtherDeviceID;Status;StatusInformation
+OtherDevice.Collect.Source(1).Compute(1).Type="Awk"
+OtherDevice.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(9)
+OtherDevice.Collect.Source(1).Compute(1).Separators=";"
+OtherDevice.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Collect.Source(1).Compute(1).SelectColumns="2,5,6"
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the output of getsysinfo -c
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN { FS = "="; model = ""; serialNumber = ""; }
+$1 ~ /^System Model *$/ { model = $2; }
+$1 ~ /^Service Tag *$/ { serialNumber = $2; }
+END { print "MSHW;" model ";" serialNumber; }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that parse the output of getmodinfo -A and getpbinfo
+///                      and returns the overall status of the chassis as well as the power consumption
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+(NF == 7 && $3 == "Chassis") {
+	if ($6 == 0) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+	else if ($6 == 1) { status = "OK"; statusInformation = "OK"; }
+	else if ($6 == 2) { status = "WARN"; statusInformation = "Degraded"; }
+	else if ($6 == 3 || $6 == 4) { status = "ALARM"; statusInformation = "Failed"; }
+	else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+}
+/^ *Total Consumption/ {
+	powerConsumption = $NF;
+}
+END {
+	print "MSHW;" status ";" statusInformation ";" powerConsumption ";"
+}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that parse the output of getsensorinfo
+///						 and returns the temperatures
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+($1 == "Temp" && $6 ~ "[Cc]elsius" && NF == 10) {
+	print "MSHW;" $2 ";" $3 ";" $9 ";" $10 ";" $5 ";" $4 ";"
+}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(4) = awk script that parse the output of getsensorinfo
+///						 and returns the fans
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(4):
+($1 == "FanSpeed" && $6 == "rpm" && NF == 10) {
+	print "MSHW;" $2 ";" $3 ";" $8 ";" $7 ";" $5 ";" $4 ";"
+}
+EmbeddedFile(4).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = awk script that parse the output of getpbinfo
+///						 and returns the power supplies (but not their status)
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+($1 ~ /^PS-[0-9]$/ && $2 == "Present" && NF == 5) {
+	print "MSHW;" $1 ";" $4 ";"
+}
+EmbeddedFile(5).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(6) = awk script that parse the output of getsensorinfo
+///						 and returns the status of the power supplies
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(6):
+($1 == "PWR" && $3 ~ /^PS-[0-9]$/ && NF == 6) {
+	statusInformation = $4
+	if ($6 == "Present")
+	{
+		statusInformation = statusInformation " - AC OK"
+	}
+	else
+	{
+		statusInformation = statusInformation " - AC NOK"
+	}
+	statusInformation = statusInformation " - " $5
+
+	print "MSHW;" $3 ";" $5 ";" statusInformation ";"
+}
+EmbeddedFile(6).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(7) = awk script that parse the output of getmodinfo
+///						 and returns the blades
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(7):
+(NF == 7 && $3 == "Chassis") { mainSerialNumber = $7 }
+(NF == 7 && $7 != mainSerialNumber && $4 == 2) {
+	if ($6 == 0) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+	else if ($6 == 1) { status = "OK"; statusInformation = "OK"; }
+	else if ($6 == 2) { status = "WARN"; statusInformation = "Degraded"; }
+	else if ($6 == 3 || $6 == 4) { status = "ALARM"; statusInformation = "Failed"; }
+	else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+	PowerState = ""
+	if ($5 == 1) { statusInformation = "OFF - " statusInformation; PowerState = "off"}
+	if ($5 == 2) { statusInformation = "ON - " statusInformation; PowerState = "on"}
+
+	print "MSHW;" $1 ";" $3 ";" $7 ";" status ";" statusInformation ";" PowerState ";"
+}
+EmbeddedFile(7).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(8) = awk script that parse the output of getpbinfo
+///						 and returns the blades' model
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(8):
+/Server Module Power Consumption Table/,/^ *$/ {
+	if (NF == 5) { print "MSHW;" $2 ";" $3 ";" }
+}
+EmbeddedFile(8).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(9) = awk script that parse the output of getmodinfo
+///						 and returns the switches, DRAC and KVM
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(9):
+(NF == 7 && $4 == 2 && ($3 ~ /^DRAC.MC-[0-9]$/ || $3 ~ /^Switch-[0-9]$/)) || (NF == 6 && $4 == 2 && $3 == "KVM") {
+	if ($6 == 0) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+	else if ($6 == 1) { status = "OK"; statusInformation = "OK"; }
+	else if ($6 == 2) { status = "WARN"; statusInformation = "Degraded"; }
+	else if ($6 == 3 || $6 == 4) { status = "ALARM"; statusInformation = "Failed"; }
+	else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+
+	if ($3 ~ /^DRAC.MC-[0-9]$/) { deviceType = "DRAC"; }
+	else if ($3 ~ /^Switch-[0-9]$/) { deviceType = "Switch"; }
+	else if ($3 == "KVM") { deviceType = "KVM"; }
+
+	print "MSHW;" $1 ";" deviceType ";" $3 ";" status ";" statusInformation ";"
+}
+EmbeddedFile(9).End
+/////////////////////////////////////////////////////////////////////

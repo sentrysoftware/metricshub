@@ -11,20 +11,20 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import com.sentrysoftware.matrix.converter.state.mapping.IMappingConverter;
 import com.sentrysoftware.matrix.converter.state.mapping.MappingConvertersWrapper;
 
 public class CollectParameterProcessor extends AbstractStateConverter {
 
 	private static final Pattern COLLECT_PARAMETER_KEY_PATTERN = Pattern.compile(
-		"^\\s*(([a-z]+)\\.collect\\.(?!(type|valuetable))([a-z]+))\\s*$",
-		Pattern.CASE_INSENSITIVE
-	);
+			"^\\s*(([a-z]+)\\.collect\\.(?!(type|valuetable))([a-z]+))\\s*$",
+			Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public boolean detect(String key, String value, JsonNode connector) {
 		return value != null
-			&& key != null
-			&& getMatcher(key).matches();
+				&& key != null
+				&& getMatcher(key).matches();
 	}
 
 	@Override
@@ -43,11 +43,11 @@ public class CollectParameterProcessor extends AbstractStateConverter {
 		if (property.equalsIgnoreCase(HDF_DEVICE_ID)) {
 			mapping.set("deviceId", new TextNode(ConversionHelper.performValueConversions(value)));
 		} else {
-			new MappingConvertersWrapper()
-			.getConverter(monitorName)
-			.convertCollectProperty(property, value, mapping);
+			IMappingConverter m = new MappingConvertersWrapper().getConverter(monitorName);
+			if (m != null) {
+				m.convertCollectProperty(property, value, mapping);
+			}
 		}
-
 	}
 
 	@Override

@@ -1,0 +1,246 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software(tm)
+//
+//              MS_HW_AAC.hdf
+//
+//      Supports: Adaptec RAID disk controllers (through the Adaptec Storage Manager Web Edition SNMP sub-agent)
+//
+//
+
+// HEADER
+
+hdf.DisplayName="Adaptec Storage Manager Web Edition (AAC)"
+hdf.TypicalPlatform="Fujitsu-Siemens PRIMERGY"
+hdf.ReliesOn="Adaptec Storage Manager Web Edition"
+hdf.Version="1.0"
+hdf.Comments="This connector provides disk monitoring through the Adaptec Storage Manager Web Edition SNMP sub-agent which supports all AAC-based Adaptec RAID controllers."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux"
+
+// DETECTION
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.795.10.1.1.3.1.1"
+
+//
+// DISK CONTROLLERS
+//
+
+//
+// Discovery
+
+// Source(1) = adaptecArrayControllerAdapterTable SNMP table
+// deviceID;adapterIndex;adapterType;biosVersion;kernelVersion
+DiskController.Discovery.Source(1).Type="SnmpTable"
+DiskController.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.795.10.1.1.3.1"
+DiskController.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,7,8"
+
+// InstanceTable = Source(1)
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(3)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(5)
+DiskController.Discovery.Instance.BIOSVersion=InstanceTable.Column(4)
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = adaptecArrayControllerDeviceTable SNMP table
+// ID;devAdapterIndex;devType;devVendor;devProduct;devBlocks;devBytesPerBlock
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.795.10.1.1.5.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,2,6,7,8,10,11"
+
+// Keep only device type = 1 (disk)
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column="3"
+PhysicalDisk.Discovery.Source(1).Compute(1).ValueList="0"
+
+// Multiply the number of blocks by the number of bytes per block to obtain the size in bytes
+// ID;devAdapterIndex;devType;devVendor;devProduct;devSizeInBytes;devBytesPerBlock
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column="6"
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=Column(7)
+
+// Instance Table = Source(1)
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the adaptecArrayControllerDeviceExtensionTable SNMP table
+// DeviceID;Status;SmartStatus
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.795.10.1.1.30.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,1,3"
+
+// Duplicate the Status column
+// DeviceID;Status;Status;SMARTStatus
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status value into a PATROL Status
+// DeviceID;PATROLStatus;Status;SMARTStatus
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// Translate the second status value into a more readable information
+// DeviceID;PATROLStatus;InformationStatus;SMARTStatus
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+// Translate the original SMARTStatus into a true/false value that says if a failure is predicted
+// DeviceID;PATROLStatus;InformationStatus;PredictedFailure
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column="4"
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="PhysicalDiskSMARTTranslationTable"
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable(3)="OK"
+PhysicalDiskStatusTranslationTable(4)="WARN"
+PhysicalDiskStatusTranslationTable(5)="ALARM"
+PhysicalDiskStatusTranslationTable(6)="ALARM"
+PhysicalDiskStatusTranslationTable(7)="OK"
+PhysicalDiskStatusTranslationTable(8)="OK"
+PhysicalDiskStatusTranslationTable(9)="OK"
+PhysicalDiskStatusTranslationTable(10)="OK"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// The PhysicalDiskStatusInformationTranslationTable
+PhysicalDiskStatusInformationTranslationTable(3)=""
+PhysicalDiskStatusInformationTranslationTable(4)="Degraded"
+PhysicalDiskStatusInformationTranslationTable(5)="Critical"
+PhysicalDiskStatusInformationTranslationTable(6)="Non-recoverable"
+PhysicalDiskStatusInformationTranslationTable(7)="Exercising"
+PhysicalDiskStatusInformationTranslationTable(8)="Verifying"
+PhysicalDiskStatusInformationTranslationTable(9)="Verifying with Replace"
+PhysicalDiskStatusInformationTranslationTable(10)="Zeroing"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The PhysicalDiskSMARTTranslationTable
+PhysicalDiskSMARTTranslationTable(1)="false"
+PhysicalDiskSMARTTranslationTable(2)="false"
+PhysicalDiskSMARTTranslationTable(3)="false"
+PhysicalDiskSMARTTranslationTable(4)="true"
+PhysicalDiskSMARTTranslationTable(Default)="false"
+
+// The collect table = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
+
+
+//
+// LOGICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = adaptecArrayControllerContainerTable SNMP table
+// ID;contAdapterIndex;contSizeMB;contType
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.795.10.1.1.4.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,2,4,6"
+
+// Multiply the capacity column (in MB) by 1048576 to obtain the disk size in bytes
+// ID;contAdapterIndex;contSizeBytes;contType
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column="3"
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1048576"
+
+// Instance Table = Source(1)
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.RAIDLevel=InstanceTable.Column(4)
+
+
+// Collect
+//
+
+// Collect type is: multi-instance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the adaptecArrayControllerContainerExtensionTable SNMP table
+// DeviceID;Status
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.795.10.1.1.29.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,3"
+
+// Duplicate the Status column
+// DeviceID;Status;Status
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status value into a PATROL Status
+// DeviceID;PATROLStatus;Status
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column="2"
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// Translate the second status value into a more readable information
+// DeviceID;PATROLStatus;InformationStatus
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column="3"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="LogicalDiskStatusInformationTranslationTable"
+
+// The collect table = Source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable(3)="OK"
+LogicalDiskStatusTranslationTable(4)="WARN"
+LogicalDiskStatusTranslationTable(5)="ALARM"
+LogicalDiskStatusTranslationTable(6)="ALARM"
+LogicalDiskStatusTranslationTable(7)="OK"
+LogicalDiskStatusTranslationTable(8)="OK"
+LogicalDiskStatusTranslationTable(9)="OK"
+LogicalDiskStatusTranslationTable(10)="OK"
+LogicalDiskStatusTranslationTable(11)="WARN"
+LogicalDiskStatusTranslationTable(12)="WARN"
+LogicalDiskStatusTranslationTable(13)="OK"
+LogicalDiskStatusTranslationTable(14)="OK"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// The LogicalDiskStatusInformationTranslationTable
+LogicalDiskStatusInformationTranslationTable(3)=""
+LogicalDiskStatusInformationTranslationTable(4)="Degraded"
+LogicalDiskStatusInformationTranslationTable(5)="Critical"
+LogicalDiskStatusInformationTranslationTable(6)="Non-recoverable"
+LogicalDiskStatusInformationTranslationTable(7)="Copying"
+LogicalDiskStatusInformationTranslationTable(8)="Formatting"
+LogicalDiskStatusInformationTranslationTable(9)="Creating"
+LogicalDiskStatusInformationTranslationTable(10)="Reconfiguring"
+LogicalDiskStatusInformationTranslationTable(11)="Rebuilding"
+LogicalDiskStatusInformationTranslationTable(12)="Scrubbing"
+LogicalDiskStatusInformationTranslationTable(13)="Updating snapshot"
+LogicalDiskStatusInformationTranslationTable(14)="Zeroing"
+LogicalDiskStatusInformationTranslationTable(Default)="Unknown Status"

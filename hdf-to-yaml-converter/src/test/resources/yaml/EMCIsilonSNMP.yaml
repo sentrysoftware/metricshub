@@ -1,0 +1,508 @@
+---
+connector:
+  displayName: EMC Isilon - Node (SNMP)
+  platforms: EMC Isilon
+  reliesOn: EMC Isilon SNMP Agent
+  version: 1.0
+  information: This connector discovers the status of an EMC Isilon Storage Node.  It relies on the SNMP service of the EMC Isilon Node.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - EMCIsilon
+    - EMCIsilon8
+    criteria:
+    # Verify that the EMC Isilon NOde SNMP agent responds to our requests
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.12124.2
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get Chassis list
+          # ChassisNumber;SerialNumber;Model;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.51.1
+          selectColumns: "ID,3,4"
+          computes:
+            # LeftConcat an identifier to link to Chassis
+            # MSHW;ChassisNumber;SerialNumber;Model;
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+        source(2):
+          # Get the NodeName
+          # NodeName;
+          type: snmpGet
+          oid: 1.3.6.1.4.1.12124.2.1.1.0
+          computes:
+            # LeftConcat an identifier to link to Chassis
+            # MSHW;NodeName;
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+        source(3):
+          # Join the Chassis to Node information
+          # MSHW;ChassisNumber;SerialNumber;Model;MSHW;NodeName;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # Instance Table
+        # Note, it's still not clear if multichassis per node is possible, we're going to assume not for now
+        # MSHW;ChassisNumber;SerialNumber;Model;MSHW;NodeName;
+        source: $monitors.enclosure.discovery.sources.source(3)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(6)
+          vendor: EMC
+          model: $column(4)
+          type: Storage
+          serial_number: $column(3)
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(6), \"EMC\", $column(4))"
+    collect:
+      # Collect type is mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Get the NodeHealth
+          # NodeHealth;
+          type: snmpGet
+          oid: 1.3.6.1.4.1.12124.2.1.2.0
+          computes:
+            # LeftConcat an identifier to link to Chassis
+            # MSHW;NodeHealth;
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+            # Translate the NodeHealth
+            # Translate Status into PATROLStatus
+            # MSHW;PatrolStatus;
+          - type: translate
+            column: 2
+            translationTable: enclosureStatusTranslationTable
+        source(2):
+          # Attach the NodeHealth to all node chassis instances
+          # We don't deal with multichassis for the moment (if this even exists)
+          # MSHW;ChassisNumber;SerialNumber;Model;MSHW;PatrolStatus;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(1)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # ValueTable = Source(1)
+        # MSHW;ChassisNumber;SerialNumber;Model;MSHW;PatrolStatus;
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(6)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the diskEntry snmp table
+          # ID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.52.1
+          selectColumns: "ID,3,6,7,8,9"
+          computes:
+            # Duplicate the ID
+            # ID;ID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+          - type: duplicateColumn
+            column: 1
+            # LeftConcat Bay to the Display ID
+            # ID;DisplayID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+          - type: leftConcat
+            column: 2
+            value: 'Bay '
+      mapping:
+        # The instance table = Source(1)
+        # Chassis number seems to be incorrect, so we're going to have to wait until we see a multichassis node debug (if such a system exists)
+        # ID;DisplayID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          model: $column(4)
+          serial_number: $column(5)
+          firmware_version: $column(6)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%by10hf.s)\", $column(2), $column(7))"
+        metrics:
+          hw.physical_disk.size: $column(7)
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the diskEntry snmp table
+          # ID;status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.52.1
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the status column
+            # ID;status;status;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLstatus;status;
+          - type: translate
+            column: 2
+            translationTable: PhysicalDiskStatusTranslationTable
+      mapping:
+        # The ValueTable = source(1)
+        # ID;PATROLstatus;status;
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the fanEntry snmp table
+          # ID;Name;Description;Speed;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.53.1
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Duplicate the Description column
+            # ID;Name;Description;Description;Speed;
+          - type: duplicateColumn
+            column: 3
+            # Extract everything from before a : in the description
+            # ID;Name;Description;Description[1];Speed;
+          - type: extract
+            column: 4
+            subColumn: 1
+            subSeparators: ':'
+          # Add : to the Description[1]
+          - type: rightConcat
+            column: 4
+            value: ':'
+            # Remote the first part of the description from the actual Description if there's a :
+            # ID;Name;Description;Description[1];Speed;
+          - type: replace
+            column: 3
+            existingValue: Column(4)
+            newValue: ""
+            # Translate second name column to Warning and Alarm Thresholds
+            # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Speed;
+          - type: translate
+            column: 2
+            translationTable: FanThresholdTranslationTable
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Speed;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          name: $column(4)
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(2)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(3)
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the fanEntry snmp table
+          # ID;Speed;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.53.1
+          selectColumns: "ID,4"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(2)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the TemperatureEntry snmp table
+          # ID;Name;Description;Temperature;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.54.1
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Duplicate the Description column
+            # ID;Name;Description;Description;Temperature;
+          - type: duplicateColumn
+            column: 3
+            # Extract everything from before a : in the description
+            # ID;Name;Description;Description[1];Temperature;
+          - type: extract
+            column: 4
+            subColumn: 1
+            subSeparators: ':'
+          # Add : to the Description[1]
+          - type: rightConcat
+            column: 4
+            value: ':'
+            # Remote the first part of the description from the actual Description if there's a :
+            # ID;Name;Description;Description[1];Temperature;
+          - type: replace
+            column: 3
+            existingValue: Column(4)
+            newValue: ""
+            # Translate second name column to Warning and Alarm Thresholds
+            # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
+          - type: translate
+            column: 2
+            translationTable: TemperatureThresholdTranslationTable
+            # Remote Temp from DisplayID
+            # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
+          - type: replace
+            column: 4
+            existingValue: Temp
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          name: $column(4)
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
+          hw.temperature.limit{limit_type="high.critical"}: $column(3)
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the TemperatureEntry snmp table
+          # ID;Speed;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.54.1
+          selectColumns: "ID,4"
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the VoltageEntry snmp table
+          # ID;Name;Description;Voltage;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.55.1
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Duplicate the Description column
+            # ID;Name;Description;Description;Voltage;
+          - type: duplicateColumn
+            column: 3
+            # Extract everything from before a : in the description
+            # ID;Name;Description;Description[1];Voltage;
+          - type: extract
+            column: 4
+            subColumn: 1
+            subSeparators: ':'
+          # Add : to the Description[1]
+          - type: rightConcat
+            column: 4
+            value: ':'
+            # Remote the first part of the description from the actual Description if there's a :
+            # ID;Name;Description;Description[1];Voltage;
+          - type: replace
+            column: 3
+            existingValue: Column(4)
+            newValue: ""
+            # Translate second name column to Warning and Alarm Thresholds
+            # ID;LowerThreshold;UpperThreshold;Description;Description[1];Voltage;
+          - type: translate
+            column: 2
+            translationTable: VoltageThresholdTranslationTable
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;LowerThreshold;UpperThreshold;Description;Description[1];Voltage;
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          name: $column(4)
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(2)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(3)
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the VoltageEntry snmp table
+          # ID;Voltage;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.12124.2.55.1
+          selectColumns: "ID,4"
+          computes:
+          # Convert to mV
+          - type: multiply
+            column: 2
+            value: 1000
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+translations:
+  VoltageThresholdTranslationTable:
+    bb +1.2v p1vcc: 570;1440
+    "1.0vsfc": 950;1050
+    v12.0: 11020;12960
+    bb +5.0v: 4630;5350
+    v5.0_nvram: 4600;5400
+    "3.3vsfc": 3030;3560
+    v12.0_bb_a: 11020;12960
+    vacps2: ;
+    v5.0_stby: 4600;5400
+    vacps1: ;
+    vcc_5v0_cbl: 4600;5400
+    v5.0_fp_x: 4600;5400
+    bb +12.0v: 2490;
+    bb +1.1v stby: 1060;1150
+    vcc_1v8: 1660;1940
+    "3.3vsb": 3170;3440
+    bb +3.3v aux: 3070;3510
+    v3.3_stby: 3030;3560
+    vcc_5v0: 4600;5400
+    "1.5v": 1440;1560
+    vcc_3v3: 3030;3560
+    "3.3v": 3070;3510
+    "1.8vsfc": 1710;1890
+    bb 1.5v p1ddr cd: 1410;1590
+    vcc_1v0: 920;1080
+    vcc_12v0: 11020;12960
+    v1.8: 1660;1940
+    v3.3: 3030;3560
+    nv2vcur: 2490;
+    bb 1.5v p2ddr ab: 1410;1590
+    ps in volt 2: ;
+    ps in volt 1: ;
+    v5.0: 4600;5400
+    vcore0: 510;1590
+    nv1vcur: 2490;
+    bb -12.0v: -13230;-10640
+    bb +1.2v vccp1: 570;1440
+    v1.0: 920;1080
+    "5vsfc": 4600;5400
+    "12vsfc": 11020;12960
+    bb +1.35 p2lv cd: 570;1440
+    default: ;
+    bb +5.0v stby: 4630;5350
+    bb +1.35 p1lv ab: 570;1440
+    bb +1.8v aux: 1730;1870
+    v3.3_cmd: 3030;3560
+    bb +1.2v p2vcc: 570;1440
+    "5v": 4600;5400
+    "5vsb": 4670;5330
+    bb 1.5v p1ddr ab: 1410;1590
+    ps out volt 2: 11400;12800
+    ps out volt 1: 11400;12800
+    bb +3.3v: 3070;3510
+    vdcps2: 11400;12800
+    vdcps1: 11400;12800
+    vcc_5v0_sb: 4600;5400
+    "12v": 11020;12960
+    bb 1.5v p2ddr cd: 1410;1590
+    v12.0_fan3: 11020;12960
+    v12.0_mb0: 11020;12960
+    "5vfpf": 4600;5400
+    v12.0_fan2: 11020;12960
+    v12.0_mb1: 11020;12960
+    v12.0_fan1: 11020;12960
+    bb +3.0v vbat: 2490;
+    vdimmcpu0: 1170;1620
+  TemperatureThresholdTranslationTable:
+    p1 therm margin: 0;10
+    dimm thrm mrgn 3: 0;5
+    dimm thrm mrgn 2: 0;5
+    dimm thrm mrgn 4: 0;5
+    bb bmc temp: ;100
+    dimm thrm mrgn 1: 0;5
+    p1 dts therm mgn: 0;10
+    bb mem vr temp: ;115
+    tsystem: ;62
+    tutcpu0: ;73
+    bb edge temp: ;65
+    default: ;
+    lsi core temp: ;73
+    tutcpu1: ;73
+    p2 dts therm mgn: 0;10
+    temp sensor 2: ;50
+    temp sensor 1: ;50
+    tps1: ;98
+    tsfc1: ;50
+    tsfc2: ;50
+    ps temp 2: ;95
+    ps temp 1: ;95
+    ssb temp: ;95
+    bb p1 vr temp: ;115
+    tfp: ;38
+    bb p2 vr temp: ;115
+    p2 therm margin: 0;10
+  FanThresholdTranslationTable:
+    fan tac sensor 3: 6300;
+    fan tac sensor 4: 6300;
+    fan tac sensor 1: 6300;
+    fan tac sensor 2: 6300;
+    ps fan speed 2: ;0
+    ps fan speed 1: ;0
+    ps fan speed 4: ;0
+    default: ;0
+    ps fan speed 3: ;0
+    fisi3: 6300;
+    fisi4: 6300;
+    fisi1: 6300;
+    fisi2: 6300;
+    fps11: ;0
+    fps22: ;0
+    fps21: ;0
+    fps12: ;0
+  PhysicalDiskStatusTranslationTable:
+    new: degraded
+    erase: degraded
+    l3: ok
+    replace: failed
+    used: degraded
+    boot_drive: ok
+    wrong_type: degraded
+    suspended: degraded
+    unencrypted: failed
+    restripe: degraded
+    smartfail: degraded
+    not: failed
+    default: failed
+    journal: ok
+    preparing: degraded
+    healthy: ok
+    stalled: ok
+    insecure: failed
+    sed_error: failed
+  enclosureStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "2": failed
+    default: UNKNOWN
+    "3": UNKNOWN

@@ -1,0 +1,215 @@
+---
+connector:
+  displayName: HP-UX - Network
+  platforms: "HP 9000,HP Integrity,HP SuperDome"
+  reliesOn: "HP-UX system commands (lanscan, etc.)"
+  information: Discovers and monitors Ethernet adapters.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - HP
+    supersedes:
+    - HPUXWBEMNetwork
+    criteria:
+    # OS should be HP (for HP-UX, whatever version)
+    - type: deviceType
+      keep:
+      - HP
+    # The various following tools have to be present
+    - type: osCommand
+      commandLine: /usr/sbin/lanscan
+      expectedResult: "^[0-9]+/[0-9]+/[0-9]+"
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of EmbeddedFile(1)
+          type: osCommand
+          commandLine: "for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ \"[0-9]+/[0-9]+/[0-9]+\") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
+          computes:
+            # Process the output of the command through an AWK script
+            # DeviceID;MacAddress;Model;
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,8"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          physical_address: $column(2)
+          physical_address_type: MAC
+          model: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Ouput of lanadmin for all lan adapters listed by lanscan
+          type: osCommand
+          commandLine: "for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ \"[0-9]+/[0-9]+/[0-9]+\") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
+          computes:
+            # Process the output of the command through an AWK script
+            # DeviceID;MacAddress;Model;
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,4,5,6,7,9,10,11"
+            # Extract the number of the status column
+            # DeviceID;Speed; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+          - type: extract
+            column: 3
+            subSeparators: ()
+            subColumn: 2
+            # Duplicate the status column
+            # DeviceID;Speed; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+          - type: duplicateColumn
+            column: 3
+            # Duplicate again the status column
+            # DeviceID;Speed; Status; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+          - type: duplicateColumn
+            column: 3
+            # Translate the first STatusNumber column into a PATROL status
+            # DeviceID;Speed; Patrol Status; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+          - type: translate
+            column: 3
+            translationTable: NetworkCardStatusTranslationTable
+            # Translate the second StatusNumber column into a more readable string
+            # DeviceID;Speed; Patrol Status; Status Information ; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+          - type: translate
+            column: 4
+            translationTable: NetworkCardStatusInformationTranslationTable
+            # Translate the third StatusNumber column into LinkStatus
+            # DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+          - type: translate
+            column: 5
+            translationTable: NetworkCardLinkStatusTranslationTable
+      mapping:
+        # Value table = Source(1)
+        #     1      2        # 3        #     4        #          5        #  6        #   7        #         8        #      9        #    10
+        # DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.errors{hw.type="network"}: $column(6)
+          hw.network.packets{direction="transmit"}: $column(8)
+          hw.network.packets{direction="receive"}: $column(7)
+          hw.network.io{direction="transmit"}: $column(10)
+          hw.network.io{direction="receive"}: $column(9)
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+        legacyTextParameters:
+          StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    ($1 == "PPA" && $2 == "Number") {
+        deviceID = $4
+        model = ""
+        bandwidth = ""
+        status = ""
+        inboundError = 0
+        outboundError = 0
+        inboundOctet = 0
+        outboundOctet = 0
+        inboundUnicastPackets = 0
+        inbountNonUnicastPackets = 0
+        outboundUnicastPackets = 0
+        outboundNonUnicastPackets = 0
+        errorCount = 0
+        macAddress = ""
+    }
+
+    ($1 == "Description") {
+        if ($3 ~ "^lan[0-9]+")
+        {
+            model = $4 " " $5 " " $6 " " $7
+        }
+        else
+        {
+            model = $3 " " $4 " " $5 " " $6
+        }
+    }
+
+    ($1 == "Station" && $2 == "Address" && $4 ~ /^0x[0-9a-fA-F]+$/) {
+        macAddress = substr($4, 3, length($4) - 2)
+    }
+
+    ($1 == "Speed") {
+        bandwidth = $3 / 1000000
+    }
+
+    ($1 == "Operation" && $2 == "Status") {
+        status = $5
+    }
+
+    ($1 == "Inbound" && $2 == "Errors") {
+        inboundError = $4
+    }
+
+    ($1 == "Inbound" && $2 == "Octets") {
+        inboundOctet = $4
+    }
+
+    ($1 == "Inbound" && $2 == "Unicast" && $3 == "Packets") {
+        inboundUnicastPackets = $5
+    }
+
+    ($1 == "Inbound" && $2 == "Non-Unicast" && $3 == "Packets") {
+        inboundNonUnicastPackets = $5
+    }
+
+    ($1 == "Outbound" && $2 == "Octets") {
+        outboundOctet = $4
+    }
+
+    ($1 == "Outbound" && $2 == "Unicast" && $3 == "Packets") {
+        outboundUnicastPackets = $5
+    }
+
+    ($1 == "Outbound" && $2 == "Non-Unicast" && $3 == "Packets") {
+        outboundNonUnicastPackets = $5
+    }
+
+    ($1 == "Outbound" && $2 == "Errors") {
+        outboundError = $4
+
+        inboundPackets = inboundUnicastPackets + inboundNonUnicastPackets
+        outboundPackets = outboundUnicastPackets + outboundNonUnicastPackets
+        errorCount = inboundError + outboundError
+
+        printf("MSHW;%s;%s;%.0f;%s;%.0f;%.0f;%s;%.0f;%.0f;%.0f\n", deviceID, macAddress, bandwidth, status, errorCount, inboundPackets, model, outboundPackets, inboundOctet, outboundOctet)
+    }
+translations:
+  NetworkCardLinkStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: ok
+    "3": ok
+    "5": ok
+    "6": ok
+    "7": degraded
+  NetworkCardStatusInformationTranslationTable:
+    "1": Up
+    "2": Down
+    default: Unknown Status
+    "3": Testing
+    "5": Dormant
+    "6": Not present
+    "7": Lower layer down
+  NetworkCardStatusTranslationTable:
+    "1": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "5": ok
+    "6": failed
+    "7": failed

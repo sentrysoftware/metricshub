@@ -1,0 +1,639 @@
+---
+connector:
+  displayName: Cisco UCS B-Series (SNMP)
+  platforms: Cisco B-Series Servers
+  reliesOn: Cisco UCS Manager SNMP Agent
+  version: 1.0
+  information: This connector provides hardware monitoring for the Cisco B-Series Servers via SNMP agent of UCS Manager. It does not connect to the blades themselves
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    criteria:
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.9.9.719.1.9.2.1.2
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(2) = cucsComputeRackUnitEntry
+          # DN;Model;Serial;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.9.2.1
+          selectColumns: "2,32,47,42"
+          computes:
+            # Duplicate the deviceID
+            # DN;Displayname;Model;Serial;OperState;
+          - type: duplicateColumn
+            column: 1
+            # Remove SYS/
+            # DN;Displayname;Model;Serial;OperState;
+          - type: replace
+            column: 2
+            existingValue: sys/
+            newValue: ""
+            # Remove "removed" blades
+            # DN;Displayname;Model;Serial;OperState;
+          - type: excludeMatchingLines
+            column: 5
+            valueList: 40
+      mapping:
+        # The InstanceTable
+        # DN;DisplayName;Model;Serial;OperState;
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          model: $column(3)
+          serial_number: $column(4)
+          vendor: Cisco
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"Cisco\", $column(3))"
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = cucsEquipmentEnclosureEntry
+          # DN;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.9.2.1
+          selectColumns: "2,42"
+          computes:
+            # Duplicate the StatusCode column
+            # DN;OperState;OperState;
+          - type: duplicateColumn
+            column: 2
+            # Translate 1st StatusCode into PATROLSTatus
+            # DN;PATROLStatus;OperState;
+          - type: translate
+            column: 2
+            translationTable: bladeStatusTranslationTable
+            # Translate second STatusCode into a more readable string
+            # DN;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: bladeStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # DN;PATROLStatus;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = cucsProcessorUnitTable
+          # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.45.1.1
+          selectColumns: "2,3,5,14,18,13,6"
+          computes:
+          # Ignore empty slots (removed)
+          - type: excludeMatchingLines
+            column: 7
+            valueList: 6
+        source(2):
+          # DN
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.45.1.1
+          selectColumns: 2
+          computes:
+            # Run this through awk EF1
+            # attachedDeviceID;DN
+          - type: awk
+            script: EmbeddedFile(1)
+        source(3):
+          # Source(3) = jointure of source(1) and source(2) in order to have the attached deviceID
+          # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;attachedDeviceID;DN
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+        source(4):
+          # Source(4) = jointure of source(3) and enclosure.source(2) in order to have controllers attached to a blade
+          # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;attachedDeviceID;DN;enclosure
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 8
+          rightKeyColumn: 1
+      mapping:
+        # InstanceTable = Source(1)
+        # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;attachedDeviceID;ID;enclosure
+        source: $monitors.disk_controller.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: $column(5)
+          model: $column(3)
+          serial_number: $column(4)
+          firmware_version: $column(6)
+          controller_number: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(8)
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(5), $column(3))"
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = cucsProcessorUnitTable
+          # DN;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.45.1.1
+          selectColumns: "2,6"
+          computes:
+          # Ignore empty slots (removed)
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 6
+            # Duplicate the StatusCode column
+            # DN;OperState;OperState;
+          - type: duplicateColumn
+            column: 2
+            # Translate 1st StatusCode into PATROLSTatus
+            # DN;PATROLStatus;OperState;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+            # Translate second STatusCode into a more readable string
+            # DN;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: statusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = cucsEquipmentPhysicalDiskEntry
+          # DN;Model;Size;Vendor;RN;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.45.4.1
+          selectColumns: "2,3,12,13,14,9"
+          computes:
+          # Ignore empty slots (removed)
+          - type: excludeMatchingLines
+            column: 6
+            valueList: 6
+            # Duplicate the deviceID
+            # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;
+          - type: duplicateColumn
+            column: 1
+            # Add a "/"ou our RN to remove it from the atttached device ID
+            # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;
+          - type: leftConcat
+            column: 3
+            value: /
+            # generate the attached device id
+            # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;
+          - type: replace
+            column: 2
+            existingValue: Column(3)
+            newValue: ""
+            # Convert the size into bytes
+            # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;
+          - type: multiply
+            column: 5
+            value: 1048576
+            # Remove "/" added to rn
+            # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;
+          - type: replace
+            column: 3
+            existingValue: /
+            newValue: ""
+        source(2):
+          # DN for enclosure id
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.45.4.1
+          selectColumns: 2
+          computes:
+            # Run this through awk EF1
+            # attachedDeviceID;DN
+          - type: awk
+            script: EmbeddedFile(1)
+        source(3):
+          # Source(3) = jointure of source(1) and source(2) in order to have the attached deviceID
+          # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;enclosureID;DN
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+        source(4):
+          # Source(4) = jointure of source(3) and enclosure.source(2) in order to have controllers attached to a blade
+          # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;enclosureID;DN;enclosure
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 8
+          rightKeyColumn: 1
+      mapping:
+        # InstanceTable = Source(1)
+        # DN;attachedDeviceID;RN;Model;Size;Vendor;enclosureID;DN;enclosure
+        source: $monitors.physical_disk.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          vendor: $column(6)
+          model: $column(4)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(6), $column(5))"
+        metrics:
+          hw.physical_disk.size: $column(5)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = cucsEquipmentPhysicalDiskEntry
+          # DN;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.45.4.1
+          selectColumns: "2,9"
+          computes:
+          # Ignore empty slots (removed)
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 6
+            # Duplicate the StatusCode column
+            # DN;OperState;OperState;
+          - type: duplicateColumn
+            column: 2
+            # Translate 1st StatusCode into PATROLStatus
+            # DN;PATROLStatus;OperState;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+            # Translate second STatusCode into a more readable string
+            # DN;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: statusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = cucsProcessorUnitTable
+          # DN;RN;Model;Speed;Vendor;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.41.9.1
+          selectColumns: "2,3,8,17,21,9"
+        source(2):
+          # DN
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.41.9.1
+          selectColumns: 2
+          computes:
+            # Run this through awk EF1
+            # attachedDeviceID;DN
+          - type: awk
+            script: EmbeddedFile(1)
+        source(3):
+          # Source(3) = jointure of source(1) and source(2) in order to attached deviceID
+          # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+          type: tableJoin
+          leftTable: $monitors.cpu.discovery.sources.source(1)$
+          rightTable: $monitors.cpu.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          computes:
+            # Exclude empty CPU slots
+            # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+          - type: excludeMatchingLines
+            column: 4
+            valueList: 0
+          # Ignore empty slots (Removed)
+          - type: excludeMatchingLines
+            column: 6
+            valueList: 6
+        source(4):
+          # Source(4) = jointure of source(3) and enclosure.source(2) in order to have cpus attached to a blade
+          # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN;enclosure
+          type: tableJoin
+          leftTable: $monitors.cpu.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 7
+          rightKeyColumn: 1
+      mapping:
+        # InstanceTable = Source(1)
+        # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+        source: $monitors.cpu.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: $column(5)
+          model: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(7)
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(2), $column(5), $column(3), $column(4))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = cucsProcessorUnitTable
+          # DN;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.41.9.1
+          selectColumns: "2,9"
+          computes:
+          # Ignore empty slots (Removed)
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 6
+            # Duplicate the StatusCode column
+            # DN;OperState;OperState;
+          - type: duplicateColumn
+            column: 2
+            # Translate 1st StatusCode into PATROLSTatus
+            # DN;PATROLStatus;OperState;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+            # Translate second STatusCode into a more readable string
+            # DN;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: statusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = cucsMemoryUnitEntry
+          # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.30.11.1
+          selectColumns: "2,3,11,17,6,19,21,13"
+          computes:
+            # Exclude  "Missing" memory modules
+            # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;
+          - type: excludeMatchingLines
+            column: 4
+            valueList: 11
+          - type: excludeMatchingLines
+            column: 8
+            valueList: 6
+          - type: excludeMatchingLines
+            column: 6
+            regExp: NO DIMM
+            # Add Identifiers
+            # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;
+          - type: leftConcat
+            column: 3
+            value: "Location : "
+          - type: leftConcat
+            column: 7
+            value: "Speed: "
+        source(2):
+          # source 2 for the attached device id
+          # DN;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.30.11.1
+          selectColumns: 2
+          computes:
+            # Run this through awk EF1
+            # attachedDeviceID;DN
+          - type: awk
+            script: EmbeddedFile(1)
+        source(3):
+          # Source(3) = jointure of source(1) and source(2) in order to attached deviceID
+          # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;attachedDeviceID;DN
+          type: tableJoin
+          leftTable: $monitors.memory.discovery.sources.source(1)$
+          rightTable: $monitors.memory.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+        source(4):
+          # Source(4) = jointure of source(3) and enclosure.source(2) in order to have memories attached to a blade
+          # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;attachedDeviceID;DN;enclosure
+          type: tableJoin
+          leftTable: $monitors.memory.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 9
+          rightKeyColumn: 1
+      mapping:
+        # InstanceTable = Source(1)
+        # DN;RN;Location;Presence;CapacityMB;Serial;Speed;attachedDeviceID;DN
+        source: $monitors.memory.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          serial_number: $column(6)
+          info: "join($column(3), $column(7), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(9)
+          name: "sprintf(\"%s (%s MB)\", $column(2), $column(5))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(5))
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = cucsMemoryUnitEntry
+          # DN;OperState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.719.1.30.11.1
+          selectColumns: "2,13"
+          computes:
+          # Ignore empty slots (Removed)
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 6
+            # Duplicate the StatusCode column
+            # DN;OperState;OperState;
+          - type: duplicateColumn
+            column: 2
+            # Translate 1st StatusCode into PATROLSTatus
+            # DN;PATROLStatus;OperState;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+            # Translate second STatusCode into a more readable string
+            # DN;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: statusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |
+    BEGIN {FS="[/]"}
+    {
+    print $1 "/" $2 "/" $3 ";" $0
+    }
+translations:
+  bladeStatusTranslationTable:
+    "29": degraded
+    "210": ok
+    "211": degraded
+    default: Unknown Status
+    "212": degraded
+    "50": failed
+    "30": degraded
+    "31": degraded
+    "10": ok
+    "32": degraded
+    "11": ok
+    "33": failed
+    "12": ok
+    "34": failed
+    "13": ok
+    "35": failed
+    "14": ok
+    "36": ok
+    "15": ok
+    "0": UNKNOWN
+    "1": degraded
+    "101": ok
+    "201": ok
+    "202": ok
+    "203": ok
+    "204": failed
+    "60": degraded
+    "61": degraded
+    "40": degraded
+    "62": degraded
+    "41": degraded
+    "63": failed
+    "20": ok
+    "21": ok
+  statusInformationTranslationTable:
+    default: Unknown Status
+    "51": Fabric Conn Problem
+    "52": Fabric Unsupported Conn
+    "10": Accessibility Problem
+    "11": Identity Unestablishable
+    "12": Bios Post Timeout
+    "13": Disabled
+    "14": Malformed FRU
+    "0": Unknown
+    "1": Operable
+    "100": Not Supported
+    "2": Inoperable
+    "101": Discovery
+    "3": Degraded
+    "102": Discovery Failed
+    "4": Powered Off
+    "103": Identify
+    "5": Power Problem
+    "104": Post Failure
+    "6": Removed
+    "105": Upgrade Problem
+    "7": Voltage Problem
+    "106": Peer Comm Problem
+    "8": Thermal Problem
+    "107": Auto Upgrade
+    "9": Performance Problem
+    "81": Config
+    "108": Link Activate Blocked
+    "82": Equipment Problem
+    "83": Decommissioning
+    "84": Chassis Limit Exceeded
+  statusTranslationTable:
+    default: Unknown Status
+    "51": degraded
+    "52": degraded
+    "10": degraded
+    "11": degraded
+    "12": failed
+    "13": degraded
+    "14": degraded
+    "0": UNKNOWN
+    "1": ok
+    "100": degraded
+    "2": degraded
+    "101": degraded
+    "3": degraded
+    "102": failed
+    "4": degraded
+    "103": ok
+    "5": degraded
+    "104": failed
+    "6": failed
+    "105": degraded
+    "7": degraded
+    "106": degraded
+    "8": degraded
+    "107": degraded
+    "9": degraded
+    "81": degraded
+    "108": degraded
+    "82": degraded
+    "83": ok
+    "84": degraded
+  bladeStatusInformationTranslationTable:
+    "29": Compute Mismatch
+    "210": Pending Reboot
+    "211": Pending Reassociation
+    default: Unknown Status
+    "212": Svnic Not Present
+    "50": Inaccessible
+    "30": Compute Failed
+    "31": Degraded
+    "10": ok
+    "32": Discovery Failed
+    "11": Discovery
+    "33": Config Failure
+    "12": Config
+    "34": Unconfig Failed
+    "13": Unconfig
+    "35": Test Failed
+    "14": PowerOff
+    "36": Maintenance Failed
+    "15": Restart
+    "0": Indeterminate
+    "1": Unassociated
+    "101": Decommissioning
+    "201": Bios Restore
+    "202": Cmos Reset
+    "203": Diagnostics
+    "204": Diagnostics Failed
+    "60": Thermal Problem
+    "61": Power Problem
+    "40": Removed
+    "62": Voltage Problem
+    "41": Disabled
+    "63": Inoperable
+    "20": Maintenance
+    "21": Test

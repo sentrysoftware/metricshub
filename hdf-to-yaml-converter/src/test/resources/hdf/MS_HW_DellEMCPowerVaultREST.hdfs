@@ -1,0 +1,653 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                  Hardware Sentry
+//                 by Sentry Software (c)
+//
+//      Supports: EMC PowerVault
+//                Connects to EMC REST API
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="Dell EMC PowerVault (REST)"
+hdf.TypicalPlatform="PowerVault REST"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring through the PowerVault Management REST API. It monitors the enclosure, controllers, physical disks, and the various environment sensors (fans, power supplies, network cards, voltages, and temperature)."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+//
+// DETECTION
+//
+
+// requires %{SHA256_AUTH} replacement macro
+Detection.Criteria(1).Type="KMVersion"
+Detection.Criteria(1).Version="11.3.01"
+
+Detection.Criteria(2).Type="HTTP"
+Detection.Criteria(2).AuthenticationToken="%{USERNAME}_%{PASSWORD}"
+Detection.Criteria(2).Url="/api/login/%{SHA256_AUTH}"
+Detection.Criteria(2).Header="datatype: json"
+Detection.Criteria(2).ExpectedResult="response-type":"Success"
+
+//
+// Enclosure
+//
+
+// Login
+Enclosure.Discovery.Source(1).Type="HTTP"
+Enclosure.Discovery.Source(1).Method="GET"
+Enclosure.Discovery.Source(1).AuthenticationToken="%{USERNAME}_%{PASSWORD}"
+Enclosure.Discovery.Source(1).Url="api/login/%{SHA256_AUTH}"
+Enclosure.Discovery.Source(1).Header="datatype: json"
+
+// extract sessionKey from response
+Enclosure.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(1).Compute(1).EntryKey="/status"
+Enclosure.Discovery.Source(1).Compute(1).Properties="/response;"
+
+// append header <key> portion to sessionKey
+Enclosure.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(2).Column=2
+Enclosure.Discovery.Source(1).Compute(2).String="sessionKey: "
+
+// keep only our header string
+Enclosure.Discovery.Source(1).Compute(3).Type="KeepColumns"
+Enclosure.Discovery.Source(1).Compute(3).ColumnNumbers="2"
+
+// join together sessionKey: <key> and datatype header
+Enclosure.Discovery.Source(2).Type="TableUnion"
+Enclosure.Discovery.Source(2).Table1=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(2).Table2="datatype: json"
+
+// begin discovery
+// the big show command (show configuration)
+Enclosure.Discovery.Source(3).Type="HTTP"
+Enclosure.Discovery.Source(3).Header=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).Url="/api/show/configuration"
+Enclosure.Discovery.Source(3).Method="GET"
+
+// Keep a copy for system 
+Enclosure.Discovery.Source(4)=%Enclosure.Discovery.Source(3)%
+
+// JSON;name;vendor;model;
+Enclosure.Discovery.Source(4).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(4).Compute(1).EntryKey="/system"
+Enclosure.Discovery.Source(4).Compute(1).Properties="/system-name;/vendor-name;/product-id;"
+
+Enclosure.Discovery.Source(4).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(4).Compute(2).Column=1
+Enclosure.Discovery.Source(4).Compute(2).Replace=Column(1)
+Enclosure.Discovery.Source(4).Compute(2).ReplaceBy="MSHW"
+
+// Keep a copy for enclosures
+Enclosure.Discovery.Source(5)=%Enclosure.Discovery.Source(3)%
+
+// JSON;id;serial-number;
+Enclosure.Discovery.Source(5).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(5).Compute(1).EntryKey="/enclosures"
+Enclosure.Discovery.Source(5).Compute(1).Properties="/enclosure-id;/midplane-serial-number;/product-id;"
+
+Enclosure.Discovery.Source(5).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(5).Compute(2).Column=1
+Enclosure.Discovery.Source(5).Compute(2).Replace=Column(1)
+Enclosure.Discovery.Source(5).Compute(2).ReplaceBy="MSHW"
+
+// Join system information to each enclosure
+// MSHW;id;serialnumber;product-id;MSHW;name;vendor;model;
+Enclosure.Discovery.Source(6).Type="TableJoint"
+Enclosure.Discovery.Source(6).LeftTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(6).RightTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(6).LeftKeyColumn=1
+Enclosure.Discovery.Source(6).RightKeyColumn=1
+Enclosure.Discovery.Source(6).DefaultRightLine=";;;;"
+
+// show frus
+Enclosure.Discovery.Source(7).Type="HTTP"
+Enclosure.Discovery.Source(7).Header=%Enclosure.Collect.Source(2)%
+Enclosure.Discovery.Source(7).Url="/api/show/sensor-status"
+Enclosure.Discovery.Source(7).Header=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(7).Method="GET"
+
+// JSON;id;sensor-type;container;enclosure;controller;name;
+Enclosure.Discovery.Source(7).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(7).Compute(1).EntryKey="/sensors"
+Enclosure.Discovery.Source(7).Compute(1).Properties="/durable-id;/sensor-type;/container;/enclosure-id;/controller-id-numeric;/sensor-name;"
+
+// Translate container into AttachedToDeviceType
+Enclosure.Discovery.Source(7).Compute(2).Type="Translate"
+Enclosure.Discovery.Source(7).Compute(2).Column=4
+Enclosure.Discovery.Source(7).Compute(2).TranslationTable="AttachedToDeviceTypeTranslationTable"
+
+AttachedToDeviceTypeTranslationTable("controllers")="DiskController"
+AttachedToDeviceTypeTranslationTable("enclosures")="Enclosure"
+AttachedToDeviceTypeTranslationTable("power-supplies")="Enclosure"
+AttachedToDeviceTypeTranslationTable(Default)="Enclosure"
+
+// Duplicate our new found knowledge
+Enclosure.Discovery.Source(7).Compute(3).Type="DuplicateColumn"
+Enclosure.Discovery.Source(7).Compute(3).Column=4
+
+// place in column 5 the true id of the AttachedToDeviceID (2 computes)
+Enclosure.Discovery.Source(7).Compute(4).Type="Replace"
+Enclosure.Discovery.Source(7).Compute(4).Column=5
+Enclosure.Discovery.Source(7).Compute(4).Replace="Enclosure"
+Enclosure.Discovery.Source(7).Compute(4).ReplaceBy=Column(6)
+
+Enclosure.Discovery.Source(7).Compute(5).Type="Replace"
+Enclosure.Discovery.Source(7).Compute(5).Column=5
+Enclosure.Discovery.Source(7).Compute(5).Replace="DiskController"
+Enclosure.Discovery.Source(7).Compute(5).ReplaceBy=Column(7)
+
+// Enclosure Instance Table
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(8)
+Enclosure.Discovery.Instance.Type="Storage"
+
+
+// Collect
+Enclosure.Collect.Type="MultiInstance"
+
+// Login
+Enclosure.Collect.Source(1).Type="HTTP"
+Enclosure.Collect.Source(1).Method="GET"
+Enclosure.Collect.Source(1).AuthenticationToken="%{USERNAME}_%{PASSWORD}"
+Enclosure.Collect.Source(1).Url="api/login/%{SHA256_AUTH}"
+Enclosure.Collect.Source(1).Header="datatype: json"
+
+// extract sessionKey from response
+Enclosure.Collect.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(1).Compute(1).EntryKey="/status"
+Enclosure.Collect.Source(1).Compute(1).Properties="/response;"
+
+// append header <key> portion to sessionKey
+Enclosure.Collect.Source(1).Compute(2).Type="LeftConcat"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).String="sessionKey: "
+
+// keep only our header string
+Enclosure.Collect.Source(1).Compute(3).Type="KeepColumns"
+Enclosure.Collect.Source(1).Compute(3).ColumnNumbers="2"
+
+// join together sessionKey: <key> and datatype header
+Enclosure.Collect.Source(2).Type="TableUnion"
+Enclosure.Collect.Source(2).Table1=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(2).Table2="datatype: json"
+
+// show frus
+Enclosure.Collect.Source(3).Type="HTTP"
+Enclosure.Collect.Source(3).Header=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(3).Url="/api/show/sensor-status"
+Enclosure.Collect.Source(3).Method="GET"
+
+// durable-id;value;status;status-numeric;container;enclosure-id;
+Enclosure.Collect.Source(3).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(3).Compute(1).EntryKey="/sensors"
+Enclosure.Collect.Source(3).Compute(1).Properties="/durable-id;/sensor-type;/value;/status-numeric;/status-numeric;/container;/enclosure-id;"
+
+Enclosure.Collect.Source(3).Compute(2).Type="Translate"
+Enclosure.Collect.Source(3).Compute(2).Column=5
+Enclosure.Collect.Source(3).Compute(2).TranslationTable="StatusTranslationTable"
+
+Enclosure.Collect.Source(3).Compute(3).Type="Translate"
+Enclosure.Collect.Source(3).Compute(3).Column=6
+Enclosure.Collect.Source(3).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// SubSeparate the numerical value only
+Enclosure.Collect.Source(3).Compute(4).Type="Extract"
+Enclosure.Collect.Source(3).Compute(4).Column=4
+Enclosure.Collect.Source(3).Compute(4).SubColumn=1
+Enclosure.Collect.Source(3).Compute(4).SubSeparators=" "
+
+// Keep a copy to return enclosure statuses
+Enclosure.Collect.Source(4)=%Enclosure.Collect.Source(3)%
+
+Enclosure.Collect.Source(4).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Collect.Source(4).Compute(1).Column=7
+Enclosure.Collect.Source(4).Compute(1).RegExp="enclosures"
+
+// the big show command (show configuration)
+Enclosure.Collect.Source(5).Type="HTTP"
+Enclosure.Collect.Source(5).Header=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(5).Url="/api/show/configuration"
+Enclosure.Collect.Source(5).Method="GET"
+
+Enclosure.Collect.Source(6)=%Enclosure.Collect.Source(5)%
+
+// JSON;id;serial-number;
+Enclosure.Collect.Source(6).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(6).Compute(1).EntryKey="/enclosures"
+Enclosure.Collect.Source(6).Compute(1).Properties="/enclosure-id;/enclosure-power;"
+
+// JSON;id;watts;JSON;durable-id;value;status;status-numeric;container;enclosure-id
+Enclosure.Collect.Source(7).Type="TableJoint"
+Enclosure.Collect.Source(7).LeftTable=%Enclosure.Collect.Source(6)%
+Enclosure.Collect.Source(7).RightTable=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(7).LeftKeyColumn=2
+Enclosure.Collect.Source(7).RightKeyColumn=8
+
+Enclosure.Collect.Source(7).Compute(1).Type="Translate"
+Enclosure.Collect.Source(7).Compute(1).Column=4
+Enclosure.Collect.Source(7).Compute(1).TranslationTable="StatusTranslationTable"
+
+Enclosure.Collect.Source(7).Compute(2).Type="Translate"
+Enclosure.Collect.Source(7).Compute(2).Column=5
+Enclosure.Collect.Source(7).Compute(2).TranslationTable="StatusInformationTranslationTable"
+
+// Value Table
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(7)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.Status=ValueTable.Column(4)
+Enclosure.Collect.StatusInformation=ValueTable.Column(5)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
+
+
+//
+// Temperature
+//
+
+// JSON;id;sensor-type;container;enclosure;controller;name;
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
+
+// keep types "Temperature"
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=3
+Temperature.Discovery.Source(1).Compute(1).RegExp="Temperature"
+
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(8)
+
+Temperature.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+
+// Collect
+
+Temperature.Collect.Type="MultiInstance"
+
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(3)%
+
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column=3
+Temperature.Collect.Source(1).Compute(1).RegExp="Temperature"
+
+// JSON;id;value;status;StatusInformation
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(4)
+Temperature.Collect.Status=ValueTable.Column(5)
+Temperature.Collect.StatusInformation=ValueTable.Column(6)
+
+
+//
+// Voltage
+//
+
+// JSON;id;sensor-type;container;enclosure;controller;name;
+Voltage.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
+
+// keep types "Voltage"
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column=3
+Voltage.Discovery.Source(1).Compute(1).RegExp="Voltage"
+
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(8)
+
+Voltage.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(4)
+Voltage.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+
+// Collect
+
+Voltage.Collect.Type="MultiInstance"
+
+Voltage.Collect.Source(1)=%Enclosure.Collect.Source(3)%
+
+Voltage.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Collect.Source(1).Compute(1).Column=3
+Voltage.Collect.Source(1).Compute(1).RegExp="Voltage"
+
+// engine expects voltage in mV
+Voltage.Collect.Source(1).Compute(2).Type="Multiply"
+Voltage.Collect.Source(1).Compute(2).Column=4
+Voltage.Collect.Source(1).Compute(2).MultiplyBy=1000
+
+// JSON;id;value;status;StatusInformation
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Voltage=ValueTable.Column(4)
+Voltage.Collect.Status=ValueTable.Column(5)
+Voltage.Collect.StatusInformation=ValueTable.Column(6)
+
+
+//
+// DiskController
+//
+
+// Discovery
+
+// Keep a copy for controllers
+DiskController.Discovery.Source(1)=%Enclosure.Discovery.Source(3)%
+
+DiskController.Discovery.Source(1).Compute(1).Type="Json2Csv"
+DiskController.Discovery.Source(1).Compute(1).EntryKey="/controllers"
+DiskController.Discovery.Source(1).Compute(1).Properties="/controller-id-numeric;/controller-id;/vendor;/model;/controller-id-numeric;/hardware-version;/sc-fw;/serial-number;"
+
+
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+DiskController.Discovery.Instance.Vendor=InstanceTable.Column(4)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(5)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(6)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(7)
+DiskController.Discovery.Instance.BiosVersion=InstanceTable.Column(8)
+DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(9)
+
+// Collect
+
+DiskController.Collect.Type="MultiInstance"
+
+DiskController.Collect.Source(1)=%Enclosure.Collect.Source(5)%
+
+DiskController.Collect.Source(1).Compute(1).Type="Json2Csv"
+DiskController.Collect.Source(1).Compute(1).EntryKey="/controllers"
+DiskController.Collect.Source(1).Compute(1).Properties="/controller-id-numeric;/health;/health-reason;"
+
+DiskController.Collect.Source(1).Compute(2).Type="Translate"
+DiskController.Collect.Source(1).Compute(2).Column=3
+DiskController.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(2)
+DiskController.Collect.ControllerStatus=ValueTable.Column(3)
+DiskController.Collect.StatusInformation=ValueTable.Column(4)
+
+
+
+//
+// FANS
+//
+
+// Discovery
+
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(3)%
+
+Fan.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Fan.Discovery.Source(1).Compute(1).EntryKey="/enclosures/power-supplies/fan"
+Fan.Discovery.Source(1).Compute(1).Properties="/durable-id;/name;../durable-id;"
+
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Fan.Discovery.Instance.FanType="PSU"
+
+
+// Collect
+
+Fan.Collect.Type="MultiInstance"
+
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(5)%
+
+Fan.Collect.Source(1).Compute(1).Type="Json2Csv"
+Fan.Collect.Source(1).Compute(1).EntryKey="/enclosures/power-supplies/fan"
+Fan.Collect.Source(1).Compute(1).Properties="/durable-id;/health;/health-reason;/speed;"
+
+
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(3)
+Fan.Collect.StatusInformation=ValueTable.Column(4)
+Fan.Collect.Speed=ValueTable.Column(5)
+
+
+
+//
+// PhysicalDisk
+//
+
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(3)%
+
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(1).Compute(1).EntryKey="/drives"
+PhysicalDisk.Discovery.Source(1).Compute(1).Properties="/durable-id;/durable-id;/owner-numeric;/vendor;/model;/revision;/serial-number;/blocks;/blocksize;/ssd-life-left-numeric;"
+
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=9
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=Column(10)
+
+// endurance of 255 means it is not an SSD
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=11
+PhysicalDisk.Discovery.Source(1).Compute(3).Replace=255
+PhysicalDisk.Discovery.Source(1).Compute(3).ReplaceBy="False"
+
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(9)
+PhysicalDisk.Discovery.Instance.ParameterActivation.EnduranceRemaining=InstanceTable.Column(11)
+
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+
+// Collect
+PhysicalDisk.Collect.Type="MultiInstance"
+
+PhysicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(5)%
+
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Collect.Source(1).Compute(1).EntryKey="/drives"
+PhysicalDisk.Collect.Source(1).Compute(1).Properties="/durable-id;/health;/health-reason;/error;/ssd-life-left-numeric;"
+
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=3
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+PhysicalDisk.Collect.ErrorCount=ValueTable.Column(5)
+PhysicalDisk.Collect.EnduranceRemaining=ValueTable.Column(6)
+
+
+
+//
+// PowerSupply
+//
+
+// Discovery
+
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(3)%
+
+PowerSupply.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(1).Compute(1).EntryKey="/enclosures/power-supplies"
+PowerSupply.Discovery.Source(1).Compute(1).Properties="/durable-id;/name;/enclosure-id;/model;/serial-number;"
+
+PowerSupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column=5
+PowerSupply.Discovery.Source(1).Compute(2).String="Model: "
+
+PowerSupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(3).Column=6
+PowerSupply.Discovery.Source(1).Compute(3).String="Serial Number: "
+
+// PowerSupply Instance Table
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AttachedToDeviceType="Enclosure"
+
+
+// Collect
+PowerSupply.Collect.Type="MultiInstance"
+
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(5)%
+
+PowerSupply.Collect.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(1).Compute(1).EntryKey="/enclosures/power-supplies"
+PowerSupply.Collect.Source(1).Compute(1).Properties="/durable-id;/health;/health-reason;"
+
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// PowerSupply Value Table
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(3)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// NetworkCard
+//
+
+// FC Ports
+NetworkCard.Discovery.Source(1)=%Enclosure.Discovery.Source(3)%
+
+// json;id;name;controller-id;vendor;model;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(1).Compute(1).EntryKey="/port/fc-port"
+NetworkCard.Discovery.Source(1).Compute(1).Properties="../durable-id;../port;../controller-numeric;/sfp-vendor;/sfp-part-number;/port-type;/mac-address;/ip-address;../actual-speed-numeric;"
+
+NetworkCard.Discovery.Source(1).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(2).Column=8
+NetworkCard.Discovery.Source(1).Compute(2).String=";WWN;"
+
+
+// ISCSI Ports
+NetworkCard.Discovery.Source(2)=%Enclosure.Discovery.Source(3)%
+
+// json;id;name;controller-id;vendor;model;mac-address;ip-address;
+NetworkCard.Discovery.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(2).Compute(1).EntryKey="/port/iscsi-port"
+NetworkCard.Discovery.Source(2).Compute(1).Properties="../durable-id;../port;../controller-numeric;/sfp-vendor;/sfp-part-number;/port-type;/mac-address;/ip-address;../actual-speed-numeric;"
+
+NetworkCard.Discovery.Source(2).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(2).Column=8
+NetworkCard.Discovery.Source(2).Compute(2).String=";MAC;IP"
+
+
+NetworkCard.Discovery.Source(3).Type="TableUnion"
+NetworkCard.Discovery.Source(3).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).Table2=%NetworkCard.Discovery.Source(2)%
+
+NetworkCard.Discovery.Source(3).Compute(1).Type="Translate"
+NetworkCard.Discovery.Source(3).Compute(1).Column=12
+NetworkCard.Discovery.Source(3).Compute(1).TranslationTable="LinkSpeedTranslationTable"
+
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.Vendor=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(9)
+NetworkCard.Discovery.Instance.LogicalAddressType=InstanceTable.Column(10)
+NetworkCard.Discovery.Instance.LogicalAddress=InstanceTable.Column(11)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(12)
+
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collect
+NetworkCard.Collect.Type="MultiInstance"
+
+NetworkCard.Collect.Source(1)=%Enclosure.Collect.Source(5)%
+
+NetworkCard.Collect.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(1).Compute(1).EntryKey="/port"
+NetworkCard.Collect.Source(1).Compute(1).Properties="/durable-id;/health;/health-reason;/status;/actual-speed-numeric;"
+
+NetworkCard.Collect.Source(1).Compute(2).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(2).Column=3
+NetworkCard.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column=6
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="LinkSpeedTranslationTable"
+
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=5
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="LinkStatusTranslationTable"
+
+// NetworkCard Value Table
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(2)
+NetworkCard.Collect.Status=ValueTable.Column(3)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(6)
+
+LinkSpeedTranslationTable(0)=1000
+LinkSpeedTranslationTable(2)=4000
+LinkSpeedTranslationTable(6)=6000
+LinkSpeedTranslationTable(7)=8000
+LinkSpeedTranslationTable(8)=10
+LinkSpeedTranslationTable(9)=100
+LinkSpeedTranslationTable(10)=10000
+LinkSpeedTranslationTable(11)=12000
+LinkSpeedTranslationTable(12)=16000
+LinkSpeedTranslationTable(255)=""
+
+LinkStatusTranslationTable("Up")="OK"
+LinkStatusTranslationTable("Warning")="WARN"
+LinkStatusTranslationTable("Error")="WARN"
+LinkStatusTranslationTable("Not Present")="WARN"
+LinkStatusTranslationTable("Disconnected")="WARN"
+
+StatusTranslationTable("OK")="OK"
+StatusTranslationTable("Degraded")="WARN"
+StatusTranslationTable("Fault")="ALARM"
+StatusTranslationTable("N/A")="UNKNOWN"
+StatusTranslationTable("Unknown")="UNKNOWN"
+StatusTranslationTable("Warning")="WARN"
+StatusTranslationTable("Critical")="ALARM"
+StatusTranslationTable("Unavailable")="OK"
+StatusTranslationTable("Unrecoverable")="ALARM"
+StatusTranslationTable("Not Installed")="UNKNOWN"
+StatusTranslationTable("Unsupported")="UNKNOWN"
+
+StatusTranslationTable(0)="ALARM"
+StatusTranslationTable(1)="OK"
+StatusTranslationTable(2)="ALARM"
+StatusTranslationTable(3)="WARN"
+StatusTranslationTable(4)="ALARM"
+StatusTranslationTable(5)="WARN"
+StatusTranslationTable(6)="UNKNOWN"
+StatusTranslationTable(7)="WARN"
+
+StatusInformationTranslationTable(0)="Unsupported"
+StatusInformationTranslationTable(1)="OK"
+StatusInformationTranslationTable(2)="Critical"
+StatusInformationTranslationTable(3)="Warning"
+StatusInformationTranslationTable(4)="Unrecoverable"
+StatusInformationTranslationTable(5)="Not Installed"
+StatusInformationTranslationTable(6)="Unknown"
+StatusInformationTranslationTable(7)="Unavailable"

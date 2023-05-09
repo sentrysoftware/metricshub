@@ -1,0 +1,642 @@
+////////////////////////////////////////////////////////////////#
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: IBM Director Agents version 6.1.2 (and maybe later ones.)
+//                on Linux
+//
+//
+
+// This .HDF monitors IBM xSeries and Netfinity computers under Linux
+// It uses the IBM Director Agent information
+// The IBM Director Agent information is retrieved through WBEM
+
+// So, the Director 5.x connector supports 5.10.3 only
+// and the Director 5.20.x connector supports 5.20.x / 6.10.x (sounds logical)
+
+//
+// Header
+//
+
+hdf.DisplayName="IBM Director Agent 6 - Linux"
+hdf.TypicalPlatform="IBM xSeries"
+hdf.ReliesOn="IBM Director Agent 6.1.x"
+hdf.Version="1.1"
+hdf.Comments="This connector provides hardware monitoring through the IBM Director Agent version 6.1."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux"
+hdf.Supersedes="MS_HW_IpmiTool.hdf,MS_HW_VMwareESX4i.hdf,MS_HW_VMwareESXi.hdf,MS_HW_VMwareESXiDisksIPMI.hdf,MS_HW_VMwareESXiDisksStorage.hdf"
+
+// Constant
+//Constant.PathToCimCli="/opt/ibm/icc/cimom/bin"
+
+// Sudo-able commands
+//Sudo(1).Command="/opt/ibm/icc/cimom/bin/CLI"
+
+
+//
+// Detection
+//
+
+// OS must be Linux
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="Linux"
+
+// The WBEM layer (cimserver) must be running
+Detection.Criteria(2).Type="Process"
+Detection.Criteria(2).ProcessCommandLine="cimserver"
+
+// Verify that the root/ibmsd WBEM namespace actually exists
+// Removed as the test is no longer needed (the next detection criteria will
+// Detection.Criteria(3).Type="WBEM"
+// Detection.Criteria(3).WbemNameSpace="root"
+// Detection.Criteria(3).WbemQuery="SELECT Name FROM __NAMESPACE"
+// Detection.Criteria(3).ExpectedResult="^ibmsd;*$"
+
+// The IBM Director Agent must be in version 6.x
+Detection.Criteria(3).Type="WBEM"
+Detection.Criteria(3).WbemQuery="SELECT Version FROM IBMPSG_DirectorAgent"
+Detection.Criteria(3).WbemNameSpace="root/ibmsd"
+Detection.Criteria(3).ExpectedResult="\(^6\.1\.[2-9].*\)\|\(^6\.[2-9].*\)"
+
+// The IBMPSG_ComputerSystemDetails WBEM class must be instanciated
+Detection.Criteria(4).Type="WBEM"
+Detection.Criteria(4).WbemQuery="SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+Detection.Criteria(4).WbemNameSpace="root/ibmsd"
+Detection.Criteria(4).ErrorMessage="The IBM Director Agent seems to not be working properly. Please reinstall the IBM Director Agent."
+
+// Enclosure: computer
+
+// Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+Enclosure.Discovery.Source(1).Type="WBEM"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT Model,SerialNumber FROM IBMPSG_ComputerSystemDetails"
+Enclosure.Discovery.Source(1).WbemNameSpace="root/ibmsd"
+
+// InstanceTable = Source(1)
+// Note: InstanceTable must contain only one line!
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="DIR6"
+Enclosure.Discovery.Instance.Vendor="IBM"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Type="Computer"
+
+// Collect (REMOVED as Instrusion Status no longer properly.)
+
+// Enclosure.Collect.Type="MonoInstance"
+
+// Source(1) = The IBMPSG_SystemEnclosure WBEM class
+// Enclosure.Collect.Source(1).Type="WBEM"
+// Enclosure.Collect.Source(1).WbemQuery="SELECT IntrusionStatus,Tag FROM IBMPSG_SystemEnclosure"
+// Enclosure.Collect.Source(1).WbemNameSpace="root/ibmsd"
+//
+// Enclosure.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+// Enclosure.Collect.Source(1).Compute(1).Column="2"
+// Enclosure.Collect.Source(1).Compute(1).RegExp="0$"
+//
+// Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+// Enclosure.Collect.Source(1).Compute(2).Column="1"
+// Enclosure.Collect.Source(1).Compute(2).TranslationTable="enclosureIntrusionStatusTranslationTable"
+//
+// Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+// Enclosure.Collect.IntrusionStatus=ValueTable.Column(1)
+//
+// enclosureIntrusionStatusTranslationTable(0)="OK"
+// enclosureIntrusionStatusTranslationTable(1)="OK"
+// enclosureIntrusionStatusTranslationTable(2)="ALARM"
+// enclosureIntrusionStatusTranslationTable(Default)="OK"
+
+
+// CPUs
+
+// Discovery
+
+// CurrentClockSpeed,DeviceID,Manufacturer,Family
+// IBMPSG_Processor was changed to CIM_Processor due to XML issues Case - W18152
+cpu.Discovery.Source(1).Type="WBEM"
+cpu.Discovery.Source(1).WbemQuery="SELECT CurrentClockSpeed,DeviceID,Version FROM CIM_Processor"
+cpu.Discovery.Source(1).WbemNameSpace="root/ibmsd"
+
+// Replace GenuineIntel by Intel and AuthenticAMD by AMD
+cpu.Discovery.Source(1).Compute(1).Type="Replace"
+cpu.Discovery.Source(1).Compute(1).Column=3
+cpu.Discovery.Source(1).Compute(1).Replace="(R)"
+cpu.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+cpu.Discovery.Source(1).Compute(2).Type="Replace"
+cpu.Discovery.Source(1).Compute(2).Column=3
+cpu.Discovery.Source(1).Compute(2).Replace="CPU"
+cpu.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// Exclude lines that have a CPU Speed in the six digits as these are not real CPUs
+cpu.Discovery.Source(1).Compute(3).Type="ExcludeMatchingLines"
+cpu.Discovery.Source(1).Compute(3).Column=1
+cpu.Discovery.Source(1).Compute(3).RegExp="......"
+
+// Keep only entries with non-empty model information (MSHW-2464: probably fake entries)
+cpu.Discovery.Source(1).Compute(4).Type="KeepOnlyMatchingLines"
+cpu.Discovery.Source(1).Compute(4).Column=3
+cpu.Discovery.Source(1).Compute(4).RegExp="....."
+
+
+// InstanceTable = Source(1)
+cpu.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+cpu.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+cpu.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+cpu.Discovery.Instance.Model=InstanceTable.Column(3)
+cpu.Discovery.Instance.MaximumSpeed=InstanceTable.Column(1)
+cpu.Discovery.Instance.AttachedToDeviceID="DIR6"
+cpu.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Collect
+
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = The IBMPSG_Processor WBEM class
+cpu.Collect.Source(1).Type="WBEM"
+cpu.Collect.Source(1).WbemQuery="SELECT CPUStatus,DeviceID FROM CIM_Processor"
+cpu.Collect.Source(1).WbemNameSpace="root/ibmsd"
+
+cpu.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+cpu.Collect.Source(1).Compute(1).Column="1"
+
+cpu.Collect.Source(1).Compute(2).Type="Translate"
+cpu.Collect.Source(1).Compute(2).Column="1"
+cpu.Collect.Source(1).Compute(2).TranslationTable="cpuStatusTranslationTable"
+
+cpu.Collect.Source(1).Compute(3).Type="Translate"
+cpu.Collect.Source(1).Compute(3).Column="2"
+cpu.Collect.Source(1).Compute(3).TranslationTable="cpuStatusInformationTranslationTable"
+
+cpu.Collect.ValueTable=%cpu.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(3)
+cpu.Collect.Status=ValueTable.Column(1)
+cpu.Collect.StatusInformation=ValueTable.Column(2)
+
+// The cpuStatusTranslationTable
+cpuStatusTranslationTable(1)="OK"
+cpuStatusTranslationTable(2)="OK"
+cpuStatusTranslationTable(3)="ALARM"
+cpuStatusTranslationTable(4)="OK"
+cpuStatusTranslationTable("OK")="OK"
+cpuStatusTranslationTable(Default)="UNKNOWN"
+
+// The cpuStatusInformationTranslationTable
+cpuStatusInformationTranslationTable(1)=""
+cpuStatusInformationTranslationTable(2)="Disabled by User"
+cpuStatusInformationTranslationTable(3)="Disabled by BIOS (POST Error)"
+cpuStatusInformationTranslationTable(4)="Idle"
+cpuStatusInformationTranslationTable("OK")=""
+cpuStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The cpuStatusTranslationTable
+//cpuStatusTranslationTable("OK")="OK"
+//cpuStatusTranslationTable("Error")="ALARM"
+//cpuStatusTranslationTable("Degraded")="WARN"
+//cpuStatusTranslationTable("Pred Fail")="WARN"
+//cpuStatusTranslationTable("Starting")="WARN"
+//cpuStatusTranslationTable("Stopping")="WARN"
+//cpuStatusTranslationTable("Service")="WARN"
+//cpuStatusTranslationTable("Stressed")="WARN"
+//cpuStatusTranslationTable("NonRecover")="ALARM"
+//cpuStatusTranslationTable("No Contact")="WARN"
+//cpuStatusTranslationTable("Lost Comm")="WARN"
+//cpuStatusTranslationTable("Stopped")="OK"
+//cpuStatusTranslationTable(default)="OK"
+
+// The cpuStatusInformationTranslationTable
+//cpuStatusInformationTranslationTable("OK")=""
+//cpuStatusInformationTranslationTable("Error")="Error"
+//cpuStatusInformationTranslationTable("Degraded")="Degraded"
+//cpuStatusInformationTranslationTable("Pred Fail")="Predicted Failure"
+//cpuStatusInformationTranslationTable("Starting")="Starting"
+//cpuStatusInformationTranslationTable("Stopping")="Stopping"
+//cpuStatusInformationTranslationTable("Service")="Service"
+//cpuStatusInformationTranslationTable("Stressed")="Stressed"
+//cpuStatusInformationTranslationTable("NonRecover")="Non Recover"
+//cpuStatusInformationTranslationTable("No Contact")="No Contact"
+//cpuStatusInformationTranslationTable("Lost Comm")="Lost Communication"
+//cpuStatusInformationTranslationTable("Stopped")="Stopped"
+//cpuStatusInformationTranslationTable(default)="Unknown status"
+
+// Memory
+
+// Discovery
+Memory.Discovery.Source(1).Type="WBEM"
+Memory.Discovery.Source(1).WbemQuery="SELECT Capacity,Name,Speed,Tag FROM IBMPSG_PhysicalMemory"
+Memory.Discovery.Source(1).WbemNameSpace="root/ibmsd"
+
+// Convert size to MB
+Memory.Discovery.Source(1).Compute(1).Type="Divide"
+Memory.Discovery.Source(1).Compute(1).Column="1"
+Memory.Discovery.Source(1).Compute(1).DivideBy="1048576"
+
+// Add Mhz to Speed
+Memory.Discovery.Source(1).Compute(2).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(2).Column="3"
+Memory.Discovery.Source(1).Compute(2).String=" MHz"
+
+Memory.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(3).Column=2
+Memory.Discovery.Source(1).Compute(3).String="Label: "
+
+Memory.Discovery.Source(1).Compute(4).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(4).Column=3
+Memory.Discovery.Source(1).Compute(4).String="Speed: "
+
+// InstanceTable = Source(1)
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Memory.Discovery.Instance.Size=InstanceTable.Column(1)
+Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+Memory.Discovery.Instance.AttachedToDeviceID="DIR6"
+Memory.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Collect
+
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = The IBMPSG_Processor WBEM class
+Memory.Collect.Source(1).Type="WBEM"
+Memory.Collect.Source(1).WbemQuery="SELECT HasError,Tag FROM IBMPSG_PhysicalMemory"
+Memory.Collect.Source(1).WbemNameSpace="root/ibmsd"
+
+Memory.Collect.Source(1).Compute(1).Type="Translate"
+Memory.Collect.Source(1).Compute(1).Column="1"
+Memory.Collect.Source(1).Compute(1).TranslationTable="memoryStatusTranslationTable"
+
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(2)
+Memory.Collect.Status=ValueTable.Column(1)
+
+// The memoryStatusTranslationTable
+memoryStatusTranslationTable("FALSE")="OK"
+memoryStatusTranslationTable("TRUE")="ALARM"
+memoryStatusTranslationTable(0)="OK"
+memoryStatusTranslationTable(1)="ALARM"
+memoryStatusTranslationTable(Default)="UNKNOWN"
+
+// Fans
+
+// Discovery
+
+// Source(1) = the IBMPSG_Fan WBEM class
+Fan.Discovery.Source(1).Type="WBEM"
+Fan.Discovery.Source(1).WbemQuery="SELECT DeviceID,ElementName,LowerThresholdCritical FROM IBMPSG_Tachometer"
+Fan.Discovery.Source(1).WbemNameSpace="root/ibmsd"
+
+Fan.Discovery.Source(1).Compute(1).Type="Replace"
+Fan.Discovery.Source(1).Compute(1).Column=2
+Fan.Discovery.Source(1).Compute(1).Replace=" Tach"
+Fan.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+// We got a "warning" threshold
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+// We have no "alarm" threshold hence we set it to 0 (zero) ( = stopped)
+Fan.Discovery.Instance.AlarmThreshold="0"
+// Remark, we won't get any status information, so these thresholds are the only
+// way to send alerts about fans
+// Fan.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Fan.Discovery.Instance.AttachedToDeviceID="DIR6"
+Fan.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Collect
+
+// The collect (as all WBEM-based collects) is "MultiInstance"
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = The IBMPSG_Tachometer WBEM class
+Fan.Collect.Source(1).Type="WBEM"
+Fan.Collect.Source(1).WbemQuery="SELECT CurrentReading,DeviceID FROM IBMPSG_Tachometer"
+Fan.Collect.Source(1).WbemNameSpace="root/ibmsd"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Speed=ValueTable.Column(1)
+// No status is collected
+
+// Temperatures
+
+// Discovery
+
+// Source(1) = The IBMPSG_TemperatureSensor WBEM class
+Temperature.Discovery.Source(1).Type="WBEM"
+Temperature.Discovery.Source(1).WbemQuery="SELECT DeviceID,ElementName,LowerThresholdCritical,LowerThresholdNonCritical,UpperThresholdCritical,UpperThresholdNonCritical FROM IBMPSG_TemperatureSensor"
+Temperature.Discovery.Source(1).WbemNameSpace="root/ibmsd"
+
+// Replace a blank or zeo "Lower" thereshold with an "Upper" threshold
+// Version 6.3 of director uses upper, earlier versions used lower.
+// ID;Name;LowerThresholdCritical;LowerThresholdNonCritical;UpperThresholdCritical;UpperThresholdNonCritical;
+Temperature.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(1).Column=3
+Temperature.Discovery.Source(1).Compute(1).String="_MSHW_"
+Temperature.Discovery.Source(1).Compute(2).Type="RightConcat"
+Temperature.Discovery.Source(1).Compute(2).Column=3
+Temperature.Discovery.Source(1).Compute(2).String="_MSHW_"
+
+Temperature.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(3).Column=4
+Temperature.Discovery.Source(1).Compute(3).String="_MSHW_"
+Temperature.Discovery.Source(1).Compute(4).Type="RightConcat"
+Temperature.Discovery.Source(1).Compute(4).Column=4
+Temperature.Discovery.Source(1).Compute(4).String="_MSHW_"
+
+// Replace _MSHW__MSHW_ the field was originally blank with "Upper" values
+Temperature.Discovery.Source(1).Compute(5).Type="Replace"
+Temperature.Discovery.Source(1).Compute(5).Column=3
+Temperature.Discovery.Source(1).Compute(5).Replace="_MSHW__MSHW_"
+Temperature.Discovery.Source(1).Compute(5).ReplaceBy=Column(5)
+Temperature.Discovery.Source(1).Compute(6).Type="Replace"
+Temperature.Discovery.Source(1).Compute(6).Column=4
+Temperature.Discovery.Source(1).Compute(6).Replace="_MSHW__MSHW_"
+Temperature.Discovery.Source(1).Compute(6).ReplaceBy=Column(6)
+
+// Replace _MSHW_0_MSHW_ the field was originally zero with "Upper" values
+Temperature.Discovery.Source(1).Compute(7).Type="Replace"
+Temperature.Discovery.Source(1).Compute(7).Column=3
+Temperature.Discovery.Source(1).Compute(7).Replace="_MSHW_0_MSHW_"
+Temperature.Discovery.Source(1).Compute(7).ReplaceBy=Column(5)
+Temperature.Discovery.Source(1).Compute(8).Type="Replace"
+Temperature.Discovery.Source(1).Compute(8).Column=4
+Temperature.Discovery.Source(1).Compute(8).Replace="_MSHW_0_MSHW_"
+Temperature.Discovery.Source(1).Compute(8).ReplaceBy=Column(6)
+
+// Now if the threshold is STILL zero, we remove it.
+// ID;Name;LowerThresholdCritical;LowerThresholdNonCritical;UpperThresholdCritical;UpperThresholdNonCritical;
+Temperature.Discovery.Source(1).Compute(9).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(9).Column=3
+Temperature.Discovery.Source(1).Compute(9).String="_MSHW_"
+
+Temperature.Discovery.Source(1).Compute(10).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(10).Column=4
+Temperature.Discovery.Source(1).Compute(10).String="_MSHW_"
+
+Temperature.Discovery.Source(1).Compute(11).Type="Replace"
+Temperature.Discovery.Source(1).Compute(11).Column=3
+Temperature.Discovery.Source(1).Compute(11).Replace="_MSHW_0"
+Temperature.Discovery.Source(1).Compute(11).ReplaceBy=""
+Temperature.Discovery.Source(1).Compute(12).Type="Replace"
+Temperature.Discovery.Source(1).Compute(12).Column=4
+Temperature.Discovery.Source(1).Compute(12).Replace="_MSHW_0"
+Temperature.Discovery.Source(1).Compute(12).ReplaceBy=""
+
+// Remove _MSHW_ for non blank / non zero values
+Temperature.Discovery.Source(1).Compute(13).Type="Replace"
+Temperature.Discovery.Source(1).Compute(13).Column=3
+Temperature.Discovery.Source(1).Compute(13).Replace="_MSHW_"
+Temperature.Discovery.Source(1).Compute(13).ReplaceBy=""
+Temperature.Discovery.Source(1).Compute(14).Type="Replace"
+Temperature.Discovery.Source(1).Compute(14).Column=4
+Temperature.Discovery.Source(1).Compute(14).Replace="_MSHW_"
+Temperature.Discovery.Source(1).Compute(14).ReplaceBy=""
+
+Temperature.Discovery.Source(1).Compute(15).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(15).Column=2
+Temperature.Discovery.Source(1).Compute(15).String="Label: "
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AttachedToDeviceID="DIR6"
+Temperature.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Collect
+
+// Like all WBEM collects, this one is "MultiInstance"
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = the IBMPSG_TemperatureSensor WBEM class
+Temperature.Collect.Source(1).Type="WBEM"
+Temperature.Collect.Source(1).WbemQuery="SELECT CurrentReading,DeviceID FROM IBMPSG_TemperatureSensor"
+Temperature.Collect.Source(1).WbemNameSpace="root/ibmsd"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(1)
+
+
+// Voltages
+
+// Discovery
+
+// Source(1) = all the instances of the IBMPSG_VoltageSensor class
+Voltage.Discovery.Source(1).Type="Wbem"
+Voltage.Discovery.Source(1).WbemQuery="SELECT DeviceID,LowerThresholdNonCritical,Name,UpperThresholdNonCritical,LowerThresholdCritical,UpperThresholdCritical FROM IBMPSG_VoltageSensor"
+Voltage.Discovery.Source(1).WbemNameSpace="root/ibmsd"
+
+
+// Replace a blank "NonCritical" thereshold with an "Critical" threshold
+// Version 6.3 of director uses Critical, earlier versions used NonCritical.
+// DeviceID,LowerThresholdNonCritical,Name,UpperThresholdNonCritical,LowerThresholdCritical,UpperThresholdCritical
+Voltage.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Voltage.Discovery.Source(1).Compute(1).Column=2
+Voltage.Discovery.Source(1).Compute(1).String="_MSHW_"
+Voltage.Discovery.Source(1).Compute(2).Type="RightConcat"
+Voltage.Discovery.Source(1).Compute(2).Column=2
+Voltage.Discovery.Source(1).Compute(2).String="_MSHW_"
+
+Voltage.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Voltage.Discovery.Source(1).Compute(3).Column=4
+Voltage.Discovery.Source(1).Compute(3).String="_MSHW_"
+Voltage.Discovery.Source(1).Compute(4).Type="RightConcat"
+Voltage.Discovery.Source(1).Compute(4).Column=4
+Voltage.Discovery.Source(1).Compute(4).String="_MSHW_"
+
+// Replace _MSHW__MSHW_ the field was originally blank with "Upper" values
+Voltage.Discovery.Source(1).Compute(5).Type="Replace"
+Voltage.Discovery.Source(1).Compute(5).Column=2
+Voltage.Discovery.Source(1).Compute(5).Replace="_MSHW__MSHW_"
+Voltage.Discovery.Source(1).Compute(5).ReplaceBy=Column(5)
+Voltage.Discovery.Source(1).Compute(6).Type="Replace"
+Voltage.Discovery.Source(1).Compute(6).Column=4
+Voltage.Discovery.Source(1).Compute(6).Replace="_MSHW__MSHW_"
+Voltage.Discovery.Source(1).Compute(6).ReplaceBy=Column(6)
+
+// Replace _MSHW_0_MSHW_ the field was originally zero with "Upper" values
+Voltage.Discovery.Source(1).Compute(7).Type="Replace"
+Voltage.Discovery.Source(1).Compute(7).Column=2
+Voltage.Discovery.Source(1).Compute(7).Replace="_MSHW_0_MSHW_"
+Voltage.Discovery.Source(1).Compute(7).ReplaceBy=Column(5)
+Voltage.Discovery.Source(1).Compute(8).Type="Replace"
+Voltage.Discovery.Source(1).Compute(8).Column=4
+Voltage.Discovery.Source(1).Compute(8).Replace="_MSHW_0_MSHW_"
+Voltage.Discovery.Source(1).Compute(8).ReplaceBy=Column(6)
+
+// Remove _MSHW_ for non blank values
+Voltage.Discovery.Source(1).Compute(9).Type="Replace"
+Voltage.Discovery.Source(1).Compute(9).Column=2
+Voltage.Discovery.Source(1).Compute(9).Replace="_MSHW_"
+Voltage.Discovery.Source(1).Compute(9).ReplaceBy=""
+Voltage.Discovery.Source(1).Compute(10).Type="Replace"
+Voltage.Discovery.Source(1).Compute(10).Column=4
+Voltage.Discovery.Source(1).Compute(10).Replace="_MSHW_"
+Voltage.Discovery.Source(1).Compute(10).ReplaceBy=""
+
+// Thresholds for voltages are sometimes reported as "0" by the agent.  Replacing these "0" by no value to prevent incorrect thresholds.
+// Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
+// DeviceID,LowerThreshold,Name,UpperThreshold,LowerThresholdCritical,UpperThresholdCritical
+Voltage.Discovery.Source(1).Compute(11).Type="LeftConcat"
+Voltage.Discovery.Source(1).Compute(11).Column=2
+Voltage.Discovery.Source(1).Compute(11).String="MSHW_"
+
+Voltage.Discovery.Source(1).Compute(12).Type="LeftConcat"
+Voltage.Discovery.Source(1).Compute(12).Column=4
+Voltage.Discovery.Source(1).Compute(12).String="MSHW_"
+
+// Remove 0 value
+Voltage.Discovery.Source(1).Compute(13).Type="Replace"
+Voltage.Discovery.Source(1).Compute(13).Column=2
+Voltage.Discovery.Source(1).Compute(13).Replace="MSHW_0"
+Voltage.Discovery.Source(1).Compute(13).ReplaceBy=""
+
+Voltage.Discovery.Source(1).Compute(14).Type="Replace"
+Voltage.Discovery.Source(1).Compute(14).Column=4
+Voltage.Discovery.Source(1).Compute(14).Replace="MSHW_0"
+Voltage.Discovery.Source(1).Compute(14).ReplaceBy=""
+
+// Remove MSHW_ for non 0 values
+Voltage.Discovery.Source(1).Compute(15).Type="Replace"
+Voltage.Discovery.Source(1).Compute(15).Column=2
+Voltage.Discovery.Source(1).Compute(15).Replace="MSHW_"
+Voltage.Discovery.Source(1).Compute(15).ReplaceBy=""
+
+Voltage.Discovery.Source(1).Compute(16).Type="Replace"
+Voltage.Discovery.Source(1).Compute(16).Column=4
+Voltage.Discovery.Source(1).Compute(16).Replace="MSHW_"
+Voltage.Discovery.Source(1).Compute(16).ReplaceBy=""
+
+// Here is the instance table = source(1)
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(3)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(4)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(2)
+Voltage.Discovery.Instance.AttachedToDeviceID="DIR6"
+Voltage.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+// Collect
+
+// It's a "MultiInstance" collect
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = the IBMPSG_VoltageSensor class
+Voltage.Collect.Source(1).Type="Wbem"
+Voltage.Collect.Source(1).WbemQuery="SELECT CurrentReading,DeviceID FROM IBMPSG_VoltageSensor"
+Voltage.Collect.Source(1).WbemNameSpace="root/ibmsd"
+
+// ValueTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Voltage=ValueTable.Column(1)
+
+//  Power supplies
+
+// Discovery
+
+// Source(1) = The IBMPSG_PowerSupply table
+PowerSupply.Discovery.Source(1).Type="Wbem"
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT DeviceID,Name FROM IBMPSG_PowerSupply"
+PowerSupply.Discovery.Source(1).WbemNameSpace="root/ibmsd"
+
+PowerSupply.Discovery.Source(1).Compute(1).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+PowerSupply.Discovery.Source(1).Compute(1).Replace=" Status"
+PowerSupply.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+PowerSupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column=2
+PowerSupply.Discovery.Source(1).Compute(2).String="Label: "
+
+// The instance table:
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceID="DIR6"
+PowerSupply.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+// Collect
+
+// Collect type : multi instance (one source for several instances)
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = the simple IBMPSG_PowerSupply table/class
+// DeviceID;WBEMStatus
+PowerSupply.Collect.Source(1).Type="Wbem"
+PowerSupply.Collect.Source(1).WbemQuery="SELECT DeviceID,Status FROM IBMPSG_PowerSupply"
+PowerSupply.Collect.Source(1).WbemNameSpace="root/ibmsd"
+
+// Duplicate the status column
+// DeviceID;WBEMStatus;WBEMStatus
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first WBEM status column into a PATROL status
+// DeviceID;PatrolStatus;WBEMStatus
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column="2"
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="PowerSupplyStatusTranslationTable"
+
+// The PowerSupplyStatusTranslationTable
+PowerSupplyStatusTranslationTable("OK")="OK"
+PowerSupplyStatusTranslationTable("Error")="ALARM"
+PowerSupplyStatusTranslationTable("Degraded")="WARN"
+PowerSupplyStatusTranslationTable("Pred Fail")="WARN"
+PowerSupplyStatusTranslationTable("Starting")="WARN"
+PowerSupplyStatusTranslationTable("Stopping")="WARN"
+PowerSupplyStatusTranslationTable("Service")="WARN"
+PowerSupplyStatusTranslationTable("Stressed")="WARN"
+PowerSupplyStatusTranslationTable("NonRecover")="ALARM"
+PowerSupplyStatusTranslationTable("No Contact")="WARN"
+PowerSupplyStatusTranslationTable("Lost Comm")="WARN"
+PowerSupplyStatusTranslationTable("Stopped")="OK"
+PowerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second WBEM status column into a PATROL status
+// DeviceID;PatrolStatus;StatusInformation
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column="3"
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="PowerSupplyStatusInformationTranslationTable"
+
+// The PowerSupplyStatusInformationTranslationTable
+PowerSupplyStatusInformationTranslationTable("OK")=""
+PowerSupplyStatusInformationTranslationTable("Error")="Error"
+PowerSupplyStatusInformationTranslationTable("Degraded")="Degraded"
+PowerSupplyStatusInformationTranslationTable("Pred Fail")="Predicted Failure"
+PowerSupplyStatusInformationTranslationTable("Starting")="Starting"
+PowerSupplyStatusInformationTranslationTable("Stopping")="Stopping"
+PowerSupplyStatusInformationTranslationTable("Service")="Service"
+PowerSupplyStatusInformationTranslationTable("Stressed")="Stressed"
+PowerSupplyStatusInformationTranslationTable("NonRecover")="Non Recover"
+PowerSupplyStatusInformationTranslationTable("No Contact")="No Contact"
+PowerSupplyStatusInformationTranslationTable("Lost Comm")="Lost Communication"
+PowerSupplyStatusInformationTranslationTable("Stopped")="Stopped"
+PowerSupplyStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)

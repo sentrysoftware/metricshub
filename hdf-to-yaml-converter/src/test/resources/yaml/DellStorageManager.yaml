@@ -1,0 +1,955 @@
+---
+connector:
+  displayName: Dell OpenManage Storage Manager
+  platforms: Dell PowerEdge
+  reliesOn: Dell OpenManage Server Administrator
+  version: 1.2
+  information: This connector provides Dell disk array monitoring through the Dell Storage Manager Agent which supports almost all Dell disk arrays.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    - Linux
+    supersedes:
+    - WBEMGenDiskNT
+    criteria:
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.674.10893.1.20
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the controllerTable
+          # ControllerIndex;Model;FWRev;DriverVersion;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.1.1
+          selectColumns: "ID,1,2,8,41"
+      mapping:
+        # The InstanceTable
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(2)
+          firmware_version: $column(3)
+          driver_version: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the controllerTable SNMP Table
+          # ID;controllerComponentStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.1.1
+          selectColumns: "1,38"
+          computes:
+            # Duplicate the controllerComponentStatus column
+            # ID;controllerComponentStatus;controllerComponentStatus
+          - type: duplicateColumn
+            column: 2
+            # Translate the first controllerComponentStatus into a PATROL Status
+            # ID;PATROLStatus;controllerComponentStatus
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate the second controllerComponentStatus into a more readable string
+            # ID;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the arrayDiskTable snmp table
+          # ID;DiskNumber;DiskName;Vendor;Model;Serial;SizeMB;BusTypeCode;NexusID;PartNumber;PredictedFailure;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.4.1
+          selectColumns: "ID,1,2,3,6,7,11,21,26,27,31"
+        source(2):
+          # Source(2) = the arrayDiskChannelConnectionTable snmp table
+          # DiskNumber;ControllerNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.5.1
+          selectColumns: "3,7"
+        source(3):
+          # Source(3) = the arrayDiskChannelConnectionTable snmp table
+          # DiskNumber;ControllerNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.6.1
+          selectColumns: "3,7"
+        source(4):
+          # Source(4) = union of Source(2) and Source(3)
+          # DiskNumber;ControllerNumber
+          type: tableUnion
+          tables:
+          - $monitors.physical_disk.discovery.sources.source(2)$
+          - $monitors.physical_disk.discovery.sources.source(3)$
+        source(5):
+          # Source(5) = table joint between Source(1) and Source(4)
+          # ID;DiskNumber;DiskName;Vendor;Model;Serial;SizeMB;BusTypeCode;NexusID;PartNumber;PredictedFailure;DiskNumber;ControllerNumber
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(4)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ;1;
+          computes:
+            # Clean up in an awk script and extract enclosure
+            # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11,12,13"
+            # Convert the size into bytes
+            # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
+          - type: multiply
+            column: 7
+            value: 1048576
+            # Translate the BusTypeCode column into a readable string
+            # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
+          - type: translate
+            column: 8
+            translationTable: PhysicalDiskBusTypeTranslationTable
+      mapping:
+        # The instance table = Source(5)
+        # The Nexus ID will now be used as it is the reference used in the GUI / on the Case
+        # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
+        source: $monitors.physical_disk.discovery.sources.source(5)$
+        attributes:
+          id: $column(9)
+          __display_id: $column(2)
+          vendor: $column(4)
+          serial_number: $column(6)
+          info: "join($column(5), $column(10), $column(3), \" \")"
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(12))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(4), $column(7))"
+        metrics:
+          hw.physical_disk.size: $column(7)
+    collect:
+      # Collect type = mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = SNMP Get on the arrayDiskState value of the arrayDiskTable SNMP table
+          # ID;arrayDiskState;NexusID;smartIndication;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.4.1
+          selectColumns: "ID,4,26,31"
+          computes:
+            # Duplicate the state column (twice)
+            # ID;arrayDiskState;arrayDiskState;NexusID;smartIndication
+          - type: duplicateColumn
+            column: 2
+            # Translate the first arrayDiskState into a PATROL status
+            # ID;patrolStatus;arrayDiskState;NexusID;smartIndication
+          - type: translate
+            column: 2
+            translationTable: PhysicalDiskStatusTranslationTable
+            # Translate the second arrayDiskState into a PATROL information
+            # ID;patrolStatus;statusInformation;NexusID;smartIndication
+          - type: translate
+            column: 3
+            translationTable: PhysicalDiskStatusInformationTranslationTable
+            # Translate the smartIndication into an TRUE/FALSE value for PredictedFailure
+            # ID;patrolStatus;statusInformation;NexusID;PredictedFailure
+          - type: translate
+            column: 5
+            translationTable: PhysicalDiskPredictedFailureTranslationTable
+            # Replace double slashes with single.  I'm not sure if this is an emulation issue or if the server really returns these
+            # ID;patrolStatus;statusInformation;NexusID;PredictedFailure
+          - type: replace
+            column: 4
+            existingValue: \\
+            newValue: \
+      mapping:
+        # ValueTable = Source(1)
+        # ID;patrolStatus;statusInformation;NexusID;PredictedFailure
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(4)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(5))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the virtualDiskTable snmp table
+          # ID;virtualDiskNumber;diskName;deviceName;SizeMB;RaidLevel
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.140.1.1
+          selectColumns: "ID,1,2,3,6,13"
+          computes:
+            # Translate size into bytes
+            # ID;virtualDiskNumber;diskName;deviceName;Size;RaidLevel
+          - type: multiply
+            column: 5
+            value: 1048576
+            # Translate the FaultToleranceLevel into a more readable string
+            # ID;virtualDiskNumber;diskName;deviceName;Size;RaidLevel
+          - type: translate
+            column: 6
+            translationTable: RAIDLevelTranslationTable
+        source(2):
+          # Source(2) = the arrayDiskLogicalConnectionTable snmp table
+          # physicalDiskNumber;VirtualDiskNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.140.3.1
+          selectColumns: "3,5"
+        source(3):
+          # Source(3) = table joint between source(1) and source(2)
+          # ID;virtualDiskNumber;diskName;deviceName;Size;RaidLevel;physicalDiskNumber;VirtualDiskNumber
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+        source(4):
+          # Source(4) = the arrayDiskEnclosureConnectionTable snmp table
+          # arrayDiskNumber;controllerNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.5.1
+          selectColumns: "3,7"
+        source(5):
+          # Source(4) = the arrayDiskChannelConnectionTable snmp table
+          # arrayDiskNumber;controllerNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.6.1
+          selectColumns: "3,7"
+        source(6):
+          # Source(6) = Union of Source(4) and Source(5)
+          # arrayDiskNumber;controllerNumber
+          type: tableUnion
+          tables:
+          - $monitors.logical_disk.discovery.sources.source(4)$
+          - $monitors.logical_disk.discovery.sources.source(5)$
+        source(7):
+          # Source(5) = table joint between source(3) and source(6)
+          # ID;virtualDiskNumber;diskName;deviceName;Size;RaidLevel;physicalDiskNumber;VirtualDiskNumber;arrayDiskNumber;controllerNumber;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(3)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(6)$
+          leftKeyColumn: 7
+          rightKeyColumn: 1
+          defaultRightLine: ;1;
+      mapping:
+        # The InstanceTable
+        source: $monitors.logical_disk.discovery.sources.source(7)$
+        attributes:
+          id: $column(1)
+          raid_level: $column(6)
+          __display_id: $column(3)
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(10)
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(6), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
+    collect:
+      # Collect type = mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = SNMP Get on the virtualDiskState value of the virtualDiskTable SNMP table
+          # virtualDiskState
+          type: snmpGet
+          oid: 1.3.6.1.4.1.674.10893.1.20.140.1.1.4.%LogicalDisk.Collect.DeviceID%
+          computes:
+            # Duplicate this status, because we will translate it two times
+            # virtualDiskState;virtualDiskState
+          - type: duplicateColumn
+            column: 1
+            # Translate the virtualDiskState into a PATROL status
+            # patrolDiskStatus;virtualDiskState
+          - type: translate
+            column: 1
+            translationTable: LogicalDiskStatusTranslationTable
+            # Translate the virtualDiskState into a more readable string
+            # patrolDiskStatus;arrayDiskStatusInformation
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = batteryTable SNMP Table
+          # DeviceID;BatteryNumber;Name;Vendor;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.15.1
+          selectColumns: "ID,1,2,3"
+        source(2):
+          # Source(2) = batteryConnectionTable SNMP table
+          # BatteryNumber;ControllerNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.16.1
+          selectColumns: "3,5"
+        source(3):
+          # Source(3) = Table joint of Source(1) and Source(2)
+          # DeviceID;BatteryNumber;Name;Vendor;BatteryNumber;ControllerNumber;
+          type: tableJoin
+          leftTable: $monitors.battery.discovery.sources.source(1)$
+          rightTable: $monitors.battery.discovery.sources.source(2)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ;1;
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.battery.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          model: $column(3)
+          vendor: $column(4)
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(6)
+          name: "sprintf(\"%s (%s %s)\", $column(1), $column(4), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = batteryTable SNMP Table
+          # DeviceID;DetailedStatus;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.15.1
+          selectColumns: "ID,4,6"
+          computes:
+            # Translate the DetailedStatus into a more readable string
+            # DeviceID;StatusInformation;Status;
+          - type: translate
+            column: 2
+            translationTable: BatteryStatusInformationTranslationTable
+            # Translate the Status into a PATROL Status
+            # DeviceID;StatusInformation;PATROLStatus;
+          - type: translate
+            column: 3
+            translationTable: GenericStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = enclosureEntry
+          # EnclosureID;EnclosureType;EnclosureName;ServiceTag;AssetTag;NexusID;PartNumber;SerialNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.3.1
+          selectColumns: "6,16,2,8,9,25,28,29"
+          computes:
+            # Exclude lines of type 1 (Internal)
+            # EnclosureID;EnclosureType;EnclosureName;ServiceTag;AssetTag;NexusID;PartNumber;SerialNumber;
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 1
+            # Add Identifiers
+            # EnclosureID;EnclosureType;EnclosureName;ServiceTag;AssetTag;NexusID;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 4
+            value: "Serial Number: "
+          - type: leftConcat
+            column: 5
+            value: "Alternative Serial Number: "
+          - type: leftConcat
+            column: 7
+            value: "Part Number: "
+            # Replace double slashes with single.  I'm not sure if this is an emulation issue or if the server really returns these
+            # EnclosureID;EnclosureType;EnclosureName;ServiceTag;AssetTag;NexusID;PartNumber;SerialNumber;
+          - type: replace
+            column: 6
+            existingValue: \\
+            newValue: \
+      mapping:
+        # Instance Table
+        # EnclosureID;EnclosureType;EnclosureName;ServiceTag;AssetTag;NexusID;PartNumber;SerialNumber;
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: $column(6)
+          vendor: Dell
+          type: External Storage
+          model: $column(3)
+          serial_number: $column(8)
+          info: "join($column(4), $column(5), $column(7), \" \")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"Dell\", $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # / Source(1) = cpqSsDrvBoxTable
+          # ID;Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.3.1
+          selectColumns: "25,4"
+          computes:
+            # Now, duplicate Status
+            # ID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # ID;PatrolStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: EnclosureStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # ID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: EnclosureStatusInformationTranslationTable
+            # Replace double slashes with single.
+            # ID;PatrolStatus;StatusInformation;
+          - type: replace
+            column: 1
+            existingValue: \\
+            newValue: \
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Fan.Entry
+          # NexusID;Name;PartNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.7.1
+          selectColumns: "16,2,12"
+          computes:
+            # Extract the EnclosureID;
+            # EnclosureID;NexusID;Name;PartNumber;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5"
+            # Add Part Number:
+            # EnclosureID;NexusID;Name;PartNumber;
+          - type: leftConcat
+            column: 4
+            value: "Part Number: "
+            # Replace double slashes with single.
+            # EnclosureID;NexusID;Name;PartNumber;
+          - type: replace
+            column: 2
+            existingValue: \\
+            newValue: \
+      mapping:
+        # Instance Table
+        # EnclosureID;NexusID;Name;PartNumber;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          info: $column(4)
+          hw.parent.type: External Storage
+          hw.parent.id: $column(1)
+          name: $column(3)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Fan.Entry
+          # NexusID;Status;Value;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.7.1
+          selectColumns: "16,14,11"
+          computes:
+            # Now, duplicate Status
+            # NexusID;Status;Status;Value;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # NexusID;PatrolStatus;Status;Value;
+          - type: translate
+            column: 2
+            translationTable: ComponentStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # NexusID;PatrolStatus;StatusInformation;Value;
+          - type: translate
+            column: 3
+            translationTable: ComponentStatusInformationTranslationTable
+            # Replace double slashes with single.
+            # NexusID;PatrolStatus;StatusInformation;Value;
+          - type: replace
+            column: 1
+            existingValue: \\
+            newValue: \
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = PowerSupply.Entry
+          # NexusID;Name;PartNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.9.1
+          selectColumns: "10,2,6"
+          computes:
+            # Extract the EnclosureID;
+            # EnclosureID;NexusID;Name;PartNumber;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5"
+            # Add Part Number:
+            # EnclosureID;NexusID;Name;PartNumber;
+          - type: leftConcat
+            column: 4
+            value: "Part Number: "
+            # Replace double slashes with single.
+            # EnclosureID;NexusID;Name;PartNumber;
+          - type: replace
+            column: 2
+            existingValue: \\
+            newValue: \
+      mapping:
+        # Instance Table
+        # EnclosureID;NexusID;Name;PartNumber;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          info: $column(4)
+          hw.parent.type: External Storage
+          hw.parent.id: $column(1)
+          name: $column(3)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = PowerSupply.Entry
+          # NexusID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.9.1
+          selectColumns: "10,8"
+          computes:
+            # Now, duplicate Status
+            # NexusID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into PATROL status
+            # NexusID;PatrolStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: ComponentStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # NexusID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: ComponentStatusInformationTranslationTable
+            # Replace double slashes with single.
+            # NexusID;PatrolStatus;StatusInformation;
+          - type: replace
+            column: 1
+            existingValue: \\
+            newValue: \
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Temperature.Entry
+          # NexusID;Name;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.11.1
+          selectColumns: "14,2"
+          computes:
+            # Extract the EnclosureID;
+            # EnclosureID;NexusID;Name;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Replace double slashes with single.
+            # EnclosureID;NexusID;Name;PartNumber;
+          - type: replace
+            column: 2
+            existingValue: \\
+            newValue: \
+      mapping:
+        # Instance Table
+        # EnclosureID;NexusID;Name;PartNumber;
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: External Storage
+          hw.parent.id: $column(1)
+          name: $column(3)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Temperature.Entry
+          # NexusID;Status;Value;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.11.1
+          selectColumns: "14,12,11"
+          computes:
+            # Now, duplicate Status
+            # NexusID;Status;Status;Value;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # NexusID;PatrolStatus;Status;Value;
+          - type: translate
+            column: 2
+            translationTable: ComponentStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # NexusID;PatrolStatus;StatusInformation;Value;
+          - type: translate
+            column: 3
+            translationTable: ComponentStatusInformationTranslationTable
+            # Replace double slashes with single.
+            # NexusID;PatrolStatus;StatusInformation;Value;
+          - type: replace
+            column: 1
+            existingValue: \\
+            newValue: \
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = OtherDevice.Entry
+          # NexusID;Name;PartNumber;Type;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.13.1
+          selectColumns: "12,2,6,7"
+          computes:
+            # Extract the EnclosureID;
+            # EnclosureID;NexusID;Name;PartNumber;Type;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5,6"
+            # Add Part Number:
+            # EnclosureID;NexusID;Name;PartNumber;Type;
+          - type: leftConcat
+            column: 4
+            value: "Part Number: "
+            # Replace double slashes with single.
+            # EnclosureID;NexusID;Name;PartNumber;Type;
+          - type: replace
+            column: 2
+            existingValue: \\
+            newValue: \
+            # Translate Type
+            # EnclosureID;NexusID;Name;PartNumber;Type;
+          - type: translate
+            column: 5
+            translationTable: TypeTranslationTable
+      mapping:
+        # Instance Table
+        # EnclosureID;NexusID;Name;PartNumber;Type;
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          device_type: $column(5)
+          info: $column(4)
+          hw.parent.type: External Storage
+          hw.parent.id: $column(1)
+          name: "sprintf(\"%s: %s\", $column(5), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = OtherDevice.Entry
+          # NexusID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10893.1.20.130.13.1
+          selectColumns: "12,10"
+          computes:
+            # Now, duplicate Status
+            # NexusID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # NexusID;PatrolStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: ComponentStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # NexusID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: ComponentStatusInformationTranslationTable
+            # Replace double slashes with single.
+            # NexusID;PatrolStatus;StatusInformation;
+          - type: replace
+            column: 1
+            existingValue: \\
+            newValue: \
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";"}
+    $1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/ {
+        ID = $1
+        DiskNumber = $2
+        DiskName = $3
+        Vendor = $4 ; gsub ("\\(tm\\)","",Vendor);
+        Model = $5
+        Serial = $6
+        Size = $7
+        BusType = $8
+        NexusID = $9 ; gsub ("\\\\\\\\","\\",NexusID);
+        PartNumber = $10 ; PartNumber = "Part Number: " PartNumber
+        PredictedFailure = $11
+    #    DiskNumber = $12
+        ControllerNumber = $13
+
+        Model = "Model: " Model " " BusType
+
+        if ( NexusID ~ "^\\\\0" ) { EnclosureID = "" }
+            else { EnclosureID = NexusID ; gsub("\\\\[0-9]+$","",EnclosureID);
+                     ControllerNumber = ""
+                   }
+        DisplayID = NexusID ; gsub("^\\\\[0-9]+\\\\","",DisplayID) ; gsub("\\\\",":",DisplayID);
+
+        print "MSHW;" EnclosureID ";" DisplayID ";" DiskName ";" Vendor ";" Model ";" Serial ";" Size ";" BusType ";" NexusID ";" PartNumber ";" PredictedFailure ";" ControllerNumber ";"
+    }
+  EmbeddedFile(2): |-
+    BEGIN {FS=";"}
+    $1 ~ "^\\\\" { NexusID = $1 ; gsub ("\\\\\\\\","\\",NexusID)
+                     EnclosureID = NexusID ; gsub("\\\\[0-9]+$","",EnclosureID);
+                     print "MSHW;" EnclosureID ";" $0
+                   }
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": Ready
+    "12": Charging
+    "2": Failed
+    default: Unknown Status
+    "36": Learning
+    "6": Degraded
+    "7": Reconditioning
+    "9": High
+    "10": Low Power
+    "21": Missing
+  PhysicalDiskPredictedFailureTranslationTable:
+    "2": "TRUE"
+    default: "FALSE"
+  TypeTranslationTable:
+    "0": ""
+    "1": EMM
+    "2": Termination Card
+    default: ""
+  EnclosureStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "6": degraded
+  GenericStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  ComponentStatusTranslationTable:
+    default: UNKNOWN
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+  LogicalDiskStatusTranslationTable:
+    "24": degraded
+    "35": ok
+    "36": ok
+    "15": degraded
+    "26": ok
+    "38": ok
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "6": degraded
+    "52": failed
+    "32": degraded
+    "54": degraded
+  PhysicalDiskStatusTranslationTable:
+    "11": failed
+    "22": degraded
+    "23": degraded
+    "34": degraded
+    "56": ok
+    "13": ok
+    "24": ok
+    "35": ok
+    "14": failed
+    "25": failed
+    "15": ok
+    "26": ok
+    "28": ok
+    "39": degraded
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": ok
+    "4": failed
+    "6": degraded
+    "7": degraded
+    "40": ok
+    "41": failed
+    "53": failed
+  PhysicalDiskBusTypeTranslationTable:
+    "1": SCSI
+    "2": IDE
+    default: ""
+    "3": FC
+    "4": SSA
+    "6": USB
+    "7": SATA
+    "8": SAS
+  RAIDLevelTranslationTable:
+    "11": 30
+    "12": 50
+    "13": Add Spares
+    "14": Delete Logical
+    "15": Transform Logical
+    "18": 0+1
+    "1": Concatenated
+    "2": 0
+    default: ""
+    "3": 1
+    "4": 2
+    "5": 3
+    "6": 4
+    "7": 5
+    "8": 6
+    "9": 7
+    "10": 10
+  PhysicalDiskStatusInformationTranslationTable:
+    "11": Removed
+    "22": Replacing
+    "23": Spinning Down
+    "34": Predicted Failure
+    "56": Read Only
+    "13": Non-RAID
+    "24": Rebuilding
+    "35": Initializing
+    "14": Not REady
+    "25": No media
+    "15": Resynching
+    "26": Formatting
+    "28": Diagnosing
+    "39": Foreign
+    "1": Ready
+    "2": Failed
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "6": Degraded
+    "7": Recovering
+    "40": Clear
+    "41": Unsupported
+    "53": Incompatible
+  ComponentStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non-Critical Fault
+    "5": Critical Fault
+    "6": Non-Recoverable Fault
+  LogicalDiskStatusInformationTranslationTable:
+    "24": Rebuilding
+    "35": Initializing
+    "36": Background Initialization
+    "15": Resynching
+    "26": Formatting
+    "38": Resynching Paused
+    "1": Ready
+    "2": Failed
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "6": Degraded
+    "52": Permanently Degraded
+    "32": Reconstructing
+    "54": Degraded Redundancy
+  EnclosureStatusInformationTranslationTable:
+    "1": Ready
+    "2": Failed
+    default: Unknown Status
+    "3": Online
+    "4": Offline
+    "6": Degraded
+  GenericStatusInformationTranslationTable:
+    default: Unknown Status
+    "3": ""
+    "4": Non-Critical
+    "5": Critical
+    "6": Unrecoverable

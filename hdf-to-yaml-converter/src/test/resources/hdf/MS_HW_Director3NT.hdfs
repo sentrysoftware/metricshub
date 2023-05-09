@@ -1,0 +1,469 @@
+////////////////////////////////////////////////////////////////#
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by MASAI Systems (c)
+//
+//
+//      Supports: IBM Director Agents version 3.x
+//                on Windows
+//
+//
+
+// This .HDF monitors IBM xSeries and Netfinity computers under Windows
+// It uses the IBM Director Agent information
+// The IBM Director Agent information is retrieved through WBEM
+
+
+////////////
+//
+// HEADER
+//
+////////////
+
+hdf.DisplayName="IBM Director Agent 3.x - Windows"
+hdf.TypicalPlatform="IBM xSeries"
+hdf.ReliesOn="IBM Director Agent 3.x"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring through the IBM Director Agent version 3.x which supports almost all IBM Netfinity and xSeries servers. This connector is WBEM-based."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT"
+hdf.Supersedes="MS_HW_IpmiTool.hdf"
+
+///////////////
+//
+// DETECTION
+//
+///////////////
+
+// OS must be Windows
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+// The IBM Director Agent Service must be running (service name is TWGIPC)
+Detection.Criteria(2).Type="Service"
+Detection.Criteria(2).ServiceName="TWGIPC"
+
+// The IBM Director Agent must be in version 3.1.x
+Detection.Criteria(3).Type="WMI"
+Detection.Criteria(3).WbemQuery="SELECT Version FROM IBMPSG_UniversalManageabilityServices"
+Detection.Criteria(3).ExpectedResult="^3\.1\.[1-9].*"
+
+// The IBMPSG_ComputerSystemDetails WBEM class must be instanciated
+Detection.Criteria(4).Type="WMI"
+Detection.Criteria(4).WbemQuery="SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+Detection.Criteria(4).ErrorMessage="The IBM Director Agent seems to not be working properly. Please reinstall the IBM Director Agent."
+
+
+/////////////////
+//
+// COMPUTER
+//
+////////////////
+
+// Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+Enclosure.Discovery.Source(1).Type="WMI"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+
+// InstanceTable = Source(1)
+// Note: InstanceTable must contain only one line!
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.Vendor="IBM"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.DeviceID="IBM"
+
+
+///////////////
+//
+// FANS
+//
+///////////////
+
+// DISCOVERY
+/////////////
+
+// Source(1) = the IBMPSG_Fan WBEM class
+Fan.Discovery.Source(1).Type="WMI"
+Fan.Discovery.Source(1).WbemQuery="SELECT DeviceID, FanType, UpperThresholdCritical FROM IBMPSG_Tachometer"
+Fan.Discovery.Source(1).Compute(1).Type="Translate"
+Fan.Discovery.Source(1).Compute(1).Column="2"
+Fan.Discovery.Source(1).Compute(1).TranslationTable="FanTypeTranslationTable"
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+// We got a "warning" threshold
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+// We have no "alarm" threshold hence we set it to 0 (zero) ( = stopped)
+Fan.Discovery.Instance.AlarmThreshold="0"
+// Remark, we won't get any status information, so these thresholds are the only
+// way to send alerts about fans
+
+// The FanTypeTranslationTable
+FanTypeTranslationTable(1)="System"
+FanTypeTranslationTable(2)="Power-Supply"
+FanTypeTranslationTable(3)="CPU"
+FanTypeTranslationTable(default)=""
+
+// COLLECT
+//////////
+
+// The collect (as all WBEM-based collects) is "MultiInstance"
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = The IBMPSG_Tachometer WBEM class
+Fan.Collect.Source(1).Type="WMI"
+Fan.Collect.Source(1).WbemQuery="SELECT CurrentReading,DeviceID FROM IBMPSG_Tachometer"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Speed=ValueTable.Column(1)
+// No status is collected
+
+/////////////////////
+//
+// TEMPERATURES
+//
+////////////////////
+
+// DISCOVERY
+////////////
+
+// Source(1) = The IBMPSG_TemperatureSensor WBEM class
+Temperature.Discovery.Source(1).Type="WMI"
+Temperature.Discovery.Source(1).WbemQuery="SELECT DeviceID, LowerThresholdCritical, LowerThresholdNonCritical, TempLocation FROM IBMPSG_TemperatureSensor"
+Temperature.Discovery.Source(1).Compute(1).Type="Translate"
+Temperature.Discovery.Source(1).Compute(1).Column="4"
+Temperature.Discovery.Source(1).Compute(1).TranslationTable="TemperatureTypeTranslationTable"
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(4)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(2)
+
+// COLLECT
+///////////
+
+// Like all WBEM collects, this one is "MultiInstance"
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = the IBMPSG_TemperatureSensor WBEM class
+Temperature.Collect.Source(1).Type="WMI"
+Temperature.Collect.Source(1).WbemQuery="SELECT CurrentReading,DeviceID FROM IBMPSG_TemperatureSensor"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(1)
+
+// The TemperatureTypeTranslationTable
+TemperatureTypeTranslationTable(1)="Motherboard"
+TemperatureTypeTranslationTable(2)="CPU"
+TemperatureTypeTranslationTable(default)=""
+
+
+///////////////////////
+//
+// VOLTAGES
+//
+///////////////////////
+
+// DISCOVERY
+////////////
+
+// Source(1) = all the instances of the IBMPSG_VoltageSensor class
+Voltage.Discovery.Source(1).Type="WMI"
+Voltage.Discovery.Source(1).WbemQuery="SELECT DeviceID,LowerThresholdNonCritical,UpperThresholdNonCritical,VoltageType FROM IBMPSG_VoltageSensor"
+
+// Translate the voltage type into a more readable string
+Voltage.Discovery.Source(1).Compute(1).Type="Translate"
+Voltage.Discovery.Source(1).Compute(1).Column="4"
+Voltage.Discovery.Source(1).Compute(1).TranslationTable="VoltageTypeTranslationTable"
+
+// Here is the instance table = source(1)
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(4)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(3)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(2)
+
+// The VoltageTypeTranslationTable
+VoltageTypeTranslationTable(0)=""
+VoltageTypeTranslationTable(1)="+2.5a V"
+VoltageTypeTranslationTable(2)="+1.5 V"
+VoltageTypeTranslationTable(3)="+3.3 V"
+VoltageTypeTranslationTable(4)="+5 V"
+VoltageTypeTranslationTable(5)="+12 V"
+VoltageTypeTranslationTable(6)="-12 V"
+VoltageTypeTranslationTable(7)="-5 V"
+VoltageTypeTranslationTable(8)="VIO"
+VoltageTypeTranslationTable(9)="Vcore"
+VoltageTypeTranslationTable(10)="Bus"
+VoltageTypeTranslationTable(Default)=""
+
+// COLLECT
+//////////
+
+// It's a "MultiInstance" collect
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = the IBMPSG_VoltageSensor class
+Voltage.Collect.Source(1).Type="WMI"
+Voltage.Collect.Source(1).WbemQuery="SELECT CurrentReading,DeviceID FROM IBMPSG_VoltageSensor"
+
+// ValueTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Voltage=ValueTable.Column(1)
+
+
+//////////////////////////////////
+//
+//  POWER SUPPLIES
+//
+//////////////////////////////////
+
+// DISCOVERY
+/////////////
+
+// Source(1) = The IBMPSG_PowerSupply table
+PowerSupply.Discovery.Source(1).Type="WMI"
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT DeviceID FROM IBMPSG_PowerSupply"
+
+// The instance table:
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+
+// COLLECT
+//////////
+
+// Collect type : multi instance (one source for several instances)
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = the simple IBMPSG_PowerSupply table/class
+PowerSupply.Collect.Source(1).Type="WMI"
+PowerSupply.Collect.Source(1).WbemQuery="SELECT DeviceID,StatusInfo FROM IBMPSG_PowerSupply"
+
+
+//////////////////////////////////////////////
+//   ***  D I S K   C O N T R O L L E R S  ***
+//////////////////////////////////////////////
+
+// Based on the IBMPSG_RAIDController WBEM class
+// This class includes all RAID controllers  and the more specific IBM ServerRAID controllers
+// The ControllerID property will be used to identify the controller in the PhysicalDisk and
+// LogicalDisk discoveries
+DiskController.Discovery.Source(1).Type="WMI"
+DiskController.Discovery.Source(1).WbemQuery="SELECT BIOSVersion, ControllerID, DeviceID, DriverVersion, FirmwareVersion, Manufacturer, Model FROM IBMPSG_RAIDController"
+
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.Vendor=InstanceTable.Column(6)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(7)
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+DiskController.Discovery.Instance.BiosVersion=InstanceTable.Column(1)
+DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(4)
+DiskController.Discovery.Instance.FirmwareVersion.InstanceTable.Column(5)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+
+/////////////////////
+//
+//  PHYSICAL DISKS
+//
+/////////////////////
+
+// DISCOVERY
+////////////
+
+// We use 2 WBEM classes:
+// - IBMPSG_RAIDDiskDrive (that includes the ControllerID information)
+// - IBMPSG_PhysicalDiskDrive (that includes Model, Manufacturer, Size, etc.)
+// These two tables will be joint on IBMPSG_RaidDiskDrive.DeviceID = IBMPSG_PhysicalDiskDrive.Tag
+// Except that IBMPSG_RAIDDiskDrive.Device looks like "IBM:ServeRAID:ControllerID:1:ChannelID:1:DiskDriveID:5:DiskDrive"
+// and that IBMPSG_PhysicalDiskDrive.Tag looks like "IBM:ServeRAID:ControllerID:1:ChannelID:1:DeviceID:5:DiskDrive"
+// Very similar isn't it? Look carefully: there is "DiskDriveID" in one, and "DeviceID" in the other. Tricky, mmmh?
+// So we'll replace the "DiskDriveID" work by "DeviceID" in order to join the two tables
+
+// Source(1) = IBMPSG_RAIDDiskDrive table
+PhysicalDisk.Discovery.Source(1).Type="WMI"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT ControllerID,DeviceID,DiskDriveID FROM IBMPSG_RAIDDiskDrive"
+
+// Source(2) = IBMPSG_PhysicalDiskDrive table
+PhysicalDisk.Discovery.Source(2).Type="WMI"
+PhysicalDisk.Discovery.Source(2).WbemQuery="SELECT Capacity,Manufacturer,Model,SerialNumber,Tag FROM IBMPSG_PhysicalDiskDrive"
+
+// Replace :DiskDriveID: by :DeviceID: in the IBMPSG_RAIDDiskDrive table
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column="2"
+PhysicalDisk.Discovery.Source(1).Compute(1).Replace=":DeviceID:"
+PhysicalDisk.Discovery.Source(1).Compute(1).ReplaceBy=":DiskDriveID:"
+
+// Replace :DiskDriveID: by :DeviceID: in the IBMPSG_PhysicalDiskDrive table
+// (yes, normally it is already done, but in fact, we cannot trust the IBM Director
+// development team... ;-)
+PhysicalDisk.Discovery.Source(2).Compute(1).Type="Replace"
+PhysicalDisk.Discovery.Source(2).Compute(1).Column="5"
+PhysicalDisk.Discovery.Source(2).Compute(1).Replace=":DeviceID:"
+PhysicalDisk.Discovery.Source(2).Compute(1).ReplaceBy=":DiskDriveID:"
+
+// Source(3) = The jointure
+PhysicalDisk.Discovery.Source(3).Type="TableJoint"
+PhysicalDisk.Discovery.Source(3).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(3).RightTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(3).LeftKeyColumn="2"
+PhysicalDisk.Discovery.Source(3).RightKeyColumn="5"
+
+// Finally here is the instance table...
+// InstanceTable = ControllerID,DeviceID,DiskDriveID,Capacity,Manufacturer,Model,SerialNumber,Tag
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+
+// COLLECT
+//////////
+
+// The physical disk collect is a "MultiInstance" collect
+// Only ONE WBEM query will be done in order to get the information for all physical disks
+// Less WBEM queries gives faster results
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the only source = the IBMPSG_RAIDDiskDrive table
+PhysicalDisk.Collect.Source(1).Type="WMI"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT DeviceID,State FROM IBMPSG_RAIDDiskDrive"
+
+// We must duplicate the "State" column
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Then we translate the IBMPSG status code into OK/WARN/ALARM (for the Status parameter)
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// And finally, we translate the IBMPSG status code into a more readable status string
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable(0)="OK"
+PhysicalDiskStatusTranslationTable(1)="OK"
+PhysicalDiskStatusTranslationTable(4)="WARN"
+PhysicalDiskStatusTranslationTable(5)="OK"
+PhysicalDiskStatusTranslationTable(8)="ALARM"
+PhysicalDiskStatusTranslationTable(129)="OK"
+PhysicalDiskStatusTranslationTable(133)="OK"
+PhysicalDiskStatusTranslationTable(137)="OK"
+PhysicalDiskStatusTranslationTable(139)="WARN"
+PhysicalDiskStatusTranslationTable(254)="OK"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// The PhysicalDiskStatusInformationTranslationTable
+PhysicalDiskStatusInformationTranslationTable(0)="Empty"
+PhysicalDiskStatusInformationTranslationTable(1)="Standby"
+PhysicalDiskStatusInformationTranslationTable(4)="Defunct Hot Spare"
+PhysicalDiskStatusInformationTranslationTable(5)="Standby Hot Spare"
+PhysicalDiskStatusInformationTranslationTable(8)="Defunct"
+PhysicalDiskStatusInformationTranslationTable(129)="Ready"
+PhysicalDiskStatusInformationTranslationTable(133)="Hot Spare"
+PhysicalDiskStatusInformationTranslationTable(137)="Online"
+PhysicalDiskStatusInformationTranslationTable(139)="Rebuild"
+PhysicalDiskStatusInformationTranslationTable(254)="Reserved"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+/////////////////////////////////////
+//
+//  LOGICAL DISKS
+//
+////////////////////////////////////
+
+// DISCOVERY
+////////////
+
+// Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
+LogicalDisk.Discovery.Source(1).Type="WMI"
+LogicalDisk.Discovery.Source(1).WbemQuery="SELECT ControllerID,DataSpace,DeviceID,RAIDLevel FROM IBMPSG_RAIDLogicalDrive"
+
+// Convert the DataSpace column (MB) in bytes
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column="2"
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1048576"
+
+// Here is the instance table
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+
+// COLLECT
+//////////
+
+// It's a "MultiInstance" collect
+// One WBEM query will be executed in order to get the info for all the logical drives
+// Much faster!
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
+LogicalDisk.Collect.Source(1).Type="WMI"
+LogicalDisk.Collect.Source(1).WbemQuery="SELECT DeviceID,State FROM IBMPSG_RAIDLogicalDrive"
+
+// Duplicate the State column (because it'll be translated two times)
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the IBMPSG State column (the first one) into OK/WARN/ALARM
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column="2"
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// Translate the IBMPSG State column (the second one) into a more readable status information string
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column="3"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="LogicalDiskStatusInformationTranslationTable"
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable(0)="OK"
+LogicalDiskStatusTranslationTable(2)="ALARM"
+LogicalDiskStatusTranslationTable(3)="OK"
+LogicalDiskStatusTranslationTable(4)="WARN"
+LogicalDiskStatusTranslationTable(5)="OK"
+LogicalDiskStatusTranslationTable(6)="OK"
+LogicalDiskStatusTranslationTable(20)="WARN"
+LogicalDiskStatusTranslationTable(36)="WARN"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// The LogicalDiskStatusInformationTranslationTable
+LogicalDiskStatusInformationTranslationTable(0)="Free"
+LogicalDiskStatusInformationTranslationTable(2)="Offline"
+LogicalDiskStatusInformationTranslationTable(3)=""
+LogicalDiskStatusInformationTranslationTable(4)="Critical"
+LogicalDiskStatusInformationTranslationTable(5)="Migration"
+LogicalDiskStatusInformationTranslationTable(6)="System"
+LogicalDiskStatusInformationTranslationTable(20)="Critical Migration"
+LogicalDiskStatusInformationTranslationTable(36)="Critical System"
+LogicalDiskStatusInformationTranslationTable(Default)="Unknown Status"

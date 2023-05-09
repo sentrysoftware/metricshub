@@ -1,0 +1,66 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="Dell Compellent Storage Center"
+hdf.TypicalPlatform="Dell Compellent"
+hdf.ReliesOn="Dell Compellent Controller REST API"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosures, controllers and their associated hardware components through Dell Compellent Controller REST API Version 7 and higher. IP address of the storage controller should be specified as host IP."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+#include MS_HW_DellCompellent.hhdf
+
+//Make sure it's a controller
+Detection.Criteria(2).Type="HTTP"
+Detection.Criteria(2).Method="POST"
+Detection.Criteria(2).URL="/api/rest/ApiConnection/Login"
+Detection.Criteria(2).Header=EmbeddedFile(1)
+Detection.Criteria(2).ExpectedResult="StorageCenter"
+
+////////////////////////////////////
+////  AWK Scripts
+///////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Headers
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+Content-Type:application/json
+Accept:application/json
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = Headers + cookie
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+Content-Type: application/json
+Accept: application/json
+Cookie: %{AUTHENTICATIONTOKEN}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////

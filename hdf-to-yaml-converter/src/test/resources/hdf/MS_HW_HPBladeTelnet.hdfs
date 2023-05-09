@@ -1,0 +1,689 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//                  MS_HW_HPBladeTelnet.hdf
+//
+//      Supports:
+//
+//      Connects to:
+//
+//
+
+//
+// HEADER
+
+hdf.DisplayName="HP BladeSystem (SSH)"
+hdf.TypicalPlatform="HP BladeSystem"
+hdf.ReliesOn="HP BladeSystem Onboard Administrator"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring for the HP BladeSystem racks through the Onboard Administrator."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+hdf.Supersedes="MS_HW_HPBladeSystem.hdf"
+
+
+// SUDO-ABLE COMMANDS
+// None.
+
+//
+// DETECTION
+//
+
+// host should respond to Telnet/SSH the way described below
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="SHOW OA INFO"
+Detection.Criteria(1).ExpectedResult="Onboard Administrator"
+
+//
+// COMPUTER
+//
+
+//
+// Discovery
+
+// Source(1) = Output of the show enclosure info command through Telnet/SSH
+// ComputerModel;SerialNumber
+
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="show enclosure info"
+// Now, extract the power supplies thanks to a smart AWK script
+// powerSupplyID - Part Number; powerCapacity
+//  RETURNS MSHW;model;serialNumber;
+//  SELECTS model;serialNumber;
+
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// The discovery table = source(1)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="HPBladeChassis"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Type="Blade"
+
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="show interconnect info all"
+
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="show server info all"
+
+Enclosure.Discovery.Source(4).Type="OSCommand"
+Enclosure.Discovery.Source(4).CommandLine="show enclosure powersupply all"
+
+Enclosure.Discovery.Source(5).Type="OSCommand"
+Enclosure.Discovery.Source(5).CommandLine="show enclosure fan all"
+
+Enclosure.Discovery.Source(6).Type="OSCommand"
+Enclosure.Discovery.Source(6).CommandLine="show enclosure temp"
+
+Enclosure.Discovery.Source(7).Type="TableUnion"
+Enclosure.Discovery.Source(7).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(7).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(7).Table3=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(7).Table4=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(7).Table5=%Enclosure.Discovery.Source(6)%
+
+
+//
+// Collect
+
+Enclosure.Collect.Type="MonoInstance"
+
+// Source(1) = Output of show enclosure status
+
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="show enclosure status"
+
+// Retrieve the overall status of the chassis and its power consumption with a smart AWK script
+//  RETURNS MSHW;status;powerConsumption
+//  SELECTS status;powerConsumption
+
+Enclosure.Collect.Source(1).Compute(1).Type="Awk"
+Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+Enclosure.Collect.Source(1).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Collect.Source(1).Compute(1).Separators=";"
+Enclosure.Collect.Source(1).Compute(1).SelectColumns="2,3"
+
+// Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+// status;powerState;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column="1"
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="OKDegradedFailedTranslationTable"
+
+// The OK Degraded Failed NA Table
+OKDegradedFailedTranslationTable("OK")="OK"
+OKDegradedFailedTranslationTable("Degraded")="WARN"
+OKDegradedFailedTranslationTable("Failed")="ALARM"
+OKDegradedFailedTranslationTable("N/A")="OK"
+OKDegradedFailedTranslationTable(Default)="UNKNOWN"
+
+// The OK Degraded Failed NA StatusInformation Table
+OKDegradedFailedStatusInformationTranslationTable("OK")=""
+OKDegradedFailedStatusInformationTranslationTable("Degraded")="Degraded"
+OKDegradedFailedStatusInformationTranslationTable("Failed")="Failed"
+OKDegradedFailedStatusInformationTranslationTable("N/A")=""
+OKDegradedFailedStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+// Source(2) = Output of show show interconnect status all, show server status all, enclosure powersupply all, show enclosure fan all, show enclosure temp
+// Not actually used for enclosure, but a group collect for all other parameters (to reduce the number of telnet connections)
+
+Enclosure.Collect.Source(2).Type="OSCommand"
+Enclosure.Collect.Source(2).CommandLine="show interconnect status all"
+
+Enclosure.Collect.Source(3).Type="OSCommand"
+Enclosure.Collect.Source(3).CommandLine="show server status all"
+
+Enclosure.Collect.Source(4).Type="OSCommand"
+Enclosure.Collect.Source(4).CommandLine="show enclosure powersupply all"
+
+Enclosure.Collect.Source(5).Type="OSCommand"
+Enclosure.Collect.Source(5).CommandLine="show enclosure fan all"
+
+Enclosure.Collect.Source(6).Type="OSCommand"
+Enclosure.Collect.Source(6).CommandLine="show enclosure temp"
+
+Enclosure.Collect.Source(7).Type="TableUnion"
+Enclosure.Collect.Source(7).Table1=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(7).Table2=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(7).Table3=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(7).Table4=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.Source(7).Table5=%Enclosure.Collect.Source(6)%
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Status=ValueTable.Column(1)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(2)
+
+//
+// Power Supplies
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
+
+// Now, extract the power supplies thanks to a smart AWK script
+//  RETURNS MSHW;powerSupplyID;status;powerCapacity;powerCurrent
+//  SELECTS powerSupplyID;powerCapacity;
+
+PowerSupply.Discovery.Source(1).Compute(1).Type="Awk"
+PowerSupply.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+PowerSupply.Discovery.Source(1).Compute(1).Separators=";"
+PowerSupply.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Discovery.Source(1).Compute(1).SelectColumns="2,4"
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(7)%
+
+// Now, extract the power supplies status thanks to a smart AWK script
+//  RETURNS MSHW;powerSupplyID;status;powerCapacity;powerCurrent
+//  SELECTS powerSupplyID;status;powerCurrent
+
+PowerSupply.Collect.Source(1).Compute(1).Type="Awk"
+PowerSupply.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+PowerSupply.Collect.Source(1).Compute(1).Separators=";"
+PowerSupply.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Collect.Source(1).Compute(1).SelectColumns="2,3,5"
+
+// Duplicate the status column
+// PowerSupplyID; status ; status ;
+PowerSupply.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+
+// Now translate first status column from "OK/Degraded/Failed" into OK/Warning/Alarm
+// powerSupplyID;PATROLStatus;status;  (using table in Enclosure Section)
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=2
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="OKDegradedFailedTranslationTable"
+
+// Translate the second status column into a more readable String
+// powerSupplyID;PATROLStatus;statusInformation;
+PowerSupply.Collect.Source(1).Compute(4).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(4).Column=3
+PowerSupply.Collect.Source(1).Compute(4).TranslationTable="OKDegradedFailedStatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+PowerSupply.Collect.UsedWatts=ValueTable.Column(4)
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
+
+// Now, extract the power supplies thanks to a smart AWK script
+//  RETURNS MSHW;FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
+//  SELECTS FanID
+// FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
+Fan.Discovery.Source(1).Compute(1).Type="Awk"
+Fan.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Fan.Discovery.Source(1).Compute(1).Separators=";"
+Fan.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(1).Compute(1).SelectColumns="2"
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(7)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(7)%
+
+// Now, extract the power supplies status thanks to a smart AWK script
+//  RETURNS MSHW; FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
+//  SELECTS FanID; status ; fan Speed Percent
+
+Fan.Collect.Source(1).Compute(1).Type="Awk"
+Fan.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Fan.Collect.Source(1).Compute(1).Separators=";"
+Fan.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+// status;fanState;  (using table in Enclosure Section)
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column="2"
+Fan.Collect.Source(1).Compute(2).TranslationTable="OKDegradedFailedTranslationTable"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.SpeedPercent=ValueTable.Column(3)
+
+
+//
+// Temperatures
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
+
+// Now, extract the power supplies thanks to a smart AWK script
+//  RETURNS MSHW; ID, status, temperature, high caution value, high critical value, statusActivate, temperatureActivate
+//  SELECTS id, high caution value, high critical value, statusActivate, temperatureActivate
+Temperature.Discovery.Source(1).Compute(1).Type="Awk"
+Temperature.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+Temperature.Discovery.Source(1).Compute(1).Separators=";"
+Temperature.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Discovery.Source(1).Compute(1).SelectColumns="2,5,6,7,8"
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(2)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(4)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(5)
+Temperature.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(2)
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(7)%
+
+// Now, extract the power supplies status thanks to a smart AWK script
+//  RETURNS MSHW; ID, status, temperature, high caution value, high critical value, statusActivate, temperatureActivate
+//  SELECTS id, status, temperature
+
+Temperature.Collect.Source(1).Compute(1).Type="Awk"
+Temperature.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+Temperature.Collect.Source(1).Compute(1).Separators=";"
+Temperature.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+// status;powerState;  (using table in Enclosure Section)
+Temperature.Collect.Source(1).Compute(2).Type="Translate"
+Temperature.Collect.Source(1).Compute(2).Column="2"
+Temperature.Collect.Source(1).Compute(2).TranslationTable="OKDegradedFailedTranslationTable"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(3)
+
+//
+// Blades
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
+
+// Now, extract the blades thanks to a smart AWK script
+//  RETURNS MSHW; bladeID;bladeName;bladeModel;serialNumber
+//  SELECTS bladeID;bladeName;bladeModel;serialNumber
+
+Blade.Discovery.Source(1).Compute(1).Type="Awk"
+Blade.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(6)
+Blade.Discovery.Source(1).Compute(1).Separators=";"
+Blade.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Blade.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5"
+
+
+// InstanceTable = Source(3)
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.BladeName=InstanceTable.Column(2)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(3)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Blade.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(2)
+Blade.Collect.Source(1)=%Enclosure.Collect.Source(7)%
+
+// Now, extract the blade status thanks to a smart AWK script
+//  RETURNS MSHW; bladeID;bladeHealth;bladeInformation
+//  SELECTS  bladeID;bladeHealth;bladeInformation;bladePower;
+
+Blade.Collect.Source(1).Compute(1).Type="Awk"
+Blade.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(7)
+Blade.Collect.Source(1).Compute(1).Separators=";"
+Blade.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Blade.Collect.Source(1).Compute(1).SelectColumns="2,3,4,5"
+
+// Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+// status
+Blade.Collect.Source(1).Compute(2).Type="Translate"
+Blade.Collect.Source(1).Compute(2).Column="2"
+Blade.Collect.Source(1).Compute(2).TranslationTable="OKDegradedFailedTranslationTable"
+
+// ValueTable = Source(1)
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(1)
+Blade.Collect.Status=ValueTable.Column(2)
+Blade.Collect.StatusInformation=ValueTable.Column(3)
+Blade.Collect.PowerState=ValueTable.Column(4)
+
+
+//
+// Other Devices (switches, DRAC/MC, KVM)
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
+
+// Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
+//  RETURNS MSHW; otherDeviceID;deviceType;deviceName
+//  SELECTS  OtherDeviceID;DeviceType;DeviceName
+
+OtherDevice.Discovery.Source(1).Compute(1).Type="Awk"
+OtherDevice.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(8)
+OtherDevice.Discovery.Source(1).Compute(1).Separators=";"
+OtherDevice.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// InstanceTable = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
+
+//
+// Collect
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(7)%
+
+// Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
+//  RETURNS MSHW; otherDeviceID; status ; status (same as column 3);
+//  SELECTS  otherDeviceID; status ; status ;
+
+OtherDevice.Collect.Source(1).Compute(1).Type="Awk"
+OtherDevice.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(9)
+OtherDevice.Collect.Source(1).Compute(1).Separators=";"
+OtherDevice.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+// status;powerState;  (using table in Enclosure Section)
+OtherDevice.Collect.Source(1).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(2).Column="2"
+OtherDevice.Collect.Source(1).Compute(2).TranslationTable="OKDegradedFailedTranslationTable"
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the output of show enclosure info
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN                  { FS = ":"; model = ""; serialNumber = ""; }
+$1 ~ /Enclosure Type/  { model = $2; }
+$1 ~ /Serial Number/   { serialNumber = $2; }
+END                    { print "MSHW;" model ";" serialNumber; }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that parse the output of show enclosure status
+///                      and returns the overall status of the chassis as well as the power consumption
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN  { powerConsumption = ""; status = "" ; lastLine = "" ;}
+
+( lastLine ~ /Enclosure/ && $0 ~ /Status/ ) { status = $2 }
+( $0 ~ /Present Power/ ) { powerConsumption = $3	}
+{ lastLine = $0}
+
+END  { print "MSHW;" status ";" powerConsumption ";"}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that parse the output of show enclosure powersupply all
+///                      and returns the ID, status, Power Capacity
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN  {powerSupplyID = ""; status ="" ; powerCapacity ="" ; lastLine=$0 }
+{skip=1}
+/show enclosure powersupply all/,/show enclosure fan all/ {skip = 0}
+skip == 1 {next}
+$0 ~ /^Power Supply #[0-9]/ { powerSupplyID = $0 ; status ="" ; powerCapacity ="" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",powerSupplyID) ; gsub (/#/,"",powerSupplyID) ;}
+( lastLine ~ /^Power Supply #/ && $0 ~ /Status/ ) { status = $2}
+$1 ~ /^Capacity:/ { powerCapacity = $2 }
+$1 ~ /^Current/ { powerCurrent = $4 }
+$1 ~ /^Spare/ && (powerSupplyID != "") { sparePartNumber = $4 ;
+             print ("MSHW;" powerSupplyID ";" status ";" powerCapacity ";" powerCurrent ";" );
+             powerSupplyID = "" ; }
+{ lastLine = $0 }
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(4) = awk script that parse the output of show enclosure fan all
+///                      and returns the ID, status, fan Speed Percent, Fan Min, Fan Max
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(4):
+BEGIN  {fanID = ""; status ="" ; fanSpeedPercent ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; lastLine=$0 }
+{skip=1}
+/show enclosure fan all/,/show enclosure temp/ {skip = 0}
+skip == 1 {next}
+
+$0 ~ /^Fan #[0-9]/ { fanID = $0 ; status ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",fanID) ; gsub (/#/,"",fanID)}
+( lastLine ~ /^Fan #/ && $0 ~ /Status/ ) { status = $2}
+$1 ~ /^Speed/ {fanSpeedPercent = $2 }
+$1 ~ /^Maximum/ { fanMax = $3 }
+$1 ~ /^Minimum/ { fanMin = $3 }
+($1 ~ /^Spare/) && (fanID != "") { sparePartNumber = $4  ;
+             print ( "MSHW;" fanID ";" status ";" fanSpeedPercent ";" fanMin ";" fanMax ";" ) ;
+             fanID = "" ;}
+
+{ lastLine = $0 }
+EmbeddedFile(4).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = awk script that parse the output of show enclosure temp
+///                      and returns the ID, status, temperature, high caution value, high critical value, statusActivate, temperatureActivate
+///                      Spaces and Cs are removed
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+BEGIN  {IDlength="";BayNumFound=0}
+/show/,/show enclosure temp/ {next}
+$0 ~ /Bay #/ {BayNumFound=1}
+($1 ~ /^-+$/ && $2 ~ /^-+$/ && $3 ~ /^-+$/ && $4 ~ /^-+$/ && $5 ~ /^-+$/ ) { IDlength = length($1)
+	                                                                                if (BayNumFound==1) {IDlength = IDlength + 1 + length($2)}
+	                                                                              }
+NF < 5 { next }
+{tempSensorID = ""}
+{ if ($NF == "---" && $(NF-3) ~ /C/) { tempStatus = $(NF-4) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+        else if ($NF == "---" ) { tempStatus = $(NF-3) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+        else if ($NF ~ /C/ && $(NF-2) ~ /C/)  {tempStatus = $(NF-3) ; temp = $(NF-2) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+        else if ($NF ~ /C/ && $(NF-3) ~ /C/)  {tempStatus = $(NF-4) ; temp = $(NF-3) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+        else {next}
+        }
+{ if ( tempStatus  ~ /^[nN].?[aA]/ ) { statusActivate=""}
+	      else { statusActivate = "2" }
+      }
+{ tempSensorID = substr($0,1,IDlength) }
+
+#{ print ( "MSHWDB;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
+
+{ gsub (/ /,"",tempSensorID) }
+{ gsub ("[ C/]","",temp) }
+{ gsub (/[ C]/,"",tempCaution) }
+{ gsub (/[ C]/,"",tempCritical) }
+{ gsub (/[oO]nboard[aA]dministrator/,"OA",tempSensorID) }
+{ gsub (/[iI]nterconnect[mM]odule/,"IC",tempSensorID) }
+
+(statusActivate != "" || temperatureActivate != "" ){ print ( "MSHW;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
+EmbeddedFile(5).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(6) = awk script that parse the output of show server info all
+///    and returns bladeID;bladeName;bladeModel;serialNumber
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(6):
+{skip=1}
+/show server info all/,/show enclosure powersupply all/ {skip = 0}
+skip == 1 {next}
+
+$0 ~ /^Server Blade #[0-9]/ { bladeID = $3 ; bladeName = "" ; serialNumber ="" ; gsub (/#/,"",bladeID) ; }
+$1 ~ /^Product/ { bladeModel = $0 ; gsub (/Product Name:/,"",bladeModel) ; gsub (/\t/,"",bladeModel)}
+$1 ~ /^Physical/ { serialNumber = $6 ; }
+($1 ~ /Server/ && $2 ~ /Name/) { serverName = $3 ;
+              print ( "MSHW;" bladeID ";" serverName ";" bladeModel ";" serialNumber ";") ;
+             }
+EmbeddedFile(6).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(7) = awk script that parse the output of show server status all
+///    and returns bladeID;bladeHealth;bladeInformation
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(7):
+{skip=1}
+/show server status all/,/show enclosure powersupply all/ {skip = 0}
+skip == 1 {next}
+
+$0 ~ /^Blade #[0-9]/ { bladeID = $2 ; gsub (/#/,"",bladeID) ; }
+$1 ~ /^Power/ && $2 ~ /^Off/ { bladePower = tolower($2) }
+$1 ~ /^Power/ && $2 ~ /^On/ { bladePower = tolower($2) }
+$1 ~ /^Health/ { bladeStatus = $2 ;
+                 print ( "MSHW;" bladeID ";" bladeStatus ";" bladeStatus ";" bladePower ";") ;
+                 bladeID = "" ; bladeOff = "" ; }
+EmbeddedFile(7).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(8) = awk script that parse the output of show interconnect info all
+///    and returns otherDeviceID;deviceType;deviceName
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(8):
+{skip=1}
+/show interconnect info all/,/show server info all/ {skip = 0}
+skip == 1 {next}
+
+( $1 ~ /^[0-9]/ && $1 ~ /.$/ ) { otherDeviceID = $1 ; deviceType = $2 ; gsub (/\./,"",otherDeviceID) ; }
+$1 ~ /^Product/ { deviceName = $0 ; gsub (/Product Name: /,"",deviceName) ; gsub (/\t/,"",deviceName)
+                  print ( "MSHW;" otherDeviceID ";IC Switch - " deviceType ";" deviceName ";" ) ;
+                  otherDeviceID = "" ; }
+EmbeddedFile(8).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(9) = awk script that parse the output of show interconnect status all
+///    and returns otherDeviceID; status ; status ;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(9):
+BEGIN { lastLine = "" }
+{ skip=1 }
+/show interconnect status all/,/show server status all/ { skip = 0 }
+(skip == 1) { next }
+($1 ~ /^Interconnect/) { otherDeviceID = $3 ; gsub(/#/, "", otherDeviceID) ; }
+($1 ~ /tatus/ && lastLine ~ /Interconnect/ ) {
+  status = $NF
+  print "MSHW;" otherDeviceID ";" status ";" status ";"
+  otherDeviceID = ""
+}
+{ lastLine = $0 }
+EmbeddedFile(9).End
+/////////////////////////////////////////////////////////////////////

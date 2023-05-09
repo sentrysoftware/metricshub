@@ -1,0 +1,143 @@
+---
+extends:
+- FibreAllianceSwitchCommon-header
+connector:
+  displayName: Fibre Alliance SNMP Agent (Switches)
+  platforms: Any SAN switch
+  reliesOn: Fibre Alliance SNMP Agent (FCMGMT-MIB)
+  version: 1.0
+  information: "This connector discovers the enclosure and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol and supports the Fibre Alliance MIB (FCMGMT-MIB)."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - GenericSwitchEnclosure
+    criteria:
+    - type: snmpGetNext
+      oid: 1.3.6.1.3.94.1.6.1.3
+      expectedResult: \(^4$\)\|\(^14$\)
+monitors:
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = connUnitSensorTable SNMP Table
+          # SensorID;ComputerID;SensorName;SensorCharacteristic;
+          type: snmpTable
+          oid: 1.3.6.1.3.94.1.8.1
+          selectColumns: "ID,1,3,8"
+          computes:
+            # Keep only fan sensors
+            # SensorID;ComputerID;SensorName;SensorType;
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 7
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = connUnitSensorTable SNMP Table
+          # SensorID;Status;Message;
+          type: snmpTable
+          oid: 1.3.6.1.3.94.1.8.1
+          selectColumns: "ID,4,6"
+          computes:
+            # Translate the first column status into a PATROLStatus
+            # SensorID;PATROLStatus;Message
+          - type: translate
+            column: 2
+            translationTable: SensorStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = connUnitSensorTable SNMP Table
+          # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+          type: snmpTable
+          oid: 1.3.6.1.3.94.1.8.1
+          selectColumns: "ID,1,3,8,7"
+        source(2):
+          # Source(2) = Source(1)  - Source 2 will be for sensors of Characteristic \"Power\", i.e. Brocade and Cisco Switches.
+          type: copy
+          from: $monitors.power_supply.discovery.sources.source(1)$
+          computes:
+            # Keep only power supply (Characteristics)
+            # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 9
+        source(3):
+          # Source(2) = Source(1)  - Source 2 will be for sensors of Type \"Power-Supply\" but of Characteristic \"Other\", i.e. McData
+          type: copy
+          from: $monitors.power_supply.discovery.sources.source(1)$
+          computes:
+            # Keep only power supply (SensorType)
+            # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+          - type: keepOnlyMatchingLines
+            column: 5
+            valueList: 5
+            # Keep only sensors of Characteristic "Other"
+            # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 2
+        source(4):
+          # Source(4) = union of Source(2) and Source(3)
+          # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+          type: tableUnion
+          tables:
+          - $monitors.power_supply.discovery.sources.source(2)$
+          - $monitors.power_supply.discovery.sources.source(3)$
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          power_supply_type: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = connUnitSensorTable SNMP Table
+          # SensorID;Status;Message;
+          type: snmpTable
+          oid: 1.3.6.1.3.94.1.8.1
+          selectColumns: "ID,4,6"
+          computes:
+            # Translate the first column status into a PATROLStatus
+            # SensorID;PATROLStatus;Message
+          - type: translate
+            column: 2
+            translationTable: SensorStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)

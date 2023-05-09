@@ -1,0 +1,225 @@
+---
+extends:
+- MIB2-header
+connector:
+  displayName: Aruba (SNMP)
+  platforms: Aruba
+  reliesOn: SNMP Agent
+  version: 1.0
+  information: "This connector discovers the Aruba Network Switch enclosure as well as various environment sensors (temperature, fans, power supplies). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Network
+    supersedes:
+    - GenericSwitchEnclosure
+    - MIB2
+    criteria:
+      # Detection Criteria 1
+      # Check for WLSX-SYSTEMEXT-MIB entry
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.14823.2.2.1.2
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # hostname
+          type: snmpGet
+          oid: 1.3.6.1.4.1.14823.2.2.1.2.1.2.0
+        source(2):
+          # model
+          type: snmpGet
+          oid: 1.3.6.1.4.1.14823.2.2.1.2.1.3.0
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: Chassis
+          __display_id: $column(1)
+          model: $monitors.enclosure.discovery.sources.source(2)$
+          vendor: Aruba
+          device_hostname: $monitors.enclosure.discovery.sources.source(1)$
+          type: Switch
+          name: "sprintf(\"Switch: %s (%s %s)\", $column(1), \"Aruba\", \"$monitors.enclosure.discovery.sources.source(2)$\")"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.14823.2.2.1.2.1.18.1
+          selectColumns: "ID,2"
+          computes:
+          - type: duplicateColumn
+            column: 1
+          - type: leftConcat
+            column: 2
+            value: 'PSU '
+          - type: excludeMatchingLines
+            column: 3
+            regExp: 2
+      mapping:
+        # ID;Name;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(2)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.14823.2.2.1.2.1.18.1
+          selectColumns: "ID,2"
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: SensorStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: SensorStatusInformationTranslationTable
+      mapping:
+        # Id;PatrolStatus;StatusInformation
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.14823.2.2.1.2.1.17.1
+          selectColumns: "ID,2"
+          computes:
+          - type: duplicateColumn
+            column: 1
+          - type: leftConcat
+            column: 2
+            value: fan
+          - type: excludeMatchingLines
+            column: 3
+            regExp: 2
+      mapping:
+        # ID;Name;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(2)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.14823.2.2.1.2.1.17.1
+          selectColumns: "ID,2"
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: SensorStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: SensorStatusInformationTranslationTable
+      mapping:
+        # Id;PatrolStatus;StatusInformation
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: static
+          value: InternalTemperature
+      mapping:
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: Internal Temperature
+          hw.parent.type: enclosure
+          name: Internal Temperature
+    collect:
+      sources:
+        source(1):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.14823.2.2.1.2.1.10.0
+          computes:
+          # Duplicate Temperature String
+          - type: duplicateColumn
+            column: 1
+          # Extract Temperature
+          - type: extract
+            column: 1
+            subColumn: 1
+            subSeparators: ' '
+          # Extract Status
+          - type: extract
+            column: 2
+            subColumn: 4
+            subSeparators: ' '
+          # Duplicate Status
+          - type: duplicateColumn
+            column: 2
+          # Translate Status
+          - type: translate
+            column: 2
+            translationTable: TemperatureStatusTranslationTable
+          # Translate StatusInformation
+          - type: translate
+            column: 3
+            translationTable: TemperatureStatusInformationTranslationTable
+      mapping:
+        # Temperature;PatrolStatus;StatusInformation;
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: InternalTemperature
+        metrics:
+          hw.temperature: $column(1)
+          hw.status{hw.type="temperature"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      mapping:
+        # add network card discovery present in mib2.hdf and not in mib2.hhdf
+        # PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(7)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          device_type: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+translations:
+  TemperatureStatusTranslationTable:
+    default: failed
+    (normal): ok
+  SensorStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  TemperatureStatusInformationTranslationTable:
+    default: Temperature outside normal range.
+    (normal): ""
+  SensorStatusInformationTranslationTable:
+    "1": Active
+    "2": Inactive
+    default: Unknown Status

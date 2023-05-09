@@ -6,22 +6,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.json.JsonException;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 
 class ConnectorLibraryConverterTest {
 
+	private static final String YAML_IS_INVALID_FORMAT = "YAML is invalid! %s, %s";
 	private static final String HDF_DIRECTORY = "src/test/resources/hdf";
 	private static final String YAML_DIRECTORY = "src/test/resources/yaml";
 
@@ -30,36 +27,45 @@ class ConnectorLibraryConverterTest {
 
 	@Test
 	void testProcess() throws IOException {
-		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
-		processor.process();
-		final File dell = tempDir.resolve("DellOpenManage.yaml").toFile();
-		final File emc = tempDir.resolve("DellEMCPowerStoreREST.yaml").toFile();
-		assertTrue(dell.exists());
-		assertTrue(emc.exists());
-	}
-
-	@Test
-	void testProcessNode() throws IOException { 
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
-		
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
 
-		final Path expectedPath = Path.of(YAML_DIRECTORY, "DellOpenManage.yaml");
+		for (File yamlFile : List.of(processor.getOutputDirectory().toFile().list()).stream()
+				.map(x -> new File(processor.getOutputDirectory().toAbsolutePath() + "/" + x)).toList()) {
 
-		final File inputFile = tempDir.resolve("DellOpenManage.yaml").toFile();
-		final File expectedFile = expectedPath.toFile();
-		
-		assertTrue(inputFile.exists());
-		assertTrue(expectedFile.exists());
+			final File expected = Path.of(YAML_DIRECTORY, yamlFile.getName()).toFile();
 
-		final JsonNode expectedNode = mapper.readTree(expectedFile);
-		JsonNode inputNode = mapper.readTree(inputFile);
+			assertTrue(expected.exists());
+			assertTrue(yamlFile.exists());
 
-		removeJsonField((ObjectNode) inputNode);
+			JsonNode expectedNode = null;
+			JsonNode yaml = null;
 
-		// Comparing objects (no comments involved)
-		assertEquals(expectedNode.toPrettyString(), inputNode.toPrettyString());
+			try {
+				yaml = mapper.readTree(yamlFile);
+				
+				if(yaml.findValues("_comment").size() != 0) {
+					Assertions.fail(String.format("_comment node found! in %s", yamlFile.getAbsolutePath()));
+				}
+
+			} catch (Exception e) {
+				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, yamlFile, yaml));
+			}
+
+			try {
+				expectedNode = mapper.readTree(expected);
+
+				if(expectedNode.findValues("_comment").size() != 0) {
+					Assertions.fail(String.format("_comment node found! in %s", expected.getAbsolutePath()));
+				}
+
+			} catch (Exception e) {
+				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, expected, expectedNode));
+			}
+
+			assertEquals(expectedNode, yaml, () -> "Assertion failed on file: " + yamlFile.getName());
+		}
 	}
 
 	@Test
@@ -67,44 +73,27 @@ class ConnectorLibraryConverterTest {
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
 
-		final Path expectedPath = Path.of(YAML_DIRECTORY, "DellOpenManage.yaml");
+		for (File inputFile : List.of(processor.getOutputDirectory().toFile().list()).stream()
+				.map(x -> new File(processor.getOutputDirectory().toAbsolutePath() + "/" + x)).toList()) {
 
-		final File inputFile = tempDir.resolve("DellOpenManage.yaml").toFile();
-		final File expectedFile = expectedPath.toFile();
-		
-		assertTrue(inputFile.exists());
-		assertTrue(expectedFile.exists());
+			final File expectedFile = Path.of(YAML_DIRECTORY, inputFile.getName()).toFile();
 
-		final List<String> inputLines = Files.readAllLines(Path.of(inputFile.getAbsolutePath()));
-		final List<String> expectedLines = Files.readAllLines(expectedPath);
+			assertTrue(expectedFile.exists());
+			assertTrue(inputFile.exists());
 
-		assertEquals(expectedLines.size(), inputLines.size());
+			final List<String> inputLines = Files.readAllLines(inputFile.toPath());
+			final List<String> expectedLines = Files.readAllLines(expectedFile.toPath());
 
-		for (int i = 0; i < expectedLines.size(); i++) {
-			final int index = i;
-			assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index);
-		}
-
-	}
-
-	private static void removeJsonField(ObjectNode obj) throws JsonException{
-		obj.remove("_comment");
-	
-		Iterator<String> it = obj.fieldNames();
-		while(it.hasNext()){
-			String key = it.next();
-			Object childObj = obj.get(key);
-			if(childObj instanceof ArrayNode){
-				ArrayNode arrayChildObjs =((ArrayNode)childObj);
-				int size = arrayChildObjs.size();
-				for(int i=0;i<size;i++){
-					if (arrayChildObjs.get(i) instanceof ObjectNode){
-						removeJsonField((ObjectNode)arrayChildObjs.get(i));
-					}
-				}
+			// Sanity
+			if(inputLines.contains("_comment")) {
+				Assertions.fail("_comment node not processed!");
 			}
-			if(childObj instanceof ObjectNode){
-				removeJsonField((ObjectNode)childObj);
+
+			assertEquals(expectedLines.size(), inputLines.size());
+
+			for (int i = 0; i < expectedLines.size(); i++) {
+				final int index = i;
+				assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index);
 			}
 		}
 	}

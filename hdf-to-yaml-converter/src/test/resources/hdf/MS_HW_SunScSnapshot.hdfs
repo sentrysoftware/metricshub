@@ -1,0 +1,698 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//             MS_HW_SunScSnapshot.hdf
+//
+//      Supports: Sun SPARC T1/T2 systems equipped with an ALOM-CMT card
+//		Monitors: almost everything except memory modules (like usual) and network cards -- OPERATES LOCALLY (IN-BAND)
+//      Connects to: the 'snapshot' utility that comes with SUN Explorer (SUNWexplo package)
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="Oracle/Sun Solaris - Environment (ALOM-CMT snapshot)"
+hdf.TypicalPlatform="Oracle/Sun"
+hdf.ReliesOn="Sun Explorer and the ALOM-CMT card"
+hdf.Comments="Gives environmental and disk information (temperatures, fans, etc.) on Sun SPARC T1/T2 servers equipped with an ALOM card. Gathers the hardware information from the ALOM card in-band (no SSH connection over the network). Requires the SUNWexplo (Sun Explorer) package."
+hdf.Version="1.1"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="true"
+hdf.AppliesToOS="Solaris"
+hdf.Supersedes="MS_HW_IpmiTool.hdf"
+
+//
+// SUDO-ABLE COMMANDS
+//
+Sudo(1).Command="/opt/SUNWexplo/bin/snapshot"
+
+
+//
+// DETECTION
+//
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="SunOS,Solaris"
+
+// Only on sun4v systems
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/bin/uname -m"
+Detection.Criteria(2).ExpectedResult="^sun4v$"
+
+Detection.Criteria(3).Type="OSCommand"
+Detection.Criteria(3).CommandLine="/bin/ls /opt/SUNWexplo/bin/snapshot"
+Detection.Criteria(3).ExpectedResult="^/opt/SUNWexplo/bin/snapshot$"
+Detection.Criteria(3).ErrorMessage="Sun Explorer's snapshot utility is not installed."
+
+Detection.Criteria(4).Type="OSCommand"
+Detection.Criteria(4).ForceSerialization=1
+Detection.Criteria(4).CommandLine="while /usr/bin/pgrep ""^snapshot$"">/dev/null; do /usr/bin/sleep 1; done;/usr/bin/echo showplatform -v,13,14>/tmp/MS_HW_snapshot.test;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c /tmp/MS_HW_snapshot.test -v|/usr/bin/dos2unix -ascii -437;/usr/bin/rm -f /tmp/MS_HW_snapshot.test"
+Detection.Criteria(4).ExpectedResult="^SUNW,"
+Detection.Criteria(4).ErrorMessage="Sun Explorer's snapshot utililty does not seem to be able to connect to the SC."
+
+
+//
+// ENCLOSURE
+//
+
+//
+// Discovery
+
+// Source(1) = Output of the showenvironment command + uname -i
+// Since the prtdiag connector is now disabled for sun4v systems, this connector needs to at least
+// create the enclosure icon even though the snapshot command does not work (because Sun Explorer
+// wasn't installed, or root credentials were not provided)
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).ForceSerialization=1
+Enclosure.Discovery.Source(1).CommandLine="while /bin/pgrep ""^snapshot$"">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(1)%|/bin/dos2unix -ascii -437;/bin/uname -i"
+
+// Reformat snapshot and uname's output through awk (see EmbeddedFile(3))
+// Model;
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2"
+
+// Replace '-' with blanks (because model is displayed as Sun-Fire-T200)
+// Model;
+Enclosure.Discovery.Source(1).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(1).Compute(2).Column=1
+Enclosure.Discovery.Source(1).Compute(2).Replace="-"
+Enclosure.Discovery.Source(1).Compute(2).ReplaceBy=" "
+
+// InstanceTable = Source(1)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="sun4v"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+
+
+// Now, execute the showenvironment variable
+// and store the result in Enclosure.Discovery.Source(2)
+// other discoveries will only copy this source, we save time this way
+
+// Source(2) = Output of the showenvironment command
+Enclosure.Discovery.Source(2).Type="OsCommand"
+Enclosure.Discovery.Source(2).ForceSerialization=1
+Enclosure.Discovery.Source(2).CommandLine="while /bin/pgrep ""^snapshot$"">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
+Enclosure.Discovery.Source(2).Separators=" \t"
+Enclosure.Discovery.Source(2).SelectColumns="1-"
+
+// In the first column, which is supposed to contain the deviceID, replace dots (.) by slashes
+// so that we will be able to support both the Sun Fire V210, V240 and V440 line and the T1-based line
+// in the same time
+Enclosure.Discovery.Source(2).Compute(1).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(1).Column="1"
+Enclosure.Discovery.Source(2).Compute(1).Replace="."
+Enclosure.Discovery.Source(2).Compute(1).ReplaceBy="/"
+
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = Output of the showenvironment command
+Enclosure.Collect.Source(1).Type="OsCommand"
+Enclosure.Collect.Source(1).ForceSerialization=1
+Enclosure.Collect.Source(1).CommandLine="while /bin/pgrep ""^snapshot$"">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
+Enclosure.Collect.Source(1).Separators=" \t"
+Enclosure.Collect.Source(1).SelectColumns="1-"
+
+// In the first column, which is supposed to contain the deviceID, replace dots (.) by slashes
+// so that we will be able to support both the Sun Fire V210, V240 and V440 line and the T1-based line
+// in the same time
+Enclosure.Collect.Source(1).Compute(1).Type="Replace"
+Enclosure.Collect.Source(1).Compute(1).Column="1"
+Enclosure.Collect.Source(1).Compute(1).Replace="."
+Enclosure.Collect.Source(1).Compute(1).ReplaceBy="/"
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable="sun4v"
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+//Enclosure.Collect.StatusInformation=ValueTable.Column(2)
+//
+//
+
+//
+// FANS
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep only lines where the first column (the supposed fan ID) matches with ^FT[0-9] or /F[0-9]/ or ^F[0-9]/
+// FanID;status;speed;warning;alarm
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column="1"
+Fan.Discovery.Source(1).Compute(1).RegExp="\(^FT[0-9]\)\|\(/F[0-9]/\)\|\(^F[0-9]\)\|\(/FM[0-9]/F\)"
+
+// Exclude things that are obviously not fans
+// FanID;status;speed;warning;alarm
+Fan.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Discovery.Source(1).Compute(2).Column="1"
+Fan.Discovery.Source(1).Compute(2).RegExp="/T_"
+
+// Replace dashes ("-") in the thresholds by nothing
+// FanID;status;speed;warning;alarm
+Fan.Discovery.Source(1).Compute(3).Type="Replace"
+Fan.Discovery.Source(1).Compute(3).Column="4"
+Fan.Discovery.Source(1).Compute(3).Replace="-"
+Fan.Discovery.Source(1).Compute(3).ReplaceBy=""
+Fan.Discovery.Source(1).Compute(4).Type="Replace"
+Fan.Discovery.Source(1).Compute(4).Column="5"
+Fan.Discovery.Source(1).Compute(4).Replace="-"
+Fan.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Instance Table = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(1)
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(4)
+Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(5)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// Yeah that's kind of weird. Fan collect values will be refreshed only when/whether
+// enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only lines where the first column (the supposed fan ID) matches with ^FT[0-9] or /F[0-9]/ or ^F[0-9]/
+// FanID;status;speed;warning;alarm
+Fan.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(1).Compute(1).Column="1"
+Fan.Collect.Source(1).Compute(1).RegExp="\(^FT[0-9]\)\|\(/F[0-9]/\)\|\(^F[0-9]\)\|\(/FM[0-9]/F\)"
+
+// Exclude things that are obviously not fans
+// FanID;status;speed;warning;alarm
+Fan.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Collect.Source(1).Compute(2).Column="1"
+Fan.Collect.Source(1).Compute(2).RegExp="/T_"
+
+// Duplicate the status column
+// FanID;status;status;speed;warning;alarm
+Fan.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(3).Column="2"
+
+// Translate the first column into a PATROL Status
+// FanID;PATROLStatus;status;speed;warning;alarm
+Fan.Collect.Source(1).Compute(4).Type="Translate"
+Fan.Collect.Source(1).Compute(4).Column="2"
+Fan.Collect.Source(1).Compute(4).TranslationTable="FanStatusTranslationTable"
+
+// The FanStatusTranslationTable
+FanStatusTranslationTable("OK")="OK"
+FanStatusTranslationTable("faulty")="WARN"
+FanStatusTranslationTable(Default)="ALARM"
+
+// ValueTable = Source(3)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+Fan.Collect.Speed=ValueTable.Column(4)
+
+
+//
+// TEMPERATURES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep only lines where the first column (the supposed temperature ID) matches with /T_ or /TCORE
+// TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column="1"
+Temperature.Discovery.Source(1).Compute(1).RegExp="\(/T_\)\|\(/TCORE\)"
+
+// Replace dashes ("-") in the thresholds by nothing
+// TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
+Temperature.Discovery.Source(1).Compute(2).Type="Replace"
+Temperature.Discovery.Source(1).Compute(2).Column="7"
+Temperature.Discovery.Source(1).Compute(2).Replace="-"
+Temperature.Discovery.Source(1).Compute(2).ReplaceBy=""
+Temperature.Discovery.Source(1).Compute(3).Type="Replace"
+Temperature.Discovery.Source(1).Compute(3).Column="8"
+Temperature.Discovery.Source(1).Compute(3).Replace="-"
+Temperature.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Instance Table = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(1)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(7)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(8)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// Yeah that's kind of weird. Temperature collect values will be refreshed only when/whether
+// enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only lines where the first column (the supposed fan ID) matches with /T_ or /TCORE
+// TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column="1"
+Temperature.Collect.Source(1).Compute(1).RegExp="\(/T_\)\|\(/TCORE\)"
+
+// Duplicate the status column
+// TemperatureID;Status;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
+Temperature.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(2).Column="2"
+
+// Translate the first column into a PATROL Status
+// TemperatureID;PATROLStatus;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column="2"
+Temperature.Collect.Source(1).Compute(3).TranslationTable="TemperatureStatusTranslationTable"
+
+// The TemperatureStatusTranslationTable
+TemperatureStatusTranslationTable("OK")="OK"
+TemperatureStatusTranslationTable("faulty")="WARN"
+TemperatureStatusTranslationTable(Default)="ALARM"
+
+// ValueTable = Source(3)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+Temperature.Collect.Temperature=ValueTable.Column(4)
+
+
+//
+// VOLTAGES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Voltage.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep only lines where the first column (the supposed Voltage ID) matches with /V_
+// VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column="1"
+Voltage.Discovery.Source(1).Compute(1).RegExp="/V_"
+
+// Replace dashes ("-") in the thresholds by nothing
+// VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
+Voltage.Discovery.Source(1).Compute(2).Type="Replace"
+Voltage.Discovery.Source(1).Compute(2).Column="5"
+Voltage.Discovery.Source(1).Compute(2).Replace="--"
+Voltage.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// Convert volts into millivolts
+// VoltageID;Status;Voltage;LowSoft;LowWarnMilli;HighWarnMilli;HighSoft
+Voltage.Discovery.Source(1).Compute(3).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(3).Column="5"
+Voltage.Discovery.Source(1).Compute(3).MultiplyBy="1000"
+Voltage.Discovery.Source(1).Compute(4).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(4).Column="6"
+Voltage.Discovery.Source(1).Compute(4).MultiplyBy="1000"
+
+// Instance Table = Source(1)
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(1)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(5)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(6)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// Yeah that's kind of weird. Voltage collect values will be refreshed only when/whether
+// enclosure collect values are refreshed. This is to spare some unneeded telnet sessions.
+Voltage.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only lines where the first column (the supposed Voltage ID) matches with /V_
+// VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
+Voltage.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Collect.Source(1).Compute(1).Column="1"
+Voltage.Collect.Source(1).Compute(1).RegExp="/V_"
+
+// Duplicate the status column
+// VoltageID;Status;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
+Voltage.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Voltage.Collect.Source(1).Compute(2).Column="2"
+
+// Translate the first column into a PATROL Status
+// VoltageID;Status;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
+Voltage.Collect.Source(1).Compute(3).Type="Translate"
+Voltage.Collect.Source(1).Compute(3).Column="2"
+Voltage.Collect.Source(1).Compute(3).TranslationTable="VoltageStatusTranslationTable"
+
+// The VoltageStatusTranslationTable
+VoltageStatusTranslationTable("OK")="OK"
+VoltageStatusTranslationTable("faulty")="WARN"
+VoltageStatusTranslationTable(Default)="ALARM"
+
+// Convert volts into millivolts
+// VoltageID;Status;Status;VoltageMilli;LowSoft;LowWarn;HighWarn;HighSoft
+Voltage.Collect.Source(1).Compute(4).Type="Multiply"
+Voltage.Collect.Source(1).Compute(4).Column="4"
+Voltage.Collect.Source(1).Compute(4).MultiplyBy="1000"
+
+// ValueTable = Source(3)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(1)
+Voltage.Collect.Status=ValueTable.Column(2)
+Voltage.Collect.StatusInformation=ValueTable.Column(3)
+Voltage.Collect.Voltage=ValueTable.Column(4)
+
+
+
+//
+// POWER SUPPLIES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
+// and whose 5th column contains either "ON" or "OFF"
+// PowerSupplyID;Status;Underspeed;Overtemp;Overvolt;Undervolt;Overcurrent
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=1
+PowerSupply.Discovery.Source(1).Compute(1).RegExp="\(^PS[0-9]\)\|\(/PS[0-9]$\)"
+PowerSupply.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(2).Column=5
+PowerSupply.Discovery.Source(1).Compute(2).RegExp="^O[NF]+$"
+
+// Source(2) = copy of Enclosure.Discovery.Source(2)
+PowerSupply.Discovery.Source(2)=%Enclosure.Discovery.Source(2)%
+
+// Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
+// and whose 2nd column is "PRESENT"
+// PowerSupplyID;Present;Status;
+PowerSupply.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(2).Compute(1).Column=1
+PowerSupply.Discovery.Source(2).Compute(1).RegExp="\(^PS[0-9]\)\|\(/PS[0-9]$\)"
+PowerSupply.Discovery.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(2).Compute(2).Column=2
+PowerSupply.Discovery.Source(2).Compute(2).RegExp="^PRESENT$"
+
+// Source(3) = Union of Source(1) and Source(2)
+// PowerSupplyID
+PowerSupply.Discovery.Source(3).Type="TableUnion"
+PowerSupply.Discovery.Source(3).Table1=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(3).Table2=%PowerSupply.Discovery.Source(2)%
+
+
+// Instance Table = Source(3)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(3)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// Yeah that's kind of weird. PowerSupply collect values will be refreshed only when/whether
+// enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
+// and whose 5th column contains either "ON" or "OFF"
+// PowerSupplyID;Status;Underspeed;Overtemp;Overvolt;Undervolt;Overcurrent
+PowerSupply.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(1).Compute(1).Column=1
+PowerSupply.Collect.Source(1).Compute(1).RegExp="\(^PS[0-9]\)\|\(/PS[0-9]$\)"
+PowerSupply.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(1).Compute(2).Column=5
+PowerSupply.Collect.Source(1).Compute(2).RegExp="^O[NF]+$"
+
+// Keep only the device ID and status columns
+// PowerSupplyID;Status;
+PowerSupply.Collect.Source(1).Compute(3).Type="KeepColumns"
+PowerSupply.Collect.Source(1).Compute(3).ColumnNumbers="1,2"
+
+// Source(2) = copy of Enclosure.Discovery.Source(2)
+PowerSupply.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
+// and whose 2nd column is "PRESENT"
+// PowerSupplyID;Present;Status;
+PowerSupply.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(2).Compute(1).Column=1
+PowerSupply.Collect.Source(2).Compute(1).RegExp="\(^PS[0-9]\)\|\(/PS[0-9]$\)"
+PowerSupply.Collect.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(2).Compute(2).Column=2
+PowerSupply.Collect.Source(2).Compute(2).RegExp="^PRESENT$"
+
+// Keep only the device ID and status columns
+// PowerSupplyID;Status;
+PowerSupply.Collect.Source(2).Compute(3).Type="KeepColumns"
+PowerSupply.Collect.Source(2).Compute(3).ColumnNumbers="1,3"
+
+
+// Source(3) = Union of Source(1) and Source(2)
+// PowerSupplyID;Status;
+PowerSupply.Collect.Source(3).Type="TableUnion"
+PowerSupply.Collect.Source(3).Table1=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.Source(3).Table2=%PowerSupply.Collect.Source(2)%
+
+// Duplicate the status column
+// PowerSupplyID;Status;Status;
+PowerSupply.Collect.Source(3).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(3).Compute(1).Column=2
+
+// Translate the first column into a PATROL Status
+// PowerSupplyID;PATROLStatus;Status;
+PowerSupply.Collect.Source(3).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(3).Compute(2).Column=2
+PowerSupply.Collect.Source(3).Compute(2).TranslationTable="PowerSupplyStatusTranslationTable"
+
+// The PowerSupplyStatusTranslationTable
+PowerSupplyStatusTranslationTable("OK")="OK"
+PowerSupplyStatusTranslationTable("faulty")="ALARM"
+PowerSupplyStatusTranslationTable(Default)="ALARM"
+
+// Translate the second status into a more readable string
+// PowerSupplyID;PATROLStatus;StatusInformation;
+PowerSupply.Collect.Source(3).Compute(3).Type="Replace"
+PowerSupply.Collect.Source(3).Compute(3).Column=3
+PowerSupply.Collect.Source(3).Compute(3).Replace="No"
+PowerSupply.Collect.Source(3).Compute(3).ReplaceBy="No input source"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(3)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+////
+//// PHYSICAL DISKS
+////
+//
+////
+//// Discovery
+//
+//// Source(1) = copy of Enclosure.Discovery.Source(2)
+//PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+//
+//// Keep only lines where the first column (the supposed PhysicalDisk ID) matches with ^HDD[0-9] or /HDD[0-9]$
+//// PhysicalDiskID;Status;Service;OK2RM
+//PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+//PhysicalDisk.Discovery.Source(1).Compute(1).Column="1"
+//PhysicalDisk.Discovery.Source(1).Compute(1).RegExp="\(^HDD[0-9]\)\|\(/HDD[0-9]$\)"
+//
+//// Exclude harddisks where are marked as "not present"
+//// PhysicalDiskID;Status;Service;OK2RM
+//PhysicalDisk.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+//PhysicalDisk.Discovery.Source(1).Compute(2).Column="3"
+//PhysicalDisk.Discovery.Source(1).Compute(2).RegExp="^PRESENT$"
+//
+//// Instance Table = Source(1)
+//PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+//PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+//PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(1)
+//
+//
+////
+//// Collect
+//
+//// Collect type is "all instances in one shot"
+//PhysicalDisk.Collect.Type="MultiInstance"
+//
+//// Source(1) = copy of Enclosure.Collect.Source(1)
+//// Yeah that's kind of weird. PhysicalDisk collect values will be refreshed only when/whether
+//// enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
+//PhysicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+//
+//// Keep only lines where the first column (the supposed PhysicalDisk ID) matches with ^HDD[0-9] or /HDD[0-9]$
+//// PhysicalDiskID;Status;Service;OK2RM
+//PhysicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+//PhysicalDisk.Collect.Source(1).Compute(1).Column="1"
+//PhysicalDisk.Collect.Source(1).Compute(1).RegExp="\(^HDD[0-9]\)\|\(/HDD[0-9]$\)"
+//
+//// Duplicate the status column
+//// PhysicalDiskID;Status;Status;Service;OK2RM
+//PhysicalDisk.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+//PhysicalDisk.Collect.Source(1).Compute(2).Column="2"
+//
+//// Translate the first column into a PATROL Status
+//// PhysicalDiskID;PATROLStatus;Status;Service;OK2RM
+//PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+//PhysicalDisk.Collect.Source(1).Compute(3).Column="2"
+//PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="PhysicalDiskStatusTranslationTable"
+//
+//// The PhysicalDiskStatusTranslationTable
+//PhysicalDiskStatusTranslationTable("OK")="OK"
+//PhysicalDiskStatusTranslationTable("faulty")="WARN"
+//PhysicalDiskStatusTranslationTable(Default)="ALARM"
+//
+//// ValueTable = Source(1)
+//PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+//PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+//PhysicalDisk.Collect.Status=ValueTable.Column(2)
+//PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// OTHER DEVICES (Currents)
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep only lines where the first column (the supposed OtherDevice ID) matches with \(/I_\)\|\(/FF_\)
+// OtherDeviceID;Status
+OtherDevice.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column="1"
+OtherDevice.Discovery.Source(1).Compute(1).RegExp="\(/I_\)\|\(/FF_\)"
+
+// Instance Table = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType="Current"
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(1)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// Yeah that's kind of weird. OtherDevice collect values will be refreshed only when/whether
+// enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
+OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only lines where the first column (the supposed OtherDevice ID) matches with \(/I_\)\|\(/FF_\)
+// OtherDeviceID;Status;
+OtherDevice.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Collect.Source(1).Compute(1).Column="1"
+OtherDevice.Collect.Source(1).Compute(1).RegExp="\(/I_\)\|\(/FF_\)"
+
+// Duplicate the status column
+// OtherDeviceID;Status;Status
+OtherDevice.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+OtherDevice.Collect.Source(1).Compute(2).Column="2"
+
+// Translate the first column into a PATROL Status
+// OtherDeviceID;PATROLStatus;Status
+OtherDevice.Collect.Source(1).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(3).Column="2"
+OtherDevice.Collect.Source(1).Compute(3).TranslationTable="OtherDeviceStatusTranslationTable"
+
+// The OtherDeviceStatusTranslationTable
+OtherDeviceStatusTranslationTable("OK")="OK"
+OtherDeviceStatusTranslationTable("faulty")="WARN"
+OtherDeviceStatusTranslationTable(Default)="ALARM"
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 1
+///
+///    snapshot configuration file
+///    Makes snapshot execute the showplatform command on the SC
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(1):
+showplatform -v,13,14
+EmbeddedFile(1).End
+///////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 2
+///
+///    snapshot configuration file
+///    Makes snapshot execute the showenvironment command on the SC
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(2):
+showenvironment,7,8
+EmbeddedFile(2).End
+///////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 3
+///
+///    AWK script that takes showplatform + uname -i as stdin
+///    and returns the model of the system
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN { FS=","; }
+/^SUNW,/ {
+	print "MSHW;" $2
+	exit
+}
+EmbeddedFile(3).End
+///////////////////////////////////////////////////////////////

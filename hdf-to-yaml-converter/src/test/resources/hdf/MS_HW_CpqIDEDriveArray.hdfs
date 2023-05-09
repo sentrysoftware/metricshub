@@ -1,0 +1,295 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//             MS_HW_CpqIDEDriveArray.hdf
+//
+//      Supports: The Compaq IDE Drive Arrays monitoring
+//      Connects to: hp Insight Manager (Storage Management) under Windows and Linux
+//
+//
+
+// Remarks:
+// This connector only takes into account the IDE disk drives.
+// The SCSI (RAID or non-RAID) devices are not monitored
+
+// HEADER
+
+hdf.DisplayName="HP Insight Management Agent - IDE Storage"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents"
+hdf.Version="1.0"
+hdf.Comments="This connector monitors the HP/Compaq IDE Drive Arrays by connecting to the Storage Management SNMP sub-agent of the HP Insight Manager agent."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux,OSF1,VMS,OOB,Solaris"
+hdf.Supersedes="MS_HW_WBEMGenDiskNT.hdf,MS_HW_SmartMonLinux.hdf,MS_HW_SunRaidctl.hdf,MS_HW_SunIostat.hdf,MS_HW_SunIostatNonSun.hdf,MS_HW_SunTapeDrives.hdf"
+
+// DETECTION
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.14.2.4.1.1"
+
+
+//////////////////////////////////////////////
+//   ***  D I S K   C O N T R O L L E R S  ***
+//////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the cpqIdeControllerTable
+// ID;ControllerIndex;Model;FWRev;
+DiskController.Discovery.Source(1).Type="SnmpTable"
+DiskController.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.14.2.3.1.1"
+DiskController.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,4"
+
+// Source(2) = the cpqIdeAtaDiskTable snmp table
+// ControllerNumber
+DiskController.Discovery.Source(2).Type="SnmpTable"
+DiskController.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.232.14.2.4.1.1"
+DiskController.Discovery.Source(2).SnmpTableSelectColumns="1"
+
+// Source(3) = table joint of Source(1) with Source(2)
+// In order to keep only controllers that actually have disks attached to them
+DiskController.Discovery.Source(3).Type="TableJoint"
+DiskController.Discovery.Source(3).LeftTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Source(3).RightTable=%DiskController.Discovery.Source(2)%
+DiskController.Discovery.Source(3).LeftKeyColumn=2
+DiskController.Discovery.Source(3).RightKeyColumn=1
+
+// The InstanceTable
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(3)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(3)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(4)
+
+
+/////////////////////////////////////////////////
+///  ***  P H Y S I C A L   D I S K S   ***   ///
+/////////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the cpqIdeAtaDiskTable snmp table
+// ID;ControllerNumber;Model;SerialNumber;SizeMB;ChannelCode;DiskNumberCode;OSName;
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.14.2.4.1.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,5,8,11,12,15"
+
+// Convert the size into bytes
+// ID;ControllerNumber;Model;SerialNumber;SizeBytes;ChannelCode;DiskNumberCode;OSName;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1048576"
+
+// Convert the DIskNumberCode into a DiskLocation string
+// ID;ControllerNumber;Model;SerialNumber;SizeBytes;ChannelName;DiskNumberCode;OSName;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=7
+PhysicalDisk.Discovery.Source(1).Compute(2).TranslationTable="DiskNumberCodeTranslationTable"
+
+// The DiskNumberCodeTranslationTable
+DiskNumberCodeTranslationTable(2)="Device 0"
+DiskNumberCodeTranslationTable(3)="Device 1"
+DiskNumberCodeTranslationTable(4)="SATA Device 0"
+DiskNumberCodeTranslationTable(5)="SATA Device 1"
+DiskNumberCodeTranslationTable(6)="SATA Device 2"
+DiskNumberCodeTranslationTable(7)="SATA Device 3"
+DiskNumberCodeTranslationTable(8)="SATA Device 4"
+DiskNumberCodeTranslationTable(9)="SATA Device 5"
+DiskNumberCodeTranslationTable(10)="SATA Device 6"
+DiskNumberCodeTranslationTable(11)="SATA Device 7"
+DiskNumberCodeTranslationTable(21)="Bay 1"
+DiskNumberCodeTranslationTable(22)="Bay 2"
+DiskNumberCodeTranslationTable(23)="Bay 3"
+DiskNumberCodeTranslationTable(24)="Bay 4"
+DiskNumberCodeTranslationTable(25)="Bay 5"
+DiskNumberCodeTranslationTable(26)="Bay 6"
+DiskNumberCodeTranslationTable(27)="Bay 7"
+DiskNumberCodeTranslationTable(28)="Bay 8"
+DiskNumberCodeTranslationTable(Default)=""
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=7
+PhysicalDisk.Discovery.Source(1).Compute(3).String="Location: "
+
+
+// The instance table = Source(1)
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(7)
+
+
+
+//
+// Collect
+
+// Collect type is: multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqIdeAtaDiskTable snmp table
+// ID;status;
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.14.2.4.1.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,6"
+
+// Duplicate the status column
+// ID;status;status;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Duplicate again the status column
+// ID;status;status;status
+PhysicalDisk.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="3"
+
+// Translate the first status column into a PATROL status
+// ID;PATROLstatus;status;status
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable(2)="OK"
+PhysicalDiskStatusTranslationTable(3)="OK"
+PhysicalDiskStatusTranslationTable(4)="ALARM"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// ID;PATROLstatus;statusInformation;status
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+// The PhysicalDiskStatusInformationTranslationTable
+PhysicalDiskStatusInformationTranslationTable(2)=""
+PhysicalDiskStatusInformationTranslationTable(3)="SMART predicted failure"
+PhysicalDiskStatusInformationTranslationTable(4)="Failed"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the third status into a 0 (no failure predicted) or 1 (failure is predicted)
+// ID;PATROLstatus;statusInformation;predictFailureStatus
+PhysicalDisk.Collect.Source(1).Compute(5).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(5).Column="4"
+PhysicalDisk.Collect.Source(1).Compute(5).TranslationTable="PhysicalDiskSMARTStatusTranslationTable"
+
+// The PhysicalDiskSMARTStatusTranslationTable
+PhysicalDiskSMARTStatusTranslationTable(1)="FALSE"
+PhysicalDiskSMARTStatusTranslationTable(2)="FALSE"
+PhysicalDiskSMARTStatusTranslationTable(3)="TRUE"
+PhysicalDiskSMARTStatusTranslationTable(Default)="FALSE"
+
+// The ValueTable = source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
+
+
+
+///////////////////////////////////////////////
+///  ***  L O G I C A L   D I S K S   ***   ///
+///////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the cpqIdeLogicalDriveTable snmp table
+// ID;ControllerNumber;FaultToleranceLevel;SizeMB;OSName;
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.14.2.6.1.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,4,11"
+
+// Translate size into bytes
+// ID;ControllerNumber;FaultToleranceLevel;Size;OSName;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=4
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1048576"
+
+// Translate the FaultToleranceLevel into a more readable string
+// ID;ControllerNumber;RAIDLevel;Size;OSName;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=3
+LogicalDisk.Discovery.Source(1).Compute(2).TranslationTable="RAIDLevelTranslationTable"
+
+// The RAIDLevelTranslationTable
+RAIDLevelTranslationTable(2)="0"
+RAIDLevelTranslationTable(3)="1"
+RAIDLevelTranslationTable(4)="0+1"
+RAIDLevelTranslationTable(Default)=""
+
+// Add "Seen by the OS as " to the OS name column
+// ID;ControllerNumber;RAIDLevel;Size;OSName;
+LogicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+LogicalDisk.Discovery.Source(1).Compute(3).Column=5
+LogicalDisk.Discovery.Source(1).Compute(3).String="Seen by the OS as "
+
+// The InstanceTable
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.RAIDLevel=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+
+//
+// Collect
+
+// Collect type = MultiInstance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqIdeLogicalDriveTable snmp table
+// ID;Status
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.14.2.6.1.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,5"
+
+// Duplicate the status column
+// ID;Status;Status
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status column into a PATROL status
+// ID;PATROLStatus;Status
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column="2"
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable(2)="OK"
+LogicalDiskStatusTranslationTable(3)="WARN"
+LogicalDiskStatusTranslationTable(4)="WARN"
+LogicalDiskStatusTranslationTable(5)="ALARM"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// ID;PATROLStatus;StatusInformation
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column="3"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="LogicalDiskStatusInformationTranslationTable"
+
+// The LogicalDiskStatusInformationTranslationTable
+LogicalDiskStatusInformationTranslationTable(2)=""
+LogicalDiskStatusInformationTranslationTable(3)="Degraded"
+LogicalDiskStatusInformationTranslationTable(4)="Rebuilding"
+LogicalDiskStatusInformationTranslationTable(5)="Failed"
+LogicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The ValueTable = source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)

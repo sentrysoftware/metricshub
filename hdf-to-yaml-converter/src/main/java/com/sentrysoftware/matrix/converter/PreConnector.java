@@ -312,6 +312,7 @@ public class PreConnector {
 			} else if (group5 != null) {
 				if (!list.isEmpty()) {
 					// We've got the key-value pair
+					list.removeIf(x -> x.isEmpty());
 					comments.put(group5.trim().toLowerCase(), list);
 				}
 
@@ -339,6 +340,8 @@ public class PreConnector {
 		while (embeddedFileMatcher.find()) {
 			String embeddedFileContent = embeddedFileMatcher.group(2);
 			Integer embeddedFileIndex = Integer.valueOf(embeddedFileMatcher.group(1).trim());
+
+			embeddedFileContent = embeddedFileContent.replace("\t", "    ");
 
 			// EmbeddedFiles index is the key
 			embeddedFiles.put(String.format("EmbeddedFile(%s)",embeddedFileIndex) , embeddedFileContent);

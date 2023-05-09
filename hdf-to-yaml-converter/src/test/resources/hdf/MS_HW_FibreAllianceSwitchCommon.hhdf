@@ -1,0 +1,521 @@
+//
+// Enclosure
+//
+
+// Source(1) = 	connUnitTable SNMP table
+// DeviceID;UnitType;Model;SerialNumber;Vendor;
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.3.94.1.6.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="1,3,7,8,31"
+
+// Keep only units of type 4 (switch)
+// DeviceID;UnitType;Model;SerialNumber;Vendor;
+Enclosure.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(1).Compute(1).Column=2
+Enclosure.Discovery.Source(1).Compute(1).ValueList="4,14"
+
+// Keep only the first word in the Vendor name (avoiding Corporation, Inc. and other messy legal stuff)
+// DeviceID;UnitType;Model;SerialNumber;Vendor;
+Enclosure.Discovery.Source(1).Compute(2).Type="Extract"
+Enclosure.Discovery.Source(1).Compute(2).Column=5
+Enclosure.Discovery.Source(1).Compute(2).Subcolumn=1
+Enclosure.Discovery.Source(1).Compute(2).Subseparators=" "
+
+// Exclude Switches that have no Model
+// DeviceID;UnitType;Model;SerialNumber;Vendor;
+Enclosure.Discovery.Source(1).Compute(3).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(1).Compute(3).Column=3
+Enclosure.Discovery.Source(1).Compute(3).RegExp="."
+
+// InstanceTable = Source(1)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Type="Switch"
+
+
+//
+// TEMPERATURES
+//
+
+//
+// Discovery
+
+// Source(1) = connUnitSensorTable SNMP Table
+// SensorID;ComputerID;SensorName;SensorCharacteristic;
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.3.94.1.8.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,8"
+
+// Keep only temperature sensors
+// SensorID;ComputerID;SensorName;SensorType;
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=4
+Temperature.Discovery.Source(1).Compute(1).ValueList="3"
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type = multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = connUnitSensorTable SNMP Table
+// SensorID;Status;Message;
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.3.94.1.8.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="ID,4,6"
+
+// Translate the first column status into a PATROLStatus
+// SensorID;PATROLStatus;Message
+Temperature.Collect.Source(1).Compute(1).Type="Translate"
+Temperature.Collect.Source(1).Compute(1).Column=2
+Temperature.Collect.Source(1).Compute(1).TranslationTable="SensorStatusTranslationTable"
+
+// SensorStatusTranslationTable
+SensorStatusTranslationTable(3)="OK"
+SensorStatusTranslationTable(4)="WARN"
+SensorStatusTranslationTable(5)="ALARM"
+SensorStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// FC PORTS (as NetworkCard devices)
+//
+
+//
+// Discovery
+
+// Source(1) = connUnitPortTable SNMP Table
+// PortID;ComputerID;PortTypeCode;HWStatus;WWN;SerialNumber;Vendor;SpeedKB;TransmitterType;PhysicalIndex;
+NetworkCard.Discovery.Source(1).Type="SnmpTable"
+NetworkCard.Discovery.Source(1).SnmpTableOid="1.3.6.1.3.94.1.10.1"
+NetworkCard.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,23,10,12,14,15,8,18"
+
+// Exclude ports that have "no media" (no GBIC)
+// PortID;ComputerID;PortTypeCode;HWStatus;WWN;SerialNumber;Vendor;SpeedKB;TransmitterType;PhysicalIndex;
+NetworkCard.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=4
+NetworkCard.Discovery.Source(1).Compute(1).ValueList="7"
+
+// Exclude ports that are not real FC ports (copper, etc.)
+// PortID;ComputerID;PortTypeCode;HWStatus;WWN;SerialNumber;Vendor;SpeedKB;TransmitterType;PhysicalIndex;
+NetworkCard.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(2).Column=9
+NetworkCard.Discovery.Source(1).Compute(2).ValueList="1,2,3,6,7"
+
+// Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
+// PortID;ComputerID;PortTypeCode;HWStatus;WWN;SerialNumber;Vendor;SpeedKB;TransmitterType;PhysicalIndex;
+NetworkCard.Discovery.Source(1).Compute(3).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(3).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(3).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(3).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(3).SelectColumns="2,3,4,5,6,7,8,9,10,11"
+
+// Translate the PortTypeCode to a readable string
+// PortID;ComputerID;PortType;HWStatus;WWN;SerialNumber;Vendor;SpeedMbps;TransmitterType;PhysicalIndex;
+NetworkCard.Discovery.Source(1).Compute(4).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(4).Column=3
+NetworkCard.Discovery.Source(1).Compute(4).TranslationTable="PortTypeTranslationTable"
+
+// PortTypeTranslationTable
+PortTypeTranslationTable(4)="FC Port Hub"
+PortTypeTranslationTable(5)="FC Port N"
+PortTypeTranslationTable(6)="FC Port NL (Public Loop)"
+PortTypeTranslationTable(7)="FC Port FL"
+PortTypeTranslationTable(8)="FC Port F"
+PortTypeTranslationTable(9)="FC Port E"
+PortTypeTranslationTable(10)="FC Port G"
+PortTypeTranslationTable(11)="SCSI Port"
+PortTypeTranslationTable(15)="Ethernet Port"
+PortTypeTranslationTable(17)="AC Port"
+PortTypeTranslationTable(18)="DC Port"
+PortTypeTranslationTable(19)="SSA Port"
+PortTypeTranslationTable(20)="WDM Port"
+PortTypeTranslationTable(21)="IB Port"
+PortTypeTranslationTable(22)="IP Storage Port"
+PortTypeTranslationTable(Default)="FC Port"
+
+// Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
+// PortID;ComputerID;PortType;HWStatus;WWN;SerialNumber;Vendor;SpeedMbps;TransmitterType;PhysicalIndex;
+NetworkCard.Discovery.Source(1).Compute(5).Type="Replace"
+NetworkCard.Discovery.Source(1).Compute(5).Column=5
+NetworkCard.Discovery.Source(1).Compute(5).Replace=" 00 00 00 00 00 00 00 00"
+NetworkCard.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Remove the spaces from the WWN
+// PortID;ComputerID;PortType;HWStatus;WWN;SerialNumber;Vendor;SpeedMbps;TransmitterType;PhysicalIndex;
+NetworkCard.Discovery.Source(1).Compute(6).Type="Replace"
+NetworkCard.Discovery.Source(1).Compute(6).Column=5
+NetworkCard.Discovery.Source(1).Compute(6).Replace=" "
+NetworkCard.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+// Source(2) = connUnitSnsTable SNMP Table
+// RemoteWWN;PortWWN;
+NetworkCard.Discovery.Source(2).Type="SnmpTable"
+NetworkCard.Discovery.Source(2).SnmpTableOid="1.3.6.1.3.94.5.2.1.1"
+NetworkCard.Discovery.Source(2).SnmpTableSelectColumns="4,12"
+
+// Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
+// RemoteWWN;PortWWN;
+NetworkCard.Discovery.Source(2).Compute(1).Type="Replace"
+NetworkCard.Discovery.Source(2).Compute(1).Column=1
+NetworkCard.Discovery.Source(2).Compute(1).Replace=" 00 00 00 00 00 00 00 00"
+NetworkCard.Discovery.Source(2).Compute(1).ReplaceBy=""
+NetworkCard.Discovery.Source(2).Compute(2).Type="Replace"
+NetworkCard.Discovery.Source(2).Compute(2).Column=2
+NetworkCard.Discovery.Source(2).Compute(2).Replace=" 00 00 00 00 00 00 00 00"
+NetworkCard.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+// Remove the spaces from the WWN
+// RemoteWWN;PortWWN;
+NetworkCard.Discovery.Source(2).Compute(3).Type="Replace"
+NetworkCard.Discovery.Source(2).Compute(3).Column=1
+NetworkCard.Discovery.Source(2).Compute(3).Replace=" "
+NetworkCard.Discovery.Source(2).Compute(3).ReplaceBy=""
+NetworkCard.Discovery.Source(2).Compute(4).Type="Replace"
+NetworkCard.Discovery.Source(2).Compute(4).Column=2
+NetworkCard.Discovery.Source(2).Compute(4).Replace=" "
+NetworkCard.Discovery.Source(2).Compute(4).ReplaceBy=""
+
+// Source(3) = Table joint of Source(1) and Source(2)
+// PortID;ComputerID;PortType;HWStatus;WWN;SerialNumber;Vendor;SpeedMbps;TransmitterType;PhysicalIndex;RemoteWWN;PortWWN;
+NetworkCard.Discovery.Source(3).Type="TableJoint"
+NetworkCard.Discovery.Source(3).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).RightTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(3).LeftKeyColumn=5
+NetworkCard.Discovery.Source(3).RightKeyColumn=2
+NetworkCard.Discovery.Source(3).DefaultRightLine=";;"
+
+
+// InstanceTable = Source(1)
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(10)
+NetworkCard.Discovery.Instance.Vendor=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.Bandwidth=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.PhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.RemotePhysicalAddress=InstanceTable.Column(11)
+NetworkCard.Discovery.Instance.RemotePhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// Collect type = multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = connUnitPortTable SNMP Table
+// PortID;PortIndex;SpeedKB;Status
+NetworkCard.Collect.Source(1).Type="SnmpTable"
+NetworkCard.Collect.Source(1).SnmpTableOid="1.3.6.1.3.94.1.10.1"
+NetworkCard.Collect.Source(1).SnmpTableSelectColumns="ID,2,15,23"
+
+// Duplicate Status twice
+// PortID;PortIndex;SpeedKB;Status;Status;Status
+NetworkCard.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(1).Column=4
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column=5
+
+// Translate the first column status into a PATROLStatus
+// PortID;PortIndex;SpeedKB;Status;Status;Status
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column=4
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="PortStatusTranslationTable"
+
+// The PortStatusTranslationTable
+PortStatusTranslationTable(2)="ALARM"
+PortStatusTranslationTable(3)="WARN"
+PortStatusTranslationTable(4)="OK"
+PortStatusTranslationTable(5)="OK"
+PortStatusTranslationTable(6)="ALARM"
+PortStatusTranslationTable(7)="ALARM"
+PortStatusTranslationTable(8)="OK"
+PortStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second column status into a more readable string
+// PortID;PortIndex;SpeedKB;Status;StatusInformation;Status
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=5
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="PortStatusInformationTranslationTable"
+
+// The PortStatusInformationTranslationTable
+PortStatusInformationTranslationTable(2)="Failed"
+PortStatusInformationTranslationTable(3)="FCAL bypass, Loop only"
+PortStatusInformationTranslationTable(4)="Connected"
+PortStatusInformationTranslationTable(5)="External Loopback"
+PortStatusInformationTranslationTable(6)="Transmitter Fault"
+PortStatusInformationTranslationTable(7)="No Media"
+PortStatusInformationTranslationTable(8)="Link Down"
+PortStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the third column status into a LinkStatus value
+// PortID;PortIndex;SpeedKB;Status;StatusInformation;LinkStatus
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=6
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="PortLinkStatusInformationTranslationTable"
+
+// The PortLinkStatusInformationTranslationTable
+PortLinkStatusInformationTranslationTable(1)="WARN"
+PortLinkStatusInformationTranslationTable(7)="WARN"
+PortLinkStatusInformationTranslationTable(8)="WARN"
+PortLinkStatusInformationTranslationTable(Default)="OK"
+
+// Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
+// PortID;PortIndex;SpeedKB;Status;StatusInformation;LinkStatus;
+NetworkCard.Collect.Source(1).Compute(6).Type="Awk"
+NetworkCard.Collect.Source(1).Compute(6).AwkScript=EmbeddedFile(1)
+NetworkCard.Collect.Source(1).Compute(6).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(1).Compute(6).Separators=";"
+NetworkCard.Collect.Source(1).Compute(6).SelectColumns="2,3,4,5,6,7"
+
+// Source(2) = connUnitPortStatTable SNMP Table
+// PortIndex;ErrorCountHex;TransmitTotalHex;ReceiveTotalHex;TransmitttedBytesHex;ReceivedBytesHex;
+NetworkCard.Collect.Source(2).Type="SnmpTable"
+NetworkCard.Collect.Source(2).SnmpTableOid="1.3.6.1.3.94.4.5.1"
+NetworkCard.Collect.Source(2).SnmpTableSelectColumns="2,3,4,5,6,7"
+
+// Convert all these values from hex to dec
+// PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(2).Compute(1).Type="Convert"
+NetworkCard.Collect.Source(2).Compute(1).Column=2
+NetworkCard.Collect.Source(2).Compute(1).ConversionType="hex2dec"
+NetworkCard.Collect.Source(2).Compute(2).Type="Convert"
+NetworkCard.Collect.Source(2).Compute(2).Column=3
+NetworkCard.Collect.Source(2).Compute(2).ConversionType="hex2dec"
+NetworkCard.Collect.Source(2).Compute(3).Type="Convert"
+NetworkCard.Collect.Source(2).Compute(3).Column=4
+NetworkCard.Collect.Source(2).Compute(3).ConversionType="hex2dec"
+NetworkCard.Collect.Source(2).Compute(4).Type="Convert"
+NetworkCard.Collect.Source(2).Compute(4).Column=5
+NetworkCard.Collect.Source(2).Compute(4).ConversionType="hex2dec"
+NetworkCard.Collect.Source(2).Compute(5).Type="Convert"
+NetworkCard.Collect.Source(2).Compute(5).Column=6
+NetworkCard.Collect.Source(2).Compute(5).ConversionType="hex2dec"
+
+// Now collect stats from MIB2 - Hopefully one will have statistics
+// Source(3) = ifMIBObjects SNMP Table
+// PortID;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
+NetworkCard.Collect.Source(3).Type="SnmpTable"
+NetworkCard.Collect.Source(3).SnmpTableOid="1.3.6.1.2.1.31.1.1.1"
+NetworkCard.Collect.Source(3).SnmpTableSelectColumns="ID,6,7,8,9,10,11,12,13"
+
+// Add MulticastPkts and BroadcastPkts to UnicastPackets
+// PortID;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
+NetworkCard.Collect.Source(3).Compute(1).Type="Add"
+NetworkCard.Collect.Source(3).Compute(1).Column=3
+NetworkCard.Collect.Source(3).Compute(1).Add=Column(4)
+
+NetworkCard.Collect.Source(3).Compute(2).Type="Add"
+NetworkCard.Collect.Source(3).Compute(2).Column=3
+NetworkCard.Collect.Source(3).Compute(2).Add=Column(5)
+
+NetworkCard.Collect.Source(3).Compute(3).Type="Add"
+NetworkCard.Collect.Source(3).Compute(3).Column=7
+NetworkCard.Collect.Source(3).Compute(3).Add=Column(8)
+
+NetworkCard.Collect.Source(3).Compute(4).Type="Add"
+NetworkCard.Collect.Source(3).Compute(4).Column=7
+NetworkCard.Collect.Source(3).Compute(4).Add=Column(9)
+
+// Keep only useful columns
+// PortID;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
+// PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(3).Compute(5).Type="KeepColumns"
+NetworkCard.Collect.Source(3).Compute(5).ColumnNumbers="1,7,3,6,2"
+
+// Source(4) = ifTable SNMP Table (32 Bit MIB2 Counters)
+// PortIndex;Speed;ReceivedErrors;TransmittedErrors;Status;LinkStatus;
+NetworkCard.Collect.Source(4).Type="SnmpTable"
+NetworkCard.Collect.Source(4).SnmpTableOid="1.3.6.1.2.1.2.2.1"
+NetworkCard.Collect.Source(4).SnmpTableSelectColumns="ID,5,14,20,7,8"
+
+// Add the TransmisttedErrors to the ReceivedErrors
+// PortIndex;Speed;Errorcount;TransmittedErrors;Status;LinkStatus;
+NetworkCard.Collect.Source(4).Compute(1).Type="Add"
+NetworkCard.Collect.Source(4).Compute(1).Column=3
+NetworkCard.Collect.Source(4).Compute(1).Add=Column(4)
+
+// Convert Speed to MBPS
+// PortIndex;SpeedMbps;Errorcount;TransmittedErrors;Status;LinkStatus;
+NetworkCard.Collect.Source(4).Compute(2).Type="Divide"
+NetworkCard.Collect.Source(4).Compute(2).Column=2
+NetworkCard.Collect.Source(4).Compute(2).DivideBy=1000000
+
+// Get rid of Transmitted errors
+// PortIndex;SpeedMbps;Errorcount;Status;LinkStatus;
+NetworkCard.Collect.Source(4).Compute(3).Type="KeepColumns"
+NetworkCard.Collect.Source(4).Compute(3).ColumnNumbers="1,2,3,5,6"
+
+// Duplicate the Status
+// PortIndex;SpeedMbps;Errorcount;Status;Status;LinkStatus;
+NetworkCard.Collect.Source(4).Compute(4).Type="DuplicateColumn"
+NetworkCard.Collect.Source(4).Compute(4).Column=4
+
+// Translate the first column status into a PATROLStatus
+// PortIndex;SpeedMbps;Errorcount;Patrol;Status;LinkStatus;
+NetworkCard.Collect.Source(4).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(4).Compute(5).Column=4
+NetworkCard.Collect.Source(4).Compute(5).TranslationTable="MIB2PortStatusTranslationTable"
+
+// The MIB2PortStatusTranslationTable
+MIB2PortStatusTranslationTable(1)="OK"
+MIB2PortStatusTranslationTable(2)="OK"
+MIB2PortStatusTranslationTable(3)="WARN"
+MIB2PortStatusTranslationTable(5)="OK"
+MIB2PortStatusTranslationTable(6)="ALARM"
+MIB2PortStatusTranslationTable(7)="ALARM"
+MIB2PortStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second column status into a more readable string
+// PortIndex;SpeedMbps;Errorcount;Patrol;StatusInformation;LinkStatus;
+NetworkCard.Collect.Source(4).Compute(6).Type="Translate"
+NetworkCard.Collect.Source(4).Compute(6).Column=5
+NetworkCard.Collect.Source(4).Compute(6).TranslationTable="MIB2PortStatusInformationTranslationTable"
+
+// The MIB2PortStatusInformationTranslationTable
+MIB2PortStatusInformationTranslationTable(1)="Up"
+MIB2PortStatusInformationTranslationTable(2)="Down"
+MIB2PortStatusInformationTranslationTable(3)="Testing"
+MIB2PortStatusInformationTranslationTable(5)="Dormant"
+MIB2PortStatusInformationTranslationTable(6)="Component Not Present"
+MIB2PortStatusInformationTranslationTable(7)="Lower Layer Down"
+MIB2PortStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the third column status into a LinkStatus value
+// PortIndex;SpeedMbps;Errorcount;Patrol;StatusInformation;LinkStatus;
+NetworkCard.Collect.Source(4).Compute(7).Type="Translate"
+NetworkCard.Collect.Source(4).Compute(7).Column=6
+NetworkCard.Collect.Source(4).Compute(7).TranslationTable="MIB2PortLinkStatusInformationTranslationTable"
+
+// The MIB2PortLinkStatusInformationTranslationTable
+MIB2PortLinkStatusInformationTranslationTable(1)="OK"
+MIB2PortLinkStatusInformationTranslationTable(2)="WARN"
+MIB2PortLinkStatusInformationTranslationTable(Default)="WARN"
+
+// Join the two MIB2 tables
+// PortIndex;SpeedMbps;ErrorCount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(5).Type="TableJoint"
+NetworkCard.Collect.Source(5).LeftTable=%NetworkCard.Collect.Source(4)%
+NetworkCard.Collect.Source(5).RightTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.Source(5).LeftKeyColumn=1
+NetworkCard.Collect.Source(5).RightKeyColumn=1
+NetworkCard.Collect.Source(5).DefaultRightline=";;;;;"
+
+// Source(6) = Table joint between Source(1) and Source(2)
+// PortID;PortIndex;SpeedMbps;Status;StatusInformation;LinkStatus;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(6).Type="TableJoint"
+NetworkCard.Collect.Source(6).LeftTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(6).RightTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(6).LeftKeyColumn=2
+NetworkCard.Collect.Source(6).RightKeyColumn=1
+NetworkCard.Collect.Source(6).DefaultRightline=";;;;;;"
+
+// Rmove error count in column 3 to match source 5 (MIB2).
+// source 5: PortIndex;SpeedMbps;ErrorCount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+//Source 6: PortID;PortIndex;SpeedMbps;Status;StatusInformation;LinkStatus;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+
+//Duplicate column speed
+// PortID;PortIndex;SpeedMbps;SpeedMbps;Status;StatusInformation;LinkStatus;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(6).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(6).Compute(1).Column=3
+
+//Replacethe speed by error count;
+// 1         2       3          4        5            6            7            8        9           10                 11           12                13
+// PortID;PortIndex;SpeedMbps;errorcount;Status;StatusInformation;LinkStatus;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(6).Compute(2).Type="Replace"
+NetworkCard.Collect.Source(6).Compute(2).Column=4
+NetworkCard.Collect.Source(6).Compute(2).ReplaceBy=Column(9)
+
+//remove errorcount from column 9 and portId from column 1
+//     2       3          4        5            6            7            8              9                10           11                12
+// PortIndex;SpeedMbps;errorcount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(6).Compute(3).Type="KeepColumns"
+NetworkCard.Collect.Source(6).Compute(3).ColumnNumbers="2,3,4,5,6,7,8,10,11,12,13"
+
+// Union Fibre Alliance and MIB2
+// PortIndex;SpeedMbps;errorcount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(7).Type="TableUnion"
+NetworkCard.Collect.Source(7).Table1=%NetworkCard.Collect.Source(5)%
+NetworkCard.Collect.Source(7).Table2=%NetworkCard.Collect.Source(6)%
+
+// Keep only rows with statistics
+// PortIndex;SpeedMbps;errorcount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(7).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Collect.Source(7).Compute(1).Column=5
+NetworkCard.Collect.Source(7).Compute(1).RegExp="."
+
+// Now link Source 1 with the unioned statistics table (7)
+// The first Status, StatusInformation and LinkStatus should not be used.
+// PortID;PortIndex;SpeedKB;Status;StatusInformation;LinkStatus;PortIndex;SpeedMbps;errorcount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.Source(8).Type="TableJoint"
+NetworkCard.Collect.Source(8).LeftTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(8).RightTable=%NetworkCard.Collect.Source(7)%
+NetworkCard.Collect.Source(8).LeftKeyColumn=2
+NetworkCard.Collect.Source(8).RightKeyColumn=1
+NetworkCard.Collect.Source(8).DefaultRightline=";;;;;;;;"
+
+// ValueTable = Source(8)
+//   1        2        3      4         5                6          7         8            9      10       11                  12        13               14         15                16            17
+// PortID;PortIndex;SpeedKB;Status;StatusInformation;LinkStatus;PortIndex;SpeedMbps;ErrorCount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(8)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(10)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(11)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(12)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(8)
+NetworkCard.Collect.DuplexMode="full"
+NetworkCard.Collect.ErrorCount=ValueTable.Column(9)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(14)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(15)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(16)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(17)
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parses
+///    Discovery
+///    PortID;ComputerID;PortTypeCode;HWStatus;WWN;SerialNumber;Vendor;SpeedKB;TransmitterType;PhysicalIndex;
+///    Collect
+///    PortID;PortIndex;SpeedKB;Status;StatusInformation;LinkStatus
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {FS="[;]"}
+{if ($8 ~ /[0-9]+/ && NF >= 10) {
+   if (($8 / 10625) == int($8 / 10625)) { speed = ($8 / 106.25) }
+   else if (($8 / 1250) == int($8 / 1250)) { speed = ($8 / 125.0) }
+   else { speed =  $3 / 100}
+   print "MSHW;" $1 ";" $2 ";" $3 ";" $4 "; "$5 ";" $6 ";" $7 ";" speed ";" $9 ";" $10 ";"
+   }
+else if ($3 ~ /[0-9]+/ && NF >= 6) {
+   if (($3 / 10625) == int($3 / 10625)) { speed = ($3 / 106.25) }
+   else if (($3 / 1250) == int($3 / 1250)) { speed = ($3 / 125.0) }
+   else { speed =  $3 / 100}
+   print "MSHW;" $1 ";" $2 ";"speed ";" $4 "; "$5 ";" $6 ";"
+   }
+else {print "MSHW;" $0
+	   }
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

@@ -1,0 +1,305 @@
+---
+extends:
+- MIB2-header
+connector:
+  displayName: Extreme Networks (SNMP)
+  platforms: Extreme
+  reliesOn: SNMP Agent
+  version: 1.0
+  information: "This connector discovers the Extreme Network Switch enclosure as well as various environment sensors (temperature, fans, power supplies). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Network
+    supersedes:
+    - GenericSwitchEnclosure
+    - MIB2
+    criteria:
+    # Detection Criteria 1
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.1916.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.2.2.1
+          selectColumns: "ID,2,6,5"
+          computes:
+          # Exclude not present
+          - type: excludeMatchingLines
+            column: 4
+            regExp: 1
+      mapping:
+        # Id;Name;SerialNumber;
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          serial_number: $column(3)
+          vendor: Extreme Networks
+          type: Switch
+          name: "sprintf(\"Switch: %s (%s)\", $column(2), \"Extreme Networks\")"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.2.2.1
+          selectColumns: "ID,5"
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: SlotStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: SlotStatusInformationTranslationTable
+      mapping:
+        # ID;PatrolStatus;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      mapping:
+        # PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(7)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          device_type: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.1.27.1
+          selectColumns: "ID,ID,2,3,4"
+          computes:
+          # Exclude not present
+          - type: excludeMatchingLines
+            column: 3
+            regExp: 1
+          # Create Display Name
+          - type: leftConcat
+            column: 2
+            value: 'PSU '
+            # Translate PowerSupply Input to PowerSupplyPower and PowerSupplyType
+            # ID;Name;Status;PowerSupplyPower;PowerSupplyType;SerialNumber;
+          - type: translate
+            column: 4
+            translationTable: PowerSupplyPowerTranslationTable
+          # Add _MSHW_ to serial number to check for empty value
+          - type: rightConcat
+            column: 6
+            value: _MSHW_
+          # Add Serial Number: Label for additionalInformation
+          - type: leftConcat
+            column: 6
+            value: "Serial Number: "
+          # Remove Serial Number: _MSHW_ (Serial Number was empty)
+          - type: replace
+            column: 6
+            existingValue: "Serial Number: _MSHW_"
+            newValue: ""
+      mapping:
+        # ID;Name;Status;PowerSupplyPower;PowerSupplyType;SerialNumber;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          power_supply_type: $column(5)
+          info: $column(6)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s W)\", $column(2), $column(5), $column(4))"
+        metrics:
+          hw.power_supply.limit: $column(4)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.1.27.1
+          selectColumns: "ID,2"
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: PowerSupplyStatusInformationTranslationTable
+      mapping:
+        # ID;PatrolStatus;StatusInformation
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.1.9.1
+          selectColumns: "ID,ID"
+          computes:
+          - type: leftConcat
+            column: 2
+            value: fan
+      mapping:
+        # Id;Name
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.1.9.1
+          selectColumns: "ID,2,2,4"
+          computes:
+          - type: translate
+            column: 2
+            translationTable: FanStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: FanStatusInformationTranslationTable
+      mapping:
+        # ID;PatrolStatus;StatusInformation
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.1
+          selectColumns: "ID,7"
+      mapping:
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: Internal Temperature
+          hw.parent.type: enclosure
+          name: Internal Temperature
+    collect:
+      # Collect type = mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1916.1.1.1
+          selectColumns: "ID,7,8"
+          computes:
+            # Duplicate the StatusCode column
+            # ID;StatusCode;StatusCode;Temperature
+          - type: duplicateColumn
+            column: 2
+            # Translate 1st StatusCode into PATROLSTatus
+            # PATROLStatus;StatusCode;
+          - type: translate
+            column: 2
+            translationTable: TemperatureStatusTranslationTable
+          # PATROLStatus;StatusInformation;Temperature
+          - type: translate
+            column: 3
+            translationTable: TemperatureStatusInformationTranslationTable
+      mapping:
+        # ValueTable
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  TemperatureStatusTranslationTable:
+    "1": failed
+    "2": ok
+    default: UNKNOWN
+  FanStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  TemperatureStatusInformationTranslationTable:
+    "1": Over Temperature
+    "2": ""
+    default: Unknown Temperature Status
+  PowerSupplyStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": failed
+    "4": ok
+  PowerSupplyPowerTranslationTable:
+    "1": 110;AC
+    "2": 220;AC
+    default: UNKNOWN;UNKNOWN
+    "3": 48;DC
+    "4": ;
+  FanStatusInformationTranslationTable:
+    "1": ""
+    "2": Not Operational
+    default: UNKNOWN
+  SlotStatusTranslationTable:
+    "11": ok
+    "12": ok
+    "13": degraded
+    "14": ok
+    "100": failed
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+    "5": ok
+    "6": ok
+    "7": UNKNOWN
+    "8": degraded
+    "9": ok
+    "10": degraded
+  SlotStatusInformationTranslationTable:
+    "11": downloading
+    "12": booting
+    "13": offline
+    "14": initializing
+    "100": invalid
+    "2": Testing
+    default: Unknown status
+    "3": Mismatch
+    "4": Failed
+    "5": Operational
+    "6": Powerdown
+    "7": Unknown
+    "8": present
+    "9": poweron
+    "10": post
+  PowerSupplyStatusInformationTranslationTable:
+    "2": Present; OK
+    default: UNKNOWN
+    "3": Present; Not OK
+    "4": Present; Powered Off

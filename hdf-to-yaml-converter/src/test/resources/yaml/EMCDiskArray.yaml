@@ -1,0 +1,1105 @@
+---
+connector:
+  displayName: EMC SMI-S Agent (ECOM)
+  platforms: "EMC Symmetrix,EMC VMAX,EMC CLARiiON,EMC VNX"
+  reliesOn: EMC SMI-S Agent (ECOM)
+  version: 1.0
+  information: "This connector discovers the enclosure and the disks of EMC SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - SMISDiskArray
+    criteria:
+    - type: wbem
+      namespace: root/emc
+      query: "SELECT Name,Dedicated FROM EMC_StorageSystem"
+    # There also must be disk drives declared in this namespace
+    - type: wbem
+      query: SELECT DeviceID FROM EMC_DiskDrive
+      namespace: root/emc
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = EMC_ArrayChassis
+          # EMC_ArrayChassis;Model;SerialNumber;EMCSerialNumber;
+          type: wbem
+          query: "SELECT __PATH,Model,SerialNumber,EMCSerialNumber FROM EMC_ArrayChassis"
+          namespace: root/emc
+          computes:
+            # Replace an "empty string" Serial Number with the EMC Serial Number, then remove EMC Serial Number
+            # EMC_ArrayChassis;Model;SerialNumber;
+          - type: replace
+            column: 3
+            existingValue: empty string
+            newValue: Column(4)
+          - type: keepColumns
+            columnNumbers: "1,2,3"
+        source(2):
+          # Source(2) = EMC_ComputerSystemPackage (link between EMC_ArrayChassis and EMC_StorageSystem) used on VNX, Clariion and Symmetrix Systems
+          # EMC_ArrayChassis;EMC_StorageSystem;
+          type: wbem
+          query: "SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage"
+          namespace: root/emc
+        source(3):
+          # Source(3) = EMC_SystemPackaging (link between EMC_ArrayChassis and EMC_StorageSystem) used on VNXe systems
+          # EMC_ArrayChassis;EMC_StorageSystem;
+          type: wbem
+          query: "SELECT Antecedent,Dependent FROM EMC_SystemPackaging"
+          namespace: root/emc
+        source(4):
+          # Source(4) = Table union of Source(2) and Source(3)
+          # EMC_ArrayChassis;EMC_StorageSystem;
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+        source(5):
+          # Source(5) = EMC_StorageSystem
+          # EMC_StorageSystem;ElementName;Description;OtherIdentifyingInfo;OperationalStatus;
+          type: wbem
+          query: "SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem"
+          namespace: root/emc
+        source(6):
+          # Source(4) = EMC_ArrayChassis Source (1) joined to EMC_ComputerSystemPackage/EMC_SystemPackaging Source (4)
+          # EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+        source(7):
+          # Source(7) = Source (6) joined to EMC_StorageSystem Source (5)
+          # EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;EMC_StorageSystem;ElementName;Description;OtherIdentifyingInfo;OperationalStatus;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(6)$
+          rightTable: $monitors.enclosure.discovery.sources.source(5)$
+          leftKeyColumn: 5
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;;;
+        source(8):
+          # Source(8) = EMC_StorageSystem __Path to Name link table, used by other discoveries to link "System Name" to Enclosures.
+          # EMC_StorageSystem;SystemName;
+          type: wbem
+          query: "SELECT __PATH,Name FROM EMC_StorageSystem"
+          namespace: root/emc
+        source(9):
+          # Source(2) = EMC_ComponentCS
+          # Clariion  // EMC_StorageProcessorSystem;EMC_StorageSystem
+          # VNXe      // EMC_StorageProcessorSystem;C4CB_DiskProcessorEnclosure
+          #          and C4CB_DiskProcessorEnclosure;EMC_StorageSystem
+          type: wbem
+          query: "SELECT PartComponent,GroupComponent FROM EMC_ComponentCS"
+          namespace: root/emc
+        source(10):
+          # Source(9) = Table Joint of Source(8) with itself
+          # on Clariion System, the controller is linked to the Storage System, but on VNXe Systems it is linked to the Disk Processor Enclosure
+          # Clariion  // EMC_StorageProcessorSystem;EMC_StorageSystem
+          # VNXe      // EMC_StorageProcessorSystem;C4CB_DiskProcessorEnclosure;C4CB_DiskProcessorEnclosure;EMC_StorageSystem;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(9)$
+          rightTable: $monitors.enclosure.discovery.sources.source(9)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+          computes:
+            # Keep only lines that link objects to their grandfathers
+            # EMC_StorageProcessorSystem;C4CB_DiskProcessorEnclosure;C4CB_DiskProcessorEnclosure;EMC_StorageSystem;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: .
+            # Keep only the object and grandfather columns
+            # EMC_StorageProcessorSystem;EMC_StorageSystem
+          - type: keepColumns
+            columnNumbers: "1,4"
+        source(11):
+          # Table union of directly linked objects Source(10) and linked through disk processor enclosure objects Source(9)
+          # EMC_StorageProcessorSystem;EMC_StorageSystem
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(10)$
+          - $monitors.enclosure.discovery.sources.source(9)$
+          computes:
+            # Keep only lines that link objects to StorageSystem
+            # EMC_StorageProcessorSystem;EMC_StorageSystem
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: StorageSystem
+      mapping:
+        # InstanceTable = Source()
+        # EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;EMC_StorageSystem;ElementName;Description;OtherIdentifyingInfo;OperationalStatus;
+        source: $monitors.enclosure.discovery.sources.source(7)$
+        attributes:
+          id: $column(6)
+          __display_id: $column(7)
+          vendor: EMC
+          model: $column(2)
+          serial_number: $column(3)
+          type: Storage
+          device_hostname: $column(7)
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(7), \"EMC\", $column(2))"
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # EMC_StorageSystem;OperationalStatus;
+          type: wbem
+          query: "SELECT __PATH,OperationalStatus FROM EMC_StorageSystem"
+          namespace: root/emc
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # EMC_StorageSystem;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # EMC_StorageSystem;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # EMC_StorageSystem;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # EMC_StorageSystem;PATROLStatus;StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # EMC_StorageProcessorSystem;Name;ElementName;SerialNumber;SlotNumber;
+          type: wbem
+          query: "SELECT __PATH,Name,EMCAdapterName,EMCSerialNumber,EMCSlotNumber,OperationalStatus FROM EMC_StorageProcessorSystem"
+          namespace: root/emc
+          computes:
+            # Add a descriptor to Slot
+            # EMC_StorageProcessorSystem;Name;ElementName;SerialNumber;SlotNumber;OperationalStatus;
+          - type: leftConcat
+            column: 5
+            value: 'Slot - '
+            # Add a pipe to the left of the OpStatus.  We only want to match "0|" and not "30|"
+            # EMC_StorageProcessorSystem;Name;ElementName;SerialNumber;SlotNumber;OperationalStatus;
+          - type: leftConcat
+            column: 6
+            value: '|'
+            # Exclude Processors that have a status of "0|"
+            # EMC_StorageProcessorSystem;Name;ElementName;SerialNumber;SlotNumber;OperationalStatus;
+          - type: excludeMatchingLines
+            column: 6
+            valueList: '|0|'
+            # Remove the OperationalStatus so that I don't have to modify all the following code
+            # EMC_StorageProcessorSystem;Name;ElementName;SerialNumber;SlotNumber;
+          - type: keepColumns
+            columnNumbers: "1,2,3,4,5"
+        source(2):
+          # Source(2) = Source (1) joined to Enclosure Source (11)
+          # EMC_StorageProcessorSystem;Name;ElementName;SerialNumber;SlotNumber;EMC_StorageProcessorSystem;EMC_StorageSystem;
+          type: tableJoin
+          leftTable: $monitors.other_device.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+        source(3):
+          # Source(3) = Source (1) joined to Enclosure Source (8)
+          # EMC_StorageProcessorSystem;Name;ElementName;SerialNumber;SlotNumber;EMC_StorageProcessorSystem;EMC_StorageSystem;EMC_StorageSystem;SystemName;
+          type: tableJoin
+          leftTable: $monitors.other_device.discovery.sources.source(2)$
+          rightTable: $monitors.enclosure.discovery.sources.source(8)$
+          leftKeyColumn: 7
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+          computes:
+            # DUplicate the Name to get a deviceID and a displayid
+            # EMC_StorageProcessorSystem;DeviceName;DisplayName;ElementName;SerialNumber;SlotNumber;EMC_StorageProcessorSystem;EMC_StorageSystem;EMC_StorageSystem;SystemName;
+          - type: duplicateColumn
+            column: 2
+            # Right concat a "+" to System name and remove this string from the display name (name)
+            # EMC_StorageProcessorSystem;DeviceName;DisplayName;ElementName;SerialNumber;SlotNumber;EMC_StorageProcessorSystem;EMC_StorageSystem;EMC_StorageSystem;SystemName+;
+          - type: rightConcat
+            column: 10
+            value: +
+          - type: replace
+            column: 3
+            existingValue: Column(10)
+            newValue: ""
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+          - type: leftConcat
+            column: 5
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(2)
+        # EMC_StorageProcessorSystem;DeviceName;DisplayName;ElementName;SerialNumber;SlotNumber;EMC_StorageProcessorSystem;EMC_StorageSystem;EMC_StorageSystem;SystemName+;
+        source: $monitors.other_device.discovery.sources.source(3)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          device_type: Controller
+          info: "join($column(6), $column(5), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(8)
+          name: "sprintf(\"%s: %s\", \"Controller\", $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # ComputerID;OperationalStatus;
+          type: wbem
+          query: "SELECT Name,OperationalStatus FROM EMC_StorageProcessorSystem"
+          namespace: root/emc
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # ComputerID;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # ComputerID;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # ComputerID;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # ComputerID;PATROLStatus;StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_Fan
+          # EMC_Fan;DeviceID;ElementName;SystemName;OperationalStatus;
+          type: wbem
+          namespace: root/emc
+          query: "SELECT __PATH,DeviceID,ElementName,SystemName,OperationalStatus FROM EMC_Fan"
+          computes:
+            # Add a pipe to the left of the OpStatus.  We only want to match "0|" and not "30|"
+            # EMC_Fan;DeviceID;ElementName;SystemName;OperationalStatus;
+          - type: leftConcat
+            column: 5
+            value: '|'
+            # Exclude Processors that have a status of "0|"
+            # EMC_Fan;DeviceID;ElementName;SystemName;OperationalStatus;
+          - type: excludeMatchingLines
+            column: 5
+            valueList: '|0|'
+            # Remove the OperationalStatus so that I don't have to modify all the following code
+            # EMC_Fan;DeviceID;ElementName;SystemName;
+          - type: keepColumns
+            columnNumbers: "1,2,3,4"
+        source(2):
+          # Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(8)
+          # EMC_Fan;DeviceID;ElementName;SystemName;EMC_StorageSystem;SystemName;
+          type: tableJoin
+          leftTable: $monitors.fan.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(8)$
+          leftKeyColumn: 4
+          rightKeyColumn: 2
+          defaultRightLine: ;;
+          computes:
+            # Duplicate the DeviceID to get a DeviceID and DisplayID
+            # EMC_Fan;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName+;
+          - type: duplicateColumn
+            column: 2
+            # Right concat a "+" to System name and remove this string from the display name (name)
+            # EMC_Fan;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName+;
+          - type: rightConcat
+            column: 7
+            value: +
+          - type: replace
+            column: 3
+            existingValue: Column(7)
+            newValue: ""
+          # Make the DeviceID unique by prefexing it with "SystemName
+          - type: leftConcat
+            column: 2
+            value: Column(5)
+      mapping:
+        # InstanceTable = Source(2)
+        # EMC_Fan;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName;
+        source: $monitors.fan.discovery.sources.source(2)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
+          name: $column(3)
+    collect:
+      # The Fan collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = CIM_Fan
+          # DeviceID;SystemName;OperationalStatus;
+          type: wbem
+          namespace: root/emc
+          query: "SELECT DeviceID,SystemName,OperationalStatus FROM EMC_Fan"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DeviceID;SystemName;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 3
+          # Make the DeviceID unique by prefexing it with "SystemName
+          - type: leftConcat
+            column: 1
+            value: Column(2)
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID;SystemName;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID;SystemName;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID;SystemName;PATROLStatus;StatusInformation
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = EMC_PowerSupply
+          # EMC_PowerSupply;DeviceID;ElementName;SystemName;
+          type: wbem
+          namespace: root/emc
+          query: "SELECT __PATH,DeviceID,ElementName,SystemName,OperationalStatus FROM EMC_PowerSupply"
+          computes:
+            # Add a pipe to the left of the OpStatus.  We only want to match "0|" and not "30|"
+            # EMC_PowerSupply;DeviceID;ElementName;SystemName;OperationalStatus;
+          - type: leftConcat
+            column: 5
+            value: '|'
+            # Exclude Processors that have a status of "0|"
+            # EMC_PowerSupply;DeviceID;ElementName;SystemName;OperationalStatus;
+          - type: excludeMatchingLines
+            column: 5
+            valueList: '|0|'
+            # Remove the OperationalStatus so that I don't have to modify all the following code
+            # EMC_PowerSupply;DeviceID;ElementName;SystemName;
+          - type: keepColumns
+            columnNumbers: "1,2,3,4"
+        source(2):
+          # Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(8)
+          # EMC_PowerSupply;DeviceID;ElementName;SystemName;EMC_StorageSystem;SystemName;
+          type: tableJoin
+          leftTable: $monitors.power_supply.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(8)$
+          leftKeyColumn: 4
+          rightKeyColumn: 2
+          defaultRightLine: ;;
+          computes:
+            # Duplicate the DeviceID to get a DeviceID and DisplayID
+            # EMC_PowerSupply;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName;
+          - type: duplicateColumn
+            column: 2
+            # Right concat a "+" to System name and remove this string from the display name (name)
+            # EMC_PowerSupply;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName+;
+          - type: rightConcat
+            column: 7
+            value: +
+          - type: replace
+            column: 3
+            existingValue: Column(7)
+            newValue: ""
+          # Make the DeviceID unique by prefexing it with "SystemName
+          - type: leftConcat
+            column: 2
+            value: Column(5)
+      mapping:
+        # InstanceTable = Source(2)
+        # EMC_PowerSupply;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName+;
+        source: $monitors.power_supply.discovery.sources.source(2)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
+          name: $column(3)
+    collect:
+      # The PowerSupply collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = EMC_PowerSupply
+          # DeviceID;SystemName,OperationalStatus;
+          type: wbem
+          namespace: root/emc
+          query: "SELECT DeviceID,SystemName,OperationalStatus FROM EMC_PowerSupply"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DeviceID;SystemName;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 3
+          # Make the DeviceID unique by prefexing it  with "SystemName
+          - type: leftConcat
+            column: 1
+            value: Column(2)
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID;SystemName;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID;SystemName;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID;SystemName;PATROLStatus;StatusInformation
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = EMC_PowerSupply
+          # EMC_Battery;DeviceID;ElementName;SystemName;OperationalStatus;
+          type: wbem
+          namespace: root/emc
+          query: "SELECT __PATH,DeviceID,ElementName,SystemName,OperationalStatus FROM EMC_Battery"
+          computes:
+            # Add a pipe to the left of the OpStatus.  We only want to match "0|" and not "30|"
+            # EMC_Battery;DeviceID;ElementName;SystemName;OperationalStatus;
+          - type: leftConcat
+            column: 5
+            value: '|'
+            # Exclude Batteries that have been removed or status of unknown
+            # EMC_Battery;DeviceID;ElementName;SystemName;OperationalStatus;
+          - type: excludeMatchingLines
+            column: 5
+            valueList: "|32768|,|0|"
+            # Trim off the OP Status column
+            # EMC_Battery;DeviceID;ElementName;SystemName;OperationalStatus;
+          - type: keepColumns
+            columnNumbers: "1,2,3,4"
+        source(2):
+          # Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(8)
+          # EMC_Battery;DeviceID;ElementName;SystemName;EMC_StorageSystem;SystemName;
+          type: tableJoin
+          leftTable: $monitors.battery.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(8)$
+          leftKeyColumn: 4
+          rightKeyColumn: 2
+          defaultRightLine: ;;
+          computes:
+            # Duplicate the DeviceID
+            # EMC_Battery;DeviceID;DeviceID;ElementName;SystemName;EMC_StorageSystem;SystemName;
+          - type: duplicateColumn
+            column: 2
+            # Right concat a "+" to System name and remove this string from the display name (name)
+            # EMC_Battery;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName+;
+          - type: rightConcat
+            column: 7
+            value: +
+          - type: replace
+            column: 3
+            existingValue: Column(7)
+            newValue: ""
+          # Make the DeviceID unique by prefexing it with "SystemName
+          - type: leftConcat
+            column: 2
+            value: Column(5)
+      mapping:
+        # InstanceTable = Source(2)
+        # EMC_Battery;DeviceID;DisplayID;ElementName;SystemName;EMC_StorageSystem;SystemName+;
+        source: $monitors.battery.discovery.sources.source(2)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
+          name: $column(3)
+    collect:
+      # The EMC_Battery collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = EMC_PowerSupply
+          # DeviceID;SystemName;OperationalStatus;
+          type: wbem
+          namespace: root/emc
+          query: "SELECT DeviceID,SystemName,OperationalStatus FROM EMC_Battery"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DeviceID;SystemName;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 3
+          - type: leftConcat
+            column: 1
+            value: Column(2)
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID;SystemName;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID;SystemName;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID;SystemName;PATROLStatus;StatusInformation
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = EMC_EthernetPort
+          # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;
+          type: wbem
+          query: "SELECT __PATH,SystemName,SystemCreationClass,DeviceID,PermanentAddress,Speed,ElementName FROM EMC_EthernetPort"
+          namespace: root/emc
+          computes:
+            # Add a hardcoded Port Type and AddressType
+            # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: rightConcat
+            column: 7
+            value: ;Ethernet;MAC
+            # Convert Speed from bps to Mbps (divide by 1000000)
+            # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: divide
+            column: 6
+            value: 1000000
+        source(2):
+          # Source(2) = EMC_FrontEndFCPort
+          # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          type: wbem
+          query: "SELECT __PATH,SystemName,SystemCreationClass,DeviceID,PermanentAddress,Speed,ElementName,PortType FROM EMC_FrontEndFCPort"
+          namespace: root/emc
+          computes:
+            # Translate the Port Type (FC Only)
+            # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;
+          - type: translate
+            column: 8
+            translationTable: PortTypeTranslationTable
+            # Add a hardcoded AddressType
+            # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: rightConcat
+            column: 8
+            value: ;WWN
+            # Convert Speed from bps to Mbps (divide by 1000000)
+            # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: divide
+            column: 6
+            value: 1143535.043
+        source(3):
+          # Source 3 = Union of 1 & 2
+          # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          type: tableUnion
+          tables:
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(2)$
+          computes:
+            # Keep only Ports attached to Storage Systems.
+            # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: StorageSystem
+            # Duplicate column 2
+            # EMC_EthernetPort;SystemName;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: duplicateColumn
+            column: 2
+        source(4):
+          # Source 4 = Union of 1 & 2
+          # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          type: tableUnion
+          tables:
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(2)$
+          computes:
+            # Exclude Ports attached to Storage Systems. (Try and attach them via storage processors.)
+            # EMC_EthernetPort;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: excludeMatchingLines
+            column: 3
+            regExp: StorageSystem
+            # Duplicate column 2
+            # EMC_EthernetPort;SystemName;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: duplicateColumn
+            column: 2
+            # Extract the first part of the System Name into Column 2, and the second part into Column 3
+            # EMC_EthernetPort;SystemName;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: extract
+            column: 2
+            subColumn: 1
+            subSeparators: +
+          # note: the second column can start with a zero, which causes the column to be converted into an integer and loose zeros, adding an ! to prevent this.
+          - type: replace
+            column: 3
+            existingValue: +0
+            newValue: +!0
+          - type: extract
+            column: 3
+            subColumn: 2
+            subSeparators: +
+            # Right Concat the + back onto the SystemName and the second part of the SystemName
+            # EMC_EthernetPort;SystemName;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          - type: rightConcat
+            column: 2
+            value: +
+          - type: rightConcat
+            column: 2
+            value: Column(3)
+          # Removing protective exclamation mark
+          - type: replace
+            column: 2
+            existingValue: +!0
+            newValue: +0
+        source(5):
+          # Source 5 = Union of 3 & 4
+          # EMC_EthernetPort;SystemName;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;
+          type: tableUnion
+          tables:
+          - $monitors.network.discovery.sources.source(3)$
+          - $monitors.network.discovery.sources.source(4)$
+        source(6):
+          # Source(6) = Table joint between Source(1) and Enclosure.Discovery.Source(8)
+          # EMC_EthernetPort;SystemName;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;EMC_StorageSystem;SystemName;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(5)$
+          rightTable: $monitors.enclosure.discovery.sources.source(8)$
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          defaultRightLine: ;;
+          computes:
+            # Duplicate the DeviceID
+            # EMC_EthernetPort;SystemName+;SystemName;SystemCreationClass;DeviceID;PermanentAddress;Speed;ElementName;PortType;AddressType;EMC_StorageSystem;SystemName;
+          - type: duplicateColumn
+            column: 5
+            # Right concat a "+" to System name and remove this string from the display name (name)
+            # EMC_EthernetPort;SystemName+;SystemName;SystemCreationClass;DeviceID;DisplayID;PermanentAddress;Speed;ElementName;PortType;AddressType;EMC_StorageSystem;SystemName;
+          - type: rightConcat
+            column: 2
+            value: +
+          - type: replace
+            column: 6
+            existingValue: Column(2)
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(4)
+        # EMC_EthernetPort;SystemName;SystemName;SystemCreationClass;DeviceID;DisplayID;PermanentAddress;Speed;ElementName;PortType;AddressType;EMC_StorageSystem;SystemName;
+        source: $monitors.network.discovery.sources.source(6)$
+        attributes:
+          id: $column(5)
+          __display_id: $column(6)
+          physical_address: $column(7)
+          physical_address_type: $column(11)
+          device_type: $column(10)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(12)
+          name: "sprintf(\"%s (%s)\", $column(6), $column(10))"
+    collect:
+      # The NetworkCard collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = EMC_EthernetPort
+          # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+          type: wbem
+          query: "SELECT SystemName,DeviceID,PortType,EnabledState,Speed,OperationalStatus FROM EMC_EthernetPort"
+          namespace: root/emc
+          computes:
+            # Duplicate the Speed column (one for LinkStatus, the other for LinkSpeed)
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+          - type: duplicateColumn
+            column: 5
+            # Now, convert the second speed column to SpeedMbps by dividing by 1048576
+            # SystemName;DeviceID;PortTypeCode;EnabledState;LinkStatus;SpeedGbps;PATROLStatusArray;Status
+          - type: divide
+            column: 6
+            value: 1048576
+        source(2):
+          # Source(2) = EMC_FrontEndFCPort
+          # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;Speed;OperationalStatusArray
+          type: wbem
+          query: "SELECT SystemName,DeviceID,PortType,EnabledState,Speed,OperationalStatus FROM EMC_FrontEndFCPort"
+          namespace: root/emc
+          computes:
+            # Duplicate the Speed column (one for LinkStatus, the other for LinkSpeed)
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;Speed;OperationalStatusArray
+          - type: duplicateColumn
+            column: 5
+            # Now, convert the second speed column to SpeedGbps by dividing by 1GB*1.065 (don't ask me why, see EMC's SMI-S Provider Programming Guide...)
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;SpeedGbps;PATROLStatusArray;Status
+          - type: divide
+            column: 6
+            value: 1143535043
+            # And finally convert SpeedGbps to SpeedMbps (I know it's weird)
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;SpeedMbps;PATROLStatusArray;Status
+          - type: multiply
+            column: 6
+            value: 1000
+        source(3):
+          # Source 4 = Union of 1 & 2
+          # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;LinkSpeed;OperationalStatusArray
+          type: tableUnion
+          tables:
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(2)$
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;LinkSpeed;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 7
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;LinkSpeed;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 7
+            translationTable: CIMFCPortOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;LinkSpeed;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 8
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName;DeviceID;PortTypeCode;EnabledState;Speed;LinkSpeed;PATROLStatus;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+            # Finally, we check whether we have a real 'Speed' number, meaning that the link is up
+            # Otherwise, if no speed, it means that the link is down
+            # SystemName;DeviceID;PortTypeCode;EnabledState;LinkStatus;LinkSpeed;PATROLStatusArray;Status
+          - type: translate
+            column: 5
+            translationTable: SpeedToLinkStatusTranslationTable
+      mapping:
+        # ValueTable = Source(3)
+        source: $monitors.network.collect.sources.source(3)$
+        deviceId: $column(2)
+        metrics:
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.status{hw.type="network"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = EMC_DiskDrive
+          # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName;ElementName;
+          type: wbem
+          query: "SELECT __PATH,DeviceID,MaxMediaSize,Caption,SystemName,ElementName FROM EMC_DiskDrive"
+          namespace: root/emc
+          computes:
+            # Convert SizeK from 1000 of bytes to bytes
+            # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName;ElementName;
+          - type: multiply
+            column: 3
+            value: 1000
+            # Duplicate System Name
+            # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName;SystemName;ElementName;
+          - type: duplicateColumn
+            column: 5
+            # Remove Symmetrix and Clariion from the DeviceID
+            # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName&DeviceID;SystemName;ElementName;
+          - type: replace
+            column: 2
+            existingValue: SYMMETRIX
+            newValue: ""
+          - type: replace
+            column: 2
+            existingValue: CLARiiON
+            newValue: ""
+            # Add the Device ID to the SystemName Column to produce a unique identifier.
+            # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName&DeviceID;SystemName;ElementName;
+          - type: rightConcat
+            column: 5
+            value: Column(2)
+        source(2):
+          # Source(2) = EMC_DiskDriveView
+          # DeviceID;SystemName;Manufacturer;Model;Serial;
+          type: wbem
+          query: "SELECT DDDeviceID,DDSystemName,PPManufacturer,PPModel,PPSerialNumber FROM EMC_DiskDriveView"
+          namespace: root/emc
+          computes:
+            # Remove Symmetrix and Clariion from the DeviceID
+            # DeviceID;SystemName&DeviceID;Manufacturer;Model;Serial;
+          - type: replace
+            column: 1
+            existingValue: SYMMETRIX
+            newValue: ""
+          - type: replace
+            column: 1
+            existingValue: CLARiiON
+            newValue: ""
+            # Add the Device ID to the SystemName Column to produce a unique identifier.
+            # DeviceID;SystemName&DeviceID;Manufacturer;Model;Serial;
+          - type: rightConcat
+            column: 2
+            value: Column(1)
+        source(3):
+          # Source(3) = Table Joint of 1 & 2
+          # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName&DeviceID;SystemName;ElementName;DeviceID;SystemName&DeviceID;Manufacturer;Model;Serial;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 5
+          rightKeyColumn: 2
+          defaultRightLine: ;;;;;
+        source(4):
+          # Source(4) = Table joint between Source(3) and Enclosure.Discovery.Source(8)
+          # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName&DeviceID;SystemName;ElementName;DeviceID;SystemName&DeviceID;Manufacturer;Model;Serial;EMC_StorageSystem;SystemName;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(8)$
+          leftKeyColumn: 6
+          rightKeyColumn: 2
+          defaultRightLine: ;;
+          computes:
+            # Replace Symmetrix Disk and CLARiiON Disk from the Display Name
+            # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName&DeviceID;SystemName;ElementName;DeviceID;SystemName&DeviceID;Manufacturer;Model;Serial;EMC_StorageSystem;SystemName;
+          - type: replace
+            column: 7
+            existingValue: 'Symmetrix Disk '
+            newValue: ""
+          - type: replace
+            column: 7
+            existingValue: 'CLARiiON Disk '
+            newValue: ""
+          # AdditionalInformation Disk Type
+          - type: leftConcat
+            column: 4
+            value: "Disk Type: "
+      mapping:
+        # Finally here is the instance table...
+        # EMC_DiskDrive;DeviceID;Size;DiskType;SystemName&DeviceID;SystemName;ElementName;DeviceID;SystemName&DeviceID;Manufacturer;Model;Serial;EMC_StorageSystem;SystemName;
+        source: $monitors.physical_disk.discovery.sources.source(4)$
+        attributes:
+          id: $column(5)
+          __display_id: $column(7)
+          vendor: $column(10)
+          model: $column(11)
+          serial_number: $column(12)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(13)
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(7), $column(10), $column(3))"
+        metrics:
+          hw.physical_disk.size: $column(3)
+    collect:
+      # The physical disk collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the only source = CIM_DiskDrive
+          # DiskID;SystemName;OperationalStatusArray
+          type: wbem
+          query: "SELECT DeviceID,SystemName,OperationalStatus FROM EMC_DiskDrive"
+          namespace: root/emc
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DiskID;SystemName;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DiskID;SystemName;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DiskID;SystemName;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DiskID;SystemName;PATROLStatus;StatusInformation
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+            # Remove Symmetrix and Clariion from the DeviceID
+            # DiskID;SystemName;PATROLStatus;StatusInformation
+          - type: replace
+            column: 1
+            existingValue: SYMMETRIX
+            newValue: ""
+          - type: replace
+            column: 1
+            existingValue: CLARiiON
+            newValue: ""
+            # Add the Device ID to the SystemName Column to produce a unique identifier.
+            # DiskID;SystemName&DeviceID;PATROLStatus;StatusInformation
+          - type: rightConcat
+            column: 2
+            value: Column(1)
+      mapping:
+        # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+translations:
+  DMTFOperationStatusTranslationTable:
+    default: UNKNOWN
+    "32768": failed
+    "32769": ok
+    "10": failed
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "32775": ok
+    "32776": degraded
+    "2": ok
+    "32773": failed
+    "3": degraded
+    "32774": ok
+    "4": degraded
+    "32771": degraded
+    "5": degraded
+    "32772": ok
+    "6": failed
+    "7": failed
+    "32770": failed
+    "8": degraded
+    "9": degraded
+    "32777": ok
+    "32778": ok
+  CIMFCPortOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": ok
+  PortTypeTranslationTable:
+    "11": FC Port NL
+    "12": FC Port F/NL
+    "13": FC Port Nx
+    default: FC Port
+    "14": FC Port E
+    "15": FC Port F
+    "16": FC Port FL
+    "17": FC Port B
+    "18": FC Port G
+    "19": FC Port GL
+    "10": FC Port N
+  DMTFOperationStatusInformationTranslationTable:
+    default: ""
+    "32768": Removed
+    "32769": Online
+    "10": Stopped
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "32775": Write Protected
+    "32776": Not Ready
+    "2": ""
+    "32773": Failure
+    "3": Degraded
+    "32774": Write Disabled
+    "4": Stressed
+    "32771": Rebooting
+    "5": Predicted Failure
+    "32772": Success
+    "6": Error
+    "7": Non-Recoverable Error
+    "32770": Offline
+    "8": Starting
+    "9": Stopping
+    "32777": Power Saving Mode
+    "32778": "Reported Status: Vendor Reserved"
+  SpeedToLinkStatusTranslationTable:
+    "0": degraded
+    ? ""
+    : degraded
+    default: ok

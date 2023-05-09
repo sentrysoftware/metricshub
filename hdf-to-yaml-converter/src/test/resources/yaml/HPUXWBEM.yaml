@@ -1,0 +1,757 @@
+---
+connector:
+  displayName: HP-UX (WBEM)
+  platforms: "HP 9000,HP Integrity,HP SuperDome"
+  reliesOn: HP-UX WBEM Provider
+  information: Provides the monitoring of HP-UX servers through the HP-UX WBEM Provider.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - HP
+    supersedes:
+    - HPUX
+    - HPUXDisk
+    - HPUXSasMgr
+    - HPUXSAUtil
+    - HPUXStm
+    criteria:
+    # Checking the version of ESXi
+    - type: wbem
+      namespace: root/cimv2
+      query: SELECT DeviceID FROM HPUX_Processor
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) PG_ComputerSystem class
+          # model;serialNumber;
+          type: wbem
+          namespace: root/cimv2
+          query: "SELECT caption,SerialNumber FROM PG_ComputerSystem"
+      mapping:
+        # InstanceTable = Source(1)
+        # model;serialNumber;
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: HPServer
+          model: $column(1)
+          serial_number: $column(2)
+          vendor: HP
+          type: Computer
+          name: "sprintf(\"Computer: (%s %s)\", \"HP\", $column(1))"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # ID;MaxClockSpeed;Description;CurrentClockSpeed
+          type: wbem
+          query: "SELECT DeviceID,OperationalStatus,Name,CurrentClockSpeed FROM HPUX_Processor"
+          namespace: root/cimv2
+          computes:
+            # Exclude any "Dormant" CPUs Operation Status contains 15|
+            # ID;MaxClockSpeed;Description;CurrentClockSpeed
+          - type: excludeMatchingLines
+            column: 2
+            regExp: 15\\\|
+          - type: replace
+            column: 2
+            existingValue: (R)
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;MaxClockSpeed;Description;CurrentClockSpeed
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          model: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # DeviceID,CurrentClockSpeed,OperationalStatus
+          type: wbem
+          query: "SELECT DeviceID,CurrentClockSpeed,OperationalStatus FROM HPUX_Processor"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,OperationalStatus,OperationalStatus
+          - type: duplicateColumn
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,CurrentClockSpeed,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,CurrentClockSpeed,PatrolStatus,OperationalStatus
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,CurrentClockSpeed,PatrolStatus,StatusInformation
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+      mapping:
+        # Instance ,Table
+        # DeviceID,CurrentClockSpeed,PatrolStatus,StatusInformation
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(3)
+          hw.cpu.speed: megaHertz2Hertz($column(2))
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Source 1 = HP_PhysicalMemory
+          # ID,PartNumber,Capacity
+          type: wbem
+          query: "SELECT Tag,PartNumber,Capacity FROM HP_PhysicalMemory"
+          namespace: root/cimv2
+          computes:
+            # Convert Capacity from bytes to MBytes
+            # ID,PartNumber,Capacity
+          - type: divide
+            column: 3
+            value: 1048576
+        source(2):
+          # Source 2 = HP_MemoryLocation
+          # ID,Location
+          type: wbem
+          query: "SELECT PhysicalPosition,Name FROM HP_MemoryLocation"
+          namespace: root/cimv2
+        source(3):
+          # Source 3 = Table Joint of 1 and 2
+          # ID,PartNumber,Capacity,ID,Location
+          type: tableJoin
+          leftTable: $monitors.memory.discovery.sources.source(1)$
+          rightTable: $monitors.memory.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+          computes:
+          # ID,PartNumber,Capacity,ID,Label,Location,
+          - type: duplicateColumn
+            column: 5
+          - type: replace
+            column: 6
+            existingValue: ':'
+            newValue: ""
+          - type: replace
+            column: 6
+            existingValue: '-'
+            newValue: ""
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+      mapping:
+        # InstanceTable = Source(1)
+        # ID,PartNumber,Capacity,ID,Location
+        source: $monitors.memory.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          __display_id: $column(5)
+          info: $column(6)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s MB)\", $column(5), $column(3))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(3))
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # DeviceID,OperationalStatus
+          type: wbem
+          query: "SELECT Tag,OperationalStatus FROM HP_PhysicalMemory"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,OperationalStatus,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PatrolStatus,OperationalStatus
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PatrolStatus,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+      mapping:
+        # Instance Table
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # ID;DisplayName;PartNumber;Location;
+          type: wbem
+          query: "SELECT Tag,ElementName,PartNumber,Description FROM HP_PowerSupplyModule"
+          namespace: root/cimv2
+          computes:
+          - type: replace
+            column: 4
+            existingValue: "This is a power supply device with following details: "
+            newValue: ""
+          - type: replace
+            column: 4
+            existingValue: ':'
+            newValue: ' '
+          - type: replace
+            column: 4
+            existingValue: '-'
+            newValue: ""
+          - type: leftConcat
+            column: 4
+            value: "Location: "
+          - type: leftConcat
+            column: 3
+            value: "Part Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;DisplayName;PartNumber;Location;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          info: "join($column(4), $column(3), \" \")"
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # DeviceID,OperationalStatus
+          type: wbem
+          query: "SELECT Tag,OperationalStatus FROM HP_PowerSupplyModule"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,OperationalStatus,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PatrolStatus,OperationalStatus
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PatrolStatus,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+      mapping:
+        # Instance Table
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # DeviceID,Name,CurrentReading,OperationalStatus,SensorType,UpperThresholdNonCritical,UpperThresholdCritical
+          type: wbem
+          query: "SELECT DeviceID,Name,CurrentReading,OperationalStatus,SensorType,UpperThresholdNonCritical,UpperThresholdCritical FROM HP_NumericSensor"
+          namespace: root/cimv2
+          computes:
+            # Keep only SensorType (2) temperature
+            # DeviceID,Name,CurrentReading,OperationalStatus,SensorType,UpperThresholdNonCritical,UpperThresholdCritical
+          - type: keepOnlyMatchingLines
+            column: 5
+            valueList: 2
+            # Remove Thresholds of zero
+            # DeviceID,Name,CurrentReading,OperationalStatus,SensorType,UpperThresholdNonCritical,UpperThresholdCritical
+          - type: leftConcat
+            column: 6
+            value: MSHW_
+          - type: leftConcat
+            column: 7
+            value: MSHW_
+          # Remove 0 value
+          - type: replace
+            column: 6
+            existingValue: MSHW_0
+            newValue: ""
+          - type: replace
+            column: 7
+            existingValue: MSHW_0
+            newValue: ""
+          # Remove MSHW_ for non 0 values
+          - type: replace
+            column: 6
+            existingValue: MSHW_
+            newValue: ""
+          - type: replace
+            column: 7
+            existingValue: MSHW_
+            newValue: ""
+            # Remove the String "TempSensorInfo " from the Name
+            # DeviceID,Name,CurrentReading,OperationalStatus,SensorType,UpperThresholdNonCritical,UpperThresholdCritical
+          - type: replace
+            column: 2
+            existingValue: 'TempSensorInfo '
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID,Name,CurrentReading,OperationalStatus,SensorType,UpperThresholdNonCritical,UpperThresholdCritical
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+        metrics:
+          hw.temperature.limit{limit_type="high.critical"}: $column(7)
+          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # DeviceID,CurrentReading,OperationalStatus,SensorType
+          type: wbem
+          query: "SELECT DeviceID,CurrentReading,OperationalStatus,SensorType FROM HP_NumericSensor"
+          namespace: root/cimv2
+          computes:
+            # Keep only SensorType (2) temperature
+            # DeviceID,CurrentReading,OperationalStatus,SensorType
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 2
+          # DeviceID,CurrentReading,OperationalStatus,OperationalStatus,SensorType
+          - type: duplicateColumn
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,CurrentReading,PatrolStatusArray,OperationalStatus,SensorType
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,CurrentReading,PatrolStatus,OperationalStatus,SensorType
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,CurrentReading,PatrolStatus,StatusInformation,SensorType
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+      mapping:
+        # Instance Table
+        # DeviceID,CurrentReading,PatrolStatus,StatusInformation,SensorType
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # InstanceID,Caption
+          type: wbem
+          query: "SELECT InstanceID,Caption FROM HP_SystemVoltageCollection"
+          namespace: root/cimv2
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;MaxClockSpeed;Description;CurrentClockSpeed
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # DeviceID,OperationalStatus
+          type: wbem
+          query: "SELECT InstanceID,GroupOperationalStatus FROM HP_SystemVoltageCollection"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,OperationalStatus,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PatrolStatus,OperationalStatus
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PatrolStatus,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+      mapping:
+        # Instance Table
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="voltage"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # ID;Location;Display;
+          type: wbem
+          query: "SELECT DeviceID,Description,Caption FROM HP_Fan"
+          namespace: root/cimv2
+          computes:
+            # Add the Device ID to the Display ID
+            # ID;Location;Display;
+          - type: rightConcat
+            column: 3
+            value: ' '
+          # ID;Location;Display;
+          - type: rightConcat
+            column: 3
+            value: Column(1)
+          - type: replace
+            column: 2
+            existingValue: "This is a cooling device with following details: "
+            newValue: ""
+          - type: replace
+            column: 2
+            existingValue: ':'
+            newValue: ' '
+          - type: replace
+            column: 2
+            existingValue: '-'
+            newValue: ""
+          - type: leftConcat
+            column: 2
+            value: "Location: "
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          info: $column(2)
+          hw.parent.type: enclosure
+          name: $column(3)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # DeviceID,OperationalStatus
+          type: wbem
+          query: "SELECT DeviceID,OperationalStatus FROM HP_Fan"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,OperationalStatus,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PatrolStatus,OperationalStatus
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PatrolStatus,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+      mapping:
+        # Instance Table
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  CIM_PortController
+          # DeviceID,OperationalStatus,ProductName,HWPath
+          type: wbem
+          query: "SELECT DeviceID,OperationalStatus,ProductName,HWPath FROM CIM_PortController"
+          namespace: root/cimv2
+        source(2):
+          # Get a List of Physical Disks (We will only keep controllers with associated Disks)
+          # LegacyHardwarePath
+          type: wbem
+          query: SELECT LegacyHardwarePath FROM HP_DiskDrive
+          namespace: root/cimv2
+          computes:
+            # Remove Everything after the first . to get the controller ID
+            # ControllerHWPath
+          - type: extract
+            column: 1
+            subColumn: 1
+            subSeparators: .
+        source(3):
+          # Source 3 = Table Joint of 1 and 2
+          # DeviceID,OperationalStatus,ProductName,HWPath,ControllerHWPath
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftKeyColumn: 4
+          rightKeyColumn: 1
+      mapping:
+        # The Instance table
+        # DeviceID,OperationalStatus,ProductName,HWPath,ControllerHWPath
+        source: $monitors.disk_controller.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          controller_number: $column(4)
+          model: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(3))"
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  VMWare_HHRCController
+          # OperationalStatus,DeviceID
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT OperationalStatus,DeviceID FROM CIM_PortController"
+          namespace: root/cimv2
+          computes:
+          # OperationalStatus,OperationalStatus,DeviceID
+          - type: duplicateColumn
+            column: 1
+          # PatrolStatusArray,OperationalStatus,DeviceID
+          - type: arrayTranslate
+            column: 1
+            translationTable: DMTFOperationStatusTranslationTable
+          # PatrolStatusArray,StatusInformation,DeviceID
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusInformationTranslationTable
+          # PatrolStatus,OperationalStatus,DeviceID
+          - type: convert
+            column: 1
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  HP_DiskDrive
+          # DeviceID,Capacity,ProductID,SerialNumber,VendorID,LegacyHardwarePath
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT DeviceID,Capacity,ProductID,SerialNumber,VendorID,LegacyHardwarePath FROM HP_DiskDrive"
+          namespace: root/cimv2
+          computes:
+            # Convert GigaBytes to Bytes
+            # DeviceID,Capacity,ProductID,SerialNumber,VendorID,LegacyHardwarePath
+          - type: multiply
+            column: 2
+            value: 1073741824
+            # Remove Everything after the first . to get the controller ID
+            # DeviceID,Capacity,ProductID,SerialNumber,VendorID,LegacyHardwarePath
+          - type: extract
+            column: 6
+            subColumn: 1
+            subSeparators: .
+      mapping:
+        # The Instance table
+        # DeviceID,Capacity,ProductID,SerialNumber,VendorID,ControllerPath
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          model: $column(3)
+          serial_number: $column(4)
+          vendor: $column(5)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(5), $column(2))"
+        metrics:
+          hw.physical_disk.size: $column(2)
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  HP_DiskDrive
+          # DeviceID,OperationalStatus
+          type: wbem
+          query: "SELECT DeviceID,OperationalStatus FROM HP_DiskDrive"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,OperationalStatus,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+          # DeviceID,PatrolStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+          # DeviceID,PatrolStatusArray,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+          # DeviceID,PatrolStatus,OperationalStatus
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  HPUX_PhysicalVolume
+          # DeviceID
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: SELECT DeviceID FROM HPUX_PhysicalVolume
+          namespace: root/cimv2
+      mapping:
+        # The Instance table
+        # DeviceID,Capacity,ProductID,SerialNumber,VendorID,ControllerPath
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  HPUX_PhysicalVolume
+          # DeviceID,OperationalStatus
+          type: wbem
+          query: "SELECT DeviceID,OperationalStatus FROM HPUX_PhysicalVolume"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,OperationalStatus,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+          # DeviceID,PatrolStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+          # DeviceID,PatrolStatusArray,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+          # DeviceID,PatrolStatus,OperationalStatus
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "2": ""
+    default: ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped

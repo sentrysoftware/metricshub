@@ -1,0 +1,394 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: SMI-S compliant disk arrays
+//                Connects to a SMI-S WBEM agent
+//				  (namespace is supposed to be dynamically discovered)
+//
+
+// Constants
+#define _COMPUTERSYSTEM_DEDICATED_REGEXP "\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)"
+#define _FCPORT_TYPE_VALUELIST "10,11,12"
+
+// Includes
+#include MS_HW_SMISShared.hhdf
+
+//
+// Header
+//
+
+hdf.DisplayName="SMI-S Compliant Disk Arrays"
+hdf.TypicalPlatform="Any SMI-S compliant disk array"
+hdf.ReliesOn="SMI-S Agent provided by the array vendor"
+hdf.Version="1.6"
+hdf.Comments="This connector discovers the enclosure and the disks of SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+//
+// Detection
+//
+
+// Verify that there is a CIM_ComputerSystem instance where Dedicated == 3 (Storage)
+// Use this request to find the namespace automatically
+
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace=Automatic
+Detection.Criteria(1).WbemQuery="SELECT Name,Dedicated FROM CIM_ComputerSystem"
+Detection.Criteria(1).ExpectedResult="[;|]3|[0-9|]*;$"
+
+// There also must be disk drives declared in this namespace
+Detection.Criteria(2).Type="WBEM"
+Detection.Criteria(2).WbemQuery="SELECT DeviceID FROM CIM_DiskDrive"
+Detection.Criteria(2).WbemNameSpace=Automatic
+
+
+
+
+
+//
+//  Physical disks
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_DiskDrive
+// DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfoLocation;
+PhysicalDisk.Discovery.Source(1).Type="WBEM"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT __PATH,MaxMediaSize,deviceID,Caption,OtherIdentifyingInfo,Location FROM CIM_DiskDrive"
+PhysicalDisk.Discovery.Source(1).WbemNameSpace=Automatic
+
+// Convert SizeK from 1000 of bytes to bytes
+// DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column="2"
+PhysicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=1000
+
+// Concat OtherIdentifyingInfo and Location together
+// DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="RightConcat"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(2).String=" "
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="RightConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(3).String=Column(6)
+
+// Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
+// DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+PhysicalDisk.Discovery.Source(2).Type="TableJoint"
+PhysicalDisk.Discovery.Source(2).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(18)%
+PhysicalDisk.Discovery.Source(2).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(2).RightKeyColumn=1
+PhysicalDisk.Discovery.Source(2).KeyType="Wbem"
+PhysicalDisk.Discovery.Source(2).DefaultRightLine=";;;;;"
+
+// Add "Disk Device ID: " to label AdditionalInformation1
+PhysicalDisk.Discovery.Source(2).Compute(1).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(2).Compute(1).Column=3
+PhysicalDisk.Discovery.Source(2).Compute(1).String="Disk Device ID: "
+
+// Add "Caption: " to label AdditionalInformation2
+PhysicalDisk.Discovery.Source(2).Compute(2).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(2).Compute(2).Column=4
+PhysicalDisk.Discovery.Source(2).Compute(2).String="Caption: "
+
+// Add "Address: " to label AdditionalInformation3
+PhysicalDisk.Discovery.Source(2).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(2).Compute(3).Column=5
+PhysicalDisk.Discovery.Source(2).Compute(3).String="Address: "
+
+// Finally here is the instance table...
+// DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;LogicalDeviceID;ChassisID;Manufacturer Model;Model;SerialNumber;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(9)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(10)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType="Enclosure"
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(5)
+
+//
+// Collect
+
+// The physical disk collect is a "MultiInstance" collect
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the only source = CIM_DiskDrive
+// DiskID;OperationalStatusArray
+PhysicalDisk.Collect.Source(1).Type="WBEM"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT __PATH,OperationalStatus FROM CIM_DiskDrive"
+PhysicalDisk.Collect.Source(1).WbemNameSpace=Automatic
+
+// Duplicate the "OperationalStatusArray" column
+// DiskID;OperationalStatusArray;OperationalStatusArray;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DiskID;PATROLStatusArray;Status
+PhysicalDisk.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DiskID;PATROLStatusArray;StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=3
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+PhysicalDisk.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DiskID;PATROLStatus;StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Convert"
+PhysicalDisk.Collect.Source(1).Compute(4).Column=2
+PhysicalDisk.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// Logical disks
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_StorageVolume
+// VolumeID;BlockSize;SizeInBlocks
+LogicalDisk.Discovery.Source(1).Type="WBEM"
+LogicalDisk.Discovery.Source(1).WbemQuery="SELECT __PATH,BlockSize,NumberOfBlocks FROM CIM_StorageVolume"
+LogicalDisk.Discovery.Source(1).WbemNameSpace=Automatic
+
+// Compute the real size of the volumes (SizeInBlocks * BlockSize)
+// VolumeID;BlockSize;SizeBytes
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=3
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=Column(2)
+
+// Source(2) = CIM_StorageSetting
+// StorageSettingInstanceID;Label
+LogicalDisk.Discovery.Source(2).Type="WBEM"
+LogicalDisk.Discovery.Source(2).WbemQuery="SELECT __PATH,ElementName FROM CIM_StorageSetting"
+LogicalDisk.Discovery.Source(2).WbemNameSpace=Automatic
+
+// Source(3) = CIM_ElementSettingData
+// This is the link between CIM_StorageSetting [Source(2)] and CIM_StorageVolumne [Source(1)]
+// ManagedElementID;SettingDataID
+LogicalDisk.Discovery.Source(3).Type="WBEM"
+LogicalDisk.Discovery.Source(3).WbemQuery="SELECT ManagedElement,SettingData FROM CIM_ElementSettingData"
+LogicalDisk.Discovery.Source(3).WbemNameSpace=Automatic
+
+// Source(4) = Table joint of  Source(3) and Source(2)
+// ManagedElementID;SettingDataID;StorageSettingInstanceID;Label;
+LogicalDisk.Discovery.Source(4).Type="TableJoint"
+LogicalDisk.Discovery.Source(4).LeftTable=%LogicalDisk.Discovery.Source(3)%
+LogicalDisk.Discovery.Source(4).RightTable=%LogicalDisk.Discovery.Source(2)%
+LogicalDisk.Discovery.Source(4).LeftKeyColumn=2
+LogicalDisk.Discovery.Source(4).RightKeyColumn=1
+LogicalDisk.Discovery.Source(4).KeyType="Wbem"
+
+// Source(5) = Table joint of  Source(1) and Source(4)
+// VolumeID;BlockSize;SizeBytes;ManagedElementID;SettingDataID;StorageSettingInstanceID;Label;
+LogicalDisk.Discovery.Source(5).Type="TableJoint"
+LogicalDisk.Discovery.Source(5).LeftTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Source(5).RightTable=%LogicalDisk.Discovery.Source(4)%
+LogicalDisk.Discovery.Source(5).LeftKeyColumn=1
+LogicalDisk.Discovery.Source(5).RightKeyColumn=1
+LogicalDisk.Discovery.Source(5).KeyType="Wbem"
+LogicalDisk.Discovery.Source(5).DefaultRightLine=";;;;"
+
+// Keep only useful columns
+// VolumeID;SizeBytes;Label;
+LogicalDisk.Discovery.Source(5).Compute(1).Type="KeepColumns"
+LogicalDisk.Discovery.Source(5).Compute(1).ColumnNumbers="1,3,7"
+
+// Add ";1" to indicate that this instance must be taken into account when counting the amount of
+// logical disk space for the "Capacity Report"
+// Add an empty column to deactivate the UnallocatedSpace parameter
+// Add also ";Volume" as the type of this logical disk
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+LogicalDisk.Discovery.Source(5).Compute(2).Type="RightConcat"
+LogicalDisk.Discovery.Source(5).Compute(2).Column=3
+LogicalDisk.Discovery.Source(5).Compute(2).String=";;1;Volume"
+
+
+// Source(6) = CIM_StoragePool
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;Primordial;
+LogicalDisk.Discovery.Source(6).Type="WBEM"
+LogicalDisk.Discovery.Source(6).WbemQuery="SELECT __PATH,TotalManagedSpace,Name,RemainingManagedSpace,Primordial FROM CIM_StoragePool"
+LogicalDisk.Discovery.Source(6).WbemNameSpace=Automatic
+
+// Do not take into account the storage pools when counting the total logical disk size
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+LogicalDisk.Discovery.Source(6).Compute(1).Type="Translate"
+LogicalDisk.Discovery.Source(6).Compute(1).Column=5
+LogicalDisk.Discovery.Source(6).Compute(1).TranslationTable="PrimordialStoragePoolTranslationTable"
+
+// The PrimordialStoragePoolTranslationTable
+PrimordialStoragePoolTranslationTable("true")="0;Primordial Storage Pool"
+PrimordialStoragePoolTranslationTable(Default)="0;Storage Pool"
+
+// However, exclude storage pools whose size is zero
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+LogicalDisk.Discovery.Source(6).Compute(2).Type="ExcludeMatchingLines"
+LogicalDisk.Discovery.Source(6).Compute(2).Column=2
+LogicalDisk.Discovery.Source(6).Compute(2).ValueList="0"
+
+// Source(7) = Table union of Source(5) and Source(6)
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+LogicalDisk.Discovery.Source(7).Type="TableUnion"
+LogicalDisk.Discovery.Source(7).Table1=%LogicalDisk.Discovery.Source(5)%
+LogicalDisk.Discovery.Source(7).Table2=%LogicalDisk.Discovery.Source(6)%
+
+// Source(8) = Table joint of Source(7) and Enclosure.Discovery.Source(18)
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+LogicalDisk.Discovery.Source(8).Type="TableJoint"
+LogicalDisk.Discovery.Source(8).LeftTable=%LogicalDisk.Discovery.Source(7)%
+LogicalDisk.Discovery.Source(8).RightTable=%Enclosure.Discovery.Source(18)%
+LogicalDisk.Discovery.Source(8).LeftKeyColumn=1
+LogicalDisk.Discovery.Source(8).RightKeyColumn=1
+LogicalDisk.Discovery.Source(8).KeyType="Wbem"
+LogicalDisk.Discovery.Source(8).DefaultRightLine=";;;;;"
+
+// Source(9) = CIM_StorageSynchronized
+// ReplicationTarget;ReplicateSource;SyncType
+LogicalDisk.Discovery.Source(9).Type="WBEM"
+LogicalDisk.Discovery.Source(9).WbemQuery="SELECT SyncedElement,SystemElement,SyncType FROM CIM_StorageSynchronized"
+LogicalDisk.Discovery.Source(9).WbemNameSpace=Automatic
+
+// Source(10) = Table joint of Source(8) and (9)
+// We are trying to match up volume names to the list of snapshots (Replcation Targets of SyncType 7)
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+LogicalDisk.Discovery.Source(10).Type="TableJoint"
+LogicalDisk.Discovery.Source(10).LeftTable=%LogicalDisk.Discovery.Source(8)%
+LogicalDisk.Discovery.Source(10).RightTable=%LogicalDisk.Discovery.Source(9)%
+LogicalDisk.Discovery.Source(10).LeftKeyColumn=1
+LogicalDisk.Discovery.Source(10).RightKeyColumn=1
+LogicalDisk.Discovery.Source(10).KeyType="Wbem"
+LogicalDisk.Discovery.Source(10).DefaultRightLine=";;;"
+
+// Exclude Volumes who are targets of SyncType 7
+//    1        2        3             4                        5                  6             7                  8                9       10     11             12                 13           14
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+LogicalDisk.Discovery.Source(10).Compute(1).Type="ExcludeMatchingLines"
+LogicalDisk.Discovery.Source(10).Compute(1).Column=14
+LogicalDisk.Discovery.Source(10).Compute(1).ValueList="7"
+
+// Translate the Replication Type
+//    1        2        3             4                        5                  6             7                  8                9       10     11             12                 13           14
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+LogicalDisk.Discovery.Source(10).Compute(2).Type="Translate"
+LogicalDisk.Discovery.Source(10).Compute(2).Column=14
+LogicalDisk.Discovery.Source(10).Compute(2).TranslationTable="replicationTypeTranslationTable"
+
+// The replicationTypeTranslationTable
+replicationTypeTranslationTable(6)="Mirror of "
+replicationTypeTranslationTable(8)="Clone of "
+replicationTypeTranslationTable(Default)=""
+
+// Left Concat the Replication Type to the Replication Source
+//    1        2        3             4                        5                  6             7                  8                9       10     11             12                 13           14
+// VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+LogicalDisk.Discovery.Source(10).Compute(3).Type="LeftConcat"
+LogicalDisk.Discovery.Source(10).Compute(3).Column=13
+LogicalDisk.Discovery.Source(10).Compute(3).String=Column(14)
+
+// Add "Replication Source: " as label for AdditionalInformation1
+LogicalDisk.Discovery.Source(10).Compute(4).Type="LeftConcat"
+LogicalDisk.Discovery.Source(10).Compute(4).Column=13
+LogicalDisk.Discovery.Source(10).Compute(4).String="Replication Source: "
+
+
+// Here is the instance table
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(10)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.UseForCapacityReport=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.ParameterActivation.UnallocatedSpace=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.LogicalDiskType=InstanceTable.Column(6)
+LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+LogicalDisk.Discovery.Instance.AttachedToDeviceType="Enclosure"
+LogicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(13)
+
+//
+// Collect
+
+// The LogicalDisk  collect is a "MultiInstance" collect
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the only source = CIM_StorageVolume
+// DiskID;OperationalStatusArray
+LogicalDisk.Collect.Source(1).Type="WBEM"
+LogicalDisk.Collect.Source(1).WbemQuery="SELECT __PATH,OperationalStatus FROM CIM_StorageVolume"
+LogicalDisk.Collect.Source(1).WbemNameSpace=Automatic
+
+// Add an empty column because there's no point in collecting the "unallocatedspace"
+// value for something that is, by nature, an allocation, you know
+// DiskID;OperationalStatusArray;UnallocatedSpace;
+LogicalDisk.Collect.Source(1).Compute(1).Type="RightConcat"
+LogicalDisk.Collect.Source(1).Compute(1).Column=2
+LogicalDisk.Collect.Source(1).Compute(1).String=";"
+
+// Source(2) = CIM_StoragePool
+// DiskID;OperationalStatusArray;UnallocatedSpace;
+LogicalDisk.Collect.Source(2).Type="WBEM"
+LogicalDisk.Collect.Source(2).WbemQuery="SELECT __PATH,OperationalStatus,RemainingManagedSpace FROM CIM_StoragePool"
+LogicalDisk.Collect.Source(2).WbemNameSpace=Automatic
+
+// Source(3) = Table union of Source(1) and Source(2)
+// DiskID;OperationalStatusArray;UnallocatedSpace;
+LogicalDisk.Collect.Source(3).Type="TableUnion"
+LogicalDisk.Collect.Source(3).Table1=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.Source(3).Table2=%LogicalDisk.Collect.Source(2)%
+
+// Duplicate the "OperationalStatusArray" column
+// DiskID;OperationalStatusArray;OperationalStatusArray;UnallocatedSpace;
+LogicalDisk.Collect.Source(3).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(3).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DiskID;PATROLStatusArray;Status;UnallocatedSpace;
+LogicalDisk.Collect.Source(3).Compute(2).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(3).Compute(2).Column=2
+LogicalDisk.Collect.Source(3).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DiskID;PATROLStatusArray;StatusInformation;UnallocatedSpace;
+LogicalDisk.Collect.Source(3).Compute(3).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(3).Compute(3).Column=3
+LogicalDisk.Collect.Source(3).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+LogicalDisk.Collect.Source(3).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DiskID;PATROLStatus;StatusInformation;UnallocatedSpace;
+LogicalDisk.Collect.Source(3).Compute(4).Type="Convert"
+LogicalDisk.Collect.Source(3).Compute(4).Column=2
+LogicalDisk.Collect.Source(3).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(3)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+LogicalDisk.Collect.UnallocatedSpace=ValueTable.Column(4)

@@ -1,0 +1,32 @@
+---
+extends:
+- IBMHMC-header
+constants:
+  _EVENTFIELDS: "sys_name,status,text,refcode,event_time"
+connector:
+  displayName: IBM Hardware Management Console (HMC) Version 7 or earlier
+  platforms: IBM POWER
+  reliesOn: IBM Hardware Management Console (HMC)
+  information: Reports hardware errors that occured during the day and provides the status of the System Attention LED of all IBM AIX servers connected to the Hardware Management Console. An ALARM alert is triggered for a hardware problem that happened during the day and is automatically cleared at midnight.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Linux
+    criteria:
+      # check the version of the HMC
+      # We want 3,4,5,6,7
+    - type: osCommand
+      commandLine: lshmc -V
+      expectedResult: "version.*Version.*[4567]"
+monitors:
+  enclosure:
+    collect:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: lssvcevents -t hardware -d 0 -F _EVENTFIELDS
+          keep: ",Open,"
+          separators: ","
+          selectColumns: "1,2,3,4,5"

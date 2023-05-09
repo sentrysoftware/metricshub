@@ -1,0 +1,242 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_VMwareESX4iDisksStorage.hdf
+//
+//      Supports: Any Server running a VMware ESX 4i
+//
+//
+//
+
+// HEADER
+
+hdf.DisplayName="VMware ESXi - Disks (VMware)"
+hdf.TypicalPlatform="VMware ESXi"
+hdf.ReliesOn="WBEM"
+hdf.Version="1.1"
+hdf.Comments="This connector provides disk monitoring through the VMware ESX4i agent's VMware classes"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="true"
+hdf.AppliesToOS="OOB,Linux"
+hdf.Supersedes="MS_HW_VMwareESXiDisksIPMI.hdf"
+
+// Checking the version of ESXi
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace="root/cimv2"
+Detection.Criteria(1).WbemQuery="SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity"
+Detection.Criteria(1).ExpectedResult="^[34567]"
+
+// Check that there are ESX Disks (Storage Extents)
+Detection.Criteria(2).Type="WBEM"
+Detection.Criteria(2).WbemNameSpace="root/cimv2"
+Detection.Criteria(2).WbemQuery="SELECT DeviceID,Caption,NumberOfBlocks,BlockSize FROM VMware_StorageExtent"
+
+
+
+// Disk Controller
+// Note:  This is very similar to SMI-S Disks, but has been simplified and designed to work with VMWare's interpretation of SMI-S
+
+// Source(1) =  VMWare_HHRCController
+// Model,HeathState,Name
+// The info we wish to use in creating the Controller
+DiskController.Discovery.Source(1).Type="Wbem"
+DiskController.Discovery.Source(1).WbemQuery="SELECT Caption,HealthState,Name FROM VMware_Controller"
+DiskController.Discovery.Source(1).WbemNameSpace="root/cimv2"
+
+// Keep only lines with a valid HealthState
+// Model,HeathState,Name
+DiskController.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+DiskController.Discovery.Source(1).Compute(1).Column=2
+DiskController.Discovery.Source(1).Compute(1).ValueList="5,15,20,25,30"
+
+// The Instance table
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(3)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ParameterActivation.ControllerStatus=InstanceTable.Column(2)
+
+//
+// Collect
+
+// The DiskController collect is a "MultiInstance" collect
+// Only ONE WBEM query will be done in order to get the information for all disk controllers
+// Less WBEM queries gives faster results
+DiskController.Collect.Type="MultiInstance"
+
+// Source(1) =  VMWare_HHRCController
+// HeathState,Name
+// The info we wish to use in creating the Controller
+DiskController.Collect.Source(1).Type="Wbem"
+DiskController.Collect.Source(1).WbemQuery="SELECT HealthState,Name FROM VMware_Controller"
+DiskController.Collect.Source(1).WbemNameSpace="root/cimv2"
+
+// HeathState,Name
+DiskController.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+DiskController.Collect.Source(1).Compute(1).Column=1
+
+// PatrolStatus,StatusInformation,Name
+DiskController.Collect.Source(1).Compute(2).Type="Translate"
+DiskController.Collect.Source(1).Compute(2).Column=1
+DiskController.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// PatrolStatus,StatusInformation,Name
+DiskController.Collect.Source(1).Compute(3).Type="Translate"
+DiskController.Collect.Source(1).Compute(3).Column=2
+DiskController.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(3)
+DiskController.Collect.ControllerStatus=ValueTable.Column(1)
+DiskController.Collect.StatusInformation=ValueTable.Column(2)
+
+// PhysicalDisk
+// Note:  This is very similar to SMI-S Disks, but has been simplified and designed to work with VMWare's interpretation of SMI-S
+
+// Source(1) =  VMware_DiskDrive
+// DeviceID,Caption,NumberOfBlocks,BlockSize
+// The info we wish to use in creating the Controller
+PhysicalDisk.Discovery.Source(1).Type="Wbem"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT DeviceID,Caption,NumberOfBlocks,BlockSize FROM VMware_StorageExtent"
+PhysicalDisk.Discovery.Source(1).WbemNameSpace="root/cimv2"
+
+// Compute the real size of the volumes (NumberofBlocks * BlockSize)
+// DeviceID,Caption,SizeBytes,BlockSize
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=Column(4)
+
+// The Instance table
+// DeviceID,Caption,SizeBytes,BlockSize
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+
+//
+// Collect
+
+// The DiskController collect is a "MultiInstance" collect
+// Only ONE WBEM query will be done in order to get the information for all disk controllers
+// Less WBEM queries gives faster results
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) =  VMWare_HHRCController
+// DeviceID,HealthState
+// The info we wish to use in creating the Controller
+PhysicalDisk.Collect.Source(1).Type="Wbem"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM VMware_StorageExtent"
+PhysicalDisk.Collect.Source(1).WbemNameSpace="root/cimv2"
+
+// DeviceID,HealthState,HealthState
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// DeviceID,PatrolStatus,HealthState
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// DeviceID,PatrolStatus,StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=3
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+// DeviceID,PatrolStatus,StatusInformation
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+// Logical Disks
+
+// Note:  This is very similar to SMI-S Disks, but has been simplified and designed to work with VMWare's interpretation of SMI-S
+
+// Source(1) =  VMware_DiskDrive
+// DeviceID,Caption,NumberOfBlocks,BlockSize
+// The info we wish to use in creating the Controller
+LogicalDisk.Discovery.Source(1).Type="Wbem"
+LogicalDisk.Discovery.Source(1).WbemQuery="SELECT DeviceID,Caption,NumberOfBlocks,BlockSize FROM VMware_StorageVolume"
+LogicalDisk.Discovery.Source(1).WbemNameSpace="root/cimv2"
+
+// Compute the real size of the volumes (NumberofBlocks * BlockSize)
+// DeviceID,Caption,SizeBytes,BlockSize
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=3
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=Column(4)
+
+
+// The Instance table
+// DeviceID,Caption,SizeBytes,BlockSize
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+
+//
+// Collect
+
+// The DiskController collect is a "MultiInstance" collect
+// Only ONE WBEM query will be done in order to get the information for all disk controllers
+// Less WBEM queries gives faster results
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) =  VMWare_HHRCController
+// DeviceID,HealthState
+// The info we wish to use in creating the Controller
+LogicalDisk.Collect.Source(1).Type="Wbem"
+LogicalDisk.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM VMware_StorageVolume"
+LogicalDisk.Collect.Source(1).WbemNameSpace="root/cimv2"
+
+// DeviceID,HealthState,HealthState
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// DeviceID,PatrolStatus,HealthState
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column=2
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// DeviceID,PatrolStatus,StatusInformation
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column=3
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+// DeviceID,PatrolStatus,StatusInformation
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// The statusTranslationTable
+statusTranslationTable(0)="UNKNOWN"
+statusTranslationTable(5)="OK"
+statusTranslationTable(10)="WARN"
+statusTranslationTable(15)="WARN"
+statusTranslationTable(20)="ALARM"
+statusTranslationTable(25)="ALARM"
+statusTranslationTable(30)="ALARM"
+statusTranslationTable(Default)="UNKNOWN"
+
+// The statusInformationTranslationTable
+statusInformationTranslationTable(0)="Unknown"
+statusInformationTranslationTable(5)=""
+statusInformationTranslationTable(10)="Degraded"
+statusInformationTranslationTable(15)="Minor Failure"
+statusInformationTranslationTable(20)="Major Failure"
+statusInformationTranslationTable(25)="Critical Failure"
+statusInformationTranslationTable(30)="Non-Recoverable Error"
+statusInformationTranslationTable(Default)="Unknown Status"

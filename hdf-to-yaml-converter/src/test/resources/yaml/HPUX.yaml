@@ -1,0 +1,156 @@
+---
+connector:
+  displayName: HP-UX - Common
+  platforms: "HP 9000,HP Integrity,HP SuperDome"
+  reliesOn: "HP-UX system commands (ioscan, etc.)"
+  information: Discovers the model and type of HP-UX systems. Discovers and monitors processors.
+  version: 1.2
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - HP
+    criteria:
+    # OS should be HP (for HP-UX, whatever version)
+    - type: deviceType
+      keep:
+      - HP
+    # The various following tools have to be present
+    - type: osCommand
+      commandLine: /bin/ls /usr/bin/model
+      expectedResult: ^/usr/bin/model$
+sudoCommands:
+- /usr/bin/adb
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of /usr/bin/model
+          # ComputerModel;
+          type: osCommand
+          commandLine: /usr/bin/model
+          separators: |2+
+
+          selectColumns: 1-
+      mapping:
+        # The discovery table
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: HPUX
+          vendor: HP
+          model: $column(1)
+          type: Computer
+          name: "sprintf(\"Computer: (%s %s)\", \"HP\", $column(1))"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = sh -$embedded.EmbeddedFile(2)$
+          # cpuID;cpuSpeed;cpuModel
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "3,5,6"
+      mapping:
+        # Instance table = source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: HPUX
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = sh -f $embedded.EmbeddedFile(1)$
+          # cpuID;cpuStatus
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          keep: ^MSHW;
+          separators: ;
+          selectColumns: "3,4"
+          computes:
+            # Duplicate the status column
+            # cpuID;cpuStatus;cpuStatus
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # cpuID;PATROLStatus;cpuStatus
+          - type: translate
+            column: 2
+            translationTable: cpuStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # cpuID;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: cpuStatusInformationTranslationTable
+      mapping:
+        # ValueTable = source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |
+    #!/bin/sh
+
+    /bin/echo "Getting processor information"
+
+    ISIA64=`/usr/bin/model|/bin/cut -d " " -f1`
+
+    case $ISIA64 in
+
+    ia64)
+        PROCESSORSPEED=`/usr/contrib/bin/machinfo|/bin/awk '/Clock speed/ { print $4 }'`
+        PROCESSORMODEL=`/usr/contrib/bin/machinfo|/bin/awk '/processor model:/ { print $4 " " $5 " " $6 " " $7 " " $8 }'`
+        if /bin/test "$PROCESSORMODEL" = "" ; then
+            PROCESSORMODEL="Intel Itanium"
+        fi
+        ;;
+
+    *)
+        MACHINEMODEL=`/usr/bin/model|/bin/cut -d / -f3`
+
+        OSREVISION=`/usr/bin/uname -r`
+        case $OSREVISION in
+
+        *10*)
+            PROCESSORSPEED=`/bin/echo itick_per_tick/D|%{SUDO:/usr/bin/adb}/usr/bin/adb /stand/vmunix /dev/kmem|/bin/tail -1|/bin/awk '{print $2/10000}'`
+            PROCESSORMODEL=`/bin/grep "^$MACHINEMODEL" /usr/lib/sched.models|/bin/awk '{print $3}'`
+            ;;
+
+        *11*)
+            PROCESSORSPEED=`/bin/echo itick_per_tick/D|%{SUDO:/usr/bin/adb}/usr/bin/adb -k /stand/vmunix /dev/kmem|/bin/tail -1|/bin/awk '{print $2/10000}'`
+            PROCESSORMODEL=`/bin/grep "^$MACHINEMODEL" /usr/sam/lib/mo/sched.models|/bin/awk '{print $3}'`
+            ;;
+
+        esac
+    esac
+
+    /usr/sbin/ioscan -FkC processor|/bin/awk -F : -v Speed="$PROCESSORSPEED" -v Model="$PROCESSORMODEL" '{print "MSHW;" $11 ";" $13 ";" $16 ";" Speed ";" Model}'
+translations:
+  cpuStatusInformationTranslationTable:
+    diff_hw: Bad driver
+    default: Unknown Status
+    unclaimed: Unclaimed
+    claimed: Claimed
+    scan: Locked
+    error: Error
+    no_hw: Not responding
+  cpuStatusTranslationTable:
+    diff_hw: degraded
+    default: UNKNOWN
+    unclaimed: degraded
+    claimed: ok
+    scan: degraded
+    error: failed
+    no_hw: failed

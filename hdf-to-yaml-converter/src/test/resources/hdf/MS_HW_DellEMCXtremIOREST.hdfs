@@ -1,0 +1,872 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//      Supports: Dell EMC XtremIO
+//                Connects to REST API
+//                X1 and X2 Cluster Types
+//                XMS Versions 6.2.0 and 6.2.1
+//                XIOS Versions 4.0.15, 4.0.25, 4.0.26, 4.0.27, 6.0.0, 6.0.1, 6.0.2, 6.1.0, 6.2.0 and 6.2.1
+//                RESTful API (Ver. 3.1) Guide
+//
+
+
+//
+// Header
+//
+hdf.DisplayName="Dell XtremIO - REST"
+hdf.TypicalPlatform="X1"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring for Dell EMC XtremIO Storage Array for X1 and X2 Cluster types. It monitors the Enclosure, Controllers, Logical and Physical Disks as well as the various environment sensors (Temperature, Fans, Power Supplies, Memory, Batteries and Network cards)."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+
+//
+// DETECTION
+//
+
+// Hardware Sentry v10.3.00+
+Detection.Criteria(1).Type="KMVersion"
+Detection.Criteria(1).Version="10.3.00"
+
+// Check for expected response from target system
+Detection.Criteria(2).Type="HTTP"
+Detection.Criteria(2).Method="GET"
+Detection.Criteria(2).URL="/api/json/v2/types/clusters"
+Detection.Criteria(2).Header=EmbeddedFile(1)
+Detection.Criteria(2).ResultContent="body"
+Detection.Criteria(2).ExpectedResult="""clusters"""
+Detection.Criteria(2).ErrorMessage="Invalid credentials / not an XtremIO"
+
+
+//
+// Enclosure
+//
+
+// Discovery
+Enclosure.Discovery.Source(1).Type="HTTP"
+Enclosure.Discovery.Source(1).Method="GET"
+Enclosure.Discovery.Source(1).Url="/api/json/v2/types/clusters?full=1"
+Enclosure.Discovery.Source(1).Header=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;Name;SerialNumber;SoftwareVersion
+Enclosure.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(1).Compute(1).EntryKey="clusters"
+Enclosure.Discovery.Source(1).Compute(1).Properties="/name;/sys-psnt-serial-number;"
+Enclosure.Discovery.Source(1).Compute(1).Separator=";"
+
+// This table is here to ensure it is available to all other classes
+Enclosure.Discovery.Source(2).Type="HTTP"
+Enclosure.Discovery.Source(2).Method="GET"
+Enclosure.Discovery.Source(2).Header=EmbeddedFile(1)
+Enclosure.Discovery.Source(2).Url="/api/json/v2/types/storage-controllers?full=1"
+Enclosure.Discovery.Source(2).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;sys-name;node-name;name;bios-fw-version;hw-model;serial-number;fan-health-state;temperature-health-state;dimm-health-state
+Enclosure.Discovery.Source(2).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(2).Compute(1).EntryKey="storage-controllers"
+Enclosure.Discovery.Source(2).Compute(1).Properties="/sys-name;/node-name;/name;/bios-fw-version;/hw-model;/serial-number;/fan-health-state;/temperature-health-state;/dimm-health-state;"
+
+// Enclosure Instance Table
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Model="X-Brick Cluster"
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Vendor="EMC"
+Enclosure.Discovery.Instance.Type="Enclosure"
+
+// Collection
+Enclosure.Collect.Type="MultiInstance"
+
+Enclosure.Collect.Source(1).Type="HTTP"
+Enclosure.Collect.Source(1).Method="GET"
+Enclosure.Collect.Source(1).Url="/api/json/v2/types/clusters?full=1"
+Enclosure.Collect.Source(1).Header=EmbeddedFile(1)
+Enclosure.Collect.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;name;sys-psnt-serial-number;sys-health-state;sys-health-state
+Enclosure.Collect.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(1).Compute(1).EntryKey="clusters"
+Enclosure.Collect.Source(1).Compute(1).Properties="/name;/sys-psnt-serial-number;/sys-health-state;/sys-health-state;"
+Enclosure.Collect.Source(1).Compute(1).Separator=";"
+
+// JSON;name;sys-psnt-serial-number;PatrolStatus;sys-health-state
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=4
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// This table is here to ensure it is available to all other classes
+Enclosure.Collect.Source(2).Type="HTTP"
+Enclosure.Collect.Source(2).Method="GET"
+Enclosure.Collect.Source(2).Header=EmbeddedFile(1)
+Enclosure.Collect.Source(2).Url="/api/json/v2/types/storage-controllers?full=1"
+Enclosure.Collect.Source(2).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
+Enclosure.Collect.Source(2).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(2).Compute(1).EntryKey="storage-controllers"
+Enclosure.Collect.Source(2).Compute(1).Properties="/node-name;/fru-lifecycle-state;/fru-lifecycle-state;/fan-health-state;/temperature-health-state;/dimm-health-state;"
+
+// Enclosure Value Table
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.Status=ValueTable.Column(4)
+Enclosure.Collect.StatusInformation=ValueTable.Column(5)
+
+
+//
+// DiskController
+//
+
+// Discovery
+DiskController.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// DiskController Instance Table
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(5)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(6)
+DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(7)
+
+DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+DiskController.Collect.Type="MultiInstance"
+
+DiskController.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// JSON;guid;PatrolStatus;fru-lifecycle-state;
+DiskController.Collect.Source(1).Compute(1).Type="Translate"
+DiskController.Collect.Source(1).Compute(1).Column=3
+DiskController.Collect.Source(1).Compute(1).TranslationTable="StatusTranslationTable"
+
+// DiskController Value Table
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(2)
+DiskController.Collect.ControllerStatus=ValueTable.Column(3)
+DiskController.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// Memory
+//
+
+// Discovery
+// JSON;sys-name;node-name;name;bios-fw-version;hw-model;serial-number;fan-health-state;temperature-health-state;dimm-health-state;
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// node-name;dimm-health-state;
+Memory.Discovery.Source(1).Compute(1).Type="KeepColumns"
+Memory.Discovery.Source(1).Compute(1).ColumnNumbers="3,10"
+
+Memory.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Memory.Discovery.Source(1).Compute(2).Column=2
+Memory.Discovery.Source(1).Compute(2).ValueList="unknown,null"
+
+// node-name;node-name;dimm-health-state;
+Memory.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+Memory.Discovery.Source(1).Compute(3).Column=1
+
+// node-name;node-name-Memory;dimm-health-state;
+Memory.Discovery.Source(1).Compute(4).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(4).Column=2
+Memory.Discovery.Source(1).Compute(4).String="-Memory"
+
+// Memory Instance Table
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collection
+Memory.Collect.Type="MultiInstance"
+
+// JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
+Memory.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// node-name;dimm-health-state
+Memory.Collect.Source(1).Compute(1).Type="KeepColumns"
+Memory.Collect.Source(1).Compute(1).ColumnNumbers="2,7"
+
+Memory.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Memory.Collect.Source(1).Compute(2).Column=2
+Memory.Collect.Source(1).Compute(2).ValueList="unknown,null"
+
+// node-name-Memory;dimm-health-state;
+Memory.Collect.Source(1).Compute(3).Type="RightConcat"
+Memory.Collect.Source(1).Compute(3).Column=1
+Memory.Collect.Source(1).Compute(3).String="-Memory"
+
+// node-name-Memory;dimm-health-state;dimm-health-state;
+Memory.Collect.Source(1).Compute(4).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(4).Column=2
+
+// node-name-Memory;PatrolStatus;dimm-health-state;
+Memory.Collect.Source(1).Compute(5).Type="Translate"
+Memory.Collect.Source(1).Compute(5).Column=2
+Memory.Collect.Source(1).Compute(5).TranslationTable="StatusTranslationTable"
+
+// Memory Value Table
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// FANS
+//
+
+// Discovery
+// JSON;sys-name;node-name;name;bios-fw-version;hw-model;serial-number;fan-health-state;temperature-health-state;dimm-health-state;
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// node-name;fan-health-state;
+Fan.Discovery.Source(1).Compute(1).Type="KeepColumns"
+Fan.Discovery.Source(1).Compute(1).ColumnNumbers="3,8"
+
+Fan.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Discovery.Source(1).Compute(2).Column=2
+Fan.Discovery.Source(1).Compute(2).ValueList="unknown,null"
+
+// node-name;node-name;fan-health-state;
+Fan.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+Fan.Discovery.Source(1).Compute(3).Column=1
+
+// node-name;node-name-Fan;fan-health-state;
+Fan.Discovery.Source(1).Compute(4).Type="RightConcat"
+Fan.Discovery.Source(1).Compute(4).Column=2
+Fan.Discovery.Source(1).Compute(4).String="-Fan"
+
+// Fan Instance Table
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collection
+Fan.Collect.Type="MultiInstance"
+
+// JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// node-name;fan-health-state;
+Fan.Collect.Source(1).Compute(1).Type="KeepColumns"
+Fan.Collect.Source(1).Compute(1).ColumnNumbers="2,5"
+
+Fan.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).ValueList="unknown,null"
+
+// node-name-Fan;fan-health-state;
+Fan.Collect.Source(1).Compute(3).Type="RightConcat"
+Fan.Collect.Source(1).Compute(3).Column=1
+Fan.Collect.Source(1).Compute(3).String="-Fan"
+
+// node-name-Fan;fan-health-state;fan-health-state;
+Fan.Collect.Source(1).Compute(4).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(4).Column=2
+
+// node-name-Fan;PatrolStatus;fan-health-state;
+Fan.Collect.Source(1).Compute(5).Type="Translate"
+Fan.Collect.Source(1).Compute(5).Column=2
+Fan.Collect.Source(1).Compute(5).TranslationTable="StatusTranslationTable"
+
+// Fan Value Table
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Temperature
+//
+
+// Discovery
+
+// JSON;sys-name;node-name;name;bios-fw-version;hw-model;serial-number;fan-health-state;temperature-health-state;dimm-health-state;
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// node-name;temperature-health-state;
+Temperature.Discovery.Source(1).Compute(1).Type="KeepColumns"
+Temperature.Discovery.Source(1).Compute(1).ColumnNumbers="3,9"
+
+Temperature.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(1).Compute(2).Column=2
+Temperature.Discovery.Source(1).Compute(2).ValueList="unknown,null"
+
+// node-name;node-name;temperature-health-state;
+Temperature.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+Temperature.Discovery.Source(1).Compute(3).Column=1
+
+// node-name;node-name-Temperature;temperature-health-state;
+Temperature.Discovery.Source(1).Compute(4).Type="RightConcat"
+Temperature.Discovery.Source(1).Compute(4).Column=2
+Temperature.Discovery.Source(1).Compute(4).String="-Temperature"
+
+// Temperature Instance Table
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collection
+Temperature.Collect.Type="MultiInstance"
+
+// JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// node-name;temperature-health-state;
+Temperature.Collect.Source(1).Compute(1).Type="KeepColumns"
+Temperature.Collect.Source(1).Compute(1).ColumnNumbers="2,6"
+
+Temperature.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Temperature.Collect.Source(1).Compute(2).Column=2
+Temperature.Collect.Source(1).Compute(2).ValueList="unknown,null"
+
+// node-name-Temperature;temperature-health-state;
+Temperature.Collect.Source(1).Compute(3).Type="RightConcat"
+Temperature.Collect.Source(1).Compute(3).Column=1
+Temperature.Collect.Source(1).Compute(3).String="-Temperature"
+
+// node-name-Temperature;temperature-health-state;temperature-health-state;
+Temperature.Collect.Source(1).Compute(4).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(4).Column=2
+
+// node-name-Temperature;PatrolStatus;temperature-health-state;
+Temperature.Collect.Source(1).Compute(5).Type="Translate"
+Temperature.Collect.Source(1).Compute(5).Column=2
+Temperature.Collect.Source(1).Compute(5).TranslationTable="StatusTranslationTable"
+
+// Temperature Value Table
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// PhysicalDisk
+//
+
+// Discovery
+PhysicalDisk.Discovery.Source(1).Type="HTTP"
+PhysicalDisk.Discovery.Source(1).Method="GET"
+PhysicalDisk.Discovery.Source(1).Header=EmbeddedFile(1)
+PhysicalDisk.Discovery.Source(1).Url="/api/json/v2/types/local-disks?full=1"
+PhysicalDisk.Discovery.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;index;node-name;name;fw-version;model-name;model-name;serial-number;local-disk-type;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(1).Compute(1).EntryKey="local-disks"
+PhysicalDisk.Discovery.Source(1).Compute(1).Properties="/index;/node-name;/name;/fw-version;/model-name;/model-name;/serial-number;/local-disk-type;"
+
+// Extract Vendor value from model-name
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Extract"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=7
+PhysicalDisk.Discovery.Source(1).Compute(2).SubColumn=1
+PhysicalDisk.Discovery.Source(1).Compute(2).SubSeparators=" "
+
+// Remove Vendor value from model-name
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(3).Replace=Column(7)
+PhysicalDisk.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Add DiskController for AttachedToDeviceType
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="RightConcat"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=9
+PhysicalDisk.Discovery.Source(1).Compute(4).String=";DiskController"
+
+PhysicalDisk.Discovery.Source(2).Type="HTTP"
+PhysicalDisk.Discovery.Source(2).Method="GET"
+PhysicalDisk.Discovery.Source(2).Header=EmbeddedFile(1)
+PhysicalDisk.Discovery.Source(2).Url="/api/json/v2/types/ssds?full=1"
+PhysicalDisk.Discovery.Source(2).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;guid;sys-name;index;fw-version;model-name;model-name;serial-number;ssd-size;
+PhysicalDisk.Discovery.Source(2).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(2).Compute(1).EntryKey="ssds"
+PhysicalDisk.Discovery.Source(2).Compute(1).Properties="/guid;/sys-name;/index;/fw-version;/model-name;/model-name;/serial-number;/ssd-size;"
+
+// Extract Vendor value from model-name
+// JSON;guid;sys-name;index;fw-version;model-name;Vendor;serial-number;ssd-size;
+PhysicalDisk.Discovery.Source(2).Compute(2).Type="Extract"
+PhysicalDisk.Discovery.Source(2).Compute(2).Column=7
+PhysicalDisk.Discovery.Source(2).Compute(2).SubColumn=1
+PhysicalDisk.Discovery.Source(2).Compute(2).SubSeparators=" "
+
+// Remove Vendor value from model-name
+// JSON;guid;sys-name;index;fw-version;Model;Vendor;serial-number;ssd-size;
+PhysicalDisk.Discovery.Source(2).Compute(3).Type="Replace"
+PhysicalDisk.Discovery.Source(2).Compute(3).Column=6
+PhysicalDisk.Discovery.Source(2).Compute(3).Replace=Column(7)
+PhysicalDisk.Discovery.Source(2).Compute(3).ReplaceBy=""
+
+// Add Disk type and Enclosure for AttachedToDeviceType
+// JSON;guid;sys-name;index;fw-version;Model;Vendor;serial-number;SSD;Enclosure;ssd-size;
+PhysicalDisk.Discovery.Source(2).Compute(4).Type="RightConcat"
+PhysicalDisk.Discovery.Source(2).Compute(4).Column=8
+PhysicalDisk.Discovery.Source(2).Compute(4).String=";SSD;Enclosure"
+
+// JSON;guid;sys-name;SSD-index;fw-version;Model;Vendor;serial-number;SSD;Enclosure;ssd-size;
+PhysicalDisk.Discovery.Source(2).Compute(5).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(2).Compute(5).Column=4
+PhysicalDisk.Discovery.Source(2).Compute(5).String="SSD-"
+
+// JSON;guid;sys-name;SSD-index;fw-version;Model;Vendor;serial-number;SSD;Enclosure;ssd-size(bytes);
+PhysicalDisk.Discovery.Source(2).Compute(6).Type="Multiply"
+PhysicalDisk.Discovery.Source(2).Compute(6).Column=11
+PhysicalDisk.Discovery.Source(2).Compute(6).MultiplyBy=1024
+
+
+PhysicalDisk.Discovery.Source(3).Type="TableUnion"
+PhysicalDisk.Discovery.Source(3).Table1=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(3).Table2=%PhysicalDisk.Discovery.Source(2)%
+
+// PhysicalDisk Instance Table
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.column(11)
+
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(10)
+
+// Collection
+PhysicalDisk.Collect.Type="MultiInstance"
+
+PhysicalDisk.Collect.Source(1).Type="HTTP"
+PhysicalDisk.Collect.Source(1).Method="GET"
+PhysicalDisk.Collect.Source(1).Header=EmbeddedFile(1)
+PhysicalDisk.Collect.Source(1).Url="/api/json/v2/types/local-disks?full=1"
+PhysicalDisk.Collect.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;index;fru-lifecycle-state;fru-lifecycle-state
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Collect.Source(1).Compute(1).EntryKey="local-disks"
+PhysicalDisk.Collect.Source(1).Compute(1).Properties="/index;/fru-lifecycle-state;/fru-lifecycle-state;"
+
+PhysicalDisk.Collect.Source(2).Type="HTTP"
+PhysicalDisk.Collect.Source(2).Method="GET"
+PhysicalDisk.Collect.Source(2).Header=EmbeddedFile(1)
+PhysicalDisk.Collect.Source(2).Url="/api/json/v2/types/ssds?full=1"
+PhysicalDisk.Collect.Source(2).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;guid;fru-lifecycle-state;fru-lifecycle-state
+PhysicalDisk.Collect.Source(2).Compute(1).Type="Json2Csv"
+PhysicalDisk.Collect.Source(2).Compute(1).EntryKey="ssds"
+PhysicalDisk.Collect.Source(2).Compute(1).Properties="/guid;/fru-lifecycle-state;/fru-lifecycle-state;"
+
+PhysicalDisk.Collect.Source(3).Type="TableUnion"
+PhysicalDisk.Collect.Source(3).Table1=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.Source(3).Table2=%PhysicalDisk.Collect.Source(2)%
+
+PhysicalDisk.Collect.Source(3).Compute(1).Type="Translate"
+PhysicalDisk.Collect.Source(3).Compute(1).Column=3
+PhysicalDisk.Collect.Source(3).Compute(1).TranslationTable="StatusTranslationTable"
+
+// PhysicalDisk Value Table
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(3)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// LogicalDisks
+//
+
+// Discovery
+LogicalDisk.Discovery.Source(1).Type="HTTP"
+LogicalDisk.Discovery.Source(1).Method="GET"
+LogicalDisk.Discovery.Source(1).Header=EmbeddedFile(1)
+LogicalDisk.Discovery.Source(1).Url="/api/json/v2/types/volumes?full=1"
+LogicalDisk.Discovery.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;sys-name;guid;name;vol-size;vol-type
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+LogicalDisk.Discovery.Source(1).Compute(1).EntryKey="/volumes"
+LogicalDisk.Discovery.Source(1).Compute(1).Properties="/sys-name;/guid;/name;/vol-size;/vol-type;"
+
+// JSON;sys-name;guid;name;Size;vol-type
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=5
+LogicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=1024
+
+// LogicalDisk Instance Table
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.LogicalDiskType=InstanceTable.Column(6)
+
+LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.AttachedToDeviceType="Enclosure"
+
+// Collect
+LogicalDisk.Collect.Type="MultiInstance"
+
+LogicalDisk.Collect.Source(1).Type="HTTP"
+LogicalDisk.Collect.Source(1).Method="GET"
+LogicalDisk.Collect.Source(1).Header=EmbeddedFile(1)
+LogicalDisk.Collect.Source(1).Url="/api/json/v2/types/volumes?full=1"
+LogicalDisk.Collect.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;guid;obj-severity;obj-severity
+LogicalDisk.Collect.Source(1).Compute(1).Type="Json2Csv"
+LogicalDisk.Collect.Source(1).Compute(1).EntryKey="/volumes"
+LogicalDisk.Collect.Source(1).Compute(1).Properties="/guid;/obj-severity;/obj-severity;"
+
+// JSON;guid;PatrolStatus;obj-severity
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column=3
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// LogicalDisk Value Table
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(2)
+LogicalDisk.Collect.Status=ValueTable.Column(3)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// PowerSupply
+//
+
+// Discovery
+PowerSupply.Discovery.Source(1).Type="HTTP"
+PowerSupply.Discovery.Source(1).Method="GET"
+PowerSupply.Discovery.Source(1).Header=EmbeddedFile(1)
+PowerSupply.Discovery.Source(1).Url="/api/json/v2/types/storage-controller-psus?full=1"
+PowerSupply.Discovery.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;node-name;guid;name;model-name;serial-number
+PowerSupply.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(1).Compute(1).EntryKey="storage-controller-psus"
+PowerSupply.Discovery.Source(1).Compute(1).Properties="/node-name;/guid;/name;/model-name;/serial-number;"
+
+// JSON;node-name;guid;name;model-name;serial-number;DiskController;
+PowerSupply.Discovery.Source(1).Compute(2).Type="RightConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column=6
+PowerSupply.Discovery.Source(1).Compute(2).String=";DiskController;"
+
+PowerSupply.Discovery.Source(2).Type="HTTP"
+PowerSupply.Discovery.Source(2).Method="GET"
+PowerSupply.Discovery.Source(2).Header=EmbeddedFile(1)
+PowerSupply.Discovery.Source(2).Url="/api/json/v2/types/dae-psus?full=1"
+PowerSupply.Discovery.Source(2).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;sys-name;guid;name;model-name;serial-number
+PowerSupply.Discovery.Source(2).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(2).Compute(1).EntryKey="dae-psus"
+PowerSupply.Discovery.Source(2).Compute(1).Properties="/sys-name;/guid;/name;/model-name;/serial-number;"
+
+// JSON;sys-name;guid;name;model-name;serial-number;Enclosure;
+PowerSupply.Discovery.Source(2).Compute(2).Type="RightConcat"
+PowerSupply.Discovery.Source(2).Compute(2).Column=6
+PowerSupply.Discovery.Source(2).Compute(2).String=";Enclosure;"
+
+PowerSupply.Discovery.Source(3).Type="TableUnion"
+PowerSupply.Discovery.Source(3).Table1=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(3).Table2=%PowerSupply.Discovery.Source(1)%
+
+// PowerSupply Instance Table
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(3)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(5)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(6)
+
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(7)
+
+// Collection
+PowerSupply.Collect.Type="MultiInstance"
+
+PowerSupply.Collect.Source(1).Type="HTTP"
+PowerSupply.Collect.Source(1).Method="GET"
+PowerSupply.Collect.Source(1).Header=EmbeddedFile(1)
+PowerSupply.Collect.Source(1).Url="/api/json/v2/types/storage-controller-psus?full=1"
+PowerSupply.Collect.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;guid;fru-lifecycle-state;fru-lifecycle-state
+PowerSupply.Collect.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(1).Compute(1).EntryKey="storage-controller-psus"
+PowerSupply.Collect.Source(1).Compute(1).Properties="/guid;/fru-lifecycle-state;/fru-lifecycle-state;"
+
+
+PowerSupply.Collect.Source(2).Type="HTTP"
+PowerSupply.Collect.Source(2).Method="GET"
+PowerSupply.Collect.Source(2).Header=EmbeddedFile(1)
+PowerSupply.Collect.Source(2).Url="/api/json/v2/types/dae-psus?full=1"
+PowerSupply.Collect.Source(2).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;guid;fru-lifecycle-state;fru-lifecycle-state
+PowerSupply.Collect.Source(2).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(2).Compute(1).EntryKey="dae-psus"
+PowerSupply.Collect.Source(2).Compute(1).Properties="/guid;/fru-lifecycle-state;/fru-lifecycle-state;"
+
+
+PowerSupply.Collect.Source(3).Type="TableUnion"
+PowerSupply.Collect.Source(3).Table1=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.Source(3).Table2=%PowerSupply.Collect.Source(2)%
+
+// JSON;guid;PatrolStatus;fru-lifecycle-state
+PowerSupply.Collect.Source(3).Compute(1).Type="Translate"
+PowerSupply.Collect.Source(3).Compute(1).Column=3
+PowerSupply.Collect.Source(3).Compute(1).TranslationTable="StatusTranslationTable"
+
+// PowerSupply Value Table
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(3)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(3)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// Battery
+//
+
+// Discovery
+Battery.Discovery.Source(1).Type="HTTP"
+Battery.Discovery.Source(1).Method="GET"
+Battery.Discovery.Source(1).Header=EmbeddedFile(1)
+Battery.Discovery.Source(1).Url="/api/json/v2/types/bbus?full=1"
+Battery.Discovery.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;sys-name;guid;name;model-name;serial-number;fw-version;brick-name
+Battery.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Battery.Discovery.Source(1).Compute(1).EntryKey="bbus"
+Battery.Discovery.Source(1).Compute(1).Properties="/sys-name;/guid;/name;/model-name;/serial-number;/fw-version;/brick-name;"
+
+Battery.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(2).Column=7
+Battery.Discovery.Source(1).Compute(2).String="FirmwareVersion: "
+
+Battery.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(3).Column=6
+Battery.Discovery.Source(1).Compute(3).String="SerialNumber: "
+
+// Battery Instance Table
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Battery.Discovery.Instance.Model=InstanceTable.Column(5)
+Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+Battery.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+Battery.Collect.Type="MultiInstance"
+
+Battery.Collect.Source(1).Type="HTTP"
+Battery.Collect.Source(1).Method="GET"
+Battery.Collect.Source(1).Header=EmbeddedFile(1)
+Battery.Collect.Source(1).Url="/api/json/v2/types/bbus?full=1"
+Battery.Collect.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;guid;fru-lifecycle-state;fru-lifecycle-state;ups-battery-charge-in-percent
+Battery.Collect.Source(1).Compute(1).Type="Json2Csv"
+Battery.Collect.Source(1).Compute(1).EntryKey="bbus"
+Battery.Collect.Source(1).Compute(1).Properties="/guid;/fru-lifecycle-state;/fru-lifecycle-state;/ups-battery-charge-in-percent;"
+
+// JSON;guid;PatrolStatus;fru-lifecycle-state;ups-battery-charge-in-percent
+Battery.Collect.Source(1).Compute(2).Type="Translate"
+Battery.Collect.Source(1).Compute(2).Column=3
+Battery.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Battery Value Table
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(2)
+Battery.Collect.Status=ValueTable.Column(3)
+Battery.Collect.StatusInformation=ValueTable.Column(4)
+Battery.Collect.Charge=ValueTable.Column(5)
+
+
+//
+// NetworkCard
+//
+
+// Discovery
+NetworkCard.Discovery.Source(1).Type="HTTP"
+NetworkCard.Discovery.Source(1).Method="GET"
+NetworkCard.Discovery.Source(1).Header=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Url="/api/json/v2/types/targets?full=1"
+NetworkCard.Discovery.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;node-name;guid;name;fw-version;port-address;port-state;port-type
+NetworkCard.Discovery.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(1).Compute(1).EntryKey="targets"
+NetworkCard.Discovery.Source(1).Compute(1).Properties="/node-name;/guid;/name;/fw-version;/port-address;/port-state;/port-type;"
+
+// JSON;node-name;guid;name;fw-version;port-address;LinkSpeedDeactivation;port-type
+NetworkCard.Discovery.Source(1).Compute(2).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(2).Column=7
+NetworkCard.Discovery.Source(1).Compute(2).TranslationTable="LinkSpeedDeactivationTranslationTable"
+
+LinkSpeedDeactivationTranslationTable("down")=""
+LinkSpeedDeactivationTranslationTable("up")="True"
+LinkSpeedDeactivationTranslationTable("unknown")=""
+
+NetworkCard.Discovery.Source(1).Compute(3).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(3).Column=5
+NetworkCard.Discovery.Source(1).Compute(3).String="FirmwareVersion: "
+
+// NetworkCard Instance Table
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(9)
+
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collection
+NetworkCard.Collect.Type="MultiInstance"
+
+NetworkCard.Collect.Source(1).Type="HTTP"
+NetworkCard.Collect.Source(1).Method="GET"
+NetworkCard.Collect.Source(1).Header=EmbeddedFile(1)
+NetworkCard.Collect.Source(1).Url="/api/json/v2/types/targets?full=1"
+NetworkCard.Collect.Source(1).ResultContent="body"
+
+// Convert JSON to CSV
+// JSON;guid;port-state;obj-severity;port-speed
+NetworkCard.Collect.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(1).Compute(1).EntryKey="targets"
+NetworkCard.Collect.Source(1).Compute(1).Properties="/guid;/port-state;/obj-severity;/port-speed;"
+
+// JSON;guid;LinkStatus;obj-severity;port-speed
+NetworkCard.Collect.Source(1).Compute(2).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(2).Column=3
+NetworkCard.Collect.Source(1).Compute(2).TranslationTable="LinkStatusTranslationTable"
+
+LinkStatusTranslationTable("down")="WARN"
+LinkStatusTranslationTable("up")="OK"
+LinkStatusTranslationTable(Default)="UNKNOWN"
+
+// JSON;guid;LinkStatus;PatrolStatus;port-speed
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column=4
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// JSON;guid;LinkStatus;PatrolStatus;LinkSpeed
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=5
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="LinkSpeedTranslationTable"
+
+// Link speeds from API document do not match response from system.
+// Therefore a verbose translation table has been provided.
+// it is likely only "*GFC" speeds will be returned.
+LinkSpeedTranslationTable("not_in_use")=0
+LinkSpeedTranslationTable("inconsistent")=0
+LinkSpeedTranslationTable("unknown")=0
+LinkSpeedTranslationTable("10mb")=10
+LinkSpeedTranslationTable("10MFC")=10
+LinkSpeedTranslationTable("100mb")=100
+LinkSpeedTranslationTable("100MFC")=100
+LinkSpeedTranslationTable("1gb")=1000
+LinkSpeedTranslationTable("1GFC")=1000
+LinkSpeedTranslationTable("8GFC")=8000
+LinkSpeedTranslationTable("8GFC")=8000
+LinkSpeedTranslationTable("10gb")=10000
+LinkSpeedTranslationTable("10GFC")=10000
+LinkSpeedTranslationTable("12gb")=12000
+LinkSpeedTranslationTable("12GFC")=12000
+LinkSpeedTranslationTable(Default)=0
+
+// NetworkCard Value Table
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(2)
+NetworkCard.Collect.Status=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(3)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(5)
+
+
+StatusTranslationTable("healthy")="OK"
+StatusTranslationTable("clear")="OK"
+StatusTranslationTable("level_1_clear")="OK"
+StatusTranslationTable("enabled")="OK"
+StatusTranslationTable("healthy")="OK"
+StatusTranslationTable("up")="OK"
+StatusTranslationTable("active")="OK"
+StatusTranslationTable("connected")="OK"
+StatusTranslationTable("false")="OK"
+StatusTranslationTable("information")="OK"
+StatusTranslationTable("partial_fault")="WARN"
+StatusTranslationTable("user_disabled")="WARN"
+StatusTranslationTable("level_3_warning")="WARN"
+StatusTranslationTable("minor")="WARN"
+StatusTranslationTable("initializing")="WARN"
+StatusTranslationTable("major")="ALARM"
+StatusTranslationTable("critical")="ALARM"
+StatusTranslationTable("degraded")="ALARM"
+StatusTranslationTable("failed")="ALARM"
+StatusTranslationTable("system_disabled")="ALARM"
+StatusTranslationTable("level_4_minor")="ALARM"
+StatusTranslationTable("level_5_major")="ALARM"
+StatusTranslationTable("level_6_critical")="ALARM"
+StatusTranslationTable("disconnected")="ALARM"
+StatusTranslationTable("uninitialized")="ALARM"
+StatusTranslationTable("down")="ALARM"
+StatusTranslationTable("true")="ALARM"
+StatusTranslationTable("unknown")="UNKNOWN"
+StatusTranslationTable("level_2_unknown")="UNKNOWN"
+StatusTranslationTable(Default)="UNKNOWN"
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Headers
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+authorization: Basic %{BASIC_AUTH_BASE64}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

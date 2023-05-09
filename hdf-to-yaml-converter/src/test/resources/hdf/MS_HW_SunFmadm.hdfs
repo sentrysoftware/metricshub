@@ -1,0 +1,267 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_SunFmadm.hdf
+//
+//      Supports: Sun machines
+//		Monitors: Memory on Solaris 10 machines
+//      Connects to: fmadm on Solaris 10 machines
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="Oracle/Sun Solaris - Fault  Manager - Memory and CPU"
+hdf.TypicalPlatform="Oracle/Sun"
+hdf.ReliesOn="Sun Solaris system commands (fmadm)"
+hdf.Comments="This connector parses fmadm faulty command looking for faulty memory modules"
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Solaris"
+
+//
+// SUDO-able commands
+//
+Sudo(1).Command="/usr/sbin/fmadm"
+
+//
+// DETECTION
+//
+
+// OS should be SunOS or Solaris
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="SunOS,Solaris"
+
+// Only Solaris 10 machines
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/bin/uname -r"
+Detection.Criteria(2).ExpectedResult="5\.1[0-9]"
+
+// Test the fmadm command
+Detection.Criteria(3).Type="OSCommand"
+Detection.Criteria(3).CommandLine="%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
+Detection.Criteria(3).ExpectedResult="^errorlevel 0$"
+
+// Ensure that the cpumem-diagnosis module is running
+Detection.Criteria(4).Type="OSCommand"
+//Detection.Criteria(4).CommandLine="%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm config | grep cpumem-diagnosis"
+Detection.Criteria(4).CommandLine="%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm config | grep cpumem"
+Detection.Criteria(4).ExpectedResult="active"
+
+
+//
+// memory
+//
+
+//
+// Discovery
+
+// Source(1) = psrinfo -v
+memory.Discovery.Source(1).Type="OsCommand"
+memory.Discovery.Source(1).CommandLine="%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
+
+// Send fmadm'soutput through awk %EmbeddedFile(1)%
+// MSHW;Overall Memory Faults;status;statusInformation;
+memory.Discovery.Source(1).Compute(1).Type="Awk"
+memory.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+memory.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+memory.Discovery.Source(1).Compute(1).Separators=";"
+memory.Discovery.Source(1).Compute(1).SelectColumns="2"
+
+// Source (2) prtconf
+memory.Discovery.Source(2).Type="OsCommand"
+memory.Discovery.Source(2).CommandLine="/usr/sbin/prtconf | /usr/bin/egrep '^SUNW,|^Memory size'"
+
+// Send prtconf's output through awk %EmbeddedFile(3)%
+// MSHW;Overall;Size
+memory.Discovery.Source(2).Compute(1).Type="Awk"
+memory.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(3)
+memory.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+memory.Discovery.Source(2).Compute(1).Separators=";"
+memory.Discovery.Source(2).Compute(1).SelectColumns="2,3"
+
+// Overall;Overall;Size
+memory.Discovery.Source(3).Type="TableJoint"
+memory.Discovery.Source(3).LeftTable=%memory.Discovery.Source(1)%
+memory.Discovery.Source(3).RightTable=%memory.Discovery.Source(2)%
+memory.Discovery.Source(3).LeftKeyColumn=1
+memory.Discovery.Source(3).RightKeyColumn=1
+
+// Instance table = source(1)
+memory.Discovery.InstanceTable=%memory.Discovery.Source(3)%
+memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+memory.Discovery.Instance.Size=InstanceTable.Column(3)
+
+
+//
+// Collect
+
+// Collect type = multi-instance
+memory.Collect.Type="MultiInstance"
+
+// Source(1) = fmadm faulty
+memory.Collect.Source(1).Type="OsCommand"
+memory.Collect.Source(1).CommandLine="%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
+
+// Send fmadm's output through awk %EmbeddedFile(1)%
+// MSHW;Overall Memory Faults;status;statusInformation
+memory.Collect.Source(1).Compute(1).Type="Awk"
+memory.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+memory.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+memory.Collect.Source(1).Compute(1).Separators=";"
+memory.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// ValueTable = source(1)
+memory.Collect.ValueTable=%memory.Collect.Source(1)%
+memory.Collect.DeviceID=ValueTable.Column(1)
+memory.Collect.Status=ValueTable.Column(2)
+memory.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Discovery
+
+// Source(1) = fmadm faulty
+otherdevice.Discovery.Source(1).Type="OsCommand"
+otherdevice.Discovery.Source(1).CommandLine="%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
+
+// Send fmadm'soutput through awk %EmbeddedFile(2)%
+// MSHW;Overall CPU Faults;status;statusInformation;
+OtherDevice.Discovery.Source(1).Compute(1).Type="Awk"
+OtherDevice.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+OtherDevice.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Discovery.Source(1).Compute(1).Separators=";"
+OtherDevice.Discovery.Source(1).Compute(1).SelectColumns="2"
+
+// Instance table = source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType="CPU"
+
+//
+// Collect
+
+// Collect type = multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = fmadm faulty
+OtherDevice.Collect.Source(1).Type="OsCommand"
+OtherDevice.Collect.Source(1).CommandLine="%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
+
+// Send fmadm's output through awk %EmbeddedFile(2)%
+// MSHW;Overall CPU Faults;status;statusInformation
+OtherDevice.Collect.Source(1).Compute(1).Type="Awk"
+OtherDevice.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+OtherDevice.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Collect.Source(1).Compute(1).Separators=";"
+OtherDevice.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// ValueTable = source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parses fmadm faulty
+///    MSHW;Overall Memory Faults;status;statusInformation;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {status="OK";statusInformation="No Memory Faults Reported by fmadm";exitFlag="1";}
+
+nextLineTrigger == "1" {nextLineTrigger = "0";
+	                     if ($NF ~ /mem:/ || /memory/) {nextLineTrigger="1"};
+	                     if (status == "ALARM") {status = "ALARM"}
+	                     else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+	                     else {status = "WARN"}
+	                     }
+($1 ~ /[Aa]ffects/) && ($NF ~ /mem:/ || /memory/)  {nextLineTrigger="1";
+                             statusInformation="Fault(s) Detected - Run fmadm faulty" ;
+	                          }
+
+
+
+(tolower($1) ~ /degraded/ || tolower($1) ~ /faulted/) && ($NF ~ /mem:/ || /memory/)  {statusInformation="Fault(s) Detected - Run fmadm faulty"
+	                                                                      if (status == "ALARM") {status = "ALARM"}
+	                                                                          else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+	                                                                          else if (tolower($1) ~ /degraded/) {status = "WARN"}
+	                                                                      }
+
+$1 ~ /^errorlevel$/ {if ($2 == 0) {exitFlag="0"} }
+
+END { if (exitFlag=="0") {print ("MSHW;Overall;"status";"statusInformation";")};}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that parses fmadm faulty
+///    MSHW;Overall CPU Faults;status;statusInformation;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {status="OK";statusInformation="No CPU Faults Reported by fmadm";exitFlag="1";}
+
+nextLineTrigger == "1" {nextLineTrigger = "0";
+	                     if ($NF ~ "://:") {nextLineTrigger="1" ;};
+                       if ($1 ~ /[Aa]ffects/) {nextLineTrigger="1"};
+	                     if (status == "ALARM") {status = "ALARM"}
+	                     else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+	                     else {status = "WARN"}
+	                     }
+($1 ~ /[Ff]ault/) && $2 ~ /[Cc]lass/  && ($NF ~ /\.cpu\./)  {nextLineTrigger="1";
+                                                      statusInformation="Fault(s) Detected - Run fmadm faulty" ;
+	                                                   }
+
+($1 ~ /[Aa]ffects/) && ($NF ~ /cpu:/)  {nextLineTrigger="1";
+                             statusInformation="Fault(s) Detected - Run fmadm faulty" ;
+	                          }
+
+
+
+(tolower($1) ~ /degraded/ || tolower($1) ~ /faulted/) && ($NF ~ /cpu:/)  {statusInformation="Fault(s) Detected - Run fmadm faulty"
+	                                                                      if (status == "ALARM") {status = "ALARM"}
+	                                                                          else if (tolower($1) ~ /faulted/) {status = "ALARM"}
+	                                                                          else if (tolower($1) ~ /degraded/) {status = "WARN"}
+	                                                                      }
+
+$1 ~ /^errorlevel$/ {if ($2 == 0) {exitFlag="0"} }
+
+END { if (exitFlag=="0") {print ("MSHW;Overall;"status";"statusInformation";")};}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that parses prtconf
+///    MSHW;Overall;Size;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+$1 ~ /[Mm]emory/ && $2 ~ /[Ss]ize/ {size = $3;
+                                    if ($4 ~ /[Gg]igabytes/) {size=size*1024}
+                                    getline
+                                    uname = $1
+                                    gsub(/^[Ss].*,/,"",uname)
+                                    if ((uname == "Ultra-250") || (uname == "Ultra-4") || (uname == "Ultra-Enterprise") || (uname == "Netra-T12")) {size = ""}
+                                    print ("MSHW;Overall;"size";")
+                                    }
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////

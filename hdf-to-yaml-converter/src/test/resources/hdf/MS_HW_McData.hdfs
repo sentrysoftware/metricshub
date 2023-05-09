@@ -1,0 +1,415 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: McData Fibre Switches
+//                Connects to a SNMP agent
+//
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="McData Fibre Switch"
+hdf.TypicalPlatform="McData SAN"
+hdf.ReliesOn="McData SNMP Agent (EF-6000-MIB)"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure and fiber-channel ports of McData SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+// Supersedes Fiber Alliance Switch and the generic MIB-2 based connector
+hdf.Supersedes="MS_HW_FibreAllianceSwitch.hdf"
+
+//
+// DETECTION
+//
+
+// Detection Criteria 1
+// Must have some FRU Status entries
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+
+// Include the various headers
+#include MS_HW_FibreAllianceSwitchCommon.hhdf
+
+
+// Fan
+
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,4,5"
+
+// Keep only Fan sensors (Type 4 & 5)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=2
+Fan.Discovery.Source(1).Compute(1).ValueList="4,5"
+
+// Translate the Sensor Type
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Fan.Discovery.Source(1).Compute(2).Type="Translate"
+Fan.Discovery.Source(1).Compute(2).Column=2
+Fan.Discovery.Source(1).Compute(2).TranslationTable="SensorTypeTranslationTable"
+
+// Add an identifier to the Location
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Fan.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(3).Column=3
+Fan.Discovery.Source(1).Compute(3).String="Location: "
+
+Fan.Discovery.Source(1).Compute(4).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(4).Column=4
+Fan.Discovery.Source(1).Compute(4).String="Model: "
+
+Fan.Discovery.Source(1).Compute(4).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(4).Column=5
+Fan.Discovery.Source(1).Compute(4).String="SerialNumber: "
+
+// InstanceTable = Source(1)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+Fan.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+Fan.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(5)
+Fan.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+//
+// Collect
+
+// Collect type = multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Status;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,1,3"
+
+// Keep only Fan sensors (Type 4 & 5)
+// ID;SensorType;Status;
+Fan.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(1).Compute(1).Column=2
+Fan.Collect.Source(1).Compute(1).ValueList="4,5"
+
+// Duplicate the Status
+// ID;SensorType;Status;
+Fan.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(2).Column=3
+
+// Translate the Status
+// ID;SensorType;PatrolStatus;Status;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="McSensorStatusTranslationTable"
+
+// Translate the Status Information
+// ID;SensorType;PatrolStatus;StatusInformation;
+Fan.Collect.Source(1).Compute(4).Type="Translate"
+Fan.Collect.Source(1).Compute(4).Column=4
+Fan.Collect.Source(1).Compute(4).TranslationTable="McSensorInformationStatusTranslationTable"
+
+// ValueTable = Source(1)
+// ID;SensorType;PatrolStatus;StatusInformation;
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(3)
+Fan.Collect.StatusInformation=ValueTable.Column(4)
+
+
+// PowerSupply
+
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Location;PartNumber;SerialNumber;
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,4,5"
+
+// Keep only PowerSupply sensors (Type 6)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="6"
+
+// Translate the Sensor Type
+// ID;SensorType;Location;PartNumber;SerialNumber;
+PowerSupply.Discovery.Source(1).Compute(2).Type="Translate"
+PowerSupply.Discovery.Source(1).Compute(2).Column=2
+PowerSupply.Discovery.Source(1).Compute(2).TranslationTable="SensorTypeTranslationTable"
+
+// Add an identifier to the Location
+// ID;SensorType;Location;PartNumber;SerialNumber;
+PowerSupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(3).Column=3
+PowerSupply.Discovery.Source(1).Compute(3).String="Location: "
+
+// Add an identifier to Serial Number
+// ID;SensorType;Location;PartNumber;SerialNumber;
+PowerSupply.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(4).Column=5
+PowerSupply.Discovery.Source(1).Compute(4).String="Serial Number: "
+
+PowerSupply.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(4).Column=4
+PowerSupply.Discovery.Source(1).Compute(4).String="Model: "
+
+// InstanceTable = Source(1)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+//
+// Collect
+
+// Collect type = multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Status;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,1,3"
+
+// Keep only PowerSupply sensors (Type 6)
+// ID;SensorType;Status;
+PowerSupply.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).ValueList="6"
+
+// Duplicate the Status
+// ID;SensorType;Status;
+PowerSupply.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+
+// Translate the Status
+// ID;SensorType;PatrolStatus;Status;
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="McSensorStatusTranslationTable"
+
+// Translate the Status Information
+// ID;SensorType;PatrolStatus;StatusInformation;
+PowerSupply.Collect.Source(1).Compute(4).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(4).Column=4
+PowerSupply.Collect.Source(1).Compute(4).TranslationTable="McSensorInformationStatusTranslationTable"
+
+// ValueTable = Source(1)
+// ID;SensorType;PatrolStatus;StatusInformation;
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(3)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(4)
+
+// OtherDevice (Backplanes, Control Processor Cards, Serial Crossbars)
+
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Location;PartNumber;SerialNumber;
+OtherDevice.Discovery.Source(1).Type="SnmpTable"
+OtherDevice.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+OtherDevice.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,4,5"
+
+// Keep only OtherDevice sensors (Type 1,2,3)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+OtherDevice.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column=2
+OtherDevice.Discovery.Source(1).Compute(1).ValueList="1,2,3"
+
+// Translate the Sensor Type
+// ID;SensorType;Location;PartNumber;SerialNumber;
+OtherDevice.Discovery.Source(1).Compute(2).Type="Translate"
+OtherDevice.Discovery.Source(1).Compute(2).Column=2
+OtherDevice.Discovery.Source(1).Compute(2).TranslationTable="SensorTypeTranslationTable"
+
+// Add an identifier to the Location
+// ID;SensorType;Location;PartNumber;SerialNumber;
+OtherDevice.Discovery.Source(1).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(3).Column=3
+OtherDevice.Discovery.Source(1).Compute(3).String="Location: "
+
+// Add an identifier to the Part Number
+// ID;SensorType;Location;PartNumber;SerialNumber;
+OtherDevice.Discovery.Source(1).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(4).Column=4
+OtherDevice.Discovery.Source(1).Compute(4).String="Part Number: "
+
+// Add an identifier to the Serial Number
+// ID;SensorType;Location;PartNumber;SerialNumber;
+OtherDevice.Discovery.Source(1).Compute(5).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(5).Column=5
+OtherDevice.Discovery.Source(1).Compute(5).String="Serial Number: "
+
+// InstanceTable = Source(1)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(5)
+//
+// Collect
+
+// Collect type = multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Status;
+OtherDevice.Collect.Source(1).Type="SnmpTable"
+OtherDevice.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+OtherDevice.Collect.Source(1).SnmpTableSelectColumns="ID,1,3"
+
+// Keep only OtherDevice sensors (Type 1,2,3)
+// ID;SensorType;Status;
+OtherDevice.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Collect.Source(1).Compute(1).Column=2
+OtherDevice.Collect.Source(1).Compute(1).ValueList="1,2,3"
+
+// Duplicate the Status
+// ID;SensorType;Status;
+OtherDevice.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+OtherDevice.Collect.Source(1).Compute(2).Column=3
+
+// Translate the Status
+// ID;SensorType;PatrolStatus;Status;
+OtherDevice.Collect.Source(1).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(3).Column=3
+OtherDevice.Collect.Source(1).Compute(3).TranslationTable="McSensorStatusTranslationTable"
+
+// Translate the Status Information
+// ID;SensorType;PatrolStatus;StatusInformation;
+OtherDevice.Collect.Source(1).Compute(4).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(4).Column=4
+OtherDevice.Collect.Source(1).Compute(4).TranslationTable="McSensorInformationStatusTranslationTable"
+
+// ValueTable = Source(1)
+// ID;SensorType;PatrolStatus;StatusInformation;
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(3)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(4)
+
+// Blade
+
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Blade.Discovery.Source(1).Type="SnmpTable"
+Blade.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+Blade.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,4,5"
+
+// Keep only Blade sensors (Type 8,9,10,11,12,13,14,15,16)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Blade.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Discovery.Source(1).Compute(1).Column=2
+Blade.Discovery.Source(1).Compute(1).ValueList="8,9,10,11,12,13,14,15,16"
+
+// Translate the Sensor Type
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Blade.Discovery.Source(1).Compute(2).Type="Translate"
+Blade.Discovery.Source(1).Compute(2).Column=2
+Blade.Discovery.Source(1).Compute(2).TranslationTable="SensorTypeTranslationTable"
+
+// Add an identifier to the Location
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Blade.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Blade.Discovery.Source(1).Compute(3).Column=3
+Blade.Discovery.Source(1).Compute(3).String="Location: "
+
+// InstanceTable = Source(1)
+// ID;SensorType;Location;PartNumber;SerialNumber;
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.BladeName=InstanceTable.Column(2)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(4)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+//
+// Collect
+
+// Collect type = multi-instance
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = ef6000FruEntry
+// ID;SensorType;Status;
+Blade.Collect.Source(1).Type="SnmpTable"
+Blade.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.289.2.1.1.2.2.1.1"
+Blade.Collect.Source(1).SnmpTableSelectColumns="ID,1,3"
+
+// Keep only Blade sensors (Type 8,9,10,11,12,13,14,15,16)
+// ID;SensorType;Status;
+Blade.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Collect.Source(1).Compute(1).Column=2
+Blade.Collect.Source(1).Compute(1).ValueList="8,9,10,11,12,13,14,15,16"
+
+// Duplicate the Status
+// ID;SensorType;Status;
+Blade.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Blade.Collect.Source(1).Compute(2).Column=3
+
+// Translate the Status
+// ID;SensorType;PatrolStatus;Status;
+Blade.Collect.Source(1).Compute(3).Type="Translate"
+Blade.Collect.Source(1).Compute(3).Column=3
+Blade.Collect.Source(1).Compute(3).TranslationTable="McSensorStatusTranslationTable"
+
+// Translate the Status Information
+// ID;SensorType;PatrolStatus;StatusInformation;
+Blade.Collect.Source(1).Compute(4).Type="Translate"
+Blade.Collect.Source(1).Compute(4).Column=4
+Blade.Collect.Source(1).Compute(4).TranslationTable="McSensorInformationStatusTranslationTable"
+
+// ValueTable = Source(1)
+// ID;SensorType;PatrolStatus;StatusInformation;
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(1)
+Blade.Collect.Status=ValueTable.Column(3)
+Blade.Collect.StatusInformation=ValueTable.Column(4)
+
+// SensorTypeTranslationTable
+SensorTypeTranslationTable(1)="Backplane"
+SensorTypeTranslationTable(2)="Control Processor Card"
+SensorTypeTranslationTable(3)="Serial Crossbar"
+SensorTypeTranslationTable(4)="Center Fan Module"
+SensorTypeTranslationTable(5)="Fan Module"
+SensorTypeTranslationTable(6)="Power Supply Module"
+// SensorTypeTranslationTable(7)="Not Used"
+SensorTypeTranslationTable(8)="LW SM LC 1G"
+SensorTypeTranslationTable(9)="SW MM LC 1G"
+SensorTypeTranslationTable(10)="Mixed LC 1G"
+SensorTypeTranslationTable(11)="SFO 1G"
+SensorTypeTranslationTable(12)="SFO 2G"
+SensorTypeTranslationTable(13)="LW SM MT-RJ 1G"
+SensorTypeTranslationTable(14)="SW MM MT-RJ 1G"
+SensorTypeTranslationTable(15)="Mixed MT-RJ 1G"
+SensorTypeTranslationTable(16)="F-Port Internal 1G"
+
+// McSensorStatusTranslationTable
+McSensorStatusTranslationTable(1)="OK"
+McSensorStatusTranslationTable(2)="OK"
+McSensorStatusTranslationTable(3)="OK"
+McSensorStatusTranslationTable(4)="ALARM"
+McSensorStatusTranslationTable(Default)="UNKNOWN"
+
+// McSensorInformationStatusTranslationTable
+McSensorInformationStatusTranslationTable(1)="Active"
+McSensorInformationStatusTranslationTable(2)="Backup"
+McSensorInformationStatusTranslationTable(3)="Update-Busy"
+McSensorInformationStatusTranslationTable(4)="Failed"
+McSensorInformationStatusTranslationTable(Default)="UNKNOWN"

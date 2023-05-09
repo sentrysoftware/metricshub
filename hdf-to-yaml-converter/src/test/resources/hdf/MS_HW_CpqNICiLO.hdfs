@@ -1,0 +1,34 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_CpNICiLO.hdf
+//
+//      Supports: Windows systems with SNMP.EXE running
+//                Connects to a SNMP agent
+//
+//
+
+// HEADER
+hdf.DisplayName="HP Integrated Lights-Out Management Card - Network"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Integrated Lights-Out Management Card"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers enclosures, Ethernet ports, Physical network port and aggregations through the HP Integrated Lights-Out Management Card. This connector requires an Agentless Management Service and in some cases, the System Management Assistant."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="OOB"
+hdf.Supersedes="MS_HW_MIB2.hdf,MS_HW_MIB2Linux.hdf,MS_HW_MIB2NT.hdf,MS_HW_MIB2Solaris.hdf,MS_HW_WBEMGenNetwork.hdf,MS_HW_LinuxIfConfigNetwork.hdf,MS_HW_LinuxIPNetwork.hdf,MS_HW_HPUXNetwork.hdf,MS_HW_SunNetwork.hdf"
+
+// Constants
+#define Discovery_source %NetworkCard.Discovery.Source(3)%
+#define Collect_source %NetworkCard.Collect.Source(3)%
+
+
+// Includes
+#include MS_HW_CpqNetwork.hhdf

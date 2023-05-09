@@ -1,0 +1,296 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software(tm)
+//
+//                MS_HW_PromiseFSC.hdf
+//
+//      Supports: Promise FastTrack controllers through the Promise FastTrack SNMP agent, provided with FSC Serverview
+//
+//
+
+// HEADER
+
+hdf.DisplayName="Promise FastTrack"
+hdf.TypicalPlatform="Fujitsu-Siemens PRIMERGY"
+hdf.ReliesOn="Promise FastTrack SNMP Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector provides disk monitoring through the Promise FastTrack SNMP agent."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux"
+
+// DETECTION
+
+// Must have a physical disk in Promise's SNMP tree
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.7933.4.1.5.1"
+
+//
+// DISK CONTROLLERS
+//
+
+//
+// Discovery
+
+// Source(1) = promiseControllerTable SNMP table
+// deviceID;controllerNumber;model
+DiskController.Discovery.Source(1).Type="SnmpTable"
+DiskController.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.7933.4.1.6.1"
+DiskController.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2"
+
+// InstanceTable = Source(1)
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+DiskController.Collect.Type="MultiInstance"
+
+// Source(1) = promiseControllerTable SNMP table
+// deviceID;BatteryStatus
+DiskController.Collect.Source(1).Type="SnmpTable"
+DiskController.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.7933.4.1.6.1"
+DiskController.Collect.Source(1).SnmpTableSelectColumns="ID,10"
+
+// Duplicate the BatteryStatus column
+// deviceID;BatteryStatus;BatteryStatus
+DiskController.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+DiskController.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first BatteryStatus into a valid PATROL status
+// deviceID;BatteryStatus;BatteryStatus
+DiskController.Collect.Source(1).Compute(2).Type="Translate"
+DiskController.Collect.Source(1).Compute(2).Column="2"
+DiskController.Collect.Source(1).Compute(2).TranslationTable="DiskControllerBatteryStatusTranslationTable"
+
+// The DiskControllerBatteryStatusTranslationTable
+DiskControllerBatteryStatusTranslationTable(-1)="OK"
+DiskControllerBatteryStatusTranslationTable(0)="OK"
+DiskControllerBatteryStatusTranslationTable(1)="OK"
+DiskControllerBatteryStatusTranslationTable(2)="WARN"
+DiskControllerBatteryStatusTranslationTable(3)="WARN"
+DiskControllerBatteryStatusTranslationTable(4)="ALARM"
+DiskControllerBatteryStatusTranslationTable(5)="ALARM"
+DiskControllerBatteryStatusTranslationTable(6)="WARN"
+DiskControllerBatteryStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second BatteryStatus into a more readable string
+// deviceID;BatteryStatus;statusInformation
+DiskController.Collect.Source(1).Compute(3).Type="Translate"
+DiskController.Collect.Source(1).Compute(3).Column="3"
+DiskController.Collect.Source(1).Compute(3).TranslationTable="DiskControllerStatusInformationTranslationTable"
+
+// The DiskControllerStatusInformationTranslationTable
+DiskControllerStatusInformationTranslationTable(-1)=""
+DiskControllerStatusInformationTranslationTable(0)="No battery"
+DiskControllerStatusInformationTranslationTable(1)=""
+DiskControllerStatusInformationTranslationTable(2)="Temperature Out of Range"
+DiskControllerStatusInformationTranslationTable(3)="Unstable Temperature"
+DiskControllerStatusInformationTranslationTable(4)="Voltage Out of Range"
+DiskControllerStatusInformationTranslationTable(5)="Unstable Voltage"
+DiskControllerStatusInformationTranslationTable(6)="Communication Error"
+DiskControllerStatusInformationTranslationTable(Default)="Unknown Battery Status"
+
+// ValueTable = Source(1)
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(1)
+DiskController.Collect.BatteryStatus=ValueTable.Column(2)
+DiskController.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = promiseDiskTable SNMP table
+// ID;Model;SizeMB;controllerNumber
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.7933.4.1.5.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,4,6,16"
+
+// Convert SizeMB to SizeBytes
+// ID;Model;SizeBytes;controllerNumber
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column="3"
+PhysicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1000000"
+
+// If diskControllerNumber is '0', replace it by '1'
+// ID;Model;SizeBytes;controllerNumber
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column="4"
+PhysicalDisk.Discovery.Source(1).Compute(2).Replace="0"
+PhysicalDisk.Discovery.Source(1).Compute(2).ReplaceBy="1"
+
+
+// Instance Table = Source(1)
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the promiseDiskTable SNMP table
+// DeviceID;SmartStatus;Status
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.7933.4.1.5.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,5,10"
+
+// Duplicate the Status column
+// DeviceID;SMARTStatus;Status;Status
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="3"
+
+// Translate the first status value into a PATROL Status
+// DeviceID;SMARTStatus;PATROLStatus;Status
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable(0)="OK"
+PhysicalDiskStatusTranslationTable(1)="ALARM"
+PhysicalDiskStatusTranslationTable(2)="WARN"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status value into a more readable information
+// DeviceID;SMARTStatus;PATROLStatus;InformationStatus
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column="4"
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+// The PhysicalDiskStatusInformationTranslationTable
+PhysicalDiskStatusInformationTranslationTable(0)=""
+PhysicalDiskStatusInformationTranslationTable(1)="Offline"
+PhysicalDiskStatusInformationTranslationTable(2)="Rebuild Needed"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the original SMARTStatus into a true/false value that says if a failure is predicted
+// DeviceID;PredictedFailure;PATROLStatus;InformationStatus
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="PhysicalDiskSMARTTranslationTable"
+
+// The PhysicalDiskSMARTTranslationTable
+PhysicalDiskSMARTTranslationTable(0)="true"
+PhysicalDiskSMARTTranslationTable(Default)="false"
+
+// The collect table = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(2)
+
+
+//
+// LOGICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = promiseArrayTable SNMP table
+// ID;raidTypeCode;arraySizeMB
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.7933.4.1.4.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,3,6"
+
+// Multiply the arraySizeMB column (in MB) by 1048576 to obtain the disk size in bytes
+// ID;raidTypeCode;arraySizeBytes
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column="3"
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1048576"
+
+// Translate raidTypeCode into raidLevel
+// ID;raidLevel;arraySizeBytes
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Discovery.Source(1).Compute(2).Column="2"
+LogicalDisk.Discovery.Source(1).Compute(2).TranslationTable="RAIDLevelTranslationTable"
+
+// The RAIDLevelTranslationTable
+RAIDLevelTranslationTable(-1)=""
+RAIDLevelTranslationTable(0)="0"
+RAIDLevelTranslationTable(1)="1"
+RAIDLevelTranslationTable(2)="0+1"
+RAIDLevelTranslationTable(3)="3"
+RAIDLevelTranslationTable(4)="4"
+RAIDLevelTranslationTable(5)="5"
+RAIDLevelTranslationTable(Default)=""
+
+// WARNING!!!
+// The ControllerNumber property is hardcoded to '1', because the MIB doesn't give
+// us this information. So, in largely most cases, there will be only one controller
+// so it's not a problem. In other cases, well, we'll see..
+
+// Instance Table = Source(1)
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.ControllerNumber="1"
+LogicalDisk.Discovery.Instance.RAIDLevel=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the promiseArrayTable SNMP table
+// DeviceID;Status
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.7933.4.1.4.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,5"
+
+// Duplicate the Status column
+// DeviceID;Status;Status
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status value into a PATROL Status
+// DeviceID;PATROLStatus;Status
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column="2"
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable(0)="OK"
+LogicalDiskStatusTranslationTable(1)="ALARM"
+LogicalDiskStatusTranslationTable(2)="WARN"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status value into a more readable information
+// DeviceID;PATROLStatus;InformationStatus
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column="3"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="LogicalDiskStatusInformationTranslationTable"
+
+// The LogicalDiskStatusInformationTranslationTable
+LogicalDiskStatusInformationTranslationTable(0)=""
+LogicalDiskStatusInformationTranslationTable(1)="Critical"
+LogicalDiskStatusInformationTranslationTable(2)="Offline"
+LogicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The collect table = Source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+

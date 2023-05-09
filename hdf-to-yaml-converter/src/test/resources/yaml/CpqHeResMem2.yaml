@@ -1,0 +1,189 @@
+---
+connector:
+  displayName: HP Insight Management Agent (v8.25 or higher) - Memory
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents
+  version: 1.4
+  information: This connector provides Memory Information through the HP Insight Manager (Newer Server Agents).
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    - Linux
+    - OSF1
+    - VMS
+    - OOB
+    - Solaris
+    supersedes:
+    - CpqSiMem
+    criteria:
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.6.2.14.13.1
+monitors:
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CpqHeResMem2 Table
+          # ID,BoardNumber,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+          #  1,    2      ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.14.13.1
+          selectColumns: "ID,2,3,4,5,6,7,9,10,12,14,19"
+          computes:
+            # Exclude Modules "Not Present" and "Other/Unknown"
+            # ID,BoardNumber,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            #  1,    2      ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+          - type: excludeMatchingLines
+            column: 12
+            valueList: "1,2"
+            # Create The Location from Columns 2, 3, 4, 5
+            # ID,BoardNumber,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            #  1,    2      ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+          - type: leftConcat
+            column: 2
+            value: 'Board '
+          - type: rightConcat
+            column: 2
+            value: ", CPU "
+          - type: rightConcat
+            column: 2
+            value: Column(3)
+          - type: rightConcat
+            column: 2
+            value: ", Riser "
+          - type: rightConcat
+            column: 2
+            value: Column(4)
+          - type: rightConcat
+            column: 2
+            value: ", Module "
+          - type: rightConcat
+            column: 2
+            value: Column(5)
+            # Translate the Memoyr Type
+            # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+          - type: translate
+            column: 7
+            translationTable: memoryTypeTranslationTable
+            # Convert size to MB
+            # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+          - type: divide
+            column: 6
+            value: 1024
+            # Add "Frequency: " Decriptor
+            # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12 Memory.Discovery.Source(1).Compute(9).Type="LeftConcat"
+          - type: leftConcat
+            column: 11
+            value: "Speed: "
+            # Add MHz to Frequency
+            # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+          - type: rightConcat
+            column: 11
+            value: ' MHz'
+          - type: leftConcat
+            column: 2
+            value: "Location: "
+      mapping:
+        # The Instance Table
+        # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+        #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          type: $column(7)
+          vendor: $column(8)
+          model: $column(9)
+          serial_number: $column(10)
+          info: "join($column(2), $column(11), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(1), $column(8), $column(7), $column(6))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(6))
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqHeResMemModuleTable (for newer HP systems)
+          # ID;Status;Status,ErrorCountCondition
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.6.2.14.13.1
+          selectColumns: "ID,19,20"
+          computes:
+            # Duplicate Status
+            # DeviceID;Status;Status;ErrorCountCondition
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL Status
+            # DeviceID;PATROLStatus;Status;ErrorCountCondition
+          - type: translate
+            column: 2
+            translationTable: memoryStatusTranslationTable
+            # Translate second Status into a more readable string
+            # DeviceID;PATROLStatus;statusInformation;ErrorCountCondition
+          - type: translate
+            column: 3
+            translationTable: memoryStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID;PATROLStatus;statusInformation
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  errorCountConditionTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  memoryTypeTranslationTable:
+    "11": SRIMM
+    "12": FB-DIMM
+    "13": DIMM-DDR
+    "14": DIMM-DDR2
+    "15": DIMM-DDR3
+    "16": DIMM-FBD2
+    "17": FB-DIMM-DDR2
+    "18": FB-DIMM-DDR3
+    "1": ""
+    "2": Board
+    "3": Single-width
+    "4": Double-width
+    "5": SIMM
+    "6": PCMCIA
+    "7": Compaq-specific
+    "8": DIMM
+    "9": DIMM (small outline)
+    "10": RIMM
+  memoryStatusTranslationTable:
+    "11": degraded
+    "2": ok
+    default: UNKNOWN
+    "3": ok
+    "4": ok
+    "5": ok
+    "6": ok
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  memoryStatusInformationTranslationTable:
+    "11": Too many ECC errors
+    "2": Not Present or Uninitialized
+    default: Unknown Status
+    "3": Not in use
+    "4": Good
+    "5": "Just added, not in use"
+    "6": "Just upgraded, not in use"
+    "7": Missing!
+    "8": Does not match other modules
+    "9": Not supported
+    "10": Bad configuration

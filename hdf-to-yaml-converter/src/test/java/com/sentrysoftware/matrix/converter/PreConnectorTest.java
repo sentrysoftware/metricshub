@@ -1126,7 +1126,7 @@ class PreConnectorTest {
 			final PreConnector preConnector = new PreConnector();
 			String rawCodeResult = preConnector.processComments(rawCode);
 			assertEquals("key=value",rawCodeResult.trim());
-			assertEquals(Map.of("key", List.of("", "Comment1", "Comment2", "", "Comment3")), preConnector.getComments());
+			assertEquals(Map.of("key", List.of("Comment1", "Comment2", "Comment3")), preConnector.getComments());
 		}
 	}
 

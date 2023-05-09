@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 
 public class JsonHelper {
 
@@ -113,7 +114,7 @@ public class JsonHelper {
 	 */
 	public static ObjectMapper buildYamlMapper() {
 		return JsonMapper
-			.builder(new YAMLFactory())
+			.builder(new YAMLFactory().disable(Feature.SPLIT_LINES).enable(Feature.MINIMIZE_QUOTES))
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)

@@ -1,0 +1,632 @@
+---
+extends:
+- IBMAIXModels-header
+connector:
+  displayName: IBM AIX - Common
+  platforms: IBM POWER
+  reliesOn: "IBM AIX system commands (lsdev, entstat, etc.)"
+  information: "Provides hardware status information (processors, memory modules, network interfaces) on IBM AIX systems."
+  version: 1.3
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - RS6000
+    criteria:
+    # OS should be AIX (whatever version)
+    - type: deviceType
+      keep:
+      - RS6000
+    # Check for the ability to run lsdev, at least
+    - type: osCommand
+      commandLine: /usr/bin/ls /usr/sbin/lsdev
+      expectedResult: ^/usr/sbin/lsdev$
+sudoCommands:
+- /usr/sbin/netstat -D
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of uname -M
+          # MachineIDNumber;ModelCode;SystemID;LPARSystemID;
+          type: osCommand
+          commandLine: /usr/bin/uname -mMfF
+          keep: " IBM,"
+          separators: ' '
+          selectColumns: "1,2,3,4"
+          computes:
+            # Remove the IBM,  (We, unfortunately, already know it's an IBM)
+            # MachineIDNumber;ModelCode;LPARSystemID;SystemID;
+          - type: replace
+            column: 2
+            existingValue: "IBM,"
+            newValue: ""
+            # Add descriptive prefixes to the different IDs
+            # MachineIDNumber;ModelCode;LPARSystemID;SystemID;
+          - type: leftConcat
+            column: 1
+            value: "Machine ID: "
+          - type: leftConcat
+            column: 3
+            value: "LPAR System ID: "
+          - type: leftConcat
+            column: 4
+            value: "System ID: "
+            # Duplicate the ModelCode
+            # MachineIDNumber;ModelCode;ModelCode;LPARSystemID;SystemID;
+          - type: duplicateColumn
+            column: 2
+            # Translate the 2nd Model Code into a Model Name
+            # The translation table will need to be regularly updated
+            # MachineIDNumber;ModelCode;ModelName;LPARSystemID;SystemID;
+          - type: translate
+            column: 3
+            translationTable: ModelTranslationTable
+            # Concatenate ModelCode and ModelName
+            # MachineIDNumber;ModelCode;ModelCode, ModelName;LPARSystemID;SystemID;
+          - type: leftConcat
+            column: 3
+            value: ", "
+          - type: leftConcat
+            column: 3
+            value: Column(2)
+        source(2):
+          # Source(2) = the output of lsattr -E -l sys0 -O -a modelname -a systemid -a fwversion
+          # ModelCode;SystemID;FirmwareVersion;
+          type: osCommand
+          commandLine: /usr/sbin/lsattr -E -l sys0 -O -a modelname -a systemid -a fwversion
+          keep: "^IBM,"
+          separators: ':'
+          selectColumns: "1,2,3"
+          computes:
+            # Remove mentions to "IBM," in the different fields
+            # ModelCode;SystemID;FirmwareVersion;
+          - type: replace
+            column: 1
+            existingValue: "IBM,"
+            newValue: ""
+          - type: replace
+            column: 2
+            existingValue: "IBM,"
+            newValue: ""
+          - type: replace
+            column: 3
+            existingValue: "IBM,"
+            newValue: ""
+        source(3):
+          # Source(3) = Table Join of Source(1) and Source(2)
+          # MachineIDNumber;ModelCode;ModelCode, ModelName;LPARSystemID;SystemID;ModelCode;SystemID;FirmwareVersion;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+      mapping:
+        # The discovery table
+        # MachineIDNumber;ModelCode;ModelCode, ModelName;LPARSystemID;SystemID;ModelCode;SystemID;FirmwareVersion;
+        source: $monitors.enclosure.discovery.sources.source(3)$
+        attributes:
+          id: $column(7)
+          __display_id: $column(7)
+          vendor: IBM
+          model: $column(3)
+          type: Computer
+          serial_number: $column(7)
+          bios_version: $column(8)
+          info: "join($column(1), $column(5), $column(4), \" \")"
+          name: "sprintf(\"Computer: %s (%s %s)\", $column(7), \"IBM\", $column(3))"
+    collect:
+      # Collect type is mono-instance (as there is only one instance anyway)
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = Number of events reported by errpt of type "SCAN_ERROR_CHRP" on sysplanar0
+          # Please note that we're echoing ERRPT_BEGIN to make sure the result is not empty, else the computing is not done and the awk script is not executed
+          # ErrorCount
+          type: osCommand
+          commandLine: echo ERRPT_BEGIN;/usr/bin/errpt -d H -N sysplanar0 -s `/bin/date +%%m%%d0000%%y` -J SCAN_ERROR_CHRP
+          computes:
+            # Process the output of errpt through awk EmbeddedFile(5)
+            # Status;StatusInformation;
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+      mapping:
+        # ValueTable = source(1)
+        source: $monitors.enclosure.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = sh -$embedded.EmbeddedFile(1)$
+          # cpuID;HzSpeed;Model
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          keep: '^MSHW:'
+          separators: ':'
+          selectColumns: "2,3,4"
+          computes:
+            # Remove the "PowerPC_" prefix in the model column
+            # cpuID;HzSpeed;Model
+          - type: replace
+            column: 3
+            existingValue: PowerPC_
+            newValue: ""
+            # Convert Hz to MHz
+            # cpuID;MHzSpeed;Model
+          - type: divide
+            column: 2
+            value: 1000000
+      mapping:
+        # Instance table = source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lsdev -c processor
+          # cpuID;cpuStatus
+          type: osCommand
+          commandLine: /usr/sbin/lsdev -C -c processor -F 'class;name;status'
+          keep: ^processor;
+          separators: ;
+          selectColumns: "2,3"
+          computes:
+            # Duplicate the status column
+            # cpuID;cpuStatus;cpuStatus
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # cpuID;PATROLStatus;cpuStatus
+          - type: translate
+            column: 2
+            translationTable: cpuStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # cpuID;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: cpuStatusInformationTranslationTable
+      mapping:
+        # ValueTable = source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of EmbeddedFile(6) (mix of lsdev and lscfg)
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(6)$
+          computes:
+            # Process the output of lscfg through awk EmbeddedFile(7)
+            # DeviceID;Model;NicType;MACAddress;HWLocationCode;
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+        source(2):
+          # Source(2) = output of embedded script 3
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$
+          computes:
+            # Process the output of entstat through awk EmbeddedFile(3)
+            # DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11"
+        source(3):
+          # Source(3) = joint of Source(1) and Source(2)
+          # DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;OK;WARN;0;0;0;0;0;;;
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          device_type: $column(3)
+          info: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of entstat -d for each card
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(2)$
+          computes:
+            # Process the output of entstat through awk EmbeddedFile(3)
+            # DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11"
+        source(2):
+          # Source(2) = joint of $monitors.network.discovery.sources.source(1)$ and NetworkCard.Collect.Source(1)
+          # DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(1)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;OK;WARN;0;0;0;0;0;;;
+      mapping:
+        # Value table = Source(1)
+        # DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
+        source: $monitors.network.collect.sources.source(2)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(7)
+          hw.network.up: legacyLinkStatus($column(8))
+          hw.errors{hw.type="network"}: $column(9)
+          hw.network.packets{direction="transmit"}: $column(10)
+          hw.network.packets{direction="receive"}: $column(11)
+          hw.network.io{direction="transmit"}: $column(12)
+          hw.network.io{direction="receive"}: $column(13)
+          hw.network.bandwidth.limit: megaBit2Bit($column(14))
+          hw.network.full_duplex: legacyFullDuplex($column(15))
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of lscfg -vp -l sysplanar0
+          type: osCommand
+          commandLine: /usr/sbin/lscfg -vp -l sysplanar0
+          computes:
+            # Reformat lscfg's output through awk (see EmbeddedFile(4))
+            # DeviceID;Size;SerialNumber
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+            # Duplicate the DeviceID column (which is actually phys location code)
+            # DeviceID;DeviceID;Size;SerialNumber
+          - type: duplicateColumn
+            column: 1
+            # Add "Hardware Location Code: " to the second DeviceID, to show it in the identifying information
+            # DeviceID;HardwareLocationCode;Size;SerialNumber
+          - type: leftConcat
+            column: 2
+            value: "Location: "
+            # Add ";1;" to the HardwareLocationCode that will correspond to the Status and ErrorCount ParameterActivation values
+            # DeviceID;HardwareLocationCode;StatusActivation;ErrorCountActivation;Size;SerialNumber
+          - type: rightConcat
+            column: 2
+            value: ;1;
+        source(2):
+          # Source(2) = Static table to represent the global memory stuff
+          type: static
+          value: Memory Controller;;;1;;;
+        source(3):
+          # Source(3) = Union of Source(1) and Source(2)
+          # DeviceID;HardwareLocationCode;StatusActivation;ErrorCountActivation;Size;SerialNumber
+          type: tableUnion
+          tables:
+          - $monitors.memory.discovery.sources.source(1)$
+          - $monitors.memory.discovery.sources.source(2)$
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.memory.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          serial_number: $column(6)
+          info: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s MB)\", $column(1), $column(5))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(5))
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = output of lscfg -vp -l sysplanar0
+          type: osCommand
+          commandLine: /usr/sbin/lscfg -vp -l sysplanar0
+          computes:
+            # Reformat lscfg's output through awk (see EmbeddedFile(4))
+            # DeviceID;Status;StatusInformation;
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,5,6"
+            # Add ";" to the right, as an empty ErrorCount column
+            # DeviceID;Status;StatusInformation;ErrorCount
+          - type: rightConcat
+            column: 3
+            value: ;
+        source(2):
+          # Source(2) = Number of events reported by errpt of type "memory"
+          # MemoryErrorCount
+          type: osCommand
+          commandLine: "/usr/bin/errpt -d H -s `/bin/date +%%m%%d0000%%y` -J CORRECTED_SCRUB,MEM1,MEM2,MEM3,MEMORY,RECOV_ECC_ERR,UNRECOV_ECC_ERR|/bin/wc -l"
+          keep: "^ *[0-9]+$"
+          separators: ' '
+          selectColumns: 1
+          computes:
+            # Add "Memory Controller;;;" as the device ID;Status;StatusInformation
+            # DeviceID;Status;StatusInformation;MemoryErrorCount
+          - type: leftConcat
+            column: 1
+            value: Memory Controller;;;
+        source(3):
+          # Source(3) = Union of Source(1) and Source(2)
+          type: tableUnion
+          tables:
+          - $monitors.memory.collect.sources.source(1)$
+          - $monitors.memory.collect.sources.source(2)$
+      mapping:
+        # Value table = Source(1)
+        source: $monitors.memory.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+          hw.errors{hw.type="memory"}: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    #!/bin/sh
+    for PROC in `/usr/sbin/lsdev -C -c processor -S as -F 'name'`
+        do
+        PROCDETAILS=`/usr/sbin/lsattr -El $PROC -O -a frequency -a type|/usr/bin/grep -v ^#`
+        /usr/bin/echo "MSHW:$PROC:$PROCDETAILS"
+    done
+  EmbeddedFile(3): |-
+    /^ETHERNET STATISTICS/ { if ($3 ~ /(en[0-9].*)/) {nicdevice = $3; gsub("en","ent",nicdevice);gsub(/[\050\051]/,"",nicdevice); nicdevices[nicdevice]=nicdevice}
+                                 else { nicdevice = $3;gsub (/[\050\051]/,"",nicdevice); nicdevices[nicdevice]=nicdevice}
+                             }
+
+    /^Device Type:/ {
+                     if ( ($3 ~ /EtherChannel/ || /Virtual/) || ($0 ~ /Shared Ethernet Adapter/) || ($0 ~ /Link Aggregation/) || ($0 ~ /VLAN/)) { EtherT[nicdevice] = "Logical"; lastLogical = nicdevice }
+                        else { EtherT[nicdevice] = "Physical" }
+                    }
+
+    /^Driver Flags:/ {
+                      nicStatus[nicdevice] = "ALARM";
+                      if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK"; }
+                      else {
+                            getline
+                            if ($0 ~ /Running/) { nicStatus[nicdevice] = "OK";}
+                           }
+                     }
+
+    $1 == "Hardware" && $2 == "Address:" { mac[nicdevice] = $3 ; gsub (/:/,"",mac[nicdevice])}
+
+    # Link
+    /Physical Port Link Stat/ {
+                               if ($NF == "up" || $NF == "Up" || $NF == "UP") {
+                                                                               linkStatus[nicdevice] = "OK";
+                                                                               if ( linkStatus[lastLogical] == "WARN" ) { linkStatus[lastLogical] = "OK" ; nicStatus[lastLogical] = "WARN" ; }
+                                                                              }
+                                  else {
+                                        linkStatus[nicdevice] = "WARN";
+                                        if (linkStatus[lastLogical] == "OK") { nicStatus[lastLogical] = "WARN" }
+                                        if (linkStatus[lastLogical] == "") { linkStatus[lastLogical] = "WARN" ; nicStatus[lastLogical] = "ALARM" }
+                                       }
+                               if ($NF == "Unknown") {linkStatus[nicdevice] = "ALARM";}
+                              }
+
+    $1 == "Link" && $2 == "Status" { if ($4 == "up" || $4 == "Up" || $4 == "UP") { linkStatus[nicdevice] = "OK"; }
+                                          else {linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK";}
+                                     }
+
+    $1 == "Link" && $2 == "Status:" { if ($3 == "up" || $3 == "Up" || $3 == "UP") { linkStatus[nicdevice] = "OK";}
+                                           else { linkStatus[nicdevice] = "WARN"; nicStatus[nicdevice] = "OK"; }
+                                      }
+
+    # Speed
+    $0 ~ /Media Speed Running:/ || $0 ~ /Physical Port Speed:/ {
+                                     #linkSpeed[nicdevice] = $4; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);
+                                                                     linkSpeed[nicdevice] = $4 $5; gsub(/Gbps/,"000",linkSpeed[nicdevice]);gsub(/Mbps/,"",linkSpeed[nicdevice]);
+                                                                     if ($0 ~ /[Hh]alf [Dd]uplex/) { duplexMode[nicdevice] = "half"; }
+                                        else { duplexMode[nicdevice] = "full"; }
+                                     }
+
+    # Statistics
+    $1 == "Packets:" && $3 == "Packets:" { transmitPackets[nicdevice] = $2; receivePackets[nicdevice] = $4; }
+
+    $1 == "Bytes:" && $3 == "Bytes:" {transmitBytes[nicdevice] = $2;receiveBytes[nicdevice] = $4; }
+
+    $1 == "Transmit" && $2 == "Errors:" && $4 == "Receive" && $5 == "Errors:" { transmitErrors[nicdevice] = $3; receiveErrors[nicdevice] = $6; totalErrors[nicdevice] = transmitErrors[nicdevice] + receiveErrors[nicdevice] ; }
+
+    END { for (nic in nicdevices) {
+              if (EtherT[nic] == "Logical") {
+                 printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;;;%s;;\n", nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],"Logical");
+                 }
+                 else {
+                       printf("MSHW;%s;%s;%s;%.0f;%.0f;%.0f;%.0f;%.0f;%s;%s;%s;%s;\n",nicdevices[nic],nicStatus[nic],linkStatus[nic],totalErrors[nic],transmitPackets[nic],receivePackets[nic],transmitBytes[nic],receiveBytes[nic],linkSpeed[nic],duplexMode[nic],"Physical", mac[nic]);
+                      }
+
+              }
+    }
+  EmbeddedFile(2): |-
+    #!/bin/sh
+    if [ -f /etc/lsattr ]
+        then LSATTR=/etc/lsattr
+        else LSATTR=/usr/sbin/lsattr
+    fi
+    for NIC in `%{SUDO:/usr/sbin/netstat -D}/usr/sbin/netstat -D |awk '/ent_dd/ {print $1} ' |cut -b 7-9`
+    do
+        echo MS_HW_entstat_Start: $NIC
+        /usr/bin/entstat -d en$NIC
+        echo MS_HW_entstat_End: $NIC
+    done
+  EmbeddedFile(5): |-
+    BEGIN {
+        errorCount = 0;
+        lastErrorDescription = "";
+        lastTimestamp = "";
+    }
+    ($5 == "sysplanar0") {
+        errorCount++;
+        lastErrorDescription = $6;
+        for (i=7 ; i<=NF ; i++)
+        {
+            lastErrorDescription = lastErrorDescription " " $i;
+        }
+        lastTimestamp = "20" substr($2, 9, 2) "-" substr($2, 1, 2) "-" substr($2, 3, 2) " " substr($2, 5, 2) ":" substr($2, 7, 2)
+    }
+    END {
+        if (errorCount == 0)
+        {
+            print "MSHW;OK;No error on sysplanar0 as of today";
+        }
+        else if (errorCount == 1)
+        {
+            print "MSHW;ALARM;" lastErrorDescription " on " lastTimestamp;
+        }
+        else
+        {
+            print "MSHW;ALARM;" errorCount " errors in errpt. Last error: " lastErrorDescription " on " lastTimestamp;
+        } # end else
+    }
+  EmbeddedFile(4): |-
+    BEGIN {
+        MemoryObject = 0;
+        DeviceID = "";
+        Size = "";
+        SerialNumber = "";
+        PartNumber = "";
+    }
+    /Memory [DS]IMM:/ {
+        MemoryObject = 1;
+    }
+
+    /Size\.+/ {
+        Size = $0;
+        gsub(" +Size\\.+", "", Size);
+    }
+    /Serial Number\.+/ {
+        SerialNumber = $0;
+        gsub(" +Serial Number\\.+", "", SerialNumber);
+    }
+    /Part Number\.+/ {
+        PartNumber = $0;
+        gsub(" +Part Number\\.+", "", PartNumber);
+    }
+    /Physical Location:/ {
+        if (MemoryObject == 1)
+        {
+            DeviceID = $3;
+
+            if (Size == 0)
+            {
+                Status = "ALARM";
+                StatusInformation = "Failed";
+            }
+            else
+            {
+                Status = "OK";
+                StatusInformation = "";
+            }
+            print "MSHW;" DeviceID ";" Size ";" SerialNumber " - FRU: " PartNumber ";" Status ";" StatusInformation
+        }
+        DeviceID = "";
+        MemoryObject = 0;
+        SerialNumber = "";
+        PartNumber = "";
+    }
+  EmbeddedFile(7): |-
+    /MS_HW_lscfg_Start/ {
+        nicID = "";
+        model = "";
+        MACaddress = "";
+        nicType = "";
+        hwLocationCode = "";
+    }
+    ($1 ~ /^ent[0-9]/) {
+        nicID = $1;
+        hwLocationCode = $2;
+        getline;
+        gsub("^ +", "");
+        model = $0;
+    }
+    /^ *Network Address/ {
+        gsub("^ *Network Address\\.+", "");
+        MACaddress = $1;
+        if (length(MACaddress) == 12)
+        {
+            MACaddress = substr(MACaddress, 1, 2) ":" substr(MACaddress, 3, 2) ":" substr(MACaddress, 5, 2) ":" substr(MACaddress, 7, 2) ":" substr(MACaddress, 9, 2) ":" substr(MACaddress, 11, 2);
+        }
+    }
+    /MS_HW_lscfg_End/ {
+        if (nicID != "")
+        {
+            if (model ~ /Virtual/ || model ~ /EtherChannel/ || model ~ /VLAN/)
+            {
+                nicType = "Logical";
+            }
+            else
+            {
+                nicType = "Physical";
+            }
+            print "MSHW;" nicID ";" model ";" nicType ";" MACaddress ";Location: " hwLocationCode ";"
+        }
+
+        nicID = "";
+        model = "";
+        MACaddress = "";
+        nicType = "";
+        hwLocationCode = "";
+
+    }
+  EmbeddedFile(6): |-
+    #!/bin/sh
+    for NIC in `/usr/sbin/lsdev -C -S a -c adapter -F 'name'|/usr/bin/grep ^ent[0-9]`
+    do
+        echo MS_HW_lscfg_Start: $NIC
+        /usr/sbin/lscfg -v -s -l $NIC 2> /dev/null
+        if [ $? -gt 0 ]; then
+        echo $NIC
+        lsdev -l $NIC |cut -c 17-
+        fi
+        echo MS_HW_lscfg_End: $NIC
+    done
+translations:
+  cpuStatusInformationTranslationTable:
+    stopped: Stopped
+    default: Unknown Status
+    available: Available
+    defined: Defined
+  cpuStatusTranslationTable:
+    stopped: degraded
+    default: UNKNOWN
+    available: ok
+    defined: ok

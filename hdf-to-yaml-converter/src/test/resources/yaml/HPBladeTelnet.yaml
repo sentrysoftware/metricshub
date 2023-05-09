@@ -1,0 +1,506 @@
+---
+connector:
+  displayName: HP BladeSystem (SSH)
+  platforms: HP BladeSystem
+  reliesOn: HP BladeSystem Onboard Administrator
+  version: 1.0
+  information: This connector provides hardware monitoring for the HP BladeSystem racks through the Onboard Administrator.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    supersedes:
+    - HPBladeSystem
+    criteria:
+    # host should respond to Telnet/SSH the way described below
+    - type: osCommand
+      commandLine: SHOW OA INFO
+      expectedResult: Onboard Administrator
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show enclosure info
+          computes:
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: MSHW;
+            separators: ;
+            selectColumns: "2,3"
+        source(2):
+          type: osCommand
+          commandLine: show interconnect info all
+        source(3):
+          type: osCommand
+          commandLine: show server info all
+        source(4):
+          type: osCommand
+          commandLine: show enclosure powersupply all
+        source(5):
+          type: osCommand
+          commandLine: show enclosure fan all
+        source(6):
+          type: osCommand
+          commandLine: show enclosure temp
+        source(7):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          - $monitors.enclosure.discovery.sources.source(4)$
+          - $monitors.enclosure.discovery.sources.source(5)$
+          - $monitors.enclosure.discovery.sources.source(6)$
+      mapping:
+        # The discovery table = source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: HPBladeChassis
+          model: $column(1)
+          serial_number: $column(2)
+          type: blade
+          name: "sprintf(\"Blade Enclosure: (%s)\", $column(1))"
+    collect:
+      type: monoInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show enclosure status
+          computes:
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: MSHW;
+            separators: ;
+            selectColumns: "2,3"
+            # Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+            # status;powerState;
+          - type: translate
+            column: 1
+            translationTable: OKDegradedFailedTranslationTable
+        source(2):
+          type: osCommand
+          commandLine: show interconnect status all
+        source(3):
+          type: osCommand
+          commandLine: show server status all
+        source(4):
+          type: osCommand
+          commandLine: show enclosure powersupply all
+        source(5):
+          type: osCommand
+          commandLine: show enclosure fan all
+        source(6):
+          type: osCommand
+          commandLine: show enclosure temp
+        source(7):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(3)$
+          - $monitors.enclosure.collect.sources.source(4)$
+          - $monitors.enclosure.collect.sources.source(5)$
+          - $monitors.enclosure.collect.sources.source(6)$
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(1)
+          hw.enclosure.power: $column(2)
+          hw.enclosure.energy: fakeCounter($column(2))
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(3)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,4"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: HPBladeChassis
+          name: "sprintf(\"%s (%s W)\", $column(1), $column(2))"
+        metrics:
+          hw.power_supply.limit: $column(2)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(3)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,5"
+            # Duplicate the status column
+            # PowerSupplyID; status ; status ;
+          - type: duplicateColumn
+            column: 2
+            # Now translate first status column from "OK/Degraded/Failed" into OK/Warning/Alarm
+            # powerSupplyID;PATROLStatus;status;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: OKDegradedFailedTranslationTable
+            # Translate the second status column into a more readable String
+            # powerSupplyID;PATROLStatus;statusInformation;
+          - type: translate
+            column: 3
+            translationTable: OKDegradedFailedStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+          hw.power_supply.power: $column(4)
+          hw.power_supply.utilization: legacyPowerSupplyUtilization($column(4))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(7)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS MSHW;FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
+            #  SELECTS FanID
+            # FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: 2
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(7)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: HPBladeChassis
+          name: $column(1)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+            # status;fanState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: OKDegradedFailedTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed_ratio: percent2Ratio($column(3))
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(7)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS MSHW; ID, status, temperature, high caution value, high critical value, statusActivate, temperatureActivate
+            #  SELECTS id, high caution value, high critical value, statusActivate, temperatureActivate
+          - type: awk
+            script: EmbeddedFile(5)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,5,6,7,8"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: HPBladeChassis
+          name: $column(1)
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
+          hw.temperature.limit{limit_type="high.critical"}: $column(3)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(5)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: OKDegradedFailedTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(3)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # InstanceTable = Source(3)
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          blade_name: $column(2)
+          model: $column(3)
+          serial_number: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: HPBladeChassis
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(7)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5"
+            # Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+            # status
+          - type: translate
+            column: 2
+            translationTable: OKDegradedFailedTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="blade"}: $column(2)
+          hw.blade.power_state: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          device_type: $column(2)
+          additional_label: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: HPBladeChassis
+          name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(7)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: OKDegradedFailedTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN                  { FS = ":"; model = ""; serialNumber = ""; }
+    $1 ~ /Enclosure Type/  { model = $2; }
+    $1 ~ /Serial Number/   { serialNumber = $2; }
+    END                    { print "MSHW;" model ";" serialNumber; }
+  EmbeddedFile(3): |-
+    BEGIN  {powerSupplyID = ""; status ="" ; powerCapacity ="" ; lastLine=$0 }
+    {skip=1}
+    /show enclosure powersupply all/,/show enclosure fan all/ {skip = 0}
+    skip == 1 {next}
+    $0 ~ /^Power Supply #[0-9]/ { powerSupplyID = $0 ; status ="" ; powerCapacity ="" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",powerSupplyID) ; gsub (/#/,"",powerSupplyID) ;}
+    ( lastLine ~ /^Power Supply #/ && $0 ~ /Status/ ) { status = $2}
+    $1 ~ /^Capacity:/ { powerCapacity = $2 }
+    $1 ~ /^Current/ { powerCurrent = $4 }
+    $1 ~ /^Spare/ && (powerSupplyID != "") { sparePartNumber = $4 ;
+                 print ("MSHW;" powerSupplyID ";" status ";" powerCapacity ";" powerCurrent ";" );
+                 powerSupplyID = "" ; }
+    { lastLine = $0 }
+  EmbeddedFile(2): |-
+    BEGIN  { powerConsumption = ""; status = "" ; lastLine = "" ;}
+
+    ( lastLine ~ /Enclosure/ && $0 ~ /Status/ ) { status = $2 }
+    ( $0 ~ /Present Power/ ) { powerConsumption = $3    }
+    { lastLine = $0}
+
+    END  { print "MSHW;" status ";" powerConsumption ";"}
+  EmbeddedFile(5): |-
+    BEGIN  {IDlength="";BayNumFound=0}
+    /show/,/show enclosure temp/ {next}
+    $0 ~ /Bay #/ {BayNumFound=1}
+    ($1 ~ /^-+$/ && $2 ~ /^-+$/ && $3 ~ /^-+$/ && $4 ~ /^-+$/ && $5 ~ /^-+$/ ) { IDlength = length($1)
+                                                                                        if (BayNumFound==1) {IDlength = IDlength + 1 + length($2)}
+                                                                                      }
+    NF < 5 { next }
+    {tempSensorID = ""}
+    { if ($NF == "---" && $(NF-3) ~ /C/) { tempStatus = $(NF-4) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+            else if ($NF == "---" ) { tempStatus = $(NF-3) ; temp = "" ; tempCaution = "" ; tempCritical = "" ; temperatureActivate = "" ; }
+            else if ($NF ~ /C/ && $(NF-2) ~ /C/)  {tempStatus = $(NF-3) ; temp = $(NF-2) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+            else if ($NF ~ /C/ && $(NF-3) ~ /C/)  {tempStatus = $(NF-4) ; temp = $(NF-3) ; tempCaution = $(NF-1) ; tempCritical = $NF ; temperatureActivate = "2" }
+            else {next}
+            }
+    { if ( tempStatus  ~ /^[nN].?[aA]/ ) { statusActivate=""}
+              else { statusActivate = "2" }
+          }
+    { tempSensorID = substr($0,1,IDlength) }
+
+    #{ print ( "MSHWDB;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
+
+    { gsub (/ /,"",tempSensorID) }
+    { gsub ("[ C/]","",temp) }
+    { gsub (/[ C]/,"",tempCaution) }
+    { gsub (/[ C]/,"",tempCritical) }
+    { gsub (/[oO]nboard[aA]dministrator/,"OA",tempSensorID) }
+    { gsub (/[iI]nterconnect[mM]odule/,"IC",tempSensorID) }
+
+    (statusActivate != "" || temperatureActivate != "" ){ print ( "MSHW;" tempSensorID ";" tempStatus ";" temp ";" tempCaution ";" tempCritical ";" statusActivate ";" temperatureActivate ";" ) }
+  EmbeddedFile(4): |-
+    BEGIN  {fanID = ""; status ="" ; fanSpeedPercent ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; lastLine=$0 }
+    {skip=1}
+    /show enclosure fan all/,/show enclosure temp/ {skip = 0}
+    skip == 1 {next}
+
+    $0 ~ /^Fan #[0-9]/ { fanID = $0 ; status ="" ; fanMin ="" ; fanMax = "" ; partNumber = "" ; gsub (/ [iI]nformation:/,"",fanID) ; gsub (/#/,"",fanID)}
+    ( lastLine ~ /^Fan #/ && $0 ~ /Status/ ) { status = $2}
+    $1 ~ /^Speed/ {fanSpeedPercent = $2 }
+    $1 ~ /^Maximum/ { fanMax = $3 }
+    $1 ~ /^Minimum/ { fanMin = $3 }
+    ($1 ~ /^Spare/) && (fanID != "") { sparePartNumber = $4  ;
+                 print ( "MSHW;" fanID ";" status ";" fanSpeedPercent ";" fanMin ";" fanMax ";" ) ;
+                 fanID = "" ;}
+
+    { lastLine = $0 }
+  EmbeddedFile(7): |-
+    {skip=1}
+    /show server status all/,/show enclosure powersupply all/ {skip = 0}
+    skip == 1 {next}
+
+    $0 ~ /^Blade #[0-9]/ { bladeID = $2 ; gsub (/#/,"",bladeID) ; }
+    $1 ~ /^Power/ && $2 ~ /^Off/ { bladePower = tolower($2) }
+    $1 ~ /^Power/ && $2 ~ /^On/ { bladePower = tolower($2) }
+    $1 ~ /^Health/ { bladeStatus = $2 ;
+                     print ( "MSHW;" bladeID ";" bladeStatus ";" bladeStatus ";" bladePower ";") ;
+                     bladeID = "" ; bladeOff = "" ; }
+  EmbeddedFile(6): |-
+    {skip=1}
+    /show server info all/,/show enclosure powersupply all/ {skip = 0}
+    skip == 1 {next}
+
+    $0 ~ /^Server Blade #[0-9]/ { bladeID = $3 ; bladeName = "" ; serialNumber ="" ; gsub (/#/,"",bladeID) ; }
+    $1 ~ /^Product/ { bladeModel = $0 ; gsub (/Product Name:/,"",bladeModel) ; gsub (/\t/,"",bladeModel)}
+    $1 ~ /^Physical/ { serialNumber = $6 ; }
+    ($1 ~ /Server/ && $2 ~ /Name/) { serverName = $3 ;
+                  print ( "MSHW;" bladeID ";" serverName ";" bladeModel ";" serialNumber ";") ;
+                 }
+  EmbeddedFile(9): |-
+    BEGIN { lastLine = "" }
+    { skip=1 }
+    /show interconnect status all/,/show server status all/ { skip = 0 }
+    (skip == 1) { next }
+    ($1 ~ /^Interconnect/) { otherDeviceID = $3 ; gsub(/#/, "", otherDeviceID) ; }
+    ($1 ~ /tatus/ && lastLine ~ /Interconnect/ ) {
+      status = $NF
+      print "MSHW;" otherDeviceID ";" status ";" status ";"
+      otherDeviceID = ""
+    }
+    { lastLine = $0 }
+  EmbeddedFile(8): |-
+    {skip=1}
+    /show interconnect info all/,/show server info all/ {skip = 0}
+    skip == 1 {next}
+
+    ( $1 ~ /^[0-9]/ && $1 ~ /.$/ ) { otherDeviceID = $1 ; deviceType = $2 ; gsub (/\./,"",otherDeviceID) ; }
+    $1 ~ /^Product/ { deviceName = $0 ; gsub (/Product Name: /,"",deviceName) ; gsub (/\t/,"",deviceName)
+                      print ( "MSHW;" otherDeviceID ";IC Switch - " deviceType ";" deviceName ";" ) ;
+                      otherDeviceID = "" ; }
+translations:
+  OKDegradedFailedStatusInformationTranslationTable:
+    n/a: ""
+    default: Unknown Status
+    failed: Failed
+    ok: ""
+    degraded: Degraded
+  OKDegradedFailedTranslationTable:
+    n/a: ok
+    default: UNKNOWN
+    failed: failed
+    ok: ok
+    degraded: degraded

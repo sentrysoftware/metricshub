@@ -1,0 +1,2079 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//                 MS_HW_IpmiTool.hdf
+//
+//      Supports: IPMI-enabled systems, in-band (through a driver) or out-of-band (through a LAN interface)
+//		Monitors: Environment (temperatures, fans, power supplies and voltages, and tentatively the rest)
+//      Connects to: IPMI source type, which can be:
+//                    - ipmitool/OpenIPMI driver on Linux
+//                    - ipmitool/lipmi or bmc interface on Solaris
+//                    - Microsoft IPMI WMI provider on Windows 2003 R2 and 2008 (and later)
+//                    - ipmitool from Linux/Solaris to an out-of-band IPMI chip
+//                    - MS_HW_IPMI.EXE from Windows to an out-of-band IPMI chip
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="IPMI"
+hdf.TypicalPlatform="Any system with IPMI"
+hdf.ReliesOn="IPMI"
+hdf.Comments="Gives environmental information (temperatures, fans, etc.) on several IPMI-enabled servers in-band and out-of-band."
+hdf.Version="2.0"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux,Solaris,NT,OOB"
+
+// SUDO-ABLE COMMANDS
+//Sudo(1).Command="ipmitool"
+
+//
+// DETECTION
+//
+
+// Let the KM/PM validate whether IPMI is available or not
+Detection.Criteria(1).Type="IPMI"
+Detection.Criteria(1).ForceSerialization=1
+
+//
+// COMPUTER
+//
+
+//
+// Discovery
+
+// Source(1) = IPMI source
+Enclosure.Discovery.Source(1).Type="IPMI"
+Enclosure.Discovery.Source(1).ForceSerialization=1
+
+// Process IPMI result througn an AWK script to interpret what can be interpreted
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7,8,9,10,11"
+
+// Source(2) = copy of Source(1)
+Enclosure.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Keep only the enclosure line
+// Enclosure;Vendor;Model;SerialNumber;Status;StatusInformation;PowerConsumption;AdditionalInformation
+Enclosure.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(2).Compute(1).Column=1
+Enclosure.Discovery.Source(2).Compute(1).ValueList="Enclosure"
+
+
+// InstanceTable = Source(2)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Instance.DeviceID="IPMI"
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.ParameterActivation.PowerConsumption=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = Get IPMI, will be re-used by all other collects
+Enclosure.Collect.Source(1).Type="IPMI"
+Enclosure.Collect.Source(1).ForceSerialization=1
+
+// Post-processing of the IPMI mess (which has already been greatly sorted out!)
+Enclosure.Collect.Source(1).Compute(1).Type="Awk"
+Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Collect.Source(1).Compute(1).Separators=";"
+Enclosure.Collect.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7,8,9,10,11"
+
+
+// Source(2) = copy of Source(1)
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Keep only the enclosure line
+// Enclosure;Vendor;Model;SerialNumber;StatusArray;StatusInformation;PowerConsumption
+Enclosure.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Collect.Source(2).Compute(1).Column=1
+Enclosure.Collect.Source(2).Compute(1).ValueList="Enclosure"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Enclosure;Vendor;Model;SerialNumber;Status;StatusInformation;PowerConsumption
+Enclosure.Collect.Source(2).Compute(2).Type="Convert"
+Enclosure.Collect.Source(2).Compute(2).Column=5
+Enclosure.Collect.Source(2).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(2)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.DeviceID="IPMI"
+Enclosure.Collect.Status=ValueTable.Column(5)
+Enclosure.Collect.StatusInformation=ValueTable.Column(6)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(7)
+
+
+//
+// FANS
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+// SensorType;SensorID;SensorName;Location;FanSpeed;WarningThreshold;AlarmThreshold
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only fans
+// Fan;SensorID;SensorName;Location;FanSpeed;WarningThreshold;AlarmThreshold
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=1
+Fan.Discovery.Source(1).Compute(1).ValueList="Fan"
+
+// Add empty Status and StatusInformation columns
+// Fan;SensorID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;
+Fan.Discovery.Source(1).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(1).Compute(2).Column=3
+Fan.Discovery.Source(1).Compute(2).String=";;"
+
+// Add empty AdditionalInformation1 column at the very end
+// Fan;SensorID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;AdditionalInformation1;
+Fan.Discovery.Source(1).Compute(3).Type="RightConcat"
+Fan.Discovery.Source(1).Compute(3).Column=9
+Fan.Discovery.Source(1).Compute(3).String=";"
+
+// Source(2) = copy of Enclosure.Discovery.Source(1)
+Fan.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "Fan Device" lines
+// Fan Device;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+Fan.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(2).Compute(1).Column=1
+Fan.Discovery.Source(2).Compute(1).ValueList="Fan Device"
+
+// Keep only interesting columns
+// Fan Device;DeviceID;StatusArray;StatusInformation;AdditionalInformation1;
+Fan.Discovery.Source(2).Compute(2).Type="KeepColumns"
+Fan.Discovery.Source(2).Compute(2).ColumnNumbers="1,2,3,7,8,9"
+
+// Add empty Location, FanSpeed, WarningThreshold and AlarmThreshold columns
+// Fan Device;DeviceID;DisplayID;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;AdditionalInformation1;
+Fan.Discovery.Source(2).Compute(3).Type="RightConcat"
+Fan.Discovery.Source(2).Compute(3).Column=5
+Fan.Discovery.Source(2).Compute(3).String=";;;;"
+
+// Source(3) = Table Union of Source(1) and Source(2)
+// Fan;DeviceID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;AdditionalInformation1;
+Fan.Discovery.Source(3).Type="TableUnion"
+Fan.Discovery.Source(3).Table1=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(3).Table2=%Fan.Discovery.Source(2)%
+
+// The instance table
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(3)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(6)
+Fan.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(10)
+Fan.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(4)
+Fan.Discovery.Instance.ParameterActivation.Speed=InstanceTable.Column(7)
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(8)
+Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(9)
+Fan.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only fans
+// Fan;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Fan.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(1).Compute(1).Column=1
+Fan.Collect.Source(1).Compute(1).ValueList="Fan"
+
+// Add empty Status and StatusInformation columns
+// Fan;SensorID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold
+Fan.Collect.Source(1).Compute(2).Type="RightConcat"
+Fan.Collect.Source(1).Compute(2).Column=3
+Fan.Collect.Source(1).Compute(2).String=";;"
+
+// Source(2) = copy of Enclosure.Discovery.Source(1)
+Fan.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Keep only "Fan Device" lines
+// Fan Device;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+Fan.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(2).Compute(1).Column=1
+Fan.Collect.Source(2).Compute(1).ValueList="Fan Device"
+
+// Keep only interesting columns
+// Fan Device;DeviceID;StatusArray;StatusInformation;AdditionalInformation1;
+Fan.Collect.Source(2).Compute(2).Type="KeepColumns"
+Fan.Collect.Source(2).Compute(2).ColumnNumbers="1,2,7,8,9"
+
+// Add an empty "SensorName" column
+// Fan Device;DeviceID;SensorName;StatusArray;StatusInformation;AdditionalInformation1;
+Fan.Collect.Source(2).Compute(3).Type="RightConcat"
+Fan.Collect.Source(2).Compute(3).Column=2
+Fan.Collect.Source(2).Compute(3).String=";"
+
+// Add empty FanSpeed, WarningThreshold and AlarmThreshold columns
+// Fan Device;DeviceID;SensorName;StatusArray;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+Fan.Collect.Source(2).Compute(4).Type="RightConcat"
+Fan.Collect.Source(2).Compute(4).Column=6
+Fan.Collect.Source(2).Compute(4).String=";;;"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Fan Device;DeviceID;SensorName;Status;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+Fan.Collect.Source(2).Compute(5).Type="Convert"
+Fan.Collect.Source(2).Compute(5).Column=4
+Fan.Collect.Source(2).Compute(5).ConversionType="Array2SimpleStatus"
+
+// Source(3) = Table Union of Source(1) and Source(2)
+// Fan;DeviceID;SensorName;Status;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+Fan.Collect.Source(3).Type="TableUnion"
+Fan.Collect.Source(3).Table1=%Fan.Collect.Source(1)%
+Fan.Collect.Source(3).Table2=%Fan.Collect.Source(2)%
+
+
+// CollectTable = Source(3)
+// Fan;DeviceID;SensorName;Status;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+Fan.Collect.ValueTable=%Fan.Collect.Source(3)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Speed=ValueTable.Column(7)
+Fan.Collect.Status=ValueTable.Column(4)
+Fan.Collect.StatusInformation=ValueTable.Column(5)
+
+
+//
+// TEMPERATURES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+// SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only fans
+// Temperature;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=1
+Temperature.Discovery.Source(1).Compute(1).ValueList="Temperature"
+
+// Add "Related to " to the Location column
+// Temperature;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+//Temperature.Discovery.Source(1).Compute(2).Type="LeftConcat"
+//Temperature.Discovery.Source(1).Compute(2).Column=4
+//Temperature.Discovery.Source(1).Compute(2).String="Related to "
+
+// The instance table
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(4)
+//Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(6)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(7)
+Temperature.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only fans
+// Temperature;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column=1
+Temperature.Collect.Source(1).Compute(1).ValueList="Temperature"
+
+// CollectTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(5)
+
+
+//
+// VOLTAGE
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+// SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Voltage.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only fans
+// Voltage;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column=1
+Voltage.Discovery.Source(1).Compute(1).ValueList="Voltage"
+
+// Add "Related to " to the Location column
+// Voltage;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+//Voltage.Discovery.Source(1).Compute(2).Type="LeftConcat"
+//Voltage.Discovery.Source(1).Compute(2).Column=4
+//Voltage.Discovery.Source(1).Compute(2).String="Related to "
+
+// The instance table
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(4)
+//Voltage.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(6)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(7)
+Voltage.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Voltage.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only fans
+// Voltage;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+Voltage.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Collect.Source(1).Compute(1).Column=1
+Voltage.Collect.Source(1).Compute(1).ValueList="Voltage"
+
+// CollectTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Voltage=ValueTable.Column(5)
+
+
+
+//
+// POWER SUPPLIES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only power supply lines
+// Power supply;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=1
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="Power supply"
+
+PowerSupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column=6
+PowerSupply.Discovery.Source(1).Compute(2).String="SerialNumber: "
+
+PowerSupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(3).Column=5
+PowerSupply.Discovery.Source(1).Compute(3).String="Model: "
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+//PowerSupply.Discovery.Instance.AdditionalInformation4=InstanceTable.Column(4) remove it as we can get the vendor from serial number
+PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(5)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+PowerSupply.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only power supply lines
+// Power supply;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+PowerSupply.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(1).Compute(1).Column=1
+PowerSupply.Collect.Source(1).Compute(1).ValueList="Power supply"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Power supply;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+PowerSupply.Collect.Source(1).Compute(2).Type="Convert"
+PowerSupply.Collect.Source(1).Compute(2).Column=7
+PowerSupply.Collect.Source(1).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(7)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(8)
+
+
+
+
+//
+// CPUs
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Cpu.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only processor lines
+// Processor;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1
+Cpu.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Cpu.Discovery.Source(1).Compute(1).Column=1
+Cpu.Discovery.Source(1).Compute(1).ValueList="Processor"
+
+Cpu.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Cpu.Discovery.Source(1).Compute(2).Column=6
+Cpu.Discovery.Source(1).Compute(2).String="SerialNumber: "
+
+// InstanceTable = Source(1)
+Cpu.Discovery.InstanceTable=%Cpu.Discovery.Source(1)%
+Cpu.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Cpu.Discovery.Instance.Vendor=InstanceTable.Column(4)
+Cpu.Discovery.Instance.Model=InstanceTable.Column(5)
+Cpu.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+Cpu.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+Cpu.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+Cpu.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Cpu.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only processor lines
+// Processor;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+Cpu.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Cpu.Collect.Source(1).Compute(1).Column=1
+Cpu.Collect.Source(1).Compute(1).ValueList="Processor"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Processor;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+Cpu.Collect.Source(1).Compute(2).Type="Convert"
+Cpu.Collect.Source(1).Compute(2).Column=7
+Cpu.Collect.Source(1).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Cpu.Collect.ValueTable=%Cpu.Collect.Source(1)%
+Cpu.Collect.DeviceID=ValueTable.Column(2)
+Cpu.Collect.Status=ValueTable.Column(7)
+Cpu.Collect.StatusInformation=ValueTable.Column(8)
+
+
+//
+// MEMORY MODULES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only memory lines
+// Memory module;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1
+Memory.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column=1
+Memory.Discovery.Source(1).Compute(1).ValueList="Memory module,Memory Device"
+
+// Duplicate the "Model" column because it is in the form of Model|Speed
+// Memory module;DeviceID;Entity ID;Vendor;Model|Speed;Model|Speed;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+Memory.Discovery.Source(1).Compute(2).Type="DuplicateColumn"
+Memory.Discovery.Source(1).Compute(2).Column=5
+
+// Now extract "Model" from "Model|Size"
+// Memory module;DeviceID;Entity ID;Vendor;Model;Model|Speed;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+Memory.Discovery.Source(1).Compute(3).Type="Extract"
+Memory.Discovery.Source(1).Compute(3).Column=5
+Memory.Discovery.Source(1).Compute(3).SubColumn=1
+Memory.Discovery.Source(1).Compute(3).SubSeparators="|"
+
+// Now extract "Size" from "Model|Size"
+// Memory module;DeviceID;Entity ID;Vendor;Model;Speed;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+Memory.Discovery.Source(1).Compute(4).Type="Extract"
+Memory.Discovery.Source(1).Compute(4).Column=6
+Memory.Discovery.Source(1).Compute(4).SubColumn=2
+Memory.Discovery.Source(1).Compute(4).SubSeparators="|"
+
+// InstanceTable = Source(1)
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Memory.Discovery.Instance.Vendor=InstanceTable.Column(4)
+Memory.Discovery.Instance.Model=InstanceTable.Column(5)
+Memory.Discovery.Instance.Size=InstanceTable.Column(6)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(7)
+Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(10)
+Memory.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Memory.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only memory lines
+// Memory module;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+Memory.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Collect.Source(1).Compute(1).Column=1
+Memory.Collect.Source(1).Compute(1).ValueList="Memory module,Memory Device"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Memory module;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+Memory.Collect.Source(1).Compute(2).Type="Convert"
+Memory.Collect.Source(1).Compute(2).Column=7
+Memory.Collect.Source(1).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(2)
+Memory.Collect.Status=ValueTable.Column(7)
+Memory.Collect.StatusInformation=ValueTable.Column(8)
+
+
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only disk lines
+// Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(1).ValueList="Disk or disk bay,Disk or Disk Bay,Disk Drive Bay"
+
+// InstanceTable = Source(1)
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+PhysicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only disk lines
+// Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=1
+PhysicalDisk.Collect.Source(1).Compute(1).ValueList="Disk or disk bay,Disk or Disk Bay,Disk Drive Bay"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Convert"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=7
+PhysicalDisk.Collect.Source(1).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(7)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(8)
+
+
+
+//
+// LEDs
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+LED.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only LED lines
+// LED;DeviceID;Name;EntityID;Color;OnStatus;OffStatus;BlinkingStatus;Status;
+LED.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LED.Discovery.Source(1).Compute(1).Column=1
+LED.Discovery.Source(1).Compute(1).ValueList="LED"
+
+// InstanceTable = Source(1)
+LED.Discovery.InstanceTable=%LED.Discovery.Source(1)%
+LED.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+LED.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+LED.Discovery.Instance.Color=InstanceTable.Column(5)
+LED.Discovery.Instance.OnStatus=InstanceTable.Column(6)
+LED.Discovery.Instance.OffStatus=InstanceTable.Column(7)
+LED.Discovery.Instance.BlinkingStatus=InstanceTable.Column(8)
+LED.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+LED.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+LED.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only LED lines
+// LED;DeviceID;Name;EntityID;Color;OnStatus;OffStatus;BlinkingStatus;Status;
+LED.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LED.Collect.Source(1).Compute(1).Column=1
+LED.Collect.Source(1).Compute(1).ValueList="LED"
+
+// Duplicate the Status column
+LED.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+LED.Collect.Source(1).Compute(2).Column=9
+
+// ValueTable = Source(1)
+LED.Collect.ValueTable=%LED.Collect.Source(1)%
+LED.Collect.DeviceID=ValueTable.Column(2)
+LED.Collect.Status=ValueTable.Column(9)
+LED.Collect.StatusInformation=ValueTable.Column(10)
+
+
+//
+// OTHER DEVICES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Exclude what we know already
+// DeviceType;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+OtherDevice.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column=1
+OtherDevice.Discovery.Source(1).Compute(1).ValueList="Battery,Disk or Disk Bay,Disk or disk bay,Disk Drive Bay,Memory module,Memory Device,LED,Temperature,Voltage,Power supply,Fan,Fan Device,Enclosure,FRU,Processor,Current,PowerConsumption,EnergyUsage,Blade,Processing Blade"
+
+OtherDevice.Discovery.Source(1).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(2).Column=6
+OtherDevice.Discovery.Source(1).Compute(2).String="Serial Number: "
+
+// InstanceTable = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+OtherDevice.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Exclude what we know already
+// DeviceType;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+OtherDevice.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+OtherDevice.Collect.Source(1).Compute(1).Column=1
+OtherDevice.Collect.Source(1).Compute(1).ValueList="Battery,Disk or Disk Bay,Disk or disk bay,Disk Drive Bay,Memory module,Memory Device,LED,Temperature,Voltage,Power supply,Fan,Fan Device,Enclosure,FRU,Processor,Current,PowerConsumption,EnergyUsage,Blade,Processing Blade"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+OtherDevice.Collect.Source(1).Compute(2).Type="Convert"
+OtherDevice.Collect.Source(1).Compute(2).Column=7
+OtherDevice.Collect.Source(1).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(2)
+OtherDevice.Collect.Status=ValueTable.Column(7)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(8)
+
+
+
+//
+// BLADES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only blade lines
+// Blade;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+Blade.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Discovery.Source(1).Compute(1).Column=1
+Blade.Discovery.Source(1).Compute(1).ValueList="Blade,Processing Blade"
+
+// InstanceTable = Source(1)
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(5)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+Blade.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Blade.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only blade lines
+// Blade;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+Blade.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Collect.Source(1).Compute(1).Column=1
+Blade.Collect.Source(1).Compute(1).ValueList="Blade,Processing Blade"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Blade;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+Blade.Collect.Source(1).Compute(2).Type="Convert"
+Blade.Collect.Source(1).Compute(2).Column=7
+Blade.Collect.Source(1).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(2)
+Blade.Collect.Status=ValueTable.Column(7)
+Blade.Collect.StatusInformation=ValueTable.Column(8)
+
+//
+// BATTERY
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Battery.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only battery lines
+// Battery;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+Battery.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Battery.Discovery.Source(1).Compute(1).Column=1
+Battery.Discovery.Source(1).Compute(1).ValueList="Battery"
+
+Battery.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(2).Column=6
+Battery.Discovery.Source(1).Compute(2).String="serialNumber: "
+
+// InstanceTable = Source(1)
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Battery.Discovery.Instance.Model=InstanceTable.Column(5)
+Battery.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+Battery.Discovery.Instance.AttachedToDeviceID="IPMI"
+
+
+//
+// Collect
+
+// Collect type is: multi-instance
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Battery.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only Battery lines
+// Battery;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+Battery.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Battery.Collect.Source(1).Compute(1).Column=1
+Battery.Collect.Source(1).Compute(1).ValueList="Battery"
+
+// Convert StatusArray to a simple (unique) PATROLStatus
+// Battery;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+Battery.Collect.Source(1).Compute(2).Type="Convert"
+Battery.Collect.Source(1).Compute(2).Column=7
+Battery.Collect.Source(1).Compute(2).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(2)
+Battery.Collect.Status=ValueTable.Column(7)
+Battery.Collect.StatusInformation=ValueTable.Column(8)
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Giant and beautiful AWK script that process the IPMI output
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	FS = ";";
+	systemType = "";
+	systemVendor = "";
+	systemModel = "";
+	systemSerialNumber = "";
+	foundSystemType = 0;
+	systemPowerConsumption = "";
+	systemStatus = "";
+	systemStatusInformation = "";
+	systemSensorNameList = "";
+	machineStatus = "ON";
+}
+($1 == "FRU" && foundSystemType == 0) {
+	systemVendor = $2;
+	lcaseSystemVendor = tolower(systemVendor);
+	systemModel = $3;
+	systemSerialNumber = $4;
+
+	if (substr(lcaseSystemVendor, 1, 4) == "sun " || substr(lcaseSystemVendor, 1, 6) == "oracle" )
+	{
+		if (tolower(systemModel) == "cmm")
+		{
+			next;
+		}
+		systemVendor = "Sun";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 7) == "hewlett" || substr(lcaseSystemVendor, 1, 2) == "hp")
+	{
+		systemVendor = "HP";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 4) == "dell")
+	{
+		systemVendor = "Dell";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 22) == "international business" || substr(lcaseSystemVendor, 1, 3) == "ibm" || systemModel ~ /^[Ss]ystem x/)
+	{
+		systemVendor = "IBM";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 5) == "cisco")
+	{
+		systemVendor = "Cisco";
+		systemType = systemVendor;
+		systemModel = "UCS " systemModel;
+	}
+	else if (substr(lcaseSystemVendor, 1, 7) == "fujitsu")
+	{
+		systemVendor = "Fujitsu-Siemens";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 3) == "nec")
+	{
+		systemVendor = "NEC";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 4) == "bull")
+	{
+		systemVendor = "BULL";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 10) == "supermicro")
+	{
+		systemVendor = "SuperMicro";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 4) == "acer")
+	{
+		systemVendor = "Acer";
+		systemType = systemVendor;
+	}
+	else if (substr(lcaseSystemVendor, 1, 7) == "hitachi" || substr(lcaseSystemVendor, 1, 3) == "hds")
+	{
+		systemVendor = "Hitachi"
+		systemType = systemVendor;
+	}
+
+	if (systemType != "")
+	{
+		foundSystemType = 1;
+	}
+}
+($1 == "PowerConsumption") {
+
+	##############################################################
+	#
+	# Section to be customized per vendor/model to handle
+	# the power consumption of the monitored system
+	#
+	# (ex.: recognizing input/output currents, adding up the power
+	# consumed by several power supplies, etc.)
+	#
+	##############################################################
+
+	if (systemType == "Cisco")
+	{
+		if ($3 ~ /^PSU[0-9]_PIN$/ && $5 ~ /^[0-9]/)
+		{
+			systemPowerConsumption = systemPowerConsumption + $5;
+		}
+	}
+	else
+	{
+		# By default, take the highest reported value
+		if ($5 ~ /^[0-9]/)
+		{
+			if ($5 > systemPowerConsumption || systemPowerConsumption == "")
+			{
+				systemPowerConsumption = $5;
+			}
+		}
+	}
+}
+{
+	# Read the device characteristics
+	deviceType = $1;
+	deviceID = $2;
+	entityID = $3;
+	vendor = $4;
+	model = $5;
+	serialNumber = $6;
+	sensorList = $7;
+
+	# Skip empty stuff
+	if (deviceType == "" || deviceID == "")
+	{
+		next;
+	}
+
+	# Skip SEL Fullness Temperature Devices
+	if (deviceType == "Temperature" && entityID == "SEL Fullness")
+	{
+		next;
+	}
+
+	# Simply re-print numeric sensors
+	if (deviceType == "Voltage" || deviceType == "Temperature" || deviceType == "Fan" || deviceType == "Current" || deviceType == "PowerConsumption" || deviceType == "EnergyUsage" || deviceType == "FRU")
+	{
+		print "MSHW;" $0;
+		next;
+	}
+
+	##############################################################
+	#
+	# Section where you can customize the device identification
+	# on a per-vendor basis
+	#
+	##############################################################
+	if (systemType == "Sun")
+	{
+		if (sensorList ~ /nem[0-9]\./ || sensorList ~ "NEM[0-9]/")
+		{
+			deviceType = "NEM";
+		}
+
+		if (deviceType == "System Board")
+		{
+			if (sensorList ~ /bl[0-9]+\./)
+			{
+				deviceType = "Blade";
+			}
+		}
+	}
+	else if (systemType == "IBM")
+	{
+		if (deviceType == "Add-in Card")
+		{
+			if (sensorList ~ /SAS Riser/)
+			{
+				deviceType = "SAS Riser"
+			}
+			else if (sensorList ~ /PCI Riser/)
+			{
+				deviceType = "PCI Riser"
+			}
+		}
+		else if (deviceType == "Power Module")
+		{
+			if (sensorList ~ /VRD Status/)
+			{
+				deviceType = "Voltage Regulator-Down"
+			}
+		}
+		else if (deviceType == "Group")
+		{
+			if (sensorList ~ /Mem Card/)
+			{
+				deviceType = "Memory Device"
+			}
+		}
+	}
+
+	# Split that list into an array for further processing and interpretation
+	sensorCount = split(sensorList, sensorArray, "\\|");
+
+	status = "";
+	statusInformation = "";
+	sensorNameList = "";
+	for (i=1 ; i<=sensorCount ; i++)
+	{ status_atStart = status
+		equalsIndex = index(sensorArray[i], "=");
+		if (!equalsIndex)
+		{
+			continue;
+		}
+		sensorName = substr(sensorArray[i], 1, equalsIndex - 1);
+		sensorReading = substr(sensorArray[i], equalsIndex + 1, length(sensorArray[i]) - equalsIndex);
+		lcaseSensorReading = tolower(sensorReading);
+
+		# Add the sensor name to the list of sensor names, so that the user will be able to see the list of
+		# sensors associated with one device
+		sensorNameList = sensorNameList sensorName ", ";
+
+		# Sensors whose state can only be YES or NO (Asserted or Deasserted)
+		# and that, logically, need to be specifically interpreted
+		# Like (P0_OK == 1) means OK, while (P0_FAULT == 1) means ALARM, see?
+		if (sensorReading == "" || sensorReading == 0 || sensorReading == 1)
+		{
+			# Specific stuff
+			if (systemType == "Hitachi")
+			{
+				if (sensorName ~ / INTR$/)
+				{
+					# Skip MB0 INTR and similar sensors, because they only report when a button has been pressed
+					next;
+				}
+				else if (sensorName ~ /PWR MGMT$/ || sensorName ~ /Power Mgmt$/)
+				{
+					# Skip power management sensors
+					next;
+				}
+				else if (sensorName == "AGT_Notify")
+				{
+					# Skip AGT_Notify, which we can't do anything with, since we couldn't test it
+					# (it's actually on OEM sensor)
+					next;
+				}
+				else
+				{
+					# For all sensors with boolean value, in Hitachi systems, '1' means 'BAD'
+					if (sensorReading == 1)
+					{
+						status = status "ALARM|";
+						statusInformation = statusInformation sensorName " Asserted - ";
+					}
+					else
+					{
+						status = status "OK|";
+					}
+				}
+			}
+
+
+			# Dell Specific stuff
+			else if (systemType == "Dell")
+      {
+				if (sensorName ~ /VCORE/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " VCORE Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /VCACHE [0-9]+ PG/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " VCACHE Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /PROC VTT PG/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " PROC VTT PG Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /[0-9.]+ PG/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Voltage Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /[0-9.]+ VIDEO PG/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " VIDEO Voltage Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+			}
+
+			# Sun Specific stuff
+			else if (systemType == "Sun")
+			{
+				if (sensorName ~ /^PS[0-9]+\057VINOK/)
+				{ if (sensorReading == 0)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Voltage In Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+			  if (sensorName ~ /^PS[0-9]+\057PWROK/)
+				{ if (sensorReading == 0)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Power In Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057FAN_ERR/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Fan In Fault - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057I_OUT_ERR/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Output Current Error - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057I_OUT_WARN/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "WARN|";
+						  statusInformation = statusInformation sensorName " Output Current Warning - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057T_ERR/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Temperature Error - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057FAN_ERR/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "WARN|";
+						  statusInformation = statusInformation sensorName " Temperature Warning - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057V_IN_ERR/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Input Voltage Error - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057V_IN_WARN/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "WARN|";
+						  statusInformation = statusInformation sensorName " Input Voltage Warning - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057V_OUT_ERR/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Output Voltage Error - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PS[0-9]+\057V_OUT_OK/)
+				{ if (sensorReading == 0)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName " Output Voltage Not OK - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^INTSW/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "OK|";
+						  statusInformation = statusInformation sensorName " Intrusion Detected - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+				if (sensorName ~ /^PWRBS/)
+				{ if (sensorReading == 1)
+					   {
+						  status = status "ALARM|";
+						  statusInformation = statusInformation sensorName "  A power supply sensor has detected an error - ";
+					   }
+					    else
+					   {
+						  status = status "OK|";
+					  }
+			  }
+			}
+
+			# Non vendor-specific stuff
+			else
+			{
+				# Try to be clever
+				if (index(tolower(sensorName), "fault") || index(tolower(sensorName), "fail") || tolower(sensorName) ~ /err$/)
+				{
+					if (sensorReading == 1)
+					{
+						status = status "ALARM|";
+						statusInformation = statusInformation sensorName " Asserted - ";
+					}
+					else
+					{
+						status = status "OK|";
+					}
+				}
+				else
+				{
+					status = status sensorName "=" sensorReading "|";
+				}
+			}
+
+		}
+
+		# Here come OEM specific sensors, whose value need to be even more
+		# specifically interpreted
+		else if (substr(sensorReading, 1, 2) == "0x")
+		{
+			# Very specific stuff
+			sensorReading = substr(sensorReading, 3, 4);
+			digit1 = substr(sensorReading, 1, 1);
+			digit2 = substr(sensorReading, 2, 1);
+			digit3 = substr(sensorReading, 3, 1);
+			digit4 = substr(sensorReading, 4, 1);
+
+			if (systemType == "Cisco")
+			{
+				if (substr(sensorName, 1, 4) == "LED_")
+				{
+					if (digit3 == 1)
+					{
+						color = "Green";
+						onStatus = "OK";
+						offStatus = "OK";
+						blinkingStatus = "OK";
+
+					}
+					else if (digit3 == 2)
+					{
+						color = "Amber";
+						onStatus = "WARN";
+						offStatus = "OK";
+						blinkingStatus = "WARN";
+					}
+					else if (digit3 == 4)
+					{
+						color = "Blue";
+						onStatus = "OK";
+						offStatus = "OK";
+						blinkingStatus = "OK";
+					}
+					else if (digit3 == 8)
+					{
+						color = "Red";
+						onStatus = "WARN";
+						offStatus = "OK";
+						blinkingStatus = "WARN";
+					}
+					else
+					{
+						color = "";
+						onStatus = "OK";
+						offStatus = "OK";
+						blinkingStatus = "OK";
+					}
+
+					if (digit4 == 1)
+					{
+						ledStatus = "Off";
+					}
+					else if (digit4 == 2)
+					{
+						ledStatus = "On";
+					}
+					else if (digit4 == 4)
+					{
+						ledStatus = "Blinking";
+					}
+					else if (digit4 == 8)
+					{
+						ledStatus = "Blinking";
+					}
+					else
+					{
+						ledStatus = "UNKNOWN";
+					}
+					print "MSHW;LED;" sensorName ";" sensorName ";" deviceID ";" color ";" onStatus ";" offStatus ";" blinkingStatus ";" ledStatus;
+					continue;
+				}
+				else if (substr(sensorName, 1, 5) == "DDR3_")
+				{
+					if (digit2 == 1)
+					{
+						status = status "OK|";
+					}
+					else
+					{
+						status = status "ALARM|";
+						statusInformation = statusInformation sensorName " Failed - ";
+					}
+				}
+			}
+			else
+			{
+				status = status sensorName "=" sensorReading "|";
+			}
+		}
+
+		# And now, finally, the normal discrete sensors, with standard values
+		# These should be easy to interpret, except when vendors screw up their instrumentation
+		# chip, which does happen, unfortunately...
+		else
+		{
+			# Cisco-specific mess
+			if (systemType == "Cisco")
+			{
+				if (sensorName ~ /^SAS[0-9]+_LINK_STATUS$/)
+				{
+					if (lcaseSensorReading == "transition to off line")
+					{
+						status = status "OK|";
+					}
+					else
+					{
+						status = status "ALARM|";
+						statusInformation = statusInformation "Disconnected - ";
+					}
+					continue;
+				}
+				else if (sensorName == "PSU_REDUNDANCY")
+				{
+					# Skip this one entirely, because it creates a "fake" power supply
+					next;
+				}
+				else if (sensorName == "BIST_FAIL")
+				{
+					# Skip this sensor (but keep the device).  Remove name from Sensor List and continue to next sensor.
+					gsubregex = sensorName ", "
+					gsub(gsubregex,"",sensorNameList);
+					continue;
+				}
+				else if (sensorName ~ /^HDD_[0-9]+_STATUS$/)
+				{
+					deviceID = substr(sensorName, 1, 6);
+					if (lcaseSensorReading == "state 0 asserted" || lcaseSensorReading == "drive present")
+					{
+						status = status "OK|";
+					}
+					else
+					{
+						status = status "ALARM|";
+						statusInformation = statusInformation "Faulty - ";
+					}
+					continue;
+				}
+			}
+
+			# IBM Specific stuff
+			else if (systemType == "IBM")
+			{
+				if (sensorName ~ /^Cooling Zone/)
+				{
+					# Skip, because it just says that the fans' redundancy is OK
+					next;
+				}
+			}
+
+
+
+			################################
+			# IPMI standard states
+			################################
+
+			########### Digital states
+			if (lcaseSensorReading == "predictive failure deasserted")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "predictive failure asserted")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Predicted Failure - ";
+			}
+			else if (lcaseSensorReading == "limit not exceeded")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "limit exceeded")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Limit Exceeded - ";
+			}
+			else if (lcaseSensorReading == "performance met")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "performance lags")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Performance Lags - ";
+			}
+
+
+			########## Availability states
+			if (lcaseSensorReading == "device removed/device absent" || lcaseSensorReading == "device absent")
+			{
+				status = "ALARM|";
+				statusInformation = "Missing reported by " sensorName;
+				break;
+			}
+			else if (lcaseSensorReading == "device inserted/device present" || lcaseSensorReading == "device present")
+			{
+				# Present, well, it doesnt mean much, but at least it s detected
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "device enabled")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "device disabled")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation "Disabled - ";
+			}
+			else if (lcaseSensorReading == "transition to running")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "transition to in test")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": In Test - ";
+			}
+			else if (lcaseSensorReading == "transition to power off")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Power Off - ";
+			}
+			else if (lcaseSensorReading == "transition to on line")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Online - ";
+			}
+			else if (lcaseSensorReading == "transition to off line")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Offline - ";
+			}
+			else if (lcaseSensorReading == "transition to off duty")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Off Duty - ";
+			}
+			else if (lcaseSensorReading == "transition to degraded")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Degraded - ";
+			}
+			else if (lcaseSensorReading == "transition to power save")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Power Save - ";
+			}
+			else if (lcaseSensorReading == "install error")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Install Error - ";
+			}
+
+
+			########## Power states
+			if (lcaseSensorReading == "d0 power state" || lcaseSensorReading == "d1 power state" || lcaseSensorReading == "d2 power state" || lcaseSensorReading == "d3 power state")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+
+			########## Redundancy states
+			if (lcaseSensorReading == "fully redundant")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "redundancy lost" || lcaseSensorReading == "redundancy degraded" || lcaseSensorReading == "redundancy degraded from fully redundant" || lcaseSensorReading == "redundancy degraded from non-redundant" || lcaseSensorReading == "non-redundant: sufficient from redundant" || lcaseSensorReading == "non-redundant: sufficient from insufficient" || lcaseSensorReading == "non-redundant: insufficient resources" || lcaseSensorReading == "non-redundant:sufficient resources from redundant redundancy has been lost but unit is functioning with minimum resources needed for normal operation" || lcaseSensorReading == "non-redundant:sufficient resources from insufficient resources unit has regained minimum resources needed for normal operation" || lcaseSensorReading == "non-redundant:insufficient resources unit is non-redundant and has insufficient resources to maintain normal operation" || lcaseSensorReading == "redundancy degraded from fully redundant unit has lost some redundant resource(s) but is still in a redundant state" || lcaseSensorReading == "redundancy degraded from non-redundant unit has regained some resource(s) and is redundant but not fully redundant")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+
+
+			######### Physical security
+			if (lcaseSensorReading == "general chassis intrusion" || lcaseSensorReading == "drive bay intrusion" || lcaseSensorReading == "i/o card area intrusion" || lcaseSensorReading == "processor area intrusion" || lcaseSensorReading == "system unplugged from lan" || lcaseSensorReading == "unauthorized dock" || lcaseSensorReading == "fan area intrusion")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+
+
+			########## Platform security
+			if (lcaseSensorReading == "front panel lockout violation attempted" || lcaseSensorReading == "pre-boot password violation - user password" || lcaseSensorReading == "pre-boot password violation - setup password" || lcaseSensorReading == "pre-boot password violation - network boot password" || lcaseSensorReading == "other pre-boot password violation" || lcaseSensorReading == "out-of-band access password violation")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+
+
+			######### Processor states
+			if (lcaseSensorReading == "ierr" || lcaseSensorReading == "thermal trip" || lcaseSensorReading == "frb1/bist failure" || lcaseSensorReading == "frb2/hang in post failure" || lcaseSensorReading == "frb3/processor startup/init failure" || lcaseSensorReading == "frb3/processor startup/initialization failure" || lcaseSensorReading == "configuration error" || lcaseSensorReading == "sm bios uncorrectable cpu-complex error" || lcaseSensorReading == "sm bios 'uncorrectable cpu-complex error'")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+			else if (lcaseSensorReading == "presence detected" || lcaseSensorReading == "processor presence detected")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "throttled" || lcaseSensorReading == "processor automatically throttled")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Throttled - ";
+			}
+			else if (lcaseSensorReading == "disabled" || lcaseSensorReading == "terminator presence detected" || lcaseSensorReading == "terminator presence detected" || lcaseSensorReading == "processor disabled")
+			{
+				# Skip a disabled processor, or a terminator
+				next;
+			}
+
+
+			########### Power supply states
+			if (lcaseSensorReading == "presence detected")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "power supply failure detected" || lcaseSensorReading == "failure detected")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Failed - ";
+			}
+			else if (lcaseSensorReading == "predictive failure" || lcaseSensorReading == "predictive failure")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Predicted Failure - ";
+			}
+			else if (lcaseSensorReading == "power supply input lost (ac/dc)" || lcaseSensorReading == "power supply ac lost")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": AC Input Lost - ";
+			}
+			else if (lcaseSensorReading == "power supply input lost or out-of-range" || lcaseSensorReading == "ac lost or out-of-range")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": AC Input Lost or Out-of-Range - ";
+			}
+			else if (lcaseSensorReading == "power supply input out-of-range, but present" || lcaseSensorReading == "ac out-of-range, but present")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": AC Input Out-of-Range - ";
+			}
+			else if (lcaseSensorReading == "configuration error" || substr(lcaseSensorReading, 1, 12) == "config error")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Configuration Error - ";
+			}
+
+
+			######### Power unit states
+			if (lcaseSensorReading == "power off/down" || lcaseSensorReading == "power cycle" || lcaseSensorReading == "240va power down" || lcaseSensorReading == "interlock power down" || lcaseSensorReading == "ac lost" || lcaseSensorReading == "soft-power control failure")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+			else if (lcaseSensorReading == "failure detected")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Failed - ";
+			}
+			else if (lcaseSensorReading == "predictive failure")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Predicted Failure - ";
+			}
+
+
+			########## Memory states
+			if (lcaseSensorReading == "correctable ecc" || lcaseSensorReading == "correctable ecc/other correctable memory error")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Corrected Errors - ";
+			}
+			else if (lcaseSensorReading == "uncorrectable ecc" || lcaseSensorReading == "uncorrectable ecc/other uncorrectable memory error")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Uncorrectable Errors - ";
+			}
+			else if (lcaseSensorReading == "parity")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "memory scrub failed")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Memory Scrub Failed - ";
+			}
+			else if (lcaseSensorReading == "memory device disabled")
+			{
+				# Skip this memory module
+				next;
+			}
+			else if (lcaseSensorReading == "correctable ecc logging limit reached" || lcaseSensorReading == "correctable ecc/other correctable memory error logging limit reached")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Too Many Errors - ";
+			}
+			else if (lcaseSensorReading == "presence detected" || lcaseSensorReading == "presence detected")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "configuration error" || lcaseSensorReading == "configuration error")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Configuration Error - ";
+			}
+			else if (lcaseSensorReading == "spare")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation "Spare - ";
+			}
+			else if (lcaseSensorReading == "throttled")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Throttled - ";
+			}
+
+
+			########## Disk states
+			if (lcaseSensorReading == "drive present")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "drive fault")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Faulty - ";
+			}
+			else if (lcaseSensorReading == "predictive failure")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Predicted Failure - ";
+			}
+			else if (lcaseSensorReading == "hot spare" || lcaseSensorReading == "in critical array" || lcaseSensorReading == "in failed array")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+			else if (lcaseSensorReading == "parity check in progress" || lcaseSensorReading == "rebuild in progress")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+			else if (lcaseSensorReading == "rebuild aborted")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Rebuild Aborted - ";
+			}
+
+			########### Cable interconnect states
+			if (lcaseSensorReading == "connected")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "config error")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Configuration Error - ";
+			}
+
+			########### Boot error states
+			if (lcaseSensorReading == "no bootable media" || lcaseSensorReading == "non-bootable disk in drive" || lcaseSensorReading == "pxe server not found" || lcaseSensorReading == "invalid boot sector" || lcaseSensorReading == "timeout waiting for selection")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": " lcaseSensorReading " - ";
+			}
+
+			########## Slot/connector states
+			if (lcaseSensorReading == "fault status")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Faulty - ";
+			}
+			else if (lcaseSensorReading == "identify status" || lcaseSensorReading == "device installed" || lcaseSensorReading == "ready for device installation" || lcaseSensorReading == "ready for device removal" || lcaseSensorReading == "slot power is off" || lcaseSensorReading == "device removal request" || lcaseSensorReading == "interlock" || lcaseSensorReading == "slot is disabled" || lcaseSensorReading == "spare device")
+			{
+				status = status "OK|";
+			}
+
+
+			########## Presence states
+			if (lcaseSensorReading == "present" || lcaseSensorReading == "entity present")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "absent" || lcaseSensorReading == "disabled" || lcaseSensorReading == "entity absent" || lcaseSensorReading == "entity disabled")
+			{
+				# Skip
+				next;
+			}
+
+
+			########## LAN states
+			if (lcaseSensorReading == "heartbeat lost")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Heatbeat Lost - ";
+			}
+			else if (lcaseSensorReading == "heartbeat")
+			{
+				status = status "OK|";
+			}
+
+
+			########## Battery states
+			if (lcaseSensorReading == "low" || lcaseSensorReading == "battery low")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Low - ";
+			}
+			else if (lcaseSensorReading == "failed" || lcaseSensorReading == "battery failed")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Failed - ";
+			}
+			else if (lcaseSensorReading == "presence detected" || lcaseSensorReading == "battery presence detected")
+			{
+				status = status "OK|";
+			}
+
+
+			########### Threshold states
+			if (lcaseSensorReading == "lower non-critical going low")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Lower Non-critical going low - ";
+			}
+			else if (lcaseSensorReading == "lower non-critical going high")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "lower critical going low")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Lower Critical going low - ";
+			}
+			else if (lcaseSensorReading == "lower critical going high")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Lower Critical going high - ";
+			}
+			else if (lcaseSensorReading == "lower non-recoverable going low")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Lower Non-recoverable going low - ";
+			}
+			else if (lcaseSensorReading == "lower non-recoverable going high")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Lower Non-recoverable going high - ";
+			}
+			else if (lcaseSensorReading == "upper non-critical going low")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "upper non-critical going high")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Upper Non-critical going high - ";
+			}
+			else if (lcaseSensorReading == "upper critical going low")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Upper Critical going low - ";
+			}
+			else if (lcaseSensorReading == "upper critical going high")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Upper Critical going high - ";
+			}
+			else if (lcaseSensorReading == "upper non-recoverable going low")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Upper Non-recoverable going low - ";
+			}
+			else if (lcaseSensorReading == "upper non-recoverable going high")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Upper Non-recoverable going high - ";
+			}
+
+
+			########### Usage States
+			if (lcaseSensorReading == "transition to idle")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Idle - ";
+			}
+			else if (lcaseSensorReading == "transition to active")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Active - ";
+			}
+			else if (lcaseSensorReading == "transition to busy")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Busy - ";
+			}
+
+
+			########## Severity States
+			if (lcaseSensorReading == "transition to ok")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "transition to non-critical from ok" || lcaseSensorReading == "transition to non-critical from ok")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Non-critical - ";
+			}
+			else if (lcaseSensorReading == "transition to critical from less severe")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Critical - ";
+			}
+			else if (lcaseSensorReading == "transition to non-recoverable from less severe")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Non-recoverable - ";
+			}
+			else if (lcaseSensorReading == "transition to non-critical from more severe" || lcaseSensorReading == "transition to non-critical from more severe")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Non-critical - ";
+			}
+			else if (lcaseSensorReading == "transition to critical from non-recoverable")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Critical - ";
+			}
+			else if (lcaseSensorReading == "transition to non-recoverable")
+			{
+				status = status "ALARM|";
+				statusInformation = statusInformation sensorName ": Non-recoverable - ";
+			}
+			else if (lcaseSensorReading == "monitor")
+			{
+				status = status "WARN|";
+				statusInformation = statusInformation sensorName ": Monitor - ";
+			}
+			else if (lcaseSensorReading == "informational")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Informational - ";
+			}
+
+			######### System ACPI Power State
+			if (lcaseSensorReading == "s0/g0: working" || lcaseSensorReading == "s0/g0 working" || lcaseSensorReading == "legacy on state")
+			{
+				status = status "OK|";
+			}
+			else if (lcaseSensorReading == "s1: sleeping with system hw & processor context maintained" || lcaseSensorReading == "s1 sleeping with system h/w and processor context maintained" || lcaseSensorReading == "s2: sleeping, processor context lost" || lcaseSensorReading == "s2 sleeping,processor context lost" || lcaseSensorReading == "s3: sleeping, processor & hw context lost, memory retained" || lcaseSensorReading == "s3 sleeping,processor and h/w context lost, memory maintained" || lcaseSensorReading == "s4: non-volatile sleep/suspend-to-disk" || lcaseSensorReading == "s4 non-volatile sleep/suspend to disk" || lcaseSensorReading == "sleeping in s1/s2/s3 state" || lcaseSensorReading == "sleeping in an s1,s2 or s3 states" || lcaseSensorReading == "g1: sleeping" || lcaseSensorReading == "g1 sleeping")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": Sleeping - ";
+				machineStatus = "Sleeping";
+			}
+			else if (lcaseSensorReading == "s5/g2: soft-off" || lcaseSensorReading == "s5/g2 soft-off" || lcaseSensorReading == "s4/s5: soft-off" || lcaseSensorReading == "s4/s5 soft-off" || lcaseSensorReading == "g3: mechanical off" || lcaseSensorReading == "g3/mechanical off" || lcaseSensorReading == "s5: entered by override" || lcaseSensorReading == "s5 entered by override" || lcaseSensorReading == "legacy off state")
+			{
+				status = status "OK|";
+				statusInformation = statusInformation sensorName ": OFF - ";
+				machineStatus = "OFF";
+			}
+
+			########### Other unknown states
+			else if (status_atStart == status)
+			{
+				status = status sensorName "=" sensorReading "|"
+			}
+
+
+		}
+
+		#print "MSHW;" sensorName ";" sensorReading;
+	}
+
+	# Last phase of processing
+	# Make sure we at least got something, otherwise it means we are not able to intepret anything anyway
+	if (status == "")
+	{
+		next;
+	}
+
+	# Last question before we go, is this a system board, or BIOS, or stuff like that?
+	# In which case, we''re going to attach that to the main enclosure
+	if (tolower(deviceType) == "bios" || tolower(deviceType) == "system board")
+	{
+		systemStatus = systemStatus status;
+		systemStatusInformation = systemStatusInformation statusInformation;
+		systemSensorNameList = systemSensorNameList sensorNameList;
+		next;
+	}
+
+	# Remove trailing comma at the end of sensorNameList
+	if (length(sensorNameList) > 2)
+	{
+		sensorNameList = substr(sensorNameList, 1, length(sensorNameList) - 2);
+	}
+
+	# Good!
+	print "MSHW;" deviceType ";" deviceID ";" entityID ";" vendor ";" model ";" serialNumber ";" status ";" statusInformation ";Monitored by sensors: " sensorNameList;
+}
+END {
+	# At the very end, provide information about the system, including (if possible), power consumption, etc.
+
+	# By the way, if we got no systemPowerConsumption but we know that the machine is sleeping of OFF, provide a low value instead
+	# of nothing. Because if we provide no value, the KM (and PM) will try to evaluate the power consumption based on the devices
+	# that we have discovered. Unfortunately, this will not take into account the fact that the machine may be not running, and
+	# thus calculate a value that is meaningless
+	if (systemPowerConsumption == "")
+	{
+		if (machineStatus == "Sleeping")
+		{
+			# If sleeping, assume 10 Watts for the system, plus another 10 Watts for the management card
+			# which is still running (because able to tell us that the main system is sleeping)
+			systemPowerConsumption = 20;
+		}
+		else if (machineStatus == "OFF")
+		{
+			# If OFF, assume 0 Watts for the main system, plus another 10 Watts for the management card
+			# (again, the management card must be present and running, since it told us the system was OFF)
+			systemPowerConsumption = 10;
+		}
+
+		# If the machine is ON, leave the powerConsumption empty (as it was before we arrived in this place)
+		# so that Hardware Sentry will evaluate the power consumption by himself
+	}
+
+	# Remove trailing comma at the end of systemSensorNameList
+	if (length(systemSensorNameList) > 2)
+	{
+		systemSensorNameList = substr(systemSensorNameList, 1, length(systemSensorNameList) - 2);
+	}
+
+	# Print the enclosure stuff
+	print "MSHW;Enclosure;" systemVendor ";" systemModel ";" systemSerialNumber ";" systemStatus ";" systemStatusInformation ";" systemPowerConsumption ";Monitored by sensors: " systemSensorNameList;
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

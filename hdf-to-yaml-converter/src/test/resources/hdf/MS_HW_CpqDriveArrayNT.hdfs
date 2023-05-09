@@ -1,0 +1,992 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//             MS_HW_CpqDriveArrayNT.hdf
+//
+//      Supports: The Compaq Drive Arrays monitoring
+//      Connects to: hp Insight Manager (Storage Management) under Windows and Linux
+//
+//
+
+// Remarks:
+// This connector only takes into account the Compaq Arrays.
+// The IDE (RAID or non-RAID) devices are not monitored
+// The non-RAID SCSI disks are not monitored. These disks will be monitored
+// through the WbemGenericDiskNT.hdf connector
+//
+// NOTE - The enclosure, fan, temperature and power supply information is at the end of the connector
+// and is only used for external MSA based bays
+
+// HEADER
+
+hdf.DisplayName="HP Insight Management Agent - Drive Array"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents"
+hdf.Version="1.0"
+hdf.Comments="This connector monitors the HP/Compaq Drive Arrays by connecting to the Storage Management SNMP sub-agent of the HP Insight Manager agent."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux,VMS,OSF1,OOB,Solaris"
+hdf.Supersedes="MS_HW_Director52ServeRAIDLinux.hdf,MS_HW_Director52ServeRAIDNT.hdf,MS_HW_SunRaidctl.hdf,MS_HW_SunIostat.hdf,MS_HW_SunIostatNonSun.hdf,MS_HW_SunTapeDrives.hdf"
+
+//
+// DETECTION
+//
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.3.2.2.1.1"
+
+
+//////////////////////////////////////////////
+//   ***  D I S K   C O N T R O L L E R S  ***
+//////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the cpqDaCntlrTable
+// ID;ControllerIndex;ModelCode;FWRev;SerialNumber;Location;
+DiskController.Discovery.Source(1).Type="SnmpTable"
+DiskController.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.2.1.1"
+DiskController.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,3,15,20"
+
+// Translate the Model code into a more readable string
+// ID;ControllerIndex;Model;FWRev;SerialNumber;Location;
+DiskController.Discovery.Source(1).Compute(1).Type="Translate"
+DiskController.Discovery.Source(1).Compute(1).Column="3"
+DiskController.Discovery.Source(1).Compute(1).TranslationTable="DiskControllerModelTranslationTable"
+
+// The DiskControllerModelTranslationTable
+DiskControllerModelTranslationTable(1)="Compaq Array"
+DiskControllerModelTranslationTable(2)="Compaq 32-Bit Intelligent Drive Array"
+DiskControllerModelTranslationTable(3)="Compaq 32-Bit Intelligent Drive Array Expansion"
+DiskControllerModelTranslationTable(4)="Compaq Intelligent Drive Array-2"
+DiskControllerModelTranslationTable(5)="Compaq SMART Array"
+DiskControllerModelTranslationTable(6)="Compaq SMART-2/E Array"
+DiskControllerModelTranslationTable(7)="Compaq SMART-2/P Array"
+DiskControllerModelTranslationTable(8)="Compaq SMART-2SL Array"
+DiskControllerModelTranslationTable(9)="Compaq Smart Array 3100ES"
+DiskControllerModelTranslationTable(10)="Compaq Smart Array 3200"
+DiskControllerModelTranslationTable(11)="Compaq SMART-2DH Array"
+DiskControllerModelTranslationTable(12)="Compaq Smart Array 221"
+DiskControllerModelTranslationTable(13)="Compaq Smart Array 4250ES"
+DiskControllerModelTranslationTable(14)="Compaq Smart Array 4200"
+DiskControllerModelTranslationTable(15)="Compaq Integrated Smart Array"
+DiskControllerModelTranslationTable(16)="Compaq Smart Array 431"
+DiskControllerModelTranslationTable(17)="Compaq Smart Array 5300"
+DiskControllerModelTranslationTable(18)="Compaq RAID LC2"
+DiskControllerModelTranslationTable(19)="Compaq Smart Array 5i"
+DiskControllerModelTranslationTable(20)="Compaq Smart Array 532"
+DiskControllerModelTranslationTable(21)="Compaq Smart Array 5312"
+DiskControllerModelTranslationTable(22)="HP Smart Array 641"
+DiskControllerModelTranslationTable(23)="HP Smart Array 642"
+DiskControllerModelTranslationTable(24)="HP Smart Array 6400"
+DiskControllerModelTranslationTable(25)="HP Smart Array 6400 EM"
+DiskControllerModelTranslationTable(26)="HP Smart Array 6i"
+DiskControllerModelTranslationTable(27)="Generic Array"
+DiskControllerModelTranslationTable(29)="HP Smart Array P600"
+DiskControllerModelTranslationTable(30)="HP Smart Array P400"
+DiskControllerModelTranslationTable(31)="HP Smart Array E200"
+DiskControllerModelTranslationTable(32)="HP Smart Array E200i"
+DiskControllerModelTranslationTable(33)="HP Smart Array P400i"
+DiskControllerModelTranslationTable(34)="HP Smart Array P800"
+DiskControllerModelTranslationTable(35)="HP Smart Array E500"
+DiskControllerModelTranslationTable(36)="HP Smart Array P700m"
+DiskControllerModelTranslationTable(37)="HP Smart Array P212"
+DiskControllerModelTranslationTable(38)="HP Smart Array P410"
+DiskControllerModelTranslationTable(39)="HP Smart Array P410i"
+DiskControllerModelTranslationTable(40)="HP Smart Array P411"
+DiskControllerModelTranslationTable(41)="HP Smart Array B110i SATA RAID"
+DiskControllerModelTranslationTable(42)="HP Smart Array P712m"
+DiskControllerModelTranslationTable(43)="HP Smart Array P711m"
+DiskControllerModelTranslationTable(44)="HP Smart Array P812"
+DiskControllerModelTranslationTable(45)="HP SW 1210M"
+DiskControllerModelTranslationTable(46)="HP Smart Array P220i"
+DiskControllerModelTranslationTable(47)="HP Smart Array P222"
+DiskControllerModelTranslationTable(48)="HP Smart Array P420"
+DiskControllerModelTranslationTable(49)="HP Smart Array P420i"
+DiskControllerModelTranslationTable(50)="HP Smart Array P421"
+DiskControllerModelTranslationTable(51)="HP Smart Array B320i"
+DiskControllerModelTranslationTable(52)="HP Smart Array P822"
+DiskControllerModelTranslationTable(53)="HP Smart Array P721M"
+DiskControllerModelTranslationTable(54)="HP Smart Array B120i"
+DiskControllerModelTranslationTable(55)="HP HPS-1224"
+DiskControllerModelTranslationTable(56)="HP HPS-1228"
+DiskControllerModelTranslationTable(57)="HP HPS-1228m"
+DiskControllerModelTranslationTable(58)="HP Smart Array P822SE"
+DiskControllerModelTranslationTable(59)="HP HPS-1224e"
+DiskControllerModelTranslationTable(60)="HP HPS-1228e"
+DiskControllerModelTranslationTable(61)="HP HPS-1228em"
+DiskControllerModelTranslationTable(62)="HP Smart Array P230i"
+DiskControllerModelTranslationTable(63)="HP Smart Array P430i"
+DiskControllerModelTranslationTable(64)="HP Smart Array P430"
+DiskControllerModelTranslationTable(65)="HP Smart Array P431"
+DiskControllerModelTranslationTable(66)="HP Smart Array P731m"
+DiskControllerModelTranslationTable(67)="HP Smart Array P830i"
+DiskControllerModelTranslationTable(68)="HP Smart Array P830"
+DiskControllerModelTranslationTable(69)="HP Smart Array P831"
+DiskControllerModelTranslationTable(70)="HP Smart Array P530"
+DiskControllerModelTranslationTable(71)="HP Smart Array P531"
+DiskControllerModelTranslationTable(72)="HP Smart Array P244br"
+DiskControllerModelTranslationTable(73)="HP Smart Array P246br"
+DiskControllerModelTranslationTable(74)="HP Smart Array P440"
+DiskControllerModelTranslationTable(75)="HP Smart Array P440ar"
+DiskControllerModelTranslationTable(76)="HP Smart Array P441"
+DiskControllerModelTranslationTable(77)="HP Smart Array P741m"
+DiskControllerModelTranslationTable(78)="HP Smart Array P840"
+DiskControllerModelTranslationTable(79)="HP Smart Array P841"
+DiskControllerModelTranslationTable(80)="HP SH-H240ar"
+DiskControllerModelTranslationTable(81)="HP SH-H244br"
+DiskControllerModelTranslationTable(82)="HP SH-240"
+DiskControllerModelTranslationTable(83)="HP SH-241"
+DiskControllerModelTranslationTable(84)="HP SA-B140i"
+DiskControllerModelTranslationTable(85)="HP SH-Generic"
+DiskControllerModelTranslationTable(86)="HP SA-P240nr"
+DiskControllerModelTranslationTable(87)="HP SA-H240nr"
+DiskControllerModelTranslationTable(88)="HP P840ar"
+DiskControllerModelTranslationTable(89)="HP P542d"
+DiskControllerModelTranslationTable(90)="HP S100i"
+DiskControllerModelTranslationTable(91)="HP E208i-p"
+DiskControllerModelTranslationTable(92)="HP E208i-a"
+DiskControllerModelTranslationTable(93)="HP E208i-c"
+DiskControllerModelTranslationTable(94)="HP E208e-p"
+DiskControllerModelTranslationTable(95)="HP E204i-b"
+DiskControllerModelTranslationTable(96)="HP P204i-c"
+DiskControllerModelTranslationTable(97)="HP P408i-p"
+DiskControllerModelTranslationTable(98)="HP P408i-a"
+DiskControllerModelTranslationTable(99)="HP P408e-p"
+DiskControllerModelTranslationTable(100)="HP P408i-c"
+DiskControllerModelTranslationTable(101)="HP P408e-m"
+DiskControllerModelTranslationTable(102)="HP P416ie-m"
+DiskControllerModelTranslationTable(103)="HP P816i-a"
+DiskControllerModelTranslationTable(Default)="HP Smart Array"
+
+DiskController.Discovery.Source(1).Compute(2).Type="LeftConcat"
+DiskController.Discovery.Source(1).Compute(2).Column="6"
+DiskController.Discovery.Source(1).Compute(2).String="Location: "
+
+// The InstanceTable
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(3)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(4)
+DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+DiskController.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqDaCntlrTable
+// ID;BoardStatus;BoardCondition
+DiskController.Collect.Source(1).Type="SnmpTable"
+DiskController.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.2.1.1"
+DiskController.Collect.Source(1).SnmpTableSelectColumns="ID,10,12"
+
+// Now, duplicate BoardStatus
+// ID;BoardStatus;BoardStatus;BoardCondition
+DiskController.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+DiskController.Collect.Source(1).Compute(1).Column=2
+
+// Translate first BoardStatus into a PATROL status
+// ID;status;BoardStatus;BoardCondition
+DiskController.Collect.Source(1).Compute(2).Type="Translate"
+DiskController.Collect.Source(1).Compute(2).Column=2
+DiskController.Collect.Source(1).Compute(2).TranslationTable="DiskControllerStatusTranslationTable"
+
+// The DiskControllerStatusTranslationTable
+DiskControllerStatusTranslationTable(2)="OK"
+DiskControllerStatusTranslationTable(3)="ALARM"
+DiskControllerStatusTranslationTable(4)="ALARM"
+DiskControllerStatusTranslationTable(5)="WARN"
+DiskControllerStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate first BoardCondition into a PATROL status
+// ID;status;BoardStatus;BoardCondition
+DiskController.Collect.Source(1).Compute(3).Type="Translate"
+DiskController.Collect.Source(1).Compute(3).Column=4
+DiskController.Collect.Source(1).Compute(3).TranslationTable="DiskControllerConditionTranslationTable"
+
+// The DiskControllerConditionTranslationTable
+DiskControllerConditionTranslationTable(2)="OK"
+DiskControllerConditionTranslationTable(3)="WARN"
+DiskControllerConditionTranslationTable(4)="ALARM"
+DiskControllerConditionTranslationTable(Default)="UNKNOWN"
+
+//now take the worst case between condition and status
+// ID;status;BoardStatus;BoardCondition
+DiskController.Collect.Source(1).Compute(4).Type="Awk"
+DiskController.Collect.Source(1).Compute(4).AwkScript=EmbeddedFile(1)
+
+// Translate second BoardStatus into a statusInformation
+// ID;status;statusInformation;BoardCondition
+DiskController.Collect.Source(1).Compute(5).Type="Translate"
+DiskController.Collect.Source(1).Compute(5).Column=3
+DiskController.Collect.Source(1).Compute(5).TranslationTable="DiskControllerStatusInformationTranslationTable"
+
+// The DiskControllerStatusInformationTranslationTable
+DiskControllerStatusInformationTranslationTable(2)=""
+DiskControllerStatusInformationTranslationTable(3)="General failure"
+DiskControllerStatusInformationTranslationTable(4)="Cable problem"
+DiskControllerStatusInformationTranslationTable(5)="Powered off"
+DiskControllerStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The collect table
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(1)
+DiskController.Collect.ControllerStatus=ValueTable.Column(2)
+DiskController.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Batteries
+//
+
+//
+// Discovery
+
+// Source(1) = the cpqDaAccelTable
+// ID;ControllerNumber;BatteryStatus
+Battery.Discovery.Source(1).Type="SnmpTable"
+Battery.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.2.2.1"
+Battery.Discovery.Source(1).SnmpTableSelectColumns="ID,1,6"
+
+// Keep only Array Accelerator instances equipped with a battery
+// ID;ControllerNumber;BatteryStatus
+Battery.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Battery.Discovery.Source(1).Compute(1).Column=3
+Battery.Discovery.Source(1).Compute(1).ValueList="0,1,6"
+
+// InstanceTable = Source(1)
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Battery.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+Battery.Discovery.Instance.Model="HP Array Accelerator"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqDaAccelTable
+// ID;Status;
+Battery.Collect.Source(1).Type="SnmpTable"
+Battery.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.2.2.1"
+Battery.Collect.Source(1).SnmpTableSelectColumns="ID,6"
+
+// Duplicate the Status column
+// ID;Status;Status;
+Battery.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(1).Column=2
+
+// Translate first Status into a PATROLStatus
+// ID;PATROLStatus;Status;
+Battery.Collect.Source(1).Compute(2).Type="Translate"
+Battery.Collect.Source(1).Compute(2).Column=2
+Battery.Collect.Source(1).Compute(2).TranslationTable="BatteryStatusTranslationTable"
+
+// The BatteryStatusTranslationTable
+BatteryStatusTranslationTable(2)="OK"
+BatteryStatusTranslationTable(3)="OK"
+BatteryStatusTranslationTable(4)="ALARM"
+BatteryStatusTranslationTable(5)="WARN"
+BatteryStatusTranslationTable(7)="ALARM"
+BatteryStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second Status into a more readable string
+// ID;PATROLStatus;StatusInformation;
+Battery.Collect.Source(1).Compute(3).Type="Translate"
+Battery.Collect.Source(1).Compute(3).Column=3
+Battery.Collect.Source(1).Compute(3).TranslationTable="BatteryStatusInformationTranslationTable"
+
+// The BatteryStatusInformationTranslationTable
+BatteryStatusInformationTranslationTable(2)=""
+BatteryStatusInformationTranslationTable(3)="Charging"
+BatteryStatusInformationTranslationTable(4)="Failed"
+BatteryStatusInformationTranslationTable(5)="Degraded"
+BatteryStatusInformationTranslationTable(7)="Capacitor Failed"
+BatteryStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(1)
+Battery.Collect.Status=ValueTable.Column(2)
+Battery.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+/////////////////////////////////////////////////
+///  ***  P H Y S I C A L   D I S K S   ***   ///
+/////////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the cpqDaPhyDrv snmp table
+// ID;ControllerNumber;Model;SizeMB;SerialNumber;Location;
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.5.1.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,45,51,64"
+
+// Change the 4294967295 size value into an empty string
+// because this is not a real size
+// ID;ControllerNumber;Model;SizeMB;SerialNumber;Location;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(1).Replace="4294967295"
+PhysicalDisk.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+// Convert the size into bytes
+// ID;ControllerNumber;Model;SizeBytes;SerialNumber;Location;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=1048576
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(3).String="Location: "
+
+// The instance table = Source(1)
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqDaPhyDrv snmp table
+// ID;status;SMARTstatus
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.5.1.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,6,57"
+
+// Duplicate the status column
+// ID;status;status;SMARTstatus
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status column into a PATROL status
+// ID;PATROLstatus;status;SMARTstatus
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable(2)="OK"
+PhysicalDiskStatusTranslationTable(3)="ALARM"
+PhysicalDiskStatusTranslationTable(4)="WARN"
+PhysicalDiskStatusTranslationTable(5)="OK"
+PhysicalDiskStatusTranslationTable(6)="OK"
+PhysicalDiskStatusTranslationTable(7)="OK"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// ID;PATROLstatus;statusInformation;SMARTstatus
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+// The PhysicalDiskStatusInformationTranslationTable
+PhysicalDiskStatusInformationTranslationTable(2)=""
+PhysicalDiskStatusInformationTranslationTable(3)="Failed"
+PhysicalDiskStatusInformationTranslationTable(4)="Predicted Failure"
+PhysicalDiskStatusInformationTranslationTable(5)="Erasing"
+PhysicalDiskStatusInformationTranslationTable(6)="Erase Done"
+PhysicalDiskStatusInformationTranslationTable(7)="Erase Queued"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the SMARTstatus into a 0 (no failure predicted) or 1 (failure is predicted)
+// ID;PATROLstatus;statusInformation;predictFailureStatus
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column="4"
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="PhysicalDiskSMARTStatusTranslationTable"
+
+// The PhysicalDiskSMARTStatusTranslationTable
+PhysicalDiskSMARTStatusTranslationTable(1)="FALSE"
+PhysicalDiskSMARTStatusTranslationTable(2)="FALSE"
+PhysicalDiskSMARTStatusTranslationTable(3)="TRUE"
+PhysicalDiskSMARTStatusTranslationTable(Default)="FALSE"
+
+// The ValueTable = source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
+
+
+
+///////////////////////////////////////////////
+///  ***  L O G I C A L   D I S K S   ***   ///
+///////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the cpqDaLogDrv snmp table
+// ID;ControllerNumber;FaultToleranceLevel;SizeMB;OsName;
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.3.1.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,9,14"
+
+// Translate size into bytes
+// ID;ControllerNumber;FaultToleranceLevel;Size;OsName;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=4
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=1048576
+
+// Translate the FaultToleranceLevel into a more readable string
+// ID;ControllerNumber;RAIDLevel;Size;OsName;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=3
+LogicalDisk.Discovery.Source(1).Compute(2).TranslationTable="RAIDLevelTranslationTable"
+
+// The RAIDLevelTranslationTable
+RAIDLevelTranslationTable(1)=""
+RAIDLevelTranslationTable(2)="0"
+RAIDLevelTranslationTable(3)="1"
+RAIDLevelTranslationTable(4)="4"
+RAIDLevelTranslationTable(5)="5"
+RAIDLevelTranslationTable(7)="6"
+RAIDLevelTranslationTable(8)="50"
+RAIDLevelTranslationTable(9)="60"
+RAIDLevelTranslationTable(Default)=""
+
+// Add "Seen by the OS as " to the OsName column
+// ID;ControllerNumber;RAIDLevel;Size;OsName;
+//LogicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+//LogicalDisk.Discovery.Source(1).Compute(3).Column=5
+//LogicalDisk.Discovery.Source(1).Compute(3).String="Seen by the OS as "
+
+// The InstanceTable
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.RAIDLevel=InstanceTable.Column(3)
+//LogicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+
+//
+// Collect
+
+// Collect type = MultiInstance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqDaLogDrv snmp table
+// ID;Status
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.3.2.3.1.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,4"
+
+// Duplicate the status column
+// ID;Status;Status
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status column into a PATROL status
+// ID;PATROLStatus;Status
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column="2"
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable(2)="OK"
+LogicalDiskStatusTranslationTable(3)="ALARM"
+LogicalDiskStatusTranslationTable(4)="OK"
+LogicalDiskStatusTranslationTable(5)="WARN"
+LogicalDiskStatusTranslationTable(6)="OK"
+LogicalDiskStatusTranslationTable(7)="WARN"
+LogicalDiskStatusTranslationTable(8)="ALARM"
+LogicalDiskStatusTranslationTable(9)="ALARM"
+LogicalDiskStatusTranslationTable(10)="WARN"
+LogicalDiskStatusTranslationTable(11)="ALARM"
+LogicalDiskStatusTranslationTable(12)="OK"
+LogicalDiskStatusTranslationTable(13)="ALARM"
+LogicalDiskStatusTranslationTable(14)="OK"
+LogicalDiskStatusTranslationTable(15)="WARN"
+LogicalDiskStatusTranslationTable(16)="OK"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// ID;PATROLStatus;StatusInformation
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column="3"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="LogicalDiskStatusInformationTranslationTable"
+
+// The LogicalDiskStatusInformationTranslationTable
+LogicalDiskStatusInformationTranslationTable(2)=""
+LogicalDiskStatusInformationTranslationTable(3)="Failed"
+LogicalDiskStatusInformationTranslationTable(4)="Unconfigured"
+LogicalDiskStatusInformationTranslationTable(5)="Recovering"
+LogicalDiskStatusInformationTranslationTable(6)="Ready for rebuild"
+LogicalDiskStatusInformationTranslationTable(7)="Rebuilding"
+LogicalDiskStatusInformationTranslationTable(8)="Wrong drive"
+LogicalDiskStatusInformationTranslationTable(9)="Bad connect"
+LogicalDiskStatusInformationTranslationTable(10)="Overheating"
+LogicalDiskStatusInformationTranslationTable(11)="Shutdown"
+LogicalDiskStatusInformationTranslationTable(12)="Expanding"
+LogicalDiskStatusInformationTranslationTable(13)="Not available"
+LogicalDiskStatusInformationTranslationTable(14)="Queued for expansion"
+LogicalDiskStatusInformationTranslationTable(15)="Multi-path Degraded"
+LogicalDiskStatusInformationTranslationTable(16)="Erasing"
+LogicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The ValueTable = source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//////////////////////////////
+// MSA SPECIFIC INFORMATION //
+//////////////////////////////
+
+//
+// Enclosure: Drive Bay
+//
+
+// Source(1) = cpqSsDrvBoxTable
+// BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;
+
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="ID,1,4,5,6,13,17,23"
+
+// Exclude lines that have no Model as these are not real external bays.
+// BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;
+Enclosure.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(1).Compute(1).Column=3
+Enclosure.Discovery.Source(1).Compute(1).RegExp="."
+
+// Concat " Bays" to Total Bays
+// BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;
+Enclosure.Discovery.Source(1).Compute(2).Type="RightConcat"
+Enclosure.Discovery.Source(1).Compute(2).Column=6
+Enclosure.Discovery.Source(1).Compute(2).String=" Bay"
+
+
+// Source(2) = the cpqDaCntlrTable
+// ControllerIndex;ModelCode;Slot
+
+Enclosure.Discovery.Source(2).Type="SnmpTable"
+Enclosure.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.232.3.2.2.1.1"
+Enclosure.Discovery.Source(2).SnmpTableSelectColumns="1,2,5"
+
+
+// Translate the Model code into a more readable string
+// ControllerIndex;Model;Slot
+Enclosure.Discovery.Source(2).Compute(1).Type="Translate"
+Enclosure.Discovery.Source(2).Compute(1).Column=2
+Enclosure.Discovery.Source(2).Compute(1).TranslationTable="DiskControllerModelTranslationTable"
+
+// Concat "Attached to " to Model
+// ControllerIndex;Model;Slot
+Enclosure.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(2).Column=2
+Enclosure.Discovery.Source(2).Compute(2).String="Attached to "
+
+// Concat " #" to Model
+// ControllerIndex;Model;Slot
+Enclosure.Discovery.Source(2).Compute(3).Type="RightConcat"
+Enclosure.Discovery.Source(2).Compute(3).Column=2
+Enclosure.Discovery.Source(2).Compute(3).String=" #"
+
+// Concat Slot to Model
+// ControllerIndex;Model;Slot
+Enclosure.Discovery.Source(2).Compute(4).Type="RightConcat"
+Enclosure.Discovery.Source(2).Compute(4).Column=2
+Enclosure.Discovery.Source(2).Compute(4).String=Column(1)
+
+// Concat " in Slot " to Slot
+// ControllerIndex;Model;Slot
+Enclosure.Discovery.Source(2).Compute(5).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(5).Column=3
+Enclosure.Discovery.Source(2).Compute(5).String=" in Slot "
+
+// Concat Slot to Model
+// ControllerIndex;Model in Slot;Slot
+Enclosure.Discovery.Source(2).Compute(6).Type="RightConcat"
+Enclosure.Discovery.Source(2).Compute(6).Column=2
+Enclosure.Discovery.Source(2).Compute(6).String=Column(3)
+
+// Source(3) = Join(Source(1), Source(2))
+// BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;ControllerIndex;Model in Slot;Slot;
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).LeftKeyColumn="2"
+Enclosure.Discovery.Source(3).RightKeyColumn="1"
+Enclosure.Discovery.Source(3).DefaultRightLine=";;;"
+
+// Source(4) = cpqSsDrvBoxTable
+// BayID;PowerSupplyStatus;
+
+Enclosure.Discovery.Source(4).Type="SnmpTable"
+Enclosure.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+Enclosure.Discovery.Source(4).SnmpTableSelectColumns="ID,11"
+
+// Exclude lines that have a status of "No PowerSupply" or "Other"
+// BayID;PowerSupplyStatus;
+Enclosure.Discovery.Source(4).Compute(1).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(4).Compute(1).Column=2
+Enclosure.Discovery.Source(4).Compute(1).ValueList="1,5"
+
+// Source(5) = Join(Source(3), Source(4))
+// Keep only those enclosures with a real power supply status (avoids "fake" internal bays being reported)
+// BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;ControllerIndex;Model in Slot;Slot;BayID;PowerSupplyStatus;
+Enclosure.Discovery.Source(5).Type="TableJoint"
+Enclosure.Discovery.Source(5).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(5).RightTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(5).LeftKeyColumn="1"
+Enclosure.Discovery.Source(5).RightKeyColumn="1"
+
+// Instance Table
+
+// BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;ControllerIndex;Model in Slot;Slot;BayID;PowerSupplyStatus;
+
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type="MSADiskBay"
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.BiosVersion=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(10)
+Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Enclosure.Collect.Type="MultiInstance"
+
+/// Source(1) = cpqSsDrvBoxTable
+// BayID;Status
+
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="ID,8"
+
+// Now, duplicate Status
+// BayID;Status;Status
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+
+// Translate first Status into a PATROL status
+// BayID;PatrolStatus;Status;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="EnclosureStatusTranslationTable"
+
+// The EnclosureStatusTranslationTable
+EnclosureStatusTranslationTable(1)="UNKNOWN"
+EnclosureStatusTranslationTable(2)="OK"
+EnclosureStatusTranslationTable(3)="WARN"
+EnclosureStatusTranslationTable(4)="ALARM"
+EnclosureStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate second Status into a statusInformation
+// BayID;PatrolStatus;StatusInformation;
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="EnclosureStatusInformationTranslationTable"
+
+// The EnclosureStatusInformationTranslationTable
+EnclosureStatusInformationTranslationTable(1)="Status Not Recognized"
+EnclosureStatusInformationTranslationTable(2)=""
+EnclosureStatusInformationTranslationTable(3)="Degraded"
+EnclosureStatusInformationTranslationTable(4)="Failed"
+EnclosureStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(2)
+Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Fan
+//
+
+// Source(1) = cpqSsDrvBoxTable
+// BayID;Model;FanStatus;
+
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,4,7"
+
+// Exclude lines that have no Model as these are not real external bays.
+// BayID;Model;FanStatus;
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=2
+Fan.Discovery.Source(1).Compute(1).RegExp="."
+
+// Exclude lines that have a status of "No Fan" or "Other"
+// BayID;Model;FanStatus;
+Fan.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Discovery.Source(1).Compute(2).Column=3
+Fan.Discovery.Source(1).Compute(2).ValueList="1,4"
+
+// Instance Table
+// BayID;Model;FanStatus;
+
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType="Overall Fan Status"
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.AttachedToDeviceType="MSADiskBay"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = cpqSsDrvBoxTable
+// BayID;FanStatus;
+
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,7"
+
+// Now, duplicate Status
+// BayID;Status;Status
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=2
+
+// Translate first Status into a PATROL status
+// BayID;PatrolStatus;Status;
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).TranslationTable="FanStatusTranslationTable"
+
+// The EnclosureStatusTranslationTable
+FanStatusTranslationTable(2)="OK"
+FanStatusTranslationTable(3)="ALARM"
+FanStatusTranslationTable(5)="WARN"
+FanStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate second Status into a statusInformation
+// BayID;PatrolStatus;StatusInformation;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="FanStatusInformationTranslationTable"
+
+// The EnclosureStatusInformationTranslationTable
+FanStatusInformationTranslationTable(2)=""
+FanStatusInformationTranslationTable(3)="Failed"
+FanStatusInformationTranslationTable(5)="Degraded"
+FanStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Temperature
+//
+
+// Source(1) = cpqSsDrvBoxTable
+// BayID;Model;TemperatureStatus;
+
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,4,9"
+
+// Exclude lines that have no Model as these are not real external bays.
+// BayID;Model;TemperatureStatus;
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=2
+Temperature.Discovery.Source(1).Compute(1).RegExp="."
+
+// Exclude lines that have a status of "No Temperature" or "Other"
+// BayID;Model;TemperatureStatus;
+Temperature.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(1).Compute(2).Column=3
+Temperature.Discovery.Source(1).Compute(2).ValueList="1,5"
+
+// Instance Table
+// BayID;Model;TemperatureStatus;
+
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType="Overall Temperature Status"
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.AttachedToDeviceType="MSADiskBay"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = cpqSsDrvBoxTable
+// BayID;TemperatureStatus;
+
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="ID,9"
+
+// Now, duplicate Status
+// BayID;Status;Status
+Temperature.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(1).Column=2
+
+// Translate first Status into a PATROL status
+// BayID;PatrolStatus;Status;
+Temperature.Collect.Source(1).Compute(2).Type="Translate"
+Temperature.Collect.Source(1).Compute(2).Column=2
+Temperature.Collect.Source(1).Compute(2).TranslationTable="TemperatureStatusTranslationTable"
+
+// The EnclosureStatusTranslationTable
+TemperatureStatusTranslationTable(2)="OK"
+TemperatureStatusTranslationTable(3)="WARN"
+TemperatureStatusTranslationTable(4)="ALARM"
+TemperatureStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate second Status into a statusInformation
+// BayID;PatrolStatus;StatusInformation;
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=3
+Temperature.Collect.Source(1).Compute(3).TranslationTable="TemperatureStatusInformationTranslationTable"
+
+// The EnclosureStatusInformationTranslationTable
+TemperatureStatusInformationTranslationTable(2)=""
+TemperatureStatusInformationTranslationTable(3)="Degraded"
+TemperatureStatusInformationTranslationTable(4)="Failed"
+TemperatureStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// PowerSupply
+//
+
+// Source(1) = cpqSsDrvBoxTable
+// BayID;Model;PowerSupplyStatus;
+
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,4,11"
+
+// Exclude lines that have no Model as these are not real external bays.
+// BayID;Model;PowerSupplyStatus;
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+PowerSupply.Discovery.Source(1).Compute(1).RegExp="."
+
+// Exclude lines that have a status of "No PowerSupply" or "Other"
+// BayID;Model;PowerSupplyStatus;
+PowerSupply.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(2).Column=3
+PowerSupply.Discovery.Source(1).Compute(2).ValueList="1,5"
+
+// Instance Table
+// BayID;Model;PowerSupplyStatus;
+
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType="Overall Power Supplies Status"
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.AttachedToDeviceType="MSADiskBay"
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = cpqSsDrvBoxTable
+// BayID;PowerSupplyStatus;
+
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.8.2.1.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,11"
+
+// Now, duplicate Status
+// BayID;Status;Status
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+
+// Translate first Status into a PATROL status
+// BayID;PatrolStatus;Status;
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="PowerSupplyStatusTranslationTable"
+
+// The EnclosureStatusTranslationTable
+PowerSupplyStatusTranslationTable(2)="OK"
+PowerSupplyStatusTranslationTable(3)="WARN"
+PowerSupplyStatusTranslationTable(4)="ALARM"
+PowerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate second Status into a statusInformation
+// BayID;PatrolStatus;StatusInformation;
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="PowerSupplyStatusInformationTranslationTable"
+
+// The EnclosureStatusInformationTranslationTable
+PowerSupplyStatusInformationTranslationTable(2)=""
+PowerSupplyStatusInformationTranslationTable(3)="Degraded"
+PowerSupplyStatusInformationTranslationTable(4)="Failed"
+PowerSupplyStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Computing different worst cases between status and condition
+// Input: DeviceID;PATROLStatus;StatusInformation;BoardCondition
+///Output: DeviceID;PATROLStatus;StatusInformation;BoardCondition
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {FS=";";}
+{
+  status = "UNKNOWN";
+  if ($2 == "OK" || $4 == "OK") {
+    status = "OK";
+  }
+  if ($2 == "WARN" || $4 == "WARN") {
+    status = "WARN";
+  }
+  if ($2 == "ALARM" || $4 == "ALARM") {
+    status = "ALARM";
+  }
+  print $1";"status";"$3";"$4";"
+}
+EmbeddedFile(1).End

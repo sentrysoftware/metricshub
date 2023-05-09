@@ -1,0 +1,328 @@
+---
+connector:
+  displayName: DataDirect Networks (DDN) Storage Appliance (SNMP)
+  platforms: DataDirect Networks (DDN)
+  reliesOn: DDN SNMP Agent
+  version: 1.0
+  information: "This connector discovers the enclosure and the disks of DDN (DataDirect Networks) Storage Appliances as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    # Verify that the DDN SNMP Storage Appliance agent responds to our requests
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.6894.2
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Hardcoded table
+          # DeviceID;Vendor;model;
+          type: static
+          value: DDNSA;Data Direct Networks;Storage Appliance;
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          vendor: $column(2)
+          model: $column(3)
+          type: Storage
+          name: "sprintf(\"Storage: (%s %s)\", $column(2), $column(3))"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = tierTable SNMP Table
+          # PoolID;DiskWWN;DiskEnclosure;DiskSlot;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.9.1
+          selectColumns: "2,4,5,6"
+          computes:
+            # Add an underscore to the left of the DiskSlot
+            # PoolID;DiskWWN;DiskEnclosure;DiskSlot;
+          - type: leftConcat
+            column: 4
+            value: _
+            # Add the DiskEnclosure to the DiskSlot to make the Disk Identfier
+            # PoolID;DiskWWN;DiskEnclosure;DiskID;
+          - type: leftConcat
+            column: 4
+            value: Column(3)
+            # Add WWN= to the WWN Column
+            # PoolID;DiskWWN;DiskEnclosure;DiskSlot;
+          - type: leftConcat
+            column: 2
+            value: "WWN: "
+            # Add PoolID= to the PoolID Column
+            # PoolID;DiskWWN;DiskEnclosure;DiskSlot;
+          - type: leftConcat
+            column: 1
+            value: "Pool ID: "
+      mapping:
+        # InstanceTable = Source(1)
+        # PoolID;DiskWWN;DiskEnclosure;DiskID;
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(4)
+          info: "join($column(1), $column(2), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: DDNSA
+          name: $column(4)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = tierTable SNMP Table
+          # DiskEnclosure;DiskSlot;DiskState;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.9.1
+          selectColumns: "5,6,7"
+          computes:
+            # Add an underscore to the left of the DiskSlot
+            # DiskEnclosure;DiskSlot;DiskState;
+          - type: leftConcat
+            column: 2
+            value: _
+            # Add the DiskEnclosure to the DiskSlot to make the Disk Identfier
+            # DiskEnclosure;DiskID;DiskState;
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Duplicate the Status column
+            # DiskEnclosure;DiskID;DiskState;DiskState;
+          - type: duplicateColumn
+            column: 3
+            # Translate the first status column into a PATROLStatus
+            # DiskEnclosure;DiskID;PatrolStatus;DiskState;
+          - type: translate
+            column: 3
+            translationTable: diskStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 4
+            translationTable: diskStatusInformationTranslationTable
+      mapping:
+        # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  SNMP Table
+          # EnclosureID;PositionInEnclosure;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.6.1
+          selectColumns: "2,3"
+          computes:
+            # Add an underscore to the left of the PositionInEnclosure
+            # EnclosureID;PositionInEnclosure;
+          - type: leftConcat
+            column: 2
+            value: _
+            # Add the EnclosureID to the PositionInEnclosure to make the PSU Identfier
+            # EnclosureID;PowerSupplyID;
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+      mapping:
+        # InstanceTable = Source(1)
+        # PoolID;DiskWWN;DiskEnclosure;DiskID;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DDNSA
+          name: $column(2)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  SNMP Table
+          # EnclosureID;PositionInEnclosure;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.6.1
+          selectColumns: "2,3,4"
+          computes:
+            # Add an underscore to the left of the PositionInEnclosure
+            # EnclosureID;PositionInEnclosure;Status;
+          - type: leftConcat
+            column: 2
+            value: _
+            # Add the EnclosureID to the PositionInEnclosure to make the PSU Identfier
+            # EnclosureID;PowerSupplyID;Status;
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Translate the  status column into a PATROLStatus
+            # DiskEnclosure;DiskID;PatrolStatus;
+          - type: translate
+            column: 3
+            translationTable: PSUandFANStatusTranslationTable
+      mapping:
+        # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  SNMP Table
+          # EnclosureID;PositionInEnclosure;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.4.1
+          selectColumns: "2,3"
+          computes:
+            # Add an underscore to the left of the PositionInEnclosure
+            # EnclosureID;PositionInEnclosure;
+          - type: leftConcat
+            column: 2
+            value: _
+            # Add the EnclosureID to the PositionInEnclosure to make the PSU Identfier
+            # EnclosureID;PowerSupplyID;
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+      mapping:
+        # InstanceTable = Source(1)
+        # PoolID;DiskWWN;DiskEnclosure;DiskID;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DDNSA
+          name: $column(2)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  SNMP Table
+          # EnclosureID;PositionInEnclosure;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.4.1
+          selectColumns: "2,3,4"
+          computes:
+            # Add an underscore to the left of the PositionInEnclosure
+            # EnclosureID;PositionInEnclosure;Status;
+          - type: leftConcat
+            column: 2
+            value: _
+            # Add the EnclosureID to the PositionInEnclosure to make the PSU Identfier
+            # EnclosureID;PowerSupplyID;Status;
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Translate the  status column into a PATROLStatus
+            # DiskEnclosure;DiskID;PatrolStatus;
+          - type: translate
+            column: 3
+            translationTable: PSUandFANStatusTranslationTable
+      mapping:
+        # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="fan"}: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  SNMP Table
+          # EnclosureID;PositionInEnclosure;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.6.1
+          selectColumns: "2,3"
+          computes:
+            # Add an underscore to the left of the PositionInEnclosure
+            # EnclosureID;PositionInEnclosure;
+          - type: leftConcat
+            column: 2
+            value: _
+            # Add the EnclosureID to the PositionInEnclosure to make the PSU Identfier
+            # EnclosureID;PowerSupplyID;
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+      mapping:
+        # InstanceTable = Source(1)
+        # PoolID;DiskWWN;DiskEnclosure;DiskID;
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: DDNSA
+          name: $column(2)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  SNMP Table
+          # EnclosureID;PositionInEnclosure;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.6894.2.6.1
+          selectColumns: "2,3,4"
+          computes:
+            # Add an underscore to the left of the PositionInEnclosure
+            # EnclosureID;PositionInEnclosure;Status;
+          - type: leftConcat
+            column: 2
+            value: _
+            # Add the EnclosureID to the PositionInEnclosure to make the PSU Identfier
+            # EnclosureID;PowerSupplyID;Status;
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Translate the  status column into a PATROLStatus
+            # DiskEnclosure;DiskID;PatrolStatus;
+          - type: translate
+            column: 3
+            translationTable: TemperatureStatusTranslationTable
+      mapping:
+        # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(3)
+translations:
+  TemperatureStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    default: UNKNOWN
+    "3": failed
+  PSUandFANStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+  diskStatusInformationTranslationTable:
+    "1": Healthy
+    "2": Failed
+    default: Unknown Status
+    "3": Predicted Failure
+  diskStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": degraded

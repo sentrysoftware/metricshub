@@ -1,0 +1,257 @@
+---
+connector:
+  displayName: HP-UX - sasmgr Disk Controllers
+  platforms: "HP 9000,HP Integrity,HP SuperDome"
+  reliesOn: "HP-UX system commands (sasmgr, ioscan etc.)"
+  information: Provides hardware SAS RAID disks status information on HP-UX systems. Requires root privileges.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - HP
+    criteria:
+    # OS should be HP (for HP-UX, whatever version)
+    - type: deviceType
+      keep:
+      - HP
+    # STM should not be present, because in this case, we will use the HPUX-CSTM connector
+    - type: osCommand
+      commandLine: /bin/ls /opt/sas/bin/sasmgr
+      expectedResult: sasmgr$
+    # The various following tools have to be present
+    - type: osCommand
+      commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+      expectedResult: Info for PHY ID
+sudoCommands:
+- /opt/sas/bin/sasmgr
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          controller_number: $column(1)
+          firmware_version: $column(3)
+          model: $column(2)
+          vendor: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(1), $column(2))"
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(3)$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,5"
+            # Now translate Status to Patrol Status
+            # status
+          - type: translate
+            column: 2
+            translationTable: ControllerTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,4"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: $column(1)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(1)$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+            # Now translate Status to Patrol Status
+            # status
+          - type: translate
+            column: 2
+            translationTable: PhysicalDiskTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
+          computes:
+            # Run Source(1) through an AWK script
+            # MSHW;ID;Status;Controller it is attached to; Raid Level; ; Size
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,4,5,6"
+      mapping:
+        # The InstanceTable
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          raid_level: $column(3)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(3), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: /bin/sh $embedded.EmbeddedFile(5)$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+            # Now translate Status to Patrol Status
+            # status
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+embedded:
+  EmbeddedFile(1): |-
+    /usr/sbin/ioscan -fnkd sasd | grep /dev/sasd | while read dev
+    do
+    /usr/bin/echo $dev
+    cat <<-!
+                            $(%{SUDO:/opt/sas/bin/sasmgr}/opt/sas/bin/sasmgr get_info -D $dev -q phy=all)
+    !
+    done
+  EmbeddedFile(3): |-
+    /usr/sbin/ioscan -fnkd sasd | grep /dev/sasd | while read dev
+    do
+    /usr/bin/echo $dev
+    cat <<-!
+                            $(%{SUDO:/opt/sas/bin/sasmgr}/opt/sas/bin/sasmgr get_info -D $dev)
+    !
+    done
+  EmbeddedFile(2): |+
+    BEGIN  {ID="";health="";controller="";}
+    $1 ~ /dev.sasd[0-9]/ {controller=$1 ;
+                          gsub (/.dev./,"",controller) ;
+                          }
+    $0 ~ /PHY ID/ {ID = $NF}
+    $0 ~ /PHY [Hh]ealth/ {health = $NF}
+    $0 ~ /Port SAS Address/ && ID != "" && $NF != "0x0" {
+                                         print ("MSHW;" ID ";" health ";" controller ";");
+                                         ID="";health=""
+                                         }
+
+  EmbeddedFile(5): |-
+    /usr/sbin/ioscan -fnkd sasd | grep /dev/sasd | while read dev
+    do
+    /usr/bin/echo $dev
+    cat <<-!
+                            $(%{SUDO:/opt/sas/bin/sasmgr}/opt/sas/bin/sasmgr get_info -D $dev -q raid)
+    !
+    done
+  EmbeddedFile(4): |-
+    BEGIN  {ID="";model="";firmwareversion="";status="";}
+    $1 ~ /dev.sasd[0-9]/ {ID=$1 ;
+                          gsub (/.dev./,"",ID) ;
+                          }
+    $0 ~ /Product Number/ && ID != ""  {model=$NF}
+    $0 ~ /Health of HBA/ {status=$NF}
+    $0 ~ /Firmware Revision/ && ID != "" {firmwareversion = $NF ;
+                                         print ("MSHW;" ID ";" model ";" firmwareversion ";" status ";");
+                                         ID="";model="";firmwareversion="";status="";
+                                         }
+  EmbeddedFile(6): |-
+    BEGIN  {ID="";health="";controller="";raidLevel="";size="";}
+    $1 ~ /dev.sasd[0-9]/ {controller=$1 ;
+                          gsub (/.dev./,"",controller) ;
+                          }
+    $0 ~ /LOGICAL DRIVE [0-9]/ {ID = $(NF-1)}
+    $0 ~ /Raid Level/ {raidLevel = $NF}
+    $0 ~ /Raid State/ {health = $NF}
+    $0 ~ /Raid Size/ && ID != "" {size=$NF ; size = size * 1048576;
+                                  print ("MSHW;" ID ";" health ";" controller ";" raidLevel ";" size ";");
+                                  ID="";health="";raidLevel="";size="";
+                                  }
+translations:
+  PhysicalDiskTranslationTable:
+    default: UNKNOWN
+    up: ok
+    down: failed
+  ControllerTranslationTable:
+    n/a: ok
+    default: UNKNOWN
+    online: ok
+    failed: failed
+    degraded: degraded
+  LogicalDiskTranslationTable:
+    default: UNKNOWN
+    optimal: ok
+    failed: failed
+    degraded: degraded

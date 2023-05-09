@@ -1,0 +1,634 @@
+---
+connector:
+  displayName: Intel Modular Server
+  platforms: Intel Modular
+  reliesOn: Intel Server Manager 8 SNMP Agents
+  version: 1.0
+  information: This connector provides hardware monitoring through the Intel Modular Server Chassis Managament Module's SNMP Agents.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    criteria:
+    # The Enclosure information is rather limited as not all OEMs populate that table.  But the OID should at least be there.
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.343.2.19.1.2.10.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the Platform Description
+          # There are other informations in the MIB, but Platform Description seems to be the only one populated.
+          # Others can be added if we ever get an SNMP walk with this information.
+          # PlatformDescription
+          type: snmpGet
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.1.0
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: IntelChassis
+          vendor: $column(1)
+          type: Computer
+          name: "sprintf(\"Computer: (%s)\", $column(1))"
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = SNMP bladeEntryTable
+          # ID;Presence;StatusLED
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.202.1.1
+          selectColumns: "ID,2,7"
+          computes:
+          # Keep only present blades (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,-4,-2"
+          # Translating the LED Fault Status (as in collect)
+          - type: translate
+            column: 3
+            translationTable: LEDStatusTranslationTable
+          # Now replace UNKNOWN LED status (Not applicable etc..) with blank so that the parameter does not appear.
+          - type: replace
+            column: 3
+            existingValue: UNKNOWN
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: IntelChassis
+          name: $column(1)
+    collect:
+      # Collect type is "multi-instance" (one collect for all instances)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = SNMP bladeEntryTable
+          # ID;StatusLED
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.202.1.1
+          selectColumns: "ID,7"
+          computes:
+            # Translating the LED Fault Status (as in collect)
+            # ID;StatusLED
+          - type: translate
+            column: 2
+            translationTable: LEDStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;StatusLED
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="blade"}: $column(2)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the SCM Table
+          # ID;Presence;Vendor;Model;StatusLED
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.204.1.1
+          selectColumns: "ID,2,3,5,15"
+          computes:
+            # Keep only present blades (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
+            # ID;Presence;Vendor;Model;StatusLED
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,-4,-2"
+            # Translating the LED Fault Status (as in collect)
+            # ID;Presence;Vendor;Model;StatusLED
+          - type: translate
+            column: 5
+            translationTable: LEDStatusTranslationTable
+            # Now replace UNKNOWN LED status (Not applicable etc..) with blank so that the parameter does not appear.
+            # ID;Presence;Vendor;Model;StatusLED
+          - type: replace
+            column: 5
+            existingValue: UNKNOWN
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Presence;Vendor;Model;StatusLED
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          controller_number: $column(1)
+          model: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: IntelChassis
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(4))"
+    collect:
+      # Collect type is "multi-instance" (one collect for all instances)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the SCM Table
+          # ID;StatusLED
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.204.1.1
+          selectColumns: "ID,15"
+          computes:
+            # Translating the LED Fault Status (as in collect)
+            # ID;StatusLED
+          - type: translate
+            column: 2
+            translationTable: LEDStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;StatusLED
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Shared Drives Table
+          # ID;Presence;Model;Serial;Firmware;Size;ArrayLocation
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.205.2.1
+          selectColumns: "ID,2,4,5,6,16,11"
+          computes:
+            # Keep only present blades (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
+            # ID;Presence;Vendor;Model;StatusLED
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,-4,-2"
+          - type: leftConcat
+            column: 7
+            value: "Location: "
+      mapping:
+        # The instance table = Source(1)
+        # ID;Presence;Model;Serial;Firmware;Size;ArrayLocation
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          vendor: $column(3)
+          firmware_version: $column(5)
+          serial_number: $column(4)
+          info: $column(7)
+          hw.parent.type: enclosure
+          hw.parent.id: IntelChassis
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(3), $column(6))"
+        metrics:
+          hw.physical_disk.size: $column(6)
+    collect:
+      # Collect type is "multi-instance" (one collect for all instances)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Shared Drives Table
+          # ID;OperationalStatus;PFA;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.205.2.1
+          selectColumns: "ID,8,9"
+          computes:
+            # Translating the Disk Status into a Patrol Status (this can be expanded if we ever know more about potential status than "ok")
+            # ID;PatrolOperationalStatus;PFA;
+          - type: translate
+            column: 2
+            translationTable: DiskStatusTranslationTable
+            # Translating the LED Fault Status (as in collect)
+            # ID;PatrolOperationalStatus;PatrolPFA;
+          - type: translate
+            column: 3
+            translationTable: DiskPFATranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;PatrolOperationalStatus;PatrolPFA;
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(3))
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Fan Fru Table  (FAN Controllers / Modules)
+          # ID;Presence;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.206.1.1
+          selectColumns: "ID,2,12"
+          computes:
+            # Keep only present Fans (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
+            # ID;Presence;FaultLED;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,-4,-2"
+            # Translating the LED Fault Status (as in collect)
+            # ID;Presence;FaultLED;
+          - type: translate
+            column: 3
+            translationTable: LEDStatusTranslationTable
+            # Exclude Fan Modules that have no status
+            # ID;Presence;FaultLED;
+          - type: excludeMatchingLines
+            column: 3
+            regExp: UNKNOWN
+            # Add columns
+            # ID;Presence;FaultLED;Type;(MinThreshold);
+          - type: rightConcat
+            column: 3
+            value: ;Fan Module;
+        source(2):
+          # Source(2) = Fan Table (Actual Fans)
+          # ID;MinThreshold;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.206.2.1
+          selectColumns: "ID,2"
+          computes:
+            # Add columns
+            # ID;(Presence);(FaultLED);Type;MinThreshold;
+          - type: leftConcat
+            column: 2
+            value: ;;Fan;
+        source(3):
+          # Source(3) = Power Supply Fan Table (Actual Fans)
+          # ID;MinThreshold;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.207.2.1
+          selectColumns: "ID,2"
+          computes:
+            # Add columns
+            # ID;(Presence);(FaultLED);Type;MinThreshold;
+          - type: leftConcat
+            column: 2
+            value: ;;Power Supply Fan;
+            # Add PS- to the ID
+            # ID;(Presence);(FaultLED);Type;MinThreshold;
+          - type: leftConcat
+            column: 1
+            value: PS-
+        source(4):
+          # Source(4) = Union of (1) and (2) and (3)
+          # ID;Presence;FaultLED;Type;MinThreshold;
+          type: tableUnion
+          tables:
+          - $monitors.fan.discovery.sources.source(1)$
+          - $monitors.fan.discovery.sources.source(2)$
+          - $monitors.fan.discovery.sources.source(3)$
+      mapping:
+        # InstanceTable = Source(4)
+        # ID;Presence;FaultLED;Type;MinThreshold;
+        source: $monitors.fan.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: IntelChassis
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
+    collect:
+      # Collect type is "multi-instance" (one collect for all instances)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Fan Fru Table  (FAN Controllers / Modules)
+          # ID;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.206.1.1
+          selectColumns: "ID,12"
+          computes:
+            # Translating the LED Fault Status
+            # ID;FaultLED;
+          - type: translate
+            column: 2
+            translationTable: LEDStatusTranslationTable
+            # Add columns
+            # ID;FaultLED;(Speed);
+          - type: rightConcat
+            column: 2
+            value: ;
+        source(2):
+          # Source(2) = Fan Table (Actual Fans)
+          # ID;Speed;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.206.2.1
+          selectColumns: "ID,4"
+          computes:
+            # Add columns
+            # ID;(FaultLED);Speed;
+          - type: leftConcat
+            column: 2
+            value: ;
+        source(3):
+          # Source(3) = Fan Table (Actual Fans)
+          # ID;Speed;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.207.2.1
+          selectColumns: "ID,4"
+          computes:
+            # Add columns
+            # ID;(FaultLED);Speed;
+          - type: leftConcat
+            column: 2
+            value: ;
+            # Add PS- to the ID
+            # ID;(FaultLED);Speed;
+          - type: leftConcat
+            column: 1
+            value: PS-
+        source(4):
+          # Source(4) = Union of (1) and (2) and (3)
+          # ID;FaultLEDStatus;Speed;
+          type: tableUnion
+          tables:
+          - $monitors.fan.collect.sources.source(1)$
+          - $monitors.fan.collect.sources.source(2)$
+          - $monitors.fan.collect.sources.source(3)$
+      mapping:
+        # ValueTable = Source(4)
+        # ID;FaultLEDStatus;Speed;
+        source: $monitors.fan.collect.sources.source(4)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = PowerSupply Fru Table  (PowerSupply Controllers / Modules)
+          # ID;Presence;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.207.1.1
+          selectColumns: "ID,2,12"
+          computes:
+            # Keep only present PowerSupplys (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
+            # ID;Presence;FaultLED;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,-4,-2"
+            # Translating the LED Fault Status (as in collect)
+            # ID;Presence;FaultLED;
+          - type: translate
+            column: 3
+            translationTable: LEDStatusTranslationTable
+            # Exclude PowerSupply Modules that have no status
+            # ID;Presence;FaultLED;
+          - type: excludeMatchingLines
+            column: 3
+            regExp: UNKNOWN
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Presence;FaultLED;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: IntelChassis
+          name: $column(1)
+    collect:
+      # Collect type is "multi-instance" (one collect for all instances)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = PowerSupply Fru Table
+          # ID;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.207.1.1
+          selectColumns: "ID,12"
+          computes:
+            # Translating the LED Fault Status
+            # ID;FaultLED;
+          - type: translate
+            column: 2
+            translationTable: LEDStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;FaultLEDStatus;Speed;
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CMM (Chassis Management Modules)
+          # ID;Presence;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.201.2.1
+          selectColumns: "ID,2,14"
+          computes:
+            # Add CMM- to the ID and Type Column "Chassis Management Module"
+            # Type;ID;Presence;FaultLED;
+          - type: leftConcat
+            column: 1
+            value: Chassis Management Module;CMM-
+        source(2):
+          # Source(2) = Chassis Switches
+          # ID;Presence;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.203.1.1
+          selectColumns: "ID,2,14"
+          computes:
+            # Add Switch- to the ID and Type Column "Chassis Switch"
+            # Type;ID;Presence;FaultLED;
+          - type: leftConcat
+            column: 1
+            value: Chassis Switch;Switch-
+        source(3):
+          # Source(3) = Union of (1) and (2)
+          # Type;ID;Presence;FaultLED;
+          type: tableUnion
+          tables:
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
+          computes:
+            # Keep only present OtherDevices (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
+            # Type;ID;Presence;FaultLED;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: "1,-4,-2"
+            # Translating the LED Fault Status (as in collect)
+            # Type;ID;Presence;FaultLED;
+          - type: translate
+            column: 4
+            translationTable: LEDStatusTranslationTable
+            # Exclude OtherDevice Modules that have no status
+            # Type;ID;Presence;FaultLED;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: UNKNOWN
+      mapping:
+        # InstanceTable = Source(3)
+        # Type;ID;Presence;FaultLED;
+        source: $monitors.other_device.discovery.sources.source(3)$
+        attributes:
+          id: $column(2)
+          device_type: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: IntelChassis
+          name: "sprintf(\"%s: %s\", $column(1), $column(2))"
+    collect:
+      # Collect type is "multi-instance" (one collect for all instances)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = OtherDevice Fru Table
+          # ID;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.201.2.1
+          selectColumns: "ID,14"
+          computes:
+            # Add CMM- to the ID
+            # / ID;FaultLED;
+          - type: leftConcat
+            column: 1
+            value: CMM-
+        source(2):
+          # Source(1) = OtherDevice Fru Table
+          # ID;FaultLED;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.203.1.1
+          selectColumns: "ID,14"
+          computes:
+            # Add Switch- to the ID
+            # / ID;FaultLED;
+          - type: leftConcat
+            column: 1
+            value: Switch-
+        source(3):
+          # Source(3) = Union of (1) and (2)
+          # / ID;FaultLED;
+          type: tableUnion
+          tables:
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+          computes:
+            # Translating the LED Fault Status
+            # ID;FaultLED;
+          - type: translate
+            column: 2
+            translationTable: LEDStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;FaultLED;
+        source: $monitors.other_device.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = switchPhyPortsEntry
+          # ID;PortName
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.203.2.1
+          selectColumns: "ID,2"
+        source(2):
+          # Source(2) = switchIfEntry
+          # ID;MAC;OpStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.203.3.1
+          selectColumns: "ID,6,8"
+        source(3):
+          # Source(3) = Source(1) + Source(2)
+          # ID;PortName;ID;MAC;OpStatus
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Keep only network cards with an up(1) down(2) or dormant (5) operational status
+            # There is no real status, so will only use the linkstatus parameter
+            # ID;PortName;ID;MAC;OpStatus
+          - type: keepOnlyMatchingLines
+            column: 5
+            valueList: "1,2,5"
+      mapping:
+        # InstanceTable = Source(3)
+        # ID;PortName;ID;MAC;OpStatus
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      # Collect type is "multi-instance" (one collect for all instances)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = switchIfEntry
+          # ID;Speed;receivedbytes;transmittedbytes;operationalstatus;inErrorCount;outErrorCount
+          type: snmpTable
+          oid: 1.3.6.1.4.1.343.2.19.1.2.10.203.3.1
+          selectColumns: "ID,5,10,16,8,14,20"
+          computes:
+            # Errorcount = In + Out errorcount
+            # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
+          - type: add
+            column: 6
+            value: Column(7)
+          # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
+          - type: duplicateColumn
+            column: 5
+            # Translate the Link Status
+            # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
+          - type: translate
+            column: 6
+            translationTable: GenericLinkStatusTranslationTable
+            # Translate the Status
+            # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
+          - type: translate
+            column: 5
+            translationTable: networkStatusTranslationTable
+            # Convert LinkSpeed into Mbp/s
+            # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
+          - type: divide
+            column: 2
+            value: 1000000
+      mapping:
+        # ValueTable = Source(1)
+        # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(5)
+          hw.network.up: legacyLinkStatus($column(6))
+          hw.errors{hw.type="network"}: $column(7)
+          hw.network.io{direction="receive"}: $column(3)
+          hw.network.io{direction="transmit"}: $column(4)
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+translations:
+  DiskStatusTranslationTable:
+    default: failed
+    ok: ok
+  DiskPFATranslationTable:
+    default: "true"
+    ok: "false"
+  networkStatusTranslationTable:
+    "1": ok
+    "2": ok
+    "3": degraded
+    "4": UNKNOWN
+    "5": degraded
+    "6": failed
+  GenericLinkStatusTranslationTable:
+    "1": ok
+    "2": degraded
+  LEDStatusTranslationTable:
+    "0": ok
+    "1": degraded
+    "-16": UNKNOWN
+    "2": failed
+    default: UNKNOWN
+    "-1": UNKNOWN
+    "-4": ok
+    "-32": UNKNOWN

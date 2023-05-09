@@ -1,0 +1,69 @@
+---
+connector:
+  displayName: IBM AIX - usysfault
+  platforms: IBM POWER
+  reliesOn: IBM AIX usysfault command
+  information: Provides the status of the System Attention LED of an IBM AIX server.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - RS6000
+    criteria:
+    # OS should be AIX (whatever version)
+    - type: deviceType
+      keep:
+      - RS6000
+    # usysfault has to return either normal or fault
+    - type: osCommand
+      commandLine: "%{SUDO:/usr/lpp/diagnostics/bin/usysfault}/usr/lpp/diagnostics/bin/usysfault"
+      expectedResult: ^\(normal\)\|\(fault\)$
+sudoCommands:
+- /usr/lpp/diagnostics/bin/usysfault
+monitors:
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Static table: one line to create the instance corresponding to one LED: the System Attention LED
+          # LEDID;Label;Color;OnStatus;BlinkingStatus;OffStatus;
+          type: static
+          value: SystemAttention;System Attention;Amber;ALARM;ALARM;OK;
+      mapping:
+        # The discovery table
+        source: $monitors.led.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          color: $column(3)
+          __on_status: $column(4)
+          __blinking_status: $column(5)
+          __off_status: $column(6)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
+    collect:
+      # Collect type = mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(1) = /usr/lpp/diagnostics/bin/usysfault
+          # ledStatus
+          type: osCommand
+          commandLine: /usr/lpp/diagnostics/bin/usysfault
+          selectColumns: 1
+          computes:
+            # Translate the first status column into a PATROL status
+            # ledStatus
+          - type: translate
+            column: 1
+            translationTable: LEDStatusTranslationTable
+      mapping:
+        # CollectTable = Source(1)
+        source: $monitors.led.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="led"}: legacyLedStatus($column(1))
+translations:
+  LEDStatusTranslationTable:
+    normal: "Off"
+    default: "Off"
+    fault: "On"

@@ -1,0 +1,971 @@
+---
+connector:
+  displayName: Oracle/Sun Solaris - Environment (prtpicl)
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (prtpicl, etc.)"
+  information: "Gives environmental information (temperatures, fans, etc.) on several Sun platforms through the prtpicl utility. This connector is mainly to be used on Solaris 10 systems."
+  version: 1.4
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Solaris
+    supersedes:
+    - SunScSnapshot
+    - IpmiTool
+    criteria:
+    # OS should be SunOS or Solaris
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    # we should find the prtpicl utility
+    - type: osCommand
+      commandLine: /bin/ls /usr/sbin/prtpicl
+      expectedResult: ^/usr/sbin/prtpicl$
+    # prtpicl should return something when asked for temperatures
+    - type: osCommand
+      commandLine: /usr/sbin/prtpicl -v -c temperature-sensor;/usr/sbin/prtpicl -v -c temperature-indicator
+      expectedResult: "\\(Temperature[ \t]+[0-9]\\)\\|\\(Condition[ \t]+[A-Za-z]\\)"
+    # check that prtld hasn't failed
+    - type: osCommand
+      commandLine: PRTPICLCOUNT=`pgrep prtpicl|wc -l` ; if /bin/test $PRTPICLCOUNT -lt 30; then echo MSHW_prtld_OK; else echo $PRTPICLCOUNT prtpicl processes running - suspect prtld service failure; fi
+      expectedResult: MSHW_prtld_OK
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of /usr/sbin/prtpicl -v|awk '/:PlatformName/ { print $0; exit; }'
+          # ModelString
+          type: osCommand
+          commandLine: "/usr/sbin/prtpicl -v|/usr/bin/awk '/:PlatformName/ { print $0; exit; }'"
+          timeout: 90
+          keep: :PlatformName
+          separators: ' '
+          selectColumns: 2
+          computes:
+            # Extract what is after the comma
+            # ModelString is originally like SUNW,Sun-Fire-240
+            # We just want Sun-Fire-240
+          - type: extract
+            column: 1
+            subSeparators: ","
+            subColumn: 2
+          # Replace dashes with spaces
+          - type: replace
+            column: 1
+            existingValue: '-'
+            newValue: ' '
+          # Replace GPUS with "Fujitsu PRIMEPOWER
+          - type: replace
+            column: 1
+            existingValue: GPUS
+            newValue: Fujitsu PRIMEPOWER
+        source(2):
+          # Source(2) = output of prtpicl
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl
+          computes:
+            # Parse the output of prtpicl with an AWK script to get the path of each devices
+            # DeviceID;Class;DevicePath;DisplayID;
+          - type: awk
+            script: EmbeddedFile(6)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # The discovery table
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: SUN
+          model: $column(1)
+          type: Computer
+          name: "sprintf(\"Computer: (%s)\", $column(1))"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c fan;/usr/sbin/prtpicl -v -c rpm-sensor"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c fan;/usr/sbin/prtpicl -v -c rpm-sensor
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of fans
+            # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10"
+            # Convert WarningThresholdHex from hex2dec
+            # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;
+          - type: convert
+            column: 9
+            conversion: hex2Dec
+            # Left Concat the Hex Value to the Dec Value (One of the two should be empty) for all three values
+            # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;
+          - type: leftConcat
+            column: 3
+            value: Column(9)
+          - type: leftConcat
+            column: 4
+            value: Column(7)
+          - type: leftConcat
+            column: 5
+            value: Column(8)
+        source(2):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;DeviceID;Class;DevicePath;DisplayID;
+          type: tableJoin
+          leftTable: $monitors.fan.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          - type: duplicateColumn
+            column: 12
+          - type: leftConcat
+            column: 13
+            value: "Device Path: "
+      mapping:
+        # The instance table
+        # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;DeviceID;Class;DevicePath;DisplayID;
+        source: $monitors.fan.discovery.sources.source(2)$
+        attributes:
+          id: $column(12)
+          __display_id: $column(14)
+          info: $column(13)
+          hw.parent.type: enclosure
+          name: $column(14)
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c fan;/usr/sbin/prtpicl -v -c rpm-sensor"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c fan;/usr/sbin/prtpicl -v -c rpm-sensor
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of fans
+            # DeviceID;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,5,6,7,8,9"
+            # Convert SpeedHex from hex2dec
+            # DeviceID;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;
+          - type: convert
+            column: 5
+            conversion: hex2Dec
+            # Convert SpeedPercentHex from hex2dec
+            # DeviceID;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;
+          - type: convert
+            column: 6
+            conversion: hex2Dec
+            # Left Concat the Hex Value to the Dec Value (One of the two should be empty) for all three values
+            # DeviceID;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;
+          - type: leftConcat
+            column: 2
+            value: Column(5)
+          - type: leftConcat
+            column: 3
+            value: Column(6)
+            # Duplicate the status column
+            # DeviceID;Speed;SpeedPercent;Status;StatusInformation;SpeedHex;SpeedPercentHex;
+          - type: duplicateColumn
+            column: 4
+            # Translate the status
+            # DeviceID;Speed;SpeedPercent;PATROLStatus;StatusInformation;SpeedHex;SpeedPercentHex;
+          - type: translate
+            column: 4
+            translationTable: PrtDiagStatusTranslationTable
+        source(2):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;Speed;SpeedPercent;PATROLStatus;StatusInformation;SpeedHex;SpeedPercentHex;DeviceID;Class;DevicePath;
+          type: tableJoin
+          leftTable: $monitors.fan.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # CollectTable = Source(1)
+        # DeviceID;Speed;SpeedPercent;PATROLStatus;StatusInformation;SpeedHex;SpeedPercentHex;DeviceID;Class;DevicePath;
+        source: $monitors.fan.collect.sources.source(2)$
+        deviceId: $column(10)
+        metrics:
+          hw.fan.speed: $column(2)
+          hw.fan.speed_ratio: percent2Ratio($column(3))
+          hw.status{hw.type="fan"}: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(5)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c temperature-sensor"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c temperature-sensor
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Temperatures
+            # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+        source(2):
+          # Source(2) = the output of "/usr/sbin/prtpicl -v -c temperature-indicator"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c temperature-indicator
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Temperatures
+            # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+        source(3):
+          # Source(3) = Table union of Source(1) and Source(2)
+          # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
+          type: tableUnion
+          tables:
+          - $monitors.temperature.discovery.sources.source(1)$
+          - $monitors.temperature.discovery.sources.source(2)$
+        source(4):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;DeviceID;Class;DevicePath;DisplayID;
+          type: tableJoin
+          leftTable: $monitors.temperature.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          - type: duplicateColumn
+            column: 8
+          - type: leftConcat
+            column: 9
+            value: "Device Path: "
+      mapping:
+        # InstanceTable = Source(4)
+        # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;DeviceID;Class;DevicePath;DisplayID;
+        source: $monitors.temperature.discovery.sources.source(4)$
+        attributes:
+          id: $column(8)
+          __display_id: $column(10)
+          info: $column(9)
+          hw.parent.type: enclosure
+          name: $column(10)
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+    collect:
+      # Collect type is all instances in one single shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c temperature-sensor"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c temperature-sensor
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Temperatures
+            # DeviceID;Temperature;EmptyStatus
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,5,6"
+        source(2):
+          # Source(2) = the output of "/usr/sbin/prtpicl -v -c temperature-indicator"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c temperature-indicator
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Temperatures
+            # DeviceID;EmptyTemperature;Status
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,5,6"
+        source(3):
+          # Source(3) = Table union of Source(1) and Source(2)
+          # DeviceID;Temperature;Status
+          type: tableUnion
+          tables:
+          - $monitors.temperature.collect.sources.source(1)$
+          - $monitors.temperature.collect.sources.source(2)$
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Temperature;Status;StatusInformation
+          - type: duplicateColumn
+            column: 3
+            # Translate the first Status column into a PATROL Status
+            # DeviceID;CurrentValue;PATROLStatus;StatusInformation
+          - type: translate
+            column: 3
+            translationTable: PrtDiagStatusTranslationTable
+        source(4):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;CurrentValue;PATROLStatus;StatusInformation;DeviceID;Class;DevicePath;
+          type: tableJoin
+          leftTable: $monitors.temperature.collect.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # Collect table = Source(1)
+        source: $monitors.temperature.collect.sources.source(4)$
+        deviceId: $column(7)
+        metrics:
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c voltage-sensor"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c voltage-sensor
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Voltages
+            # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7"
+            # Convert LowerThreshold from V to mV
+            # DeviceID;VoltageName;LowerThresholdmV;UpperThreshold;Voltage;Status;
+          - type: multiply
+            column: 3
+            value: 1000
+            # Convert UpperThreshold from V to mV
+            # DeviceID;VoltageName;LowerThresholdmV;UpperThresholdmV;Voltage;Status;
+          - type: multiply
+            column: 4
+            value: 1000
+        source(2):
+          # Source(2) = the output of "/usr/sbin/prtpicl -v -c voltage-indicator"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c voltage-indicator
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Voltages
+            # DeviceID;VoltageName;EmptyLowerThreshold;EmptyUpperThreshold;Voltage;Status;
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7"
+        source(3):
+          # Source(3) = Table union of Source(1) and Source(2)
+          # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;
+          type: tableUnion
+          tables:
+          - $monitors.voltage.discovery.sources.source(1)$
+          - $monitors.voltage.discovery.sources.source(2)$
+        source(4):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;DeviceID;Class;DevicePath;DisplayID;
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          - type: duplicateColumn
+            column: 9
+          - type: leftConcat
+            column: 10
+            value: "Device Path: "
+      mapping:
+        # InstanceTable = Source(3)
+        # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;DeviceID;Class;DevicePath;DisplayID;
+        source: $monitors.voltage.discovery.sources.source(4)$
+        attributes:
+          id: $column(9)
+          __display_id: $column(11)
+          info: $column(10)
+          hw.parent.type: enclosure
+          name: $column(11)
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(3)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
+    collect:
+      # Collect type is all instances in one single shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c voltage-sensor"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c voltage-sensor
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Voltages
+            # DeviceID;Voltage;EmptyStatus
+          - type: awk
+            script: EmbeddedFile(4)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,6,7"
+            # Convert LowerThreshold from V to mV
+            # DeviceID;VoltagemV;EmptyStatus
+          - type: multiply
+            column: 2
+            value: 1000
+        source(2):
+          # Source(2) = the output of "/usr/sbin/prtpicl -v -c voltage-indicator"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c voltage-indicator
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of Temperatures
+            # DeviceID;EmptyVoltage;Status
+          - type: awk
+            script: EmbeddedFile(5)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,6,7"
+        source(3):
+          # Source(3) = Table union of Source(1) and Source(2)
+          # DeviceID;Voltage;Status
+          type: tableUnion
+          tables:
+          - $monitors.voltage.collect.sources.source(1)$
+          - $monitors.voltage.collect.sources.source(2)$
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Voltage;Status;StatusInformation
+          - type: duplicateColumn
+            column: 3
+            # Translate the first Status column into a PATROL Status
+            # DeviceID;Voltage;PATROLStatus;StatusInformation
+          - type: translate
+            column: 3
+            translationTable: PrtDiagStatusTranslationTable
+        source(4):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;Voltage;PATROLStatus;StatusInformation;DeviceID;Class;DevicePath;
+          type: tableJoin
+          leftTable: $monitors.voltage.collect.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # Collect table = Source(1)
+        source: $monitors.voltage.collect.sources.source(4)$
+        deviceId: $column(7)
+        metrics:
+          hw.voltage: $column(2)
+          hw.status{hw.type="voltage"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c led"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c led
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of LEDs
+            # DeviceID;Description;Color/Name;
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+            # Duplicate the Color column
+            # DeviceID;Description;Color/Name;Color/Name;Color/Name;Color/Name;
+          - type: duplicateColumn
+            column: 3
+          - type: duplicateColumn
+            column: 3
+          - type: duplicateColumn
+            column: 3
+            # Translate the second Color column into a OnStatus
+            # DeviceID;Description;Color/Name;OnStatus;Color/Name;Color/Name;
+          - type: translate
+            column: 4
+            translationTable: LEDColor2OnStatusTranslationTable
+            # Translate the third Color column into a BlinkingStatus
+            # DeviceID;Description;Color/Name;OnStatus;BlinkingStatus;Color/Name;
+          - type: translate
+            column: 5
+            translationTable: LEDColor2BlinkingStatusTranslationTable
+            # Translate the fourth Color column into a OffStatus
+            # DeviceID;Description;Color/Name;OnStatus;BlinkingStatus;OffStatus;
+          - type: translate
+            column: 6
+            translationTable: LEDColor2OffStatusTranslationTable
+        source(2):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;Description;Color;OnStatus;BlinkingStatus;OffStatus;DeviceID;Class;DevicePath;DisplayID;
+          type: tableJoin
+          leftTable: $monitors.led.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          - type: duplicateColumn
+            column: 9
+          - type: leftConcat
+            column: 10
+            value: "Device Path: "
+      mapping:
+        # The instance table
+        # DeviceID;Description;Color;OnStatus;BlinkingStatus;OffStatus;DeviceID;Class;DevicePath;DisplayID;
+        source: $monitors.led.discovery.sources.source(2)$
+        attributes:
+          id: $column(9)
+          __display_id: $column(11)
+          color: $column(3)
+          __on_status: $column(4)
+          __blinking_status: $column(5)
+          __off_status: $column(6)
+          info: $column(10)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(11), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the output of "/usr/sbin/prtpicl -v -c led"
+          # prtpicl line
+          type: osCommand
+          commandLine: /usr/sbin/prtpicl -v -c led
+          computes:
+            # Send prtpicl's output to awk and get a beautiful table of fans
+            # DeviceID;State;
+          - type: awk
+            script: EmbeddedFile(7)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,5"
+            # Duplicate State column
+            # DeviceID;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate first State column into 0 (for Off), 1 (for Blinking) and 2 (for On)
+            # DeviceID;Status;State;
+          - type: translate
+            column: 2
+            translationTable: LEDStateTranslationTable
+        source(2):
+          # Table joint with Enclosure.discovery.source(2)
+          # DeviceID;Status;State;DeviceID;Class;DevicePath;
+          type: tableJoin
+          leftTable: $monitors.led.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.led.collect.sources.source(2)$
+        deviceId: $column(6)
+        metrics:
+          hw.status{hw.type="led"}: legacyLedStatus($column(2))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {
+        DeviceID = "";
+        WarningThreshold = "" ;
+        OperationalStatus="" ;
+        Speed = "" ;
+        Status = "" ;
+        SpeedPercent = "" ;
+        Switch = "" ;
+        Description = "";
+    }
+    ($2 == "(rpm-sensor," || $2 == "(fan,") { DeviceID = substr($3, 1, length($3) - 1); }
+    ($1 == ":SpeedUnit") { SpeedUnit = $2 }
+    ($1 == ":BaseUnits") { SpeedUnit = $2 }
+    ($1 == ":Description") { Description = $2; for (i=3 ; i<=NF ; i++) { Description = Description " " $i; } }
+    ($1 == ":LowWarningThreshold") { WarningThreshold = $2 }
+    ($1 == ":LowPowerOffThreshold") { PowerOffThreshold = $2 }
+    ($1 == ":OperationalStatus") { OperationalStatus = $2 }
+    ($1 == ":Speed") { Speed = $2 }
+    ($1 == ":Fan-speed") { Speed = $2 }
+    ($1 == ":Fan-switch") { Switch = $2 }
+    ($1 == ":State") { Status = $2 }
+    ($1 == ":name") {
+
+        if (Description == "")
+        {
+            Description = $2
+        }
+
+        if (Speed == "<ERROR:")
+        {
+            Speed = "UNKNOWN";
+        }
+
+        if (Status == "<ERROR:")
+        {
+            Status = "UNKNOWN";
+        }
+
+        if (Speed != "")
+        {
+            if (Speed ~ /^[0-9]+$/)
+            {
+                SpeedHex = "";
+            }
+            else if (substr(Speed, 1, 2) != "0x")
+            {
+                Speed = "UNKNOWN";
+                SpeedHex = "";
+            }
+            else {
+                    SpeedHex = Speed ;
+                    Speed = "" ;
+                   }
+        }
+
+        if (WarningThreshold == "" && PowerOffThreshold != "")
+        {
+        WarningThreshold = PowerOffThreshold
+        }
+
+        if (WarningThreshold != "")
+        {
+            if (substr(WarningThreshold, 1, 2) != "0x")
+            {
+                WarningThresholdHex = "";
+            }
+            else
+          {
+               WarningThresholdHex = WarningThreshold ;
+               WarningThreshold = "" ;
+          }
+        }
+
+        if (SpeedUnit == "%")
+        {
+            SpeedPercent = Speed;
+            SpeedPercentHex = SpeedHex;
+            Speed = "";
+            SpeedHex = "" ;
+            WarningThreshold = "";
+            WarningThresholdHex = "";
+        }
+
+        if (Status == "" && SpeedUnit != "%" && SpeedUnit != "rpm")
+        {
+            Status = SpeedUnit;
+        }
+
+        if (Switch == "OFF")
+        {
+            WarningThreshold = "";
+            Speed = "";
+        }
+
+        if (((SpeedHex != "") || (SpeedPercentHex != "") || (Speed != "") || (Status != "") || (SpeedPercent != "")) && (OperationalStatus != "disabled"))
+        {
+            print "MSHW;" DeviceID ";" Description ";" WarningThreshold ";" Speed ";" SpeedPercent ";" Status ";" SpeedHex ";" SpeedPercentHex ";" WarningThresholdHex ";"
+        }
+
+        SpeedUnit = "";
+        Speed = "";
+        SpeedHex = "" ;
+        SpeedPercent = "";
+        SpeedPercentHex = "";
+        WarningThreshold = "";
+        PowerOffThreshold = "";
+        WarningThresholdHex = "";
+        OperationalStatus="";
+        Status = "";
+        Switch = "";
+        Description = "";
+    }
+  EmbeddedFile(3): |-
+    BEGIN { DeviceID = ""; Status = ""; OperationalStatus=""; Name = ""; }
+    ($2 == "(temperature-indicator,") { DeviceID = substr($3, 1, length($3) - 1); }
+    ($1 == ":Condition") { Status = $2; }
+    ($1 == ":OperationalStatus") { OperationalStatus = $2 }
+    ($1 == ":name") {
+        Name = $2;
+
+        if (Status == "<ERROR:")
+        {
+            Status = "UNKNOWN";
+        }
+
+        if ((DeviceID != "") && (OperationalStatus != "disabled")) {print "MSHW;" DeviceID ";" Name ";;;" Status}
+
+        DeviceID = ""; Status = ""; Name = ""; OperationalStatus="";
+    }
+  EmbeddedFile(2): |-
+    function power(x, n) {
+        r = 1;
+        #Convert n to integer because if it's a negative value, java considere it as a string (I think :-) )
+        n=n*1
+        if (n > 0) { for (i = 0; i < n; i++) { r = r * x; } }
+        if (n < 0) { for (i = 0; i > n; i--) { r = r / x; } }
+        return r;
+    }
+
+    BEGIN { DeviceID = ""; WarningThreshold = ""; OperationalStatus=""; Temperature = ""; Name = ""; }
+    ($2 == "(temperature-sensor,") { DeviceID = substr($3, 1, length($3) - 1); }
+    ($1 == ":HighWarningThreshold") { WarningThreshold = $2 }
+    ($1 == ":OperationalStatus") { OperationalStatus = $2 }
+    ($1 == ":Temperature") { Temperature = $2 }
+    ($1 == ":Exponent") { Exponent = $2 }
+    ($1 == ":name") {
+        Name = $2;
+
+        if (Temperature == "<ERROR:")
+        {
+            Temperature = "UNKNOWN";
+        }
+
+        if (WarningThreshold == "<ERROR:")
+        {
+            WarningThreshold = "";
+        }
+        if (Exponent ~ /^-?[0-9]+$/)
+        {
+            if (Temperature ~ /^-?[0-9]+$/) { Temperature = Temperature * power(10,Exponent); }
+            if (WarningThreshold ~ /^-?[0-9]+$/) { WarningThreshold = WarningThreshold * power(10,Exponent); }
+        }
+
+        if ((DeviceID != "") && (OperationalStatus != "disabled")) {print "MSHW;" DeviceID ";" Name ";" WarningThreshold ";" Temperature ";"}
+
+        DeviceID = ""; WarningThreshold = ""; OperationalStatus=""; Temperature = ""; Name = "";
+    }
+  EmbeddedFile(5): |-
+    BEGIN { DeviceID = ""; Status = ""; OperationalStatus=""; Name = ""; }
+    ($2 == "(voltage-indicator,") { DeviceID = substr($3, 1, length($3) - 1); }
+    ($1 == ":Condition") { Status = $2 }
+    ($1 == ":OperationalStatus") { OperationalStatus = $2 }
+    ($1 == ":name") {
+        Name = $2
+
+        if (Status == "<ERROR:")
+        {
+            Status = "UNKNOWN";
+        }
+
+        if ((DeviceID != "") && (OperationalStatus != "disabled")) {print "MSHW;" DeviceID ";" Name ";;;;" Status}
+
+        DeviceID = ""; Status = ""; OperationalStatus=""; Name = "";
+    }
+  EmbeddedFile(4): |-
+    function power(x, n) {
+        r = 1;
+        #Convert n to integer because if it's a negative value, java considere it as a string  (I think :-) )
+        n=n*1
+        if (n > 0) { for (i = 0; i < n; i++) { r = r * x; } }
+        if (n < 0) { for (i = 0; i > n; i--) { r = r / x; } }
+        return r;
+    }
+
+
+    BEGIN { DeviceID = ""; LowerThreshold = "" ; UpperThreshold = "" ; Voltage = ""; Exponent = ""; OperationalStatus=""; Name = ""; }
+    ($2 == "(voltage-sensor,") { DeviceID = substr($3, 1, length($3) - 1); }
+    ($1 == ":LowWarningThreshold") { LowerThreshold = $2 }
+    ($1 == ":HighWarningThreshold") { UpperThreshold = $2 }
+    ($1 == ":Voltage") { Voltage = $2 }
+    ($1 == ":Exponent") { Exponent = $2 }
+    ($1 == ":OperationalStatus") { OperationalStatus = $2 }
+    ($1 == ":name") {
+        Name = $2;
+
+        if (Voltage == "<ERROR:")
+        {
+            Voltage = "UNKNOWN";
+        }
+        if (LowerThreshold == "<ERROR:")
+        {
+            LowerThreshold = "";
+        }
+        if (UpperThreshold == "<ERROR:")
+        {
+            UpperThreshold = "";
+        }
+
+        if (Exponent ~ /^-?[0-9]+$/)
+        {
+            if (Voltage != "") { Voltage = Voltage * power(10,Exponent); }
+            if (LowerThreshold != "") { LowerThreshold = LowerThreshold * power(10,Exponent); }
+            if (UpperThreshold != "") { UpperThreshold = UpperThreshold * power(10,Exponent); }
+        }
+
+        if ((DeviceID != "") && (OperationalStatus != "disabled")) {print "MSHW;" DeviceID ";" Name ";" LowerThreshold ";" UpperThreshold ";" Voltage ";"}
+
+        DeviceID = ""; LowerThreshold = "" ; UpperThreshold = "" ; Voltage = ""; Exponent = ""; OperationalStatus=""; Name = "";
+    }
+  EmbeddedFile(7): |-
+    BEGIN { DeviceID = ""; Status = ""; Name = ""; ModelName = ""; Color = ""; Description = ""; OperationalStatus=""; Status = ""; }
+    ($2 == "(led,") { DeviceID = substr($3, 1, length($3) - 1); }
+    ($1 == ":Color") { Color = $2 }
+    ($1 == ":ModelName") { ModelName = $2 }
+    ($1 == ":Description") { Description = $2; for (i=3 ; i<=NF ; i++) { Description = Description " " $i; } }
+    ($1 == ":OperationalStatus") { OperationalStatus = $2 }
+    ($1 == ":State") { Status = $2; }
+    ($1 == ":name") {
+        Name = $2;
+
+        if (Color == "<ERROR:")
+        {
+            Color = "";
+        }
+        if (Status == "<ERROR:")
+        {
+            Status = "UNKNOWN";
+        }
+
+        if (Color == "")
+        {
+            if (ModelName != "")
+            {
+                Color = ModelName;
+            }
+            else
+            {
+                Color = Name;
+            }
+        }
+        if (Color ~ /FAULT/ || Color ~ /FAIL/) { Color = "FAULT"; }
+        else if (Color ~ /ACT$/) { Color = "ACTIVITY"; }
+        else if (Color ~ /LOCATE/) { Color = "LOCATE"; }
+        else if (Color ~ /SERVICE/) { Color = "SERVICE"; }
+        else if (Color ~ /OK/) { Color = "OK"; }
+
+        if (Description == "" || Description ~ /Indicator/)
+        {
+            Description = Name;
+        }
+
+        if ((Status != "") && (DeviceID != "") && (OperationalStatus != "disabled"))
+        {
+            print "MSHW;" DeviceID ";" Description ";" Color ";" Status;
+        }
+
+        DeviceID = ""; Status = ""; Name = ""; ModelName = ""; Color = ""; Description = ""; OperationalStatus=""; Status = "";
+    }
+  EmbeddedFile(6): |-
+    BEGIN {
+        path = "";
+          }
+    {
+        name = $1;
+        ID = substr($3, 1, length($3) - 1);
+        className = substr($2, 2, length($2) - 2);
+
+        depth = (index($0, name) - 1) / 4;
+        if (depth < 0) { indent = 0; }
+
+        split(path, pathArray, "/");
+        path = "";
+        for (i=1 ; i<depth ; i++)
+        {
+            path = path pathArray[i] "/";
+        }
+        path = path name;
+        Output[path] = "MSHW;" ID ";" className ";" path ";"
+            classNameArray[path] = className
+            # Now build the rootpath for each class (but ensure that we have at least two strings and one slash in the eventual path).
+            if ( rootpathindex[className] == "" ) {
+                                                   initialrootpath = path ; gsub("[^/]+/[^/]+$","",initialrootpath);
+                                                   rootpathindex[className] = length(initialrootpath);
+                                                   rootpath[className] = substr(path,1,rootpathindex[className]);
+                                                  }
+                                             else { while ( substr(path,rootpathindex[className],1) != substr(rootpath[className],rootpathindex[className],1) ) {
+                                                            rootpathindex[className] = rootpathindex[className] - 1
+                                                            }
+                                                  }
+
+    }
+
+    END {
+         for (path in Output) {
+                               className=classNameArray[path];
+                               displayID = substr(path,rootpathindex[className]+1);
+                               print Output[path] displayID ";"
+                              }
+        }
+translations:
+  LEDColor2OffStatusTranslationTable:
+    red: ok
+    orange: ok
+    default: ok
+    green: ok
+    blue: ok
+    white: ok
+    locate: ok
+    activity: ok
+    service: ok
+    fault: ok
+    amber: ok
+    ok: ok
+  LEDColor2OnStatusTranslationTable:
+    red: failed
+    orange: ok
+    default: ok
+    green: ok
+    blue: ok
+    white: ok
+    locate: ok
+    activity: ok
+    service: failed
+    fault: failed
+    amber: failed
+    ok: ok
+  LEDStateTranslationTable:
+    flashing: Blinking
+    blinking: Blinking
+    steady: "On"
+    "off": "Off"
+    "on": "On"
+  LEDColor2BlinkingStatusTranslationTable:
+    red: degraded
+    orange: ok
+    default: degraded
+    green: ok
+    blue: ok
+    white: ok
+    locate: ok
+    activity: ok
+    service: failed
+    fault: failed
+    amber: degraded
+    ok: ok
+  PrtDiagStatusTranslationTable:
+    okay: ok
+    ? ""
+    : ok
+    normal: ok
+    green: ok
+    pass: ok
+    good: ok
+    unknown: UNKNOWN
+    '[no_fault]': ok
+    '[no_fault': ok
+    unplugged: ok
+    default: failed
+    (ok): ok
+    '[ok': ok
+    self-regulating: ok
+    no_status: ok
+    no_fault: ok
+    self: ok
+    tooslow: degraded
+    ok: ok

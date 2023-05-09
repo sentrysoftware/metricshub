@@ -1,0 +1,312 @@
+---
+connector:
+  displayName: APC PDU (SNMP)
+  platforms: APC PDU
+  reliesOn: PDU SNMP Enabled
+  version: 1.0
+  information: This connector provides hardware monitoring through APC PDU SNMP interface.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    criteria:
+    - type: snmpGet
+      oid: 1.3.6.1.4.1.318.1.1.26.2.1.3.1
+      expectedResult: PDU
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.318.1.1.26.2.1
+          selectColumns: "3,5,6,7,8,9"
+          computes:
+          - type: leftConcat
+            column: 4
+            value: "Date of Manufacture: "
+          - type: leftConcat
+            column: 3
+            value: "Firmware Version: "
+          - type: leftConcat
+            column: 2
+            value: "Hardware Revision: "
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          vendor: APC
+          model: $column(5)
+          serial_number: $column(6)
+          type: PDU
+          info: "join($column(2), $column(3), $column(4), \" \")"
+          name: "sprintf(\"Enclosure: (%s %s)\", \"APC\", $column(5))"
+    collect:
+      sources:
+        source(1):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.2.1.3.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+        source(2):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.4.3.1.4.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: enclosureStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: enclosureStatusInformationTranslationTable
+        source(3):
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(4):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.4.3.1.5.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+          - type: multiply
+            column: 2
+            value: 10
+        source(5):
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(3)$
+          rightTable: $monitors.enclosure.collect.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        source: $monitors.enclosure.collect.sources.source(5)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(4)
+          hw.enclosure.power: $column(7)
+          hw.enclosure.energy: fakeCounter($column(7))
+        legacyTextParameters:
+          StatusInformation: $column(5)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.2.1.3.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;Power Supply 1;
+        source(2):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.2.1.3.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;Power Supply 2;
+        source(3):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.4.3.1.13.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+          - type: excludeMatchingLines
+            column: 2
+            regExp: 3
+        source(4):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.4.3.1.14.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+          - type: excludeMatchingLines
+            column: 2
+            regExp: 3
+        source(5):
+          type: tableJoin
+          leftTable: $monitors.power_supply.discovery.sources.source(1)$
+          rightTable: $monitors.power_supply.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(6):
+          type: tableJoin
+          leftTable: $monitors.power_supply.discovery.sources.source(2)$
+          rightTable: $monitors.power_supply.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(7):
+          type: tableUnion
+          tables:
+          - $monitors.power_supply.discovery.sources.source(5)$
+          - $monitors.power_supply.discovery.sources.source(6)$
+      mapping:
+        source: $monitors.power_supply.discovery.sources.source(7)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          power_supply_type: PDU
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
+          name: "sprintf(\"%s (%s)\", $column(2), \"PDU\")"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.2.1.3.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+        source(2):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.4.3.1.13.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;Power Supply 1;
+          - type: duplicateColumn
+            column: 3
+          - type: translate
+            column: 3
+            translationTable: powerStatusTranslationTable
+          - type: translate
+            column: 4
+            translationTable: powerStatusInformationTranslationTable
+        source(3):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.4.3.1.14.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;Power Supply 2;
+          - type: duplicateColumn
+            column: 3
+          - type: translate
+            column: 3
+            translationTable: powerStatusTranslationTable
+          - type: translate
+            column: 4
+            translationTable: powerStatusInformationTranslationTable
+        source(4):
+          type: tableJoin
+          leftTable: $monitors.power_supply.collect.sources.source(1)$
+          rightTable: $monitors.power_supply.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(5):
+          type: tableJoin
+          leftTable: $monitors.power_supply.collect.sources.source(1)$
+          rightTable: $monitors.power_supply.collect.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+        source(6):
+          type: tableUnion
+          tables:
+          - $monitors.power_supply.collect.sources.source(4)$
+          - $monitors.power_supply.collect.sources.source(5)$
+      mapping:
+        source: $monitors.power_supply.collect.sources.source(6)$
+        deviceId: $column(4)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.2.1.3.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+        source(2):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.318.1.1.26.10.2.2.1.3.1
+          computes:
+          - type: leftConcat
+            column: 1
+            value: MSHW;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+        source(3):
+          type: tableJoin
+          leftTable: $monitors.temperature.discovery.sources.source(1)$
+          rightTable: $monitors.temperature.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        source: $monitors.temperature.discovery.sources.source(3)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(4)
+          sensor_location: enclosure
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), \"enclosure\")"
+    collect:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.318.1.1.26.10.2.2.1
+          selectColumns: "3,8,9"
+          computes:
+          - type: duplicateColumn
+            column: 3
+          - type: translate
+            column: 3
+            translationTable: tempStatusTranslationTable
+          - type: translate
+            column: 4
+            translationTable: tempStatusInfoTranslationTable
+      mapping:
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+translations:
+  enclosureStatusInformationTranslationTable:
+    "1": Low Load
+    "2": Normal
+    "3": Near Overload
+    "4": Overload
+  powerStatusInformationTranslationTable:
+    "1": Normal
+    "2": failed
+    "3": Not Installed
+  powerStatusTranslationTable:
+    "1": ok
+    "2": failed
+    default: ok
+    "3": failed
+  tempStatusTranslationTable:
+    "1": Not Present
+    "2": Below Minimum Threshold
+    default: ok
+    "3": Below Low Threshold
+    "4": Within Normal Threshold
+    "5": Above High Threshold
+    "6": Above Max Threshold
+  enclosureStatusTranslationTable:
+    "1": ok
+    "2": ok
+    "3": WARNING
+    "4": failed

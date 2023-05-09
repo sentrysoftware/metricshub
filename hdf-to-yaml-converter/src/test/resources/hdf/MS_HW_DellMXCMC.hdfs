@@ -1,0 +1,157 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//                  MS_HW_DellCMC.hdf
+//
+//      Supports: Dell Blade chassis with DRAC
+//		Monitors: the chassis'environment (temperatures, fans, power supplies)
+//      Connects to: the DRAC through Telnet
+//
+//
+
+//
+// HEADER
+//
+hdf.DisplayName="Dell MX7000 Chassis"
+hdf.TypicalPlatform="Dell MX7000 Chassis"
+hdf.ReliesOn="Dell MX7000 Management Module"
+hdf.Comments="Provides environmental information (temperatures, fans and power supplies) on Dell Blade servers through the Management Module"
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+// Includes
+#include MS_HW_DellCMC.hhdf
+
+// Define
+#define _Command racadm
+
+#define ENCLO_SOURCE_DISCO "%Enclosure.Discovery.Source(11)%"
+#define ENCLO_SOURCE_COL "%Enclosure.Collect.Source(10)%"
+
+//
+// DETECTION
+//
+
+// Host should respond to telnet the way described below
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="getsysinfo"
+Detection.Criteria(1).ExpectedResult="RAC"
+
+
+
+//
+// Discovery
+
+// Source(1) = Output of the getsysinfo command through telnet
+// Look for the "System Model=" line
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="_Command getsysinfo -c"
+
+//Enclosure.Discovery.Source(1).Separators=""
+
+// Parse the output of getsysinfo with an AWK script
+// Model;SerialNumber
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+
+// Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="_Command getsensorinfo"
+
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="_Command getmodinfo"
+
+Enclosure.Discovery.Source(4).Type="OSCommand"
+Enclosure.Discovery.Source(4).CommandLine="_Command getpbinfo"
+
+Enclosure.Discovery.Source(5).Type="OSCommand"
+Enclosure.Discovery.Source(5).CommandLine="_Command raid get vdisks -o"
+
+Enclosure.Discovery.Source(6).Type="OSCommand"
+Enclosure.Discovery.Source(6).CommandLine="_Command raid get pdisks -o"
+
+Enclosure.Discovery.Source(7).Type="OSCommand"
+Enclosure.Discovery.Source(7).CommandLine="_Command raid get tempprobes -o"
+
+Enclosure.Discovery.Source(8).Type="OSCommand"
+Enclosure.Discovery.Source(8).CommandLine="_Command raid get controllers -o"
+
+Enclosure.Discovery.Source(9).Type="OSCommand"
+Enclosure.Discovery.Source(9).CommandLine="_Command raid get batteries -o"
+
+Enclosure.Discovery.Source(10).Type="OSCommand"
+Enclosure.Discovery.Source(10).CommandLine="_Command chassislog view -s critical"
+
+Enclosure.Discovery.Source(11).Type="TableUnion"
+Enclosure.Discovery.Source(11).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(11).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(11).Table3=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(11).Table4=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(11).Table5=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(11).Table6=%Enclosure.Discovery.Source(7)%
+Enclosure.Discovery.Source(11).Table7=%Enclosure.Discovery.Source(8)%
+Enclosure.Discovery.Source(11).Table7=%Enclosure.Discovery.Source(9)%
+Enclosure.Discovery.Source(11).Table9=%Enclosure.Discovery.Source(10)%
+
+
+//
+// Collect
+
+Enclosure.Collect.Type="MonoInstance"
+
+// Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="_Command getsensorinfo"
+
+Enclosure.Collect.Source(2).Type="OSCommand"
+Enclosure.Collect.Source(2).CommandLine="_Command getmodinfo"
+
+Enclosure.Collect.Source(3).Type="OSCommand"
+Enclosure.Collect.Source(3).CommandLine="_Command getpbinfo"
+
+Enclosure.Collect.Source(4).Type="OSCommand"
+Enclosure.Collect.Source(4).CommandLine="_Command raid get vdisks -o"
+
+Enclosure.Collect.Source(5).Type="OSCommand"
+Enclosure.Collect.Source(5).CommandLine="_Command raid get pdisks -o"
+
+Enclosure.Collect.Source(6).Type="OSCommand"
+Enclosure.Collect.Source(6).CommandLine="_Command raid get tempprobes -o"
+
+Enclosure.Collect.Source(7).Type="OSCommand"
+Enclosure.Collect.Source(7).CommandLine="_Command raid get controllers -o"
+
+Enclosure.Collect.Source(8).Type="OSCommand"
+Enclosure.Collect.Source(8).CommandLine="_Command raid get batteries -o"
+
+Enclosure.Collect.Source(9).Type="OSCommand"
+Enclosure.Collect.Source(9).CommandLine="_Command chassislog view -s critical"
+
+Enclosure.Collect.Source(10).Type="TableUnion"
+Enclosure.Collect.Source(10).Table1=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(10).Table2=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(10).Table3=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(10).Table4=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(10).Table5=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.Source(10).Table6=%Enclosure.Collect.Source(6)%
+Enclosure.Collect.Source(10).Table7=%Enclosure.Collect.Source(7)%
+Enclosure.Collect.Source(10).Table8=%Enclosure.Collect.Source(8)%
+Enclosure.Collect.Source(10).Table9=%Enclosure.Collect.Source(9)%
+
+
+
+// Source(2) = Getslotname is not available on this platform, so just set to blank.
+Blade.Discovery.Source(2)=""

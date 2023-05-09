@@ -1,0 +1,657 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//
+//      Supports: Data Domain disk arrays
+//                Connects to Data Domain's SNMP Agent
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="Data Domain Storage Appliance (SNMP)"
+hdf.TypicalPlatform="Data Domain"
+hdf.ReliesOn="Data Domain SNMP Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure and the disks of Data Domain disk arrays as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+//
+// Detection
+//
+
+// Verify that the DDN SNMP agent responds to our requests
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.19746.1"
+
+// Enclosure
+// No real discovery, just a fake table .... as the MIB contains nothing about the enclosure.
+
+Enclosure.Discovery.InstanceTable="Data Domain Appliance"
+Enclosure.Discovery.Instance.DeviceID="Data Domain Appliance"
+Enclosure.Discovery.Instance.Vendor="Data Domain"
+Enclosure.Discovery.Instance.Type="Storage"
+
+
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = diskPropertiesTable
+// DeviceID;Enclosure;Model;Firmware;Serial;Size(TB/GB);Status;
+// or
+// DeviceID;Enclosure;;Model;Firmware;Serial;Size(TB/GB);Status;
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.6.1.1.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,4,5,6,7,8"
+
+// Process smcli's output through awk EmbeddedFile(1)
+// DeviceID;Enclosure;Model;Firmware;Serial;Size(GB);
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Awk"
+PhysicalDisk.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+PhysicalDisk.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PhysicalDisk.Discovery.Source(1).Compute(1).Separators=";"
+PhysicalDisk.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7"
+
+// Convert Size from Gbytes to bytes
+// DeviceID;Enclosure;Model;Firmware;Serial;Size(B);
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column="6"
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=1073741824
+
+// InstanceTable = Source(3)
+// DeviceID;Enclosure;Model;Firmware;Serial;SizeB;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+// PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = diskPropertiesTable
+// DeviceID;Enclosure;Model;Firmware;Serial;Size(TB/GB);Status;
+// or
+// DeviceID;Enclosure;;Model;Firmware;Serial;Size(TB/GB);Status;
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.6.1.1.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,1,3,4,5,6,7,8"
+
+// Process smcli's output through awk EmbeddedFile(1)
+// DiskID;Status;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Awk"
+PhysicalDisk.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+PhysicalDisk.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PhysicalDisk.Collect.Source(1).Compute(1).Separators=";"
+PhysicalDisk.Collect.Source(1).Compute(1).SelectColumns="2,8"
+
+// Duplicate the Status column
+// DiskID;Status;Status;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+
+// Translate the first status column into a PATROLStatus
+// DiskID;PATROLStatus;Status;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=2
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="diskStatusTranslationTable"
+
+// The diskStatusTranslationTable
+diskStatusTranslationTable(1)="OK"
+diskStatusTranslationTable(2)="UNKNOWN"
+diskStatusTranslationTable(3)="ALARM"
+diskStatusTranslationTable(4)="ALARM"
+diskStatusTranslationTable(5)="OK"
+diskStatusTranslationTable(6)="OK"
+diskStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column=3
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="diskStatusInformationTranslationTable"
+
+// The diskStatusInformationTranslationTable
+diskStatusInformationTranslationTable(1)="Ok"
+diskStatusInformationTranslationTable(2)="Unknown"
+diskStatusInformationTranslationTable(3)="Absent"
+diskStatusInformationTranslationTable(4)="Failed"
+diskStatusInformationTranslationTable(5)="Spare"
+diskStatusInformationTranslationTable(6)="Available"
+diskStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+//
+// LOGICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = fileSystem Table
+// DeviceID;Size(GB);;AvailableSpace(GB);;
+// or
+// ;DeviceID;Size(GB);;AvailableSpace(GB);
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.3.2.1.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="2,3,4,5,6"
+
+// Process the SNMP Table through EF3
+// DeviceID;Size(GB);AvailableSpace(GB);
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Awk"
+LogicalDisk.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+LogicalDisk.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+LogicalDisk.Discovery.Source(1).Compute(1).Separators=";"
+LogicalDisk.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Convert Size from Gbytes to bytes
+// DeviceID;Size(B);AvailableSpace(GB);
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(2).Column="2"
+LogicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=1073741824
+
+// InstanceTable = Source(3)
+// // DeviceID;Size(B);AvailableSpace(GB);
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(2)
+// LogicalDisk.Discovery.Instance.UseForCapacityReport=InstanceTable.Column(6)
+LogicalDisk.Discovery.Instance.ParameterActivation.UnallocatedSpace=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = diskPropertiesTable
+// DeviceID;Size(GB);AvailableSpace(GB);
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.3.2.1.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="2,3,4,5,6"
+
+// Process the SNMP Table through EF3
+// DeviceID;Size(GB);AvailableSpace(GB);
+LogicalDisk.Collect.Source(1).Compute(1).Type="Awk"
+LogicalDisk.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+LogicalDisk.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+LogicalDisk.Collect.Source(1).Compute(1).Separators=";"
+LogicalDisk.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Convert AvailableSpace from Gbytes to bytes
+// DeviceID;Size(GB);AvailableSpace(B);
+LogicalDisk.Collect.Source(1).Compute(2).Type="Multiply"
+LogicalDisk.Collect.Source(1).Compute(2).Column="3"
+LogicalDisk.Collect.Source(1).Compute(2).MultiplyBy=1073741824
+
+// The value table
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.UnallocatedSpace=ValueTable.Column(3)
+
+
+
+//
+// Power Supplies
+//
+
+// No OID shifting was required here as it appears the original MIB designers got it right first time around
+
+//
+// Discovery
+
+// Source(1) = Power Supply Table
+// DeviceID;Enclosure;Location;;
+
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.1.1.1.1.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3"
+
+
+// InstanceTable = Source(3)
+// DeviceID;Enclosure;Location;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = diskPropertiesTable
+// DeviceID;Status;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.1.1.1.1.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,4"
+
+// Translate the first status column into a PATROLStatus
+// DiskID;PATROLStatus;
+PowerSupply.Collect.Source(1).Compute(1).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).TranslationTable="powerSupplyStatusTranslationTable"
+
+// The powerSupplyStatusTranslationTable
+powerSupplyStatusTranslationTable(1)="OK"
+powerSupplyStatusTranslationTable(2)="UNKNOWN"
+powerSupplyStatusTranslationTable(3)="ALARM"
+powerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = Fan Table
+// DeviceID;Enclosure;Location;FanLevel;Status;
+// or
+// DeviceID;;Enclosure;Location;FanLevel;Status;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.1.3.1.1.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,4,5,6"
+
+// Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
+// DeviceID;Enclosure;Location;FanLevel;Status;
+Fan.Discovery.Source(1).Compute(1).Type="Awk"
+Fan.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+Fan.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(1).Compute(1).Separators=";"
+Fan.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6"
+
+// InstanceTable = Source(3)
+// DeviceID;Enclosure;Location;FanLevel;Status;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = diskPropertiesTable
+// DeviceID;Enclosure;Location;FanLevel;Status;
+// or
+// DeviceID;;Enclosure;Location;FanLevel;Status;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.1.3.1.1.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,1,3,4,5,6"
+
+// Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
+// DeviceID;Enclosure;Location;FanLevel;Status;
+Fan.Collect.Source(1).Compute(1).Type="Awk"
+Fan.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+Fan.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Collect.Source(1).Compute(1).Separators=";"
+Fan.Collect.Source(1).Compute(1).SelectColumns="2,3,4,5,6"
+
+// Translate the Level column to become Status Information
+// DeviceID;Enclosure;Location;FanLevel;Status;
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=4
+Fan.Collect.Source(1).Compute(2).TranslationTable="FanLevelTranslationTable"
+
+// The FanLevelTranslationTable
+FanLevelTranslationTable(0)=""
+FanLevelTranslationTable(1)="Speed Low"
+FanLevelTranslationTable(2)=""
+FanLevelTranslationTable(3)="Speed High"
+FanLevelTranslationTable(Default)="UNKNOWN"
+
+// Translate the first status column into a PATROLStatus
+// DeviceID;Enclosure;Location;FanLevel;PATROLStatus;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=5
+Fan.Collect.Source(1).Compute(3).TranslationTable="FanStatusTranslationTable"
+
+// The FanStatusTranslationTable
+// DiskID;Fan Level;PATROLStatus;
+FanStatusTranslationTable(0)="UNKNOWN"
+FanStatusTranslationTable(1)="OK"
+FanStatusTranslationTable(2)="ALARM"
+FanStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(5)
+Fan.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// Temperatures
+//
+
+//
+// Discovery
+
+// Source(1) = Temperature Table
+// DeviceID;Enclosure;Location;Temperature;Presence;
+// or
+// DeviceID;;Enclosure;Location;Temperature;Status;
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.1.2.1.1.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,4,5,6"
+
+// Thresholsd are not specified in the SNMP output.  According to Data Domain Documentation:
+// CPUs with relative temperature (negative values) - System shuts down at 0, Warns at -10
+// Older models, CPUs with normal temps (positive values) - System shutds down at 80, Warns at 70
+// Ambient - System Shuts Down at 60, Warns at 50
+// Will add these in the awk script
+
+// Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
+// DeviceID;Enclosure;Location;Presence;Threshold;
+Temperature.Discovery.Source(1).Compute(1).Type="Awk"
+Temperature.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Temperature.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Discovery.Source(1).Compute(1).Separators=";"
+Temperature.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,6,7"
+
+// Exclude Missing Sensors (0 = Absent, 2 = Not Found)
+// DeviceID;Enclosure;Location;Presence;Threshold;
+Temperature.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(1).Compute(2).Column=4
+Temperature.Discovery.Source(1).Compute(2).ValueList="0,2"
+
+
+// InstanceTable = Source(3)
+// DeviceID;Enclosure;Location;Presence;Threshold;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(3)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(5)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = Temperature Table
+// DeviceID;Enclosure;Location;Temperature;Presence;;
+// or
+// DeviceID;;Enclosure;Location;Temperature;Presence;
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.1.2.1.1.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="ID,1,3,4,5,6"
+
+// Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
+// DeviceID;Temperature;
+Temperature.Collect.Source(1).Compute(1).Type="Awk"
+Temperature.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Temperature.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Collect.Source(1).Compute(1).Separators=";"
+Temperature.Collect.Source(1).Compute(1).SelectColumns="2,5"
+
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+
+//
+// Batteries
+//
+
+//
+// Discovery
+
+// Source(1) = Battery Table
+// DeviceID
+Battery.Discovery.Source(1).Type="SnmpTable"
+Battery.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.2.3.1.1"
+Battery.Discovery.Source(1).SnmpTableSelectColumns="ID"
+
+// Duplicate the DeviceID
+// DeviceID,DeviceID
+Battery.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Battery.Discovery.Source(1).Compute(1).Column=1
+
+// Add a label to the battery
+// DeviceID,DisplayID
+Battery.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(2).Column=2
+Battery.Discovery.Source(1).Compute(2).String="NVRAM-"
+
+// InstanceTable = Source(1)
+// DeviceID
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = nvramBatteryTable
+// DeviceID;Status;Percentage
+// or
+// DeviceID;ID;Status;Percentage
+Battery.Collect.Source(1).Type="SnmpTable"
+Battery.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.2.3.1.1"
+Battery.Collect.Source(1).SnmpTableSelectColumns="ID,2,3,4"
+
+// Process the tabel through awk EmbeddedFile(5) due to a change in the location of information in the MIB
+Battery.Collect.Source(1).Compute(1).Type="Awk"
+Battery.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+Battery.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Battery.Collect.Source(1).Compute(1).Separators=";"
+Battery.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Duplicate the Status
+// DeviceID;Status;Status;Percentage
+Battery.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(2).Column=2
+
+// Translate the first status column into a PATROLStatus
+// DeviceID;PatrolStatus;Status;Percentage
+Battery.Collect.Source(1).Compute(3).Type="Translate"
+Battery.Collect.Source(1).Compute(3).Column=2
+Battery.Collect.Source(1).Compute(3).TranslationTable="BatteryStatusTranslationTable"
+
+// The BatteryStatusTranslationTable
+// DiskID;Battery Level;PATROLStatus;Percentage
+BatteryStatusTranslationTable(1)="OK"
+BatteryStatusTranslationTable(2)="OK"
+BatteryStatusTranslationTable(3)="OK"
+BatteryStatusTranslationTable(4)="WARN"
+BatteryStatusTranslationTable(5)="WARN"
+BatteryStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the Second Status to become Status Information
+// DeviceID;PatrolStatus;StatusInformation;Percentage
+Battery.Collect.Source(1).Compute(4).Type="Translate"
+Battery.Collect.Source(1).Compute(4).Column=3
+Battery.Collect.Source(1).Compute(4).TranslationTable="BatteryStatusInformationTranslationTable"
+
+// The BatteryStatusInformationTranslationTable
+BatteryStatusInformationTranslationTable(1)=""
+BatteryStatusInformationTranslationTable(2)="Disabled"
+BatteryStatusInformationTranslationTable(3)="Discharged"
+BatteryStatusInformationTranslationTable(4)="Unknown Status (Check Cabling)"
+BatteryStatusInformationTranslationTable(5)="Soft Disabled"
+BatteryStatusInformationTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(1)
+Battery.Collect.Status=ValueTable.Column(2)
+Battery.Collect.StatusInformation=ValueTable.Column(3)
+Battery.Collect.Charge=ValueTable.Column(4)
+
+
+
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Physical Disk Awk Script
+///						 DeviceID;Enclosure;Model;Firmware;Serial;Size(TB/GB);Status;
+///
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+BEGIN {FS=";";size=""}
+$6 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != "" {model=$3;gsub (/\"/,"",model);
+                                 firmware=$4;gsub (/\"/,"",firmware);
+                                 serial=$5;gsub (/\"/,"",serial);
+                                 size=$6;gsub (/[Gg].?[Bb]/,"",size); gsub (/\"/,"",size) ;
+                                 status=$7
+                                 if ($6 ~ /[Tt].?[Bb]/)
+                                 	{
+                                 		gsub (/[Tt].?[Bb]/,"",size);
+                                 		size = size * 1024;
+                                 	}
+                                 print ("MSHW;"$1";"$2";"model";"firmware";"serial";"size";"status";")
+                                 }
+
+$7 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != ""  {model=$4;gsub (/\"/,"",model);
+                                 firmware=$5;gsub (/\"/,"",firmware);
+                                 serial=$6;gsub (/\"/,"",serial);
+                                 size=$7;gsub (/[Gg].?[Bb]/,"",size); gsub (/\"/,"",size) ;
+                                 if ($7 ~ /[Tt].?[Bb]/)
+                                 	{
+                                 		gsub (/[Tt].?[Bb]/,"",size);
+                                 		size = size * 1024;
+                                 	}
+                                 status=$8
+                                 print ("MSHW;"$1";"$2";"model";"firmware";"serial";"size";"status";")
+                                 }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that takes output of Fan SNMP Table
+///    On older systems, 1.3.6.1.4.1.19746.1.1.3.1.1.1.4 = Fan Level which can only be an integer
+///    On newer systems, 1.3.6.1.4.1.19746.1.1.3.1.1.1.4 = Fan Description which means columns are not in the right place
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(2):
+BEGIN {FS=";";}
+NF > 4 && $1 != "" {if ($4 ~ /^[0-9]+$/) {print "MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";"}
+                       else  {print "MSHW;" $1 ";" $2 ";" $4 ";"    ";" $6 ";"}
+                   }
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that takes output of Logical Disk SNMP Table
+///    Older  DeviceID;Size(GB);;AvailableSpace(GB);;
+///    Newer  ;DeviceID;Size(GB);;AvailableSpace(GB);   (the first column will be the enclosure number which is what we check for in the if below)
+///    Output DeviceID;Size(GB);AvailableSpace(GB);
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(3):
+BEGIN {FS=";";}
+NF > 4 && $1 != "" {if ($1 ~ /^[0-9]+$/) {print "MSHW;" $2 ";" $3 ";" $5 ";"}
+                       else  {print "MSHW;" $1 ";" $2 ";" $4 ";"}
+                   }
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(4) = awk script that takes output of Temperature SNMP Table
+/// DeviceID;Enclosure;Location;Temperature;Presence;;
+/// DeviceID;;Enclosure;Location;Temperature;Presence; (the first column will be the enclosure number which is what we check for in the if below)
+/// DeviceID;Enclosure;Location;Temperature;Presence;
+/////////////////////////////////////////////////////////
+EmbeddedFile(4):
+BEGIN {FS=";";}
+NF > 4 && $1 != "" {if ($3 ~ /^[0-9]+$/) {warnThreshold = ""
+                                          if ($4 ~ /[Cc][Pp][Uu]/ && $5 ~ /^[-0-9.]*$/) {if ($5 > 0) {warnThreshold = 50};
+                                                                                        if ($5 <= 0) {warnThreshold = -10};
+                                                                                       }
+                                          if ($4 ~ /[Aa]mbient/ && $5 ~ /^[-0-9.]*$/) {warnThreshold = 50}
+                                          print "MSHW;" $1 ";" $3 ";" $4 ";" $5 ";" $6 ";" warnThreshold ";"
+                                         }
+                      else {warnThreshold = ""
+                            if ($3 ~ /[Cc][Pp][Uu]/ && $4 ~ /^[-0-9.]*$/) {if ($4 > 0) {warnThreshold = 70};
+                                                                          if ($4 <= 0) {warnThreshold = -10};
+                                                                         }
+                            if ($3 ~ /[Aa]mbient/ && $4 ~ /^[-0-9.]*$/) {warnThreshold = 50}
+                            print "MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" warnThreshold ";"
+                           }
+                   }
+EmbeddedFile(4).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = awk script that takes output of Battery SNMP Table
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+BEGIN {FS=";";}
+# The output can be either:
+# SNMPID;ID;Status;Percentage;
+# SNMPID;Status;Percentage;;
+# So if 4th column is empty, take first 3, else take 1,3,4th.
+$0 ~ /;/ {
+if ($4 == "") {print "MSHW;" $1 ";" $2 ";" $3 ";"}
+else { status = $3
+# The translation table has also changed, so let's remap
+# 0 = OK => 1
+# 1 = Disabled => 2
+# 2 = Discharged => 3
+# 3 = SoftDisabled => 5
+  if ( status == "3" ) { status = 5 }
+  else if ( status == "2" ) { status = 3 }
+  else if ( status == "1" ) { status = 2 }
+  else if ( status == "0" ) { status = 1 }
+  print "MSHW;" $1 ";" status ";" $4 ";"}
+}
+EmbeddedFile(5).End
+/////////////////////////////////////////////////////////////////////

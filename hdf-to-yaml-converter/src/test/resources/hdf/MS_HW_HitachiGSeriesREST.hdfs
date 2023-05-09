@@ -1,0 +1,966 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//              MS_HW_HitachiGSeriesREST.hdf
+//
+//          Supports:  Hitachi VSP F-Series and VSP G-Series Storage Systems
+//
+//
+
+// HEADER
+hdf.DisplayName="Hitachi G-Series (REST)"
+hdf.TypicalPlatform="Hitachi VSP F-Series and VSP G-Series Storage Systems"
+hdf.ReliesOn="Hitachi Configuration Manager"
+hdf.Comments="This connector provides hardware monitoring for VSP F-Series and G-Series Hitachi Storage Systems through the Hitachi Configuration Manager REST API."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+//
+// DETECTION
+//
+Detection.Criteria(1).Type="HTTP"
+Detection.Criteria(1).Method="GET"
+Detection.Criteria(1).URL="/ConfigurationManager/v1/objects/storages"
+Detection.Criteria(1).Header=EmbeddedFile(1)
+Detection.Criteria(1).ExpectedResult="storageDeviceId"
+Detection.Criteria(1).ErrorMessage="No storage devices detected. Host may not have the Hitachi Configuration Manager configured."
+
+//
+// Enclosure
+//
+
+// Discovery
+Enclosure.Discovery.Source(1).Type="HTTP"
+Enclosure.Discovery.Source(1).Method="GET"
+Enclosure.Discovery.Source(1).Url="/ConfigurationManager/v1/objects/storages"
+Enclosure.Discovery.Source(1).Header=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).ResultContent="body"
+
+// Extract enclosure(s) information
+// JSON_ID; ID; Model; Serial Number
+Enclosure.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(1).Compute(1).EntryKey="/data"
+Enclosure.Discovery.Source(1).Compute(1).Properties="/storageDeviceId;/model;/serialNumber"
+
+// Gather discovery of all components for future use
+Enclosure.Discovery.Source(2).Type="HTTP"
+Enclosure.Discovery.Source(2).Method="GET"
+Enclosure.Discovery.Source(2).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(2).Url="/ConfigurationManager/v1/objects/storages/%Entry.Column(2)%/components/instance"
+Enclosure.Discovery.Source(2).Header=EmbeddedFile(1)
+Enclosure.Discovery.Source(2).ResultContent="body"
+Enclosure.Discovery.Source(2).EntryConcatMethod="JSONArrayExtended"
+
+// Enclosure Instance Table - Source(2)
+// JSON_ID; ID; Model; Serial Number
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.DeviceHostname=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Vendor="Hitachi"
+
+// Collect
+Enclosure.Collect.Type="MultiInstance"
+
+// Collect all values for other class' collects
+Enclosure.Collect.Source(1).Type="HTTP"
+Enclosure.Collect.Source(1).Method="GET"
+Enclosure.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+Enclosure.Collect.Source(1).Url="/ConfigurationManager/v1/objects/storages/%Entry.Column(2)%/components/instance"
+Enclosure.Collect.Source(1).Header=EmbeddedFile(1)
+Enclosure.Collect.Source(1).ResultContent="body"
+Enclosure.Collect.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+// Source (2) = Source (1)
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Extract status
+// JSON_ID; ID; status
+Enclosure.Collect.Source(2).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(2).Compute(1).EntryKey="/entry/value/system"
+Enclosure.Collect.Source(2).Compute(1).Properties="../../Column(2);/powerConsumption"
+
+// Enclosure Instance Table - Source(2)
+// JSON_ID; ID; status
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
+
+//
+// Batteries
+//
+
+// Discovery
+// Copy the enclosure component discovery
+Battery.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract battery(s) information
+// JSON_ID; enclosureID; DeviceID; DisplayID; AttachedToDeviceID
+Battery.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Battery.Discovery.Source(1).Compute(1).EntryKey="/entry/value/bkmfs/batteries"
+Battery.Discovery.Source(1).Compute(1).Properties="../../../Column(2);/location;/location;../../../Column(2)"
+
+// Add enclosure name to device ID
+Battery.Discovery.Source(1).Compute(2).Type=LeftConcat
+Battery.Discovery.Source(1).Compute(2).Column=3
+Battery.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Add battery type
+// JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
+Battery.Discovery.Source(1).Compute(3).Type=RightConcat
+Battery.Discovery.Source(1).Compute(3).Column=4
+Battery.Discovery.Source(1).Compute(3).String=";Backup Module;Enclosure"
+
+// Copy the enclosure component discovery
+Battery.Discovery.Source(2)=%Enclosure.Discovery.Source(2)%
+
+// Extract battery(s) information
+// JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
+Battery.Discovery.Source(2).Compute(1).Type="Json2Csv"
+Battery.Discovery.Source(2).Compute(1).EntryKey="/entry/value/ctls"
+Battery.Discovery.Source(2).Compute(1).Properties="../../Column(2);/location;/location;/location"
+
+// Add enclosure name to device ID
+Battery.Discovery.Source(2).Compute(2).Type=LeftConcat
+Battery.Discovery.Source(2).Compute(2).Column=3
+Battery.Discovery.Source(2).Compute(2).String=Column(2)
+
+// Add enclosure name to device ID for attaching to disk controller
+Battery.Discovery.Source(2).Compute(3).Type=LeftConcat
+Battery.Discovery.Source(2).Compute(3).Column=5
+Battery.Discovery.Source(2).Compute(3).String=Column(2)
+
+// Add enclosure name to device ID for attaching to disk controller
+// JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
+Battery.Discovery.Source(2).Compute(4).Type=LeftConcat
+Battery.Discovery.Source(2).Compute(4).Column=5
+Battery.Discovery.Source(2).Compute(4).String="Disk Controller;DiskController;"
+
+// Source(3) = Union of Source(1) and Source(2)
+// JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
+Battery.Discovery.Source(3).Type="TableUnion"
+Battery.Discovery.Source(3).Table1=%Battery.Discovery.Source(1)%
+Battery.Discovery.Source(3).Table2=%Battery.Discovery.Source(2)%
+
+// Battery instance table - Source(3)
+// JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(3)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Battery.Discovery.Instance.Type=InstanceTable.Column(5)
+Battery.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(6)
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+
+// Collect
+Battery.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+Battery.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract battery(s) information
+// JSON_ID; enclosureID; DeviceID; status; status information
+Battery.Collect.Source(1).Compute(1).Type="Json2Csv"
+Battery.Collect.Source(1).Compute(1).EntryKey="/entry/value/bkmfs/batteries"
+Battery.Collect.Source(1).Compute(1).Properties="../../../Column(2);/location;/status;/status;"
+
+// Add enclosure name to device ID
+Battery.Collect.Source(1).Compute(2).Type=LeftConcat
+Battery.Collect.Source(1).Compute(2).Column=3
+Battery.Collect.Source(1).Compute(2).String=Column(2)
+
+// Translate status information to status value
+Battery.Collect.Source(1).Compute(3).Type=Translate
+Battery.Collect.Source(1).Compute(3).Column=4
+Battery.Collect.Source(1).Compute(3).TranslationTable="statusTranslationTable"
+
+// Copy the enclosure component collect
+Battery.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Extract battery(s) information
+// JSON_ID; enclosureID; DeviceID; DisplayID;
+Battery.Collect.Source(2).Compute(1).Type="Json2Csv"
+Battery.Collect.Source(2).Compute(1).EntryKey="/entry/value/ctls"
+Battery.Collect.Source(2).Compute(1).Properties="../../Column(2);/location;/charge"
+
+// Add enclosure name to device ID
+Battery.Collect.Source(2).Compute(2).Type=LeftConcat
+Battery.Collect.Source(2).Compute(2).Column=3
+Battery.Collect.Source(2).Compute(2).String=Column(2)
+
+// Add empty fields to prepare for table union
+Battery.Collect.Source(2).Compute(3).Type=LeftConcat
+Battery.Collect.Source(2).Compute(3).Column=4
+Battery.Collect.Source(2).Compute(3).String=";;"
+
+// Source(3) = Union of Source(1) and Source(2)
+// JSON_ID; enclosureID; DeviceID; status; status information; charge
+Battery.Collect.Source(3).Type="TableUnion"
+Battery.Collect.Source(3).Table1=%Battery.Collect.Source(1)%
+Battery.Collect.Source(3).Table2=%Battery.Collect.Source(2)%
+
+// Battery value table - Source(3)
+// JSON_ID; enclosureID; DeviceID; status; status information; charge
+Battery.Collect.ValueTable=%Battery.Collect.Source(3)%
+Battery.Collect.DeviceID=ValueTable.Column(3)
+Battery.Collect.Status=ValueTable.Column(4)
+Battery.Collect.Charge=ValueTable.Column(6)
+Battery.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// Disk Controllers
+//
+
+// Discovery
+// Copy the enclosure component discovery
+DiskController.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract disk controller(s) information
+// JSON_ID; enclosureID; deviceID; displayID
+DiskController.Discovery.Source(1).Compute(1).Type="Json2Csv"
+DiskController.Discovery.Source(1).Compute(1).EntryKey="/entry/value/ctls"
+DiskController.Discovery.Source(1).Compute(1).Properties="../../Column(2);/location;/location"
+
+// Add enclosure name to device ID
+DiskController.Discovery.Source(1).Compute(2).Type=LeftConcat
+DiskController.Discovery.Source(1).Compute(2).Column=3
+DiskController.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Disk controller instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; displayID
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collect
+DiskController.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+DiskController.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract disk controller(s) information
+// JSON_ID; enclosureID; deviceID; status; status information
+DiskController.Collect.Source(1).Compute(1).Type="Json2Csv"
+DiskController.Collect.Source(1).Compute(1).EntryKey="/entry/value/ctls"
+DiskController.Collect.Source(1).Compute(1).Properties="../../Column(2);/location;/status;/status"
+
+// Add enclosure name to device ID
+DiskController.Collect.Source(1).Compute(2).Type=LeftConcat
+DiskController.Collect.Source(1).Compute(2).Column=3
+DiskController.Collect.Source(1).Compute(2).String=Column(2)
+
+// Translate status information to status value
+DiskController.Collect.Source(1).Compute(3).Type=Translate
+DiskController.Collect.Source(1).Compute(3).Column=4
+DiskController.Collect.Source(1).Compute(3).TranslationTable="statusTranslationTable"
+
+// Disk controller instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; status; status information
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(3)
+DiskController.Collect.ControllerStatus=ValueTable.Column(4)
+DiskController.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// Fans
+//
+
+// Discovery
+// Copy the enclosure component discovery
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract fan(s) information
+// JSON_ID; enclosureID; deviceID; displayID
+Fan.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Fan.Discovery.Source(1).Compute(1).EntryKey="/entry/value/fans"
+Fan.Discovery.Source(1).Compute(1).Properties="../../Column(2);/location;/location"
+
+// Add enclosure name to device ID
+Fan.Discovery.Source(1).Compute(2).Type=LeftConcat
+Fan.Discovery.Source(1).Compute(2).Column=3
+Fan.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Fan instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; displayID
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collect
+Fan.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract fan(s) information
+// JSON_ID; enclosureID; deviceID; status; status information
+Fan.Collect.Source(1).Compute(1).Type="Json2Csv"
+Fan.Collect.Source(1).Compute(1).EntryKey="/entry/value/fans"
+Fan.Collect.Source(1).Compute(1).Properties="../../Column(2);/location;/status;/status"
+
+// Add enclosure name to device ID
+Fan.Collect.Source(1).Compute(2).Type=LeftConcat
+Fan.Collect.Source(1).Compute(2).Column=3
+Fan.Collect.Source(1).Compute(2).String=Column(2)
+
+// Translate status information to status value
+Fan.Collect.Source(1).Compute(3).Type=Translate
+Fan.Collect.Source(1).Compute(3).Column=4
+Fan.Collect.Source(1).Compute(3).TranslationTable="statusTranslationTable"
+
+// Fan instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; status; status information
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(3)
+Fan.Collect.Status=ValueTable.Column(4)
+Fan.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// LED
+//
+
+// Discovery
+// Copy the enclosure component discovery
+Led.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract led(s) information
+// JSON_ID; enclosureID; DeviceID; DisplayID;
+Led.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Led.Discovery.Source(1).Compute(1).EntryKey="/entry/value/driveboxes"
+Led.Discovery.Source(1).Compute(1).Properties="../../Column(2);/location;/location;"
+
+// Add enclosure name to device ID
+Led.Discovery.Source(1).Compute(2).Type=LeftConcat
+Led.Discovery.Source(1).Compute(2).Column=3
+Led.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Led instance table - Source(1)
+// JSON_ID; enclosureID; DeviceID; DisplayID;
+Led.Discovery.InstanceTable=%Led.Discovery.Source(1)%
+Led.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Led.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Led.Discovery.Instance.Name="Drive Box"
+Led.Discovery.Instance.OnStatus="ALARM"
+Led.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collect
+Led.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+Led.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract led(s) information
+// JSON_ID; enclosureID; DeviceID; status
+Led.Collect.Source(1).Compute(1).Type="Json2Csv"
+Led.Collect.Source(1).Compute(1).EntryKey="/entry/value/driveboxes"
+Led.Collect.Source(1).Compute(1).Properties="../../Column(2);/location;/led"
+
+// Add enclosure name to device ID
+Led.Collect.Source(1).Compute(2).Type=LeftConcat
+Led.Collect.Source(1).Compute(2).Column=3
+Led.Collect.Source(1).Compute(2).String=Column(2)
+
+// Led instance table - Source(1)
+// JSON_ID; enclosureID; DeviceID; status
+Led.Collect.ValueTable=%Led.Collect.Source(1)%
+Led.Collect.DeviceID=ValueTable.Column(3)
+Led.Collect.Status=ValueTable.Column(4)
+
+//
+// Memory
+//
+
+// Discovery
+// Copy the enclosure component discovery
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract memory(s) information
+// JSON_ID; enclosureID; deviceID; displayID; cache size
+Memory.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Memory.Discovery.Source(1).Compute(1).EntryKey="/entry/value/cacheMemories"
+Memory.Discovery.Source(1).Compute(1).Properties="../../Column(2);/location;/location;/cacheSize"
+
+// Add enclosure name to device ID
+Memory.Discovery.Source(1).Compute(2).Type=LeftConcat
+Memory.Discovery.Source(1).Compute(2).Column=3
+Memory.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Add memory type and model
+// JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
+Memory.Discovery.Source(1).Compute(3).Type=LeftConcat
+Memory.Discovery.Source(1).Compute(3).Column=5
+Memory.Discovery.Source(1).Compute(3).String="Cache Memory;;"
+
+// Copy the enclosure component discovery
+Memory.Discovery.Source(2)=%Enclosure.Discovery.Source(2)%
+
+// Extract memory(s) information
+// JSON_ID; enclosureID; deviceID; displayID; model
+Memory.Discovery.Source(2).Compute(1).Type="Json2Csv"
+Memory.Discovery.Source(2).Compute(1).EntryKey="/entry/value/cacheFlashMemories"
+Memory.Discovery.Source(2).Compute(1).Properties="../../Column(2);/location;/location;/type"
+
+// Add enclosure name to device ID
+Memory.Discovery.Source(2).Compute(2).Type=LeftConcat
+Memory.Discovery.Source(2).Compute(2).Column=3
+Memory.Discovery.Source(2).Compute(2).String=Column(2)
+
+// Add memory type and model
+// JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
+Memory.Discovery.Source(2).Compute(3).Type=LeftConcat
+Memory.Discovery.Source(2).Compute(3).Column=5
+Memory.Discovery.Source(2).Compute(3)."Cache Flash Memory;"
+
+// Source(3) = Union of Source(1) and Source(2)
+// JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
+Memory.Discovery.Source(3).Type="TableUnion"
+Memory.Discovery.Source(3).Table1=%Memory.Discovery.Source(1)%
+Memory.Discovery.Source(3).Table2=%Memory.Discovery.Source(2)%
+
+// Memory instance table - Source(3)
+// JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(3)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Memory.Discovery.Instance.Type=InstanceTable.Column(5)
+Memory.Discovery.Instance.Model=InstanceTable.Column(6)
+Memory.Discovery.Instance.Size=InstanceTable.Column(7)
+
+// Collect
+Memory.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+Memory.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract memory(s) information
+// JSON_ID; enclosureID; deviceID; status; status information
+Memory.Collect.Source(1).Compute(1).Type="Json2Csv"
+Memory.Collect.Source(1).Compute(1).EntryKey="/entry/value/cacheMemories"
+Memory.Collect.Source(1).Compute(1).Properties="../../Column(2);/location;/status;/status"
+
+// Add enclosure name to device ID
+Memory.Collect.Source(1).Compute(2).Type=LeftConcat
+Memory.Collect.Source(1).Compute(2).Column=3
+Memory.Collect.Source(1).Compute(2).String=Column(2)
+
+// Translate status information to status value
+Memory.Collect.Source(1).Compute(3).Type=Translate
+Memory.Collect.Source(1).Compute(3).Column=4
+Memory.Collect.Source(1).Compute(3).TranslationTable="statusTranslationTable"
+
+// Copy the enclosure component collect
+Memory.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Extract memory(s) information
+// JSON_ID; enclosureID; deviceID; status; status information
+Memory.Collect.Source(2).Compute(1).Type="Json2Csv"
+Memory.Collect.Source(2).Compute(1).EntryKey="/entry/value/cacheFlashMemories"
+Memory.Collect.Source(2).Compute(1).Properties="../../Column(2);/location;/status;/status"
+
+// Add enclosure name to device ID
+Memory.Collect.Source(2).Compute(2).Type=LeftConcat
+Memory.Collect.Source(2).Compute(2).Column=3
+Memory.Collect.Source(2).Compute(2).String=Column(2)
+
+// Translate status information to status value
+Memory.Collect.Source(2).Compute(3).Type=Translate
+Memory.Collect.Source(2).Compute(3).Column=4
+Memory.Collect.Source(2).Compute(3).TranslationTable="statusTranslationTable"
+
+// Source(3) = Union of Source(1) and Source(2)
+// JSON_ID; enclosureID; DeviceID; status; status information
+Memory.Collect.Source(3).Type="TableUnion"
+Memory.Collect.Source(3).Table1=%Memory.Collect.Source(1)%
+Memory.Collect.Source(3).Table2=%Memory.Collect.Source(2)%
+
+// Memory instance table - Source(3)
+// JSON_ID; enclosureID; deviceID; status; status information
+Memory.Collect.ValueTable=%Memory.Collect.Source(3)%
+Memory.Collect.DeviceID=ValueTable.Column(3)
+Memory.Collect.Status=ValueTable.Column(4)
+Memory.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// NetworkCards
+//
+
+// Discovery
+NetworkCard.Discovery.Source(1).Type="HTTP"
+NetworkCard.Discovery.Source(1).Method="GET"
+NetworkCard.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+NetworkCard.Discovery.Source(1).Url="/ConfigurationManager/v1/objects/storages/%Entry.Column(2)%/ports"
+NetworkCard.Discovery.Source(1).Header=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).ResultContent="body"
+NetworkCard.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+// Extract network card(s) information
+// JSON_ID; enclosureID; deviceID; displayID; type
+NetworkCard.Discovery.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(1).Compute(1).EntryKey="/entry/value/data"
+NetworkCard.Discovery.Source(1).Compute(1).Properties="../../Column(2);/portId;/portId;/portType"
+
+// Add enclosure name to device ID
+NetworkCard.Discovery.Source(1).Compute(2).Type=LeftConcat
+NetworkCard.Discovery.Source(1).Compute(2).Column=3
+NetworkCard.Discovery.Source(1).Compute(2).String=Column(2)
+
+// NetworkCard instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; displayID; type
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(5)
+
+// Collect
+NetworkCard.Collect.Type="MultiInstance"
+
+NetworkCard.Collect.Source(1).Type="HTTP"
+NetworkCard.Collect.Source(1).Method="GET"
+NetworkCard.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+NetworkCard.Collect.Source(1).Url="/ConfigurationManager/v1/objects/storages/%Entry.Column(2)%/ports"
+NetworkCard.Collect.Source(1).Header=EmbeddedFile(1)
+NetworkCard.Collect.Source(1).ResultContent="body"
+NetworkCard.Collect.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+// Extract network card(s) information
+// JSON_ID; enclosureID; deviceID; speed
+NetworkCard.Collect.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(1).Compute(1).EntryKey="/entry/value/data"
+NetworkCard.Collect.Source(1).Compute(1).Properties="../../Column(2);/portId;/portSpeed"
+
+// Add enclosure name to device ID
+NetworkCard.Collect.Source(1).Compute(2).Type=LeftConcat
+NetworkCard.Collect.Source(1).Compute(2).Column=3
+NetworkCard.Collect.Source(1).Compute(2).String=Column(2)
+
+// Remove the "G" from the link speed
+NetworkCard.Collect.Source(1).Compute(3).Type=Replace
+NetworkCard.Collect.Source(1).Compute(3).Column=4
+NetworkCard.Collect.Source(1).Compute(3).Replace="G"
+NetworkCard.Collect.Source(1).Compute(3).ReplaceBy=""
+
+// Convert linkspeed from Gbps to Mbps
+NetworkCard.Collect.Source(1).Compute(4).Type=Multiply
+NetworkCard.Collect.Source(1).Compute(4).Column=4
+NetworkCard.Collect.Source(1).Compute(4).MultiplyBy=1000
+
+// Remove the "AUT" from the link speed
+NetworkCard.Collect.Source(1).Compute(5).Type=Replace
+NetworkCard.Collect.Source(1).Compute(5).Column=4
+NetworkCard.Collect.Source(1).Compute(5).Replace="AUT"
+NetworkCard.Collect.Source(1).Compute(5).ReplaceBy=""
+
+// NetworkCard instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; status; status information
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(3)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(4)
+
+//
+// Other Devices
+//
+
+// Discovery
+// Copy the enclosure component discovery
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract other device(s) information
+// JSON_ID; enclosureID; DeviceID; DisplayID
+OtherDevice.Discovery.Source(1).Compute(1).Type="Json2Csv"
+OtherDevice.Discovery.Source(1).Compute(1).EntryKey="/entry/value/driveboxes/encs"
+OtherDevice.Discovery.Source(1).Compute(1).Properties="../../../Column(2);/location;/location"
+
+// Remove results with no location
+OtherDevice.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(2).Column=4
+OtherDevice.Discovery.Source(1).Compute(2).RegExp="."
+
+// Add enclosure name to device ID
+OtherDevice.Discovery.Source(1).Compute(3).Type=LeftConcat
+OtherDevice.Discovery.Source(1).Compute(3).Column=3
+OtherDevice.Discovery.Source(1).Compute(3).String=Column(2)
+
+// Add enclosure name to device ID
+// JSON_ID; enclosureID; DeviceID; DisplayID; type
+OtherDevice.Discovery.Source(1).Compute(4).Type=RightConcat
+OtherDevice.Discovery.Source(1).Compute(4).Column=4
+OtherDevice.Discovery.Source(1).Compute(4).String=";Drive Box Enclosure"
+
+// OtherDevice instance table - Source(1)
+// JSON_ID; enclosureID; DeviceID; DisplayID; type
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(5)
+
+// Collect
+OtherDevice.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract other device(s) information
+// JSON_ID; enclosureID; DeviceID; status; status information
+OtherDevice.Collect.Source(1).Compute(1).Type="Json2Csv"
+OtherDevice.Collect.Source(1).Compute(1).EntryKey="/entry/value/driveboxes/encs"
+OtherDevice.Collect.Source(1).Compute(1).Properties="../../../Column(2);/location;/status;/status"
+
+// Remove results with no location
+OtherDevice.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+OtherDevice.Collect.Source(1).Compute(2).Column=3
+OtherDevice.Collect.Source(1).Compute(2).RegExp="."
+
+// Add enclosure name to device ID
+OtherDevice.Collect.Source(1).Compute(3).Type=LeftConcat
+OtherDevice.Collect.Source(1).Compute(3).Column=3
+OtherDevice.Collect.Source(1).Compute(3).String=Column(2)
+
+// Translate status information to status value
+OtherDevice.Collect.Source(1).Compute(4).Type=Translate
+OtherDevice.Collect.Source(1).Compute(4).Column=4
+OtherDevice.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// OtherDevice instance table - Source(1)
+// JSON_ID; enclosureID; DeviceID; status; status information
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(3)
+OtherDevice.Collect.Status=ValueTable.Column(4)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// Physical Disks
+//
+
+// Discovery
+PhysicalDisk.Discovery.Source(1).Type="HTTP"
+PhysicalDisk.Discovery.Source(1).Method="GET"
+PhysicalDisk.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(1).Url="/ConfigurationManager/v1/objects/storages/%Entry.Column(2)%/drives"
+PhysicalDisk.Discovery.Source(1).Header=EmbeddedFile(1)
+PhysicalDisk.Discovery.Source(1).ResultContent="body"
+PhysicalDisk.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+// Extract physical disk(s) information
+// JSON_ID; enclosureID; DeviceID; DisplayID; model; size
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(1).Compute(1).EntryKey="/entry/value/data"
+PhysicalDisk.Discovery.Source(1).Compute(1).Properties="../../Column(2);/driveLocationID;/driveLocationID;/driveType;/totalCapacity"
+
+// Add enclosure name to device ID
+PhysicalDisk.Discovery.Source(1).Compute(2).Type=LeftConcat
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Covert size from GB to B
+PhysicalDisk.Discovery.Source(1).Compute(3).Type=Multiply
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(3).MultiplyBy=1000000000
+
+// PhysicalDisk instance table - Source(1)
+// JSON_ID; enclosureID; DeviceID; DisplayID; model; size
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collect
+PhysicalDisk.Collect.Type="MultiInstance"
+
+PhysicalDisk.Collect.Source(1).Type="HTTP"
+PhysicalDisk.Collect.Source(1).Method="GET"
+PhysicalDisk.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+PhysicalDisk.Collect.Source(1).Url="/ConfigurationManager/v1/objects/storages/%Entry.Column(2)%/drives"
+PhysicalDisk.Collect.Source(1).Header=EmbeddedFile(1)
+PhysicalDisk.Collect.Source(1).ResultContent="body"
+PhysicalDisk.Collect.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+// Extract physical disk(s) information
+// JSON_ID; enclosureID; DeviceID; status; status information
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Collect.Source(1).Compute(1).EntryKey="/entry/value/data"
+PhysicalDisk.Collect.Source(1).Compute(1).Properties="../../Column(2);/driveLocationId;/status;/status"
+
+// Add enclosure name to device ID
+PhysicalDisk.Collect.Source(1).Compute(2).Type=LeftConcat
+PhysicalDisk.Collect.Source(1).Compute(2).Column=3
+PhysicalDisk.Collect.Source(1).Compute(2).String=Column(2)
+
+// Translate status information to status value
+PhysicalDisk.Collect.Source(1).Compute(3).Type=Translate
+PhysicalDisk.Collect.Source(1).Compute(3).Column=4
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="hddStatusTranslationTable"
+
+// Translate device status to readable status value
+PhysicalDisk.Collect.Source(1).Compute(4).Type=Translate
+PhysicalDisk.Collect.Source(1).Compute(4).Column=5
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="hddStatusInformationTranslationTable"
+
+// PhysicalDisk instance table - Source(1)
+// JSON_ID; enclosureID; DeviceID; status; status information
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(3)
+PhysicalDisk.Collect.Status=ValueTable.Column(4)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// PowerSupply
+//
+
+// Discovery
+// Copy the enclosure component discovery
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract power supply(s) information
+// JSON_ID; enclosureID; deviceID; displayID; type
+PowerSupply.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(1).Compute(1).EntryKey="/entry/value/chbbps"
+PowerSupply.Discovery.Source(1).Compute(1).Properties="../../Column(2);/location;/location"
+
+// Add enclosure name to device ID
+PowerSupply.Discovery.Source(1).Compute(2).Type=LeftConcat
+PowerSupply.Discovery.Source(1).Compute(2).Column=3
+PowerSupply.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Add power supply type
+PowerSupply.Discovery.Source(1).Compute(3).Type=RightConcat
+PowerSupply.Discovery.Source(1).Compute(3).Column=4
+PowerSupply.Discovery.Source(1).Compute(3).String=";Channel Board Box Power Supply"
+
+// Copy the enclosure component discovery
+PowerSupply.Discovery.Source(2)=%Enclosure.Discovery.Source(2)%
+
+// Extract power supply(s) information
+// JSON_ID; enclosureID; deviceID; displayID; type
+PowerSupply.Discovery.Source(2).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(2).Compute(1).EntryKey="/entry/value/dkcpss"
+PowerSupply.Discovery.Source(2).Compute(1).Properties="../../Column(2);/location;/location"
+
+// Add enclosure name to device ID
+PowerSupply.Discovery.Source(2).Compute(2).Type=LeftConcat
+PowerSupply.Discovery.Source(2).Compute(2).Column=3
+PowerSupply.Discovery.Source(2).Compute(2).String=Column(2)
+
+// Add power supply type
+// JSON_ID; enclosureID; deviceID; displayID; type
+PowerSupply.Discovery.Source(2).Compute(3).Type=RightConcat
+PowerSupply.Discovery.Source(2).Compute(3).Column=4
+PowerSupply.Discovery.Source(2).Compute(3).String=";Disk Controller Power Supply"
+
+// Copy the enclosure component discovery
+PowerSupply.Discovery.Source(3)=%Enclosure.Discovery.Source(2)%
+
+// Extract power supply(s) information
+// JSON_ID; enclosureID; deviceID; displayID; type
+PowerSupply.Discovery.Source(3).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(3).Compute(1).EntryKey="/entry/value/driveBoxes/dbps"
+PowerSupply.Discovery.Source(3).Compute(1).Properties="../../../Column(2);/location;/location"
+
+// Remove results with no location
+PowerSupply.Discovery.Source(3).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(3).Compute(2).Column=4
+PowerSupply.Discovery.Source(3).Compute(2).RegExp="."
+
+// Add enclosure name to device ID
+PowerSupply.Discovery.Source(3).Compute(3).Type=LeftConcat
+PowerSupply.Discovery.Source(3).Compute(3).Column=3
+PowerSupply.Discovery.Source(3).Compute(3).String=Column(2)
+
+// Add power supply type
+// JSON_ID; enclosureID; deviceID; displayID; type
+PowerSupply.Discovery.Source(3).Compute(4).Type=RightConcat
+PowerSupply.Discovery.Source(3).Compute(4).Column=4
+PowerSupply.Discovery.Source(3).Compute(4).String=";Drive Box Power Supply"
+
+// Source(4) = Union of Source(1), Source(2) and Source(3)
+// JSON_ID; enclosureID; deviceID; displayID; type
+PowerSupply.Discovery.Source(4).Type="TableUnion"
+PowerSupply.Discovery.Source(4).Table1=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(4).Table2=%PowerSupply.Discovery.Source(2)%
+PowerSupply.Discovery.Source(4).Table3=%PowerSupply.Discovery.Source(3)%
+
+// PowerSupply instance table - Source(4)
+// JSON_ID; enclosureID; deviceID; displayID; type
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(4)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(5)
+
+// Collect
+PowerSupply.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract network card(s) information
+// JSON_ID; enclosureID; deviceID; status; status information
+PowerSupply.Collect.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(1).Compute(1).EntryKey="/entry/value/chbbps"
+PowerSupply.Collect.Source(1).Compute(1).Properties="../../Column(2);/location;/status;/status"
+
+// Add enclosure name to device ID
+PowerSupply.Collect.Source(1).Compute(2).Type=LeftConcat
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+PowerSupply.Collect.Source(1).Compute(2).String=Column(2)
+
+// Translate status information to status value
+PowerSupply.Collect.Source(1).Compute(3).Type=Translate
+PowerSupply.Collect.Source(1).Compute(3).Column=4
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="statusTranslationTable"
+
+// Copy the enclosure component collect
+PowerSupply.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Extract network card(s) information
+// JSON_ID; enclosureID; deviceID; status; status information
+PowerSupply.Collect.Source(2).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(2).Compute(1).EntryKey="/entry/value/dkcpss"
+PowerSupply.Collect.Source(2).Compute(1).Properties="../../Column(2);/location;/status;/status"
+
+// Add enclosure name to device ID
+PowerSupply.Collect.Source(2).Compute(2).Type=LeftConcat
+PowerSupply.Collect.Source(2).Compute(2).Column=3
+PowerSupply.Collect.Source(2).Compute(2).String=Column(2)
+
+// Translate status information to status value
+PowerSupply.Collect.Source(2).Compute(3).Type=Translate
+PowerSupply.Collect.Source(2).Compute(3).Column=4
+PowerSupply.Collect.Source(2).Compute(3).TranslationTable="statusTranslationTable"
+
+// Copy the enclosure component collect
+PowerSupply.Collect.Source(3)=%Enclosure.Collect.Source(1)%
+
+// JSON_ID; enclosureID; deviceID; status; status information
+PowerSupply.Collect.Source(3).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(3).Compute(1).EntryKey="/entry/value/driveBoxes/dbps"
+PowerSupply.Collect.Source(3).Compute(1).Properties="../../../Column(2);/location;/status;/status"
+
+// Remove results with no location
+PowerSupply.Collect.Source(3).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(3).Compute(2).Column=3
+PowerSupply.Collect.Source(3).Compute(2).RegExp="."
+
+// Translate status information to status value
+PowerSupply.Collect.Source(3).Compute(3).Type=Translate
+PowerSupply.Collect.Source(3).Compute(3).Column=4
+PowerSupply.Collect.Source(3).Compute(3).TranslationTable="statusTranslationTable"
+
+// Add enclosure name to device ID
+PowerSupply.Collect.Source(3).Compute(4).Type=LeftConcat
+PowerSupply.Collect.Source(3).Compute(4).Column=3
+PowerSupply.Collect.Source(3).Compute(4).String=Column(2)
+
+// Source(4) = Union of Source(1), Source(2) and Source(3)
+// JSON_ID; enclosureID; DeviceID; status; status information
+PowerSupply.Collect.Source(4).Type="TableUnion"
+PowerSupply.Collect.Source(4).Table1=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.Source(4).Table2=%PowerSupply.Collect.Source(2)%
+PowerSupply.Collect.Source(4).Table3=%PowerSupply.Collect.Source(3)%
+
+// PowerSupply instance table - Source(4)
+// JSON_ID; enclosureID; deviceID; status; status information
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(4)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(3)
+PowerSupply.Collect.Status=ValueTable.Column(4)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(5)
+
+//
+// Temperatures
+//
+
+// Discovery
+// Copy the enclosure component discovery
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Extract temperature(s) information
+// JSON_ID; enclosureID; deviceID; displayID
+Temperature.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Temperature.Discovery.Source(1).Compute(1).EntryKey="/entry/value/ctls"
+Temperature.Discovery.Source(1).Compute(1).Properties="../../Column(2);/location;/location"
+
+// Add enclosure name to device ID
+Temperature.Discovery.Source(1).Compute(2).Type=LeftConcat
+Temperature.Discovery.Source(1).Compute(2).Column=3
+Temperature.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Temperature instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; displayID
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AttachedToDeviceType="DiskController"
+Temperature.Discovery.Instance.TemperatureType="Disk Controller"
+
+// Collect
+Temperature.Collect.Type="MultiInstance"
+
+// Copy the enclosure component collect
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract temperature(s) information
+// JSON_ID; enclosureID; deviceID; status; status information; temperature
+Temperature.Collect.Source(1).Compute(1).Type="Json2Csv"
+Temperature.Collect.Source(1).Compute(1).EntryKey="/entry/value/ctls"
+Temperature.Collect.Source(1).Compute(1).Properties="../../Column(2);/location;/temperatureStatus;/temperatureStatus;/temperature"
+
+// Add enclosure name to device ID
+Temperature.Collect.Source(1).Compute(2).Type=LeftConcat
+Temperature.Collect.Source(1).Compute(2).Column=3
+Temperature.Collect.Source(1).Compute(2).String=Column(2)
+
+// Translate status information to status value
+Temperature.Collect.Source(1).Compute(3).Type=Translate
+Temperature.Collect.Source(1).Compute(3).Column=4
+Temperature.Collect.Source(1).Compute(3).TranslationTable="statusTranslationTable"
+
+// Temperature instance table - Source(1)
+// JSON_ID; enclosureID; deviceID; status; status information; temperature
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(3)
+Temperature.Collect.Status=ValueTable.Column(4)
+Temperature.Collect.StatusInformation=ValueTable.Column(5)
+Temperature.Collect.Temperature=ValueTable.Column(6)
+
+// Translation Table
+statusTranslationTable("Normal")="OK"
+statusTranslationTable("Warning")="WARN"
+statusTranslationTable("Blocked")="ALARM"
+statusTranslationTable("Failed")="ALARM"
+statusTranslationTable(default)="UNKNOWN"
+
+hddStatusInformationTranslationTable("NML")="Normal"
+hddStatusInformationTranslationTable("BSY")="Busy"
+hddStatusInformationTranslationTable("BLK")="Blocked"
+hddStatusInformationTranslationTable(default)="Unknown"
+
+hddStatusTranslationTable("NML")="OK"
+hddStatusTranslationTable("BSY")="WARN"
+hddStatusTranslationTable("BLK")="ALARM"
+hddStatusTranslationTable(default)="UNKNOWN"
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Headers
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+authorization: Basic %{BASIC_AUTH_BASE64}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

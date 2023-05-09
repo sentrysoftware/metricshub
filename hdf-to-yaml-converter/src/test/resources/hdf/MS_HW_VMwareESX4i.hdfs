@@ -1,0 +1,37 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_VMwareESX4ihdf
+//
+//      Supports: Any Server running a VMware ESX 4i
+//
+//
+//
+
+// HEADER
+
+hdf.DisplayName="VMware ESXi 4.x"
+hdf.TypicalPlatform="VMware ESXi"
+hdf.ReliesOn="WBEM"
+hdf.Version="1.1"
+hdf.Comments="This connector provides hardware monitoring through the VMware ESXi implementation of SMASH, through the WBEM protocol."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="true"
+hdf.AppliesToOS="OOB,Linux"
+hdf.Supersedes="MS_HW_VMwareESXi.hdf,MS_HW_IpmiTool.hdf"
+
+// Checking the version of ESXi
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace="root/cimv2"
+Detection.Criteria(1).WbemQuery="SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity"
+Detection.Criteria(1).ExpectedResult="^[4567]"
+
+// Includes
+#include MS_HW_VMwareESXi.hhdf

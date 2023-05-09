@@ -1,0 +1,165 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: Switches that support the Fibre Alliance MIB (FCMGMT-MIB)
+//                Connects to a SNMP agent
+//
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="Fibre Alliance SNMP Agent (Switches)"
+hdf.TypicalPlatform="Any SAN switch"
+hdf.ReliesOn="Fibre Alliance SNMP Agent (FCMGMT-MIB)"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol and supports the Fibre Alliance MIB (FCMGMT-MIB)."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+hdf.Supersedes="MS_HW_GenericSwitchEnclosure.hdf"
+
+//
+// DETECTION
+//
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.3.94.1.6.1.3"
+Detection.Criteria(1).ExpectedResult="\(^4$\)\|\(^14$\)"
+
+
+// Include the various headers
+#include MS_HW_FibreAllianceSwitchCommon.hhdf
+
+//
+// FANS
+//
+
+//
+// Discovery
+
+// Source(1) = connUnitSensorTable SNMP Table
+// SensorID;ComputerID;SensorName;SensorCharacteristic;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.3.94.1.8.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,8"
+
+// Keep only fan sensors
+// SensorID;ComputerID;SensorName;SensorType;
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=4
+Fan.Discovery.Source(1).Compute(1).ValueList="7"
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(3)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type = multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = connUnitSensorTable SNMP Table
+// SensorID;Status;Message;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.3.94.1.8.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,4,6"
+
+// Translate the first column status into a PATROLStatus
+// SensorID;PATROLStatus;Message
+Fan.Collect.Source(1).Compute(1).Type="Translate"
+Fan.Collect.Source(1).Compute(1).Column=2
+Fan.Collect.Source(1).Compute(1).TranslationTable="SensorStatusTranslationTable"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// POWER SUPPLIES
+//
+
+//
+// Discovery
+
+// Source(1) = connUnitSensorTable SNMP Table
+// SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.3.94.1.8.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,8,7"
+
+// Source(2) = Source(1)  - Source 2 will be for sensors of Characteristic "Power", i.e. Brocade and Cisco Switches.
+PowerSupply.Discovery.Source(2)=%PowerSupply.Discovery.Source(1)%
+
+// Keep only power supply (Characteristics)
+// SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+PowerSupply.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(2).Compute(1).Column=4
+PowerSupply.Discovery.Source(2).Compute(1).ValueList="9"
+
+// Source(2) = Source(1)  - Source 2 will be for sensors of Type "Power-Supply" but of Characteristic "Other", i.e. McData
+PowerSupply.Discovery.Source(3)=%PowerSupply.Discovery.Source(1)%
+
+// Keep only power supply (SensorType)
+// SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+PowerSupply.Discovery.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(3).Compute(1).Column=5
+PowerSupply.Discovery.Source(3).Compute(1).ValueList="5"
+
+// Keep only sensors of Characteristic "Other"
+// SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+PowerSupply.Discovery.Source(3).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(3).Compute(2).Column=4
+PowerSupply.Discovery.Source(3).Compute(2).ValueList="2"
+
+// Source(4) = union of Source(2) and Source(3)
+// SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
+PowerSupply.Discovery.Source(4).Type="TableUnion"
+PowerSupply.Discovery.Source(4).Table1=%PowerSupply.Discovery.Source(2)%
+PowerSupply.Discovery.Source(4).Table2=%PowerSupply.Discovery.Source(3)%
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(4)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type = multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = connUnitSensorTable SNMP Table
+// SensorID;Status;Message;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.3.94.1.8.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,4,6"
+
+// Translate the first column status into a PATROLStatus
+// SensorID;PATROLStatus;Message
+PowerSupply.Collect.Source(1).Compute(1).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).TranslationTable="SensorStatusTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)

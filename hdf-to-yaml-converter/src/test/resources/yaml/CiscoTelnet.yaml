@@ -1,0 +1,758 @@
+---
+connector:
+  displayName: Cisco MDS9000 Series (SSH)
+  platforms: Cisco SAN
+  reliesOn: Commands on the Cisco Bay Controller
+  version: 2.0
+  information: "This connector discovers the enclosure and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.)."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - SMISSwitch
+    - FibreAllianceSwitch
+    criteria:
+    # host should respond to telnet the way described below
+    - type: osCommand
+      commandLine: show version
+      expectedResult: Cisco
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show hardware
+          computes:
+          - type: awk
+            script: EmbeddedFile(2)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: 2
+        source(2):
+          type: osCommand
+          commandLine: show module
+        source(3):
+          type: osCommand
+          commandLine: show environment
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: MDS9000Bay
+          vendor: Cisco
+          type: Switch
+          model: $column(1)
+          serial_number: $column(2)
+          name: "sprintf(\"Switch: (%s %s)\", \"Cisco\", $column(1))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show environment
+        source(2):
+          # Source(2) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(3)
+            keep: MSHW;
+            separators: ;
+            selectColumns: 2
+      mapping:
+        # ValueTable = Source(2)
+        # PowerConsumption
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: MDS9000Bay
+        metrics:
+          hw.enclosure.power: $column(1)
+          hw.enclosure.energy: fakeCounter($column(1))
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(3)
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          blade_name: $column(2)
+          model: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(1)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,5"
+            # Duplicate the status column
+            # PowerSupplyID; status ; status ;
+          - type: duplicateColumn
+            column: 2
+            # Now translate status into OK/Warning/Alarm
+            # status
+          - type: translate
+            column: 2
+            translationTable: ModuleStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: ModuleStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="blade"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show interface
+          computes:
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5,6,7,17"
+            # Exclude SPFs that are not present
+            # attachToType ; module ; port ; status ; wwn ; portMode ; portDescription ;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: (SFP not present)
+            # Exclude SPFs that are not inserted
+            # attachToType ; module ; port ; status ; wwn ; portMode ; portDescription ;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: (SFP not inserted)
+        source(2):
+          type: osCommand
+          commandLine: "show interface detail-counters | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(3):
+          # Take into account the new Command \"show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'\\n\"
+          type: osCommand
+          commandLine: "show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.network.discovery.sources.source(2)$
+          - $monitors.network.discovery.sources.source(3)$
+        source(5):
+          # Table Joint the main Discovery to the ZeroBufferCreditCount
+          # attachToType ; module ; port ; status ; wwn ; portMode ; portDescription ; port ; ZeroBufferCreditCount ;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(4)$
+          leftKeyColumn: 3
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(5)$
+        attributes:
+          id: $column(3)
+          physical_address: $column(5)
+          physical_address_type: WWN
+          device_type: $column(6)
+          hw.parent.type: $column(1)
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show interface
+          computes:
+            # Now, extract the NICs thanks to a smart AWK script
+            #  RETURNS MSHW ; attachToType ; module ; port ; statusInformation ; wwn ; portDesc portMode ; speed ; linkStatus ; duplexMode ; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ;
+            #  SELECTS port ; statusInformation ; speed; link Status; duplexMode; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status
+          - type: awk
+            script: EmbeddedFile(4)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "4,5,8,9,10,11,12,13,14,15,16"
+          - type: translate
+            column: 4
+            translationTable: linkStatusTranslationTable
+          - type: translate
+            column: 11
+            translationTable: networkStatusTranslationTable
+        source(2):
+          type: osCommand
+          commandLine: "show interface detail-counters | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(3):
+          # Take into account the new Command \"show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'\\n\"
+          type: osCommand
+          commandLine: "show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: EmbeddedFile(9)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.network.collect.sources.source(2)$
+          - $monitors.network.collect.sources.source(3)$
+        source(5):
+          # Table Joint the main Discovery to the ZeroBufferCreditCount
+          # port ; statusInformation ; speed; link Status; duplexMode; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ; port ; ZeroBufferCreditCount ;
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # ValueTable = Source(1)
+        # port ; statusInformation ; speed; link Status; duplexMode; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ;
+        source: $monitors.network.collect.sources.source(5)$
+        deviceId: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+        metrics:
+          hw.network.up: legacyLinkStatus($column(4))
+          hw.errors{hw.type="network"}: $column(10)
+          hw.network.packets{direction="transmit"}: $column(6)
+          hw.network.packets{direction="receive"}: $column(7)
+          hw.network.io{direction="transmit"}: $column(8)
+          hw.network.io{direction="receive"}: $column(9)
+          hw.network.bandwidth.limit: megaBit2Bit($column(3))
+          hw.network.full_duplex: legacyFullDuplex($column(5))
+          hw.status{hw.type="network"}: $column(11)
+          hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $column(13)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(5)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          device_type: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: "sprintf(\"%s: %s\", $column(1), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(5)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "3,4,5"
+            # Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: OtherDeviceStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS MSHW;module;module/sensor;status;status;temp;tempWarn;tempAlarm;attachToType;
+            #  SELECTS      module;module/sensor;            #      tempWarn;tempAlarm;attachToType;
+          - type: awk
+            script: EmbeddedFile(7)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,7,8,9"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          hw.parent.type: $column(5)
+          hw.parent.id: $column(1)
+          name: $column(2)
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(7)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "3,4,5,6"
+            # Now translate status into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: TemperatureStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(4)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS MSHW;fanID;status;status;
+            #  SELECTS fanID;status
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+          # Exclude Power Supplies that are not present
+          - type: excludeMatchingLines
+            column: 2
+            regExp: absent
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: $column(1)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(6)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Now translate status into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: FanStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS  MSHW;powerSupply;status;status;
+            #  SELECTS  powerSupply;status;
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+          # Exclude Power Supplies that are not present
+          - type: excludeMatchingLines
+            column: 2
+            regExp: absent
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: $column(1)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(8)
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Now translate status into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN  {section = "" ; module = ""}
+    $1 ~ /^(Xbar)|(Mod)$/ && $2 ~ "^Ports" {section=$1 ; offset2 = index($0,"Ports") ; offset3 = index ($0,"Module-Type") ; offset4 = index ($0,"Model") ; offset5 = index ($0,"Status") }
+    ($1 ~ /^[0-9]/ && section ~ /^(Xbar)|(Mod)$/ ){
+                     if (section == "Mod")  {module = $1}
+                     if (section == "Xbar") {module = "XBar" $1}
+                   port = $2 ;
+                   moduleType = substr ($0,offset3,(offset4 - offset3)) ; gsub (/  /,"",moduleType) ;
+                   model = substr ($0,offset4,(offset5 - offset4)) ; gsub (/ /,"",model) ;
+                   status = substr ($0,offset5) ; gsub (/[ *]/,"",status) ;
+                   print ( "MSHW;" module ";" port "-Port " moduleType ";" model ";" status ";") ; }
+    $1 ~ /^(Xbar)|(Mod)$/ && $2 ~ /(Power)|(Sw)/ {section=""}
+  EmbeddedFile(3): |
+    $0 ~ /Total Power Capacity/ { print ("MSHW;"$(NF-1)) }
+  EmbeddedFile(2): |-
+    BEGIN {model = "" ; serialNumber = ""; bSwitch = ""}
+    ( $0 ~ /^  cisco MDS 9/ ) && ( model == "" ) { model = $2 " " $3; }
+    /^Switch hardware ID information/ { bSwitch = "yes" ; getline; getline; }
+    ( $0 ~ /Switch type is/  ) && ( bSwitch == "yes" ) && (model == "") { offset = (index($0, "is") + 3) ; model = substr($0,offset) ; gsub(/"/,"",model) ; } #"
+    ( $0 ~ /Model number is/ ) && ( bSwitch == "yes" ) && (model == "") {offset = (index($0, "is") + 3) ; model = substr($0,offset)}
+    ( $0 ~ /Serial number is/ ) && ( bSwitch == "yes" ) {offset = (index($0,"is") + 3) ; serialNumber = substr ($0,offset)}
+    /---/ { bSwitch = "" }
+    END { print("MSHW;" model ";" serialNumber ";") }
+  EmbeddedFile(5): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { section = "" ; offsetStatus = "" ; next }
+
+    (section == "Clock" && offsetStatus > 1) {status = substr ($0,offsetStatus) ;
+                                                offsetSlash = index(status,"/") ;
+                                                if (offsetSlash > 1)  {status = substr (status,1,offsetSlash - 1)} ;
+                                                statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                                if ((status !~ /[Nn]ot [Pp]resent/) && NF > 2 ){print ("MSHW;Clock;" $1 ";" status ";" statusinfo ";") };
+                                                }
+
+    $0 ~ /^Clock/ { section = "Clock" }
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
+  EmbeddedFile(4): |-
+    BEGIN  {attachToType=""; module="" ;port="" ;portDescription=""; wwn="" ;portDesc=""; portMode="";speed="" ; duplexMode="";transmitPackets="";receivePackets="";transmitBytes=""; receiveBytes="";transmitErrors="";receiveErrors="";totalErrors="";section="";}
+    ($1 ~ /^fc[0-9]/) || ($1 ~ /^[Ee]thernet[0-9]/) || ($1 ~ /^[Ee]xt[0-9]/) || ($1 ~ /^[Bb]ay[0-9]/) {
+                          port = $1 ; gsub (/fc/,"",port) ; gsub (/[Ee]thernet/,"",port) ;
+                        if (port ~ "/") {attachToType = "blade" ; module = substr(port,1,2) ; gsub ("/","",module); }
+                             else {attachToType = "enclosure" ; module = "MDS9000Bay" ; }
+
+                        offset = (index($0,"is") + 3)  ; statusInformation = substr ($0,offset) ; status=tolower(statusInformation);linkStatus=statusInformation;
+                        gsub (/(.*\()|(\))/,"",status); gsub (/[^a-z]/,"",status);
+                        gsub (/up /,"",statusInformation); gsub (/trunking /,"",statusInformation)
+                        gsub (/ \(.+\)/,"",linkStatus);
+                        if (($0 ~ /SFP not present/) || ($0 ~ /SFP not inserted/)){linkStatus = "missing"} ;
+                        if ($1 ~ /^fc[0-9]/) {portDesc = "FC Port "}
+                        if ($1 ~ /^[Ee]thernet[0-9]/) {portDesc = "Ethernet Port "}
+                        }
+
+    $1 ~ /Port/ && $2 ~ /description/ && $3 ~ /is/ {offset = (index($0,"is") + 3) ;portDescription = substr ($0,offset)}
+    $0 ~ /WWN/          { wwn = $NF }
+    $0 ~ /Port mode is/ { portMode = $4 ; gsub (",","",portMode) ; }
+
+    ($1 ~ /^mgmt[0-9]/) || ($1 ~ /sup-fc[0-9]/)   { module = "MDS9000Bay" ;
+                          attachToType = "enclosure" ;
+                          port = $1 ;
+                        offset = (index($0,"is") + 3)  ; statusInformation = substr ($0,offset) ; status=tolower(statusInformation);linkStatus=statusInformation;
+                        gsub (/(.*\()|(\))/,"",status); gsub (/[^a-z]/,"",status);
+                        gsub (/up /,"",statusInformation); gsub (/trunking /,"",statusInformation)
+                        gsub (/ \(.+\)/,"",linkStatus);
+                        portDesc = "Ethernet Port" ;
+                        }
+    $0 ~ /Internet address is/ { wwn = $NF }
+    $1 == "MTU"         { speed = $5 ; duplexMode = tolower($7) ;
+                          if ($6 ~ /[Gg]bps/) {speed=speed*1000} ;
+                          if ($6 ~ /[Kk]bit/) {speed=speed/1000} ;
+                          }
+    ($0 ~ /Speed is/ && $NF ~ /[GgMm]bps/) {speed = $(NF-1) ;  duplexMode="full" ;
+                                            if ($NF ~ /[Gg]bps/) {speed=speed*1000} ;
+                                            }
+    # FC Received
+    ($2 ~ /packets|frames/) && ($3 ~ /input/) && ($5 ~ /bytes/)  {receivePackets=$1 ; receiveBytes = $4 ; section="input"; }
+    ($2 ~ /packets|frames/) && ($3 ~ /input,/) && ($4 ~ /bytes/)  {receivePackets=$1 ; receiveBytes = substr($3,7) ; section="input"; }
+    ($2 ~ /input/) && ($3 ~ /errors/) && ($5 ~ /frame/) && ($7 ~ /overrun/) && ($9 ~ /fifo/) && (section=="input") {receiveErrors=($1 + $4 + $ 6 + $8);}
+    ($2 ~ /discards/) && ($4 ~ /errors/) && (section=="input") {receiveErrors=($1 + $3);}
+    ($2 ~ /CRC/) && ($4 ~ /unknown/) && (section=="input") {receiveErrors=(receiveErrors + $1 + $3);}
+    ($2 ~ /too/) && ($3 ~ /long/) && ($5 ~ /too/) && ($6 ~ /short/) && (section=="input") {receiveErrors=(receiveErrors + $1 + $4);}
+
+    # FC Transmitted
+    ($2 ~ /packets|frames/) && ($3 ~ /output/) && ($5 ~ /bytes/) {transmitPackets=$1 ; transmitBytes = $4 ; section="output"; }
+    ($2 ~ /packets|frames/) && ($3 ~ /output/) && ($4 ~ /bytes/) {transmitPackets=$1 ; transmitBytes = substr($3,8) ; section="output"; }
+    ($2 ~ /output/) && ($3 ~ /errors/) && ($5 ~ /collisions/) && ($7 ~ /fifo/)  && (section=="output") {transmitErrors=($1 + $4 + $ 6);}
+    ($2 ~ /carrier/) && ($3 ~ /errors/) && (section=="output") {transmitErrors=(transmitErrors + $1)}
+    ($2 ~ /discards/) && ($4 ~ /errors/) && (section=="output") {transmitErrors=($1 + $3);}
+
+    # Ethernet Received
+    ($1 ~ /^RX$/) && (NF == 1) {section="RX"; }
+    ($2 ~ /input/ && $3 ~ /packets/ && $5 ~ /bytes/ && section=="RX") {receivePackets=$1; receiveBytes = $4}
+    ($2 ~ /input/) && ($3 ~ /error/) && ($5 ~ /short/) && ($6 ~ /frame/) && ($8 ~ /overrun/) && ($10 ~ /underrun/) && ($12 ~ /ignored/)&& (section=="RX") {receiveErrors=$1 + $4 + $7 + $9 + $11}
+    ($2 ~ /watchdog/) && ($4 ~ /bad/) && ($5 ~ /etype/) && ($6 ~ /drop/) && ($8 ~ /bad/) && ($9 ~ /proto/) && ($10 ~ /drop/) && ($12 ~ /if/) && ($13 ~ /down/) && ($14 ~ /drop/) && (section=="RX") {receiveErrors=receiveErrors + $1 + $3 + $7 + $11}
+    ($2 ~ /input/) && ($3 ~ /with/) && ($4 ~ /dribble/) && ($6 ~ /input/) && ($7 ~ /discard/) && (section=="RX") {receiveErrors=receiveErrors + $1 + $5}
+
+    # Ethernet Transmitted
+    ($1 ~ /^TX$/) && (NF == 1) {section="TX"; }
+    ($2 ~ /output/ && $3 ~ /packets/ && $5 ~ /bytes/ && section=="TX") {transmitPackets=$1; transmitBytes = $4}
+    ($2 ~ /output/) && ($3 ~ /errors/) && ($5 ~ /collision/) && ($7 ~ /deferred/) && ($9 ~ /late/) && ($10 ~ /collision/) && (section=="RX") {transmitErrors=$1 + $4 + $6 + $8}
+    ($2 ~ /lost/) && ($3 ~ /carrier/) && ($5 ~ /no/) && ($6 ~ /carrier/) && ($8 ~ /babble/) && ($10 ~ /proto/) && ($11 ~ /drop/) && (section=="RX") {transmitErrors=transmitErrors + $1 + $4 + $7 + $9}
+
+    ((length($0) < 1) &&(module != ""))  {totalErrors = (transmitErrors + receiveErrors);
+                                          print ("MSHW;" attachToType ";" module ";" port ";" statusInformation ";" wwn  ";" portDesc portMode ";" speed ";" linkStatus ";" duplexMode ";" transmitPackets ";" receivePackets ";" transmitBytes ";" receiveBytes ";" totalErrors ";" status ";" portDescription ";") ;
+                                          attachToType=""; module="" ;port="" ;portDescription="";wwn="" ;portDesc=""; portMode="";speed="" ; duplexMode="";transmitPackets="";receivePackets="";transmitBytes=""; receiveBytes="";transmitErrors="";receiveErrors="";totalErrors="";section="";status="";statusInformation="";
+                                          }
+    END { if (module != "") {totalErrors = (transmitErrors + receiveErrors);
+                               print ("MSHW;" attachToType ";" module ";" port ";" statusInformation ";" wwn  ";" portDesc portMode ";" speed ";" linkStatus ";" duplexMode ";" transmitPackets ";" receivePackets ";" transmitBytes ";" receiveBytes ";" totalErrors ";" status ";" portDescription ";") ;
+                              }
+        }
+  EmbeddedFile(7): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { Outlet=0 ; Intake=0 ; next }
+    (section == "Temperature" && offsetStatus > 1 && NF > 5) {
+                                              status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                              temp = $5 ;
+                                              tempWarn = $4 ;
+                                              tempAlarm = $3 ;
+                                              sensor = $1 "/" $2 ;
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              module = $1 ; if (module ~ /^[0-9]/) { attachToType = "blade" } else { attachToType = "enclosure" ; module = "MDS9000Bay" } ;
+                                              if (sensor ~ /Outlet$/) {Outlet = Outlet + 1 ; print ("MSHW;" module ";" sensor Outlet";" status ";" statusinfo ";"temp  ";" tempWarn ";" tempAlarm  ";" attachToType ";")}
+                                              else if (sensor ~ /Intake$/) {Intake = Intake + 1 ; print ("MSHW;" module ";" sensor Intake";" status ";" statusinfo ";"temp  ";" tempWarn ";" tempAlarm  ";" attachToType ";")}
+                                              else {print ("MSHW;" module ";" sensor ";" status ";" statusinfo ";" temp  ";" tempWarn ";" tempAlarm  ";" attachToType ";")}
+                                              }
+
+    (section == "TemperatureOldStyle" && offsetStatus > 1 && NF > 2 && $1 ~ /^[0-9]+$/) {
+                                           status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                           statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                           temp = $2 ;
+                                           sensor = $1 ;
+                                           module = $1 ;
+                                           print ("MSHW;" module ";" sensor ";" status ";" statusinfo ";" temp  ";"  ";"   ";blade;");
+                                           }
+
+    $0 ~ /^Temperature/ { section = "Temperature" ; offsetStatus = "" }
+    (section == "Temperature" && $2 ~ /CurTemp/ && $3 ~ /Status/) { section = "TemperatureOldStyle"}
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
+  EmbeddedFile(6): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { section = ""; offsetStatus = "" ; next }
+    (section == "Fan" && offsetStatus > 1) {if ($NF ~ /NotSupported/) { next}
+                                            status = substr ($0,offsetStatus) ;
+                                              gsub(/ /,"",status);
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              if ((NF > 2) && ($1 ~ "Chassis") && ($1 !~ /[0-9]$/)) {chassis = chassis + 1 ; print ("MSHW;" $1 chassis ";" status";"statusinfo";")}
+                                              else if ((NF > 2) && (status != "")) {print ("MSHW;" $1 ";" status";"statusinfo";")} ;
+                                              }
+
+    $0 ~ /^Fan/ { section = "Fan" ; chassis = 0 ; }
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
+  EmbeddedFile(9): |-
+    $1 ~ /^fc[0-9]/     {port = $1 ; gsub (/fc/,"",port) ;}
+    $0 ~ /waits due to lack of transmit credits/ && $1 ~/^[0-9]+$/ {ZeroBufferCreditCount = $1
+                                                                     print "MSHW;" port ";" ZeroBufferCreditCount ";"
+                                                                     port = ""}
+  EmbeddedFile(8): |-
+    BEGIN { offsetStatus = "" ; section = ""}
+    (length($0) < 3) { section = ""; offsetStatus = "" ; Outlet=0 ; Intake=0 ; next }
+    (section == "Power Supply" && offsetStatus > 1 && NF > 3) {
+                                              status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                              powerSupply = $1 ;
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              print ("MSHW;" powerSupply ";" status ";" statusinfo ";") ;
+                                              }
+    (section == "Power Supply Old Style" && offsetStatus > 1 && $1 ~ /^[0-9]+$/ ) {
+                                              status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
+                                              powerSupply = $1 ;
+                                              statusinfo = status;  if (statusinfo ~ /^[Oo][Kk]/) {statusinfo = "" } ;
+                                              print ("MSHW;" powerSupply ";" status ";" statusinfo ";") ;
+                                             }
+
+    $0 ~ /^Power Supply/ { section = "Power Supply" }
+    $1 ~ /^PS$/ && $2 ~ /^Status$/ { section = "Power Supply Old Style" }
+    $NF == "Status" { offsetStatus = (index($0,"Status")) }
+translations:
+  ModuleStatusTranslationTable:
+    upgrading: ok
+    standby: ok
+    powered-down: degraded
+    testing: degraded
+    power-denied: failed
+    active: ok
+    err-pwd-dn: failed
+    initializing: degraded
+    pwr-denied: failed
+    powered-up: degraded
+    default: UNKNOWN
+    failure: failed
+    pwr-cycled: degraded
+    poweredup: degraded
+    ha-standby: ok
+    ok: ok
+  TemperatureStatusTranslationTable:
+    default: UNKNOWN
+    failure: failed
+    ok: ok
+  FanStatusTranslationTable:
+    default: UNKNOWN
+    failure: failed
+    absent: failed
+    ok: ok
+  linkStatusTranslationTable:
+    default: UNKNOWN
+    trunking: ok
+    missing: degraded
+    up: ok
+    down: degraded
+  ModuleStatusInformationTranslationTable:
+    upgrading: ok
+    standby: Standby
+    powered-down: User Requested Power Down
+    testing: Booting - Diagnostics
+    power-denied: Power Issues
+    active: Not Configured
+    err-pwd-dn: Powered Down due to Fault
+    initializing: Initializing
+    pwr-denied: Power Issues
+    powered-up: Powered up - Waiting to Initialize
+    default: UNKNOWN
+    failure: Failure
+    pwr-cycled: Module Reloaded
+    poweredup: Booting
+    ha-standby: HA Standby
+    ok: ""
+  PowerSupplyStatusTranslationTable:
+    fail/shutdown: failed
+    default: UNKNOWN
+    absent: failed
+    ok: ok
+  OtherDeviceStatusTranslationTable:
+    default: UNKNOWN
+    failure: failed
+    ok: ok
+  networkStatusTranslationTable:
+    suspendedduetoincompatiblemode: failed
+    isolationduetoescfailure: failed
+    isolationduetoelpfailure: failed
+    isolationduetoothersideeportisolated: failed
+    isolationduetovsanmismatch: failed
+    outofservice: ok
+    down: ok
+    offline: degraded
+    portchanneladministrativelydown: ok
+    default: UNKNOWN
+    inactive: ok
+    errordisabled: failed
+    trunking: ok
+    down (out of service): ok
+    up: ok
+    linkfailureornotconnected: ok
+    isolationduetodomainidassignmentfailure: failed
+    isolationduetoinvalidfabricreconfiguration: failed
+    suspendedduetoincompatibleremoteswitchwwn: failed
+    reconfigurefabricinprogress: ok
+    initializing: ok
+    administrativelydown: ok
+    isolationduetodomainoverlap: failed
+    suspendedduetoincompatiblespeed: failed
+    nonparticipating: degraded
+    isolationduetodomainmanagerdisabled: failed
+    down (administratively down): ok
+    sfpnotpresent: MISSING
+    isolationduetozonemergefailure: failed
+    hardwarefailure: failed

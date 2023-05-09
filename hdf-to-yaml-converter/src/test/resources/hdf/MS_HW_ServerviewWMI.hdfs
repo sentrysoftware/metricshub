@@ -1,0 +1,512 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_ServerviewWBEM
+//
+//      Supports: Fujitsu-Siemens Serverview
+//
+//
+
+// HEADER
+
+hdf.DisplayName="Fujitsu-Siemens Serverview (WMI)"
+hdf.TypicalPlatform="Fujitsu-Siemens PRIMERGY"
+hdf.ReliesOn="Fujitsu-Siemens Serverview WBEM Agent"
+hdf.Version="1.2"
+hdf.Comments="This connector provides hardware monitoring through the Fujitsu-Siemens Serverview Agent for Windows which supports almost all Fujitsu-Siemens PRIMERGY servers."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT"
+hdf.Supersedes="MS_HW_IpmiTool.hdf"
+
+// Include
+#include MS_HW_CIMProcessorFamily.hhdf
+
+// OS must be Linux or ESX
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+// The HP_ComputerSystemChassis WBEM class must be instanciated
+Detection.Criteria(2).Type="WMI"
+Detection.Criteria(2).WbemQuery="SELECT ElementName FROM SVS_PGYComputerSystem"
+Detection.Criteria(2).WbemNameSpace="root/svs"
+Detection.Criteria(2).ErrorMessage="The Fujitsu Agent seems to not be not accessible or not working properly. Please check connectivity installation of the Fujitsu Agent."
+
+//
+// Enclosure: computer
+//
+
+//
+// Discovery
+
+// Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+Enclosure.Discovery.Source(1).Type="WMI"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT Manufacturer,Model,SerialNumber FROM SVS_PGYChassis"
+Enclosure.Discovery.Source(1).WbemNameSpace="root/svs"
+
+// InstanceTable = Source(1)
+//  Manufacturer,Model,SerialNumber
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="FujitsuServer"
+Enclosure.Discovery.Instance.DisplayID="FujitsuServer"
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type="Computer"
+
+//
+// CPUs
+//
+
+//
+// Discovery
+// Source 1 = HP_Processor Class
+cpu.Discovery.Source(1).Type="WMI"
+cpu.Discovery.Source(1).WbemQuery="SELECT CurrentClockSpeed,DeviceID,Family,Description FROM SVS_PGYProcessor"
+cpu.Discovery.Source(1).WbemNameSpace="root/svs"
+
+// Copy Family number to translate vendor as well
+// CurrentClockSpeed,DeviceID,Family,Family,Description
+cpu.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+cpu.Discovery.Source(1).Compute(1).Column=3
+
+// Translate the Family number into a vendor
+// CurrentClockSpeed,DeviceID,Vendor,Family,Description
+cpu.Discovery.Source(1).Compute(2).Type="Translate"
+cpu.Discovery.Source(1).Compute(2).Column=3
+cpu.Discovery.Source(1).Compute(2).TranslationTable="cpuVendorTranslationTable"
+
+// Translate the Family number into a model name
+// CurrentClockSpeed,DeviceID,Vendor,Model,Description
+cpu.Discovery.Source(1).Compute(3).Type="Translate"
+cpu.Discovery.Source(1).Compute(3).Column=4
+cpu.Discovery.Source(1).Compute(3).TranslationTable="cpuFamilyTranslationTable"
+
+
+// InstanceTable = Source(1)
+// CurrentClockSpeed,DeviceID,Vendor,Model,Description
+cpu.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+cpu.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+cpu.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+cpu.Discovery.Instance.Model=InstanceTable.Column(4)
+cpu.Discovery.Instance.Vendor=InstanceTable.Column(3)
+cpu.Discovery.Instance.MaximumSpeed=InstanceTable.Column(1)
+cpu.Discovery.Instance.AttachedToDeviceID="FujitsuServer"
+cpu.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+//
+// Collect
+
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WBEM class
+// CurrentClockSpeed,DeviceID,OperationalStatus
+cpu.Collect.Source(1).Type="WMI"
+cpu.Collect.Source(1).WbemQuery="SELECT CurrentClockSpeed,DeviceID,OperationalStatus FROM SVS_PGYProcessor"
+cpu.Collect.Source(1).WbemNameSpace="root/svs"
+
+// Duplicate the "OperationalStatusArray" column
+// CurrentClockSpeed,DeviceID,OperationalStatus,OperationalStatus
+cpu.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+cpu.Collect.Source(1).Compute(1).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// CurrentClockSpeed,DeviceID,PATROLStatusArray,OperationalStatus
+cpu.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+cpu.Collect.Source(1).Compute(2).Column=3
+cpu.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// CurrentClockSpeed,DeviceID,PATROLStatusArray,StatusInformation
+cpu.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+cpu.Collect.Source(1).Compute(3).Column=4
+cpu.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+cpu.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
+cpu.Collect.Source(1).Compute(4).Type="Convert"
+cpu.Collect.Source(1).Compute(4).Column=3
+cpu.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Value Table
+// CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
+cpu.Collect.ValueTable=%cpu.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(2)
+cpu.Collect.CurrentSpeed=ValueTable.Column(1)
+cpu.Collect.Status=ValueTable.Column(3)
+cpu.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// Memory
+//
+
+//
+// Discovery
+
+// Source(1) SVS_PGYPhysicalMemory
+Memory.Discovery.Source(1).Type="WMI"
+Memory.Discovery.Source(1).WbemQuery="SELECT Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer FROM SVS_PGYPhysicalMemory"
+Memory.Discovery.Source(1).WbemNameSpace="root/svs"
+
+// Convert size to MB
+// Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
+Memory.Discovery.Source(1).Compute(1).Type="Divide"
+Memory.Discovery.Source(1).Compute(1).Column=1
+Memory.Discovery.Source(1).Compute(1).DivideBy="1024"
+
+// Translate memory type
+// Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
+Memory.Discovery.Source(1).Compute(2).Type="Translate"
+Memory.Discovery.Source(1).Compute(2).Column=2
+Memory.Discovery.Source(1).Compute(2).TranslationTable="memoryTypeTranslationTable"
+
+// InstanceTable = Source(1)
+// Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Memory.Discovery.Instance.Size=InstanceTable.Column(1)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Memory.Discovery.Instance.Vendor=InstanceTable.Column(6)
+Memory.Discovery.Instance.Model=InstanceTable.Column(5)
+Memory.Discovery.Instance.Type=InstanceTable.Column(2)
+Memory.Discovery.Instance.AttachedToDeviceID="FujitsuServer"
+Memory.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// The memoryTypeTranslationTable
+memoryTypeTranslationTable(0)="Unknown Memory Type"
+memoryTypeTranslationTable(1)="Unknown Memory Type"
+memoryTypeTranslationTable(2)="DRAM"
+memoryTypeTranslationTable(3)="Synchronous DRAM"
+memoryTypeTranslationTable(4)="Cache DRAM"
+memoryTypeTranslationTable(5)="EDO"
+memoryTypeTranslationTable(6)="EDRAM"
+memoryTypeTranslationTable(7)="VRAM"
+memoryTypeTranslationTable(8)="SRAM"
+memoryTypeTranslationTable(9)="RAM"
+memoryTypeTranslationTable(10)="ROM"
+memoryTypeTranslationTable(11)="Flash"
+memoryTypeTranslationTable(12)="EEPROM"
+memoryTypeTranslationTable(13)="FEPROM"
+memoryTypeTranslationTable(14)="EPROM"
+memoryTypeTranslationTable(15)="CDRAM"
+memoryTypeTranslationTable(16)="3DRAM"
+memoryTypeTranslationTable(17)="SDRAM"
+memoryTypeTranslationTable(18)="SGRAM"
+memoryTypeTranslationTable(19)="RDRAM"
+memoryTypeTranslationTable(20)="DDR"
+memoryTypeTranslationTable(21)="DDR-2"
+memoryTypeTranslationTable(22)="BRAM"
+memoryTypeTranslationTable(23)="FB-DIMM"
+memoryTypeTranslationTable(24)="DDR3"
+memoryTypeTranslationTable(25)="FBD2"
+memoryTypeTranslationTable(Default)=""
+
+
+//
+// Collect
+
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WBEM class
+// DeviceID,OperationalStatus
+Memory.Collect.Source(1).Type="WMI"
+Memory.Collect.Source(1).WbemQuery="SELECT ElementName,OperationalStatus FROM SVS_PGYPhysicalMemory"
+Memory.Collect.Source(1).WbemNameSpace="root/svs"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID,OperationalStatus,OperationalStatus
+Memory.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID,PATROLStatusArray,OperationalStatus
+Memory.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Memory.Collect.Source(1).Compute(2).Column=2
+Memory.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID,PATROLStatusArray,StatusInformation
+Memory.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Memory.Collect.Source(1).Compute(3).Column=3
+Memory.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Memory.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID,PATROLStatus,StatusInformation
+Memory.Collect.Source(1).Compute(4).Type="Convert"
+Memory.Collect.Source(1).Compute(4).Column=2
+Memory.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Value Table
+// CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = the SVS_PGYFan WBEM class
+Fan.Discovery.Source(1).Type="WMI"
+Fan.Discovery.Source(1).WbemQuery="SELECT ElementName FROM SVS_PGYFan"
+Fan.Discovery.Source(1).WbemNameSpace="root/svs"
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Fan.Discovery.Instance.AttachedToDeviceID="FujitsuServer"
+Fan.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WBEM class
+// DeviceID,OperationalStatus
+Fan.Collect.Source(1).Type="WMI"
+Fan.Collect.Source(1).WbemQuery="SELECT ElementName,OperationalStatus FROM SVS_PGYFan"
+Fan.Collect.Source(1).WbemNameSpace="root/svs"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID,OperationalStatus,OperationalStatus
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID,PATROLStatusArray,OperationalStatus
+Fan.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID,PATROLStatusArray,StatusInformation
+Fan.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Fan.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID,PATROLStatus,StatusInformation
+Fan.Collect.Source(1).Compute(4).Type="Convert"
+Fan.Collect.Source(1).Compute(4).Column=2
+Fan.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Value Table
+// CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// PowerSupplies
+//
+
+//
+// Discovery
+
+// Source(1) = the SVS_PGYFan WBEM class
+PowerSupply.Discovery.Source(1).Type="WMI"
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT ElementName FROM SVS_PGYPowerSupply"
+PowerSupply.Discovery.Source(1).WbemNameSpace="root/svs"
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.AttachedToDeviceID="FujitsuServer"
+PowerSupply.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Collect
+
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = The Processor WBEM class
+// DeviceID,OperationalStatus
+PowerSupply.Collect.Source(1).Type="WMI"
+PowerSupply.Collect.Source(1).WbemQuery="SELECT ElementName,OperationalStatus FROM SVS_PGYPowerSupply"
+PowerSupply.Collect.Source(1).WbemNameSpace="root/svs"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID,OperationalStatus,OperationalStatus
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID,PATROLStatusArray,OperationalStatus
+PowerSupply.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID,PATROLStatusArray,StatusInformation
+PowerSupply.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+PowerSupply.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID,PATROLStatus,StatusInformation
+PowerSupply.Collect.Source(1).Compute(4).Type="Convert"
+PowerSupply.Collect.Source(1).Compute(4).Column=2
+PowerSupply.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Value Table
+// CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// Temperature
+
+// Discovery
+
+// DeviceID, Type
+Temperature.Discovery.Source(1).Type="WMI"
+Temperature.Discovery.Source(1).WbemQuery="SELECT ElementName,UpperThresholdCritical FROM SVS_PGYTemperatureSensor"
+Temperature.Discovery.Source(1).WbemNameSpace="root/svs"
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(2)
+Temperature.Discovery.Instance.AttachedToDeviceID="FujitsuServer"
+Temperature.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+// Like all WBEM collects, this one is "MultiInstance"
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = the HP_NumericSensor WBEM class
+Temperature.Collect.Source(1).Type="WMI"
+Temperature.Collect.Source(1).WbemQuery="SELECT CurrentReading,ElementName FROM SVS_PGYTemperatureSensor"
+Temperature.Collect.Source(1).WbemNameSpace="root/svs"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(1)
+
+// Voltage
+
+// Discovery
+
+// DeviceID, Type
+Voltage.Discovery.Source(1).Type="WMI"
+Voltage.Discovery.Source(1).WbemQuery="SELECT ElementName FROM SVS_PGYVoltageSensor"
+Voltage.Discovery.Source(1).WbemNameSpace="root/svs"
+
+
+// InstanceTable = Source(1)
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.AttachedToDeviceID="FujitsuServer"
+Voltage.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+// Like all WBEM collects, this one is "MultiInstance"
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = the HP_NumericSensor WBEM class
+Voltage.Collect.Source(1).Type="WMI"
+Voltage.Collect.Source(1).WbemQuery="SELECT CurrentReading,ElementName,OperationalStatus FROM SVS_PGYVoltageSensor"
+Voltage.Collect.Source(1).WbemNameSpace="root/svs"
+
+// Duplicate the "OperationalStatusArray" column
+// CurrentReading,DeviceID,OperationalStatus,OperationalStatus
+Voltage.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Voltage.Collect.Source(1).Compute(1).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// CurrentReading,DeviceID,PATROLStatusArray,OperationalStatus
+Voltage.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Voltage.Collect.Source(1).Compute(2).Column=3
+Voltage.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// CurrentReading,DeviceID,PATROLStatusArray,StatusInformation
+Voltage.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Voltage.Collect.Source(1).Compute(3).Column=4
+Voltage.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Voltage.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// CurrentReading,DeviceID,PATROLStatus,StatusInformation
+Voltage.Collect.Source(1).Compute(4).Type="Convert"
+Voltage.Collect.Source(1).Compute(4).Column=3
+Voltage.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Voltage=ValueTable.Column(1)
+Voltage.Collect.Status=ValueTable.Column(1)
+Voltage.Collect.StatusInformation=ValueTable.Column(1)
+
+
+// The DMTFOperationStatusTranslationTable
+DMTFOperationStatusTranslationTable(2)="OK"
+DMTFOperationStatusTranslationTable(3)="WARN"
+DMTFOperationStatusTranslationTable(4)="WARN"
+DMTFOperationStatusTranslationTable(5)="WARN"
+DMTFOperationStatusTranslationTable(6)="ALARM"
+DMTFOperationStatusTranslationTable(7)="ALARM"
+DMTFOperationStatusTranslationTable(8)="WARN"
+DMTFOperationStatusTranslationTable(9)="WARN"
+DMTFOperationStatusTranslationTable(10)="ALARM"
+DMTFOperationStatusTranslationTable(11)="WARN"
+DMTFOperationStatusTranslationTable(12)="ALARM"
+DMTFOperationStatusTranslationTable(13)="ALARM"
+DMTFOperationStatusTranslationTable(14)="ALARM"
+DMTFOperationStatusTranslationTable(15)="OK"
+DMTFOperationStatusTranslationTable(16)="WARN"
+DMTFOperationStatusTranslationTable(17)="OK"
+DMTFOperationStatusTranslationTable(18)="OK"
+DMTFOperationStatusTranslationTable(Default)="UNKNOWN"
+
+// The DMTFOperationStatusInformationTranslationTable
+DMTFOperationStatusInformationTranslationTable(2)=""
+DMTFOperationStatusInformationTranslationTable(3)="Degraded"
+DMTFOperationStatusInformationTranslationTable(4)="Stressed"
+DMTFOperationStatusInformationTranslationTable(5)="Predicted Failure"
+DMTFOperationStatusInformationTranslationTable(6)="Error"
+DMTFOperationStatusInformationTranslationTable(7)="Non-Recoverable Error"
+DMTFOperationStatusInformationTranslationTable(8)="Starting"
+DMTFOperationStatusInformationTranslationTable(9)="Stopping"
+DMTFOperationStatusInformationTranslationTable(10)="Stopped"
+DMTFOperationStatusInformationTranslationTable(11)="In Service"
+DMTFOperationStatusInformationTranslationTable(12)="No Contact"
+DMTFOperationStatusInformationTranslationTable(13)="Lost Communication"
+DMTFOperationStatusInformationTranslationTable(14)="Aborted"
+DMTFOperationStatusInformationTranslationTable(15)="Dormant"
+DMTFOperationStatusInformationTranslationTable(16)="Supporting Entity in Error"
+DMTFOperationStatusInformationTranslationTable(17)="Completed"
+DMTFOperationStatusInformationTranslationTable(18)="Power Mode"
+DMTFOperationStatusInformationTranslationTable(Default)=""

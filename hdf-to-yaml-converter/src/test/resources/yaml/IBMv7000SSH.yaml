@@ -1,0 +1,782 @@
+---
+connector:
+  displayName: IBM Storwize Disk Arrays (SSH)
+  platforms: IBM Storwize
+  reliesOn: IBM Storwize SSH console
+  version: 1.0
+  information: "This connector discovers the enclosure and the disks of IBM SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports, physical and logical disks of the array. It logs in directly to the v7000 cluster's management interface."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    # Run lsstoragesystem to see if it's a V7000
+    - type: osCommand
+      commandLine: 'lsenclosure -delim :'
+      expectedResult: id:status:type:managed:IO_group_id:IO_group_name:product_MTM:serial_number
+      forceSerialization: true
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: 'lsenclosure -delim :'
+          separators: ':'
+          selectColumns: "1,7,8"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # id;model;serial_number;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: id
+            # Exclude the echo of the command
+            # id;model;serial_number;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsenclosure -delim '
+        source(2):
+          # Source(2) = lsenclosure & lsenclosurecanister
+          type: osCommand
+          commandLine: lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done;
+          forceSerialization: true
+        source(3):
+          type: osCommand
+          commandLine: lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done;
+          forceSerialization: true
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(1)
+      mapping:
+        # Instance Table
+        # id;model;serial_number;
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          vendor: IBM
+          model: $column(2)
+          serial_number: $column(3)
+          type: enclosure
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(1), \"IBM\", $column(2))"
+    collect:
+      # Collect type is multiinstance (acutally it's no-instance, but nevermind...)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(2) = lsenclosure & lsenclosurecanister
+          type: osCommand
+          commandLine: lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done;
+          forceSerialization: true
+        source(2):
+          type: osCommand
+          commandLine: lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done;
+          forceSerialization: true
+        source(3):
+          # Parse the output of lsenclosure and lsenclosurecanister with an AWK script to get LEDs and Temperatures (to be used later)
+          # DeviceID;Class;DevicePath;
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+          - type: awk
+            script: EmbeddedFile(1)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lsenclosurebattery
+          type: osCommand
+          commandLine: 'lsenclosurebattery -delim :'
+          separators: ':'
+          selectColumns: "1,2,3"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # enclosure_id;battery_id;status;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: enclosure_id
+            # Exclude the echo of the command
+            # enclosure_id;battery_id;status;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsenclosurebattery -delim '
+            # Keep only instances with a valid ID
+            # enclosure_id;battery_id;status;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: "^[0-9]+$"
+            # Exclude batteries that are offline
+            # enclosure_id;battery_id;status;
+          - type: excludeMatchingLines
+            column: 3
+            valueList: offline
+            # Add a : and the Enclosure ID to the battery ID:
+            # enclosure_id;battery_id;status;
+          - type: leftConcat
+            column: 2
+            value: ':'
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+      mapping:
+        # Instance Table
+        # Name;Id
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
+          name: $column(2)
+    collect:
+      # Battery
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lsenclosurebattery
+          type: osCommand
+          commandLine: 'lsenclosurebattery -delim :'
+          separators: ':'
+          selectColumns: "1,2,3,5,7"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: enclosure_id
+            # Exclude the echo of the command
+            # enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsenclosurebattery -delim '
+            # Add a : and the Enclosure ID to the battery ID:
+            # enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;
+          - type: leftConcat
+            column: 2
+            value: ':'
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Duplicate end_of_life_warning
+            # enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;end_of_life_warning;
+          - type: duplicateColumn
+            column: 5
+            # Duplicate recondition_needed
+            # enclosure_id;battery_id;status;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+          - type: duplicateColumn
+            column: 4
+            # Duplicate status
+            # enclosure_id;battery_id;status;status;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+          - type: duplicateColumn
+            column: 3
+            # Now translate "online/degraded/offline" into OK/Warning/Alarm
+            # enclosure_id;battery_id;PatrolStatus;status;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+          - type: translate
+            column: 3
+            translationTable: onlinedegradedofflineStatusTranslationTable
+            # Now translate "online/degraded/offline" into Status Info
+            # enclosure_id;battery_id;PatrolStatus;StatusInformation;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+          - type: translate
+            column: 4
+            translationTable: onlinedegradedofflineStatusInformationTranslationTable
+            # Now translate "yes/no" into OK/Warning/Alarm for Reconditioning
+            # enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+          - type: translate
+            column: 5
+            translationTable: yesnoWarningStatusTranslationTable
+            # Now translate "yes/no" into Status Info for Reconditioning
+            # enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;end_of_life_warning;end_of_life_warning;
+          - type: translate
+            column: 6
+            translationTable: reconditioningStatusInformationTranslationTable
+            # Now translate "yes/no" into OK/Warning/Alarm for End of Life
+            # enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;end_of_life_warning;
+          - type: translate
+            column: 7
+            translationTable: yesnoWarningStatusTranslationTable
+            # Now translate "yes/no" into Status Info for End of Life
+            # enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+          - type: translate
+            column: 8
+            translationTable: endOfLifeStatusInformationTranslationTable
+        source(2):
+          # Make a copy to aid debugging / support
+          # enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+          type: copy
+          from: $monitors.battery.collect.sources.source(1)$
+          computes:
+            # Merge all the Patrol values into PatrolStatus
+            # enclosure_id;battery_id;PATROLStatusArray;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(5)
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(7)
+            # Merge all the Status Information values into StatusInformation
+            # enclosure_id;battery_id;PATROLStatusArray;StatusInformationArray;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+          - type: rightConcat
+            column: 4
+            value: Column(6)
+          - type: rightConcat
+            column: 4
+            value: Column(8)
+            # Keep only the IDs and Merged Status/StatusInformation
+            # enclosure_id;battery_id;PATROLStatusArray;StatusInformationArray;
+          - type: keepColumns
+            columnNumbers: "1,2,3,4"
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # enclosure_id;battery_id;PatrolStatus;StatusInformationArray;
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # enclosure_id;battery_id;PatrolStatus;StatusInformation;
+        source: $monitors.battery.collect.sources.source(2)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="battery"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lsdrive
+          type: osCommand
+          commandLine: lsdrive -bytes -delim
+          separators: ':'
+          selectColumns: "1,5,6,8,10,11"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: id
+            # Exclude the echo of the command
+            # id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsdrive -bytes -delim '
+            # Keep only instances with a valid ID
+            # id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+          - type: keepOnlyMatchingLines
+            column: 6
+            regExp: "^[0-9]+$"
+            # Add a : and the Enclosure ID to the  slot ID:
+            # id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+          - type: leftConcat
+            column: 6
+            value: ':'
+          - type: leftConcat
+            column: 6
+            value: Column(5)
+            # Add "DriveID: to the ID
+            # id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+          - type: leftConcat
+            column: 1
+            value: "Drive ID: "
+        source(2):
+          # Now let's collect the FRU information for each disk
+          type: osCommand
+          commandLine: "lsdrive -nohdr | while read driveID OtherOutput; do echo MS_HW_DRIVE_START;lsdrive -delim : $driveID; echo MS_HW_DRIVE_END; done;"
+          computes:
+            # Process Through an Awk Script
+            # id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+          - type: awk
+            script: EmbeddedFile(2)
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7"
+            # Add "DriveID: to the ID
+            # id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+          - type: leftConcat
+            column: 1
+            value: "Drive ID: "
+        source(3):
+          # Join the main discovery with the FRU
+          # id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;;
+          computes:
+            # Add AdditionalFruInformation to Tech Type
+            # id;AdditionalFRUInformation;capacity;mdisk_name;enclosure_id;slot_id;id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+          - type: rightConcat
+            column: 2
+            value: ' - '
+          - type: rightConcat
+            column: 2
+            value: Column(12)
+          - type: leftConcat
+            column: 4
+            value: "MDisk Name: "
+      mapping:
+        # Instance Table
+        #  1        # 2        #         3        # 4        #  5         6     7     8    9       10        #   11    12
+        # id;AdditionalFRUInformation;capacity;mdisk_name;enclosure_id;slot_id;id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+        source: $monitors.physical_disk.discovery.sources.source(3)$
+        attributes:
+          id: $column(6)
+          __display_id: $column(6)
+          serial_number: $column(10)
+          firmware_version: $column(11)
+          model: $column(9)
+          vendor: $column(8)
+          info: "join($column(1), $column(2), $column(4), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(5)
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(6), $column(8), $column(3))"
+        metrics:
+          hw.physical_disk.size: $column(3)
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lsdrive
+          type: osCommand
+          commandLine: 'lsdrive -delim :'
+          separators: ':'
+          selectColumns: "1,2,3,10,11"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # id;status;error_sequence_number;enclosure_id;slot_id;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: id
+            # Exclude the echo of the command
+            # id;status;error_sequence_number;enclosure_id;slot_id;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsdrive -bytes -delim '
+            # Add a : and the Enclosure ID to the  slot ID:
+            # id;status;error_sequence_number;enclosure_id;slot_id;
+          - type: leftConcat
+            column: 5
+            value: ':'
+          - type: leftConcat
+            column: 5
+            value: Column(4)
+            # Now translate "online/degraded/offline" into OK/Warning/Alarm
+            # id;status;error_sequence_number;enclosure_id;slot_id;
+          - type: translate
+            column: 2
+            translationTable: onlinedegradedofflineStatusTranslationTable
+            # Add an identifier to the error sequence number, which will become the status information.
+            # id;status;error_sequence_number;enclosure_id;slot_id;
+          - type: leftConcat
+            column: 3
+            value: 'Error Sequence Number (If Applicable):'
+      mapping:
+        # ValueTable = Source(1)
+        # id;status;error_sequence_number;enclosure_id;slot_id;
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lsenclosurepsu
+          type: osCommand
+          commandLine: 'lsenclosurepsu -delim :'
+          separators: ':'
+          selectColumns: "1,2,3"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # enclosure_id:PSU_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: enclosure_id
+            # Exclude the echo of the command
+            # enclosure_id:PSU_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsenclosurepsu -delim '
+            # Keep only instances with a valid ID
+            # enclosure_id:PSU_id:status
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: "^[0-9]+$"
+            # Add a : and the Enclosure ID to the  slot ID:
+            # enclosure_id:PSU_id:status
+          - type: leftConcat
+            column: 2
+            value: ':'
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Exclude PowerSupply that are offline
+            # enclosure_id:PSU_id:status
+          - type: excludeMatchingLines
+            column: 3
+            valueList: offline
+      mapping:
+        # Instance Table
+        # enclosure_id:PSU_id:status
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
+          name: $column(2)
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lsdrive
+          type: osCommand
+          commandLine: 'lsenclosurepsu -delim :'
+          separators: ':'
+          selectColumns: "1,2,3"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # enclosure_id:PSU_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: enclosure_id
+            # Exclude the echo of the command
+            # enclosure_id:PSU_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsenclosurepsu -delim '
+            # Add a : and the Enclosure ID to the  slot ID:
+            # enclosure_id:PSU_id:status
+          - type: leftConcat
+            column: 2
+            value: ':'
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Now translate "online/degraded/offline" into OK/Warning/Alarm
+            # enclosure_id:PSU_id:Patrolstatus
+          - type: translate
+            column: 3
+            translationTable: onlinedegradedofflineStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # enclosure_id:PSU_id:Patrolstatus
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lsenclosurepsu
+          type: osCommand
+          commandLine: 'lsenclosurecanister -delim :'
+          separators: ':'
+          selectColumns: "1,2,3"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # enclosure_id:Canister_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: enclosure_id
+            # Exclude the echo of the command
+            # enclosure_id:Canister_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsenclosurecanister -delim '
+            # Keep only instances with a valid ID
+            # enclosure_id:Canister_id:status
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: "^[0-9]+$"
+            # Add a : and the Enclosure ID to the  slot ID:
+            # enclosure_id:Canister_id:status
+          - type: leftConcat
+            column: 2
+            value: ':'
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Exclude Canisters that are offline
+            # enclosure_id:Canister_id:status
+          - type: excludeMatchingLines
+            column: 3
+            valueList: offline
+      mapping:
+        # Instance Table
+        # enclosure_id:Canister_id:status
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          device_type: Canister
+          hw.parent.type: enclosure
+          hw.parent.id: $column(1)
+          name: "sprintf(\"%s: %s\", \"Canister\", $column(2))"
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lsdrive
+          type: osCommand
+          commandLine: 'lsenclosurecanister -delim :'
+          separators: ':'
+          selectColumns: "1,2,3"
+          forceSerialization: true
+          computes:
+            # Exclude the Header Row
+            # enclosure_id:Canister_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: enclosure_id
+            # Exclude the echo of the command
+            # enclosure_id:Canister_id:status
+          - type: excludeMatchingLines
+            column: 1
+            valueList: 'lsenclosurecanister -delim '
+            # Add a : and the Enclosure ID to the  slot ID:
+            # enclosure_id:Canister_id:status
+          - type: leftConcat
+            column: 2
+            value: ':'
+          - type: leftConcat
+            column: 2
+            value: Column(1)
+            # Now translate "online/degraded/offline" into OK/Warning/Alarm
+            # enclosure_id:Canister_id:Patrolstatus
+          - type: translate
+            column: 3
+            translationTable: onlinedegradedofflineStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # enclosure_id:Canister_id:Patrolstatus
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(3)
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source (1) = Enclosure Discovery Source (2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only LEDs
+            # MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MS_HW_LED
+      mapping:
+        # The instance table
+        # MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+        source: $monitors.led.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          __on_status: $column(4)
+          __blinking_status: $column(5)
+          __off_status: $column(6)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(7)
+          name: $column(2)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source (1) = Enclosure Collect Source (1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
+          computes:
+            # Keep Only LEDs
+            # MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MS_HW_LED
+            # Duplicate State column
+            # MS_HW_LED;ID;Status;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+          - type: duplicateColumn
+            column: 3
+            # Translate first State column into 0 (for Off), 1 (for Blinking) and 2 (for On)
+            # MS_HW_LED;ID;PatrolStatus;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+          - type: translate
+            column: 3
+            translationTable: LEDStateTranslationTable
+            # Translate seconf State column into Status Information
+            # MS_HW_LED;ID;PatrolStatus;StatusInformation;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+          - type: translate
+            column: 4
+            translationTable: LEDStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # MS_HW_LED;ID;PatrolStatus;StatusInformation;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+        source: $monitors.led.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="led"}: legacyLedStatus($column(3))
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source (1) = Enclosure Discovery Source (2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only LEDs
+            # MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MS_HW_TEMPERATURE
+      mapping:
+        # The instance table
+        # MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(4)
+          name: $column(2)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source (1) = Enclosure Collect Source (1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(3)$
+          computes:
+            # Keep Only LEDs
+            # MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MS_HW_TEMPERATURE
+      mapping:
+        # ValueTable = Source(1)
+        # MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.temperature: $column(3)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { enclosureSection = 0 ; canisterSection = 0; faultLED = "" ; identify_LED = ""}
+
+    $1 ~ /MS_HW_ENCLOSURE_START/  {enclosureSection = 1}
+    $1 ~ /^id$/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+    $1 ~ /fault_LED/ {faultLED = $2 ; }
+    $1 ~ /identify_LED/ {identifyLED = $2 ; }
+    $1 ~ /MS_HW_ENCLOSURE_END/ && enclosureID != "" {
+                                 if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_fault" }
+                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                      print "MS_HW_LED;Enclosure " enclosureID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+                                                     }
+                                 if (identifyLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_identify" }
+                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                      print "MS_HW_LED;Enclosure " enclosureID " Indentify;" identifyLED ";OK;OK;OK;" enclosureID ";"
+                                                     }
+                                 enclosureID = ""; faultLED = ""; identifyLED = "";
+                                 }
+
+
+    $1 ~ /MS_HW_CANISTER_START/  {canisterSection = 1}
+    $1 ~ /enclosure_id/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+    $1 ~ /canister_id/  && $2 ~ /^[0-9]+$/ {canisterID = $2}
+    $1 ~ /fault_LED/ {faultLED = $2 ; }
+    $1 ~ /temperature/ && $2 ~ /^[0-9]+$/ {temperature = $2 ; }
+    $1 ~ /MS_HW_CANISTER_END/ && enclosureID != ""{
+                                 if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_canister_fault" }
+                                                  #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                      print "MS_HW_LED;Enclosure " enclosureID ":Canister " canisterID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+                                                     }
+                               if (temperature != "") {
+                                                  #                 ID                 ; Temperature   ; AttachToDeviceID
+                                                      print "MS_HW_TEMPERATURE;Enclosure " enclosureID ":Canister " canisterID ";"temperature";" enclosureID ";"
+                                                     }
+                                  enclosureID = ""; canisterID = "" ; faultLED = ""; temperature = "";
+                                 }
+  EmbeddedFile(2): |-
+    BEGIN{FS="[:]"};
+    $1 ~ /^id$/ {DiskID=$2}
+    $1 ~ /tech_type/ {DiskType=$2;gsub(/_.*/,"",DiskType);}
+    $1 ~ /vendor_id/ {Vendor=$2}
+    $1 ~ /product_id/ {Model=$2}
+    $1 ~ /FRU_part_number/ {PartNumber= "Part Number: "$2}
+    $1 ~ /FRU_identity/ {SerialNumber=$2}
+    $1 ~ /RPM/ {RPM="RPM: " $2}
+    $1 ~ /firmware_level/ {Firmware = $2}
+    $1 ~ /MS_HW_DRIVE_END/{
+         print ("MSHW;" DiskID ";" Vendor ";" Model ";" SerialNumber ";" Firmware ";" RPM " - " PartNumber ";" )
+         }
+translations:
+  LEDStatusInformationTranslationTable:
+    slow_flashing_canister_fault: LED is in Identify Mode (This mode conceals faults as the system cannot set the LED to on.)
+    slow_flashing: Slow Flashing
+    slow_flashing_enclosure_identify: Flashing
+    flashing: Flashing
+    slow_flashing_enclosure_fault: Insufficient Battery Power.
+    "off": "Off"
+    "on": "On"
+  endOfLifeStatusInformationTranslationTable:
+    "no": ""
+    default: ""
+    "yes": " -  The battery is reaching its end of life, and needs to be replaced."
+  onlinedegradedofflineStatusInformationTranslationTable:
+    offline: Offline
+    default: Unknown Status
+    online: ok
+    degraded: Degraded
+  onlinedegradedofflineStatusTranslationTable:
+    offline: failed
+    default: UNKNOWN
+    online: ok
+    degraded: failed
+  LEDStateTranslationTable:
+    slow_flashing_canister_fault: Blinking
+    slow_flashing: Blinking
+    slow_flashing_enclosure_identify: Blinking
+    flashing: Blinking
+    slow_flashing_enclosure_fault: Blinking
+    "off": "Off"
+    "on": "On"
+  reconditioningStatusInformationTranslationTable:
+    "no": ""
+    default: ""
+    "yes": " - The battery needs to be reconditioned, but cannot be reconditioned because of one or more errors."
+  yesnoWarningStatusTranslationTable:
+    "no": ok
+    default: UNKNOWN
+    "yes": degraded

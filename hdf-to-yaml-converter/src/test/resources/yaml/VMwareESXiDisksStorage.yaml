@@ -1,0 +1,226 @@
+---
+connector:
+  displayName: VMware ESXi - Disks (VMware)
+  platforms: VMware ESXi
+  reliesOn: WBEM
+  version: 1.1
+  information: This connector provides disk monitoring through the VMware ESX4i agent's VMware classes
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - OOB
+    - Linux
+    supersedes:
+    - VMwareESXiDisksIPMI
+    criteria:
+    # Checking the version of ESXi
+    - type: wbem
+      namespace: root/cimv2
+      query: SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity
+      expectedResult: "^[34567]"
+    # Check that there are ESX Disks (Storage Extents)
+    - type: wbem
+      namespace: root/cimv2
+      query: "SELECT DeviceID,Caption,NumberOfBlocks,BlockSize FROM VMware_StorageExtent"
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  VMWare_HHRCController
+          # Model,HeathState,Name
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT Caption,HealthState,Name FROM VMware_Controller"
+          namespace: root/cimv2
+          computes:
+            # Keep only lines with a valid HealthState
+            # Model,HeathState,Name
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "5,15,20,25,30"
+      mapping:
+        # The Instance table
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          controller_number: $column(3)
+          model: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(3), $column(1))"
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      # Only ONE WBEM query will be done in order to get the information for all disk controllers
+      # Less WBEM queries gives faster results
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  VMWare_HHRCController
+          # HeathState,Name
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT HealthState,Name FROM VMware_Controller"
+          namespace: root/cimv2
+          computes:
+          # HeathState,Name
+          - type: duplicateColumn
+            column: 1
+          # PatrolStatus,StatusInformation,Name
+          - type: translate
+            column: 1
+            translationTable: statusTranslationTable
+          # PatrolStatus,StatusInformation,Name
+          - type: translate
+            column: 2
+            translationTable: statusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  VMware_DiskDrive
+          # DeviceID,Caption,NumberOfBlocks,BlockSize
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT DeviceID,Caption,NumberOfBlocks,BlockSize FROM VMware_StorageExtent"
+          namespace: root/cimv2
+          computes:
+            # Compute the real size of the volumes (NumberofBlocks * BlockSize)
+            # DeviceID,Caption,SizeBytes,BlockSize
+          - type: multiply
+            column: 3
+            value: Column(4)
+      mapping:
+        # The Instance table
+        # DeviceID,Caption,SizeBytes,BlockSize
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%by10hf.s)\", $column(1), $column(3))"
+        metrics:
+          hw.physical_disk.size: $column(3)
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      # Only ONE WBEM query will be done in order to get the information for all disk controllers
+      # Less WBEM queries gives faster results
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  VMWare_HHRCController
+          # DeviceID,HealthState
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT DeviceID,HealthState FROM VMware_StorageExtent"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,HealthState,HealthState
+          - type: duplicateColumn
+            column: 2
+          # DeviceID,PatrolStatus,HealthState
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+          # DeviceID,PatrolStatus,StatusInformation
+          - type: translate
+            column: 3
+            translationTable: statusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  VMware_DiskDrive
+          # DeviceID,Caption,NumberOfBlocks,BlockSize
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT DeviceID,Caption,NumberOfBlocks,BlockSize FROM VMware_StorageVolume"
+          namespace: root/cimv2
+          computes:
+            # Compute the real size of the volumes (NumberofBlocks * BlockSize)
+            # DeviceID,Caption,SizeBytes,BlockSize
+          - type: multiply
+            column: 3
+            value: Column(4)
+      mapping:
+        # The Instance table
+        # DeviceID,Caption,SizeBytes,BlockSize
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%by2hf.s)\", $column(2), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      # Only ONE WBEM query will be done in order to get the information for all disk controllers
+      # Less WBEM queries gives faster results
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) =  VMWare_HHRCController
+          # DeviceID,HealthState
+          # The info we wish to use in creating the Controller
+          type: wbem
+          query: "SELECT DeviceID,HealthState FROM VMware_StorageVolume"
+          namespace: root/cimv2
+          computes:
+          # DeviceID,HealthState,HealthState
+          - type: duplicateColumn
+            column: 2
+          # DeviceID,PatrolStatus,HealthState
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+          # DeviceID,PatrolStatus,StatusInformation
+          - type: translate
+            column: 3
+            translationTable: statusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,PatrolStatus,StatusInformation
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  statusInformationTranslationTable:
+    "0": Unknown
+    default: Unknown Status
+    "25": Critical Failure
+    "15": Minor Failure
+    "5": ""
+    "30": Non-Recoverable Error
+    "20": Major Failure
+    "10": Degraded
+  statusTranslationTable:
+    "0": UNKNOWN
+    default: UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    "30": failed
+    "20": failed
+    "10": degraded

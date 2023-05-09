@@ -1,0 +1,557 @@
+---
+connector:
+  displayName: Hitachi HDS USP/VSP (SNMP)
+  platforms: "Hitachi USP,Hitachi VSP"
+  reliesOn: Hitachi SNMP Agent
+  version: 1.0
+  information: "This connector discovers the overall (global) status of Hitachi USP/VSP's Processors, CSW, Cache, SM, Power Supplies, Batteries, Fans, Physical Disks and Environment."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - SMISDiskArray
+    - HitachiDiskArray
+    criteria:
+    # Check that there are VSP OIDs
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.116.5.11.4.1.1.6.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # RaidList Table
+          # SerialNumber;NickName;MainVersion;ProductName
+          type: snmpTable
+          oid: 1.3.6.1.4.1.116.5.11.4.1.1.5
+          selectColumns: 1
+          computes:
+            # Add Identifier
+            # Table;SerialNumber;NickName;MainVersion;ProductName
+          - type: leftConcat
+            column: 1
+            value: RaidList;
+        source(2):
+          # DKCHW Table
+          # SerialNumber;Proessor;CSW;Cache;SM;PS;Battery;Fan;Environment;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.116.5.11.4.1.1.6
+          selectColumns: 1
+          computes:
+            # Add Identifier
+            # Table;SerialNumber;Proessor;CSW;Cache;SM;PS;Battery;Fan;Environment;
+          - type: leftConcat
+            column: 1
+            value: DKCHW;
+        source(3):
+          # DKUH Table
+          # SerialNumber;PS;Fan;Environment;Drive;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.116.5.11.4.1.1.7
+          selectColumns: 1
+          computes:
+            # Add Identifier
+            # Table;SerialNumber;PS;Fan;Environment;Drive;
+          - type: leftConcat
+            column: 1
+            value: DKUH;
+        source(4):
+          # Union all the discovery tables
+          # Table;SerialNumber;....
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(1)$
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Take this screwed up table and analyze it
+            # MSHW_....
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW
+            separators: ;
+        source(5):
+          # Take a copy of Enclosure Discovery 4
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep only Enclosures
+            # Class;SerialNumber;DeviceID;Firmware;DisplayID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_ENC
+            # Translate ProductName into ModelName
+            # Class;SerialNumber;DeviceID;Firmware;DisplayID;
+          - type: translate
+            column: 5
+            translationTable: modelTranslationTable
+      mapping:
+        # Instance Table
+        # Class;SerialNumber;DeviceID;Firmware;DisplayID;
+        source: $monitors.enclosure.discovery.sources.source(5)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          vendor: Hitachi
+          model: $column(5)
+          serial_number: $column(2)
+          bios_version: $column(4)
+          type: Storage
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(3), \"Hitachi\", $column(5))"
+    collect:
+      # Collect type is multi-instance (execute once)
+      type: multiInstance
+      sources:
+        source(1):
+          # RaidList Table
+          # SerialNumber;NickName;MainVersion;ProductName
+          type: snmpTable
+          oid: 1.3.6.1.4.1.116.5.11.4.1.1.5
+          selectColumns: 1
+          computes:
+            # Add Identifier
+            # Table;SerialNumber;NickName;MainVersion;ProductName
+          - type: leftConcat
+            column: 1
+            value: RaidList;
+        source(2):
+          # DKCHW Table
+          # SerialNumber;Proessor;CSW;Cache;SM;PS;Battery;Fan;Environment;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.116.5.11.4.1.1.6
+          selectColumns: 1
+          computes:
+            # Add Identifier
+            # Table;SerialNumber;Proessor;CSW;Cache;SM;PS;Battery;Fan;Environment;
+          - type: leftConcat
+            column: 1
+            value: DKCHW;
+        source(3):
+          # DKUH Table
+          # SerialNumber;PS;Fan;Environment;Drive;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.116.5.11.4.1.1.7
+          selectColumns: 1
+          computes:
+            # Add Identifier
+            # Table;SerialNumber;PS;Fan;Environment;Drive;
+          - type: leftConcat
+            column: 1
+            value: DKUH;
+        source(4):
+          # Union all the.Collect.tables
+          # Table;SerialNumber;....
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.collect.sources.source(1)$
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(3)$
+          computes:
+            # Take this screwed up table and analyze it
+            # DeviceClass;AttachedTo;DeviceID;DisplayID;Status;  (Except Enclosures, see later)
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: ^MSHW
+            separators: ;
+            # Duplicate status
+            # DeviceClass;AttachedTo;DeviceID;DisplayID;Status;Status;
+          - type: duplicateColumn
+            column: 5
+            # Translate Status into PATROLStatus (This will fail on enclosure, but it doesn't matter).
+            # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;Status;
+          - type: translate
+            column: 5
+            translationTable: statusTranslationTable
+            # Translate second Status into more readable string
+            # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 6
+            translationTable: statusInformationTranslationTable
+        source(5):
+          # Take a copy of Enclosure Discovery 4
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+          computes:
+            # Keep only Enclosures
+            # Class;SerialNumber;DeviceID;Firmware;DisplayID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_ENC
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(1)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only Temperatures
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_Temperature
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          sensor_location: Global
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only CPUs
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_CPU
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          model: Global
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only Batterys
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_Battery
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          type: Global
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="battery"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only Memorys
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_Memory
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          type: Global
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="memory"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only PhysicalDisks
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_PhysicalDisk
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          info: "Type: Global"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only PowerSupplys
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_PSU
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          power_supply_type: Global
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only Fans
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_Fan
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          sensor_location: Global
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="fan"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Keep Only OtherDevices
+            # Class;AttachedToID;DeviceID;DisplayID;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_Other
+      mapping:
+        # InstanceTable
+        # Class;AttachedToID;DeviceID;DisplayID;Status;
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          __display_id: $column(4)
+          id: $column(3)
+          device_type: Internal Bus
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s: %s\", \"Internal Bus\", $column(4))"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN{RaidList=1;DKCHW=1;DKUH=1;FS="[;]"};
+
+    $1 == "RaidList" {
+        if (RaidList==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; RaidList = 2 ; next}
+        else if (RaidList==2) { EnclosureFullName = $2 "." EnclosureSerialNumber ; EnclosureFullNameList[EnclosureSerialNumber] = EnclosureFullName ; RaidList = 3 ; next}
+        else if (RaidList==3) { EnclosureFirmwareVersion = $2 ; RaidList = 4 ; next}
+        else if (RaidList==4) { EnclosureProductVersion = $2; RaidList = 1 ;
+                                  print "MSHW_ENC;" EnclosureSerialNumber ";" EnclosureFullName  ";" EnclosureFirmwareVersion ";" EnclosureProductVersion ";"
+                                  next}
+        }
+    $1 == "DKCHW" {
+        if (DKCHW==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; DKCHW = 2 ; next}
+        else if (DKCHW==2) { print "MSHW_CPU;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Controller" ";DKC-Controllers;" $2 ";" ; DKCHW = 3 ; next}
+        else if (DKCHW==3) { print "MSHW_Other;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-CSW" ";DKC-CSW;" $2 ";" ; DKCHW = 4 ; next}
+        else if (DKCHW==4) { print "MSHW_Memory;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Cache" ";DKC-Cache;" $2 ";" ; DKCHW = 5 ; next}
+        else if (DKCHW==5) { print "MSHW_Memory;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-SystemMemory" ";DKC-SystemMemory;" $2 ";" ; DKCHW = 6 ; next}
+        else if (DKCHW==6) { print "MSHW_PSU;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-PSU" ";DKC-PowerSupplies;" $2 ";"; DKCHW = 7 ; next}
+        else if (DKCHW==7) { print "MSHW_Battery;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Batteries" ";DKC-Batteries;" $2 ";"; DKCHW = 8 ; next}
+        else if (DKCHW==8) { print "MSHW_Fan;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Fans" ";DKC-Fans;" $2 ";"; DKCHW = 9 ; next}
+        else if (DKCHW==9) { print "MSHW_Temperature;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKC-Environment" ";DKC-Environment;" $2 ";"; DKCHW = 1 ; next}
+        }
+
+    $1 == "DKUH" {
+        if (DKUH==1 || $2 ~ /^[0-9][0-9][0-9][0-9]/) { EnclosureSerialNumber = $2 ; DKUH = 2 ; next}
+        else if (DKUH==2) { print "MSHW_PSU;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKU-PSU" ";DKU-PowerSupplies;" $2 ";" ; DKUH = 3 ; next}
+        else if (DKUH==3) { print "MSHW_Fan;" EnclosureSerialNumber  ";"  EnclosureFullNameList[EnclosureSerialNumber]  "-DKU-Fans" ";DKU-Fans;" $2 ";"; DKUH = 4 ; next}
+        else if (DKUH==4) { print "MSHW_Temperature;" EnclosureSerialNumber  ";" EnclosureFullNameList[EnclosureSerialNumber] "-DKU-Environment" ";DKU-Environment;" $2 ";"; DKUH = 5 ; next}
+        else if (DKUH==5) { print "MSHW_PhysicalDisk;" EnclosureSerialNumber  ";" EnclosureFullNameList[EnclosureSerialNumber] "-DKU-PhysicalDisks" ";DKU-PhysicalDisks;" $2 ";"; DKUH = 1 ; next}
+        }
+translations:
+  statusInformationTranslationTable:
+    "1": ""
+    "2": Acute
+    default: Unknown Status
+    "3": Serious
+    "4": Moderate
+    "5": Service
+  statusTranslationTable:
+    "1": ok
+    "2": failed
+    default: UNKNOWN
+    "3": failed
+    "4": degraded
+    "5": degraded
+  modelTranslationTable:
+    raid450: Lightning 9900V
+    raid400: Lightning 9900
+    raid500: USP
+    raid600: USP_V
+    raid700: VSP

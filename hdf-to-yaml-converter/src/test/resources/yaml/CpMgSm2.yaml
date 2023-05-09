@@ -1,0 +1,171 @@
+---
+connector:
+  displayName: HP Insight Management Agent - iLO
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents
+  version: 1.0
+  information: "This connector provides hardware monitoring of the HP iLO card in HP ProLiant servers through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    - Linux
+    - VMS
+    - OSF1
+    - OOB
+    - Solaris
+    criteria:
+    # Check whether we have something in the CpqSm2 MIB
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.9.2.2.17
+monitors:
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqSm2Cntlr quasi-SNMP table
+          # ID;ModelCode
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.9.2.2
+          selectColumns: "ID,21"
+          computes:
+            # Translate modelCode into model string
+            # ID;Model
+          - type: translate
+            column: 2
+            translationTable: iLoModelTranslationTable
+      mapping:
+        # Instance Table
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          device_type: Management Card
+          additional_label: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s: %s (%s)\", \"Management Card\", $column(1), $column(2))"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqSm2Cntlr quasi-SNMP table
+          # ID;Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.9.2.2
+          selectColumns: "ID,17"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # ID;PATROLStatus;Status
+          - type: translate
+            column: 2
+            translationTable: iLoStatusTranslationTable
+            # Translate second Status into more readable string
+            # ID;PATROLStatus;StatusInformation;PredictsFailure
+          - type: translate
+            column: 3
+            translationTable: iLoStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqSm2NicConfig SNMP table
+          # ID;Model;MacAddress;ipAddress;Enabled;Speed
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.9.2.5.1.1
+          selectColumns: "ID,2,4,5,7,9"
+          computes:
+            # Filter out disabled network cards
+            # ID;Model;MacAddress;ipAddress;Enabled;Speed
+          - type: excludeMatchingLines
+            column: 5
+            valueList: 3
+            # Add "Management Card - " to the model, so that the user doesn't get confused
+            # between the "real" NICs and the one here used only for the management
+            # ID;Model;MacAddress;ipAddress;Enabled;Speed
+          - type: leftConcat
+            column: 2
+            value: 'Management Card - '
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          physical_address: $column(3)
+          physical_address_type: MAC
+          logical_address: $column(4)
+          logical_address_type: IP
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is "multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqSm2NicConfig SNMP table
+          # ID;Condition
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.9.2.5.1.1
+          selectColumns: "ID,11"
+          computes:
+            # Duplicate Condition
+            # ID;Condition;Condition
+          - type: duplicateColumn
+            column: 2
+            # Translate first Condition into PATROLStatus
+            # ID;PATROLStatus;Condition
+          - type: translate
+            column: 2
+            translationTable: NetworkCardStatusTranslationTable
+            # Translate second Condition into a more readable string
+            # ID;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: NetworkCardStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  NetworkCardStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Degraded
+    "4": Failed
+  iLoStatusInformationTranslationTable:
+    "2": ""
+    default: Unknown Status
+    "3": Not Responding
+  iLoStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+  NetworkCardStatusTranslationTable:
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": failed
+  iLoModelTranslationTable:
+    "2": EISA Remote Insight
+    default: Unknown Remote/Integrated Insight Lights-Out
+    "3": PCI Remote Insight
+    "4": Remote Insight Lights-Out
+    "5": Integrated Remote Insight Lights-Out
+    "6": Remote Insight Lights-Out version II

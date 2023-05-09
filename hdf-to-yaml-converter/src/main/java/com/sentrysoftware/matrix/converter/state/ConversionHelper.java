@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.converter.state;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BATTERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BLADE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CPU_CORE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISK_CONTROLLER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_FAN;
@@ -23,6 +24,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VOLTAGE
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_CORE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_FAN;
@@ -67,6 +69,7 @@ public class ConversionHelper {
 		hdfToYamlMonitor.put(HDF_BATTERY, YAML_BATTERY);
 		hdfToYamlMonitor.put(HDF_BLADE, YAML_BLADE);
 		hdfToYamlMonitor.put(HDF_CPU, YAML_CPU);
+		hdfToYamlMonitor.put(HDF_CPU_CORE, YAML_CPU_CORE);
 		hdfToYamlMonitor.put(HDF_DISK_CONTROLLER, YAML_DISK_CONTROLLER);
 		hdfToYamlMonitor.put(HDF_ENCLOSURE, YAML_ENCLOSURE);
 		hdfToYamlMonitor.put(HDF_FAN, YAML_FAN);
@@ -108,7 +111,7 @@ public class ConversionHelper {
 	);
 
 	/**
-	 * A compile representation of the HDF instance table reference regular expression.
+	 * A compiled representation of the HDF instance table reference regular expression.
 	 * We attempt to match input like "InstanceTable.Column(2)" or "ValueTable.Column(2)"
 	 */
 	private static final Pattern INSTANCE_REF_PATTERN = Pattern.compile(
@@ -116,6 +119,14 @@ public class ConversionHelper {
 		Pattern.CASE_INSENSITIVE
 	);
 
+	/**
+	 * A compiled representation of an EmbeddedFile reference regular expression.
+	 * We attempt to match input like "%EmbeddedFile(1)%"
+	 */
+	private static final Pattern EMBEDDED_FILE_PATTERN = Pattern.compile(
+		"%EmbeddedFile\\((\\d+)\\)%",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	/**
 	 * List of pattern function converters
@@ -123,7 +134,8 @@ public class ConversionHelper {
 	private static final List<PatternFunctionConverter> PATTERN_FUNCTION_CONVERTERS = List.of(
 		new PatternFunctionConverter(SOURCE_REF_PATTERN, ConversionHelper::convertSourceReference),
 		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, ConversionHelper::convertEntryReference),
-		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference)
+		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference),
+		new PatternFunctionConverter(EMBEDDED_FILE_PATTERN, ConversionHelper::convertEmbeddedFileReference)
 	);
 
 	/**
@@ -205,6 +217,23 @@ public class ConversionHelper {
 	private static String convertInstanceReference(final Matcher matcher, final String input) {
 		final String column = matcher.group(2).toLowerCase();
 		return String.format("$%s", column);
+	}
+
+	/**
+	 * Convert embedded file reference. E.g.
+	 * <b><u>%EmbeddedFile(1)%</u></b> becomes
+	 * <b><u>$embedded.EmbeddedFile(1)$</u></b>
+	 * 
+	 * @param matcher matcher used to find groups
+	 * @param input   input value to be replaced
+	 * @return updated string value
+	 */
+	private static String convertEmbeddedFileReference(final Matcher matcher, final String input) {
+		final String index = matcher.group(1);
+		return input.replace(
+			matcher.group(),
+			String.format("$embedded.EmbeddedFile(%s)$", index)
+		);
 	}
 
 	/**

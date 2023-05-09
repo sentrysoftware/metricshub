@@ -1,0 +1,142 @@
+// Sudo-able commands
+Sudo(1).Command="ethtool"
+//Sudo(2).Command="mii-tool"
+
+//
+// DETECTION
+//
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="Linux"
+Detection.Criteria(2).Type="OsCommand"
+Detection.Criteria(2).CommandLine=GLOBAL_COMMAND_LINE
+Detection.Criteria(2).ExpectedResult="LOOPBACK"
+
+//
+// Discovery
+//
+// Source(1) = output of the command ipconfig or ip
+NetworkCard.Discovery.Source(1).Type="OSCommand"
+NetworkCard.Discovery.Source(1).CommandLine=GLOBAL_COMMAND_LINE
+
+//
+// Collect
+//
+// Collect type is: mono-collect
+NetworkCard.Collect.Type="MonoInstance"
+
+// Source(1) = output of the ipconfig or ip command for this interface
+NetworkCard.Collect.Source(1).Type="OsCommand"
+NetworkCard.Collect.Source(1).CommandLine=COLLECT_COMMAND_LINE
+
+// Process the output of one of the two commands (ifconfig or ip) through an AWK script
+// DeviceID;MacAddress;IPAddress;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// InstanceTable = Source(1)
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+NetworkCard.Discovery.Instance.LogicalAddress=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.LogicalAddressType="IP"
+
+
+
+// Process the output of one of the two commands (ifconfig or ip) to retrieve statistics about the network interface
+// DeviceID;ReceivedPackets;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
+NetworkCard.Collect.Source(1).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+NetworkCard.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(1).Compute(1).Separators=";"
+NetworkCard.Collect.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7"
+
+// Source(2) = output of ethtool
+NetworkCard.Collect.Source(2).Type="OsCommand"
+NetworkCard.Collect.Source(2).CommandLine="%{SUDO:ethtool}/usr/sbin/ethtool %NetworkCard.Collect.DeviceID%"
+
+// Process the output of ethtool through an AWK script
+// DeviceID;LinkStatus;LinkSpeed;DuplexMode;
+NetworkCard.Collect.Source(2).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(2).Compute(1).AwkScript=EmbeddedFile(3)
+NetworkCard.Collect.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(2).Compute(1).Separators=";"
+NetworkCard.Collect.Source(2).Compute(1).SelectColumns="2,3,4,5"
+
+// Source(3) = table joint of Source(1) and Source(2)
+// DeviceID;ReceivedPackets;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;DeviceID;LinkStatus;LinkSpeed;DuplexMode;
+NetworkCard.Collect.Source(3).Type="TableJoint"
+NetworkCard.Collect.Source(3).LeftTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).RightTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(3).LeftKeyColumn=1
+NetworkCard.Collect.Source(3).RightKeyColumn=1
+NetworkCard.Collect.Source(3).DefaultRightLine=";;;;"
+
+// And here is the ValueTable
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(2)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(3)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(4)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(5)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(6)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(8)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(9)
+NetworkCard.Collect.DuplexMode=ValueTable.Column(10)
+
+///////////////////////////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = AWK script that extracts link information from ethtool
+///
+///////////////////////////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN {
+	linkSpeed = "";
+	duplexMode = "";
+	linkStatus = "";
+	deviceID = "";
+}
+/^Settings for / {
+	deviceID = $3;
+	gsub(":", "", deviceID);
+}
+/^[ \t]+Speed: / {
+	linkSpeed = $2;
+	gsub("Mb/s", "", linkSpeed);
+}
+/^[ \t]+Duplex: / {
+	if ($2 == "Full")
+	{
+		duplexMode = "Full";
+	}
+	else
+	{
+		duplexMode = "Half";
+	}
+}
+/^[ \t]+Link detected: / {
+	if ($3 == "yes")
+	{
+		linkStatus = "OK";
+	}
+	else if ($3 == "no")
+	{
+		linkStatus = "WARN";
+	}
+	else
+	{
+		linkStatus = "";
+	}
+}
+END {
+	if (deviceID != "")
+	{
+		print "MSHW;" deviceID ";" linkStatus ";" linkSpeed ";" duplexMode ";"
+	}
+}
+EmbeddedFile(3).End
+///////////////////////////////////////////////////////////////////////////////

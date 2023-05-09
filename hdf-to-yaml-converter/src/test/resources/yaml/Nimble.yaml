@@ -1,0 +1,954 @@
+---
+connector:
+  displayName: Nimble
+  platforms: Nimble
+  reliesOn: Nimble REST API
+  version: 1.0
+  information: This connector provides hardware monitoring for Nimble Storage Systems via Nimble's REST api
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    - type: deviceType
+      keep:
+      - Storage
+    # Check that the address / port is correct
+    - type: http
+      method: GET
+      url: /versions
+      header: "Content-Type: application/json"
+      expectedResult: "\"name\": *\"v1\""
+      errorMessage: Unable to connect to Nimble System.  Check port (default port is 5392) and IP/Address.
+    # Try and get a token
+    - type: http
+      method: POST
+      url: /v1/tokens
+      body: "{\"data\":{\"password\":\"%{PASSWORD}\",\"username\":\"%{USERNAME}\"}}"
+      header: "Content-Type: application/json"
+      expectedResult: session_token
+      errorMessage: Authentication Failed.  Check user credentials
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get Token
+          # Token in JSON format
+          type: http
+          method: POST
+          url: /v1/tokens
+          body: "{\"data\":{\"password\":\"%{PASSWORD}\",\"username\":\"%{USERNAME}\"}}"
+          header: "Content-Type: application/json"
+          computes:
+            # Extract Token
+            # AuthenticationToken
+          - type: json2csv
+            entryKey: data
+            properties: /session_token
+            separator: ;
+          - type: keepColumns
+            columnNumbers: 2
+        source(2):
+          # Get SystemInfo
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/arrays/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+          computes:
+            # Extract Array
+            # JSONIndex;ArrayID;ArrayModel;ArraySerialNumber;ArrayVersion;ArrayFullName;
+          - type: json2csv
+            entryKey: data
+            properties: /id;/extended_model;/serial;/version;/full_name;
+            separator: ;
+        source(3):
+          # Get Enclosure
+          # Query Enclosure
+          type: http
+          method: GET
+          url: /v1/shelves/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+        source(4):
+          # Make a copy to keep (3) for use in other classes
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Extract Enclosure
+            # JSONIndex;EnclosureID;ArrayID;EnclosureSerial;EnclosureType;EnclosureModel;
+          - type: json2csv
+            entryKey: data
+            properties: /id;/array_id;/serial;/chassis_type;/model_ext;
+            separator: ;
+        source(5):
+          # Attach the Array info to each Enclosure
+          # JSONIndex;EnclosureID;ArrayID;EnclosureSerial;EnclosureType;EnclosureModel;JSONIndex;ArrayID;ArrayModel;ArraySerialNumber;ArrayVersion;ArrayFullName;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(4)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          defaultRightLine: ;;;;;
+          computes:
+            # Merge the Array information to be put in Additional Information and add Labels
+            #     1         2         3            # 4             5            6           7           8       9             10            11             12
+            #             #             #             #             #             #             # ;AddInfo3; AddInfo1;       Additional Information 2             ;
+            # JSONIndex;EnclosureID;ArrayID;EnclosureSerial;EnclosureType;EnclosureModel;JSONIndex;ArrayID;ArrayModel;ArraySerialNumber;ArrayVersion;ArrayFullName;
+          - type: leftConcat
+            column: 8
+            value: "Array ID: "
+          - type: leftConcat
+            column: 9
+            value: "Array Model: "
+          - type: leftConcat
+            column: 10
+            value: "Array Serial Number: "
+          - type: rightConcat
+            column: 10
+            value: " - Version: "
+          - type: rightConcat
+            column: 10
+            value: Column(11)
+          - type: rightConcat
+            column: 10
+            value: " - Array Full Name: "
+          - type: rightConcat
+            column: 10
+            value: Column(12)
+            # Remove Chassis_ from the chassis type
+            # JSONIndex;EnclosureID;ArrayID;EnclosureSerial;EnclosureType;EnclosureModel;JSONIndex;ArrayID;ArrayModel;ArraySerialNumber;ArrayVersion;ArrayFullName;
+          - type: replace
+            column: 5
+            existingValue: chassis_
+            newValue: ""
+      mapping:
+        # Instance Table
+        #     1         2         3        #     4        #    5        #   6        #  7        #  8       9        #    10        #   11        #    12
+        # JSONIndex;EnclosureID;ArrayID;EnclosureSerial;EnclosureType;EnclosureModel;JSONIndex;ArrayID;ArrayModel;ArraySerialNumber;ArrayVersion;ArrayFullName;
+        source: $monitors.enclosure.discovery.sources.source(5)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(12)
+          vendor: Nimble
+          model: $column(6)
+          serial_number: $column(4)
+          type: $column(5)
+          info: "join($column(9), $column(10), $column(8), \" \")"
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(12), \"Nimble\", $column(6))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Get SystemInfo
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/shelves/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+        source(2):
+          # Make a copy to keep (2) for use in other classes
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Extract Enclosure
+            # JSONIndex;ID;PSUStatus;FanStatus;TemperatureStatus;
+          - type: json2csv
+            entryKey: data
+            properties: /id;/psu_overall_status;/fan_overall_status;/temp_overall_status;
+            separator: ;
+            # Duplicate and Merge Status
+            # JSONIndex;ID;Status;PSUStatus;FanStatus;TemperatureStatus;
+          - type: duplicateColumn
+            column: 3
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(5)
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(6)
+            # Label and Merge StatusInfromation
+            # JSONIndex;ID;Status;StatusInformation;FanStatus;TemperatureStatus;
+          - type: leftConcat
+            column: 4
+            value: "PSU: "
+          - type: rightConcat
+            column: 4
+            value: " - Fans: "
+          - type: rightConcat
+            column: 4
+            value: Column(5)
+          - type: rightConcat
+            column: 4
+            value: " - Temperature: "
+          - type: rightConcat
+            column: 4
+            value: Column(6)
+            # Tanslate Status code into OK/WARN/ALARM (for the Status parameter)
+            # JSONIndex;ID;Status;StatusInformation;FanStatus;TemperatureStatus;
+          - type: arrayTranslate
+            column: 3
+            translationTable: ShelfSensorTranslationTable
+            # Consolodate the Status Codes into a Single Status
+            # JSONIndex;ID;Status;StatusInformation;FanStatus;TemperatureStatus;
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+      mapping:
+        # Instance Table
+        # JSONIndex;ID;Status;StatusInformation;FanStatus;TemperatureStatus;
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Take the JSON from Enclosure.Discovery.Source(3)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Extract Blade
+            # JSONIndex;ChassisID;CtrlAddress;Location;Model;
+          - type: json2csv
+            entryKey: data/ctrlrs
+            properties: ../id;/ctrlr_side;/ctrlr_side;/ctrlr_hw_model;
+            separator: ;
+            # Add Label
+            # JSONIndex;ChassisID;CtrlAddress;Location;Model;
+          - type: leftConcat
+            column: 4
+            value: 'Controller '
+      mapping:
+        # InstanceTable
+        # JSONIndex;ChassisID;CtrlAddress;Location;Model;
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          model: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Type;ID;Location;
+          - type: json2csv
+            entryKey: data/ctrlrs/ctrlr_sensors
+            properties: ../ctrlr_side;/type;/display_name;/location
+            separator: ;
+          # Keep Only Temperature
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: temperature
+            # Duplicate the ID
+            # JSONIndex;CtrlAddress;Type;ID;ID;Location;
+          - type: duplicateColumn
+            column: 4
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Type;DeviceID;DisplayID;Location;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+      mapping:
+        # Instance Table
+        # JSONIndex;CtrlAddress;Type;DeviceID;DisplayID;Location;
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(5)
+          info: $column(6)
+          hw.parent.type: blade
+          hw.parent.id: $column(2)
+          name: $column(5)
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Type;ID;Status;Value;
+          - type: json2csv
+            entryKey: data/ctrlrs/ctrlr_sensors
+            properties: ../ctrlr_side;/type;/display_name;/status;/value
+            separator: ;
+          # Keep Only Temperature
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: temperature
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Type;ID;Status;Value;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+            # Duplicate the Status
+            # JSONIndex;CtrlAddress;Type;ID;Status;Status;Value;
+          - type: duplicateColumn
+            column: 5
+            # Translate the Status
+            # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
+          - type: translate
+            column: 5
+            translationTable: ShelfSensorTranslationTable
+      mapping:
+        # ValueTable
+        # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(4)
+        metrics:
+          hw.temperature: $column(7)
+          hw.status{hw.type="temperature"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Type;ID;Location;
+          - type: json2csv
+            entryKey: data/ctrlrs/ctrlr_sensors
+            properties: ../ctrlr_side;/type;/display_name;/location
+            separator: ;
+          # Keep Only Fan
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: fan
+            # Duplicate the ID
+            # JSONIndex;CtrlAddress;Type;ID;ID;Location;
+          - type: duplicateColumn
+            column: 4
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Type;DeviceID;DisplayID;Location;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+      mapping:
+        # Instance Table
+        # JSONIndex;CtrlAddress;Type;DeviceID;DisplayID;Location;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(5)
+          info: $column(6)
+          hw.parent.type: blade
+          hw.parent.id: $column(2)
+          name: $column(5)
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Type;ID;Status;Value;
+          - type: json2csv
+            entryKey: data/ctrlrs/ctrlr_sensors
+            properties: ../ctrlr_side;/type;/display_name;/status;/value
+            separator: ;
+          # Keep Only Fan
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: fan
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Type;ID;Status;Value;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+            # Duplicate the Status
+            # JSONIndex;CtrlAddress;Type;ID;Status;Status;Value;
+          - type: duplicateColumn
+            column: 5
+            # Translate the Status
+            # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
+          - type: translate
+            column: 5
+            translationTable: ShelfSensorTranslationTable
+      mapping:
+        # ValueTable
+        # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(4)
+        metrics:
+          hw.fan.speed: $column(7)
+          hw.status{hw.type="fan"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Type;ID;Location;
+          - type: json2csv
+            entryKey: data/chassis_sensors
+            properties: ../id;/type;/display_name;/location
+            separator: ;
+          # Keep Only PowerSupply
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Power Supply
+            # Duplicate the ID
+            # JSONIndex;CtrlAddress;Type;ID;ID;Location;
+          - type: duplicateColumn
+            column: 4
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Type;DeviceID;DisplayID;Location;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+      mapping:
+        # Instance Table
+        # JSONIndex;CtrlAddress;Type;DeviceID;DisplayID;Location;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(5)
+          info: $column(6)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(5)
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Type;ID;Status;Value;
+          - type: json2csv
+            entryKey: data/chassis_sensors
+            properties: ../id;/type;/display_name;/status;/value
+            separator: ;
+          # Keep Only PowerSupply
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: Power Supply
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Type;ID;Status;Value;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+            # Duplicate the Status
+            # JSONIndex;CtrlAddress;Type;ID;Status;Status;Value;
+          - type: duplicateColumn
+            column: 5
+            # Translate the Status
+            # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
+          - type: translate
+            column: 5
+            translationTable: ShelfSensorTranslationTable
+      mapping:
+        # ValueTable
+        # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(4)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Get PhysicalDisk
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/disks/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+          computes:
+            # Extract PhysicalDisk
+            # JSONIndex;ID;SerialNumber;ShelfID;Slot;Bank;ShelfLocation;Vendor;Firmware;Size;Model;
+          - type: json2csv
+            entryKey: data
+            properties: /id;/serial;/shelf_id;/slot;/bank;/shelf_location_id;/vendor;/firmware_version;/size;/model;
+            separator: ;
+        source(2):
+          # Copy Table to See Output of Json2Csv
+          # JSONIndex;ID;SerialNumber;ShelfID;Slot;Bank;ShelfLocation;Vendor;Firmware;Size;Model;
+          type: copy
+          from: $monitors.physical_disk.discovery.sources.source(1)$
+          computes:
+            # Build up the DisplayID
+            # JSONIndex;ID;SerialNumber;ShelfID;Slot;Bank;DisplayID;Vendor;Firmware;Size;Model;
+          - type: leftConcat
+            column: 7
+            value: "Shelf: "
+          - type: rightConcat
+            column: 7
+            value: " - Slot: "
+          - type: rightConcat
+            column: 7
+            value: Column(5)
+          - type: rightConcat
+            column: 7
+            value: " - Bank: "
+          - type: rightConcat
+            column: 7
+            value: Column(6)
+      mapping:
+        # InstanceTable
+        #    1        2       3        #  4   5     6    7        # 8      9      10   11
+        # JSONIndex;ID;SerialNumber;ShelfID;Slot;Bank;DisplayID;Vendor;Firmware;Size;Model;
+        source: $monitors.physical_disk.discovery.sources.source(2)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(7)
+          serial_number: $column(3)
+          vendor: $column(8)
+          firmware_version: $column(9)
+          model: $column(11)
+          info: "Type: Storage"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(4)
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(7), $column(8), $column(10))"
+        metrics:
+          hw.physical_disk.size: $column(10)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Get PhysicalDisk
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/disks/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+          computes:
+            # Extract PhysicalDisk
+            # JSONIndex;ID;State;RaidState;
+          - type: json2csv
+            entryKey: data
+            properties: /id;/state;/raid_state;
+            separator: ;
+        source(2):
+          # Copy Table to See Output of Json2Csv
+          # JSONIndex;ID;State;RaidState;
+          type: copy
+          from: $monitors.physical_disk.collect.sources.source(1)$
+          computes:
+            # Combine State and Raid state For both copies
+            # JSONIndex;ID;CombinedState;StatusInformation;
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(4)
+          - type: replace
+            column: 4
+            existingValue: Column(4)
+            newValue: Column(3)
+          # Built Status Information
+          - type: replace
+            column: 4
+            existingValue: '|'
+            newValue: " - Raid State: "
+          - type: leftConcat
+            column: 4
+            value: "State: "
+            # Tanslate Status code into OK/WARN/ALARM (for the Status parameter)
+            # JSONIndex;ID;StatusArray;StatusInformation;
+          - type: arrayTranslate
+            column: 3
+            translationTable: PhysicalDiskStatusTranslationTable
+            # Consolodate the Status Codes into a Single Status
+            # JSONIndex;ID;StatusArray;StatusInformation;
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(2)
+        # JSONIndex;ID;StatusArray;StatusInformation;
+        source: $monitors.physical_disk.collect.sources.source(2)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Status;ID;PortType;
+          - type: json2csv
+            entryKey: data/ctrlrs/port_info
+            properties: ../ctrlr_side;/port_status;/port_name;/port_type
+            separator: ;
+          # Exclude Disconnected Devices
+          - type: excludeMatchingLines
+            column: 3
+            valueList: disconnected
+            # Duplicate the ID
+            # JSONIndex;CtrlAddress;Status;ID;ID;PortType;
+          - type: duplicateColumn
+            column: 4
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Status;DeviceID;DisplayID;PortType;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+          - type: leftConcat
+            column: 6
+            value: "Port Type: "
+      mapping:
+        # Instance Table
+        # JSONIndex;CtrlAddress;Status;DeviceID;DisplayID;PortType;
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(5)
+          device_type: SASPort
+          info: $column(6)
+          hw.parent.type: blade
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s: %s\", \"SASPort\", $column(5))"
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Extract Blade
+            # JSONIndex;CtrlAddress;Status;ID;
+          - type: json2csv
+            entryKey: data/ctrlrs/port_info
+            properties: ../ctrlr_side;/port_status;/port_name
+            separator: ;
+            # Concat the CtrlAddress to the DeviceID
+            # JSONIndex;CtrlAddress;Status;ID;
+          - type: leftConcat
+            column: 4
+            value: '-'
+          - type: leftConcat
+            column: 4
+            value: Column(2)
+            # Duplicate the Status
+            # JSONIndex;CtrlAddress;Status;Status;ID;
+          - type: duplicateColumn
+            column: 3
+            # Translate the Status
+            # JSONIndex;CtrlAddress;PatrolStatus;Status;ID;
+          - type: translate
+            column: 3
+            translationTable: SASPortTranslationTable
+      mapping:
+        # ValueTable
+        # JSONIndex;CtrlAddress;PatrolStatus;Status;ID;
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Get NetworkCard
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/fibre_channel_interfaces/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+          computes:
+            # Convert the JSON
+            # JSONIndex;ControllerName;PortName;address;
+          - type: json2csv
+            entryKey: data/link_info
+            properties: ../controller_name;../fc_port_name;../wwpn
+            separator: ;
+            # Add the address Type & activateStatus
+            # JSONIndex;ControllerName;PortName;address;addresstype;activateStatus;
+          - type: rightConcat
+            column: 4
+            value: ;WWN;1
+        source(2):
+          # Get NetworkCard
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/network_interfaces/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+          computes:
+            # Convert the JSON
+            # JSONIndex;ControllerName;PortName;address;
+          - type: json2csv
+            entryKey: data
+            properties: /controller_name;/name;/mac
+            separator: ;
+            # Add the address Type & activateStatus
+            # JSONIndex;ControllerName;PortName;address;addresstype;activateStatus;
+          - type: rightConcat
+            column: 4
+            value: ;MAC;
+        source(3):
+          # Union 2 and 3
+          # JSONIndex;ControllerName;PortName;address;addresstype;activateStatus;
+          type: tableUnion
+          tables:
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(2)$
+          computes:
+            # Duplicate the Port Name
+            # JSONIndex;ControllerName;PortName;PortName;address;addresstype;activateStatus;
+          - type: duplicateColumn
+            column: 3
+            # Add the Controller Name to the Device ID
+            # JSONIndex;ControllerName;DeviceName;DisplayName;address;addresstype;activateStatus;
+          - type: leftConcat
+            column: 3
+            value: '-'
+          - type: leftConcat
+            column: 3
+            value: Column(2)
+      mapping:
+        # InstanceTable = Source(4)
+        # JSONIndex;ControllerName;DeviceName;DisplayName;address;addresstype;activateStatus;
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          physical_address: $column(5)
+          physical_address_type: $column(6)
+          hw.parent.type: blade
+          hw.parent.id: $column(2)
+          name: $column(4)
+    collect:
+      # Collect is multi-instance (all instances in one shot)
+      type: multiInstance
+      sources:
+        source(1):
+          # Get NetworkCard
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/fibre_channel_interfaces/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+          computes:
+            # Convert the JSON
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: json2csv
+            entryKey: data/link_info
+            properties: ../controller_name;../fc_port_name;/link_speed;/link_status;/operational_status
+            separator: ;
+            # Remove text from the speed
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: replace
+            column: 4
+            existingValue: plat_fc_link_speed_
+            newValue: ""
+          - type: replace
+            column: 4
+            existingValue: G
+            newValue: '000'
+            # Remove text from the linkstatus
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: replace
+            column: 5
+            existingValue: plat_fc_link_status_
+            newValue: ""
+            # Remove text from the status
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: replace
+            column: 6
+            existingValue: plat_fc_operational_status_
+            newValue: ""
+        source(2):
+          # Get NetworkCard
+          # Query Array
+          type: http
+          method: GET
+          url: /v1/network_interfaces/detail
+          resultContent: body
+          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
+          computes:
+            # Convert the JSON
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;
+          - type: json2csv
+            entryKey: data
+            properties: /controller_name;/name;/link_speed;/link_status
+            separator: ;
+            # Add the address Type
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: rightConcat
+            column: 5
+            value: ;
+            # Remove text from the speed
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: replace
+            column: 4
+            existingValue: link_speed_
+            newValue: ""
+          - type: replace
+            column: 4
+            existingValue: G
+            newValue: '000'
+          - type: replace
+            column: 4
+            existingValue: M
+            newValue: ""
+            # Remove text from the linkStatus
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: replace
+            column: 5
+            existingValue: link_status_
+            newValue: ""
+        source(3):
+          # Union 2 and 3
+          # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          type: tableUnion
+          tables:
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(2)$
+          computes:
+            # Add the Controller Name to the Device ID
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: leftConcat
+            column: 3
+            value: '-'
+          - type: leftConcat
+            column: 3
+            value: Column(2)
+            # Translate Link Status
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;
+          - type: translate
+            column: 5
+            translationTable: LinkStatusTranslationTable
+            # Translate Link Status
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;portstatusinformation;
+          - type: duplicateColumn
+            column: 6
+            # Translate Link Status
+            # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;portstatusinformation;
+          - type: translate
+            column: 6
+            translationTable: PortStatusTranslationTable
+      mapping:
+        # Value Table
+        # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;portstatusinformation;
+        source: $monitors.network.collect.sources.source(3)$
+        deviceId: $column(3)
+        metrics:
+          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($column(4))
+          hw.status{hw.type="network"}: $column(6)
+        legacyTextParameters:
+          StatusInformation: $column(7)
+translations:
+  ShelfSensorTranslationTable:
+    default: degraded
+    alerted: failed
+    missing: degraded
+    failed: failed
+    ok: ok
+  LinkStatusTranslationTable:
+    default: UNKNOWN
+    up: ok
+    down: degraded
+  SASPortTranslationTable:
+    connected: ok
+    disconnected: failed
+    default: degraded
+  PortStatusTranslationTable:
+    default: degraded
+    operational: ok
+  PhysicalDiskStatusTranslationTable:
+    okay: ok
+    n/a: UNKNOWN
+    void: degraded
+    in use: ok
+    failed: failed
+    resynchronizing: degraded
+    faulty: failed
+    foreign: degraded
+    valid: ok
+    default: UNKNOWN
+    removed: failed
+    t_fail: failed
+    absent: failed
+    spare: ok

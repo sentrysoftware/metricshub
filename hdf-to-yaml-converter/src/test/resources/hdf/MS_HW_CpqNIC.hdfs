@@ -1,0 +1,33 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_CpNICTeam.hdf
+//
+//      Supports: Windows systems with SNMP.EXE running
+//                Connects to a SNMP agent
+//
+//
+
+// HEADER
+hdf.DisplayName="HP Insight Management Agent - Network"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers enclosures, Ethernet ports and aggregations through the HP Insight Manager Agent."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux,OSF1,VMS,Solaris"
+// hdf.Supersedes="MS_HW_MIB2.hdf,MS_HW_MIB2Linux.hdf,MS_HW_MIB2NT.hdf,MS_HW_MIB2Solaris.hdf,MS_HW_WBEMGenNetwork.hdf,MS_HW_LinuxNetwork.hdf,MS_HW_HPUXNetwork.hdf,MS_HW_SunNetwork.hdf"
+
+// Constants
+#define Discovery_source %NetworkCard.Discovery.Source(1)%
+#define Collect_source %NetworkCard.Collect.Source(1)%
+
+// Includes
+#include MS_HW_CpqNetwork.hhdf

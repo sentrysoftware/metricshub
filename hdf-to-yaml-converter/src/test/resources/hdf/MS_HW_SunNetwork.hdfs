@@ -1,0 +1,641 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                    MS_HW_SunNetwork
+//
+//		Features: monitor the physical network interfaces on a Sun Solaris box
+//      Supports: Solaris 8, 9, 10
+//
+//
+//	Version 1.0 (January 2005): first version
+
+// Include the driver translation table
+#include MS_HW_SunEthernetDriver.hhdf
+
+// HEADER
+
+hdf.DisplayName="Oracle/Sun Solaris - Network"
+hdf.TypicalPlatform="Oracle/Sun"
+hdf.ReliesOn="Sun Solaris system commands (kstat, ndd, ifconfig, dladm, etc.)"
+hdf.Version="1.3"
+hdf.Comments="This connector provides the monitoring of network cards on all Sun Solaris systems."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Solaris"
+
+// SUDO-ABLE COMMANDS
+
+Sudo(1).Command="/usr/sbin/ndd"
+Sudo(2).Command="/usr/sbin/dladm"
+
+// DETECTION
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="SunOS,Solaris"
+
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/usr/sbin/ifconfig -a"
+Detection.Criteria(2).ExpectedResult="flags="
+
+//
+// Discovery
+//
+
+// Source(1) = output of ifconfig -a
+NetworkCard.Discovery.Source(1).Type="OSCommand"
+NetworkCard.Discovery.Source(1).CommandLine="/usr/sbin/ifconfig -a"
+
+// Process the output of ifconfig through an AWK script
+// LogicalDeviceID;MacAddress;IPAddress;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5"
+
+// Drop non-Ethernet stuff
+// LogicalDeviceID;MacAddress;IPAddress;Driver
+//NetworkCard.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+//NetworkCard.Discovery.Source(1).Compute(2).Column=1
+//NetworkCard.Discovery.Source(1).Compute(2).RegExp="\(^lo[0-9]+$\)\|\(^lpfc[0-9]+$\)\|\(^jnet[0-9]+$\)\|\(^clprivnet[0-9]+$\)\|\(^sppp[0-9]+$\)\|\(^dman[0-9]+$\)\|\(^aggr[0-9]+$\)"
+
+// Source(2) = output of prtconf -D or dladm show-dev
+// with only the network instances
+NetworkCard.Discovery.Source(2).Type="OSCommand"
+NetworkCard.Discovery.Source(2).CommandLine="/bin/sh %EmbeddedFile(5)%"
+//NetworkCard.Discovery.Source(2).CommandLine="if /usr/bin/test -x /usr/sbin/dladm; then if %{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev; then /usr/bin/echo; else /usr/sbin/ifconfig -a; fi else /usr/sbin/prtconf -D; fi"
+NetworkCard.Discovery.Source(2).KeepOnlyRegExp="\(network, instance #[0-9]\)\|\(link:.*speed:.*duplex:\)\|\(: flags=\)\|\(SUNW,qfe\)\|\(FJSV,pgtb\)\|\(LinkID:.*DeviceID:\)"
+
+// Process the output of prtconf through an AWK script to keep only the NIC ID
+// DeviceID;Driver;
+NetworkCard.Discovery.Source(2).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(4)
+NetworkCard.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(2).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(2).Compute(1).SelectColumns="2,3"
+
+// Source(3) = output of dladm show-phys
+// This command will only work on Solaris 11.  A blank table is expected on other versions.
+// LogicalDeviceID;PhysicalID
+NetworkCard.Discovery.Source(3).Type="OSCommand"
+NetworkCard.Discovery.Source(3).CommandLine="/bin/sh %EmbeddedFile(6)%"
+NetworkCard.Discovery.Source(3).KeepOnlyRegExp="[A-Za-z].*[0-9];[A-Za-z].*[0-9]"
+
+// Add a "" to column2 to force the PSL/Java close out column 2
+// LogicalDeviceID;PhysicalID;
+NetworkCard.Discovery.Source(3).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(3).Compute(1).Column=2
+NetworkCard.Discovery.Source(3).Compute(1).String=""
+
+// Source(4) = Table joint of Source(2) and Source(3)
+// Solaris 11 machines, the DeviceID from Table 2 will match the PhysicalID
+// For other versions, it will not match, so we put a marker in
+// DeviceID;Driver;LogicalDeviceID;PhysicalID;
+NetworkCard.Discovery.Source(4).Type="TableJoint"
+NetworkCard.Discovery.Source(4).LeftTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(4).RightTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Source(4).LeftKeyColumn=1
+NetworkCard.Discovery.Source(4).RightKeyColumn=2
+NetworkCard.Discovery.Source(4).DefaultRightLine="NotSolaris11;;"
+
+// For non-Solaris 11 machines, we will copy the deviceID into the PhysicalID column (where we put the marker NotSolaris11)
+// DeviceID;Driver;LogicalDeviceID;PhysicalID;
+NetworkCard.Discovery.Source(4).Compute(1).Type="Replace"
+NetworkCard.Discovery.Source(4).Compute(1).Column=3
+NetworkCard.Discovery.Source(4).Compute(1).Replace="NotSolaris11"
+NetworkCard.Discovery.Source(4).Compute(1).ReplaceBy=Column(1)
+
+// Source(3) = Table joint of Source(2) and Source(1)
+// DeviceID;Driver;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
+NetworkCard.Discovery.Source(5).Type="TableJoint"
+NetworkCard.Discovery.Source(5).LeftTable=%NetworkCard.Discovery.Source(4)%
+NetworkCard.Discovery.Source(5).RightTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(5).LeftKeyColumn=3
+NetworkCard.Discovery.Source(5).RightKeyColumn=1
+NetworkCard.Discovery.Source(5).DefaultRightLine=";;;"
+
+// Translate the Driver column into a model name
+//  DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
+NetworkCard.Discovery.Source(5).Compute(1).Type="Translate"
+NetworkCard.Discovery.Source(5).Compute(1).Column=2
+NetworkCard.Discovery.Source(5).Compute(1).TranslationTable="DriverTranslationTable"
+
+// InstanceTable = Source(3)
+// DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(5)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+NetworkCard.Discovery.Instance.LogicalAddress=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.LogicalAddressType="IP"
+//NetworkCard.Discovery.Instance.ParameterActivation.ReceivedBytesRate=InstanceTable.Column(6)
+//NetworkCard.Discovery.Instance.ParameterActivation.TransmittedBytesRate=InstanceTable.Column(6)
+
+
+//
+// Collect
+//
+
+// Collect type is: mono-collect
+NetworkCard.Collect.Type="MonoInstance"
+
+// Source(1) = output of the embedded script 2 (ifconfig output)
+// DeviceID;ifconfigFlags
+NetworkCard.Collect.Source(1).Type="OsCommand"
+NetworkCard.Collect.Source(1).CommandLine="if /usr/sbin/ifconfig %NetworkCard.Collect.DeviceID%; then /usr/bin/echo; else /usr/bin/echo ""%NetworkCard.Collect.DeviceID%: flags=00000000:UNPLUMBED""; fi"
+NetworkCard.Collect.Source(1).KeepOnlyRegExp="^%NetworkCard.Collect.DeviceID%: flags="
+NetworkCard.Collect.Source(1).Separators=":<>"
+NetworkCard.Collect.Source(1).SelectColumns="1,3"
+
+// Duplicate the ifconfigFlags
+// DeviceID;ifconfigFlags;ifconfigFlags;
+NetworkCard.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first ifconfig flags
+// DeviceID;StatusArray;ifconfigFlags;
+NetworkCard.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+NetworkCard.Collect.Source(1).Compute(2).Column=2
+NetworkCard.Collect.Source(1).Compute(2).TranslationTable="ifconfigFlagsTranslationTable"
+NetworkCard.Collect.Source(1).Compute(2).ArraySeparator=","
+NetworkCard.Collect.Source(1).Compute(2).ResultSeparator="|"
+
+// The ifconfigFlagsTranslationTable
+ifconfigFlagsTranslationTable("FAILED")="ALARM"
+ifconfigFlagsTranslationTable("DEPRECATED")="OK"
+ifconfigFlagsTranslationTable("INACTIVE")="OK"
+ifconfigFlagsTranslationTable("OFFLINE")="OK"
+ifconfigFlagsTranslationTable("RUNNING")="OK"
+ifconfigFlagsTranslationTable("STANDBY")="OK"
+ifconfigFlagsTranslationTable("UP")="OK"
+ifconfigFlagsTranslationTable("UNPLUMBED")="OK"
+ifconfigFlagsTranslationTable(Default)="OK"
+
+// Convert StatusArray into Status
+// DeviceID;Status;StatusInformation;
+NetworkCard.Collect.Source(1).Compute(3).Type="Convert"
+NetworkCard.Collect.Source(1).Compute(3).Column=2
+NetworkCard.Collect.Source(1).Compute(3).ConversionType="Array2SimpleStatus"
+
+// Source(2) = output of embedded script 4 (complicated shell script)
+NetworkCard.Collect.Source(2).Type="OsCommand"
+NetworkCard.Collect.Source(2).CommandLine="/bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%"
+
+// Process the output of this script through a smart AWK script
+// DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
+NetworkCard.Collect.Source(2).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(2).Compute(1).AwkScript=EmbeddedFile(3)
+NetworkCard.Collect.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Collect.Source(2).Compute(1).Separators=";"
+NetworkCard.Collect.Source(2).Compute(1).SelectColumns="2,3,4,5,6,7,8,9,10"
+
+// Source(3) = table joint of Source(1) and Source(2)
+// DeviceID;Status;StatusInformation;DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
+NetworkCard.Collect.Source(3).Type="TableJoint"
+NetworkCard.Collect.Source(3).LeftTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).RightTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(3).LeftKeyColumn=1
+NetworkCard.Collect.Source(3).RightKeyColumn=1
+NetworkCard.Collect.Source(3).DefaultRightLine=";;;;;;;;;"
+
+// And here is the ValueTable
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(6)
+NetworkCard.Collect.DuplexMode=ValueTable.Column(7)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(8)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(9)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(10)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(11)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(12)
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = shell script mixing ifconfig and kstat
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	DeviceID = ""
+}
+/^[a-z0-9]+: flags=/ {
+
+	if (DeviceID != "")
+	{
+		print "MSHW;" DeviceID ";" macAddress ";" ipAddress
+		DeviceID = ""
+		macAddress = ""
+		ipAddress = ""
+	}
+
+	ltIndex = index($0, "<")
+	if (ltIndex != 0)
+	{
+		gtIndex = index($0, ">")
+		if (gtIndex > ltIndex)
+		{
+			flags = substr($0, ltIndex + 1, gtIndex - ltIndex - 1)
+
+			if (index(flags, "LOOPBACK") == 0 && index(flags, "OFFLINE") == 0 && index(flags, "UP") > 0)
+			{
+				DeviceID = substr($1, 1, length($1) - 1)
+			}
+		}
+	}
+}
+/^[ \t]+inet [0-9]/ {
+	ipAddress = $2
+}
+/^[ \t]+ether [0-9A-Za-z]/ {
+	macAddress = $2
+}
+END {
+	if (DeviceID != "")
+	{
+		print "MSHW;" DeviceID ";" macAddress ";" ipAddress
+	}
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = shell script that gives the link status thanks to kstat and ndd
+///						 and also link speed, duplex mode, received and transmitted bytes
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+#!/bin/sh
+
+# First of all, make sure the thing speaks english
+LANG=C
+export LANG
+
+# Get the Solaris version, because kstat is not available in pre-Solaris 9
+# and netstat -k is not available in Solaris 10...
+OSVERSION=`/usr/bin/uname -r|/usr/bin/awk -F. '{print $2}'`
+
+# Extract the name of the driver and the instance number
+DRIVER=`/usr/bin/echo $1 | /usr/bin/sed -e "s/[0-9]*$//"`
+INSTANCE=`/usr/bin/echo $1 | /usr/bin/sed -e "s/^$DRIVER//"`
+
+# Print out the device ID
+/usr/bin/echo "DeviceID $1"
+
+####  KERNELSTAT Section (Statistics)
+
+#
+# Solaris 8 or earlier
+#
+if /usr/bin/test $OSVERSION -le 8; then
+	# Check that ifconfig knows the card
+	/usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;
+	if [ $? -ne 0 ]; then
+		/usr/sbin/ifconfig $1; exit;
+	fi
+
+	# Get KernelStat info (in this case netstat)
+	KERNELSTAT=`/usr/bin/netstat -k $1|/usr/bin/awk '{
+		for (i=1 ; i<=NF ; i++)
+		{
+			statName = $i;
+			i++;
+			statValue = $i;
+			if ($(i+1) ~ /^[0-9]+$/)
+			{
+				i++;
+				statValue = statValue * 4294967296 + $i;
+			}
+			print statName,statValue;
+		}
+	}'`
+fi
+
+#
+# Solaris 9
+#
+if /usr/bin/test $OSVERSION -eq 9; then
+	# Check that ifconfig knows the card
+	/usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;
+	if [ $? -ne 0 ]; then
+		/usr/sbin/ifconfig $1; exit;
+	fi
+	# Get KernelStat Information
+	KERNELSTAT=`/usr/bin/kstat -m $DRIVER -i $INSTANCE -n $1`
+fi
+
+#
+# Solaris 10
+#
+if /usr/bin/test $OSVERSION -eq 10; then
+	# Check that ifconfig knows the card
+	/usr/sbin/ifconfig $1 1>/dev/null 2>/dev/null;
+	if [ $? -eq 0 ]; then
+		KERNELSTAT=`/usr/bin/kstat -m $DRIVER -i $INSTANCE -n $1`
+	else
+		%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-aggr -p | grep $1 1>/dev/null;
+		if [ $? -eq 0 ]; then
+			# Port is part of a Solaris 10 Aggregate, so print information and exit
+			%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev -s -p $1 ;%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev -p $1;exit
+		else
+			echo
+			/usr/sbin/ifconfig $1
+			echo /usr/sbin/ifconfig and dladm failed;
+			echo If port is part of an aggregate, check that patrol user has rights to execute "/usr/sbin/dladm show-dev -s -p $1" and "/usr/sbin/dladm show-dev -p $1" or enable sudo
+			echo Otherwise, check that port if plumbed and listed in the output of ifconfig -a
+			exit;
+		fi
+	fi
+fi
+
+#
+# Solaris 11
+#
+if /usr/bin/test $OSVERSION -eq 11; then
+	KERNELSTAT=`/usr/bin/kstat link | /usr/bin/nawk -v port="$1" '{if ($1 ~ /module:/) {correctPort=0};if ($2 == port) {correctPort=1}; if (correctPort==1) {print $0}}'`
+fi
+
+
+# Print out the information provided by the kernel
+/usr/bin/echo "$KERNELSTAT"
+
+# Now, check whether we got the link information that we need
+REQUIRESDLADM=0
+LINKUP=`/usr/bin/echo "$KERNELSTAT"|/usr/bin/grep link_up`
+if /usr/bin/test "$LINKUP" = ""; then
+	REQUIRESDLADM=1
+fi
+LINKSPEED=`/usr/bin/echo "$KERNELSTAT"|/usr/xpg4/bin/grep -e link_speed -e ifspeed`
+if /usr/bin/test "$LINKSPEED" = ""; then
+	REQUIRESDLADM=1
+fi
+LINKDUPLEX=`/usr/bin/echo "$KERNELSTAT"|/usr/xpg4/bin/grep -e link_duplex -e duplex`
+if /usr/bin/test "$LINKDUPLEX" = ""; then
+	REQUIRESDLADM=1
+fi
+
+
+#### dladm and maybe ndd section (link status, etc.)
+
+if /usr/bin/test $REQUIRESDLADM = 1; then
+
+	# We will try ndd if dladm fails (by default, we consider dladm is going to fail, and if successful, we cancel the ndd try)
+	REQUIRESNDD=1
+
+	# Solaris 10 or earlier
+	if /usr/bin/test $OSVERSION -le 10; then
+
+		# Try dladm if dladm is available
+ 		if /usr/bin/test -x /usr/sbin/dladm; then
+ 			echo Trying dladm
+ 			DLADMOUTPUT=`%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-dev $1`
+ 			if /usr/bin/test $? = 0; then
+ 				REQUIRESNDD=0
+ 				echo "$DLADMOUTPUT" | /usr/bin/awk '{
+											if ($2 ~ /link:/ && $3 ~ /up/) {print "link_status 1"}
+											if ($2 ~ /link:/ && $3 ~ /down/) {print "link_status 0"}
+											if ($4 ~ /speed:/ && $6 ~ /[Mm]bps/) {print "link_speed " $5}
+											if ($4 ~ /speed:/ && $6 ~ /[Gg]bps/) {print "link_speed " $5*1000}
+											if ($7 ~ /duplex:/ ) {print "duplex " $8}
+	                                                 }'
+			fi
+		fi
+
+		# If dladm failed, we will have a last try with ndd
+		if /usr/bin/test $REQUIRESNDD = 1; then
+
+			if /usr/bin/test "$DRIVER" = "dmfe" -o "$DRIVER" = "bge" -o "$DRIVER" = "e1000g" -o "$DRIVER" = "rge"; then
+				NDDDEV=/dev/$1
+			else
+				%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd -set /dev/$DRIVER instance $INSTANCE 2>/dev/null
+				NDDDEV=/dev/$DRIVER
+			fi
+
+			# Check we have rights to execute ndd
+			if `%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV ? >/dev/null 2>/dev/null`; then
+
+				VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_status 2>/dev/null`;  if /usr/bin/test $? = 0; then /usr/bin/echo "link_status $VALUE"; else $REQUIRESDLADM=1; fi
+				VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_speed 2>/dev/null`; if /usr/bin/test $? = 0; then /usr/bin/echo "link_speed $VALUE"; fi
+				VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_mode 2>/dev/null`; if /usr/bin/test $? -eq 0; then /usr/bin/echo "link_mode $VALUE"; fi
+				VALUE=`%{SUDO:/usr/sbin/ndd}/usr/sbin/ndd $NDDDEV link_duplex 2>/dev/null`; if /usr/bin/test $? -eq 0; then /usr/bin/echo "link_duplex $VALUE"; fi
+
+			else
+
+				echo insufficient rights to execute ndd on $1
+			fi
+		fi
+
+	fi
+
+	# Solaris 11  (dladm only)
+	if /usr/bin/test $OSVERSION -ge 11; then
+	%{SUDO:/usr/sbin/dladm}/usr/sbin/dladm show-ether -p -o LINK,STATE,SPEED-DUPLEX $1 | /usr/bin/nawk 'BEGIN{FS=":"} {
+			                if ($2 ~ /up/ ) {print "link_status 1"}
+			                if ($2 ~ /down/ ) {print "link_status 0"}
+                      if ($3 ~ /M/) {speed=$3
+                                     gsub(/M.*/,"",speed)
+                                     print "link_speed " speed}
+                      if ($3 ~ /G/) {speed=$3
+                                     gsub(/G.*/,"000",speed)
+                                     print "link_speed " speed}
+                      if ($3 ~ /-f/) {print "duplex full" }
+	                                                                     }'
+	fi
+fi
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = AWK script that process the output
+///						 of the EmbeddedFile(2) shell script and
+///						 prints a nicely formatted single-line table
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN {
+	deviceID = "";
+	linkStatus = "";
+	linkDuplex = "";
+	linkSpeed = "";
+	receivedPackets = "";
+	transmittedPackets = "";
+	inputErrors = 0;
+	outputErrors = 0;
+	collisions = 0;
+	receivedBytes = "";
+	transmittedBytes = "";
+}
+($1 == "DeviceID") { deviceID = $2; }
+(($1 == "link_up" || $1 == "link_status") && linkStatus != "OK") { if ($2 == 1) { linkStatus = "OK"; } else { linkStatus = "WARN"; } }
+($1 == "ifspeed" || $1 == "ifSpeed" && linkSpeed == "") { linkSpeed = $2; }
+($1 == "link_speed") { linkSpeed = $2; }
+($1 == "duplex") { if ($2 == "full") { linkDuplex = "full"; } else { linkDuplex = "half"; } }
+($1 == "link_mode") { if ($2 == 1) { linkDuplex = "full"; } else { linkDuplex = "half"; } }
+($1 == "link_duplex") { if ($2 == 2) { linkDuplex = "full"; } else { linkDuplex = "half"; } }
+($1 == "ipackets64") { receivedPackets = $2; }
+($1 == "ipackets" && receivedPackets == "") { receivedPackets = $2; }
+($1 == "opackets64") { transmittedPackets = $2; }
+($1 == "opackets" && transmittedPackets == "") { transmittedPackets = $2; }
+($1 == "ierrors") { inputErrors = $2; }
+($1 == "oerrors") { outputErrors = $2; }
+($1 == "collisions") { collisions = $2; }
+($1 == "rbytes64") { receivedBytes = $2; }
+($1 == "rbytes" && receivedBytes == "") { receivedBytes = $2; }
+($1 == "obytes64") { transmittedBytes = $2; }
+($1 == "obytes" && transmittedBytes == "") { transmittedBytes = $2; }
+
+
+# Solaris 10 Aggregate Section
+#
+($1 == deviceID) && ($2 ~ /[0-9]+/) && ($3 ~ /[0-9]+/) && ($4 ~ /[0-9]+/) && ($5 ~ /[0-9]+/) && ($6 ~ /[0-9]+/) && ($7 ~ /[0-9]+/) {
+ 	print deviceID
+	receivedPackets = $2
+	receivedBytes = $3
+	inputErrors = $4
+	transmittedPackets = $5
+	transmittedBytes = $6
+	outputErrors = $7
+	}
+($1 == deviceID) && ($2 ~ /link=/) && ($3 ~ /speed=/) && ($4 ~ /duplex=/) {
+	if ($2 ~ /up/) {linkStatus = "OK"} else { linkStatus = "WARN"; }
+  linkSpeed = $3 ; gsub ("speed=","",linkSpeed)
+  if ($4 ~ /full/) { linkDuplex = "full"; } else { linkDuplex = "half"; }
+}
+
+END {
+	if (linkSpeed == 0) 				{ linkSpeed = 10; }
+	else if (linkSpeed == 1)			{ linkSpeed = 100; }
+	else if (linkSpeed == 10000000)		{ linkSpeed = 10; }
+	else if (linkSpeed == 100000000)	{ linkSpeed = 100; }
+	else if (linkSpeed == 1000000000)	{ linkSpeed = 1000; }
+	else if (linkSpeed == "10000000000")	{ linkSpeed = 10000; }
+
+	errors = inputErrors + outputErrors + collisions;
+
+	print "MSHW;" deviceID ";" linkStatus ";" linkSpeed ";" linkDuplex ";" receivedPackets ";" transmittedPackets ";" errors ";" receivedBytes ";" transmittedBytes ";"
+}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(4) = AWK script that process the output
+///						 of prtconf -D and returns the list of
+///						 all NICs (even unplumbed) and their driver
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(4):
+/driver name:/ {
+	instance = substr($3, 2, length($3) - 1);
+	driver = substr($NF, 1, length($NF) - 1);
+	if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+	{
+		print "MSHW;" driver instance ";" driver
+	}
+}
+/link:.*speed:.*duplex:/ {
+	deviceid = $1;
+	driver = deviceid;
+	instance = "";
+	while (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)
+	{
+		instance = substr(driver, length(driver), 1) instance;
+		driver = substr(driver, 1, length(driver) - 1);
+	}
+	if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+	{
+		print "MSHW;" driver instance ";" driver
+	}
+}
+/: flags=/ {
+	deviceid = substr($1, 1, length($1) - 1);
+	driver = deviceid;
+	instance = "";
+	while (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)
+	{
+		instance = substr(driver, length(driver), 1) instance;
+		driver = substr(driver, 1, length(driver) - 1);
+	}
+	if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+	{
+		print "MSHW;" driver instance ";" driver
+	}
+}
+/LinkID:.*DeviceID:/ {
+	deviceid = $2;
+	driver = $4;
+	instance = "";
+	while (substr(driver, length(driver), 1) ~ /^[0-9]$/ && length(driver) > 1)
+	{
+		driver = substr(driver, 1, length(driver) - 1);
+	}
+	if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+	{
+		print "MSHW;" deviceid  ";" driver
+	}
+}
+EmbeddedFile(4).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = One Line Discovery Command moved here due to Portal Command Length issue.
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+if /usr/bin/test -x /usr/sbin/dladm; then
+    if %{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-dev 2>/dev/null; then
+        /usr/bin/echo;
+        else
+        if showPhys=`%{SUDO:/usr/sbin/dladm} dladm show-phys -o LINK,DEVICE -p 2>/dev/null | grep "[a-zA-Z][0-9][0-9]*:[a-zA-Z]"`; then
+            for Phys in $showPhys; do
+                Phys1=`echo $Phys | cut -d: -f1`
+                Phys2=`echo $Phys | cut -d: -f2`
+                echo LinkID: $Phys1 DeviceID: $Phys2
+            done
+            /usr/bin/echo;
+            else /usr/sbin/ifconfig -a;
+        fi
+    fi
+    else /usr/sbin/prtconf -D;
+fi
+EmbeddedFile(5).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(6) = One Line Discovery Command moved here due to Portal Command Length issue.
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(6):
+%{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-phys -o LINK,DEVICE -p 2>/dev/null | /usr/bin/tr ':' ';'
+EmbeddedFile(6).End
+/////////////////////////////////////////////////////////////////////

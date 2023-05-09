@@ -1,0 +1,42 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: Emc Vplex
+//                Connects to REST API
+// ....Source(n).Type="HTTP"
+// ....Source(n).Method="GET|POST"
+// ....Source(n).URL="/url/test.pl"
+// ....Source(n).Header=EmbeddedFile(1)
+// ....Source(n).Body=EmbeddedFile(2)
+// ....Source(n).ResultContent="httpStatus|header|body|all".
+// ....Source(n).AuthenticationToken=%...Source(n-1)%
+//
+//
+
+//
+// Header
+//
+#include MS_HW_VPLEX.hhdf
+
+hdf.DisplayName="EMC VPLEX Version 6"
+hdf.TypicalPlatform="EMC VPLEX"
+hdf.ReliesOn="EMC VPLEX REST API Version 6 and Higher"
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+hdf.Supersedes="MS_HW_VPLEX5.hdf"
+
+// DETECTION
+// Does a get_next to see if there that the Chassis OID is populated.
+Detection.Criteria(1).Type="HTTP"
+Detection.Criteria(1).Method="GET"
+Detection.Criteria(1).URL="/vplex/engines"

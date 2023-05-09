@@ -1,0 +1,919 @@
+---
+connector:
+  displayName: Lenovo ThinkSystem Rack Mount Server
+  platforms: Lenovo Server
+  reliesOn: Lenovo ThinkSystem SNMP Agent
+  information: This connector provides the hardware monitoring of the Lenovo ThinkSystem Server through the SNMP Agent.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    criteria:
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.19046.11.1.1.5.20.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model name and manufacturer of the rack mount unit along with serial and part numbers
+          # ID;MachineType;MachineModel;SerialNumber;ProductName
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.5.2.1
+          selectColumns: "ID,1,2,3,5"
+          computes:
+            # Add ChassisType to Model
+            # ID;MachineType;MachineModel;SerialNumber;ProductName
+          - type: rightConcat
+            column: 2
+            value: '-'
+          - type: rightConcat
+            column: 2
+            value: Column(3)
+        source(2):
+          # Enclosure power consumption
+          # id,PowerConsumption
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.10.1
+          selectColumns: "ID,10"
+        source(3):
+          # Join the Chassis to the Power Consumption
+          # ID;MachineType;MachineModel;SerialNumber;ProductName;id,PowerConsumption
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # Instance Table
+        # ID;MachineType;MachineModel;SerialNumber;ProductName;id,PowerConsumption
+        source: $monitors.enclosure.discovery.sources.source(3)$
+        attributes:
+          id: Server
+          __display_id: $column(5)
+          model: $column(2)
+          serial_number: $column(4)
+          vendor: Lenovo
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(5), \"Lenovo\", $column(2))"
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = SystemHealth
+          # ID;SystemHealth
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.4
+          selectColumns: "ID,1"
+          computes:
+          - type: duplicateColumn
+            column: 2
+          # ID;PATROLStatus;OperState
+          - type: translate
+            column: 2
+            translationTable: enclosureStatusTranslationTable
+            # Translate second StatusCode into a more readable string
+            # ID;PATROLStatus;StatusInformation
+          - type: translate
+            column: 3
+            translationTable: enclosureStatusInformationTranslationTable
+        source(2):
+          # Source(2) = PowerConsumption Collect
+          # ID;PowerInUse
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.10.1
+          selectColumns: "ID,10"
+        source(3):
+          # Source(3) = TableJoint of 1 & 2
+          # ID;PATROLStatus;StatusInformation;ID;PowerInUse
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+      mapping:
+        # Value Table
+        # ID;PATROLStatus;StatusInformation;ID;PowerInUse
+        source: $monitors.enclosure.collect.sources.source(3)$
+        deviceId: Server
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+          hw.enclosure.power: $column(5)
+          hw.enclosure.energy: fakeCounter($column(5))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.5.21.1
+          selectColumns: "2,8,7,6,9,4,3"
+          computes:
+            # Translate Status into PATROLStatus
+            # Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
+          - type: translate
+            column: 2
+            translationTable: StatusTranslationTable
+            # Convert size from GB to MB
+            # Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
+          - type: multiply
+            column: 3
+            value: 1024
+            # Add some descriptors to Part Number in additionnal information
+            # Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
+          - type: leftConcat
+            column: 7
+            value: "Part Number: "
+            # Add memory unit
+            # Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
+          - type: rightConcat
+            column: 5
+            value: ' Mhz'
+          - type: leftConcat
+            column: 5
+            value: "Speed: "
+      mapping:
+        # InstanceTable = Source(1)
+        # Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          type: $column(4)
+          serial_number: $column(6)
+          info: "join($column(5), $column(7), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(4), $column(3))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(3))
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Description,Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.5.21.1
+          selectColumns: "2,8"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # Description;FanStatus;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.3.2.1
+          selectColumns: "2,10"
+          computes:
+            # And Finally, remove Temp from the ID
+            # Description;FanStatus;
+          - type: replace
+            column: 1
+            existingValue: ' Tach'
+            newValue: ""
+      mapping:
+        # Instance table = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.3.2.1
+          selectColumns: "2,10"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+            # And Finally, remove Tach from the ID
+            # Description;PATROLStatus;Status;
+          - type: replace
+            column: 1
+            existingValue: ' Tach'
+            newValue: ""
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.2.2.1
+          selectColumns: "2,9,6,3,11"
+          computes:
+          # Convert Volt to mV
+          - type: multiply
+            column: 2
+            value: 1000
+          # Convert Volt to mV
+          - type: multiply
+            column: 3
+            value: 1000
+            # awk everything to have status activated if sensors!=null and deduct controller id
+            # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
+          - type: awk
+            script: EmbeddedFile(1)
+            # Translate Status into PATROLStatus
+            # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
+          - type: translate
+            column: 5
+            translationTable: statusTranslationTable
+      mapping:
+        # Instance table = Source(1)
+        # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
+        metrics:
+          hw.voltage.limit{limit_type="high.degraded"}: $column(3)
+          hw.voltage.limit{limit_type="low.critical"}: $column(2)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;CurrentReading;Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.2.2.1
+          selectColumns: "2,3,11"
+          computes:
+          # Convert Volt to mV
+          - type: multiply
+            column: 2
+            value: 1000
+            # Translate Status into PATROLStatus
+            # Description;CurrentReading;Status
+          - type: translate
+            column: 3
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        # Description;CurrentReading;Status
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+          hw.status{hw.type="voltage"}: $column(3)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the processorDeviceTable snmp table
+          # Description;Speed;Family;Cores;Threads;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.5.20.1
+          selectColumns: "2,3,6,7,8,11"
+          computes:
+            # Add some descriptors
+            # Description;Speed;Family;Cores;Threads;Status;
+          - type: leftConcat
+            column: 4
+            value: "Cores: "
+          - type: leftConcat
+            column: 5
+            value: "Threads: "
+      mapping:
+        # InstanceTable = Source(1)
+        # Description;Speed;Family;Cores;Threads;Status;
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          model: $column(3)
+          info: "join($column(4), $column(5), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.5.20.1
+          selectColumns: "2,11"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the processorDeviceTable snmp table
+          # Description;PartNumber;FruNumber;SerialNumber;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.11.2.1
+          selectColumns: "2,3,4,5,6"
+          computes:
+            # Add some descriptors
+            # Description;PartNumber;FruNumber;SerialNumber;Status;
+          - type: leftConcat
+            column: 2
+            value: "Part Number: "
+          - type: leftConcat
+            column: 3
+            value: "Alternative Part Number: "
+          - type: leftConcat
+            column: 4
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        # Description;PartNumber;FruNumber;SerialNumber;Status;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          info: "join($column(2), $column(3), $column(4), \" \")"
+          hw.parent.type: enclosure
+          name: $column(1)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.11.2.1
+          selectColumns: "2,6"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Firmware;Manufacturer;Model;SerialNumber;CacheStatus;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.2.1
+          selectColumns: "2,4,6,9,10,13"
+          computes:
+            # Add some descriptors
+            # Description;Firmware;Manufacturer;Model;SerialNumber;CacheStatus;
+          - type: leftConcat
+            column: 3
+            value: "Manufacturer: "
+          - type: leftConcat
+            column: 5
+            value: "Serial: "
+            # Replace Unknown with blank to deactivate DiskController status
+            # Description;Firmware;Manufacturer;Model;SerialNumber;CacheStatus;
+          - type: replace
+            column: 6
+            existingValue: Unknown
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # Description;Firmware;Manufacturer;Model;SerialNumber;CacheStatus;
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          model: $column(4)
+          firmware_version: $column(2)
+          serial_number: $column(5)
+          vendor: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(3), $column(4))"
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.2.1
+          selectColumns: "2,13"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # Description;ControllerName;Size;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.7.1
+          selectColumns: "2,3,5"
+          computes:
+            # Split the size units from the size
+            # Description;ControllerName;Size;SizeUnits;
+          - type: replace
+            column: 3
+            existingValue: ' '
+            newValue: ;
+            # Convert the Size units to a multiplier factor
+            # Description;ControllerName;Size;SizeUnits;
+          - type: translate
+            column: 4
+            translationTable: SizeUnitsTranslationTable
+            # Multiply the Size by the Size Units Multiplier
+            # Description;ControllerName;Size;SizeUnits;
+          - type: multiply
+            column: 3
+            value: Column(4)
+      mapping:
+        # InstanceTable = Source(1)
+        # Description;ControllerName;Size;SizeUnits;
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%by2hf.s)\", $column(1), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.7.1
+          selectColumns: "2,4"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the processorDeviceTable snmp table
+          # Description;Model;Slot;Type;HDD/SSD;Speed;Status;Manufacturer;EnclosureID;SerialNumber;FRU;PartNumber;Size;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.3.1
+          selectColumns: "2,3,5,7,8,9,11,13,14,17,18,19,12"
+          computes:
+            # Split the size units from the size
+            # Description;Model;Slot;Type;HDD/SSD;Speed;Status;Manufacturer;EnclosureID;SerialNumber;FRU;PartNumber;Size;SizeUnits;
+          - type: replace
+            column: 13
+            existingValue: ' '
+            newValue: ;
+            # Convert the Size units to a multiplier factor
+            # Description;Model;Slot;Type;HDD/SSD;Speed;Status;Manufacturer;EnclosureID;SerialNumber;FRU;PartNumber;Size;SizeUnits;
+          - type: translate
+            column: 14
+            translationTable: SizeUnitsTranslationTable
+            # Multiply the Size by the Size Units Multiplier
+            # Description;Model;Slot;Type;HDD/SSD;Speed;Status;Manufacturer;EnclosureID;SerialNumber;FRU;PartNumber;Size;SizeUnits;
+          - type: multiply
+            column: 13
+            value: Column(14)
+            # Create the Location
+            # Description;Model;Location;Type;HDD/SSD;Speed;Status;Manufacturer;EnclosureID;SerialNumber;FRU;PartNumber;Size;SizeUnits;
+          - type: leftConcat
+            column: 3
+            value: " - Slot: "
+          - type: leftConcat
+            column: 3
+            value: Column(9)
+          - type: leftConcat
+            column: 3
+            value: "Enclosure: "
+            # Create Drive Type
+            # Description;Model;Location;Type;HDD/SSD;Speed;Status;Manufacturer;EnclosureID;SerialNumber;FRU;PartNumber;Size;SizeUnits;
+            # ,<type>
+          - type: leftConcat
+            column: 4
+            value: ", "
+          # <hdd/ssd>,<type>
+          - type: leftConcat
+            column: 4
+            value: Column(5)
+          # Disk Type: <hdd/ssd>,<type>
+          - type: leftConcat
+            column: 4
+            value: "Disk Type: "
+          # - Disk Type: <hdd/ssd>,<type>
+          - type: leftConcat
+            column: 4
+            value: ' - '
+          # <speed> - Disk Type: <hdd/ssd>,<type>
+          - type: leftConcat
+            column: 4
+            value: Column(6)
+          # Speed: <speed> - Disk Type: <hdd/ssd>,<type>
+          - type: leftConcat
+            column: 4
+            value: "Speed: "
+          # Create the Model/FRU Number
+          - type: leftConcat
+            column: 11
+            value: " - Alternative Part Number: "
+          - type: leftConcat
+            column: 11
+            value: Column(12)
+          - type: leftConcat
+            column: 11
+            value: "Part Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        # Description;Model;Location;Type;HDD/SSD;Speed;Status;Manufacturer;EnclosureID;SerialNumber;FRU;PartNumber;Size;SizeUnits;
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          vendor: $column(8)
+          model: $column(2)
+          serial_number: $column(10)
+          info: "join($column(4), $column(11), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(8), $column(13))"
+        metrics:
+          hw.physical_disk.size: $column(13)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.3.1
+          selectColumns: "2,4"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the processorDeviceTable snmp table
+          # Description;Model;Manufacturer;Status:Serial
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.2.1
+          selectColumns: "2,22,23,24,27"
+          computes:
+            # Add some descriptors
+            # Description;Model;Manufacturer;Status:Serial
+          - type: leftConcat
+            column: 2
+            value: "Part Number: "
+          - type: leftConcat
+            column: 3
+            value: "Alternative Part Number: "
+          - type: leftConcat
+            column: 4
+            value: "Serial Number: "
+            # Translate Status into PATROLStatus
+            # Description;Model;Manufacturer;Status:Serial
+          - type: translate
+            column: 4
+            translationTable: statusTranslationTable
+      mapping:
+        # InstanceTable = Source(1)
+        # Description;Model;Manufacturer;Status:Serial
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          info: "join($column(2), $column(3), $column(4), \" \")"
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(1)
+          name: $column(1)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.13.1.2.1
+          selectColumns: "2,24"
+          computes:
+            # Duplicate status
+            # Description;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate Status into PATROLStatus
+            # Description;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: statusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # Description;Color;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.8.2.1
+          selectColumns: "4,6"
+          computes:
+            # Duplicate Color
+            # Description;Color;Color;
+          - type: duplicateColumn
+            column: 2
+            # Translate the Color to
+            # Description;Color;ON;BLINKING;OFF;
+          - type: translate
+            column: 3
+            translationTable: LEDColorTranslationTable
+      mapping:
+        # The Instance Table
+        # Description;Color;ON;BLINKING;OFF;
+        source: $monitors.led.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          color: $column(2)
+          __on_status: $column(3)
+          __blinking_status: $column(4)
+          __off_status: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;State;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.8.2.1
+          selectColumns: "4,5"
+          computes:
+            # Translate the State
+            # Description;State;
+          - type: translate
+            column: 2
+            translationTable: LEDStateTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # Description;State;
+        source: $monitors.led.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="led"}: legacyLedStatus($column(2))
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # Description;AlarmThreshold;WarningThreshold;CurrentReading;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.1.2.1
+          selectColumns: "2,6,7,3,11"
+          computes:
+            # Remove Temp from description
+            # Description;CurrentReading;PATROLStatus;Status;
+          - type: replace
+            column: 1
+            existingValue: ' Temp'
+            newValue: ""
+            # awk everything to have status activated if sensors!=null and deduct controller id
+            # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
+          - type: awk
+            script: EmbeddedFile(1)
+            # Translate Status into PATROLStatus
+            # Description;AlarmThreshold;WarningThreshold;CurrentReading;Status;
+          - type: translate
+            column: 5
+            translationTable: statusTranslationTable
+      mapping:
+        # Instance table = Source(1)
+        # Description;AlarmThreshold;WarningThreshold;CurrentReading;Status;
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(2)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1)
+          # Description;CurrentReading;Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.19046.11.1.1.1.2.1
+          selectColumns: "2,3,11"
+          computes:
+            # Duplicate status
+            # Description;CurrentReading;Status;Status;
+          - type: duplicateColumn
+            column: 3
+            # Translate Status into PATROLStatus
+            # Description;CurrentReading;PATROLStatus;Status;
+          - type: translate
+            column: 3
+            translationTable: statusTranslationTable
+            # And Finally, remove Temp from the ID
+            # Description;CurrentReading;PATROLStatus;Status;
+          - type: replace
+            column: 1
+            existingValue: ' Temp'
+            newValue: ""
+      mapping:
+        # The ValueTable = Source(1)
+        # Description;CurrentReading;PATROLStatus;Status;
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN {FS=";";}
+    {
+           gsub("^0.?0*$","",$4)
+           if ($4 == "" || $4 <= 0)
+           {
+            print  $1";"";"";"";"$5
+           }
+           else
+           {
+                if ($2 == "N/A" && $3 == "N/A" || $2 == "" && $3 == "" )
+                {
+                print $1";"";"";"";"$5
+                }
+                else
+                {
+                print $1";"$2";"$3";"$4";""NoCurrentReading"
+                }
+            }
+    }
+translations:
+  enclosureStatusInformationTranslationTable:
+    "0": nonRecoverable
+    "2": critical
+    "255": normal
+    "4": nonCritical
+  SizeUnitsTranslationTable:
+    default: 1
+    mb: 1048576
+    gb: 1073741824
+    tb: 1099511627776
+  statusTranslationTable:
+    normal: ok
+    default: UNKNOWN
+    critical: failed
+    optimal: ok
+    operational: ok
+    online: ok
+    warning: degraded
+    unconfigured good: ok
+    nocurrentreading: ""
+    unknown: UNKNOWN
+  LEDColorTranslationTable:
+    green: OK;OK;ALARM
+    blue: OK;OK;OK
+    yellow: ALARM;ALARM;OK
+  LEDStateTranslationTable:
+    "0": "Off"
+    "1": "On"
+    "2": Blinking
+  enclosureStatusTranslationTable:
+    "0": failed
+    "2": failed
+    "255": ok
+    default: UNKNOWN
+    "4": degraded

@@ -1,0 +1,805 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_HPInsightWMI
+//
+//      Supports: HP Insight Manager (Server Agent) - WMI Version
+//
+//
+
+#include MS_HW_CIMProcessorFamily.hhdf
+
+// HEADER
+
+hdf.DisplayName="HP Insight Management Agent - Server (WMI)"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents (WMI)"
+hdf.Version="1.2"
+hdf.Comments="This connector provides hardware monitoring through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT"
+hdf.Supersedes="MS_HW_IpmiTool.hdf"
+
+// Detection
+
+// OS must be Windows
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+//// Verify that the root/hpq WBEM namespace actually exists
+//Detection.Criteria(2).Type="WMI"
+//Detection.Criteria(2).WbemNameSpace="root"
+//Detection.Criteria(2).WbemQuery="SELECT Name FROM __NAMESPACE"
+//Detection.Criteria(2).ExpectedResult="^hpq;*$"
+//
+// The IBMPSG_ComputerSystemDetails WBEM class must be instanciated
+Detection.Criteria(2).Type="WMI"
+Detection.Criteria(2).WbemQuery="SELECT Model FROM HP_ComputerSystemChassis"
+Detection.Criteria(2).WbemNameSpace="root\hpq"
+Detection.Criteria(2).ErrorMessage="The HP Insight Agent seems to not be working properly. Please reinstall the HP Insight Agent."
+
+// The IBM Director Agent Service must be running (service name is TWGIPC)
+// Detection.Criteria(4).Type="Service"
+// Detection.Criteria(4).ServiceName="TWGIPC"
+
+//
+// Enclosure: computer
+//
+
+//
+// Discovery
+
+// Source(1) = the HP_ComputerSystemChassis WBEM class
+Enclosure.Discovery.Source(1).Type="WMI"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT Model,SerialNumber FROM HP_ComputerSystemChassis"
+Enclosure.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// InstanceTable = Source(1)
+// Note: InstanceTable must contain only one line!
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="HPWMI"
+Enclosure.Discovery.Instance.DisplayID="HPWMI"
+Enclosure.Discovery.Instance.Vendor="HP"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Type="Computer"
+
+//
+// CPUs
+//
+
+//
+// Discovery
+
+cpu.Discovery.Source(1).Type="WMI"
+cpu.Discovery.Source(1).WbemQuery="SELECT CurrentClockSpeed,DeviceID,Family FROM HP_Processor"
+cpu.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// Copy Family number to translate vendor as well
+cpu.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+cpu.Discovery.Source(1).Compute(1).Column="3"
+
+// Translate the Family number into a vendor
+cpu.Discovery.Source(1).Compute(2).Type="Translate"
+cpu.Discovery.Source(1).Compute(2).Column="3"
+cpu.Discovery.Source(1).Compute(2).TranslationTable="cpuVendorTranslationTable"
+
+// Translate the Family number into a model name
+cpu.Discovery.Source(1).Compute(3).Type="Translate"
+cpu.Discovery.Source(1).Compute(3).Column="4"
+cpu.Discovery.Source(1).Compute(3).TranslationTable="cpuFamilyTranslationTable"
+
+
+// InstanceTable = Source(1)
+cpu.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+cpu.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+cpu.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+cpu.Discovery.Instance.Model=InstanceTable.Column(4)
+cpu.Discovery.Instance.Vendor=InstanceTable.Column(3)
+cpu.Discovery.Instance.MaximumSpeed=InstanceTable.Column(1)
+cpu.Discovery.Instance.AttachedToDeviceID="HPWMI"
+cpu.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+//
+// Collect
+
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = The IBMPSG_Processor WBEM class
+cpu.Collect.Source(1).Type="WMI"
+cpu.Collect.Source(1).WbemQuery="SELECT CurrentClockSpeed,DeviceID,HealthState FROM HP_Processor"
+cpu.Collect.Source(1).WbemNameSpace="root\hpq"
+
+cpu.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+cpu.Collect.Source(1).Compute(1).Column=3
+
+cpu.Collect.Source(1).Compute(2).Type="Translate"
+cpu.Collect.Source(1).Compute(2).Column=3
+cpu.Collect.Source(1).Compute(2).TranslationTable="genStatusTranslationTable"
+
+cpu.Collect.Source(1).Compute(3).Type="Translate"
+cpu.Collect.Source(1).Compute(3).Column=4
+cpu.Collect.Source(1).Compute(3).TranslationTable="genStatusInformationTranslationTable"
+
+cpu.Collect.ValueTable=%cpu.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(2)
+cpu.Collect.CurrentSpeed=ValueTable.Column(1)
+cpu.Collect.Status=ValueTable.Column(3)
+cpu.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// Memory
+//
+
+//
+// Discovery
+
+// Source(1)
+Memory.Discovery.Source(1).Type="WMI"
+Memory.Discovery.Source(1).WbemQuery="SELECT Capacity,MemoryType,Name,SerialNumber FROM HP_MemoryModule"
+Memory.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// Convert size to MB
+Memory.Discovery.Source(1).Compute(1).Type="Divide"
+Memory.Discovery.Source(1).Compute(1).Column="1"
+Memory.Discovery.Source(1).Compute(1).DivideBy="1048576"
+
+// Translate memory type
+Memory.Discovery.Source(1).Compute(2).Type="Translate"
+Memory.Discovery.Source(1).Compute(2).Column="2"
+Memory.Discovery.Source(1).Compute(2).TranslationTable="memoryTypeTranslationTable"
+
+// InstanceTable = Source(1)
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Memory.Discovery.Instance.Size=InstanceTable.Column(1)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Memory.Discovery.Instance.Type=InstanceTable.Column(2)
+Memory.Discovery.Instance.AttachedToDeviceID="HPWMI"
+Memory.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// The memoryTypeTranslationTable
+memoryTypeTranslationTable(0)="Unknown Memory Type"
+memoryTypeTranslationTable(1)="Unknown Memory Type"
+memoryTypeTranslationTable(2)="DRAM"
+memoryTypeTranslationTable(3)="Synchronous DRAM"
+memoryTypeTranslationTable(4)="Cache DRAM"
+memoryTypeTranslationTable(5)="EDO"
+memoryTypeTranslationTable(6)="EDRAM"
+memoryTypeTranslationTable(7)="VRAM"
+memoryTypeTranslationTable(8)="SRAM"
+memoryTypeTranslationTable(9)="RAM"
+memoryTypeTranslationTable(10)="ROM"
+memoryTypeTranslationTable(11)="Flash"
+memoryTypeTranslationTable(12)="EEPROM"
+memoryTypeTranslationTable(13)="FEPROM"
+memoryTypeTranslationTable(14)="EPROM"
+memoryTypeTranslationTable(15)="CDRAM"
+memoryTypeTranslationTable(16)="3DRAM"
+memoryTypeTranslationTable(17)="SDRAM"
+memoryTypeTranslationTable(18)="SGRAM"
+memoryTypeTranslationTable(19)="RDRAM"
+memoryTypeTranslationTable(20)="DDR"
+memoryTypeTranslationTable(21)="DDR-2"
+memoryTypeTranslationTable(22)="BRAM"
+memoryTypeTranslationTable(23)="FB-DIMM"
+memoryTypeTranslationTable(24)="DDR3"
+memoryTypeTranslationTable(25)="FBD2"
+memoryTypeTranslationTable(Default)=""
+
+
+//
+// Collect
+
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = The IBMPSG_Processor WBEM class
+Memory.Collect.Source(1).Type="WMI"
+Memory.Collect.Source(1).WbemQuery="SELECT HealthState,Name FROM HP_MemoryModule"
+Memory.Collect.Source(1).WbemNameSpace="root\hpq"
+
+Memory.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(1).Column="1"
+
+Memory.Collect.Source(1).Compute(2).Type="Translate"
+Memory.Collect.Source(1).Compute(2).Column="1"
+Memory.Collect.Source(1).Compute(2).TranslationTable="genStatusTranslationTable"
+
+Memory.Collect.Source(1).Compute(3).Type="Translate"
+Memory.Collect.Source(1).Compute(3).Column="2"
+Memory.Collect.Source(1).Compute(3).TranslationTable="genStatusInformationTranslationTable"
+
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(3)
+Memory.Collect.Status=ValueTable.Column(1)
+Memory.Collect.StatusInformation=ValueTable.Column(2)
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = the HP_WinFan WBEM class
+Fan.Discovery.Source(1).Type="WMI"
+Fan.Discovery.Source(1).WbemQuery="SELECT DeviceID,FanType FROM HP_Fan"
+Fan.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// Translate fan type
+Fan.Discovery.Source(1).Compute(1).Type="Translate"
+Fan.Discovery.Source(1).Compute(1).Column="2"
+Fan.Discovery.Source(1).Compute(1).TranslationTable="fanTypeTranslationTable"
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+
+// The fanTypeTranslationTable
+fanTypeTranslationTable(0)="Unknown"
+fanTypeTranslationTable(1)="Other"
+fanTypeTranslationTable(2)="System board"
+fanTypeTranslationTable(3)="Host System board"
+fanTypeTranslationTable(4)="I/O board"
+fanTypeTranslationTable(5)="CPU board"
+fanTypeTranslationTable(6)="Memory board"
+fanTypeTranslationTable(7)="Storage bays"
+fanTypeTranslationTable(8)="Removable Media Bays"
+fanTypeTranslationTable(9)="Power Supply Bays"
+fanTypeTranslationTable(10)="Ambient / External / Room"
+fanTypeTranslationTable(11)="Chassis"
+fanTypeTranslationTable(12)="Bridge Card"
+fanTypeTranslationTable(13)="Management board"
+fanTypeTranslationTable(14)="Remote Management Card"
+fanTypeTranslationTable(15)="Generic Backplane"
+fanTypeTranslationTable(16)="Infrastructure Network"
+fanTypeTranslationTable(17)="Blade Slot in Chassis/Infrastructure"
+fanTypeTranslationTable(18)="Cabinet blower"
+fanTypeTranslationTable(19)="Compute Cabinet I/O Fans"
+fanTypeTranslationTable(20)="I/O Expansion Cabinet Utility Chassis Fan"
+fanTypeTranslationTable(21)="I/O Expansion Cabinet I/O Fan"
+fanTypeTranslationTable(22)="Processor Fan"
+fanTypeTranslationTable(23)="Cell Fan"
+fanTypeTranslationTable(24)="Cooling Device"
+fanTypeTranslationTable(25)="Front Panel"
+fanTypeTranslationTable(26)="Back Panel"
+fanTypeTranslationTable(27)="IO Bus"
+fanTypeTranslationTable(28)="Peripheral Bay"
+fanTypeTranslationTable(29)="Device Bay"
+fanTypeTranslationTable(30)="Switch"
+fanTypeTranslationTable(Default)=""
+
+// Collect
+
+Fan.Collect.Type="MultiInstance"
+
+// ID, status
+Fan.Collect.Source(1).Type="WMI"
+Fan.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM HP_Fan"
+Fan.Collect.Source(1).WbemNameSpace="root\hpq"
+
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column="2"
+
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column="2"
+Fan.Collect.Source(1).Compute(2).TranslationTable="genStatusTranslationTable"
+
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column="3"
+Fan.Collect.Source(1).Compute(3).TranslationTable="genStatusInformationTranslationTable"
+
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+// PowerSupply
+
+// Discovery
+
+// DeviceID, Type
+PowerSupply.Discovery.Source(1).Type="WMI"
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT DeviceID,PowerSupplyType,TotalOutputPower FROM HP_PowerSupply"
+PowerSupply.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// Translate power supply type
+PowerSupply.Discovery.Source(1).Compute(1).Type="Translate"
+PowerSupply.Discovery.Source(1).Compute(1).Column="2"
+PowerSupply.Discovery.Source(1).Compute(1).TranslationTable="psuTypeTranslationTable"
+
+// When TotalOutputPower is an information unavailable on the server, the agent returns 0.
+// Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
+PowerSupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column="3"
+PowerSupply.Discovery.Source(1).Compute(2).String="MSHW_"
+
+// Remove 0 value
+PowerSupply.Discovery.Source(1).Compute(3).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(3).Column="3"
+PowerSupply.Discovery.Source(1).Compute(3).Replace="MSHW_0"
+PowerSupply.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Remove MSHW_ for not zero values
+PowerSupply.Discovery.Source(1).Compute(4).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(4).Column="3"
+PowerSupply.Discovery.Source(1).Compute(4).Replace="MSHW_"
+PowerSupply.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%powerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(3)
+
+// The psuTypeTranslationTable
+psuTypeTranslationTable(0)="Unknown"
+psuTypeTranslationTable(1)="Other"
+psuTypeTranslationTable(2)="System board"
+psuTypeTranslationTable(3)="Host System board"
+psuTypeTranslationTable(4)="I/O board"
+psuTypeTranslationTable(5)="CPU board"
+psuTypeTranslationTable(6)="Memory board"
+psuTypeTranslationTable(7)="Storage bays"
+psuTypeTranslationTable(8)="Removable Media Bays"
+psuTypeTranslationTable(9)="Power Supply Bays"
+psuTypeTranslationTable(10)="Ambient / External / Room"
+psuTypeTranslationTable(11)="Chassis"
+psuTypeTranslationTable(12)="Bridge Card"
+psuTypeTranslationTable(13)="Management board"
+psuTypeTranslationTable(14)="Remote Management Card"
+psuTypeTranslationTable(15)="Generic Backplane"
+psuTypeTranslationTable(16)="Infrastructure Network"
+psuTypeTranslationTable(17)="Blade Slot in Chassis/Infrastructure"
+psuTypeTranslationTable(18)="Computer Cabinet Bulk Power Supply"
+psuTypeTranslationTable(19)="Computer Cabinet System Backplane Power Supply"
+psuTypeTranslationTable(20)="Computer Cabinet I/O chassis enclosure Power Supply"
+psuTypeTranslationTable(21)="Computer Cabinet AC Input Line"
+psuTypeTranslationTable(22)="I/O Expansion Cabinet Bulk Power Supply"
+psuTypeTranslationTable(23)="I/O Expansion Cabinet System Backplane Power Supply"
+psuTypeTranslationTable(24)="I/O Expansion Cabinet I/O chassis enclosure Power Supply"
+psuTypeTranslationTable(25)="I/O Expansion Cabinet AC Input Line"
+psuTypeTranslationTable(26)="Peripheral Bay"
+psuTypeTranslationTable(27)="Device Bay"
+psuTypeTranslationTable(28)="Switch"
+psuTypeTranslationTable(Default)=""
+
+// Collect
+PowerSupply.Collect.Type="MultiInstance"
+
+// ID, status
+PowerSupply.Collect.Source(1).Type="WMI"
+PowerSupply.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM HP_PowerSupply"
+PowerSupply.Collect.Source(1).WbemNameSpace="root\hpq"
+
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column="2"
+
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column="2"
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="genStatusTranslationTable"
+
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column="3"
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="genStatusInformationTranslationTable"
+
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+// Temperature
+
+// Discovery
+
+// DeviceID, Type
+Temperature.Discovery.Source(1).Type="WMI"
+Temperature.Discovery.Source(1).WbemQuery="SELECT DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal FROM HP_NumericSensor"
+Temperature.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// Only Keep Temperature Sensors (Type 2)
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column="3"
+Temperature.Discovery.Source(1).Compute(1).ValueList="2"
+
+// Translate power supply type
+Temperature.Discovery.Source(1).Compute(2).Type="Translate"
+Temperature.Discovery.Source(1).Compute(2).Column="2"
+Temperature.Discovery.Source(1).Compute(2).TranslationTable="sensorTypeTranslationTable"
+
+// Treat the  Threshold
+// Remove Warning Thresholds of "0"
+// DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal
+Temperature.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(3).Column="4"
+Temperature.Discovery.Source(1).Compute(3).String="MSHW_"
+
+// Remove 0 value
+Temperature.Discovery.Source(1).Compute(4).Type="Replace"
+Temperature.Discovery.Source(1).Compute(4).Column="4"
+Temperature.Discovery.Source(1).Compute(4).Replace="MSHW_0"
+Temperature.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Remove MSHW_ for not zero values
+Temperature.Discovery.Source(1).Compute(5).Type="Replace"
+Temperature.Discovery.Source(1).Compute(5).Column="4"
+Temperature.Discovery.Source(1).Compute(5).Replace="MSHW_"
+Temperature.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Now let's choose the Alarm Threshold
+// Blank Critical if it equals NonCritical
+// DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal
+Temperature.Discovery.Source(1).Compute(6).Type="Replace"
+Temperature.Discovery.Source(1).Compute(6).Column=5
+Temperature.Discovery.Source(1).Compute(6).Replace=Column(4)
+Temperature.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+Temperature.Discovery.Source(1).Compute(7).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(7).Column=5
+Temperature.Discovery.Source(1).Compute(7).String="MSHW"
+
+Temperature.Discovery.Source(1).Compute(8).Type="RightConcat"
+Temperature.Discovery.Source(1).Compute(8).Column=5
+Temperature.Discovery.Source(1).Compute(8).String="MSHW"
+
+// If UpperThresholdNonCritical = UpperThresholdCritical use Fatal
+Temperature.Discovery.Source(1).Compute(9).Type="Replace"
+Temperature.Discovery.Source(1).Compute(9).Column=5
+Temperature.Discovery.Source(1).Compute(9).Replace="MSHWMSHW"
+Temperature.Discovery.Source(1).Compute(9).ReplaceBy=Column(6)
+
+// Otherwise remove unwanted MSHWs.
+Temperature.Discovery.Source(1).Compute(10).Type="Replace"
+Temperature.Discovery.Source(1).Compute(10).Column=5
+Temperature.Discovery.Source(1).Compute(10).Replace="MSHW"
+Temperature.Discovery.Source(1).Compute(10).ReplaceBy=""
+
+// Remove any Zero threholds that might remain
+Temperature.Discovery.Source(1).Compute(11).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(11).Column="4"
+Temperature.Discovery.Source(1).Compute(11).String="MSHW_"
+
+// Remove 0 value
+Temperature.Discovery.Source(1).Compute(12).Type="Replace"
+Temperature.Discovery.Source(1).Compute(12).Column="4"
+Temperature.Discovery.Source(1).Compute(12).Replace="MSHW_0"
+Temperature.Discovery.Source(1).Compute(12).ReplaceBy=""
+
+// Remove MSHW_ for not zero values
+Temperature.Discovery.Source(1).Compute(13).Type="Replace"
+Temperature.Discovery.Source(1).Compute(13).Column="4"
+Temperature.Discovery.Source(1).Compute(13).Replace="MSHW_"
+Temperature.Discovery.Source(1).Compute(13).ReplaceBy=""
+
+// Remove any Zero threholds that might remain
+Temperature.Discovery.Source(1).Compute(14).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(14).Column="5"
+Temperature.Discovery.Source(1).Compute(14).String="MSHW_"
+
+// Remove 0 value
+Temperature.Discovery.Source(1).Compute(15).Type="Replace"
+Temperature.Discovery.Source(1).Compute(15).Column="5"
+Temperature.Discovery.Source(1).Compute(15).Replace="MSHW_0"
+Temperature.Discovery.Source(1).Compute(15).ReplaceBy=""
+
+// Remove MSHW_ for not zero values
+Temperature.Discovery.Source(1).Compute(16).Type="Replace"
+Temperature.Discovery.Source(1).Compute(16).Column="5"
+Temperature.Discovery.Source(1).Compute(16).Replace="MSHW_"
+Temperature.Discovery.Source(1).Compute(16).ReplaceBy=""
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(2)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(5)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(4)
+
+
+sensorTypeTranslationTable(0)="Unknown"
+sensorTypeTranslationTable(1)="Other"
+sensorTypeTranslationTable(2)="System board"
+sensorTypeTranslationTable(3)="Host System board"
+sensorTypeTranslationTable(4)="I/O board"
+sensorTypeTranslationTable(5)="CPU board"
+sensorTypeTranslationTable(6)="Memory board"
+sensorTypeTranslationTable(7)="Storage bays"
+sensorTypeTranslationTable(8)="Removable Media Bays"
+sensorTypeTranslationTable(9)="Power Supply Bays"
+sensorTypeTranslationTable(10)="Ambient / External / Room"
+sensorTypeTranslationTable(11)="Chassis"
+sensorTypeTranslationTable(12)="Bridge Card"
+sensorTypeTranslationTable(13)="Management board"
+sensorTypeTranslationTable(14)="Remote Management Card"
+sensorTypeTranslationTable(15)="Generic Backplane"
+sensorTypeTranslationTable(16)="Infrastructure Network"
+sensorTypeTranslationTable(17)="Blade Slot in Chassis/Infrastructure"
+sensorTypeTranslationTable(18)="Front Panel"
+sensorTypeTranslationTable(19)="Back Panel"
+sensorTypeTranslationTable(20)="IO Bus"
+sensorTypeTranslationTable(21)="Peripheral Bay"
+sensorTypeTranslationTable(22)="Device Bay"
+sensorTypeTranslationTable(23)="Switch"
+sensorTypeTranslationTable(24)="Software-defined"
+sensorTypeTranslationTable(Default)=""
+
+//
+// Collect
+
+// Like all WBEM collects, this one is "MultiInstance"
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = the HP_NumericSensor WBEM class
+Temperature.Collect.Source(1).Type="WMI"
+Temperature.Collect.Source(1).WbemQuery="SELECT CurrentReading,DeviceID,HealthState,SensorType FROM HP_NumericSensor"
+Temperature.Collect.Source(1).WbemNameSpace="root\hpq"
+
+// Only Keep Temperature Sensors (Type 2)
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column=4
+Temperature.Collect.Source(1).Compute(1).ValueList="2"
+
+Temperature.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(2).Column=3
+
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=3
+Temperature.Collect.Source(1).Compute(3).TranslationTable="genStatusTranslationTable"
+
+Temperature.Collect.Source(1).Compute(4).Type="Translate"
+Temperature.Collect.Source(1).Compute(4).Column=4
+Temperature.Collect.Source(1).Compute(4).TranslationTable="genStatusInformationTranslationTable"
+
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(3)
+Temperature.Collect.StatusInformation=ValueTable.Column(4)
+
+
+
+//
+// OTHER DEVICES (iLO card)
+//
+
+//
+// Discovery
+
+// Source(1) = HP_ManagementProcessor
+// ID;ModelCode
+OtherDevice.Discovery.Source(1).Type="WMI"
+OtherDevice.Discovery.Source(1).WbemQuery="SELECT ElementName FROM HP_ManagementProcessor"
+OtherDevice.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// Translate ilo Type - REMOVED (as not populated when card is disabled)
+// OtherDevice.Discovery.Source(1).Compute(1).Type="Translate"
+// OtherDevice.Discovery.Source(1).Compute(1).Column="1"
+// OtherDevice.Discovery.Source(1).Compute(1).TranslationTable="iloTypeTranslationTable"
+
+// Add an "ilO-" to the ID as the UniqueIdentifier is the Serial number of the card.
+// OtherDevice.Discovery.Source(1).Compute(2).Type="LeftConcat"
+// OtherDevice.Discovery.Source(1).Compute(2).Column="2"
+//OtherDevice.Discovery.Source(1).Compute(2).String="iLO "
+
+// Instance Table
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType="Management Card"
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(1)
+
+// ControllerType
+// iloTypeTranslationTable(0)="Unknown iLO"
+// iloTypeTranslationTable(1)="Integrated Lights Out Controller (Unknown Type)"
+// iloTypeTranslationTable(2)="PCI Board-Remote Insight Lights Out Edition II (RILOE II)"
+// iloTypeTranslationTable(3)="Embedded Integrated Lights Out Controller (iLO)"
+// iloTypeTranslationTable(4)="Embedded Integrated Lights Out Controller 2 (iLO 2)"
+// iloTypeTranslationTable(5)="Embedded Integrity Management Processor"
+// iloTypeTranslationTable(6)="Embedded Integrity Integrated Lights Out Controller (iLO)"
+// iloTypeTranslationTable(7)="Embedded Integrity Integrated Lights Out Controller 2 (iLO 2)"
+// iloTypeTranslationTable(Default)="UNKNOWN"
+
+//
+// Collect
+
+// Collect type is: multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+OtherDevice.Collect.Source(1).Type="WMI"
+OtherDevice.Collect.Source(1).WbemQuery="SELECT ElementName,HealthState FROM HP_ManagementProcessor"
+OtherDevice.Collect.Source(1).WbemNameSpace="root\hpq"
+
+// Add an "ilO-" to the ID as the UniqueIdentifier is the Serial number of the card.
+// OtherDevice.Collect.Source(1).Compute(1).Type="LeftConcat"
+// OtherDevice.Collect.Source(1).Compute(1).Column="2"
+// OtherDevice.Collect.Source(1).Compute(1).String="iLO "
+
+OtherDevice.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+OtherDevice.Collect.Source(1).Compute(1).Column="2"
+
+OtherDevice.Collect.Source(1).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(2).Column="2"
+OtherDevice.Collect.Source(1).Compute(2).TranslationTable="genStatusTranslationTable"
+
+OtherDevice.Collect.Source(1).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(3).Column="3"
+OtherDevice.Collect.Source(1).Compute(3).TranslationTable="genStatusInformationTranslationTable"
+
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Discovery (iLO management cards only)
+
+// Source(1) =
+
+NetworkCard.Discovery.Source(1).Type="WMI"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT ElementName,IPAddress,NICCondition FROM HP_ManagementProcessor"
+NetworkCard.Discovery.Source(1).WbemNameSpace="root\hpq"
+
+// Filter out disabled network cards  (NIC Condition = 3)
+NetworkCard.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column="3"
+NetworkCard.Discovery.Source(1).Compute(1).ValueList="3"
+
+// Add "iLO - " to the model, so that the user doesn't get confused
+// between the "real" NICs and the one here used only for the management
+// NetworkCard.Discovery.Source(1).Compute(2).Type="LeftConcat"
+// NetworkCard.Discovery.Source(1).Compute(2).Column="3"
+// NetworkCard.Discovery.Source(1).Compute(2).String="iLO "
+
+// InstanceTable = Source(1)
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.LogicalAddress=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.LogicalAddressType="IP"
+// NetworkCard.Discovery.Instance.AttachedToDeviceType="Management Card"
+// NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+
+
+//
+// Collect
+
+// Collect type is "multi-instance"
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = the HP_ManagementProcessor WMI Table
+// Condition;ID
+NetworkCard.Collect.Source(1).Type="WMI"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT ElementName,NICCondition FROM HP_ManagementProcessor"
+NetworkCard.Collect.Source(1).WbemNameSpace="root\hpq"
+
+// Extract the first column within the NICCondition
+NetworkCard.Collect.Source(1).Compute(1).Type="Extract"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(1).SubColumn=1
+NetworkCard.Collect.Source(1).Compute(1).SubSeparators="|"
+
+// Duplicate Condition
+// ID;Condition;Condition;
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column="2"
+
+// Duplicate Condition
+// ID;Condition;Condition;Condition;
+NetworkCard.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(3).Column="2"
+
+// Translate first Condition into PATROLStatus
+// ID;PATROLStatus;Condition;Condition;
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column="2"
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="iLONetworkCardStatusTranslationTable"
+
+// Translate second Condition into a more readable string
+// ID;PATROLStatus;statusInformation;Condition;
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column="3"
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="iLONetworkCardStatusInfoTranslationTable"
+
+// Translate second Condition into a more readable string
+// ID;PATROLStatus;statusInformation;LinkStatus;
+NetworkCard.Collect.Source(1).Compute(6).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(6).Column="4"
+NetworkCard.Collect.Source(1).Compute(6).TranslationTable="iLOLinkStatusTranslationTable"
+
+// Add "iLO - " to the model, so that the user doesn't get confused
+// between the "real" NICs and the one here used only for the management
+// NetworkCard.Collect.Source(1).Compute(6).Type="LeftConcat"
+// NetworkCard.Collect.Source(1).Compute(6).Column="4"
+// NetworkCard.Collect.Source(1).Compute(6).String="iLO "
+
+
+// ValueTable = Source(1)
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+
+//iLONetworkCardStatusTranslationTable
+iLONetworkCardStatusTranslationTable(0)="UNKNOWN"
+iLONetworkCardStatusTranslationTable(2)="OK"
+iLONetworkCardStatusTranslationTable(3)="OK"
+iLONetworkCardStatusTranslationTable(4)="WARN"
+iLONetworkCardStatusTranslationTable(5)="OK"
+iLONetworkCardStatusTranslationTable(6)="ALARM"
+iLONetworkCardStatusTranslationTable(Default)="UNKNOWN"
+
+
+//iLONetworkCardStatusInfoTranslationTable
+iLONetworkCardStatusInfoTranslationTable(0)="Unknown Status"
+iLONetworkCardStatusInfoTranslationTable(2)=""
+iLONetworkCardStatusInfoTranslationTable(3)="NIC disabled"
+iLONetworkCardStatusInfoTranslationTable(4)="NIC not in operation-alternate host NIC in use"
+iLONetworkCardStatusInfoTranslationTable(5)="NIC in operation but disconnected"
+iLONetworkCardStatusInfoTranslationTable(6)="Failed"
+iLONetworkCardStatusInfoTranslationTable(Default)="UNKNOWN"
+
+//iLOLinkStatusTranslationTable
+iLOLinkStatusTranslationTable(0)="UNKNOWN"
+iLOLinkStatusTranslationTable(2)="OK"
+iLOLinkStatusTranslationTable(3)="UNKNOWN"
+iLOLinkStatusTranslationTable(4)="UNKNOWN"
+iLOLinkStatusTranslationTable(5)="WARN"
+iLOLinkStatusTranslationTable(6)="UNKNOWN"
+iLOLinkStatusTranslationTable(Default)="UNKNOWN"
+
+// The genStatusTranslationTable
+genStatusTranslationTable(0)="UNKNOWN"
+genStatusTranslationTable(5)="OK"
+genStatusTranslationTable(10)="WARN"
+genStatusTranslationTable(15)="WARN"
+genStatusTranslationTable(20)="ALARM"
+genStatusTranslationTable(25)="ALARM"
+genStatusTranslationTable(30)="ALARM"
+genStatusTranslationTable("OK")="OK"
+genStatusTranslationTable(Default)="UNKNOWN"
+
+// The genStatusInformationTranslationTable
+genStatusInformationTranslationTable(0)="Unknown"
+genStatusInformationTranslationTable(5)=""
+genStatusInformationTranslationTable(10)="Degraded/Warning"
+genStatusInformationTranslationTable(15)="Minor Failure"
+genStatusInformationTranslationTable(20)="Major Failure"
+genStatusInformationTranslationTable(25)="Critical Failure"
+genStatusInformationTranslationTable(30)="Non-recoverable Error"
+genStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

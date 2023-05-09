@@ -1,0 +1,128 @@
+---
+extends:
+- DellCMC-header
+constants:
+  ENCLO_SOURCE_DISCO: '"$monitors.enclosure.discovery.sources.source(11)$"'
+  ENCLO_SOURCE_COL: '"$monitors.enclosure.collect.sources.source(10)$"'
+connector:
+  displayName: Dell CMC (Dell Chassis Management Controller)
+  platforms: Dell M1000E
+  reliesOn: Dell Chassis Management Controller (CMC)
+  information: "Provides environmental information (temperatures, fans and power supplies) on Dell Blade servers through the Dell Chassis Management Controller (CMC)"
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    criteria:
+    # Host should respond to telnet the way described below
+    - type: osCommand
+      commandLine: getsysinfo
+      expectedResult: 'CMC Information:'
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Output of the getsysinfo command through telnet
+          # Look for the "System Model=" line
+          type: osCommand
+          commandLine: getsysinfo -c
+          computes:
+            # Parse the output of getsysinfo with an AWK script
+            # Model;SerialNumber
+          - type: awk
+            script: EmbeddedFile(1)
+            keep: MSHW;
+            separators: ;
+            selectColumns: "2,3"
+        source(2):
+          # Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
+          type: osCommand
+          commandLine: getsensorinfo
+        source(3):
+          type: osCommand
+          commandLine: getmodinfo -A
+        source(4):
+          type: osCommand
+          commandLine: getpbinfo
+        source(5):
+          type: osCommand
+          commandLine: raid get vdisks -o
+        source(6):
+          type: osCommand
+          commandLine: raid get pdisks -o
+        source(7):
+          type: osCommand
+          commandLine: raid get tempprobes -o
+        source(8):
+          type: osCommand
+          commandLine: raid get controllers -o
+        source(9):
+          type: osCommand
+          commandLine: raid get batteries -o
+        source(10):
+          type: osCommand
+          commandLine: chassislog view -s critical
+        source(11):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+          - $monitors.enclosure.discovery.sources.source(4)$
+          - $monitors.enclosure.discovery.sources.source(5)$
+          - $monitors.enclosure.discovery.sources.source(6)$
+          - $monitors.enclosure.discovery.sources.source(7)$
+          - $monitors.enclosure.discovery.sources.source(9)$
+          - $monitors.enclosure.discovery.sources.source(10)$
+    collect:
+      type: monoInstance
+      sources:
+        source(1):
+          # Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
+          type: osCommand
+          commandLine: getsensorinfo
+        source(2):
+          type: osCommand
+          commandLine: getmodinfo -A
+        source(3):
+          type: osCommand
+          commandLine: getpbinfo
+        source(4):
+          type: osCommand
+          commandLine: raid get vdisks -o
+        source(5):
+          type: osCommand
+          commandLine: raid get pdisks -o
+        source(6):
+          type: osCommand
+          commandLine: raid get tempprobes -o
+        source(7):
+          type: osCommand
+          commandLine: raid get controllers -o
+        source(8):
+          type: osCommand
+          commandLine: raid get batteries -o
+        source(9):
+          type: osCommand
+          commandLine: chassislog view -s critical
+        source(10):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.collect.sources.source(1)$
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(3)$
+          - $monitors.enclosure.collect.sources.source(4)$
+          - $monitors.enclosure.collect.sources.source(5)$
+          - $monitors.enclosure.collect.sources.source(6)$
+          - $monitors.enclosure.collect.sources.source(7)$
+          - $monitors.enclosure.collect.sources.source(8)$
+          - $monitors.enclosure.collect.sources.source(9)$
+  blade:
+    discovery:
+      sources:
+        source(2):
+          # Source(2) = Getslotname
+          type: osCommand
+          commandLine: getslotname

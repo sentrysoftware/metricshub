@@ -1,0 +1,227 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_CpqHeResMem2.hdf
+//
+//      Supports: HP Insight Manager (Server Agent)
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP Insight Management Agent (v8.25 or higher) - Memory"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents"
+hdf.Version="1.4"
+hdf.Comments="This connector provides Memory Information through the HP Insight Manager (Newer Server Agents)."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux,OSF1,VMS,OOB,Solaris"
+hdf.Supersedes="MS_HW_CpqSiMem.hdf"
+
+
+//
+// DETECTION
+//
+
+// See if there are any Memory Modules in the CpqSiMem Table
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.6.2.14.13.1"
+
+// Memory
+// Discovery
+
+// Source(1) = CpqHeResMem2 Table
+// ID,BoardNumber,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2      ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+Memory.Discovery.Source(1).Type="SnmpTable"
+Memory.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.6.2.14.13.1"
+Memory.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3,4,5,6,7,9,10,12,14,19"
+
+// Exclude Modules "Not Present" and "Other/Unknown"
+// ID,BoardNumber,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2      ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+Memory.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column=12
+Memory.Discovery.Source(1).Compute(1).ValueList="1,2"
+
+// Create The Location from Columns 2, 3, 4, 5
+// ID,BoardNumber,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2      ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+Memory.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(2).Column=2
+Memory.Discovery.Source(1).Compute(2).String="Board "
+
+Memory.Discovery.Source(1).Compute(3).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(3).Column=2
+Memory.Discovery.Source(1).Compute(3).String=", CPU "
+
+Memory.Discovery.Source(1).Compute(4).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(4).Column=2
+Memory.Discovery.Source(1).Compute(4).String=Column(3)
+
+Memory.Discovery.Source(1).Compute(5).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(5).Column=2
+Memory.Discovery.Source(1).Compute(5).String=", Riser "
+
+Memory.Discovery.Source(1).Compute(6).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(6).Column=2
+Memory.Discovery.Source(1).Compute(6).String=Column(4)
+
+Memory.Discovery.Source(1).Compute(7).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(7).Column=2
+Memory.Discovery.Source(1).Compute(7).String=", Module "
+
+Memory.Discovery.Source(1).Compute(8).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(8).Column=2
+Memory.Discovery.Source(1).Compute(8).String=Column(5)
+
+// Translate the Memoyr Type
+// ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+Memory.Discovery.Source(1).Compute(9).Type="Translate"
+Memory.Discovery.Source(1).Compute(9).Column=7
+Memory.Discovery.Source(1).Compute(9).TranslationTable="memoryTypeTranslationTable"
+
+memoryTypeTranslationTable(1)=""
+memoryTypeTranslationTable(2)="Board"
+memoryTypeTranslationTable(3)="Single-width"
+memoryTypeTranslationTable(4)="Double-width"
+memoryTypeTranslationTable(5)="SIMM"
+memoryTypeTranslationTable(6)="PCMCIA"
+memoryTypeTranslationTable(7)="Compaq-specific"
+memoryTypeTranslationTable(8)="DIMM"
+memoryTypeTranslationTable(9)="DIMM (small outline)"
+memoryTypeTranslationTable(10)="RIMM"
+memoryTypeTranslationTable(11)="SRIMM"
+memoryTypeTranslationTable(12)="FB-DIMM"
+memoryTypeTranslationTable(13)="DIMM-DDR"
+memoryTypeTranslationTable(14)="DIMM-DDR2"
+memoryTypeTranslationTable(15)="DIMM-DDR3"
+memoryTypeTranslationTable(16)="DIMM-FBD2"
+memoryTypeTranslationTable(17)="FB-DIMM-DDR2"
+memoryTypeTranslationTable(18)="FB-DIMM-DDR3"
+
+// Convert size to MB
+// ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+Memory.Discovery.Source(1).Compute(10).Type="Divide"
+Memory.Discovery.Source(1).Compute(10).Column=6
+Memory.Discovery.Source(1).Compute(10).DivideBy="1024"
+
+// Add "Frequency: " Decriptor
+// ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12 Memory.Discovery.Source(1).Compute(9).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(11).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(11).Column=11
+Memory.Discovery.Source(1).Compute(11).String="Speed: "
+
+// Add MHz to Frequency
+// ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+Memory.Discovery.Source(1).Compute(12).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(12).Column=11
+Memory.Discovery.Source(1).Compute(12).String=" MHz"
+
+Memory.Discovery.Source(1).Compute(13).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(13).Column=2
+Memory.Discovery.Source(1).Compute(13).String="Location: "
+//The Instance Table
+// ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+//  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.Type=InstanceTable.Column(7)
+Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Memory.Discovery.Instance.Vendor=InstanceTable.Column(8)
+Memory.Discovery.Instance.Size=InstanceTable.Column(6)
+Memory.Discovery.Instance.Model=InstanceTable.Column(9)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+
+
+//
+// Collect
+
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqHeResMemModuleTable (for newer HP systems)
+// ID;Status;Status,ErrorCountCondition
+Memory.Collect.Source(1).Type="SnmpTable"
+Memory.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.6.2.14.13.1"
+Memory.Collect.Source(1).SnmpTableSelectColumns="ID,19,20"
+
+// Duplicate Status
+// DeviceID;Status;Status;ErrorCountCondition
+Memory.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(1).Column=2
+
+// Translate first Status into a PATROL Status
+// DeviceID;PATROLStatus;Status;ErrorCountCondition
+Memory.Collect.Source(1).Compute(2).Type="Translate"
+Memory.Collect.Source(1).Compute(2).Column=2
+Memory.Collect.Source(1).Compute(2).TranslationTable="memoryStatusTranslationTable"
+
+// Translate second Status into a more readable string
+// DeviceID;PATROLStatus;statusInformation;ErrorCountCondition
+Memory.Collect.Source(1).Compute(3).Type="Translate"
+Memory.Collect.Source(1).Compute(3).Column=3
+Memory.Collect.Source(1).Compute(3).TranslationTable="memoryStatusInformationTranslationTable"
+
+// Translate second Status into a more readable string
+// DeviceID;PATROLStatus;statusInformation;PATROLErrorCountCondition
+// NOTE - This is commented out in the collect as the "ErrorStatus" parameter does not work in the KM
+//        And the status is often "unknown" in HP Insight Manager 8.4
+
+// Memory.Collect.Source(1).Compute(4).Type="Translate"
+// Memory.Collect.Source(1).Compute(4).Column=4
+// Memory.Collect.Source(1).Compute(4).TranslationTable="errorCountConditionTranslationTable"
+
+// The memoryStatusTranslationTable
+memoryStatusTranslationTable(2)="OK"
+memoryStatusTranslationTable(3)="OK"
+memoryStatusTranslationTable(4)="OK"
+memoryStatusTranslationTable(5)="OK"
+memoryStatusTranslationTable(6)="OK"
+memoryStatusTranslationTable(7)="ALARM"
+memoryStatusTranslationTable(8)="WARN"
+memoryStatusTranslationTable(9)="WARN"
+memoryStatusTranslationTable(10)="ALARM"
+memoryStatusTranslationTable(11)="WARN"
+memoryStatusTranslationTable(Default)="UNKNOWN"
+
+// The memoryStatusInformationTranslationTable
+memoryStatusInformationTranslationTable(2)="Not Present or Uninitialized"
+memoryStatusInformationTranslationTable(3)="Not in use"
+memoryStatusInformationTranslationTable(4)="Good"
+memoryStatusInformationTranslationTable(5)="Just added, not in use"
+memoryStatusInformationTranslationTable(6)="Just upgraded, not in use"
+memoryStatusInformationTranslationTable(7)="Missing!"
+memoryStatusInformationTranslationTable(8)="Does not match other modules"
+memoryStatusInformationTranslationTable(9)="Not supported"
+memoryStatusInformationTranslationTable(10)="Bad configuration"
+memoryStatusInformationTranslationTable(11)="Too many ECC errors"
+memoryStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The errorCountConditionTranslationTable
+errorCountConditionTranslationTable(2)="OK"
+errorCountConditionTranslationTable(3)="WARN"
+errorCountConditionTranslationTable(4)="ALARM"
+errorCountConditionTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;statusInformation
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)
+// Memory.Collect.ErrorStatus=ValueTable.Column(4)

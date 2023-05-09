@@ -1,0 +1,587 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HPTopToolsNT
+//
+//      Supports: HP Instant TopTools Agent on Windows
+//
+//
+
+#include CpuFamilyTranslationTable.hhdf
+
+// HEADER
+
+hdf.DisplayName="HP TopTools Agent"
+hdf.TypicalPlatform="HP NetServer"
+hdf.ReliesOn="HP TopTools Agent"
+hdf.Version="3.1"
+hdf.Comments="This connector provides hardware monitoring through the HP TopTools Agent version 5.x which supports almost all HP NetServer servers under Windows."
+hdf.RemoteSupport="false"
+hdf.AppliesToOS="NT"
+
+// DETECTION
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+Detection.Criteria(2).Type="Service"
+Detection.Criteria(2).ServiceName="SNMP"
+
+Detection.Criteria(3).Type="Service"
+Detection.Criteria(3).ServiceName="hpwebsvc"
+
+Detection.Criteria(4).Type="OsCommand"
+Detection.Criteria(4).CommandLine="CSCRIPT.EXE //?"
+Detection.Criteria(4).ExpectedResult="Microsoft"
+Detection.Criteria(4).ErrorMessage="WSH is not present"
+
+// Enclosure: computer
+
+// Retrieve the path were the hpnst.exe CGI is installed
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="CSCRIPT.EXE //E:VBScript //NoLogo %EmbeddedFile(2)%"
+
+
+// Execute hpnst.exe to get the computer model
+Enclosure.Discovery.Source(2).Type="OsCommand"
+Enclosure.Discovery.Source(2).CommandLine="COPY %EmbeddedFile(3)% ""%Enclosure.Discovery.Source(1)%\MSHW_ComputerModel.html""&&SET QUERY_STRING=c=p+i=MSHW_ComputerModel.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Enclosure.Discovery.Source(2).KeepOnlyRegExp="^MSHW;ComputerModel;"
+Enclosure.Discovery.Source(2).Separators=";"
+Enclosure.Discovery.Source(2).SelectColumns="3"
+
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Instance.DeviceID="Computer01"
+Enclosure.Discovery.Instance.Vendor="HP"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Type="Computer"
+
+// Memory
+
+// Memory discovery
+Memory.Discovery.Source(1).Type="OSCommand"
+Memory.Discovery.Source(1).CommandLine="COPY %EmbeddedFile(8)% ""%Enclosure.Discovery.Source(1)%\MSHW_MemoryModules.html""&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Memory.Discovery.Source(1).KeepOnlyRegExp="^MSHW;Memory;"
+Memory.Discovery.Source(1).Separators=";"
+Memory.Discovery.Source(1).SelectColumns="3,4,5,6"
+
+// Keep only the memory modules for which we have a status
+Memory.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column="2"
+Memory.Discovery.Source(1).Compute(1).ValueList="1,2,8,0"
+
+// Remove MB for the memory size
+Memory.Discovery.Source(1).Compute(2).Type="Replace"
+Memory.Discovery.Source(1).Compute(2).Column="3"
+Memory.Discovery.Source(1).Compute(2).Replace="MB"
+Memory.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// Remove spaces from memory size
+Memory.Discovery.Source(1).Compute(3).Type="Replace"
+Memory.Discovery.Source(1).Compute(3).Column="3"
+Memory.Discovery.Source(1).Compute(3).Replace=" "
+Memory.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Remove spaces from memory size
+Memory.Discovery.Source(1).Compute(4).Type="Replace"
+Memory.Discovery.Source(1).Compute(4).Column="3"
+Memory.Discovery.Source(1).Compute(4).Replace="\t"
+Memory.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+
+// Separate the different types by " - "
+Memory.Discovery.Source(1).Compute(5).Type="Replace"
+Memory.Discovery.Source(1).Compute(5).Column="4"
+Memory.Discovery.Source(1).Compute(5).Replace=","
+Memory.Discovery.Source(1).Compute(5).ReplaceBy=" - "
+
+
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.Size=InstanceTable.Column(3)
+Memory.Discovery.Instance.Type=InstanceTable.Column(4)
+
+// Memory collect
+Memory.Collect.Type="MultiInstance"
+
+Memory.Collect.Source(1).Type="OSCommand"
+Memory.Collect.Source(1).CommandLine="COPY %EmbeddedFile(8)% ""%Enclosure.Discovery.Source(1)%\MSHW_MemoryModules.html""&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Memory.Collect.Source(1).KeepOnlyRegExp="^MSHW;Memory;"
+Memory.Collect.Source(1).Separators=";"
+Memory.Collect.Source(1).SelectColumns="3,4"
+
+// Keep only the memory modules for which we have a status
+Memory.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Collect.Source(1).Compute(1).Column="2"
+Memory.Collect.Source(1).Compute(1).ValueList="1,2,8,0"
+
+Memory.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(2).Column="2"
+
+Memory.Collect.Source(1).Compute(3).Type="Translate"
+Memory.Collect.Source(1).Compute(3).Column="2"
+Memory.Collect.Source(1).Compute(3).TranslationTable="memoryStatusTranslationTable"
+
+Memory.Collect.Source(1).Compute(4).Type="Translate"
+Memory.Collect.Source(1).Compute(4).Column="3"
+Memory.Collect.Source(1).Compute(4).TranslationTable="memoryStatusInformationTranslationTable"
+
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)
+
+// The memoryStatusTranslationTable
+memoryStatusTranslationTable(0)="OK"
+memoryStatusTranslationTable(1)="WARN"
+memoryStatusTranslationTable(2)="ALARM"
+memoryStatusTranslationTable(8)="OK"
+memoryStatusTranslationTable(Default)="UNKNOWN"
+
+// The memoryStatusInformationTranslationTable
+memoryStatusInformationTranslationTable(0)=""
+memoryStatusInformationTranslationTable(1)="Warning"
+memoryStatusInformationTranslationTable(2)="Critical"
+memoryStatusInformationTranslationTable(8)=""
+memoryStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+// TEMPERATURES
+
+// Temperature discovery
+Temperature.Discovery.Source(1).Type="OSCommand"
+Temperature.Discovery.Source(1).CommandLine="COPY %EmbeddedFile(4)% ""%Enclosure.Discovery.Source(1)%\MSHW_TemperatureSensors.html""&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Temperature.Discovery.Source(1).KeepOnlyRegExp="^MSHW;Temperature;"
+Temperature.Discovery.Source(1).Separators=";"
+Temperature.Discovery.Source(1).SelectColumns="3,5"
+
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(2)
+Temperature.Discovery.Instance.WarningThreshold="65"
+Temperature.Discovery.Instance.AlarmThreshold="75"
+
+
+// Temperature collect
+Temperature.Collect.Type="MultiInstance"
+
+Temperature.Collect.Source(1).Type="OSCommand"
+Temperature.Collect.Source(1).CommandLine="COPY %EmbeddedFile(4)% ""%Enclosure.Discovery.Source(1)%\MSHW_TemperatureSensors.html""&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Temperature.Collect.Source(1).KeepOnlyRegExp="^MSHW;Temperature;"
+Temperature.Collect.Source(1).Separators=";"
+Temperature.Collect.Source(1).SelectColumns="3,6"
+
+Temperature.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column="2"
+Temperature.Collect.Source(1).Compute(1).ValueList="-"
+
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+
+
+// FANS
+
+// Fan discovery
+Fan.Discovery.Source(1).Type="OSCommand"
+Fan.Discovery.Source(1).CommandLine="COPY %EmbeddedFile(5)% ""%Enclosure.Discovery.Source(1)%\MSHW_FanSensors.html""&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Fan.Discovery.Source(1).KeepOnlyRegExp="^MSHW;Fan;"
+Fan.Discovery.Source(1).Separators=";"
+Fan.Discovery.Source(1).SelectColumns="3,4,5"
+
+// Remove the fan that are not present
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column="2"
+Fan.Discovery.Source(1).Compute(1).ValueList="20,21,22"
+
+// Instancetable = source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(3)
+Fan.Discovery.Instance.WarningThreshold="2000"
+Fan.Discovery.Instance.AlarmThreshold="1"
+
+
+// Fan collect
+Fan.Collect.Type="MultiInstance"
+
+Fan.Collect.Source(1).Type="OSCommand"
+Fan.Collect.Source(1).CommandLine="COPY %EmbeddedFile(5)% ""%Enclosure.Discovery.Source(1)%\MSHW_FanSensors.html""&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Fan.Collect.Source(1).KeepOnlyRegExp="^MSHW;Fan;"
+Fan.Collect.Source(1).Separators=";"
+Fan.Collect.Source(1).SelectColumns="3,4,6"
+
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column="2"
+
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column="2"
+Fan.Collect.Source(1).Compute(2).TranslationTable="FanStatusTranslationTable"
+
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column="3"
+Fan.Collect.Source(1).Compute(3).TranslationTable="FanStatusInformationTranslationTable"
+
+// The FanStatusTranslationTable
+FanStatusTranslationTable(20)="OK"
+FanStatusTranslationTable(21)="WARN"
+FanStatusTranslationTable(22)="ALARM"
+FanStatusTranslationTable(23)="OK"
+FanStatusTranslationTable(Default)="UNKNOWN"
+
+// The FanStatusInformationTranslationTable
+FanStatusInformationTranslationTable(20)=""
+FanStatusInformationTranslationTable(21)="Warning"
+FanStatusInformationTranslationTable(22)="Critical"
+FanStatusInformationTranslationTable(23)="Not available"
+FanStatusInformationTranslationTable(Default)="Unknown Status"
+
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Speed=ValueTable.Column(4)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// VOLTAGES
+
+// Voltage discovery
+// DeviceID;Status;Type
+Voltage.Discovery.Source(1).Type="OSCommand"
+Voltage.Discovery.Source(1).CommandLine="COPY %EmbeddedFile(6)% ""%Enclosure.Discovery.Source(1)%\MSHW_VoltageSensors.html""&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Voltage.Discovery.Source(1).KeepOnlyRegExp="^MSHW;Voltage;"
+Voltage.Discovery.Source(1).Separators=";"
+Voltage.Discovery.Source(1).SelectColumns="3,4,5"
+
+// Remove bad voltages (status = 21 or 23)
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column="2"
+Voltage.Discovery.Source(1).Compute(1).ValueList="20,21,22"
+
+// Duplicate the "type" status
+// DeviceID;Status;Type;Type;Type
+Voltage.Discovery.Source(1).Compute(2).Type="DuplicateColumn"
+Voltage.Discovery.Source(1).Compute(2).Column="3"
+Voltage.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+Voltage.Discovery.Source(1).Compute(3).Column="4"
+
+// Translate the second type column into a lower threshold
+// DeviceID;Status;Type;LowerThreshold;Type
+Voltage.Discovery.Source(1).Compute(4).Type="Translate"
+Voltage.Discovery.Source(1).Compute(4).Column="4"
+Voltage.Discovery.Source(1).Compute(4).TranslationTable="VoltageLowerThresholdTranslationTable"
+
+// Translate the last type column into a upper threshold
+// DeviceID;Status;Type;LowerThreshold;UpperThreshold
+Voltage.Discovery.Source(1).Compute(5).Type="Translate"
+Voltage.Discovery.Source(1).Compute(5).Column="5"
+Voltage.Discovery.Source(1).Compute(5).TranslationTable="VoltageUpperThresholdTranslationTable"
+
+// The VoltageLowerThresholdTranslationTable
+VoltageLowerThresholdTranslationTable("Sys Bd +5V")="4500"
+VoltageLowerThresholdTranslationTable("Sys Bd -5V")="-5500"
+VoltageLowerThresholdTranslationTable("Sys Bd +12V")="10800"
+VoltageLowerThresholdTranslationTable("Sys Bd -12V")="-13200"
+VoltageLowerThresholdTranslationTable("Sys Bd +3.3V")="3000"
+VoltageLowerThresholdTranslationTable("Pri Proc Core")="1800"
+VoltageLowerThresholdTranslationTable("Sec Proc Core")="1800"
+VoltageLowerThresholdTranslationTable(Default)=""
+
+// The VoltageUpperThresholdTranslationTable
+VoltageUpperThresholdTranslationTable("Sys Bd +5V")="5500"
+VoltageUpperThresholdTranslationTable("Sys Bd -5V")="-4500"
+VoltageUpperThresholdTranslationTable("Sys Bd +12V")="13200"
+VoltageUpperThresholdTranslationTable("Sys Bd -12V")="-10800"
+VoltageUpperThresholdTranslationTable("Sys Bd +3.3V")="3600"
+VoltageUpperThresholdTranslationTable("Pri Proc Core")="2200"
+VoltageUpperThresholdTranslationTable("Sec Proc Core")="2200"
+VoltageUpperThresholdTranslationTable(Default)=""
+
+// InstanceTable = Source(1)
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(3)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(4)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(5)
+
+// Voltage collect
+Voltage.Collect.Type="MultiInstance"
+Voltage.Collect.Source(1).Type="OSCommand"
+Voltage.Collect.Source(1).CommandLine="COPY %EmbeddedFile(6)% ""%Enclosure.Discovery.Source(1)%\MSHW_VoltageSensors.html""&&SET QUERY_STRING=c=p+i=MSHW_VoltageSensors.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+Voltage.Collect.Source(1).KeepOnlyRegExp="^MSHW;Voltage;"
+Voltage.Collect.Source(1).Separators=";"
+Voltage.Collect.Source(1).SelectColumns="3,4,6"
+
+// Convert Volts to milliVolts
+Voltage.Collect.Source(1).Compute(1).Type="Multiply"
+Voltage.Collect.Source(1).Compute(1).Column="3"
+Voltage.Collect.Source(1).Compute(1).MultiplyBy="1000"
+
+// Duplicate the status column
+Voltage.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Voltage.Collect.Source(1).Compute(2).Column="2"
+
+Voltage.Collect.Source(1).Compute(3).Type="Translate"
+Voltage.Collect.Source(1).Compute(3).Column="2"
+Voltage.Collect.Source(1).Compute(3).TranslationTable="VoltageStatusTranslationTable"
+
+Voltage.Collect.Source(1).Compute(4).Type="Translate"
+Voltage.Collect.Source(1).Compute(4).Column="3"
+Voltage.Collect.Source(1).Compute(4).TranslationTable="VoltageStatusInformationTranslationTable"
+
+// The FanStatusTranslationTable
+VoltageStatusTranslationTable(20)="OK"
+VoltageStatusTranslationTable(21)="WARN"
+VoltageStatusTranslationTable(22)="ALARM"
+VoltageStatusTranslationTable(23)="OK"
+VoltageStatusTranslationTable(Default)="UNKNOWN"
+
+// The FanStatusInformationTranslationTable
+VoltageStatusInformationTranslationTable(20)=""
+VoltageStatusInformationTranslationTable(21)="Warning"
+VoltageStatusInformationTranslationTable(22)="Critical"
+VoltageStatusInformationTranslationTable(23)="Not available"
+VoltageStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(1)
+Voltage.Collect.Voltage=ValueTable.Column(4)
+Voltage.Collect.Status=ValueTable.Column(2)
+Voltage.Collect.StatusInformation=ValueTable.Column(3)
+
+// POWER SUPPLIES
+
+// Power supply discovery
+PowerSupply.Discovery.Source(1).Type="OSCommand"
+PowerSupply.Discovery.Source(1).CommandLine="COPY %EmbeddedFile(7)% ""%Enclosure.Discovery.Source(1)%\MSHW_PowerSupply.html""&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+PowerSupply.Discovery.Source(1).KeepOnlyRegExp="^MSHW;PowerSupply;"
+PowerSupply.Discovery.Source(1).Separators=";"
+PowerSupply.Discovery.Source(1).SelectColumns="3,5"
+
+// Keep only power supplies that are present
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column="2"
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="1"
+
+// Instance Table = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+
+// Power supply collect
+PowerSupply.Collect.Type="MultiInstance"
+PowerSupply.Collect.Source(1).Type="OSCommand"
+PowerSupply.Collect.Source(1).CommandLine="COPY %EmbeddedFile(7)% ""%Enclosure.Discovery.Source(1)%\MSHW_PowerSupply.html""&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&""%Enclosure.Discovery.Source(1)%\hpnst.exe"""
+PowerSupply.Collect.Source(1).KeepOnlyRegExp="^MSHW;PowerSupply;"
+PowerSupply.Collect.Source(1).Separators=";"
+PowerSupply.Collect.Source(1).SelectColumns="3,4"
+
+// Duplicate the status column
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the status
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column="2"
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="PowerSupplyStatusTranslationTable"
+
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column="3"
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="PowerSupplyStatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+// The PowerSupplyStatusTranslationTable
+PowerSupplyStatusTranslationTable(3)="OK"
+PowerSupplyStatusTranslationTable(4)="ALARM"
+PowerSupplyStatusTranslationTable(20)="OK"
+PowerSupplyStatusTranslationTable(21)="WARN"
+PowerSupplyStatusTranslationTable(22)="ALARM"
+PowerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// The PowerSupplyStatusInformationTranslationTable
+PowerSupplyStatusInformationTranslationTable(3)=""
+PowerSupplyStatusInformationTranslationTable(4)="Critical"
+PowerSupplyStatusInformationTranslationTable(20)=""
+PowerSupplyStatusInformationTranslationTable(21)="Warning"
+PowerSupplyStatusInformationTranslationTable(22)="Critical"
+PowerSupplyStatusInformationTranslationTable(Default)="Unknown Status"
+
+// CPU
+
+// CPU discovery
+CPU.Discovery.Source(1).Type="WMI"
+CPU.Discovery.Source(1).WbemQuery="SELECT CurrentClockSpeed,DeviceID,Family,Manufacturer FROM Win32_Processor"
+CPU.Discovery.Source(1).WbemNameSpace="root\cimv2"
+
+// Translate CPU family
+cpu.Discovery.Source(1).Compute(1).Type="Translate"
+cpu.Discovery.Source(1).Compute(1).Column="3"
+cpu.Discovery.Source(1).Compute(1).TranslationTable="cpuFamilyTranslationTable"
+
+// Remove Genuine from manufacturer's name
+CPU.Discovery.Source(1).Compute(2).Type="Replace"
+CPU.Discovery.Source(1).Compute(2).Column="4"
+CPU.Discovery.Source(1).Compute(2).Replace="Genuine"
+CPU.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// InstanceTable = Source(1)
+CPU.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+CPU.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+CPU.Discovery.Instance.Vendor=InstanceTable.Column(4)
+CPU.Discovery.Instance.Model=InstanceTable.Column(3)
+CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(1)
+
+// CPU supply collect
+CPU.Collect.Type="MultiInstance"
+
+// Source(1) = The IBMPSG_Processor WBEM class
+CPU.Collect.Source(1).Type="WMI"
+CPU.Collect.Source(1).WbemQuery="SELECT DeviceID,Status FROM Win32_Processor"
+CPU.Collect.Source(1).WbemNameSpace="root\cimv2"
+
+CPU.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+CPU.Collect.Source(1).Compute(1).Column="2"
+
+CPU.Collect.Source(1).Compute(2).Type="Translate"
+CPU.Collect.Source(1).Compute(2).Column="2"
+CPU.Collect.Source(1).Compute(2).TranslationTable="cpuStatusTranslationTable"
+
+CPU.Collect.Source(1).Compute(3).Type="Translate"
+CPU.Collect.Source(1).Compute(3).Column="3"
+CPU.Collect.Source(1).Compute(3).TranslationTable="cpuStatusInformationTranslationTable"
+
+CPU.Collect.ValueTable=%cpu.Collect.Source(1)%
+CPU.Collect.DeviceID=ValueTable.Column(1)
+CPU.Collect.Status=ValueTable.Column(2)
+CPU.Collect.StatusInformation=ValueTable.Column(3)
+
+// The cpuCardStatusTranslationTable
+cpuStatusTranslationTable("OK")="OK"
+cpuStatusTranslationTable("Error")="ALARM"
+cpuStatusTranslationTable("Degraded")="WARN"
+cpuStatusTranslationTable("Pred Fail")="WARN"
+cpuStatusTranslationTable("Starting")="WARN"
+cpuStatusTranslationTable("Stopping")="WARN"
+cpuStatusTranslationTable("Service")="WARN"
+cpuStatusTranslationTable("Stressed")="WARN"
+cpuStatusTranslationTable("NonRecover")="ALARM"
+cpuStatusTranslationTable("No Contact")="WARN"
+cpuStatusTranslationTable("Lost Comm")="WARN"
+cpuStatusTranslationTable("Stopped")="OK"
+cpuStatusTranslationTable(Default)="UNKNOWN"
+
+// The cpuStatusInformationTranslationTable
+cpuStatusInformationTranslationTable("OK")=""
+cpuStatusInformationTranslationTable("Error")="Error"
+cpuStatusInformationTranslationTable("Degraded")="Degraded"
+cpuStatusInformationTranslationTable("Pred Fail")="Predicted Failure"
+cpuStatusInformationTranslationTable("Starting")="Starting"
+cpuStatusInformationTranslationTable("Stopping")="Stopping"
+cpuStatusInformationTranslationTable("Service")="Service"
+cpuStatusInformationTranslationTable("Stressed")="Stressed"
+cpuStatusInformationTranslationTable("NonRecover")="Non Recover"
+cpuStatusInformationTranslationTable("No Contact")="No Contact"
+cpuStatusInformationTranslationTable("Lost Comm")="Lost Communication"
+cpuStatusInformationTranslationTable("Stopped")="Stopped"
+cpuStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+///////////////////////////////////////////////////////////////
+///
+///   EmbeddedFile(1)
+///
+///   Nothing...
+///
+///////////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+nothing
+EmbeddedFile(1).End
+//////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////
+///
+///   EmbeddedFile(2)
+///
+///   VBS script that gives the path to the HP Instant TopTools web server
+///
+///////////////////////////////////////////////////////////////
+
+EmbeddedFile(2):
+Option Explicit
+On Error Resume Next
+
+'=== Declarations
+Dim oShell
+Dim sCgiBinPath
+
+'=== Get the shell object
+Set oShell = WScript.CreateObject("WScript.Shell")
+
+'=== Check that Instant Top Tools is installed and get the cgi-bin folder
+sCgiBinPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Hewlett-Packard\InstantTopTools\cgiroot")
+
+If sCgiBinPath = "" Then
+	WScript.Echo "HP Instant TopTools is not installed on this computer"
+	WScript.Quit 1
+End If
+
+WScript.StdOut.Write sCgiBinPath
+
+EmbeddedFile(2).End
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+///////////////////////////////////////////////////////////////
+///
+///   EmbeddedFile(3) to EmbeddedFile(8)
+///
+///   Template file for hpnst.exe that will give the computer model, temperature, etc.
+///
+///////////////////////////////////////////////////////////////
+
+EmbeddedFile(3):
+MSHW;ComputerModel;<!--getscalar api="hpsmbapi" name="SMBAPI_GetSystemModel" default="unknown"-->
+EmbeddedFile(3).End
+
+EmbeddedFile(4):
+<!--getmultiple api="hpiepapi" name="HPIEPAPI_GetTemperatureSensorNumberOfRows" entry="HPIEPAPI_GetTemperatureSensorTableProp" default="No manageable temperature sensors are installed on this system"-->MSHW;Temperature;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
+<!--endmultiple-->
+EmbeddedFile(4).End
+
+EmbeddedFile(5):
+<!--getmultiple api="hpiepapi" name="HPIEPAPI_GetFanSensorNumberOfRows" entry="HPIEPAPI_GetFanSensorTableProp" default="No manageable fan sensors are installed on this system"-->MSHW;Fan;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
+<!--endmultiple-->
+EmbeddedFile(5).End
+
+EmbeddedFile(6):
+<!--getmultiple api="hpiepapi" name="HPIEPAPI_GetVoltageSensorNumberOfRows" entry="HPIEPAPI_GetVoltageSensorTableProp" default="No manageable voltage sensors are installed on this system"-->MSHW;Voltage;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
+<!--endmultiple-->
+EmbeddedFile(6).End
+
+EmbeddedFile(7):
+<!--getmultiple api="hpiepapi" name="HPIEPAPI_GetPowerSupplyNumberOfRows" entry="HPIEPAPI_GetPowerSupplyTableProp" default="No manageable power supplies are installed on this system"-->MSHW;PowerSupply;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Status" default="unknown"-->;<!--getprop name="Present" default="unknown"-->
+<!--endmultiple-->
+EmbeddedFile(7).End
+
+EmbeddedFile(8):
+<!--getmultiple api="hpsmbapi" name="SMBAPI_GetNumberOfMemMod" default="No modules found"-->MSHW;Memory;<!--getrow-->;<!--getprop altapi="hpmadapi" name="GetMemoryModuleStatus" default="N/A"-->;<!--getprop name="SMBAPI_GetModInstalledSize" default="unknown"-->;<!--getprop name="SMBAPI_GetModType" translate default="unknown"-->
+<!--endmultiple-->
+EmbeddedFile(8).End
+
+//////////////////////////////////////////////////////////////////////

@@ -1,0 +1,799 @@
+---
+connector:
+  displayName: SMI-S Compliant RAID Controller - Windows
+  platforms: IBM xSeries
+  reliesOn: IBM Director Agent 5.20.x / 6.10.x
+  version: 1.2
+  information: This connector provides IBM ServeRAID disks monitoring through the IBM ServeRAID Manager Agent component of the IBM Director Agent version 5.20.x (or the 6.10.x common agent) which supports almost all IBM Netfinity and xSeries servers.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - NT
+    supersedes:
+    - LSIMegaRaidSAS5
+    - LSIMegaRaidSAS
+    - LSIMegaCliWindows
+    - LSIUtilWindows
+    criteria:
+    # OS must be Windows
+    - type: deviceType
+      keep:
+      - NT
+    # Verify that there is a WBEM namespace with a CIM_ComputerSystem.Dedicated == 3
+    - type: wmi
+      namespace: Automatic
+      query: SELECT Dedicated FROM CIM_ComputerSystem
+      expectedResult: \(^30|\)\|\(|30|\)\|\(^3|\)\|\(|3|\)\|\(^2|\)\|\(|2|\)
+    # There must be disk drives declared int he root/LSI_IR_1_2_0 namespace
+    - type: wmi
+      query: SELECT __PATH FROM CIM_DiskDrive
+      namespace: Automatic
+      # And it must be an actual RAID controller, and not just a regular ATA/SCSI controller
+      # in which case, the disks are monitored with the generic "WMI - Disks" connector
+    - type: wmi
+      query: SELECT __PATH FROM CIM_StorageVolume
+      namespace: Automatic
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # This class is linked to many useful information and actually represents the RAID controller
+          # ComputerSystemID;Dedicated;Name;
+          type: wmi
+          query: "SELECT __PATH,Dedicated,Name FROM CIM_ComputerSystem"
+          namespace: Automatic
+          computes:
+            # Keep only CIM_ComputerSystems that are RAID controllers
+            # ComputerSystemID;Dedicated;Name;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: \(^30|\)\|\(|30|\)\|\(^3|\)\|\(|3|\)\|\(^2|\)\|\(|2|\)
+            # This is bad, but I can't find another way to exclude "enclosure" instances, which I can't care less in this case
+            # ComputerSystemID;Dedicated;Name;
+          - type: excludeMatchingLines
+            column: 1
+            regExp: "[Ee]nclosure"
+        source(2):
+          # Source(2) = CIM_LogicalIdentity
+          # This is the link between CIM_ComputerSystem and CIM_PortController
+          # SameElement;SystemElement;
+          type: wmi
+          query: "SELECT SameElement,SystemElement FROM CIM_LogicalIdentity"
+          namespace: Automatic
+        source(3):
+          # Source(3) = CIM_Realizes
+          # Makes the link between CIM_PortController and CIM_Card
+          # PhysicalPackageID;LogicalElementID;
+          type: wmi
+          query: "SELECT Antecedent,Dependent FROM CIM_Realizes"
+          namespace: Automatic
+        source(4):
+          # Source(4) = CIM_Card
+          # CardTag;Manufacturer;Model;SerialNumber;
+          type: wmi
+          query: "SELECT __PATH,Manufacturer,Model,SerialNumber FROM CIM_Card"
+          namespace: Automatic
+        source(5):
+          # Source(5) = CIM_ElementSoftwareIdentity
+          # Makes the link between CIM_SoftwareIdentity and CIM_ComputerSystem
+          # SoftwareID;ComputerSystemID;
+          type: wmi
+          query: "SELECT Antecedent,Dependent FROM CIM_ElementSoftwareIdentity"
+          namespace: Automatic
+        source(6):
+          # Source(6) = CIM_SoftwareIdentity
+          # SoftwareID;Classifications;VersionString
+          type: wmi
+          query: "SELECT __PATH,Classifications,VersionString FROM CIM_SoftwareIdentity"
+          namespace: Automatic
+          computes:
+            # Take the first classification item from the "Classifications" column, which actually is an array
+            # SoftwareID;Classification;VersionString
+          - type: extract
+            column: 2
+            subColumn: 1
+            subSeparators: '|'
+        source(7):
+          # Source(7) = Copy of Source(6) [CIM_SoftwareIdentity], but with only where Classifications == 11, i.e. BIOS
+          # SoftwareID;Classifications;BIOSVersion;
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(6)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: 11
+        source(8):
+          # Source(8) = Copy of Source(6) [CIM_SoftwareIdentity], but with only where Classifications == 10, i.e. Firmware
+          # SoftwareID;Classifications;FirmwareVersion
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(6)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: 10
+        source(9):
+          # Source(9) = Copy of Source(6) [CIM_SoftwareIdentity], but with only where Classifications == 2, i.e. Driver
+          # SoftwareID;Classifications;DriverVersion
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(6)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: 2
+        source(10):
+          # Source(10) = Table joint between Source(1) and Source(2)
+          # ComputerSystemID;Dedicated;Name;SameElement;SystemElement;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: Wbem
+          defaultRightLine: RemoveMe;;
+        source(11):
+          # Source(11) = Table joint between Source(3) and Source(4)
+          # PhysicalPackageID;LogicalElementID;CardTag;Manufacturer;Model;SerialNumber;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;;;
+        source(12):
+          # Source(12) = Table joint between Source(10) and Source(11)
+          # ComputerSystemID;Dedicated;Name;SameElement;SystemElement;PhysicalPackageID;LogicalElementID;CardTag;Manufacturer;Model;SerialNumber;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(10)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(11)$
+          leftKeyColumn: 4
+          rightKeyColumn: 2
+          keyType: Wbem
+          defaultRightLine: ;;;;;;
+          computes:
+            # Keep only useful columns
+            # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;
+          - type: keepColumns
+            columnNumbers: "1,3,9,10,11"
+        source(13):
+          # Source(13) = Table joint between Source(5) and Source(7)
+          # SoftwareID;ComputerSystemID;SoftwareID;Classifications;BIOSVersion;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(7)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+        source(14):
+          # Source(14) = Table joint between Source(5) and Source(8)
+          # SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(8)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+        source(15):
+          # Source(15) = Table joint between Source(5) and Source(9)
+          # SoftwareID;ComputerSystemID;SoftwareID;Classifications;DriverVersion;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(9)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+        source(16):
+          # Source(16) = Table joint between Source(12) and Source(13)
+          # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;SoftwareID;ComputerSystemID;SoftwareID;Classifications;BIOSVersion;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(12)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(13)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: Wbem
+          defaultRightLine: ;;;;;
+        source(17):
+          # Source(17) = Table joint between Source(14) and Source(15)
+          # SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;SoftwareID;ComputerSystemID;SoftwareID;Classifications;DriverVersion;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(14)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(15)$
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          keyType: Wbem
+          defaultRightLine: ;;;;;
+        source(18):
+          # Source(18) = Table joint between Source(16) and Source(17)
+          # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;SoftwareID;ComputerSystemID;SoftwareID;Classifications;BIOSVersion;SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;SoftwareID;ComputerSystemID;SoftwareID;Classifications;DriverVersion;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(16)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(17)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: Wbem
+          defaultRightLine: ;;;;;;;;;;
+          computes:
+            # Keep only useful columns (makes things clearer)
+            # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;
+          - type: keepColumns
+            columnNumbers: "1,2,3,4,5,10,15,20"
+            # Exclude any PartComponents (DeviceIDs) of "Empty" that have made it this far
+            # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;
+          - type: excludeMatchingLines
+            column: 1
+            regExp: ^$
+        source(19):
+          # Source(19) = CIM_SystemDevice
+          # Will be useful for physical and logical disks discovery (to attach them to the controller)
+          # GroupComponent;PartComponent
+          type: wmi
+          query: "SELECT GroupComponent,PartComponent FROM CIM_SystemDevice"
+          namespace: Automatic
+        source(20):
+          # Source(20) = table joint of source(19) and source(18)
+          # This is just to keep only cim_systemdevice instances that correspond to the RAID controller, and not to other painfully useless other objects
+          # GroupComponent;PartComponent;ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(19)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(18)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          computes:
+          # PartComponent;DiskControllerID;
+          - type: keepColumns
+            columnNumbers: "2,3,4"
+        source(21):
+          # Get a list of Physical Disks
+          # CIM_DiskDrive;
+          type: wmi
+          query: SELECT __PATH FROM CIM_DiskDrive
+          namespace: Automatic
+        source(22):
+          # Match these disks with the PartComponent to GroupComponent table we built
+          # CIM_DiskDrive;PartComponent;DiskControllerID;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(21)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(20)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+        source(23):
+          # Take Disk Controller instance table and make sure that each controller matches one of the discovered physical disks (all controllers must have and associated physical disk)
+          # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;CIM_DiskDrive;PartComponent;DiskControllerID;
+          type: tableJoin
+          leftTable: $monitors.disk_controller.discovery.sources.source(18)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(22)$
+          leftKeyColumn: 1
+          rightKeyColumn: 3
+          keyType: Wbem
+      mapping:
+        # The Instance table
+        # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;CIM_DiskDrive;PartComponent;DiskControllerID;
+        source: $monitors.disk_controller.discovery.sources.source(23)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          controller_number: $column(1)
+          vendor: $column(3)
+          model: $column(4)
+          serial_number: $column(5)
+          bios_version: $column(6)
+          firmware_version: $column(7)
+          driver_version: $column(8)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(3), $column(4))"
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      # Only ONE WBEM query will be done in order to get the information for all disk controllers
+      # Less WBEM queries gives faster results
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # ComputerID;OperationalStatus;
+          type: wmi
+          query: "SELECT Name,OperationalStatus FROM CIM_ComputerSystem"
+          namespace: Automatic
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # ComputerID;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # ComputerID;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # ComputerID;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # ComputerID;PATROLStatus;StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_DiskDrive
+          # CIM_DiskDrive;SizeK;DeviceID;ElementName;
+          type: wmi
+          query: "SELECT __PATH,MaxMediaSize,DeviceID,ElementName FROM CIM_DiskDrive"
+          namespace: Automatic
+          computes:
+            # Convert SizeK from 1000 of bytes to bytes
+            # CIM_DiskDrive;Size;DeviceID;ElementName;
+          - type: multiply
+            column: 2
+            value: 1000
+            # Use DeviceID as ElementName if Element Name not available
+            # CIM_DiskDrive;Size;DeviceID;ElementName;
+          - type: leftConcat
+            column: 4
+            value: _MSHW_
+          - type: rightConcat
+            column: 4
+            value: _MSHW_
+            # Replace the Blank Value with Column 3
+            # CIM_DiskDrive;Size;DeviceID;ElementName;
+          - type: replace
+            column: 4
+            existingValue: _MSHW__MSHW_
+            newValue: Column(3)
+            # Remove the unwanted _MSHW_
+            # CIM_DiskDrive;Size;DeviceID;ElementName;
+          - type: replace
+            column: 4
+            existingValue: _MSHW_
+            newValue: ""
+        source(2):
+          # Source(2) = CIM_PhysicalPackage
+          # Tag;Model;SerialNumber;
+          type: wmi
+          query: "SELECT __PATH,Model,SerialNumber FROM CIM_PhysicalPackage"
+          namespace: Automatic
+        source(3):
+          # Source(3) = Table joint of Source(1) and DiskController.Discovery.Source(3)
+          # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: Wbem
+          defaultRightLine: ;;
+        source(4):
+          # Source(4) = Table joint of Source(3) and Source(2)
+          # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;Tag;Model;SerialNumber;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(3)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 5
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;;
+        source(5):
+          # Source(5) = Table joint of Source(4) and DiskController.Discovery.Source(20)
+          # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;Tag;Model;SerialNumber;PartComponent;DiskControllerID;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(4)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(20)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+          computes:
+            # Exclude any PartComponents (DeviceIDs) of "Empty" that have made it this far
+            # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;Tag;Model;SerialNumber;PartComponent;DiskControllerID;
+          - type: excludeMatchingLines
+            column: 1
+            regExp: ^$
+      mapping:
+        # Finally here is the instance table...
+        # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;Tag;Model;SerialNumber;PartComponent;DiskControllerID;
+        source: $monitors.physical_disk.discovery.sources.source(5)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          vendor: $column(8)
+          serial_number: $column(9)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(11))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(8), $column(2))"
+        metrics:
+          hw.physical_disk.size: $column(2)
+    collect:
+      # The physical disk collect is a "MultiInstance" collect
+      # Only ONE WBEM query will be done in order to get the information for all physical disks
+      # Less WBEM queries gives faster results
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the only source = CIM_DiskDrive
+          # DeviceID;OperationalStatusArray
+          type: wmi
+          query: "SELECT DeviceID,OperationalStatus FROM CIM_DiskDrive"
+          namespace: Automatic
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # ComputerID;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # ComputerID;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # ComputerID;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # ComputerID;PATROLStatus;StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_StorageVolume
+          # CIM_StorageVolume;BlockSize;SizeInBlocks;DeviceID;ElementName;SystemName;
+          type: wmi
+          query: "SELECT __PATH,BlockSize,NumberOfBlocks,DeviceID,ElementName,SystemName FROM CIM_StorageVolume"
+          namespace: Automatic
+          computes:
+            # Compute the real size of the volumes (SizeInBlocks * BlockSize)
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;SystemName;
+          - type: multiply
+            column: 3
+            value: Column(2)
+            # Add an Underscore to the System Name
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;SystemName;
+          - type: rightConcat
+            column: 6
+            value: _
+            # Remove the SystemName from the DeviceID
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;SystemName;
+          - type: replace
+            column: 4
+            existingValue: Column(6)
+            newValue: ""
+            # Remove the System Name Column
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;
+          - type: keepColumns
+            columnNumbers: "1,2,3,4,5"
+            # Use DeviceID as ElementName if Element Name not available
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;
+          - type: leftConcat
+            column: 5
+            value: _MSHW_
+          - type: rightConcat
+            column: 5
+            value: _MSHW_
+            # Replace the Blank Value with Column 4
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;
+          - type: replace
+            column: 5
+            existingValue: _MSHW__MSHW_
+            newValue: Column(4)
+            # Remove the unwanted _MSHW_
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;
+          - type: replace
+            column: 5
+            existingValue: _MSHW_
+            newValue: ""
+        source(2):
+          # Source(2) = CIM_StorageSetting
+          # StorageSettingInstanceID;Description;
+          type: wmi
+          query: "SELECT __PATH,Description FROM CIM_StorageSetting"
+          namespace: Automatic
+        source(3):
+          # Source(3) = CIM_ElementSettingData
+          # This is the link between CIM_StorageSetting and CIM_StorageVolumne
+          # ManagedElement;SettingData
+          type: wmi
+          query: "SELECT ManagedElement,SettingData FROM CIM_ElementSettingData"
+          namespace: Automatic
+        source(4):
+          # Source(4) = Table joint of  Source(1) and Source(3)
+          # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+        source(5):
+          # Source(5) = Table joint of Source(4) and Source(2)
+          # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;StorageSettingInstanceID;Description;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(4)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 7
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+        source(6):
+          # Source(6) = Table joint of Source(5) and DiskController.Discovery.Source(20)
+          # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;StorageSettingInstanceID;Description;PartComponent;DiskControllerID;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(5)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(20)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;
+          computes:
+            # Exclude any PartComponents (DeviceIDs) of "Empty" that have made it this far
+            # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;StorageSettingInstanceID;Description;PartComponent;DiskControllerID;
+          - type: excludeMatchingLines
+            column: 1
+            regExp: ^$
+      mapping:
+        # Here is the instance table
+        # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;StorageSettingInstanceID;Description;PartComponent;DiskControllerID;
+        source: $monitors.logical_disk.discovery.sources.source(6)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(5)
+          raid_level: $column(9)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(11))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(5), $column(9), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
+    collect:
+      # The physical disk collect is a "MultiInstance" collect
+      # Only ONE WBEM query will be done in order to get the information for all physical disks
+      # Less WBEM queries gives faster results
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the only source = CIM_StorageVolume
+          # DeviceID;OperationalStatusArray
+          type: wmi
+          query: "SELECT DeviceID,OperationalStatus,SystemName FROM CIM_StorageVolume"
+          namespace: Automatic
+          computes:
+            # Add an Underscore to the System Name
+            # DeviceID;OperationalStatusArray;SystemName;
+          - type: rightConcat
+            column: 3
+            value: _
+            # Remove the SystemName from the DeviceID
+            # DeviceID;OperationalStatusArray;SystemName;
+          - type: replace
+            column: 1
+            existingValue: Column(3)
+            newValue: ""
+            # Remove the System Name Column
+            # DeviceID;OperationalStatusArray;
+          - type: keepColumns
+            columnNumbers: "1,2"
+            # Duplicate the "OperationalStatusArray" column
+            # ComputerID;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # ComputerID;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # ComputerID;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # ComputerID;PATROLStatus;StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_Battery
+          # CIM_Battery;DeviceID;OperationalStatus;
+          type: wmi
+          query: "SELECT __PATH,DeviceID,OperationalStatus FROM CIM_Battery"
+          namespace: Automatic
+          computes:
+            # Exclude Batteries that have a Status of "12", i.e. no contact (not present)
+            # CIM_Battery;DeviceID;OperationalStatus;
+          - type: excludeMatchingLines
+            column: 3
+            regExp: 12|
+        source(2):
+          # Get the association table between Battery and Controller.  We have to use quite a generic association class.
+          # Cim_ComputerSystem;CIM_Battery
+          type: wmi
+          query: "SELECT GroupComponent,PartComponent FROM CIM_Component"
+          namespace: Automatic
+        source(3):
+          # Associate the Disk Controller with the Association Table to ensure that we have the Group Component we associate the Battery to is in fact the Disk Controller.
+          # Cim_ComputerSystem;CIM_Battery;ComputerSystemID;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;Cim_ComputerSystem;CIM_Battery;
+          type: tableJoin
+          leftTable: $monitors.battery.discovery.sources.source(2)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(18)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          computes:
+            # Keep only the Computer System and Battery paths.
+            # Cim_ComputerSystem;CIM_Battery
+          - type: keepColumns
+            columnNumbers: "1,2"
+        source(4):
+          # Attach the discovered batteries to the assocation table
+          # CIM_Battery;DeviceID;OperationalStatus;Cim_ComputerSystem;CIM_Battery
+          type: tableJoin
+          leftTable: $monitors.battery.discovery.sources.source(1)$
+          rightTable: $monitors.battery.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: Wbem
+        source(5):
+          # As we've modified the Disk Controller's device id from its path to its name, we need to table join the controllers name
+          # CIM_Battery;DeviceID;OperationalStatus;Cim_ComputerSystem;CIM_Battery;ComputerSystemID;Dedicated;Name;
+          type: tableJoin
+          leftTable: $monitors.battery.discovery.sources.source(4)$
+          rightTable: $monitors.disk_controller.discovery.sources.source(1)$
+          leftKeyColumn: 4
+          rightKeyColumn: 1
+          keyType: Wbem
+          computes:
+            # Keep only the Computer System and Battery paths.
+            #      1           2           3            #     4            #  5            6            #  7     8
+            # CIM_Battery;DeviceID;OperationalStatus;Cim_ComputerSystem;CIM_Battery;ComputerSystemID;Dedicated;Name;
+            # CIM_Battery;DeviceID;            #             #             #             #             #       ComputerSystemName;
+          - type: keepColumns
+            columnNumbers: "1,2,8"
+      mapping:
+        # The Instance table
+        # CIM_Battery;DeviceID;ComputerSystemName;
+        source: $monitors.battery.discovery.sources.source(5)$
+        attributes:
+          id: $column(2)
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(3)
+          name: $column(2)
+    collect:
+      # The physical disk collect is a "MultiInstance" collect
+      # Only ONE WBEM query will be done in order to get the information for all physical disks
+      # Less WBEM queries gives faster results
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the only source = CIM_StorageVolume
+          # DeviceID;OperationalStatusArray
+          type: wmi
+          query: "SELECT DeviceID,OperationalStatus FROM CIM_Battery"
+          namespace: Automatic
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DeviceID;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # We actually use a battery-specific translation table, because the '11' code ("In Service") is actually OK on batteries in real life (while "WARN" as per the DMTF)
+            # DeviceID;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 2
+            translationTable: BatteryDMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID;PATROLStatus;StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # DeviceID = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": degraded
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  BatteryDMTFOperationStatusTranslationTable:
+    "11": ok
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": degraded
+    "16": degraded
+    "17": ok
+    "18": ok
+    "2": ok
+    default: UNKNOWN
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    "2": ""
+    default: ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped

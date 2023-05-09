@@ -1,0 +1,1061 @@
+---
+connector:
+  displayName: EMC Isilon Cluster (REST)
+  platforms: EMC Isilon
+  version: 1.0
+  information: "This connector discovers the status of an EMC Isilon Storage Cluster, as well as the various environment sensors (temperatures, fans, power supplies, etc.). Requires EMC Isilon (v8) or later."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+      # Check that we are talking to an Isilon System
+      # and that version 3 (IsiFS v8 or later) of the API is available
+      # Json Output
+    - type: http
+      method: GET
+      url: /platform/3/cluster/version
+      expectedResult: Isilon OneFS
+      errorMessage: Credentials Incorrect / Not an Isilon (v8) or later system
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # JSON Output
+          type: http
+          method: GET
+          url: /platform/3/cluster/nodes
+          resultContent: body
+        source(2):
+          # Preserve original source for re-use by other classes
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;NodeID;serial_number;model;nvram;
+          - type: json2csv
+            entryKey: nodes/hardware
+            properties: ../lnn;/serial_number;/product;/nvram;
+        source(3):
+          # Adding Cluster Enclosure to attach disks to
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - Cluster;Cluster;;;;
+          computes:
+          - type: leftConcat
+            column: 5
+            value: "NVRAM: "
+            # Duplicate the NodeID column to use for the display ID
+            # JsonID;NodeID;serial_number;model;nvram;displayID
+          - type: rightConcat
+            column: 5
+            value: ;
+          - type: rightConcat
+            column: 6
+            value: column(2)
+            # Add the word Node to the display ID
+            # JsonID;NodeID;serial_number;model;nvram;displayID
+          - type: leftConcat
+            column: 6
+            value: 'Node '
+      mapping:
+        # Instance Table
+        # JsonID;NodeID;serial_number;model;nvram;displayID
+        source: $monitors.enclosure.discovery.sources.source(3)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(6)
+          serial_number: $column(3)
+          model: $column(4)
+          vendor: EMC
+          type: Storage
+          info: $column(5)
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(6), \"EMC\", $column(4))"
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # JSON Output
+          type: http
+          method: GET
+          url: /platform/3/cluster/nodes
+          resultContent: body
+        source(2):
+          # Preserve original Source for re-use
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;LNN;smartfailed;dead;down;readonly;in_cluster;shutdown_readonly;
+            #  1      2          3    4     5   6          7           8
+          - type: json2csv
+            entryKey: nodes/state/smartfail
+            properties: ../../lnn;/smartfailed;/dead;/down;/readonly;/in_cluster;/shutdown_readonly;
+            separator: ;
+          # Translate the Various Boolean Status
+          - type: translate
+            column: 3
+            translationTable: SmartFailedTranslateTable
+          - type: translate
+            column: 4
+            translationTable: DeadTranslateTable
+          - type: translate
+            column: 5
+            translationTable: DownTranslateTable
+          - type: translate
+            column: 6
+            translationTable: ReadOnlyTranslateTable
+          - type: translate
+            column: 7
+            translationTable: InclusterTranslateTable
+          - type: translate
+            column: 8
+            translationTable: ShutDownReadOnlyTranslateTable
+            # Concat all the Status Columns into one Column
+            # JsonID;LNN;smartfailed;dead;down;readonly;in_cluster;shutdown_readonly;
+            #  1      2          3    4     5   6          7           8
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(4)
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(5)
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(6)
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(7)
+          - type: rightConcat
+            column: 3
+            value: '|'
+          - type: rightConcat
+            column: 3
+            value: Column(8)
+            # Keep only columns
+            # JsonID;LNN;StatusArray;
+          - type: keepColumns
+            columnNumbers: "1,2,3"
+        source(3):
+          # Make a copy to start the numbering again
+          # JsonID;LNN;StatusArray;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Duplicate the StatusArray
+            # JsonID;LNN;StatusArray;StatusArray;
+          - type: duplicateColumn
+            column: 3
+            # Translate first Status into a PATROL status
+            # JsonID;LNN;PatrolStatus;StatusArray;
+          - type: arrayTranslate
+            column: 3
+            translationTable: NodeStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # JsonID;LNN;PatrolStatus;StatusArray;
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+            # Translate second Status into a statusInformation
+            # JsonID;LNN;PatrolStatus;StatusArray;
+          - type: arrayTranslate
+            column: 4
+            translationTable: NodeStatusInformationTranslationTable
+        source(4):
+          # Adding Cluster collect so not to generate system output errors
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.collect.sources.source(3)$
+          - Cluster;Cluster;;;;
+      mapping:
+        # Value Table
+        # JsonID;LNN;PatrolStatus;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(4)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Json Output
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;name;name;
+          - type: json2csv
+            entryKey: nodes/sensors/sensors/values
+            properties: ../../../lnn;../name;/name;
+          # Keep only fans
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: Fans
+            # Duplicate Name Column
+            # JsonID;lnn;type;name;name;
+          - type: duplicateColumn
+            column: 4
+            # Translate second name column to Upper and Lower Thresholds
+            # JsonID;lnn;type;name;WarningThreshold;AlarmThreshold;
+          - type: translate
+            column: 5
+            translationTable: FanThresholdTranslationTable
+      mapping:
+        # Instance Table
+        # JsonID;lnn;type;name;LowerThreshold;UpperThreshold
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(5)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(6)
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Json Output
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;value;
+          - type: json2csv
+            entryKey: nodes/sensors/sensors/values
+            properties: /value;
+      mapping:
+        # Value Table
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(2)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Json Output
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;type;name;value;
+          - type: json2csv
+            entryKey: nodes/sensors/sensors/values
+            properties: ../../../lnn;../name;/name;/value;
+          # Keep only Voltages
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: Volts
+          # remove discovered instances with no values
+          - type: excludeMatchingLines
+            column: 5
+            regExp: na
+            # Duplacate name column
+            # JsonID;lnn;type;name;name;value;
+          - type: duplicateColumn
+            column: 4
+            # Translate new Column in to Upper and Lower Thresholds
+            # JsonID;lnn;type;name;LowerThreshold;UpperThreshold;value;
+          - type: translate
+            column: 5
+            translationTable: VoltageThresholdTranslationTable
+      mapping:
+        # Instance Table
+        # JsonID;lnn;type;name;LowerThreshold;UpperThreshold;value;
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(5)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Json Ouput
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;value;
+          - type: json2csv
+            entryKey: nodes/sensors/sensors/values
+            properties: /value;
+          - type: replace
+            column: 2
+            existingValue: NA
+            newValue: ""
+          - type: multiply
+            column: 2
+            value: 1000
+      mapping:
+        # Value Table
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;type;name;
+          - type: json2csv
+            entryKey: nodes/sensors/sensors/values
+            properties: ../../../lnn;../name;/name;
+          # Keep only Temperatures
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: Temps
+            # Duplicate name column
+            # JsonID;lnn;type;name;name;
+          - type: duplicateColumn
+            column: 4
+            # Translate new column into Warning / Alarm
+            # JsonID;lnn;type;name;Warning;Alarm;
+          - type: translate
+            column: 5
+            translationTable: TemperatureThresholdTranslationTable
+      mapping:
+        # Instance Table
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(4)
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(5)
+          hw.temperature.limit{limit_type="high.critical"}: $column(6)
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # JSON Output
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;value;
+          - type: json2csv
+            entryKey: nodes/sensors/sensors/values
+            properties: /value;
+      mapping:
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;name;type;
+          - type: json2csv
+            entryKey: nodes/status/powersupplies/supplies
+            properties: ../../../lnn;/name;/type;
+          # AdditionalInformation Vendor
+          - type: leftConcat
+            column: 4
+            value: "Vendor: "
+      mapping:
+        # The Instance table
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(3)
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          # Transform JSON to CSV to extract information
+          - type: json2csv
+            entryKey: nodes/status/powersupplies/supplies
+            properties: /status;/status
+            # Fixing some power supply status to be translatable
+            # This is necessary as the status returned by the host sometimes contains variables (displayName)
+          - type: awk
+            script: EmbeddedFile(1)
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+      mapping:
+        # The Value table
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;model;
+          - type: json2csv
+            entryKey: nodes/status/cpu
+            properties: ../../lnn;/model;
+      mapping:
+        # The instance table
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: CPUs Overtemp
+          model: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", \"CPUs Overtemp\", $column(3))"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          # Transform JSON to CSV to extract information
+          - type: json2csv
+            entryKey: nodes/status/cpu
+            properties: /overtemp;
+          - type: translate
+            column: 2
+            translationTable: CPUStatusTranslationTable
+      mapping:
+        # The value table
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # Taking logical_block_length as physical_block_length is way off for SSDS
+            # JsonID;lnn;location;model;serial;blocks;logical_block_length;ui_state
+          - type: json2csv
+            entryKey: nodes/drives
+            properties: ../lnn;/locnstr;/model;/serial;/blocks;/logical_block_length;/ui_state
+            # Get size in Bytes
+            # JsonID;lnn;location;model;serial;size(bytes);logical_block_length;ui_state
+          - type: multiply
+            column: 6
+            value: Column(8)
+            # Get size in Bytes
+            # JsonID;lnn;location;model;serial;size(bytes);logical_block_length;ui_state
+          - type: excludeMatchingLines
+            column: 8
+            regExp: EMPTY
+            # Add node and drive information to DisplayName
+            # node;lnn;displayID;model;serial;size(bytes);logical_block_length;ui_state
+          - type: leftConcat
+            column: 3
+            value: ' '
+          - type: leftConcat
+            column: 3
+            value: Column(2)
+          - type: leftConcat
+            column: 3
+            value: 'Node '
+      mapping:
+        # The Instance table
+        # node;lnn;displayID;model;serial;size(bytes);logical_block_length;ui_state
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(5)
+          __display_id: $column(3)
+          model: $column(4)
+          serial_number: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(6))"
+        metrics:
+          hw.physical_disk.size: $column(6)
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          # Transform JSON to CSV to extract information
+          - type: json2csv
+            entryKey: nodes/drives
+            properties: /ui_state;/serial
+          # JSonID;ui_state;ui_state;serial
+          - type: duplicateColumn
+            column: 2
+          # JsonID;patrolStatus;ui_state;serial
+          - type: translate
+            column: 2
+            translationTable: PhysicalDiskStatusTranslationTable
+      mapping:
+        # The value table
+        # JsonID;patrolStatus;ui_state;serial
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(4)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Json Output
+          type: http
+          method: GET
+          url: /platform/3/network/interfaces
+          resultContent: body
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;name;status;
+          - type: json2csv
+            entryKey: interfaces
+            properties: /lnn;/name;/status;
+          # JsonID;lnn;name;status;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: Not Available
+      mapping:
+        # Instance Table
+        # JsonID;lnn;name;
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(3)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Json Output
+          type: http
+          method: GET
+          url: /platform/3/network/interfaces
+          resultContent: body
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;status;
+          - type: json2csv
+            entryKey: interfaces
+            properties: /status;
+            # Duplicate status column
+            # JsonID;status;status;
+          - type: duplicateColumn
+            column: 2
+            # Duplicate status column
+            # JsonID;status;status;status;
+          - type: duplicateColumn
+            column: 2
+            # Translate NetworkCardStatus into PatrolStatus
+            # JsonID;NetworkcardStatus;NetworkcardStatus;status;
+          - type: translate
+            column: 2
+            translationTable: NetworkCardStatusTranslationTable
+            # Translate second status into LinkStatus
+            # JsonID;NetworkcardStatus;LinkStatus;status;
+          - type: translate
+            column: 3
+            translationTable: LinkStatusTranslationTable
+      mapping:
+        # Value Table
+        # JsonID;NetworkcardStatus;LinkStatus;statusInformation
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(3))
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # ' Discovery'
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;
+          - type: json2csv
+            entryKey: nodes/status/batterystatus
+            properties: ../../lnn;
+        source(2):
+          # Copy Source(1) into new Source(2)
+          type: copy
+          from: $monitors.battery.discovery.sources.source(1)$
+          computes:
+          # Add " - 1" to JsonID
+          - type: rightConcat
+            column: 1
+            value: -1
+            # Duplicate lnn;
+            # JsonID;lnn;lnn;
+          - type: duplicateColumn
+            column: 2
+            # Replace column 3 with Display String
+            # JsonID;lnn;DisplayName;
+          - type: replace
+            column: 3
+            existingValue: Column(3)
+            newValue: Battery 1
+        source(3):
+          # Copy Source(1) into new Source(3)
+          type: copy
+          from: $monitors.battery.discovery.sources.source(1)$
+          computes:
+          # Add " - 2" to JsonID
+          - type: rightConcat
+            column: 1
+            value: -2
+            # Duplicate lnn;
+            # JsonID;lnn;lnn;
+          - type: duplicateColumn
+            column: 2
+            # Replace column 3 with Display String
+            # JsonID;lnn;DisplayName;
+          - type: replace
+            column: 3
+            existingValue: Column(3)
+            newValue: Battery 2
+        source(4):
+          # Union Source(2) and Source(3)
+          # This creates proper number of discovered instances
+          # JsonID;lnn;DisplayName;
+          type: tableUnion
+          tables:
+          - $monitors.battery.discovery.sources.source(2)$
+          - $monitors.battery.discovery.sources.source(3)$
+      mapping:
+        # Instance Table
+        # JsonID;lnn;DisplayName;
+        source: $monitors.battery.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(3)
+    collect:
+      # ' Collect'
+      type: multiInstance
+      sources:
+        source(1):
+          # Json Output
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;result1;status1;result2;status2;
+          - type: json2csv
+            entryKey: nodes/status/batterystatus
+            properties: /result1;/status1;/result2;/status2;
+        source(2):
+          # Keep Columns related to battery 1 and store in Source(2)
+          # JsonID;result1;status1;
+          type: copy
+          from: $monitors.battery.collect.sources.source(1)$
+          computes:
+          - type: keepColumns
+            columnNumbers: "1,2,3"
+            # Add " - 1" to JsonID to match discovery instance
+            # JsonID;result1;status1;
+          - type: rightConcat
+            column: 1
+            value: -1
+        source(3):
+          # Keep columns related to battery 2 and store in Source(3)
+          # JsonID;result2;status2;
+          type: copy
+          from: $monitors.battery.collect.sources.source(1)$
+          computes:
+          - type: keepColumns
+            columnNumbers: "1,4,5"
+            # Add " - 2" to JsonID to match discovery instance
+            # JsonID;result2;status2;
+          - type: rightConcat
+            column: 1
+            value: -2
+        source(4):
+          # Union Source(2) and Source(3) to get proper number of collection instances
+          type: tableUnion
+          tables:
+          - $monitors.battery.collect.sources.source(2)$
+          - $monitors.battery.collect.sources.source(3)$
+          computes:
+            # Translate battery status into PatrolStatus
+            # JsonID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: BatteryStatusTranslationTable
+      mapping:
+        # Value Table
+        # JsonID;patrolStatus;status;
+        source: $monitors.battery.collect.sources.source(4)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: http
+          method: GET
+          url: /platform/3/storagepool/storagepools
+          resultContent: body
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;
+          - type: json2csv
+            entryKey: storagepools
+            properties: /name;/usage/total_bytes;/protection_policy;
+          - type: leftConcat
+            column: 4
+            value: "Protection Policy: "
+      mapping:
+        # The Instance table
+        # JsonID;lnn;Status;AdditionalInformation;StatusInformation;ID;TotalSize;
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: Cluster
+          name: "sprintf(\"%s (%by2hf.s)\", $column(2), $column(3))"
+        metrics:
+          hw.logical_disk.limit: $column(3)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Json Output
+          type: http
+          method: GET
+          url: /platform/3/storagepool/storagepools
+          resultContent: body
+          computes:
+            # Transform JSON to CSV to extract information
+            # JsonID;lnn;underprovisioned;missing_drives;devices_down;devices_smartfailed;waiting_repair
+          - type: json2csv
+            entryKey: storagepools
+            properties: "/health_flags[0];/health_flags[1];/health_flags[2];/health_flags[3];/health_flags[4];"
+          - type: rightConcat
+            column: 2
+            value: '|'
+          # missing_drives
+          - type: rightConcat
+            column: 2
+            value: Column(3)
+          - type: rightConcat
+            column: 2
+            value: '|'
+          # devices_down
+          - type: rightConcat
+            column: 2
+            value: Column(4)
+          - type: rightConcat
+            column: 2
+            value: '|'
+          # devices_smartfailed
+          - type: rightConcat
+            column: 2
+            value: Column(5)
+          - type: rightConcat
+            column: 2
+            value: '|'
+          # waiting_repair
+          - type: rightConcat
+            column: 2
+            value: Column(6)
+            # Adding default case if no other statuses
+            # default_ok
+          - type: rightConcat
+            column: 2
+            value: '|default_ok'
+          - type: keepColumns
+            columnNumbers: "1,2"
+        source(2):
+          type: copy
+          from: $monitors.logical_disk.collect.sources.source(1)$
+          computes:
+            # Duplicate status array column
+            # JsonID;StatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Translate StatusArray into PatrolStatus
+            # JsonID;StatusArray;StatusArray
+          - type: arrayTranslate
+            column: 2
+            translationTable: HealthFlagsTranslationTable
+            # Translate StatusArray into a StatusInformation
+            # JsonID;PATROLStatusArray;StatusArray
+          - type: arrayTranslate
+            column: 3
+            translationTable: HealthFlagsDescriptionTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # JsonID;PatrolStatusArray;StatusInformation;
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # The Value Table
+        # JsonID;PatrolStatus;StatusInformation;
+        source: $monitors.logical_disk.collect.sources.source(2)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+embedded:
+  EmbeddedFile(1): |
+    #Collection related values and informative fields.
+
+    BEGIN {FS=";";OFS=";"}
+    gsub(/.*good/,"Good",$2)
+    {print $0}
+translations:
+  SmartFailedTranslateTable:
+    default: ""
+    "true": SmartFailed
+  VoltageThresholdTranslationTable:
+    bb +1.2v p1vcc: 570;1440
+    bb -12.0v: -13230;-10640
+    bb +1.2v vccp1: 570;1440
+    v1.0: 920;1080
+    v12.0: 11020;12960
+    bb +5.0v: 4630;5350
+    bb +1.35 p2lv cd: 570;1440
+    v5.0_nvram: 4600;5400
+    default: ;
+    v12.0_bb_a: 11020;12960
+    v5.0_stby: 4600;5400
+    bb +5.0v stby: 4630;5350
+    vcc_5v0_cbl: 4600;5400
+    v5.0_fp_x: 4600;5400
+    bb +1.35 p1lv ab: 570;1440
+    bb +1.8v aux: 1730;1870
+    bb +12.0v: 11050;12870
+    v3.3_cmd: 3030;3560
+    bb +1.1v stby: 1060;1150
+    bb +1.2v p2vcc: 570;1440
+    vcc_1v8: 1660;1940
+    bb +3.3v aux: 3070;3510
+    v3.3_stby: 3030;3560
+    vcc_5v0: 4600;5400
+    vcc_3v3: 3030;3560
+    bb 1.5v p1ddr ab: 1410;1590
+    bb 1.5v p1ddr cd: 1410;1590
+    vcc_1v0: 920;1080
+    ps out volt 2: 11400;12800
+    ps out volt 1: 11400;12800
+    bb +3.3v: 3070;3510
+    vcc_12v0: 11020;12960
+    v1.8: 1660;1940
+    v3.3: 3030;3560
+    vcc_5v0_sb: 4600;5400
+    bb 1.5v p2ddr ab: 1410;1590
+    bb 1.5v p2ddr cd: 1410;1590
+    ps in volt 2: ;
+    ps in volt 1: ;
+    v5.0: 4600;5400
+    v12.0_fan3: 11020;12960
+    v12.0_mb0: 11020;12960
+    v12.0_fan2: 11020;12960
+    v12.0_mb1: 11020;12960
+    v12.0_fan1: 11020;12960
+    bb +3.0v vbat: 2240;
+  BatteryStatusTranslationTable:
+    good-test: ok
+    good-testing: ok
+    default: failed
+    good-good: ok
+    ready and enabled: ok
+    testing-good: ok
+    passed: ok
+    ready, enabled, and fully charged: ok
+    good: ok
+  PowerSupplyStatusTranslationTable:
+    default: failed
+    good: ok
+  HealthFlagsTranslationTable:
+    missing_drives: degraded
+    default: UNKNOWN
+    waiting_repair: degraded
+    default_ok: ok
+    devices_smartfailed: degraded
+    underprovisioned: degraded
+    devices_down: degraded
+  ReadOnlyTranslateTable:
+    default: ""
+    "true": ReadOnly
+  CPUStatusTranslationTable:
+    normal: ok
+    default: failed
+  NodeStatusInformationTranslationTable:
+    notincluster: NotInCluster
+    default: ""
+    readonly: ReadOnly
+    smartfailed: SmartFailed
+    incluster: InCluster
+    dead: Dead
+    down: Down
+    shutdownreadonly: ShutDownReadOnly
+  NodeStatusTranslationTable:
+    notincluster: degraded
+    default: ok
+    readonly: degraded
+    smartfailed: failed
+    incluster: ok
+    dead: failed
+    down: failed
+    shutdownreadonly: degraded
+  ShutDownReadOnlyTranslateTable:
+    default: ""
+    "true": ShutDownReadOnly
+  PhysicalDiskStatusTranslationTable:
+    new: degraded
+    erase: degraded
+    l3: ok
+    replace: failed
+    used: degraded
+    boot_drive: ok
+    wrong_type: degraded
+    suspended: degraded
+    unencrypted: failed
+    empty: degraded
+    restripe: degraded
+    smartfail: degraded
+    not: failed
+    default: failed
+    journal: ok
+    preparing: degraded
+    healthy: ok
+    stalled: ok
+    insecure: failed
+    sed_error: failed
+  NetworkCardStatusTranslationTable:
+    no carrier: ok
+    default: failed
+    inactive: ok
+    up: ok
+  InclusterTranslateTable:
+    default: ""
+    "true": InCluster
+    "false": NotInCluster
+  TemperatureThresholdTranslationTable:
+    dimm thrm mrgn 3: 0;5
+    p1 therm margin: 0;10
+    dimm thrm mrgn 2: 0;5
+    p2 dts therm mgn: 0;10
+    dimm thrm mrgn 4: 0;5
+    bb bmc temp: ;100
+    dimm thrm mrgn 1: 0;5
+    temp sensor 2: ;50
+    p1 dts therm mgn: 0;10
+    temp sensor 1: ;50
+    bb mem vr temp: ;115
+    ps temp 2: ;95
+    ps temp 1: ;95
+    bb edge temp: ;65
+    default: ;
+    ssb temp: ;95
+    lsi core temp: ;73
+    bb p1 vr temp: ;115
+    lan nic temp: ;115
+    p2 therm margin: 0;10
+  HealthFlagsDescriptionTranslationTable:
+    missing_drives: Missing Drives
+    default: ""
+    waiting_repair: Waiting Repair
+    devices_smartfailed: Devices Smartfailed
+    underprovisioned: Underprovisioned
+    devices_down: Devices Down
+  LinkStatusTranslationTable:
+    no carrier: degraded
+    default: degraded
+    inactive: degraded
+    up: ok
+  DownTranslateTable:
+    "true": Down
+  FanThresholdTranslationTable:
+    fan tac sensor 3: ;800
+    default: ;
+    fan tac sensor 1: ;800
+    fan tac sensor 2: ;800
+    ps fan speed 2: ;800
+    ps fan speed 1: ;800
+  DeadTranslateTable:
+    default: ""
+    "true": Dead

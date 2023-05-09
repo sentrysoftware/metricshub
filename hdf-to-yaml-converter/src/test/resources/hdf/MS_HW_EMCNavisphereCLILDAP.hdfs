@@ -1,0 +1,86 @@
+//
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//                 MS_HW_EMCNavisphereCLIGlobal.hdf
+//
+//		Monitors: EMC Clariion / VNX
+//      Connects to: Service Processor
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="EMC Navisphere CLI (LDAP User)"
+hdf.TypicalPlatform="EMC CLARiiON,EMC VNX"
+hdf.ReliesOn="EMC naviseccli utility"
+hdf.Comments="This connector provides hardware monitoring through EMC Navisphere CLI (naviseccli). The naviseccli must be installed on the system where the agent is running. This connector uses naviseccli to connect to the EMC VNX controller as an ""LDAP User"", i.e. with ""Scope 2""."
+hdf.LocalSupport="true"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+// Superseding the UEMCLi connector to prevent both of them activating (they shouldn't but they crash the KM if they do)
+hdf.Supersedes="MS_HW_EMCuemcli.hdf"
+
+// Includes
+#include MS_HW_EMCNavisphereCLI.hhdf
+
+
+//
+// DETECTION
+//
+
+// naviseccli Should Exist
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="naviseccli -help"
+Detection.Criteria(1).ErrorMessage="naviseccli Does not appear to be installed on this system"
+Detection.Criteria(1).ExpectedResult="Navisphere"
+Detection.Criteria(1).ExecuteLocally=1
+
+// naviseccli Should be able to connect and list systems
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 2 getagent"
+Detection.Criteria(2).ErrorMessage="Unable to connect using Navisphere"
+Detection.Criteria(2).ExpectedResult="Agent Rev:"
+Detection.Criteria(2).ExecuteLocally=1
+
+
+// Source(1) = Naviseccli
+
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 2 getall"
+Enclosure.Discovery.Source(1).ExecuteLocally=1
+Enclosure.Discovery.Source(1).TimeOut="600"
+
+Enclosure.Discovery.Source(2).Type="OsCommand"
+Enclosure.Discovery.Source(2).CommandLine="naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 2 storagepool -list"
+Enclosure.Discovery.Source(2).ExecuteLocally=1
+Enclosure.Discovery.Source(2).TimeOut="600"
+
+Enclosure.Discovery.Source(3).Type="TableUnion"
+Enclosure.Discovery.Source(3).Table1=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).Table2=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).Table3=%Enclosure.Collect.Source(5)%
+
+Enclosure.Collect.Source(1).Type="OsCommand"
+Enclosure.Collect.Source(1).CommandLine="naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 2 getall"
+Enclosure.Collect.Source(1).ExecuteLocally=1
+Enclosure.Collect.Source(1).TimeOut="600"
+
+Enclosure.Collect.Source(2).Type="OsCommand"
+Enclosure.Collect.Source(2).CommandLine="naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 2 storagepool -list"
+Enclosure.Collect.Source(2).ExecuteLocally=1
+Enclosure.Collect.Source(2).TimeOut="600"
+
+Enclosure.Collect.Source(3).Type="TableUnion"
+Enclosure.Collect.Source(3).Table1=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(3).Table2=%Enclosure.Collect.Source(2)%

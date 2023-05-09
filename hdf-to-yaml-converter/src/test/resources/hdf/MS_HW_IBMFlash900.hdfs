@@ -1,0 +1,800 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//
+//      Supports: IBM FlashSystem 900
+//                Connects to IBM FlashSystems
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="IBM FlashSystem 900"
+hdf.TypicalPlatform="IBM FlashSystem"
+hdf.ReliesOn="IBM FlashSystem 900 SNMP Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure(s) and the disks of IBM FlashSystem 900s as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+//
+// Detection
+//
+
+// Verify that there is an IBM FlashSystem
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.2.6.255.1.1.1"
+
+
+
+// Enclosure
+
+// Discovery
+
+// Source(1) = systemType
+// Version
+Enclosure.Discovery.Source(1).Type="SnmpGet"
+Enclosure.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.2.6.255.1.1.1.2.0"
+
+// Source(2) = version
+// Model
+Enclosure.Discovery.Source(2).Type="SnmpGet"
+Enclosure.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.2.6.255.1.1.1.1.0"
+
+// Combine the two tables
+// Model;Version;
+Enclosure.Discovery.Source(2).Compute(1).Type="RightConcat"
+Enclosure.Discovery.Source(2).Compute(1).Column=1
+Enclosure.Discovery.Source(2).Compute(1).String=%Enclosure.Discovery.Source(1)%
+
+Enclosure.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(2).Column=2
+Enclosure.Discovery.Source(2).Compute(2).String="FirmwareVersion: "
+
+// Instance Table
+// Model;Version;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Instance.DeviceID="IBM FlashSystem"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Type="Storage"
+
+
+// The StatusTranslationTable
+StatusTranslationTable("Online")="OK"
+StatusTranslationTable("Offline")="ALARM"
+StatusTranslationTable("Excluded")="WARN"
+StatusTranslationTable("Degraded")="WARN"
+StatusTranslationTable("Active")="OK"
+StatusTranslationTable("0")="OK"
+StatusTranslationTable("1")="ALARM"
+StatusTranslationTable(Default)="ALARM"
+
+
+//
+// PhysicalDisks
+//
+
+//
+// Discovery
+
+// Source(1) = PhysicalDisk Table
+// ID;Role;Size;Slot;ArrayID;
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.1.51.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="2,4,5,6,7"
+
+// Duplicate the Size
+// ID;Role;Size;Size;Slot;ArrayID;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=3
+
+// Extract the Size (number)
+// ID;Role;Size;Size;Slot;ArrayID;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Extract"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(2).Subcolumn=1
+PhysicalDisk.Discovery.Source(1).Compute(2).Subseparators=" "
+
+// Extract the Size (number)
+// ID;Role;Size;SizeUnits;Slot;ArrayID;
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="Extract"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(3).Subcolumn=2
+PhysicalDisk.Discovery.Source(1).Compute(3).Subseparators=" "
+
+// Translate the units to a multiplier
+// ID;Role;Size;SizeMultiplier;Slot;ArrayID;
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(4).TranslationTable="sizeTranslationTable"
+
+// The sizeTranslationTable
+sizeTranslationTable("TiB")="1099511627776"
+sizeTranslationTable("TB")="1000000000000"
+sizeTranslationTable("GiB")="1073741824"
+sizeTranslationTable("GB")="1000000000"
+sizeTranslationTable("MiB")="1048576"
+sizeTranslationTable("MB")="1000000"
+sizeTranslationTable(Default)="1"
+
+// Multiply the Size by the Multiplier
+// ID;Role;Size;SizeMultiplier;Slot;ArrayID;
+PhysicalDisk.Discovery.Source(1).Compute(5).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(5).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(5).MultiplyBy=Column(4)
+
+// Add identifier to Array
+// ID;Role;Size;SizeMultiplier;Slot;DisplayID;
+PhysicalDisk.Discovery.Source(1).Compute(6).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(6).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(6).String="Array: "
+
+PhysicalDisk.Discovery.Source(1).Compute(7).Type="RightConcat"
+PhysicalDisk.Discovery.Source(1).Compute(7).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(7).String=" Slot: "
+
+PhysicalDisk.Discovery.Source(1).Compute(8).Type="RightConcat"
+PhysicalDisk.Discovery.Source(1).Compute(8).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(8).String=Column(5)
+
+PhysicalDisk.Discovery.Source(1).Compute(9).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(9).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(9).String="Role: "
+
+
+// InstanceTable = Source(1)
+// ID;Role;Size;SizeMultiplier;Slot;ArrayID;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = PhysicalDisk Table
+// ID;State;
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.1.51.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Duplicate the Status column
+// ID;State;State;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// ID;PatrolStatus;State;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+// ID;PatrolStatus;StatusInformation;
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// LogicalDisks
+//
+
+//
+// Discovery
+
+// Source(1) = LogicalDisk Table
+// ID;Size;RaidLevel;
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.1.52.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="2,4,7"
+
+// Duplicate the Size
+// ID;Size;Size;RaidLevel;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=2
+
+// Extract the Size (number)
+// ID;Size;Size;RaidLevel;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Extract"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=2
+LogicalDisk.Discovery.Source(1).Compute(2).Subcolumn=1
+LogicalDisk.Discovery.Source(1).Compute(2).Subseparators=" "
+
+// Extract the Size (number)
+// ID;Size;SizeUnits;RaidLevel;
+LogicalDisk.Discovery.Source(1).Compute(3).Type="Extract"
+LogicalDisk.Discovery.Source(1).Compute(3).Column=3
+LogicalDisk.Discovery.Source(1).Compute(3).Subcolumn=2
+LogicalDisk.Discovery.Source(1).Compute(3).Subseparators=" "
+
+// Translate the units to a multiplier
+// ID;Size;SizeUnits;RaidLevel;
+LogicalDisk.Discovery.Source(1).Compute(4).Type="Translate"
+LogicalDisk.Discovery.Source(1).Compute(4).Column=3
+LogicalDisk.Discovery.Source(1).Compute(4).TranslationTable="sizeTranslationTable"
+
+// Multiply the Size by the Multiplier
+// ID;Size;SizeMultiplier;RaidLevel;
+LogicalDisk.Discovery.Source(1).Compute(5).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(5).Column=2
+LogicalDisk.Discovery.Source(1).Compute(5).MultiplyBy=Column(3)
+
+// InstanceTable = Source(1)
+// ID;Size;SizeMultiplier;RaidLevel;
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type is multi-instance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = LogicalDisk Table
+// ID;State;
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.1.52.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Duplicate the Status column
+// ID;State;State;
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// ID;PatrolStatus;State;
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column=2
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+// ID;PatrolStatus;StatusInformation;
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Blades
+//
+
+//
+// Discovery
+
+// Source(1) = Blade Table
+// ID;DisplayID;Model;Relation;
+Blade.Discovery.Source(1).Type="SnmpTable"
+Blade.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.1.54.1"
+Blade.Discovery.Source(1).SnmpTableSelectColumns="6,2,4,7"
+
+Blade.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Blade.Discovery.Source(1).Compute(1).Column=4
+Blade.Discovery.Source(1).Compute(1).String="RAID: "
+
+// InstanceTable = Source(1)
+// ID;Size;SizeMultiplier;RaidLevel;
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(3)
+Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = Blade Table
+// ID;State;
+Blade.Collect.Source(1).Type="SnmpTable"
+Blade.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.1.54.1"
+Blade.Collect.Source(1).SnmpTableSelectColumns="6,8"
+
+// Duplicate the Status column
+// ID;State;State;
+Blade.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Blade.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// ID;PatrolStatus;State;
+Blade.Collect.Source(1).Compute(2).Type="Translate"
+Blade.Collect.Source(1).Compute(2).Column=2
+Blade.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+// ID;PatrolStatus;StatusInformation;
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(1)
+Blade.Collect.Status=ValueTable.Column(2)
+Blade.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// NetworkCards
+//
+
+//
+// Discovery
+
+// Source(1) = FC Port Table
+// ID;PortID;
+NetworkCard.Discovery.Source(1).Type="SnmpTable"
+NetworkCard.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.1.1"
+NetworkCard.Discovery.Source(1).SnmpTableSelectColumns="2,7"
+
+// Add the PortIDType
+// ID;PortID;PortIDType;
+NetworkCard.Discovery.Source(1).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(1).Column=2
+NetworkCard.Discovery.Source(1).Compute(1).String=";WWN"
+
+// Source(2) = iB Table
+// ID;PortID;
+NetworkCard.Discovery.Source(2).Type="SnmpTable"
+NetworkCard.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.2.1"
+NetworkCard.Discovery.Source(2).SnmpTableSelectColumns="2,7"
+
+// Add the PortIDType
+// ID;PortID;PortIDType;
+NetworkCard.Discovery.Source(2).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(1).Column=2
+NetworkCard.Discovery.Source(2).Compute(1).String=";GUID"
+
+// Source(3) = iScsi Table
+// ID;PortID;
+NetworkCard.Discovery.Source(3).Type="SnmpTable"
+NetworkCard.Discovery.Source(3).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.3.1"
+NetworkCard.Discovery.Source(3).SnmpTableSelectColumns="2,7"
+
+// Add the PortIDType
+// ID;PortID;PortIDType;
+NetworkCard.Discovery.Source(3).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(3).Compute(1).Column=2
+NetworkCard.Discovery.Source(3).Compute(1).String=";MAC"
+
+// Source(4) = FCoE Table
+// ID;PortID;
+NetworkCard.Discovery.Source(4).Type="SnmpTable"
+NetworkCard.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.4.1"
+NetworkCard.Discovery.Source(4).SnmpTableSelectColumns="2,7"
+
+// Add the PortIDType
+// ID;PortID;PortIDType;
+NetworkCard.Discovery.Source(4).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(4).Compute(1).Column=2
+NetworkCard.Discovery.Source(4).Compute(1).String=";WWN"
+
+// Union the two discovery
+// ID;PortID;PortIDType;
+NetworkCard.Discovery.Source(5).Type="TableUnion"
+NetworkCard.Discovery.Source(5).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(5).Table2=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(5).Table3=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Source(5).Table4=%NetworkCard.Discovery.Source(4)%
+
+
+// InstanceTable = Source(1)
+// ID;PortID;PortIDType;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(5)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = FC Port Table
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(1).Type="SnmpTable"
+NetworkCard.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.1.1"
+NetworkCard.Collect.Source(1).SnmpTableSelectColumns="2,5,9"
+
+// Source(2) = iB Table
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(2).Type="SnmpTable"
+NetworkCard.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.2.1"
+NetworkCard.Collect.Source(2).SnmpTableSelectColumns="2,5,9"
+
+// Source(3) = iScsi Port Table
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(3).Type="SnmpTable"
+NetworkCard.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.3.1"
+NetworkCard.Collect.Source(3).SnmpTableSelectColumns="2,5,6"
+
+// Source(4) = FCoE Table
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(4).Type="SnmpTable"
+NetworkCard.Collect.Source(4).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.2.4.1"
+NetworkCard.Collect.Source(4).SnmpTableSelectColumns="2,5,9"
+
+
+// Union the two Collect
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(5).Type="TableUnion"
+NetworkCard.Collect.Source(5).Table1=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(5).Table2=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(5).Table3=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.Source(5).Table4=%NetworkCard.Collect.Source(4)%
+
+// Replace the GB units with 000
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(5).Compute(1).Type="Replace"
+NetworkCard.Collect.Source(5).Compute(1).Column=3
+NetworkCard.Collect.Source(5).Compute(1).Replace="Gb"
+NetworkCard.Collect.Source(5).Compute(1).ReplaceBy="000"
+
+// Replace the Mb units with ""
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(5).Compute(2).Type="Replace"
+NetworkCard.Collect.Source(5).Compute(2).Column=3
+NetworkCard.Collect.Source(5).Compute(2).Replace="Mb"
+NetworkCard.Collect.Source(5).Compute(2).ReplaceBy=""
+
+// Translate the link status
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.Source(5).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(5).Compute(3).Column=2
+NetworkCard.Collect.Source(5).Compute(3).TranslationTable="linkTranslationTable"
+
+// The StatusTranslationTable
+linkTranslationTable("None")="UNKNOWN"
+linkTranslationTable("No Light")="WARN"
+linkTranslationTable("Offline")="WARN"
+linkTranslationTable("Online")="OK"
+linkTranslationTable("Disabled")="WARN"
+linkTranslationTable(Default)=""
+
+
+// ValueTable = Source(3)
+// ID;LinkStatus;Speed;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(5)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(2)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(3)
+
+
+
+//
+// PowerSupplys
+//
+
+//
+// Discovery
+
+// Source(1) = PowerSupply Table
+// ID;
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.5.10.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="2"
+
+// InstanceTable = Source(1)
+// ID;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = PowerSupply Table
+// ID;CommErr;ACGood;DCGood;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.5.10.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="2,3,4,5"
+
+// Add a String to the left of the CommError to prevent the column being identified as a number
+// ID;CommErr;ACGood;DCGood;
+PowerSupply.Collect.Source(1).Compute(1).Type="LeftConcat"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).String="MSHW_"
+
+// Combine all the status values into a single column
+// ID;CombinedStatus;ACGood;DCGood;
+PowerSupply.Collect.Source(1).Compute(2).Type="RightConcat"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).String=Column(3)
+
+PowerSupply.Collect.Source(1).Compute(3).Type="RightConcat"
+PowerSupply.Collect.Source(1).Compute(3).Column=2
+PowerSupply.Collect.Source(1).Compute(3).String=Column(4)
+
+
+// Duplicate the Status column
+// ID;CombinedStatus;CombinedStatus;ACGood;DCGood;
+PowerSupply.Collect.Source(1).Compute(4).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(4).Column=2
+
+// Translate the first status column into a PATROLStatus
+// ID;PatrolStatus;CombinedStatus;ACGood;DCGood;
+PowerSupply.Collect.Source(1).Compute(5).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(5).Column=2
+PowerSupply.Collect.Source(1).Compute(5).TranslationTable="PSUStatusTranslationTable"
+
+// The PSUStatusTranslationTable
+PSUStatusTranslationTable("MSHW_000")="ALARM"
+PSUStatusTranslationTable("MSHW_001")="ALARM"
+PSUStatusTranslationTable("MSHW_010")="ALARM"
+PSUStatusTranslationTable("MSHW_011")="OK"
+PSUStatusTranslationTable("MSHW_100")="ALARM"
+PSUStatusTranslationTable("MSHW_101")="ALARM"
+PSUStatusTranslationTable("MSHW_110")="ALARM"
+PSUStatusTranslationTable("MSHW_111")="WARN"
+PSUStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a StatusInformation
+// ID;PatrolStatus;StatusInformation;ACGood;DCGood;
+PowerSupply.Collect.Source(1).Compute(6).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(6).Column=3
+PowerSupply.Collect.Source(1).Compute(6).TranslationTable="PSUStatusInformationTranslationTable"
+
+// The PSUStatusInformationTranslationTable
+PSUStatusInformationTranslationTable("MSHW_000")="AC Error - DC Error"
+PSUStatusInformationTranslationTable("MSHW_001")="AC Error"
+PSUStatusInformationTranslationTable("MSHW_010")="DC Error"
+PSUStatusInformationTranslationTable("MSHW_011")=""
+PSUStatusInformationTranslationTable("MSHW_100")="Comm Error - AC Error - DC Error"
+PSUStatusInformationTranslationTable("MSHW_101")="Comm Error - AC Error"
+PSUStatusInformationTranslationTable("MSHW_110")="Comm Error - DC Error"
+PSUStatusInformationTranslationTable("MSHW_111")="Comm Error"
+PSUStatusInformationTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+// ID;PatrolStatus;StatusInformation;
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// There are 4 Fans for each instance, so we need to do a few tricks
+
+// Source(1) = Fan Table
+// ID;FanPercent;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.6.10.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="2,6,7,8,9"
+
+// Source(2) = Copy of Source(1)
+Fan.Discovery.Source(2)=%Fan.Discovery.Source(1)%
+
+// Keep only one set of Fans
+Fan.Discovery.Source(2).Compute(1).Type="KeepColumns"
+Fan.Discovery.Source(2).Compute(1).ColumnNumbers="1,2"
+
+// Add an identifier to the FanID and a blank column
+Fan.Discovery.Source(2).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(2).Compute(2).Column=1
+Fan.Discovery.Source(2).Compute(2).String=":fan0;"
+
+// Source(3) = Copy of Source(1)
+Fan.Discovery.Source(3)=%Fan.Discovery.Source(1)%
+
+// Keep only one set of Fans
+Fan.Discovery.Source(3).Compute(1).Type="KeepColumns"
+Fan.Discovery.Source(3).Compute(1).ColumnNumbers="1,3"
+
+// Add an identifier to the FanID and a blank column
+Fan.Discovery.Source(3).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(3).Compute(2).Column=1
+Fan.Discovery.Source(3).Compute(2).String=":fan1;"
+
+
+// Source(4) = Copy of Source(1)
+Fan.Discovery.Source(4)=%Fan.Discovery.Source(1)%
+
+// Keep only one set of Fans
+Fan.Discovery.Source(4).Compute(1).Type="KeepColumns"
+Fan.Discovery.Source(4).Compute(1).ColumnNumbers="1,4"
+
+// Add an identifier to the FanID and a blank column
+Fan.Discovery.Source(4).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(4).Compute(2).Column=1
+Fan.Discovery.Source(4).Compute(2).String=":fan2;"
+
+
+// Source(5) = Copy of Source(1)
+Fan.Discovery.Source(5)=%Fan.Discovery.Source(1)%
+
+// Keep only one set of Fans
+Fan.Discovery.Source(5).Compute(1).Type="KeepColumns"
+Fan.Discovery.Source(5).Compute(1).ColumnNumbers="1,5"
+
+// Add an identifier to the FanID and a blank column
+Fan.Discovery.Source(5).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(5).Compute(2).Column=1
+Fan.Discovery.Source(5).Compute(2).String=":fan3;"
+
+
+// Source(6) = Union of Source(2) to Source(5)
+// ID;FanSpeed;FanPercent;
+Fan.Discovery.Source(6).Type="TableUnion"
+Fan.Discovery.Source(6).Table1=%Fan.Discovery.Source(2)%
+Fan.Discovery.Source(6).Table2=%Fan.Discovery.Source(3)%
+Fan.Discovery.Source(6).Table3=%Fan.Discovery.Source(4)%
+Fan.Discovery.Source(6).Table4=%Fan.Discovery.Source(5)%
+
+// Keep only fans with a valid percentage
+// ID;FanSpeed;FanPercent;
+Fan.Discovery.Source(6).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(6).Compute(1).Column=3
+Fan.Discovery.Source(6).Compute(1).RegExp="[0-9]$"
+
+// Source(7) = PowerSupply Table
+// ID;FanSpeed;
+Fan.Discovery.Source(7).Type="SnmpTable"
+Fan.Discovery.Source(7).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.5.10.1"
+Fan.Discovery.Source(7).SnmpTableSelectColumns="2,6"
+
+// Keep only fans with a valid speed
+// ID;FanSpeed;
+Fan.Discovery.Source(7).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(7).Compute(1).Column=2
+Fan.Discovery.Source(7).Compute(1).RegExp="[0-9]$"
+
+// Add a blank column
+Fan.Discovery.Source(7).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(7).Compute(2).Column=2
+Fan.Discovery.Source(7).Compute(2).String=";"
+
+// Source(8) = Union of Source(6) and Source(7)
+// ID;FanSpeed;FanPercent;
+Fan.Discovery.Source(8).Type="TableUnion"
+Fan.Discovery.Source(8).Table1=%Fan.Discovery.Source(6)%
+Fan.Discovery.Source(8).Table2=%Fan.Discovery.Source(7)%
+
+// InstanceTable = Source(1)
+// ID;FanSpeed;FanPercent;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(8)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Fan.Discovery.Instance.ParameterActivation.SpeedPercent=InstanceTable.Column(3)
+Fan.Discovery.Instance.ParameterActivation.Speed=InstanceTable.Column(2)
+Fan.Discovery.Instance.WarningThreshold="10"
+Fan.Discovery.Instance.PercentWarningThreshold="10"
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = Fan Table
+// ID;Fan0;Fan1;Fan2;Fan3;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.6.10.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="2,6,7,8,9"
+
+// Source(2) = Copy of Source(1)
+Fan.Collect.Source(2)=%Fan.Collect.Source(1)%
+
+// Keep only one set of Fans
+Fan.Collect.Source(2).Compute(1).Type="KeepColumns"
+Fan.Collect.Source(2).Compute(1).ColumnNumbers="1,2"
+
+// Add an identifier to the FanID and a blank column
+Fan.Collect.Source(2).Compute(2).Type="RightConcat"
+Fan.Collect.Source(2).Compute(2).Column=1
+Fan.Collect.Source(2).Compute(2).String=":fan0;"
+
+// Source(3) = Copy of Source(1)
+Fan.Collect.Source(3)=%Fan.Collect.Source(1)%
+
+// Keep only one set of Fans
+Fan.Collect.Source(3).Compute(1).Type="KeepColumns"
+Fan.Collect.Source(3).Compute(1).ColumnNumbers="1,3"
+
+// Add an identifier to the FanID and a blank column
+Fan.Collect.Source(3).Compute(2).Type="RightConcat"
+Fan.Collect.Source(3).Compute(2).Column=1
+Fan.Collect.Source(3).Compute(2).String=":fan1;"
+
+
+// Source(4) = Copy of Source(1)
+Fan.Collect.Source(4)=%Fan.Collect.Source(1)%
+
+// Keep only one set of Fans
+Fan.Collect.Source(4).Compute(1).Type="KeepColumns"
+Fan.Collect.Source(4).Compute(1).ColumnNumbers="1,4"
+
+// Add an identifier to the FanID and a blank column
+Fan.Collect.Source(4).Compute(2).Type="RightConcat"
+Fan.Collect.Source(4).Compute(2).Column=1
+Fan.Collect.Source(4).Compute(2).String=":fan2;"
+
+
+// Source(5) = Copy of Source(1)
+Fan.Collect.Source(5)=%Fan.Collect.Source(1)%
+
+// Keep only one set of Fans
+Fan.Collect.Source(5).Compute(1).Type="KeepColumns"
+Fan.Collect.Source(5).Compute(1).ColumnNumbers="1,5"
+
+// Add an identifier to the FanID and a blank column
+Fan.Collect.Source(5).Compute(2).Type="RightConcat"
+Fan.Collect.Source(5).Compute(2).Column=1
+Fan.Collect.Source(5).Compute(2).String=":fan3;"
+
+// Source(6) = Union of Source(2) to Source(5)
+// ID;FanSpeed;FanPercent;
+Fan.Collect.Source(6).Type="TableUnion"
+Fan.Collect.Source(6).Table1=%Fan.Collect.Source(2)%
+Fan.Collect.Source(6).Table2=%Fan.Collect.Source(3)%
+Fan.Collect.Source(6).Table3=%Fan.Collect.Source(4)%
+Fan.Collect.Source(6).Table4=%Fan.Collect.Source(5)%
+
+// Keep only fans with a valid percentage
+// ID;FanSpeed;FanPercent;
+Fan.Collect.Source(6).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(6).Compute(1).Column=3
+Fan.Collect.Source(6).Compute(1).RegExp="[0-9]$"
+
+// Source(7) = PowerSupply Table
+// ID;FanSpeed;
+Fan.Collect.Source(7).Type="SnmpTable"
+Fan.Collect.Source(7).SnmpTableOid="1.3.6.1.4.1.2.6.255.1.1.5.10.1"
+Fan.Collect.Source(7).SnmpTableSelectColumns="2,6"
+
+// Keep only fans with a valid speed
+// ID;FanSpeed;
+Fan.Collect.Source(7).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(7).Compute(1).Column=2
+Fan.Collect.Source(7).Compute(1).RegExp="[0-9]$"
+
+// Add a blank column
+Fan.Collect.Source(7).Compute(2).Type="RightConcat"
+Fan.Collect.Source(7).Compute(2).Column=2
+Fan.Collect.Source(7).Compute(2).String=";"
+
+// Source(8) = Union of Source(6) and Source(7)
+// ID;FanSpeed;FanPercent;
+Fan.Collect.Source(8).Type="TableUnion"
+Fan.Collect.Source(8).Table1=%Fan.Collect.Source(6)%
+Fan.Collect.Source(8).Table2=%Fan.Collect.Source(7)%
+
+// ValueTable = Source(1)
+// ID;FanSpeed;FanPercent;
+Fan.Collect.ValueTable=%Fan.Collect.Source(8)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.SpeedPercent=ValueTable.Column(3)
+Fan.Collect.Speed=ValueTable.Column(2)
