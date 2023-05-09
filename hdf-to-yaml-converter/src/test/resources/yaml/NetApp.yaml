@@ -333,10 +333,10 @@ monitors:
           - type: replace
             column: 2
             existingValue: raidtype=
-            newValue: �
+            newValue: ""
           - type: extract
             column: 2
-            subSeparators: �
+            subSeparators: ""
             subColumn: 2
           - type: extract
             column: 2

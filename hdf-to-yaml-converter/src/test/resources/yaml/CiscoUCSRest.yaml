@@ -237,10 +237,10 @@ monitors:
           - type: replace
             column: 1
             existingValue: /fault-
-            newValue: �
+            newValue: ""
           - type: extract
             column: 1
-            subSeparators: �
+            subSeparators: ""
             subColumn: 1
             # Translate Severity into a PATROL Status
             # DeviceID;Status;StatusInformation;

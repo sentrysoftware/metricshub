@@ -49,7 +49,7 @@ Detection.Criteria(1).ExpectedResult="RAC"
 Enclosure.Discovery.Source(1).Type="OSCommand"
 Enclosure.Discovery.Source(1).CommandLine="getsysinfo -c"
 
-//Enclosure.Discovery.Source(1).Separators="�"
+//Enclosure.Discovery.Source(1).Separators=""
 
 // Parse the output of getsysinfo with an AWK script
 // Model;SerialNumber

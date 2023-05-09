@@ -52,7 +52,10 @@ monitors:
             selectColumns: "2,6"
         source(2):
           computes:
-          - script: EmbeddedFile(12)
+            # Now, extract the blades hostnames
+            # BladeID;SlotName;HostName;
+          - type: awk
+            script: EmbeddedFile(12)
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -65,11 +68,6 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;
-      source(2):
-        computes:
-          # Now, extract the blades hostnames
-          # BladeID;SlotName;HostName;
-        - type: awk
       mapping:
         # InstanceTable = Source(3)
         # BladeID;BladeModel;BladeID;SlotName;HostName;

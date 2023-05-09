@@ -450,11 +450,11 @@ LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="2,7"
 LogicalDisk.Discovery.Source(1).Compute(1).Type="Replace"
 LogicalDisk.Discovery.Source(1).Compute(1).Column=2
 LogicalDisk.Discovery.Source(1).Compute(1).Replace="raidtype="
-LogicalDisk.Discovery.Source(1).Compute(1).ReplaceBy="�"
+LogicalDisk.Discovery.Source(1).Compute(1).ReplaceBy=""
 
 LogicalDisk.Discovery.Source(1).Compute(2).Type="Extract"
 LogicalDisk.Discovery.Source(1).Compute(2).Column=2
-LogicalDisk.Discovery.Source(1).Compute(2).Subseparators="�"
+LogicalDisk.Discovery.Source(1).Compute(2).Subseparators=""
 LogicalDisk.Discovery.Source(1).Compute(2).Subcolumn=2
 
 LogicalDisk.Discovery.Source(1).Compute(3).Type="Extract"

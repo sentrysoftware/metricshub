@@ -64,7 +64,7 @@ class ConnectorLibraryConverterTest {
 				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, expected, expectedNode));
 			}
 
-			assertEquals(expectedNode, yaml);
+			assertEquals(expectedNode, yaml, () -> "Assertion failed on file: " + yamlFile.getName());
 		}
 	}
 
@@ -89,8 +89,12 @@ class ConnectorLibraryConverterTest {
 				Assertions.fail("_comment node not processed!");
 			}
 
-			// compares line by line. includes comments
-			assertEquals(expectedLines, inputLines);
+			assertEquals(expectedLines.size(), inputLines.size());
+
+			for (int i = 0; i < expectedLines.size(); i++) {
+				final int index = i;
+				assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index);
+			}
 		}
 	}
 }

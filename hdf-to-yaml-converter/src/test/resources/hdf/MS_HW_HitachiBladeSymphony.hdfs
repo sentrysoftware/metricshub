@@ -647,7 +647,7 @@ Temperature.Discovery.Source(8).Table1=%Temperature.Discovery.Source(1)%
 Temperature.Discovery.Source(8).Table2=%Temperature.Discovery.Source(2)%
 Temperature.Discovery.Source(8).Table3=%Temperature.Discovery.Source(7)%
 
-// Adjust the Upper Threshold units from 0.1�C to �C
+// Adjust the Upper Threshold units from 0.1C to C
 // ID;Location;Status;TempUpper;
 Temperature.Discovery.Source(8).Compute(1).Type="Divide"
 Temperature.Discovery.Source(8).Compute(1).Column=4
@@ -800,7 +800,7 @@ Temperature.Collect.Source(8).Table1=%Temperature.Collect.Source(1)%
 Temperature.Collect.Source(8).Table2=%Temperature.Collect.Source(2)%
 Temperature.Collect.Source(8).Table3=%Temperature.Collect.Source(7)%
 
-// Adjust the Upper Threshold units from 0.1�C to �C
+// Adjust the Upper Threshold units from 0.1C to C
 // ID;PatrolStatus;StatusInformation;Temp;
 Temperature.Collect.Source(8).Compute(1).Type="Divide"
 Temperature.Collect.Source(8).Compute(1).Column=4

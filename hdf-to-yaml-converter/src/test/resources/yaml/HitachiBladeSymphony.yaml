@@ -580,7 +580,7 @@ monitors:
           - $monitors.temperature.discovery.sources.source(2)$
           - $monitors.temperature.discovery.sources.source(7)$
           computes:
-            # Adjust the Upper Threshold units from 0.1�C to �C
+            # Adjust the Upper Threshold units from 0.1C to C
             # ID;Location;Status;TempUpper;
           - type: divide
             column: 4
@@ -714,7 +714,7 @@ monitors:
           - $monitors.temperature.collect.sources.source(2)$
           - $monitors.temperature.collect.sources.source(7)$
           computes:
-            # Adjust the Upper Threshold units from 0.1�C to �C
+            # Adjust the Upper Threshold units from 0.1C to C
             # ID;PatrolStatus;StatusInformation;Temp;
           - type: divide
             column: 4

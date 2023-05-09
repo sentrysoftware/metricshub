@@ -757,7 +757,7 @@ embedded:
         SerialNumber = $8;
         getline;
         FruPartNumber = $3 " " $4 " " $5;
-        IOUList = IOUList "�MSHW;I/O Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";Power:"
+        IOUList = IOUList "MSHW;I/O Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";Power:"
     }
     ($1 ~ "^IOU#[0-9]+/PCI#[0-9]+$" && $NF != "DownLink") {
         IOUList = IOUList "W";
@@ -857,7 +857,7 @@ embedded:
         {
             parentID = "Main";
         }
-        IOBList = IOBList "�MSHW;I/O Board;" DeviceID ";" parentID ";" ShortName ";" SerialNumber ";" FruPartNumber ";" status ";Power:"
+        IOBList = IOBList "MSHW;I/O Board;" DeviceID ";" parentID ";" ShortName ";" SerialNumber ";" FruPartNumber ";" status ";Power:"
     }
     ($1 ~ "^IOX@[A-Z0-9]+/IOB[0-9]+/SLOT[0-9]+$") {
         IOBList = IOBList "w";
@@ -890,7 +890,7 @@ embedded:
         print "MSHW;Clock Control Unit;" DeviceID ";Main;;" SerialNumber ";" FruPartNumber ";" status ";4"
     }
     END {
-        IOUCount = split(IOUList, IOUArray, "�");
+        IOUCount = split(IOUList, IOUArray, "");
         for (i=2; i<=IOUCount; i++)
         {
             powerIndex = index(IOUArray[i], ";Power:");
@@ -899,7 +899,7 @@ embedded:
             PowerConsumption = PowerConsumption + 40;
             print substr(IOUArray[i], 1, powerIndex) PowerConsumption
         }
-        IOBCount = split(IOBList, IOBArray, "�");
+        IOBCount = split(IOBList, IOBArray, "");
         for (i=2; i<=IOBCount; i++)
         {
             powerIndex = index(IOBArray[i], ";Power:");

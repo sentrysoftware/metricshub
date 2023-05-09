@@ -387,7 +387,7 @@ $1 ~ /(Board)|(Ambient)/ && $2 ~ /temperature/ {
 # Print Physical Disk Information
      gsub (/^ */,"",statusInformation);gsub (/  /,"",statusInformation)
      print "MSHW_PD;" ioDriveID ";" blockDeviceID ";" model ";" addInfo ";" physicalSize ";" status ";" statusInformation ";"
-# Print Internal Temperature Information (The ioDrive will start throttling write performance at 78�C. the ioDrive will shut down at 85�C.  So will alarm at 78�.
+# Print Internal Temperature Information (The ioDrive will start throttling write performance at 78C. the ioDrive will shut down at 85C.  So will alarm at 78.
      if (internalTemp != "") {print "MSHW_TEMP;Internal " ioDriveID ";" internalTemp ";78;"}
      if (boardTemp != "") {print "MSHW_TEMP;Board " ioDriveID ";" boardTemp ";;"}
      if (auxVoltage != "") {print "MSHW_VOLT;Aux " ioDriveID ";" auxVoltage ";;"}

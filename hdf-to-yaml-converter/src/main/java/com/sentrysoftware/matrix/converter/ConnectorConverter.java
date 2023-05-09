@@ -45,7 +45,7 @@ public class ConnectorConverter {
 
 		// Go through each key-value entry in the connector
 		preConnector.getCodeMap().forEach((key, value) -> convertKeyValue(key, value, connector));
-		
+
 		// Set embedded files
 		setEmbeddedFiles(connector);
 

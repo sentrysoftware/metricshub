@@ -265,11 +265,11 @@ Enclosure.Collect.Source(2).Compute(1).Properties="faultInst>dn;faultInst>severi
 Enclosure.Collect.Source(2).Compute(2).Type="Replace"
 Enclosure.Collect.Source(2).Compute(2).Column=1
 Enclosure.Collect.Source(2).Compute(2).Replace="/fault-"
-Enclosure.Collect.Source(2).Compute(2).ReplaceBy="�"
+Enclosure.Collect.Source(2).Compute(2).ReplaceBy=""
 
 Enclosure.Collect.Source(2).Compute(3).Type="Extract"
 Enclosure.Collect.Source(2).Compute(3).Column=1
-Enclosure.Collect.Source(2).Compute(3).SubSeparators="�"
+Enclosure.Collect.Source(2).Compute(3).SubSeparators=""
 Enclosure.Collect.Source(2).Compute(3).SubColumn=1
 // Translate Severity into a PATROL Status
 // DeviceID;Status;StatusInformation;

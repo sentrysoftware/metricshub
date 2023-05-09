@@ -183,11 +183,11 @@ Enclosure.Collect.Source(2).Compute(2).ColumnNumbers="2,3,4"
 Enclosure.Collect.Source(2).Compute(3).Type="Replace"
 Enclosure.Collect.Source(2).Compute(3).Column=1
 Enclosure.Collect.Source(2).Compute(3).Replace="/fault-"
-Enclosure.Collect.Source(2).Compute(3).ReplaceBy="�"
+Enclosure.Collect.Source(2).Compute(3).ReplaceBy=""
 
 Enclosure.Collect.Source(2).Compute(4).Type="Extract"
 Enclosure.Collect.Source(2).Compute(4).Column=1
-Enclosure.Collect.Source(2).Compute(4).SubSeparators="�"
+Enclosure.Collect.Source(2).Compute(4).SubSeparators=""
 Enclosure.Collect.Source(2).Compute(4).SubColumn=1
 
 // Translate Severity into a PATROL Status

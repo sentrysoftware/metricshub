@@ -373,9 +373,9 @@ Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.19746.1.1.2.1.1.1"
 Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,4,5,6"
 
 // Thresholsd are not specified in the SNMP output.  According to Data Domain Documentation:
-// CPUs with relative temperature (negative values) - System shuts down at 0�, Warns at -10�
-// Older models, CPUs with normal temps (positive values) - System shutds down at 80�, Warns at 70�
-// Ambient - System Shuts Down at 60�, Warns at 50�
+// CPUs with relative temperature (negative values) - System shuts down at 0, Warns at -10
+// Older models, CPUs with normal temps (positive values) - System shutds down at 80, Warns at 70
+// Ambient - System Shuts Down at 60, Warns at 50
 // Will add these in the awk script
 
 // Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
