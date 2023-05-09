@@ -13,6 +13,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_UNMOUNT_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
@@ -28,14 +29,17 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_D
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,6 +53,7 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
+		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
 		attributesMap.put(HDF_ERROR_COUNT_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_TAPE_DRIVE_ERRORS_LIMIT_DEGRADED));
 		attributesMap.put(HDF_ERROR_COUNT_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_TAPE_DRIVE_ERRORS_LIMIT_CRITICAL));
@@ -86,64 +91,76 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 			throw new IllegalStateException(String.format("%s cannot be null.", HDF_DEVICE_ID));
 		}
 
+		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
 		JsonNode firstDisplayArgument = deviceId;
+		if (displayId != null) {
+			firstDisplayArgument = displayId;
+		}
+
+		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode(
-						buildNameValue(firstDisplayArgument, model)));
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(firstDisplayArgument, vendor, model)
+			)
+		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the disk controller name value
+	 * Joins the given non-empty text nodes to build the tape drive value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param model         {@link JsonNode} representing the model
-	 *
+	 * @param info                 {@link JsonNode} array to be joined. Actually contains vendor and model
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode model) {
-
-		// Build the list of arguments non-null
-		final List<String> sprintfArgs = new ArrayList<>();
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode... info) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (model == null) {
+		if (Stream.of(info).allMatch(Objects::isNull)) {
 			return firstArg;
-		} else {
-			sprintfArgs.add(model.asText());
 		}
 
 		// Create the function with the first format for the first argument
 		final StringBuilder format = new StringBuilder("sprintf(\"%s");
 
-		// Means model is not empty
+		// Build the list of arguments non-null
+		final List<String> sprintfArgs = new ArrayList<>();
+		sprintfArgs.addAll(
+			Stream
+				.of(info)
+				.filter(Objects::nonNull)
+				.map(JsonNode::asText)
+				.toList()
+		);
+
+		// Means we have at least one value in info (vendor, model or both)
 		if (!sprintfArgs.isEmpty()) {
 			format.append(
-					sprintfArgs
-							.stream()
-							.map(v -> "%s")
-							.collect(Collectors.joining(" - ", " (", ")\"")));
+				sprintfArgs
+					.stream()
+					.map(v -> "%s")
+					.collect(Collectors.joining(" ", " (", ")"))
+			);
 		}
 
-		// Add the first argument at the beginning of the list
+		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
+		// sprint("%s (%s %s)", $column(1), $column(2), $column(3))
+		return format
+			.append("\", ") // Here we will have a string like sprintf("%s (%s %s)", 
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")"))
+			)
+			.toString();
 
-		format
-				.append(", ") // Here we will have a string like sprintf("%s %s (%s)"),
-				.append(
-						sprintfArgs
-								.stream()
-								.map(this::getFunctionArgument)
-								.collect(Collectors.joining(", ", "", ")")))
-				.toString();
-
-		return format.toString();
 	}
 
 	@Override
@@ -153,7 +170,6 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 
 	@Override
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
-		final ObjectNode mapping = (ObjectNode) node;
-		convertOneToOneMetrics(key, value, mapping);
+		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
 }

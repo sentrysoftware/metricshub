@@ -110,17 +110,22 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the other device name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
-	 * @param typeNode             {@link JsonNode} representing the type of the other device
+	 * @param additionalLabelNode  {@link JsonNode} representing the device additional label
+	 * @param deviceTypeNode       {@link JsonNode} representing the device type
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode additionalLabelNode, final JsonNode deviceTypeNode) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode additionalLabelNode,
+		final JsonNode deviceTypeNode
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
 		if (additionalLabelNode == null && deviceTypeNode == null) {
 			return firstArg;
 		}
+
 		// Create the empty function as the first argument can change
 		final StringBuilder format = new StringBuilder("sprintf(\"");
 
@@ -131,11 +136,11 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 		if (deviceTypeNode != null) {
 			format.append("%s: ");
 			sprintfArgs.add(deviceTypeNode.asText());
-		
-			// Add the ID 
-			format.append("%s");
-			sprintfArgs.add(firstArg);
 		}
+
+		// Add the ID 
+		format.append("%s");
+		sprintfArgs.add(firstArg);
 
 		// Add the additionalLabel if applicable
 		if (additionalLabelNode != null) {
@@ -145,9 +150,9 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 
 		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3), $column(4))
+		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s: %s (%s)", 
 			.append(
 				sprintfArgs
 					.stream()

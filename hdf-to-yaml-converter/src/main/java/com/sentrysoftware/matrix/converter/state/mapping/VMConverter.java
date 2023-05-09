@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.converter.state.mapping;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_HOSTNAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VM_POWER_RATIO;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VM_POWER_STATE;
@@ -11,6 +12,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLA
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_ENERGY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_HOSTNAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER_RATIO;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER_STATE;
@@ -31,7 +33,7 @@ public class VMConverter extends AbstractMappingConverter {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
-
+		attributesMap.put(HDF_HOSTNAME, IMappingKey.of(ATTRIBUTES, YAML_VM_HOSTNAME));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
@@ -65,9 +67,37 @@ public class VMConverter extends AbstractMappingConverter {
 		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode((displayId != null ? displayId : deviceId).asText())
-				);
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(
+					displayId != null ? displayId : deviceId,
+					existingAttributes.get(HDF_HOSTNAME)
+				)
+			)
+		);
+	}
+
+	/**
+	 * Joins the given non-empty text nodes to build the VM name value
+	 *
+	 * @param firstDisplayArgument {@link JsonNode} representing the display name
+	 * @param hostnameNode         {@link JsonNode} hostname node
+	 *
+	 * @return {@link String} Joined text nodes
+	 */
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode hostnameNode) {
+
+		final String firstArg = firstDisplayArgument.asText();
+		if (hostnameNode == null) {
+			return firstArg;
+		}
+
+		return new StringBuilder("sprintf(\"%s (%s)\", ")
+			.append(getFunctionArgument(firstArg))
+			.append(", ")
+			.append(getFunctionArgument(hostnameNode.asText()))
+			.append(")")
+			.toString();
 	}
 
 	@Override

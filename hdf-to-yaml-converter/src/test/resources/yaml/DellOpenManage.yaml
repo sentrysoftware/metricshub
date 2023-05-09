@@ -305,8 +305,7 @@ monitors:
           model: "$column(2)"
           type: "Computer"
           info: "join($column(3), $column(4), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), \"\
-            Computer\")"
+          name: "sprintf(\"Computer: (%s %s)\", \"Dell\", $column(2))"
     collect:
       # Collect
       type: "multiInstance"
@@ -421,7 +420,7 @@ monitors:
         source: "$monitors.temperature.discovery.sources.source(1)$"
         attributes:
           id: "$column(1)"
-          temperature_type: "$column(3)"
+          sensor_location: "$column(3)"
           hw.parent.type: "enclosure"
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:
@@ -505,8 +504,9 @@ monitors:
         source: "$monitors.fan.discovery.sources.source(1)$"
         attributes:
           id: "$column(1)"
+          sensor_location: "$column(3)"
           hw.parent.type: "enclosure"
-          name: "$column(1)"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: "$column(4)"
           hw.fan.speed.limit{limit_type="low.critical"}: "$column(5)"
@@ -558,7 +558,7 @@ monitors:
         source: "$monitors.voltage.discovery.sources.source(1)$"
         attributes:
           id: "$column(1)"
-          voltage_type: "$column(3)"
+          sensor_location: "$column(3)"
           hw.parent.type: "enclosure"
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
         metrics:
@@ -625,7 +625,7 @@ monitors:
           id: "$column(1)"
           power_supply_type: "$column(3)"
           hw.parent.type: "enclosure"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
+          name: "sprintf(\"%s (%s - %s W)\", $column(1), $column(3), $column(2))"
         metrics:
           hw.power_supply.limit: "$column(2)"
     collect:
@@ -714,7 +714,7 @@ monitors:
           serial_number: "$column(7)"
           info: "join($column(3), $column(6), $column(8), \" \")"
           hw.parent.type: "enclosure"
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), $column(2),\
+          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(1), $column(5), $column(2),\
             \ $column(4))"
         metrics:
           hw.memory.limit: "mebiByte2Byte($column(4))"

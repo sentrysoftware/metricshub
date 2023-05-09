@@ -9,7 +9,7 @@
     Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
     Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
     Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
-    Enclosure.Discovery.Instance.Type="PDU"
+    Enclosure.Discovery.Instance.Type="Computer"
     Enclosure.Discovery.Instance.DeviceHostName="testdevicehostname"
     Enclosure.Discovery.Instance.BiosVersion="testbiosversion"
   expected:
@@ -23,9 +23,119 @@
               vendor: APC
               model: $column(5)
               serial_number: $column(6)
-              type: PDU
+              type: Computer
               __display_id: testname
               info: join($column(2), $column(3), $column(4), " ")
               device_hostname: testdevicehostname
               bios_version: testbiosversion
-              name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(5), "PDU")
+              name: "sprintf(\"Computer: %s (%s %s)\", \"testname\", \"APC\", $column(5))"
+- name: testNoDisplayId
+  input: |
+    Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+    Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Enclosure.Discovery.Instance.Vendor="APC"
+    Enclosure.Discovery.Instance.Model=InstanceTable.Column(5)
+    Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+    Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+    Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+    Enclosure.Discovery.Instance.Type="Computer"
+    Enclosure.Discovery.Instance.DeviceHostName="testdevicehostname"
+    Enclosure.Discovery.Instance.BiosVersion="testbiosversion"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          mapping:
+            source: $monitors.enclosure.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              vendor: APC
+              model: $column(5)
+              serial_number: $column(6)
+              type: Computer
+              info: join($column(2), $column(3), $column(4), " ")
+              device_hostname: testdevicehostname
+              bios_version: testbiosversion
+              name: "sprintf(\"Computer: (%s %s)\", \"APC\", $column(5))"
+- name: testNoVendor
+  input: |
+    Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+    Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Enclosure.Discovery.Instance.DisplayID="testname"
+    Enclosure.Discovery.Instance.Model=InstanceTable.Column(5)
+    Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+    Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+    Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+    Enclosure.Discovery.Instance.Type="switch"
+    Enclosure.Discovery.Instance.DeviceHostName="testdevicehostname"
+    Enclosure.Discovery.Instance.BiosVersion="testbiosversion"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          mapping:
+            source: $monitors.enclosure.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              model: $column(5)
+              serial_number: $column(6)
+              type: switch
+              __display_id: testname
+              info: join($column(2), $column(3), $column(4), " ")
+              device_hostname: testdevicehostname
+              bios_version: testbiosversion
+              name: "sprintf(\"Switch: %s (%s)\", \"testname\", $column(5))"
+- name: testNoVendorNoModel
+  input: |
+    Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+    Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Enclosure.Discovery.Instance.DisplayID="testname"
+    Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+    Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+    Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+    Enclosure.Discovery.Instance.Type="blade"
+    Enclosure.Discovery.Instance.DeviceHostName="testdevicehostname"
+    Enclosure.Discovery.Instance.BiosVersion="testbiosversion"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          mapping:
+            source: $monitors.enclosure.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              serial_number: $column(6)
+              type: blade
+              __display_id: testname
+              info: join($column(2), $column(3), $column(4), " ")
+              device_hostname: testdevicehostname
+              bios_version: testbiosversion
+              name: "sprintf(\"Blade Enclosure: %s\", \"testname\")"
+- name: testNoVendorNoModelNoDisplayId
+  input: |
+    Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+    Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+    Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+    Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+    Enclosure.Discovery.Instance.Type="storage"
+    Enclosure.Discovery.Instance.DeviceHostName="testdevicehostname"
+    Enclosure.Discovery.Instance.BiosVersion="testbiosversion"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          mapping:
+            source: $monitors.enclosure.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              serial_number: $column(6)
+              type: storage
+              info: join($column(2), $column(3), $column(4), " ")
+              device_hostname: testdevicehostname
+              bios_version: testbiosversion
+              name: 'sprintf("Storage: %s", $column(1))'

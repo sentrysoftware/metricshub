@@ -15,6 +15,45 @@
     NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(10)
     NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
     NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
+    NetworkCard.Discovery.Instance.Vendor=InstanceTable.Column(12)
+  expected:
+    monitors:
+      network:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(3)
+            source: $monitors.network.discovery.sources.source(3)$
+            attributes:
+              id: $column(6)
+              __display_id: $column(6)
+              device_type: $column(7)
+              logical_address_type: $column(8)
+              model: $column(9)
+              physical_address: $column(10)
+              physical_address_type: MAC
+              serial_number: $column(11)
+              info: join($column(1), $column(2), $column(3), " ")
+              hw.parent.type: $column(5)
+              hw.parent.id: $column(4)
+              vendor: $column(12)
+              name: sprintf("%s (%s - %s - %s)", $column(6), $column(7), $column(12), $column(9))
+- name: testNoVendor
+  input: |
+    // InstanceTable = Source(3)
+    NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+    NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+    NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+    NetworkCard.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(3)
+    NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+    NetworkCard.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+    NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(6)
+    NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+    NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(7)
+    NetworkCard.Discovery.Instance.LogicalAddressType=InstanceTable.Column(8)
+    NetworkCard.Discovery.Instance.Model=InstanceTable.Column(9)
+    NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(10)
+    NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+    NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
   expected:
     monitors:
       network:
@@ -35,3 +74,71 @@
               hw.parent.type: $column(5)
               hw.parent.id: $column(4)
               name: sprintf("%s (%s - %s)", $column(6), $column(7), $column(9))
+- name: testNoVendorNoModel
+  input: |
+    // InstanceTable = Source(3)
+    NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+    NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+    NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+    NetworkCard.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(3)
+    NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+    NetworkCard.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+    NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(6)
+    NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+    NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(7)
+    NetworkCard.Discovery.Instance.LogicalAddressType=InstanceTable.Column(8)
+    NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(10)
+    NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+    NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
+  expected:
+    monitors:
+      network:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(3)
+            source: $monitors.network.discovery.sources.source(3)$
+            attributes:
+              id: $column(6)
+              __display_id: $column(6)
+              device_type: $column(7)
+              logical_address_type: $column(8)
+              physical_address: $column(10)
+              physical_address_type: MAC
+              serial_number: $column(11)
+              info: join($column(1), $column(2), $column(3), " ")
+              hw.parent.type: $column(5)
+              hw.parent.id: $column(4)
+              name: sprintf("%s (%s)", $column(6), $column(7))
+- name: testNoVendorNoModelNoDeviceType
+  input: |
+    // InstanceTable = Source(3)
+    NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+    NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+    NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+    NetworkCard.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(3)
+    NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+    NetworkCard.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+    NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(6)
+    NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+    NetworkCard.Discovery.Instance.LogicalAddressType=InstanceTable.Column(8)
+    NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(10)
+    NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+    NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
+  expected:
+    monitors:
+      network:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(3)
+            source: $monitors.network.discovery.sources.source(3)$
+            attributes:
+              id: $column(6)
+              __display_id: $column(6)
+              logical_address_type: $column(8)
+              physical_address: $column(10)
+              physical_address_type: MAC
+              serial_number: $column(11)
+              info: join($column(1), $column(2), $column(3), " ")
+              hw.parent.type: $column(5)
+              hw.parent.id: $column(4)
+              name: $column(6)

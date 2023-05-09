@@ -20,6 +20,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TRANSMITTED_BYTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TRANSMITTED_PACKETS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ZERO_BUFFER_CREDIT_COUNT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
@@ -44,6 +45,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_PHYSIC
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_PHYSICAL_ADDRESS_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,6 +68,7 @@ public class NetworkConverter extends AbstractMappingConverter {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
+		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
 		attributesMap.put(HDF_DEVICE_TYPE, IMappingKey.of(ATTRIBUTES, YAML_DEVICE_TYPE));
 		attributesMap.put(HDF_PHYSICAL_ADDRESS, IMappingKey.of(ATTRIBUTES, YAML_PHYSICAL_ADDRESS));
@@ -119,28 +122,29 @@ public class NetworkConverter extends AbstractMappingConverter {
 		}
 
 		final JsonNode deviceType = existingAttributes.get(HDF_DEVICE_TYPE);
+		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {deviceType, model})
+				buildNameValue(firstDisplayArgument, new JsonNode[] { deviceType, vendor, model })
 			)
 		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the battery name value
+	 * Joins the given non-empty text nodes to build the network name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param deviceTypeAndModel   {@link JsonNode[]} array of device type and model to be joined 
+	 * @param info   {@link JsonNode} array of device type, vendor and model to be joined 
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] deviceTypeAndModel) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] info) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (Stream.of(deviceTypeAndModel).allMatch(Objects::isNull)) {
+		if (Stream.of(info).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -151,28 +155,29 @@ public class NetworkConverter extends AbstractMappingConverter {
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
 			Stream
-				.of(deviceTypeAndModel)
+				.of(info)
 				.filter(Objects::nonNull)
 				.map(JsonNode::asText)
 				.toList()
 		);
 
-		// Means we have model or vendor but we don't know if have the type
-		if (sprintfArgs.size() == 1) {
-			format.append(" (%s)");
-		} else if (sprintfArgs.size() == 2) {
-			// We have both model and vendor but we don't know if we have the type
-			format.append(" (%s - %s)");
+		if (!sprintfArgs.isEmpty()) {
+			format.append(
+				sprintfArgs
+				.stream()
+				.map(v -> "%s")
+				.collect(Collectors.joining(" - "," (",")"))
+			);
 		}
 
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s)", $column(1), $column(2), $column(3))
+		// sprint("%s (%s - %s - %s)", $column(1), $column(2), $column(3), $column(4)) 
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %s)", 
 			.append(
 				sprintfArgs
 					.stream()

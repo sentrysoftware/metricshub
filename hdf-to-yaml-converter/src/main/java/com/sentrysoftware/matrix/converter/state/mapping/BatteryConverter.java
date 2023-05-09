@@ -94,7 +94,7 @@ public class BatteryConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, type)
+				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, type)
 			)
 		);
 	}
@@ -103,12 +103,16 @@ public class BatteryConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the battery name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
+	 * @param vendorAndModel       {@link JsonNode} array of vendor and model to be joined 
 	 * @param typeNode             {@link JsonNode} representing the type of the battery
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode[] vendorAndModel,
+		final JsonNode typeNode
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
 		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
@@ -161,7 +165,7 @@ public class BatteryConverter extends AbstractMappingConverter {
 
 		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		// sprintf("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
 		return format
 			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
 			.append(

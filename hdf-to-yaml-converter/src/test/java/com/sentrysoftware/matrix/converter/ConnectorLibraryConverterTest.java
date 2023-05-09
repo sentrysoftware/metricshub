@@ -78,8 +78,13 @@ class ConnectorLibraryConverterTest {
 		final List<String> inputLines = Files.readAllLines(Path.of(inputFile.getAbsolutePath()));
 		final List<String> expectedLines = Files.readAllLines(expectedPath);
 
-		// compares line by line. includes comments
-		assertEquals(expectedLines, inputLines);
+		assertEquals(expectedLines.size(), inputLines.size());
+
+		for (int i = 0; i < expectedLines.size(); i++) {
+			final int index = i;
+			assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index);
+		}
+
 	}
 
 	private static void removeJsonField(ObjectNode obj) throws JsonException{

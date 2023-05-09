@@ -4,8 +4,6 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_PREDICTED_FAILURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_NUMBER;
@@ -17,16 +15,14 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ERROR_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ERROR_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY_ERRORS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY_LIMIT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY_PREDICTED_FAILURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY_LIMIT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
@@ -57,8 +53,6 @@ public class MemoryConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
 		attributesMap.put(HDF_SIZE, IMappingKey.of(METRICS, YAML_MEMORY_LIMIT, AbstractMappingConverter::buildMebiByte2ByteFunction));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
-		attributesMap.put(HDF_ERROR_COUNT_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_ERROR_COUNT_ALARM_THRESHOLD));
-		attributesMap.put(HDF_ERROR_COUNT_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_ERROR_COUNT_WARNING_THRESHOLD));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
@@ -97,14 +91,13 @@ public class MemoryConverter extends AbstractMappingConverter {
 		}
 
 		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
-		final JsonNode model = existingAttributes.get(HDF_MODEL);
 		final JsonNode type = existingAttributes.get(HDF_TYPE);
 		final JsonNode size = existingAttributes.get(HDF_SIZE);
 
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, type, size)
+				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, type }, size)
 			)
 		);
 	}
@@ -113,16 +106,19 @@ public class MemoryConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the memory name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
-	 * @param typeNode             {@link JsonNode} representing the type of the memory
-	 * @param size 
+	 * @param vendorAndType        {@link JsonNode} array of vendor and type to be joined
+	 * @param size                 {@link JsonNode} representing the size of the memory in MB
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode, JsonNode sizeNode) {
+	private String buildNameValue(
+		final JsonNode firstDisplayArgument,
+		final JsonNode[] vendorAndType,
+		final JsonNode sizeNode
+	) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (typeNode == null && sizeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
+		if (sizeNode == null && Stream.of(vendorAndType).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -133,53 +129,38 @@ public class MemoryConverter extends AbstractMappingConverter {
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
 			Stream
-				.of(vendorAndModel)
+				.of(vendorAndType)
 				.filter(Objects::nonNull)
 				.map(JsonNode::asText)
 				.toList()
 		);
 
-		// Means we have model or vendor but we don't know if have the type
-		if (sprintfArgs.size() == 1) {
-			format.append(" (%s");
-		} else if (sprintfArgs.size() == 2) {
-			// We have both model and vendor but we don't know if we have the type
-			format.append(" (%s (%s)");
-		}
-
-		// Do we have the type?
-		if (typeNode != null) {
-
-			// Without vendor and model?
-			format.append(sprintfArgs.isEmpty() ? " (%s" : " - %s");
-
-			// Add the type to our list of arguments
-			sprintfArgs.add(typeNode.asText());
-
-		}
-
-		// Do we have the size?
-		if (sizeNode != null) {
-
-			// Without vendor, model or type?
-			format.append(sprintfArgs.isEmpty() ? " (%s)" : " - %s)");
-
-			// Add the type to our list of arguments
-			sprintfArgs.add(sizeNode.asText());
-
-		} else if (!sprintfArgs.isEmpty()) {
-			// We have at least one of { vendor, model, type, size } let's close the parenthesis
-			format.append(")");
+		// Means vendor, type or size is not null
+		if (!sprintfArgs.isEmpty() || sizeNode != null) {
+			format.append(
+				Stream.concat(
+					sprintfArgs
+						.stream()
+						.map(v -> "%s"),
+					Stream.of(sizeNode)
+						.filter(Objects::nonNull)
+						.map(v -> {
+							sprintfArgs.add(v.asText());
+							return "%s MB";
+						})
+				)
+				.collect(Collectors.joining(" - "," (",")"))
+			);
 		}
 
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		// sprintf("%s (%s - %s - %s MB)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s MB)", 
 			.append(
 				sprintfArgs
 					.stream()

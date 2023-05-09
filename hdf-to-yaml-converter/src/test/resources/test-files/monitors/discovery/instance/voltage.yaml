@@ -4,7 +4,7 @@
     Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
     Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(3)
     Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(3)
-    Voltage.Discovery.Instance.VoltageType=""
+    Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(10)
     Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(5)
     Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(6)
     Voltage.Discovery.Instance.AttachedToDeviceID="MBM"
@@ -22,11 +22,11 @@
             attributes:
               id: $column(3)
               __display_id: $column(3)
-              voltage_type: ""
+              sensor_location: $column(10)
               hw.parent.id: MBM
               hw.parent.type: enclosure
               info: join($column(7), $column(8), $column(9), " ")
-              name: sprintf("%s (%s)", $column(3), "")
+              name: sprintf("%s (%s)", $column(3), $column(10))
             metrics:
               hw.voltage.limit{limit_type="low.critical"}: $column(5)
               hw.voltage.limit{limit_type="high.degraded"}: $column(6)

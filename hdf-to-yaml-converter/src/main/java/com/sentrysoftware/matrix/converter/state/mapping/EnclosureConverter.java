@@ -1,6 +1,36 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BIOS_VERSION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_HOSTNAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ENERGY_USAGE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_FIRMWARE_VERSION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_INTRUSION_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_POWER_CONSUMPTION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BIOS_VERSION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DEVICE_HOSTNAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE_ENERGY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE_INTRUSION_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE_POWER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +69,8 @@ public class EnclosureConverter extends AbstractMappingConverter {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_ENCLOSURE_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_INTRUSION_STATUS, IMappingKey.of(METRICS, YAML_ENCLOSURE_INTRUSION_STATUS));
+		metricsMap.put(HDF_INTRUSION_STATUS, IMappingKey.of(METRICS, YAML_ENCLOSURE_INTRUSION_STATUS,
+				AbstractMappingConverter::buildLegacyIntrusionStatusFunction));
 		metricsMap.put(HDF_ENERGY_USAGE, IMappingKey.of(METRICS, YAML_ENCLOSURE_ENERGY));
 		metricsMap.put(HDF_POWER_CONSUMPTION, IMappingKey.of(METRICS, YAML_ENCLOSURE_POWER));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
@@ -57,94 +88,107 @@ public class EnclosureConverter extends AbstractMappingConverter {
 
 	@Override
 	protected void setName(ObjectNode existingAttributes, ObjectNode newAttributes) {
+
 		final JsonNode deviceId = existingAttributes.get(HDF_DEVICE_ID);
 		if (deviceId == null) {
 			throw new IllegalStateException(String.format("%s cannot be null.", HDF_DEVICE_ID));
 		}
 
 		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
-		JsonNode firstDisplayArgument = deviceId;
-		if (displayId != null) {
-			firstDisplayArgument = displayId;
-		}
 
 		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 		final JsonNode type = existingAttributes.get(HDF_TYPE);
 
 		newAttributes.set(
-				YAML_NAME,
-				new TextNode(
-						buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, type)));
+			YAML_NAME,
+			new TextNode(
+				buildNameValue(displayId, deviceId, new JsonNode[] { vendor, model }, type)
+			)
+		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the battery name value
+	 * Joins the given non-empty text nodes to build the enclosure name value
 	 *
-	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to
-	 *                             be joined
-	 * @param typeNode             {@link JsonNode} representing the type of the
-	 *                             battery
+	 * @param displayId      {@link JsonNode} representing the enclosure's display name
+	 * @param deviceId       {@link JsonNode} representing the enclosure unique id, never null
+	 * @param vendorAndModel {@link JsonNode} array of vendor and model to be joined
+	 * @param typeNode       {@link JsonNode} representing the enclosure type
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel,
-			final JsonNode typeNode) {
+	private String buildNameValue(
+		final JsonNode displayId,
+		final JsonNode deviceId,
+		final JsonNode[] vendorAndModel,
+		final JsonNode typeNode
+	) {
 
-		final String firstArg = firstDisplayArgument.asText();
-		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
-			return firstArg;
+		String enclosureType = "Enclosure";
+		if (typeNode != null) {
+			switch (typeNode.asText().toLowerCase()) {
+			case "", "computer":
+				enclosureType = "Computer";
+				break;
+			case "storage":
+				enclosureType = "Storage";
+				break;
+			case "blade":
+				enclosureType = "Blade Enclosure";
+				break;
+			case "switch":
+				enclosureType = "Switch";
+				break;
+			default:
+				enclosureType = "Enclosure";
+			}
+		}
+
+		if (displayId == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
+			return String.format("sprintf(\"%s: %%s\", %s)", enclosureType, deviceId.asText());
 		}
 
 		// Create the function with the first format for the first argument
-		final StringBuilder format = new StringBuilder("sprintf(\"%s");
+		final StringBuilder format = new StringBuilder(String.format("sprintf(\"%s:", enclosureType));
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-				Stream
-						.of(vendorAndModel)
-						.filter(Objects::nonNull)
-						.map(JsonNode::asText)
-						.toList());
-
-		// Means we have model or vendor but we don't know if have the type
-		if (sprintfArgs.size() == 1) {
-			format.append(" (%s");
-		} else if (sprintfArgs.size() == 2) {
-			// We have both model and vendor but we don't know if we have the type
-			format.append(" (%s %s");
+		if (displayId != null) {
+			format.append(" %s");
+			sprintfArgs.add(displayId.asText());
 		}
 
-		// Do we have the type?
-		if (typeNode != null) {
+		final List<String> vendorAndModelArgs = Stream
+			.of(vendorAndModel)
+			.filter(Objects::nonNull)
+			.map(JsonNode::asText)
+			.toList();
 
-			// Without vendor and model?
-			format.append(sprintfArgs.isEmpty() ? " (%s)" : " - %s)");
-
-			// Add the type to our list of arguments
-			sprintfArgs.add(typeNode.asText());
-
-		} else if (!sprintfArgs.isEmpty()) {
-			// We have at least one of { vendor, model, type } let's close the parenthesis
-			format.append(")");
+		// Means vendor or model is not null
+		if (!vendorAndModelArgs.isEmpty()) {
+			format.append(
+				vendorAndModelArgs
+				.stream()
+				.map(v -> "%s")
+				.collect(Collectors.joining(" ", " (", ")"))
+			);
 		}
 
-		// Add the first argument at the beginning of the list
-		sprintfArgs.add(0, firstArg);
+		// Add vendor and model arguments
+		sprintfArgs.addAll(vendorAndModelArgs);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4))
+		// Join the arguments: $column(1), $column(2), $column(3))
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		// sprintf("Computer: %s (%s %s)", $column(1), $column(2), $column(3))
 		return format
-				.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)",
-				.append(
-						sprintfArgs
-								.stream()
-								.map(this::getFunctionArgument)
-								.collect(Collectors.joining(", ", "", ")")))
-				.toString();
+			.append("\", ") // Here we will have a string like sprintf("Computer: %s (%s %s)",
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")")))
+			.toString();
 
 	}
 
@@ -162,15 +206,6 @@ public class EnclosureConverter extends AbstractMappingConverter {
 		final JsonNode metrics = mapping.get(METRICS);
 
 		if (metrics != null) {
-			final JsonNode intrusionStatus = metrics.get(YAML_ENCLOSURE_INTRUSION_STATUS);
-			if (intrusionStatus != null && !intrusionStatus.asText().contains("legacyIntrusionStatus")) {
-				((ObjectNode) metrics).set(
-						YAML_ENCLOSURE_INTRUSION_STATUS,
-						new TextNode(
-								buildLegacyIntrusionStatusFunction(
-										getFunctionArgument(
-												intrusionStatus.asText()))));
-			}
 
 			final JsonNode energy = metrics.get(YAML_ENCLOSURE_ENERGY);
 			final JsonNode power = metrics.get(YAML_ENCLOSURE_POWER);
