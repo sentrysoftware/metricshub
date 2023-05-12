@@ -107,7 +107,7 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to have the attached deviceID
           # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;attachedDeviceID;DN
@@ -225,7 +225,7 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to have the attached deviceID
           # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;enclosureID;DN
@@ -311,7 +311,7 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to attached deviceID
           # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
@@ -428,7 +428,7 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to attached deviceID
           # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;attachedDeviceID;DN

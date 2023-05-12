@@ -106,7 +106,7 @@ monitors:
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # PortID;ComputerID;PortTypeCode;HWStatus;WWN;SerialNumber;Vendor;SpeedKB;TransmitterType;PhysicalIndex;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -212,7 +212,7 @@ monitors:
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # PortID;PortIndex;SpeedKB;Status;StatusInformation;LinkStatus;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"

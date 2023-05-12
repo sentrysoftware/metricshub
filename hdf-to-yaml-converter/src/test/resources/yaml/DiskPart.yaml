@@ -31,7 +31,7 @@ monitors:
             # Run Source(1) through an AWK script
             # ID;Label;Letter;VolumeType;FileSystem;Size;Status;MoreInformation
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6,7,8,9"
@@ -71,7 +71,7 @@ monitors:
             # Run Source(1) through an AWK script
             # ID;Status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,8"

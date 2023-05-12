@@ -290,7 +290,7 @@ monitors:
           computes:
           # powersupply,Status,Status Information
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # InstanceTable = Source(1)
         # powersupply,Status,Status Information
@@ -310,7 +310,7 @@ monitors:
           computes:
           # powersupply,Status,Status Information
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # ValueTable = Source(1)
         # Location;PATROLStatus;StatusInformation;

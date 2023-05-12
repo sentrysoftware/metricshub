@@ -6,7 +6,7 @@ connector:
     - type: http
       method: GET
       url: /ConfigurationManager/v1/objects/storages
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       expectedResult: storageDeviceId
       errorMessage: No storage devices detected. Host may not have the Hitachi Configuration Manager configured.
 monitors:
@@ -18,7 +18,7 @@ monitors:
           type: http
           method: GET
           url: /ConfigurationManager/v1/objects/storages
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract enclosure(s) information
@@ -34,7 +34,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/components/instance
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
       mapping:
         # Enclosure Instance Table - Source(2)
@@ -59,7 +59,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/components/instance
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
         source(2):
           # Source (2) = Source (1)
@@ -501,7 +501,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/ports
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract network card(s) information
@@ -535,7 +535,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/ports
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract network card(s) information
@@ -652,7 +652,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/drives
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract physical disk(s) information
@@ -692,7 +692,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/drives
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract physical disk(s) information

@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - HP
     supersedes:
@@ -35,7 +36,7 @@ monitors:
             # AWK the output to get the instance table
             # portID;device;description;path;speed;portWWN;remoteWWN;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
@@ -62,7 +63,7 @@ monitors:
             # AWK the output to get the speed and status table
             # speed;status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"

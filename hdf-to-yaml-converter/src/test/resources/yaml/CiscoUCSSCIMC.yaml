@@ -65,7 +65,7 @@ monitors:
             column: 1
             value: Enclosure;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "1,4"
         source(3):
@@ -107,7 +107,7 @@ monitors:
             value: Blade;
           # Name;Model;Serial;OperState;Vendor;EnclosurePresence;DN;name_truncated;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10"
           - type: leftConcat
@@ -191,7 +191,7 @@ monitors:
             column: 3
           # FanPresence;DN;DN_truncated
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "3,4,6"
       mapping:
@@ -322,7 +322,7 @@ monitors:
             value: CPU;
           # Name;Model;Speed;Vendor;CPUPresence;DN;DN_truncated
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "3,4,5,6,7,8,9"
       mapping:
@@ -392,7 +392,7 @@ monitors:
             value: Memory;
           # Name;Location;Presence;CapacityMB;Serial;Speed;Model;Type;Vendor;DN;DN_truncated
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10,11,12,13"
             # Add Identifiers
@@ -478,7 +478,7 @@ monitors:
             value: Battery;
           # '"Battery";Name;Model;Vendor;RaidBatteryPresence;DN;DN_truncated'
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "3,4,5,6,7,8"
       mapping:
@@ -547,7 +547,7 @@ monitors:
             value: DiskController;
           # Name;Model;SerialNumber;Vendor;Revision;DiskControllerPresence;DN;DN_truncated
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10"
       mapping:
@@ -622,7 +622,7 @@ monitors:
             value: PhysicalDisk;
           # Name;SerialNumber;Size;Vendor;DiskPresence;Model;DN;DN_truncated
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10"
       mapping:

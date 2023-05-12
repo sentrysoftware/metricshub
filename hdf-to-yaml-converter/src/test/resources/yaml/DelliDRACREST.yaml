@@ -16,7 +16,7 @@ connector:
     - type: http
       method: GET
       url: /redfish/v1
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       expectedResult: Integrated Dell Remote Access Controller
       errorMessage: Invalid credentials / not an iDRAC
 monitors:
@@ -28,7 +28,7 @@ monitors:
           type: http
           method: GET
           url: /redfish/v1/Systems
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -45,7 +45,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
         source(4):
           type: copy
@@ -59,7 +59,7 @@ monitors:
           type: http
           method: GET
           url: redfish/v1/Chassis
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -70,7 +70,7 @@ monitors:
           type: http
           method: GET
           url: $entry.column(2)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           executeForEachEntryOf:
             source: $monitors.enclosure.discovery.sources.source(5)$
             concatMethod: json_array_extended
@@ -109,7 +109,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -129,7 +129,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(7)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -141,7 +141,7 @@ monitors:
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(4):
           type: tableJoin
           leftTable: $monitors.enclosure.collect.sources.source(1)$
@@ -171,7 +171,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/Processors
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -185,7 +185,7 @@ monitors:
             source: $monitors.cpu.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -217,7 +217,7 @@ monitors:
             source: $monitors.cpu.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -250,7 +250,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/Memory
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -264,7 +264,7 @@ monitors:
             source: $monitors.memory.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -297,7 +297,7 @@ monitors:
             source: $monitors.memory.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -341,7 +341,7 @@ monitors:
             source: $monitors.fan.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -369,7 +369,7 @@ monitors:
             source: $monitors.fan.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -410,7 +410,7 @@ monitors:
             source: $monitors.disk_controller.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -450,7 +450,7 @@ monitors:
             source: $monitors.disk_controller.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -491,7 +491,7 @@ monitors:
             source: $monitors.physical_disk.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -511,7 +511,7 @@ monitors:
             source: $monitors.physical_disk.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -547,7 +547,7 @@ monitors:
             source: $monitors.physical_disk.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -580,7 +580,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(7)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -646,7 +646,7 @@ monitors:
             source: $monitors.battery.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -678,7 +678,7 @@ monitors:
             source: $monitors.battery.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -719,7 +719,7 @@ monitors:
             source: $monitors.temperature.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/Thermal
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -751,7 +751,7 @@ monitors:
             source: $monitors.temperature.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/Thermal
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -785,7 +785,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(4)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/NetworkAdapters
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -799,7 +799,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           # JsonID;<System>;NetworkDeviceFunctions;Manufacturer;Model;PartNumber;SerialNumber;
@@ -814,7 +814,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           # JsonID;<System>;NetworkDeviceFunction;Manufacturer;Model;PartNumber;SerialNumber;
@@ -830,7 +830,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           # jsonid;<system>;PhysicalPortAssignment/@odata.id;NetDevFuncType;MACAddress;PermanentWWPN;Manufacturer;Model;PartNumber;SerialNumber;
@@ -846,7 +846,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(4)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # PhysicalPortAssignment
@@ -876,7 +876,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(2)$/EthernetInterfaces
           resultContent: body
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /Entry/Value/Members
@@ -889,7 +889,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(6)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -933,7 +933,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(4)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           # PhysicalPortAssignment
@@ -948,7 +948,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(6)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv

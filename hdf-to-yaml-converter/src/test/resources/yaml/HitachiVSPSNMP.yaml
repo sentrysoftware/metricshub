@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Storage
     supersedes:
@@ -69,7 +70,7 @@ monitors:
             # Take this screwed up table and analyze it
             # MSHW_....
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
             separators: ;
         source(5):
@@ -152,7 +153,7 @@ monitors:
             # Take this screwed up table and analyze it
             # DeviceClass;AttachedTo;DeviceID;DisplayID;Status;  (Except Enclosures, see later)
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
             separators: ;
             # Duplicate status

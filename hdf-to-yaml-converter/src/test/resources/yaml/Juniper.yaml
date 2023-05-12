@@ -10,6 +10,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Network
     supersedes:
@@ -37,7 +38,7 @@ monitors:
             # Process the Output Through an AWK Script
             # MSHW;Index;FruName;Type;Slot;Status;ChassisID;ChassisName;AttachedToType;DisplayName;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -470,7 +471,7 @@ monitors:
             # Process this through an AWK script to attach port to blades/enclosures
             # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;AttachedToID;AttachedToType;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: "^[0-9]"
             separators: ;
       mapping:

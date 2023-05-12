@@ -69,7 +69,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
             # PowerConsumption;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;PowerConsumption;
             separators: ;
             selectColumns: 3
@@ -91,7 +91,7 @@ monitors:
             # Send showenvironnment's output into the $embedded.EmbeddedFile(2)$ awk script
             # DeviceID;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;Fan;
             separators: ;
             selectColumns: 3
@@ -117,7 +117,7 @@ monitors:
             # Pipe the output of showenvironment into the $embedded.EmbeddedFile(2)$ awk script
             # DeviceID;Status
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;Fan;
             separators: ;
             selectColumns: "3,4"
@@ -150,7 +150,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
             # DeviceID;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;Temperature;
             separators: ;
             selectColumns: 3
@@ -176,7 +176,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
             # DeviceID;Temperature;Status
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;Temperature;
             separators: ;
             selectColumns: "3,4,5"
@@ -210,7 +210,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
             # DeviceID;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;Voltage;
             separators: ;
             selectColumns: 3
@@ -236,7 +236,7 @@ monitors:
             # Piped showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
             # DeviceID;Voltage;Status
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;Voltage;
             separators: ;
             selectColumns: "3,4,5"
@@ -276,7 +276,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(3)$ awk script
             # DeviceID
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;PowerSupply;
             separators: ;
             selectColumns: 3
@@ -301,7 +301,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(3)$ awk script
             # DeviceID;Status
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;PowerSupply;
             separators: ;
             selectColumns: "3,4"
@@ -335,7 +335,7 @@ monitors:
             # Source(1) is the list of currents
             # DeviceType;DeviceID;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;Current;
             separators: ;
             selectColumns: "2,3"
@@ -353,7 +353,7 @@ monitors:
             # Source(2) is the list of domains
             # DeviceType;DeviceID;AdditionalLabel
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;Domain;
             separators: ;
             selectColumns: "2,3,4"
@@ -367,7 +367,7 @@ monitors:
             # Source(3) is the list of boards
             # DeviceType;DeviceID;AdditionalLabel
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -402,7 +402,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(1)$ awk script
             # DeviceID;Status
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;Current;
             separators: ;
             selectColumns: "3,5"
@@ -425,7 +425,7 @@ monitors:
             # Source(2) is the list of domains
             # DeviceID;Status
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;Domain;
             separators: ;
             selectColumns: "3,5"
@@ -448,7 +448,7 @@ monitors:
             # Source(3) is the list of boards
             # DeviceID;Status
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,5"

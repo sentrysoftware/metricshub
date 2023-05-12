@@ -21,7 +21,7 @@ monitors:
             # Also keep only cards where the first word is a purely alphanumeric driverInstance name
             # DeviceID;DriverName;PortType;MacAddress;AdminStatus;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"

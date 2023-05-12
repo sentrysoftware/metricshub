@@ -23,11 +23,11 @@ monitors:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Process the command through an AWK script
             # MSHW_CLASS;  ....
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -40,7 +40,7 @@ monitors:
             # Process the command through an AWK script
             # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW
             separators: ;
         source(3):
@@ -52,12 +52,12 @@ monitors:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Process the command through an AWK script
             # MSHW_Node;nodeName;nodeNumber;
             # MSHW_PhysicalDisk;Location;Lnum;SerialNumber;Status;Status;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW
             separators: ;
         source(4):
@@ -79,7 +79,7 @@ monitors:
             # Process through awk to get model, serial, etc.
             # MSHW;nodeName;systemSerialNumber;systemProductModel;systemRAM;
           - type: awk
-            script: EmbeddedFile(10)
+            script: $embedded.EmbeddedFile(10)$
             keep: ^MSHW
             separators: ;
         source(6):
@@ -122,7 +122,7 @@ monitors:
             # Process the command through an AWK script
             # MSHW_ENCLOSURE;Class;nodeNumber;Status;Status;IPAddress;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -193,11 +193,11 @@ monitors:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Process the command through an AWK script
             # MSHW_Class;systemName;DeviceID;DisplayID;Status;Status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
       mapping:
@@ -488,11 +488,11 @@ monitors:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Process the command through an AWK script
             # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;status;status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW
             separators: ;
       mapping:
@@ -518,11 +518,11 @@ monitors:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Process the command through an AWK script
             # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;status;status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW
             separators: ;
             # Translate first Status into a PATROL status
@@ -606,11 +606,11 @@ monitors:
             # Process the command through an AWK script
             # Sorts Parallel to Sequential
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Process the command through an AWK script
             # MSHW_PhysicalDisk;Location;Lnum;SerialNumber;Status;Status;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW
             separators: ;
             # Keep only PhysicalDisk
@@ -644,7 +644,7 @@ monitors:
             # Process the command through an AWK script
             # MSHW;NodeNumber;NICName;NICName;Interface;IPAddress;Status;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -687,7 +687,7 @@ monitors:
             # Process the command through an AWK script
             # MSHW;NodeNumber;NICName;NICName;Interface;IPAddress;Status;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -749,7 +749,7 @@ monitors:
             # Process the command through an AWK script
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
             separators: ;
             # Keep only LogicalDisk
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
@@ -766,7 +766,7 @@ monitors:
             # Process the command through an AWK script
             # ID;TotalSize;
           - type: awk
-            script: EmbeddedFile(9)
+            script: $embedded.EmbeddedFile(9)$
             separators: ;
             # Keep Columns
             # ID;HDD Total;
@@ -816,7 +816,7 @@ monitors:
             # Process the command through an AWK script
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
             separators: ;
             # Keep only LogicalDisk
             # MSHW;ID;Status;AdditionalInformation;StatusInformation;

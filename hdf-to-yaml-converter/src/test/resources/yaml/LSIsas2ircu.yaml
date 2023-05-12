@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
     supersedes:
@@ -43,7 +44,7 @@ monitors:
           computes:
           # Reformat Source(1) output via EmbeddedFile(2)
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -82,7 +83,7 @@ monitors:
           computes:
           # Reformat Source(1) output via EmbeddedFile(2)
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
         source(2):

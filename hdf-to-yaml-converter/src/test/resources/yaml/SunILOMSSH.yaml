@@ -26,7 +26,7 @@ monitors:
             #  Run the SSH output through an AWK script
             #  MSHW;ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -88,7 +88,7 @@ monitors:
             #  Run the SSH output through an AWK script
             #  MSHW;ID;type;sensorValue;numericalSensorValue;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: MSHW;
             separators: ;
             selectColumns: "2,5,6,11"

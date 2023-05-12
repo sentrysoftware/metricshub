@@ -25,7 +25,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/hardware?select=*&limit=2000
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
         source(2):
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
@@ -40,7 +40,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/appliance?select=*&limit=2000
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /
@@ -60,7 +60,7 @@ monitors:
           type: http
           method: GET
           url: "/api/rest/hardware?select=id,type,appliance_id,serial_number,name&amp;type=eq.Node&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /
@@ -84,7 +84,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/hardware?select=*&limit=2000
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
         source(2):
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
@@ -273,7 +273,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: "/api/rest/hardware?select=id,type,appliance_id,serial_number,name,extra_details&amp;parent_id=eq.$entry.column(2)$&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -432,7 +432,7 @@ monitors:
           type: http
           method: GET
           url: "/api/rest/sas_port?select=id,node_id,name,sfp_id,is_link_up&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /
@@ -445,7 +445,7 @@ monitors:
           type: http
           method: GET
           url: "/api/rest/eth_port?select=id,node_id,name,mac_address,is_link_up&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /
@@ -458,7 +458,7 @@ monitors:
           type: http
           method: GET
           url: "/api/rest/fc_port?select=id,node_id,name,wwn,is_link_up&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /
@@ -515,7 +515,7 @@ monitors:
           type: http
           method: GET
           url: "/api/rest/sas_port?select=id,is_link_up,speed&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /
@@ -525,7 +525,7 @@ monitors:
           type: http
           method: GET
           url: "/api/rest/eth_port?select=id,is_link_up,current_speed&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /
@@ -535,7 +535,7 @@ monitors:
           type: http
           method: GET
           url: "/api/rest/fc_port?select=id,is_link_up,current_speed&limit=2000"
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /

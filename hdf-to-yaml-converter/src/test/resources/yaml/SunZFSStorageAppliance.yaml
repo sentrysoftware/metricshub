@@ -28,7 +28,7 @@ monitors:
             # AWK it
             # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
         source(2):
@@ -78,7 +78,7 @@ monitors:
             # AWK it
             # chassis;id;state;state;rpm;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,5,6,10"
@@ -518,7 +518,7 @@ monitors:
             # AWK it
             # pool;Available;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6"
@@ -536,7 +536,7 @@ monitors:
             # AWK it
             # pool;RaidLevel;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -590,7 +590,7 @@ monitors:
             # AWK it
             # pool;State;State;Free;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,7"
@@ -628,7 +628,7 @@ monitors:
             # AWK it
             # DeviceID;Address;DisplayID;Mode;AddressType;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,5,6,8"
@@ -641,7 +641,7 @@ monitors:
             # AWK it
             # DeviceID;Address;DisplayID;Mode;AddressType;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,5,6,8"
@@ -693,7 +693,7 @@ monitors:
             # AWK it
             # ID;speed;link(speed);
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,7"
@@ -711,7 +711,7 @@ monitors:
             # AWK it
             # ID;speed;linkUP;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,7"

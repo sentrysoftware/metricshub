@@ -37,14 +37,14 @@ monitors:
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -64,7 +64,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -247,14 +247,14 @@ monitors:
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -274,7 +274,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -357,14 +357,14 @@ monitors:
           from: $monitors.cpu.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.cpu.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -384,7 +384,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -532,14 +532,14 @@ monitors:
           from: $monitors.temperature.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.temperature.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -559,7 +559,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -732,14 +732,14 @@ monitors:
           from: $monitors.voltage.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.voltage.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -759,7 +759,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -864,14 +864,14 @@ monitors:
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -891,7 +891,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -966,14 +966,14 @@ monitors:
           from: $monitors.power_supply.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.power_supply.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -993,7 +993,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -1071,14 +1071,14 @@ monitors:
           from: $monitors.battery.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.battery.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1098,7 +1098,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -1183,14 +1183,14 @@ monitors:
           from: $monitors.fan.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.fan.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1210,7 +1210,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -1299,14 +1299,14 @@ monitors:
           from: $monitors.physical_disk.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.physical_disk.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1326,7 +1326,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -1418,14 +1418,14 @@ monitors:
           from: $monitors.logical_disk.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.logical_disk.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1445,7 +1445,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
@@ -1567,14 +1567,14 @@ monitors:
           from: $monitors.network.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(3):
           # Get body
           type: copy
           from: $monitors.network.collect.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1594,7 +1594,7 @@ monitors:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion

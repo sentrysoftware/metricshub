@@ -44,7 +44,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
         source(6):
@@ -109,7 +109,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
         source(6):
@@ -185,7 +185,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "Temperature"
@@ -257,7 +257,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "Voltage"
@@ -334,7 +334,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "DIMM"
@@ -405,7 +405,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "Fan"
@@ -477,7 +477,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "PowerSupply"
@@ -548,7 +548,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "Battery"
@@ -619,7 +619,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "DiskController"
@@ -698,7 +698,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "PhysicalDisk"
@@ -776,7 +776,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "LogicalDisk"
@@ -847,7 +847,7 @@ monitors:
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;
             # MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             # Keep only "OtherDevice"
@@ -891,7 +891,7 @@ monitors:
             # Run the Command Outputs through an AWK Script
             # MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
       mapping:
@@ -930,7 +930,7 @@ monitors:
             # Run the Command Outputs through an AWK Script
             # MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             # Translate the Link Status

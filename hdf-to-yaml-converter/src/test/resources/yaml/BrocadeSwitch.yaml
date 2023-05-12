@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Storage
     supersedes:
@@ -330,7 +331,7 @@ monitors:
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # WWN;SpeedMB;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -418,7 +419,7 @@ monitors:
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # WWN;SpeedMB;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"

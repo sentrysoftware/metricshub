@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - HP
     criteria:
@@ -39,7 +40,7 @@ monitors:
             # to include disk controllers
             # DeviceID;Model
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -53,7 +54,7 @@ monitors:
             # Process the output of cstm throughawk EmbeddedFile(2)
             # DeviceID;ControllerID;Vendor Model;sizeMB;SerialNumber
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -122,7 +123,7 @@ monitors:
             # Process output of cstm through awk EmbeddedFile(2)
             # ErrorCount;Status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -161,7 +162,7 @@ monitors:
             # Memory modules' IDs and sizes and the "Page Deallocation Table (PDT)"
             # DeviceID;Size;Type
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -190,7 +191,7 @@ monitors:
             # Memory modules error count and status (as well as for the "Page Deallocation Table (PDT)")
             # DeviceID;Status;StatusInformation;ErrorCount
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -242,7 +243,7 @@ monitors:
             # Process cstm output through awk EmbeddedFile(6)
             # Type;DeviceID
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;FAN
             separators: ;
             selectColumns: "2,3"
@@ -268,7 +269,7 @@ monitors:
             # Process cstm output through awk EmbeddedFile(6)
             # DeviceID;Status;StatusInformation
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;FAN
             separators: ;
             selectColumns: "3,4,5"
@@ -293,7 +294,7 @@ monitors:
             # Process cstm output through awk EmbeddedFile(6)
             # Type;DeviceID
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;PSU
             separators: ;
             selectColumns: "2,3"
@@ -319,7 +320,7 @@ monitors:
             # Process cstm output through awk EmbeddedFile(6)
             # DeviceID;Status;StatusInformation
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;PSU
             separators: ;
             selectColumns: "3,4,5"

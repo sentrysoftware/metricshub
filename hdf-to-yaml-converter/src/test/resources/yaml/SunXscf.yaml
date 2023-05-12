@@ -28,7 +28,7 @@ monitors:
           computes:
           # Remove all colons and semicolons
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(2):
           # Source(2) = copy of Source(1)
           type: copy
@@ -38,7 +38,7 @@ monitors:
             # (the main enclosure as well as the I/O expansion units)
             # EnclosureID;EnclosureType;Vendor;Model;Serial;Fru;Status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
@@ -69,7 +69,7 @@ monitors:
           computes:
           # Remove all colons and semicolons
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(2):
           # Source(2) = copy of Source(1)
           type: copy
@@ -79,7 +79,7 @@ monitors:
             # (the main enclosure as well as the I/O expansion units)
             # EnclosureID;Status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,8"
@@ -111,7 +111,7 @@ monitors:
             # AWK script that keeps only the CPUs
             # CpuID;Model;Speed;SerialNumber;Fru;PowerConsumption;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,8"
@@ -147,7 +147,7 @@ monitors:
             # AWK script that keeps only the CPUs
             # CpuID;State;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,7"
@@ -179,7 +179,7 @@ monitors:
             # AWK script that keeps only the memory modules
             # MemoryID;Model;Size;SerialNumber;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -207,7 +207,7 @@ monitors:
             # AWK script that keeps only the CPUs
             # MemoryID;State
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6"
@@ -239,7 +239,7 @@ monitors:
             # AWK script that keeps only the power supplies
             # PowerSupplyID;ParentID;SerialNumber;FRU;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -272,7 +272,7 @@ monitors:
             # AWK script that keeps only the power supplies
             # PowerSupplyID;State
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6"
@@ -304,7 +304,7 @@ monitors:
             # AWK script that keeps only the fans
             # FanID;FanType;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -329,7 +329,7 @@ monitors:
             # AWK script that keeps only the CPUs
             # FanID;State
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -361,7 +361,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
             # DeviceID;VoltageType;LowerThreshold;UpperThreshold
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -389,7 +389,7 @@ monitors:
             # Piped showenvironment's output into the $embedded.EmbeddedFile(6)$ awk script
             # DeviceID;Voltage;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6"
@@ -410,7 +410,7 @@ monitors:
             # Pipe showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
             # MSHW;SensorID;Temperature;Warning;Alarm;
           - type: awk
-            script: EmbeddedFile(10)
+            script: $embedded.EmbeddedFile(10)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -438,7 +438,7 @@ monitors:
             # Piped showenvironment's output into the $embedded.EmbeddedFile(10)$ awk script
             # MSHW;SensorID;Temperature;Warning;Alarm;
           - type: awk
-            script: EmbeddedFile(10)
+            script: $embedded.EmbeddedFile(10)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -460,7 +460,7 @@ monitors:
             # Pipe showdomainsm's output into the $embedded.EmbeddedFile(8)$ awk script
             # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
             keep: ^MSHW;Domain;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -472,7 +472,7 @@ monitors:
             # AWK script that keeps only the IO Units, XSCF units, and other stuff
             # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
           - type: awk
-            script: EmbeddedFile(9)
+            script: $embedded.EmbeddedFile(9)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -514,7 +514,7 @@ monitors:
             # Pipe showdomains' output into the $embedded.EmbeddedFile(8)$ awk script
             # DeviceID;State
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
             keep: ^MSHW;Domain;
             separators: ;
             selectColumns: "3,8"
@@ -535,7 +535,7 @@ monitors:
             # AWK script that keeps only the IO Units, XSCF units, and other stuff
             # DeviceID;State;PowerConsumption;
           - type: awk
-            script: EmbeddedFile(9)
+            script: $embedded.EmbeddedFile(9)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,8,9"

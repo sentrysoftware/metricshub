@@ -7,6 +7,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Storage
     - NT
@@ -33,7 +34,7 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;displayId;model;serial;uuid;status;status
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # ID;displayId;model;serial;uuid;status;status
         source: $monitors.enclosure.discovery.sources.source(1)$
@@ -58,7 +59,7 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;displayId;model;serial;uuid;status;status
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             # Translate status
             # ID;displayId;model;serial;uuid;status;statusInformation
           - type: translate
@@ -86,7 +87,7 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;model;serial;slot;slotType;size;status;status
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
       mapping:
         # ID;nodeId;model;serial;slot;slotType;size;status;status
         source: $monitors.physical_disk.discovery.sources.source(1)$
@@ -114,7 +115,7 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;model;serial;slot;slotType;size;status;status
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             # Translate status
             # ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
           - type: translate
@@ -142,7 +143,7 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
       mapping:
         # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
         source: $monitors.network.discovery.sources.source(1)$
@@ -170,7 +171,7 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             # Translate status
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
           - type: translate

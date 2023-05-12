@@ -7,7 +7,7 @@ monitors:
           type: http
           method: GET
           url: redfish/v1/Chassis/
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -27,7 +27,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(2)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
         source(3):
           type: copy
@@ -48,7 +48,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(3)$SmartStorage/ArrayControllers/
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -69,7 +69,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(4)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -84,7 +84,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(9)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
       mapping:
         # Enclosure Instance Table
@@ -109,7 +109,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(1)$
             concatMethod: json_array
           url: $entry.column(2)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
         source(2):
           type: copy
@@ -134,7 +134,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(8)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -155,7 +155,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array
           url: $entry.column(9)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
       mapping:
         # Enclosure Value Table
@@ -178,7 +178,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(3)$Memory/
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # extract odata.id for each instance
@@ -199,7 +199,7 @@ monitors:
             source: $monitors.memory.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # extract data
@@ -240,7 +240,7 @@ monitors:
             source: $monitors.memory.discovery.sources.source(1)$
             concatMethod: json_array
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           # Extract odata.id
@@ -285,7 +285,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(4)$
             concatMethod: json_array
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -319,7 +319,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(5)$
             concatMethod: json_array_extended
           url: $entry.column(5)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -339,7 +339,7 @@ monitors:
             source: $monitors.physical_disk.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -390,7 +390,7 @@ monitors:
             source: $monitors.physical_disk.discovery.sources.source(1)$
             concatMethod: json_array
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -433,7 +433,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(5)$
             concatMethod: json_array_extended
           url: $entry.column(4)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -453,7 +453,7 @@ monitors:
             source: $monitors.logical_disk.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -488,7 +488,7 @@ monitors:
             source: $monitors.logical_disk.discovery.sources.source(1)$
             concatMethod: json_array
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -522,7 +522,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(3)$Processors/
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract odata.id
@@ -542,7 +542,7 @@ monitors:
             source: $monitors.cpu.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -575,7 +575,7 @@ monitors:
             source: $monitors.cpu.discovery.sources.source(1)$
             concatMethod: json_array
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract data
@@ -735,7 +735,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(8)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract Data

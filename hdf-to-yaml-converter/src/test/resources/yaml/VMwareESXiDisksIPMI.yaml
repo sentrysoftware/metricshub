@@ -90,7 +90,7 @@ monitors:
             # Process the discrete sensors to take worse Status and make each ID unique
             # DeviceID,StatusInformation,HealthState
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"

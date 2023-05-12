@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorSimpleProperty {
 
-	private static final String CONNECTION_TYPES = "connectionTypes";
+	public static final String CONNECTION_TYPES = "connectionTypes";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
@@ -78,6 +78,16 @@ public class ConnectorSimpleProperty {
 	 */
 	private static ArrayNode getOrCreateConnectionType(final JsonNode connector) {
 		final ObjectNode detectionSection = getOrCreateDetection(connector);
+		return getOrCreateConnectionTypesNode(detectionSection);
+	}
+
+	/**
+	 * Create ConntectionTypes node if not exists
+	 * 
+	 * @param detectionSection global connector {@link JsonNode} 
+	 * @return ArrayNode instance
+	 */
+	public static ArrayNode getOrCreateConnectionTypesNode(final ObjectNode detectionSection) {
 		JsonNode connectionTypeNode = detectionSection.get(CONNECTION_TYPES);
 		if (connectionTypeNode == null) {
 			connectionTypeNode = JsonNodeFactory.instance.arrayNode();
@@ -266,7 +276,12 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
-			getOrCreateDetection(connector).set("onLastResort", JsonNodeFactory.instance.textNode(value));
+			getOrCreateDetection(connector).set(
+				"onLastResort",
+				JsonNodeFactory.instance.textNode(
+					ConversionHelper.performValueConversions(value)
+				)
+			);
 		}
 	}
 }

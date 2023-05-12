@@ -45,7 +45,7 @@ monitors:
             # Process that crap through an AWK script that will generate one line per disk
             # DiskID;DiskType;Status;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -76,7 +76,7 @@ monitors:
             # Process that crap through an AWK script that will generate one line per disk
             # DiskID;Status;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"

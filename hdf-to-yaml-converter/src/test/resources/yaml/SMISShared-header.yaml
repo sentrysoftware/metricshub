@@ -108,7 +108,7 @@ monitors:
             # Reprocess Model1/Model2, Vendor1/Vendor2, etc. with an AWK script
             # ComputerID;ChassisID;Vendor;Model;SerialNumber;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -134,7 +134,7 @@ monitors:
             # But we need an AWK script for that
             # ParentID
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             separators: ;
             selectColumns: 1
         source(12):
@@ -162,7 +162,7 @@ monitors:
             # only the LogicalDeviceID and the real top-level ComputerSystemID
             # LogicalDeviceID;ComputerSystemID;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             selectColumns: "1,2"
         source(14):

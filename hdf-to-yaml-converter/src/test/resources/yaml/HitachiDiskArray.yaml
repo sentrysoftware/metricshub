@@ -12,6 +12,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Storage
 monitors:

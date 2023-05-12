@@ -34,7 +34,7 @@ monitors:
             # Parse the output of getsysinfo with an AWK script
             # Model;SerialNumber
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: MSHW;
             separators: ;
             selectColumns: "2,3"

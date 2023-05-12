@@ -28,7 +28,7 @@ connector:
     - type: http
       method: GET
       url: /redfish/v1/
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       expectedResult: iLO 4
       errorMessage: Invalid credentials / not an HP iLO 4
 monitors:
@@ -43,7 +43,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -77,7 +77,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Extract Data
@@ -112,7 +112,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(3)$
             concatMethod: json_array_extended
           url: $entry.column(3)$NetworkAdapters/
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           # JSONID;ChassisID;NetworkAdapterURL;
@@ -128,7 +128,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(1)$
             concatMethod: json_array_extended
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # JsonID;ChassisID;NetworkPorts;Manufacturer;Model;PartNumber;SerialNumber;
@@ -169,7 +169,7 @@ monitors:
             source: $monitors.network.discovery.sources.source(1)$
             concatMethod: json_array
           url: $entry.column(3)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           # PhysicalPortAssignment

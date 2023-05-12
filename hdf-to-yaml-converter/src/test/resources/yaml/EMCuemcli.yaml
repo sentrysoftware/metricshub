@@ -44,7 +44,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # SystemID;SystemName;Model;SerialNumber;HealthValue;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -75,7 +75,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # SystemID;HealthValue;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6"
@@ -113,7 +113,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -147,7 +147,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -185,7 +185,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -219,7 +219,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -257,7 +257,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -291,7 +291,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -329,7 +329,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -355,7 +355,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -381,7 +381,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -407,7 +407,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -433,7 +433,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -459,7 +459,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -514,7 +514,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -534,7 +534,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -554,7 +554,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -574,7 +574,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -594,7 +594,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -614,7 +614,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -674,7 +674,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -708,7 +708,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -746,7 +746,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -766,7 +766,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             #  DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -818,7 +818,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -833,7 +833,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -885,7 +885,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -905,7 +905,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -925,7 +925,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -967,7 +967,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -987,7 +987,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -1007,7 +1007,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"

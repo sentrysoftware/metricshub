@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
     criteria:
@@ -25,7 +26,7 @@ monitors:
           commandLine: "virsh list | awk '{print $1}' | grep -oIE \"[0-9]*\" | while read word; do virsh dominfo ${word} ; done"
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         source: $monitors.vm.discovery.sources.source(1)$
         attributes:
@@ -43,7 +44,7 @@ monitors:
           commandLine: "virsh list | awk '{print $1}' | grep -oIE \"[0-9]*\" | while read word; do virsh dominfo ${word} ; done"
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: translate
             column: 2
             translationTable: stateTranslationTable

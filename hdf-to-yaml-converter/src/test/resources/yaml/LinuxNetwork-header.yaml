@@ -24,7 +24,7 @@ monitors:
             # Process the output of one of the two commands (ifconfig or ip) through an AWK script
             # DeviceID;MacAddress;IPAddress;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -52,7 +52,7 @@ monitors:
             # Process the output of one of the two commands (ifconfig or ip) to retrieve statistics about the network interface
             # DeviceID;ReceivedPackets;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -64,7 +64,7 @@ monitors:
             # Process the output of ethtool through an AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"

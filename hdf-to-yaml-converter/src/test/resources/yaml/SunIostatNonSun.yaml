@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Solaris
     criteria:
@@ -43,7 +44,7 @@ monitors:
             # Reformat iostat's output through awk (see EmbeddedFile(2))
             # DeviceID;ControllerNumber;Size;VendorModel;SerialNumber
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -98,7 +99,7 @@ monitors:
             # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(3))
             # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"

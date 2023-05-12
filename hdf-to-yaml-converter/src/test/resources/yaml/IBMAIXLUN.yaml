@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - RS6000
     criteria:
@@ -34,7 +35,7 @@ monitors:
             # AWK it
             # LunName;ExpectedPaths;AvailablePaths;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -51,7 +52,7 @@ monitors:
             # AWK it
             # LunName;HardwareLocationCode;DiskArray;WWN;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -95,7 +96,7 @@ monitors:
             # AWK it
             # LunName;NumberPaths;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"

@@ -365,7 +365,7 @@ monitors:
           selectColumns: "1,3,6,7,4,2"
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # Instance table = Source(1)
         # ID;SensorLocationCode;AlarmThreshold;WarningThreshold;TemperatureReading;TemperatureStatus;StatusActivation
@@ -424,7 +424,7 @@ monitors:
           selectColumns: "1,3,9,8,4,2"
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # Instance table = Source(1)
         # ID;SensorLocationCode;AlarmThreshold;WarningThreshold;FanSpeed;FanStatus;StatusActivation
@@ -483,7 +483,7 @@ monitors:
           selectColumns: "1,3,6,9,4,2"
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
       mapping:
         # Instance table = Source(1)
         # ID;SensorLocationCode;UpperThreshold;LowerThreshold;VoltageReading;VoltageStatus;StatusActivation

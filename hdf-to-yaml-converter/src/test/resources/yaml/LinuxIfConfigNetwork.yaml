@@ -13,6 +13,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
 embedded:

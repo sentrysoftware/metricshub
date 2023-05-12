@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - OOB
     criteria:
@@ -259,7 +260,7 @@ monitors:
             # !!! Watch columns in this awk, as it takes columns from both Source 2 & 3 and is not tolerant of column number modifications
             # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;(FanStatus);
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
@@ -356,7 +357,7 @@ monitors:
             # Takes the horizontal list of fans modules and their fans and returns each fan individually
             # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;(FanStatus);
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"

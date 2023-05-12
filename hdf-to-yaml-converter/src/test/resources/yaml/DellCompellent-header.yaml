@@ -7,7 +7,7 @@ connector:
     - type: http
       method: POST
       url: /api/rest/ApiConnection/Login
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       expectedResult: sessionKey
 monitors:
   enclosure:
@@ -18,18 +18,18 @@ monitors:
           type: http
           method: POST
           url: /api/rest/ApiConnection/Login
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: all
           computes:
           # collect AuthenticationToken
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(2):
           # Now we have the token let's perform the StorageCenter Discovery
           type: http
           method: GET
           url: /api/rest/StorageCenter/StorageCenter
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -66,7 +66,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/StorageCenter
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -96,7 +96,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScController
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -137,7 +137,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScController
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -168,7 +168,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScDisk
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -190,7 +190,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScDiskConfiguration
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -240,7 +240,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScDisk
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -272,7 +272,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosurePowerSupply
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -287,7 +287,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPowerSupply
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -304,7 +304,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: list
           url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/PowerSupplyList
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -331,7 +331,7 @@ monitors:
             # Now pass everything through an awk to attach the powersupply to the correct device
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
           # remove phantoms
           - type: keepOnlyMatchingLines
             column: 2
@@ -355,7 +355,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosurePowerSupply
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -370,7 +370,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPowerSupply
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -387,7 +387,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: list
           url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/PowerSupplyList
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -426,7 +426,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureCoolingFanSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -441,7 +441,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerFanSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -459,7 +459,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: list
           url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/FanSensorList
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -487,7 +487,7 @@ monitors:
             # and activate status or fan speed parameter
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
           # remove phantoms
           - type: keepOnlyMatchingLines
             column: 2
@@ -514,7 +514,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureCoolingFanSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -529,7 +529,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerFanSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -547,7 +547,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: list
           url: /api/rest/StorageCenter/ScChassis/$entry.column(2)$/FanSensorList
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -587,7 +587,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureTemperatureSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -603,7 +603,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerTemperatureSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -626,7 +626,7 @@ monitors:
             # and extract the correct temperature
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;warning;alarm;enclosure/controllerID;devicetype
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             # remove empty output
             # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;warning;alarm;enclosure/controllerID;devicetype
           - type: excludeMatchingLines
@@ -655,7 +655,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureTemperatureSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -670,7 +670,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerTemperatureSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -690,7 +690,7 @@ monitors:
           computes:
           # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
       mapping:
         # ValueTable = Source(1)
         # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
@@ -707,7 +707,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerVoltageSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -720,7 +720,7 @@ monitors:
             # awk everything to have status activated if sensors!=null and deduct controller id
             # tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerCriticalThreshold;controllerID;devicetype
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             # remove empty output
             # tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerCriticalThreshold;controllerID;devicetype
           - type: excludeMatchingLines
@@ -747,7 +747,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerVoltageSensor
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -785,7 +785,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureIoModule
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -800,7 +800,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerCacheCard
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -815,7 +815,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureAudibleAlarm
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -837,7 +837,7 @@ monitors:
             # Now pass everything through an awk to attach theOtherDevice to the correct device
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             # remove empty output
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
           - type: excludeMatchingLines
@@ -863,7 +863,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureIoModule
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -878,7 +878,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerCacheCard
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -893,7 +893,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureAudibleAlarm
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -947,7 +947,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPort
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -963,7 +963,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPortConfiguration
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -976,7 +976,7 @@ monitors:
             # Now pass everything through an awk to determine the port speed.
             # tableID;instanceId;speed;description;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
         source(3):
           # Source(3) = TableJoint of Source(1) and Source(2)
           # /tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed
@@ -1017,7 +1017,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPort
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -1033,7 +1033,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPortConfiguration
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -1046,7 +1046,7 @@ monitors:
             # Now pass everything through an awk to determine the port speed.
             # tableID;instanceId;speed;description;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
@@ -1116,7 +1116,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScUps
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -1153,7 +1153,7 @@ monitors:
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScUps
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:

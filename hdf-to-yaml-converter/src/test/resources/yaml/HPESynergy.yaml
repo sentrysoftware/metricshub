@@ -17,7 +17,7 @@ connector:
     - type: http
       method: GET
       url: /rest/version
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       expectedResult: minimumVersion
 monitors:
   enclosure:
@@ -28,14 +28,14 @@ monitors:
           method: DELETE
           url: /rest/login-sessions
           authenticationToken: $monitors.enclosure.discovery.sources.source(4)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
         source(2):
           type: http
           method: POST
           url: /rest/login-sessions
-          header: EmbeddedFile(1)
-          body: EmbeddedFile(2)
+          header: $embedded.EmbeddedFile(1)$
+          body: $embedded.EmbeddedFile(2)$
           computes:
           - type: json2csv
             entryKey: /
@@ -49,7 +49,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -84,7 +84,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -115,7 +115,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -136,7 +136,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -176,7 +176,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -196,7 +196,7 @@ monitors:
             source: $monitors.blade.collect.sources.source(2)$
             concatMethod: json_array_extended
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           url: $entry.column(4)$
           computes:
           - type: json2csv
@@ -239,7 +239,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -284,7 +284,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -315,7 +315,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -353,7 +353,7 @@ monitors:
             concatMethod: json_array
           url: $entry.column(4)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -380,7 +380,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$/memory
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -420,7 +420,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$/memory
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -457,7 +457,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$/devices
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -504,7 +504,7 @@ monitors:
             concatMethod: json_array
           url: $entry.column(4)$/devices
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -538,7 +538,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$/devices
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -585,7 +585,7 @@ monitors:
             source: $monitors.blade.collect.sources.source(2)$
             concatMethod: json_array
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           url: $entry.column(4)$/devices
           resultContent: body
           computes:
@@ -617,7 +617,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -662,7 +662,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -696,7 +696,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -749,7 +749,7 @@ monitors:
           method: GET
           url: /rest/enclosures
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -783,7 +783,7 @@ monitors:
           method: GET
           url: /rest/interconnects
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -797,7 +797,7 @@ monitors:
           method: GET
           url: /rest/interconnects
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -820,7 +820,7 @@ monitors:
             concatMethod: json_array_extended
           url: $entry.column(4)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv
@@ -872,7 +872,7 @@ monitors:
           method: GET
           url: /rest/interconnects
           authenticationToken: $monitors.enclosure.discovery.sources.source(2)$
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           resultContent: body
           computes:
           - type: json2csv

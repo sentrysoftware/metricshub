@@ -182,7 +182,7 @@ monitors:
             # Process the discrete sensors to take worse Status and make each ID unique
             # DeviceID,HealthState,Name,NumericOnly
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,5,6"
@@ -237,7 +237,7 @@ monitors:
             # Use an awk script to determine if there are any valid IPMI sensors, if not, use the global.
             # DeviceID,HealthState,Name,NumericOnly
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -301,7 +301,7 @@ monitors:
             # Process the discrete sensors to take worse Status and make each ID unique
             # DeviceID,StatusInformation,HealthState
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -533,7 +533,7 @@ monitors:
           computes:
           # MSHW;BaseUnits,Caption,CurrentReading,DeviceID,HealthState,UpperThresholdNonCritical,UpperThresholdCritical, SensorType
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
           - type: keepOnlyMatchingLines
             column: 1
             valueList: MSHW
@@ -1138,7 +1138,7 @@ monitors:
             # Process the discrete sensors to group sensors together and find a common name
             # DeviceID,DisplayID
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -1168,7 +1168,7 @@ monitors:
             # Process the discrete sensors to group sensors together and find a common name
             # DeviceID,PatrolStatus,StatusInformation
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,5"

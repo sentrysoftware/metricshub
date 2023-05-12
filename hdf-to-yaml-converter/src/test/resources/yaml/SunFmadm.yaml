@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Solaris
     criteria:
@@ -42,7 +43,7 @@ monitors:
             # Send fmadm'soutput through awk $embedded.EmbeddedFile(1)$
             # MSHW;Overall Memory Faults;status;statusInformation;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
@@ -54,7 +55,7 @@ monitors:
             # Send prtconf's output through awk $embedded.EmbeddedFile(3)$
             # MSHW;Overall;Size
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -86,7 +87,7 @@ monitors:
             # Send fmadm's output through awk $embedded.EmbeddedFile(1)$
             # MSHW;Overall Memory Faults;status;statusInformation
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -109,7 +110,7 @@ monitors:
             # Send fmadm'soutput through awk $embedded.EmbeddedFile(2)$
             # MSHW;Overall CPU Faults;status;statusInformation;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
@@ -133,7 +134,7 @@ monitors:
             # Send fmadm's output through awk $embedded.EmbeddedFile(2)$
             # MSHW;Overall CPU Faults;status;statusInformation
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"

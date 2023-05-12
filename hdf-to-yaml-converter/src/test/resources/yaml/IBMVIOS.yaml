@@ -10,6 +10,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - RS6000
     supersedes:
@@ -145,7 +146,7 @@ monitors:
             # Reformat lscfg's output through awk (see EmbeddedFile(6))
             # DeviceID;Size;SerialNumber
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -199,7 +200,7 @@ monitors:
             # Reformat lsdev's output through awk (see EmbeddedFile(6))
             # DeviceID;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6"
@@ -283,7 +284,7 @@ monitors:
             # Parsing this through an awk script
             # DeviceID;ErrorCount;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -359,7 +360,7 @@ monitors:
             # Reformat lsdev's output through awk (see EmbeddedFile(3))
             # DeviceID;size;make-model-FRU;Serial;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -443,7 +444,7 @@ monitors:
             # AWK it
             # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;AddressType;SerialNumber;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
         source(2):
@@ -454,7 +455,7 @@ monitors:
             # AWK it
             # MSHW;portID;Status;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             # Add MAC and blank serial number - This is done so that Embedded File 5 matched the one in IBM AIX Embedded file 3
@@ -494,7 +495,7 @@ monitors:
             # AWK it
             # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;AddressType;SerialNumber;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
         source(2):
@@ -505,7 +506,7 @@ monitors:
             # AWK it
             # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
         source(3):
@@ -540,7 +541,7 @@ monitors:
             # AWK it
             # LunName;LunInfo;LunStatus;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
@@ -564,7 +565,7 @@ monitors:
             # AWK it
             # LunName;NumberPaths;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"

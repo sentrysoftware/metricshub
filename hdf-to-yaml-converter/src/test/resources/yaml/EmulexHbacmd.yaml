@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
     - Solaris
@@ -35,7 +36,7 @@ monitors:
             # AWK it
             # Model;WWN;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -48,7 +49,7 @@ monitors:
             # AWK it
             # Speed;Status;WWN;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -91,7 +92,7 @@ monitors:
             # AWK it
             # Speed;Status;WWN;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -130,7 +131,7 @@ monitors:
             # AWK it
             # TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"

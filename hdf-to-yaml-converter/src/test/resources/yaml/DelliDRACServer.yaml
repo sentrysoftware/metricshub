@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - OOB
     criteria:
@@ -552,7 +553,7 @@ monitors:
           computes:
           # NetworkID;ChassisID;ProductName;FQDD(slot number);MacAddress;DisplayName
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # Instance Table
         # NetworkID;ChassisID;ProductName;FQDD(slot number);MacAddress;DisplayName

@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Solaris
     criteria:
@@ -32,7 +33,7 @@ monitors:
             # Send psrinfo'soutput through awk $embedded.EmbeddedFile(1)$
             # cpuID;cpuModel;cpuSpeed
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -58,7 +59,7 @@ monitors:
             # Send psrinfo's output through awk $embedded.EmbeddedFile(2)$
             # cpuID;cpuStatus
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5"

@@ -73,7 +73,7 @@ monitors:
             value: MSHW;
           # Sum up the power consumption values from all PSes
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(5):
           # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
           type: tableJoin
@@ -133,7 +133,7 @@ monitors:
             column: 1
             value: MSHW;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(3):
           # MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
           type: tableJoin

@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
     - Solaris
@@ -34,7 +35,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(1)
             # DeviceID;Vendor;Model;FirmwareVersion
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -60,7 +61,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # ControllerNumber;diskID;model;size;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -87,7 +88,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # diskID;Status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,6"
@@ -125,7 +126,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # ControllerNumber;diskID;size;raidType
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -152,7 +153,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # diskID;Status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,6"

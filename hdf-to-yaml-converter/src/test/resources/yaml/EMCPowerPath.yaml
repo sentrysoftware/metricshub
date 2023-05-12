@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     - Linux
@@ -39,7 +40,7 @@ monitors:
             # AWK it
             # MSHW;pseudoName;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             # Add some text to each additional information
@@ -73,7 +74,7 @@ monitors:
             # AWK it
             # logicalDeviceID;state;alivePathCount;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "4,6,8"

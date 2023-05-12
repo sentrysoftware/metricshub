@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Storage
     supersedes:
@@ -177,7 +178,7 @@ monitors:
             # Fix the DisplayID with an awk script
             # DiskID,DisplayID,AdditionalInformation,Speed,SystemName,Model,SerialNumber,BlockSize,Size
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10"

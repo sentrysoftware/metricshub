@@ -6,6 +6,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     criteria:
     # Criteria(1): there must be something in the ifTable SNMP Table
     - type: snmpGetNext

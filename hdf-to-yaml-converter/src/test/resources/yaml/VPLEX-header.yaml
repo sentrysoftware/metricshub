@@ -22,7 +22,7 @@ monitors:
             # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
             # 1   ,2            #  ,3        , 4           ,5        , 6            #   ,7           ,  8       ,  9 , 10            #  , 11            , 12          ,13            #   ,14
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -60,7 +60,7 @@ monitors:
             # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
             # 1   ,2            #  ,3        , 4           ,5        , 6            #   ,7           ,  8       ,  9 , 10            #  , 11            , 12          ,13            #   ,14
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
@@ -98,7 +98,7 @@ monitors:
             # MSHW, NAME , STATUS, SPEED_THRESHOLD,parenttoCS
             #  1 ,   2,    3,      4,            #    5
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -131,7 +131,7 @@ monitors:
             # MSHW, NAME , STATUS, SPEED_THRESHOLD, ParentID
             #  1  ,     2,      3,            #  4,    5
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
@@ -168,7 +168,7 @@ monitors:
             # MSHW, Marker-LED, Name, OnDC, operational-status, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #    , 6          , 7            # , 8           , 9            #             #  , 10
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
           - type: leftConcat
@@ -206,7 +206,7 @@ monitors:
             # MSHW, Marker-LED, Name, OnDC, operational-status, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #    , 6          , 7            # , 8           , 9            #             #  , 10
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             # Duplicate Column
@@ -248,7 +248,7 @@ monitors:
             # MSHW, health-state, name, serial-number,sp-id,parent
             #  1   , 2          , 3   ,4             ,5    , 6
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
           # 'AdditionalInformation adding Serial Number:'
@@ -286,7 +286,7 @@ monitors:
             # MSHW, health-state, name, serial-number,sp-id,parent
             #  1   , 2          , 3   ,4             ,5    , 6
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
@@ -325,7 +325,7 @@ monitors:
             # MSHW, name, operationnal-status, part-number, serial-number, parent
             #  1   , 2         , 3             ,4          ,5            ,  6
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -360,7 +360,7 @@ monitors:
             # MSHW; NAME, Operational-status; Part-number, serial-number , parent
             # 1   ,    2,         3          , 4         , 5             , 6
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             # MSHW; NAME, Operational-status, Operational-status, Part-number   , serial-number , parent
@@ -398,7 +398,7 @@ monitors:
             # MSHW, address,enabled,name,operational-status,linkstatus,port-wwn,role,parent
             #  1  ,  2     , 3     ,4   ,5            #    ,6         ,7        ,  8, 9
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;
             separators: ;
           # keep only enabled fc's
@@ -439,7 +439,7 @@ monitors:
             properties: /name;/value
             separator: ;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;
             separators: ;
             # MSHW, address,enabled,name,operational-status,operational-status,linkstatus,port-wwn,role,parent
@@ -483,7 +483,7 @@ monitors:
             # MSHW, name, operational-status, part-number, serial-number, parentid
             # 1    ,  2 ,       3            ,  4         ,   5         ,    6
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -518,7 +518,7 @@ monitors:
             # MSHW, name, operational-status, part-number, serial-number, parentid
             # 1    ,  2 ,       3            ,  4         ,   5         ,    6
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
