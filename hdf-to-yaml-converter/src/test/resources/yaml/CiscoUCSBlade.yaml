@@ -207,7 +207,7 @@ monitors:
             # Parse the result of equipmentPsuInputStats to sum up the power consumption per chassis
             # EnclosureID;Power;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -559,7 +559,7 @@ monitors:
             # Process these couple lines to have one line per temperature sensor
             # TemperatureID;DisplayID;ParentID;Location;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -615,7 +615,7 @@ monitors:
             # Process these couple lines to have one line per temperature sensor
             # DeviceID;Temperature;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6"

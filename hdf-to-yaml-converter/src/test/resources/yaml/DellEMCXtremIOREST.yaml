@@ -17,7 +17,7 @@ connector:
     - type: http
       method: GET
       url: /api/json/v2/types/clusters
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       resultContent: body
       expectedResult: '"clusters"'
       errorMessage: Invalid credentials / not an XtremIO
@@ -30,7 +30,7 @@ monitors:
           type: http
           method: GET
           url: /api/json/v2/types/clusters?full=1
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Convert JSON to CSV
@@ -43,7 +43,7 @@ monitors:
           # This table is here to ensure it is available to all other classes
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/storage-controllers?full=1
           resultContent: body
           computes:
@@ -71,7 +71,7 @@ monitors:
           type: http
           method: GET
           url: /api/json/v2/types/clusters?full=1
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
             # Convert JSON to CSV
@@ -88,7 +88,7 @@ monitors:
           # This table is here to ensure it is available to all other classes
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/storage-controllers?full=1
           resultContent: body
           computes:
@@ -345,7 +345,7 @@ monitors:
           # Discovery
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/local-disks?full=1
           resultContent: body
           computes:
@@ -371,7 +371,7 @@ monitors:
         source(2):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/ssds?full=1
           resultContent: body
           computes:
@@ -433,7 +433,7 @@ monitors:
         source(1):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/local-disks?full=1
           resultContent: body
           computes:
@@ -445,7 +445,7 @@ monitors:
         source(2):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/ssds?full=1
           resultContent: body
           computes:
@@ -478,7 +478,7 @@ monitors:
           # Discovery
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/volumes?full=1
           resultContent: body
           computes:
@@ -510,7 +510,7 @@ monitors:
         source(1):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/volumes?full=1
           resultContent: body
           computes:
@@ -538,7 +538,7 @@ monitors:
           # Discovery
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/storage-controller-psus?full=1
           resultContent: body
           computes:
@@ -554,7 +554,7 @@ monitors:
         source(2):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/dae-psus?full=1
           resultContent: body
           computes:
@@ -591,7 +591,7 @@ monitors:
         source(1):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/storage-controller-psus?full=1
           resultContent: body
           computes:
@@ -603,7 +603,7 @@ monitors:
         source(2):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/dae-psus?full=1
           resultContent: body
           computes:
@@ -637,7 +637,7 @@ monitors:
           # Discovery
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/bbus?full=1
           resultContent: body
           computes:
@@ -670,7 +670,7 @@ monitors:
         source(1):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/bbus?full=1
           resultContent: body
           computes:
@@ -699,7 +699,7 @@ monitors:
           # Discovery
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/targets?full=1
           resultContent: body
           computes:
@@ -735,7 +735,7 @@ monitors:
         source(1):
           type: http
           method: GET
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           url: /api/json/v2/types/targets?full=1
           resultContent: body
           computes:

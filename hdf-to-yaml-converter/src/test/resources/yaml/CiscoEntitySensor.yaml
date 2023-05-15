@@ -10,6 +10,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Network
     supersedes:
@@ -111,7 +112,7 @@ monitors:
           computes:
           # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
           - type: translate
             column: 9
@@ -129,7 +130,7 @@ monitors:
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
       mapping:
         # Chassis;PowerConsumption
         source: $monitors.enclosure.collect.sources.source(5)$
@@ -153,7 +154,7 @@ monitors:
           computes:
           # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
           - type: keepOnlyMatchingLines
             column: 2

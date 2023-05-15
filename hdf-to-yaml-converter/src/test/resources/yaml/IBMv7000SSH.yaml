@@ -53,7 +53,7 @@ monitors:
           - $monitors.enclosure.discovery.sources.source(3)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # Instance Table
         # id;model;serial_number;
@@ -88,7 +88,7 @@ monitors:
           - $monitors.enclosure.discovery.sources.source(3)$
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
   battery:
     discovery:
       sources:
@@ -304,7 +304,7 @@ monitors:
             # Process Through an Awk Script
             # id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"

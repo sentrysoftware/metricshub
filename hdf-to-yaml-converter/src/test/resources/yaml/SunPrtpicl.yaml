@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Solaris
     supersedes:
@@ -70,7 +71,7 @@ monitors:
             # Parse the output of prtpicl with an AWK script to get the path of each devices
             # DeviceID;Class;DevicePath;DisplayID;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -94,7 +95,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of fans
             # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10"
@@ -154,7 +155,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of fans
             # DeviceID;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6,7,8,9"
@@ -216,7 +217,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -229,7 +230,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -279,7 +280,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;Temperature;EmptyStatus
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6"
@@ -292,7 +293,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;EmptyTemperature;Status
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6"
@@ -342,7 +343,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Voltages
             # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -365,7 +366,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Voltages
             # DeviceID;VoltageName;EmptyLowerThreshold;EmptyUpperThreshold;Voltage;Status;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -416,7 +417,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Voltages
             # DeviceID;Voltage;EmptyStatus
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6,7"
@@ -434,7 +435,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;EmptyVoltage;Status
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6,7"
@@ -484,7 +485,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of LEDs
             # DeviceID;Description;Color/Name;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -552,7 +553,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of fans
             # DeviceID;State;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5"

@@ -121,7 +121,7 @@ monitors:
             # Extract the DisplayID and Location
             # TapedriveID;Vendor;Product;SerialNumber;NeedsCleaning;DisplayID;Location;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
@@ -495,7 +495,7 @@ monitors:
             newValue: ""
           # DeviceID;Type;WarningLow;WarningHigh;location
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
       mapping:
         # Here is the instance table = source(1)
         # DeviceID;Type;WarningLow;WarningHigh;location

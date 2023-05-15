@@ -77,7 +77,7 @@ monitors:
           defaultRightLine: MSHW;;
           computes:
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(5):
           type: tableJoin
           leftTable: $monitors.enclosure.collect.sources.source(1)$

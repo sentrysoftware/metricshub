@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - RS6000
     criteria:
@@ -38,7 +39,7 @@ monitors:
           computes:
           # Reformat Source(1) output via EmbeddedFile(2)
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -76,7 +77,7 @@ monitors:
           computes:
           # Reformat Source(1) output via EmbeddedFile(2)
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -242,7 +243,7 @@ monitors:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;Controller;State;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
       mapping:
@@ -266,7 +267,7 @@ monitors:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;Controller;State;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
             # Keep only ID and State

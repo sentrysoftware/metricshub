@@ -110,7 +110,7 @@ monitors:
             # Awk the table to process the Sensors
             # MSHW_CLASS;.....
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
         source(10):
           # Make a copy for Enclosure Discovery
@@ -231,7 +231,7 @@ monitors:
             # Awk the table to process the Sensors
             # MSHW_CLASS;.....
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
         source(10):
           # Make a copy for Enclosure Discovery

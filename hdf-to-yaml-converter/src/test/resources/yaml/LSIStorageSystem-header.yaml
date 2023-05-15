@@ -33,7 +33,7 @@ monitors:
           computes:
           # Process smcli's output through awk EmbeddedFile(1)
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             # Exclude StatusInformation that contain Not Present
             # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;vendor;serialNumber;<blank>;<blank>;
@@ -77,7 +77,7 @@ monitors:
           computes:
           # Process smcli's output through awk EmbeddedFile(1)
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             # Trim down the table to make it easier to understand
             #  1    2   3   4         5           6             7      8            #    9            #        10        11         12       13

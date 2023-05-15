@@ -28,7 +28,7 @@ monitors:
           type: http
           method: POST
           url: /api2/json/access/ticket
-          body: EmbeddedFile(2)
+          body: $embedded.EmbeddedFile(2)$
           header: "Content-Type: application/json"
           computes:
           - type: json2csv
@@ -42,7 +42,7 @@ monitors:
           url: "/api2/json/nodes/%{HOSTNAME}/qemu/"
           resultContent: body
           authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /data
@@ -56,7 +56,7 @@ monitors:
           url: "/api2/json/nodes/%{HOSTNAME}/lxc/"
           resultContent: body
           authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /data
@@ -86,7 +86,7 @@ monitors:
           url: "/api2/json/nodes/%{HOSTNAME}/qemu/"
           resultContent: body
           authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /data
@@ -97,7 +97,7 @@ monitors:
           url: "/api2/json/nodes/%{HOSTNAME}/lxc/"
           resultContent: body
           authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           computes:
           - type: json2csv
             entryKey: /data

@@ -10,6 +10,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - RS6000
     criteria:
@@ -131,7 +132,7 @@ monitors:
             # Process the output of errpt through awk EmbeddedFile(5)
             # Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -221,7 +222,7 @@ monitors:
             # Process the output of lscfg through awk EmbeddedFile(7)
             # DeviceID;Model;NicType;MACAddress;HWLocationCode;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -233,7 +234,7 @@ monitors:
             # Process the output of entstat through awk EmbeddedFile(3)
             # DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -271,7 +272,7 @@ monitors:
             # Process the output of entstat through awk EmbeddedFile(3)
             # DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -310,7 +311,7 @@ monitors:
             # Reformat lscfg's output through awk (see EmbeddedFile(4))
             # DeviceID;Size;SerialNumber
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -362,7 +363,7 @@ monitors:
             # Reformat lscfg's output through awk (see EmbeddedFile(4))
             # DeviceID;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6"

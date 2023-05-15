@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - HP
     criteria:
@@ -37,7 +38,7 @@ monitors:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -63,7 +64,7 @@ monitors:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,5"
@@ -89,7 +90,7 @@ monitors:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,4"
@@ -112,7 +113,7 @@ monitors:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3"
@@ -138,7 +139,7 @@ monitors:
             # Run Source(1) through an AWK script
             # MSHW;ID;Status;Controller it is attached to; Raid Level; ; Size
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,4,5,6"
@@ -164,7 +165,7 @@ monitors:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3"

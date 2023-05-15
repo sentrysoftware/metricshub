@@ -22,7 +22,7 @@ monitors:
           computes:
           # Process the sssu command throug an AWK script
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
         source(2):
@@ -54,7 +54,7 @@ monitors:
           computes:
           # Process the sssu command throug an AWK script
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW
             separators: ;
       mapping:
@@ -260,7 +260,7 @@ monitors:
             # Awk it and keep only LogicalDisks
             # MSHW_LOGICALDISK;Enclosure;Disk Group/VirtualDisk;Location;Name;Status;Status Information;Size GB;Unallocated Space;AddInfo2 (Disk Group Type);UseForCapacityReport;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW_LOGICALDISK
             separators: ;
             # Exclude Snapshots
@@ -314,7 +314,7 @@ monitors:
             # Awk it and keep only LogicalDisks
             # MSHW_LOGICALDISK;Enclosure;Disk Group/VirtualDisk;Location;Name;Status;Status Information;Size GB;Unallocated Space;AddInfo2 (Disk Group Type);UseForCapacityReport;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW_LOGICALDISK
             separators: ;
             # Now translate  into OK/Warning/Alarm

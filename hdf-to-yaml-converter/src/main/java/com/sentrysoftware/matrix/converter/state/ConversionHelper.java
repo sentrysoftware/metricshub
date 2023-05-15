@@ -129,13 +129,23 @@ public class ConversionHelper {
 	);
 
 	/**
+	 * A compiled representation of an EmbeddedFile reference regular expression.
+	 * We attempt to match input like "EmbeddedFile(1)"
+	 */
+	private static final Pattern EMBEDDED_FILE_NO_PERCENT_PATTERN = Pattern.compile(
+		"^\\s*EmbeddedFile\\((\\d+)\\)\\s*$",
+		Pattern.CASE_INSENSITIVE
+	);
+
+	/**
 	 * List of pattern function converters
 	 */
 	private static final List<PatternFunctionConverter> PATTERN_FUNCTION_CONVERTERS = List.of(
 		new PatternFunctionConverter(SOURCE_REF_PATTERN, ConversionHelper::convertSourceReference),
 		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, ConversionHelper::convertEntryReference),
 		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference),
-		new PatternFunctionConverter(EMBEDDED_FILE_PATTERN, ConversionHelper::convertEmbeddedFileReference)
+		new PatternFunctionConverter(EMBEDDED_FILE_PATTERN, ConversionHelper::convertEmbeddedFileReference),
+		new PatternFunctionConverter(EMBEDDED_FILE_NO_PERCENT_PATTERN, ConversionHelper::convertEmbeddedFileReference)
 	);
 
 	/**

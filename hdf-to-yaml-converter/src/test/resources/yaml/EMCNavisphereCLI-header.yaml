@@ -7,7 +7,7 @@ monitors:
           computes:
           # Process the naviseccli command through an AWK script
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
             separators: ;
         source(4):
@@ -40,7 +40,7 @@ monitors:
           computes:
           # Process the naviseccli command through an AWK script
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
             separators: ;
         source(4):

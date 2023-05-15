@@ -50,7 +50,7 @@ monitors:
             # Reformat snapshot and uname's output through awk (see EmbeddedFile(3))
             # Model;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: 2

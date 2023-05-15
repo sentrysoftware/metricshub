@@ -39,7 +39,7 @@ monitors:
             # Process smcli's output through awk EmbeddedFile(1)
             # DeviceID;Enclosure;Model;Firmware;Serial;Size(GB);
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -76,7 +76,7 @@ monitors:
             # Process smcli's output through awk EmbeddedFile(1)
             # DiskID;Status;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,8"
@@ -117,7 +117,7 @@ monitors:
             # Process the SNMP Table through EF3
             # DeviceID;Size(GB);AvailableSpace(GB);
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -151,7 +151,7 @@ monitors:
             # Process the SNMP Table through EF3
             # DeviceID;Size(GB);AvailableSpace(GB);
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -220,7 +220,7 @@ monitors:
             # Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
             # DeviceID;Enclosure;Location;FanLevel;Status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -249,7 +249,7 @@ monitors:
             # Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
             # DeviceID;Enclosure;Location;FanLevel;Status;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -286,7 +286,7 @@ monitors:
             # Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
             # DeviceID;Enclosure;Location;Presence;Threshold;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,6,7"
@@ -322,7 +322,7 @@ monitors:
             # Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
             # DeviceID;Temperature;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5"
@@ -375,7 +375,7 @@ monitors:
           computes:
           # Process the tabel through awk EmbeddedFile(5) due to a change in the location of information in the MIB
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"

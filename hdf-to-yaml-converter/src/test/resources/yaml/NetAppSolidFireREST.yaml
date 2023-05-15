@@ -116,7 +116,7 @@ monitors:
             # Sum sensorReadings from all nodes
             # "Cluster";PowerConsumption;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
       mapping:
         source: $monitors.enclosure.collect.sources.source(4)$
         deviceId: $column(1)
@@ -842,7 +842,7 @@ monitors:
           computes:
           # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # NetworkCard Instance Table
         # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
@@ -871,7 +871,7 @@ monitors:
           computes:
           # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ;
           - type: duplicateColumn
             column: 7

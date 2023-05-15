@@ -31,7 +31,7 @@ monitors:
             # Reformat MegaCli's output through awk see EmbeddedFile(1)
             # MSHW;controllerID;model;serialnumber;firmwareversion;biosversion;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -43,7 +43,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # MSHW;controllernumber;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
@@ -62,7 +62,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             #    MSHW;ControllerNumber;BatteryPatrolStatus;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -99,7 +99,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             #    MSHW;ControllerNumber;BatteryPatrolStatus;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -119,7 +119,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # MSHW;controllernumber;location;type;size;model;status;statusinformation;deviceID;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,9"
@@ -156,7 +156,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # status;statusinformation;deviceID;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "7,8,9"
@@ -184,7 +184,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -218,7 +218,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,7,8"

@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - HP
     criteria:
@@ -48,7 +49,7 @@ monitors:
             # Run Source(1) through an AWK script
             # MSHW;Controller;Model;SerialNumber;DeviceID;Firmware
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6"
@@ -61,7 +62,7 @@ monitors:
             # Reformat Source(2) output to create a dependency table to link controllers to disks to arrays
             # MSHW;Controller;Location;DeviceID;Size;Status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -99,7 +100,7 @@ monitors:
             # Contains the list of all External and Internal Physical Disks in the system
             # MSHW;Controller;Location;DeviceID;Size;Status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -138,7 +139,7 @@ monitors:
             # The status can be either OK, FAILED, SPARE or UNASSIGNED.
             # MSHW;Controller;Location;DeviceID;Size;Status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "4,6"
@@ -177,7 +178,7 @@ monitors:
             # Reformat Source(1) = Builds logical drives Table
             # MSHW;controller;deviceID;raidlevel;size;status;location;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,7"
@@ -216,7 +217,7 @@ monitors:
             # The status can be either OK, FAILED, SPARE or UNASSIGNED.
             # MSHW;controller;deviceID;raidlevel;size;status;location;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,6"
@@ -252,7 +253,7 @@ monitors:
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -283,7 +284,7 @@ monitors:
             # Process sautil output through awk embeddedfile(5)
             # MSHW;controllerdeviceID;deviceID;location;status;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,5"

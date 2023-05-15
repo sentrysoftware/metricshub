@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.converter;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -54,11 +56,37 @@ public class ConnectorConverter {
 
 		// Post conversion for the discovery mapping properties
 		MappingConvertersWrapper wrapper  = new MappingConvertersWrapper();
-		
+
 		wrapper.removeMonitor(connector, ConverterConstants.YAML_CPU_CORE);
 		wrapper.postConvertDiscovery(connector);
 
+		// Handle default value for LocalSupport
+		setDefaultLocalSupport(connector, preConnector.getCodeMap().keySet());
+
 		return connector;
+	}
+
+	/**
+	 * If the HDF doesn't define hdf.localsupport add "local" to the connectionTypes array node
+	 * 
+	 * @param connector Global YAML connector
+	 * @param codeKeys code keys. Example: <em>[ hdf.remotesupport, hdf.localsupport, hdf.onlastresort, ... ]</em>
+	 */
+	private void setDefaultLocalSupport(final JsonNode connector, final Set<String> codeKeys) {
+		final JsonNode connectorNode = connector.get(CONNECTOR);
+		if (connectorNode != null) {
+			final ObjectNode detectionNode = (ObjectNode) connectorNode.get(DETECTION);
+
+			if (detectionNode != null) {
+				final ArrayNode connectionTypeNode = (ArrayNode) detectionNode.get(CONNECTION_TYPES);
+				if (
+					connectionTypeNode != null &&
+					codeKeys.stream().noneMatch(s -> s.toLowerCase().startsWith("hdf.localsupport"))
+				) {
+					connectionTypeNode.add("local");
+				}
+			}
+		}
 	}
 
 	/**

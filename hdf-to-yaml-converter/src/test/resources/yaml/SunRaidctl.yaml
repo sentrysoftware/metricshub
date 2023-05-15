@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Solaris
     criteria:
@@ -45,7 +46,7 @@ monitors:
             # Reformat raidctl -S output to give us a dependency table to link controllers to disks to arrays
             # MSHW;Controller Number;Array;Disk
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"

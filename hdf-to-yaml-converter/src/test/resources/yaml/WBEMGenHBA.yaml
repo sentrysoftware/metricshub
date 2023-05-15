@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     supersedes:
@@ -61,7 +62,7 @@ monitors:
             #    NOTE - This script is column specific (See Column Variable), so watchout if you change the queries or duplicate columns.
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"

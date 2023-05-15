@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - OOB
     criteria:
@@ -50,7 +51,7 @@ monitors:
             # Process the log file through an awk script
             # MSHW;ID;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
       mapping:

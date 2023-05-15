@@ -15,7 +15,7 @@ connector:
     - type: http
       method: POST
       url: /api/1.13/auth/session
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       body: "{\"api_token\": \"%{PASSWORD}\"}"
       resultContent: all
       expectedResult: session
@@ -30,19 +30,19 @@ monitors:
           type: http
           method: POST
           url: /api/1.13/auth/session
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           body: "{\"api_token\": \"%{PASSWORD}\"}"
           resultContent: all
           computes:
           # Parse Cookie
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(2):
           # For use in Fan, Temperature, PowerSupply
           type: http
           method: GET
           url: /api/1.13/hardware
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Convert JSON to CSV
@@ -53,7 +53,7 @@ monitors:
             properties: /status;/slot;/name;/temperature;/index;/identify;/voltage;/model;/speed;/serial;/details;
           # Parse Hardware query results
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
         source(3):
           # For use in other discoveries
           type: copy
@@ -69,7 +69,7 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/drive
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Convert JSON to CSV
@@ -80,7 +80,7 @@ monitors:
             # Parse Drive query results
             # name;enclosure;displayID;capacity;type;status;MSHW_DRIVE;DeviceType
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
           - type: excludeMatchingLines
             column: 6
             regExp: unused
@@ -105,7 +105,7 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/hardware
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Convert JSON to CSV
@@ -128,7 +128,7 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/drive
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Convert JSON to CSV
@@ -331,7 +331,7 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/network
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
           # json;name;hwaddr;enabled;
@@ -389,7 +389,7 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/network
-          header: EmbeddedFile(3)
+          header: $embedded.EmbeddedFile(3)$
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
             # Convert JSON to CSV

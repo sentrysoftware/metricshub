@@ -185,7 +185,7 @@ monitors:
             # Substract 11 from ID to get FRU Parent
             # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(2):
           # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;value;
           type: tableJoin
@@ -225,7 +225,7 @@ monitors:
           computes:
           # Substract 11 from ID to get FRU Parent
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
       mapping:
         # ValueTable = Enclosure.Collect.Source(1)
         source: $monitors.fan.collect.sources.source(1)$

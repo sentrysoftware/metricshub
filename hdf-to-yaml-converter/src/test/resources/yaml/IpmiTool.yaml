@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
     - Solaris
@@ -28,7 +29,7 @@ monitors:
           computes:
           # Process IPMI result througn an AWK script to interpret what can be interpreted
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -63,7 +64,7 @@ monitors:
           computes:
           # Post-processing of the IPMI mess (which has already been greatly sorted out!)
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"

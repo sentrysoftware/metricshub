@@ -28,7 +28,7 @@ monitors:
             # All         MSHW_Type;ID;Status;Status;CurrentReading;
             # OtherDevice/Enc MSHW_Type;DeviceType;ID;Status;Status;CurrentReading;Enclosure;DisplayID;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW
         source(2):
@@ -50,7 +50,7 @@ monitors:
             # Run this through awk EF1
             # MSHW;ID;Type;Status;Status;Capacity;Enclosure;DisplayID;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW
       mapping:
@@ -76,7 +76,7 @@ monitors:
             # All         MSHW_Type;ID;Status;Status;CurrentReading;Enclosure;DisplayID;
             # OtherDevice/Enc MSHW_Type;DeviceType;ID;Status;Status;CurrentReading;Enclosure;DisplayID;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW
         source(2):
@@ -108,7 +108,7 @@ monitors:
             # Run this through awk EF1
             # MSHW;ID;Type;Status;Status;Capacity;Enclosure;DisplayID;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW
             # Now translate  into OK/Warning/Alarm

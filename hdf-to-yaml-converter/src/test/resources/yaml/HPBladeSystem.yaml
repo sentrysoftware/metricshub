@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - OOB
     - NT
@@ -58,7 +59,7 @@ monitors:
             # Compute the total power consumption "per chassis" (through a smart AWK script)
             # EnclosureID;PowerConsumption
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -125,7 +126,7 @@ monitors:
             # Compute the total power consumption "per chassis" (through a smart AWK script)
             # EnclosureID;PowerConsumption
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"

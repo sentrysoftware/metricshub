@@ -376,7 +376,7 @@ monitors:
             # Process Source (3) which is a list of all Power Supply Sensors of type "other"
             # So that only one line is returned for each Power Supply with the lowest value (i.e. most severe) status number
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             selectColumns: 2
@@ -440,7 +440,7 @@ monitors:
             # So that only one line is returned for each Power Supply with the lowest value (i.e. most severe) status number
             # ID;Status;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3"

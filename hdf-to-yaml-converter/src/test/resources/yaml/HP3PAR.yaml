@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Storage
     supersedes:
@@ -37,7 +38,7 @@ monitors:
             # Awk the output to extract information
             # MSHW,ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,TPD_StorageSystem
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW
         source(3):
           # Source(3) = TPD_ComputerSystemPackage

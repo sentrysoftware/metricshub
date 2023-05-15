@@ -425,7 +425,7 @@ monitors:
             # Fixing some power supply status to be translatable
             # This is necessary as the status returned by the host sometimes contains variables (displayName)
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           - type: translate
             column: 2
             translationTable: PowerSupplyStatusTranslationTable

@@ -22,7 +22,7 @@ monitors:
             # Retrieve the overall status of the chassis and its power consumption with a smart AWK script
             # Status;StatusInformation;PowerConsumption
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -46,7 +46,7 @@ monitors:
             # Now, extract the blades thanks to a smart AWK script
             # BladeID;BladeModel;
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,6"
@@ -55,7 +55,7 @@ monitors:
             # Now, extract the blades hostnames
             # BladeID;SlotName;HostName;
           - type: awk
-            script: EmbeddedFile(12)
+            script: $embedded.EmbeddedFile(12)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -92,7 +92,7 @@ monitors:
             # Now, extract the power supplies status thanks to a smart AWK script
             # PowerSupplyID;Status;StatusInformation;PowerState
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
@@ -116,7 +116,7 @@ monitors:
             # Now, extract the temperatures thanks to a smart AWK script
             # TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6,7"
@@ -151,7 +151,7 @@ monitors:
             # Now, extract the temperatures thanks to a smart AWK script
             # TemperatureID;Temperature;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,6,7,8"
@@ -175,7 +175,7 @@ monitors:
             # Now, extract the fans thanks to a smart AWK script
             # FanID;Location;WarningThreshold;AlarmThreshold
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
@@ -204,7 +204,7 @@ monitors:
             # Now, extract the fans thanks to a smart AWK script
             # FanID;Speed;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,6,7,8"
@@ -228,7 +228,7 @@ monitors:
             # Now, extract the power supplies thanks to a smart AWK script
             # PowerSupplyID;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             separators: ;
             keep: ^MSHW;
             selectColumns: 2
@@ -253,7 +253,7 @@ monitors:
             # Now, extract the power supplies status thanks to a smart AWK script
             # PowerSupplyID;Status;StatusInformation
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -276,7 +276,7 @@ monitors:
             # Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
             # OtherDeviceID;DeviceType;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3"
@@ -302,7 +302,7 @@ monitors:
             # Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
             # OtherDeviceID;Status;StatusInformation
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,4,5"
@@ -326,7 +326,7 @@ monitors:
             # MSHW;DeviceID;DisplayID;Status;StatusInformation;size;failurepredicted;Model;SerialNumber;
             # DeviceID;DisplayID;size;Model;SerialNumber;
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,6,8,9"
@@ -362,7 +362,7 @@ monitors:
             # MSHW;DeviceID;DisplayID;Status;StatusInformation;size;failurepredicted;Model;SerialNumber;
             # DeviceID;Status;StatusInformation;PredictedFailure
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,4,5,7"
@@ -387,7 +387,7 @@ monitors:
             # MSHW;DeviceID;status;statusInformation;Model;Firmware;
             # DeviceID;Model;Firmware;
           - type: awk
-            script: EmbeddedFile(9)
+            script: $embedded.EmbeddedFile(9)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,5,6"
@@ -414,7 +414,7 @@ monitors:
             # MSHW;DeviceID;status;statusInformation;Model;Firmware;
             # DeviceID;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(9)
+            script: $embedded.EmbeddedFile(9)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -438,7 +438,7 @@ monitors:
             # DeviceID;Status;StatusInformation;
             # DeviceID;
           - type: awk
-            script: EmbeddedFile(10)
+            script: $embedded.EmbeddedFile(10)$
             separators: ;
             keep: ^MSHW;
             selectColumns: 2
@@ -463,7 +463,7 @@ monitors:
             # Now, extract the power supplies status thanks to a smart AWK script
             # DeviceID;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(10)
+            script: $embedded.EmbeddedFile(10)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -487,7 +487,7 @@ monitors:
             # MSHW;DeviceID;Status;StatusInformation;Name;RaidLevel;Size;
             # DeviceID;Name;RaidLevel;Size;
           - type: awk
-            script: EmbeddedFile(11)
+            script: $embedded.EmbeddedFile(11)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,5,6,7"
@@ -520,7 +520,7 @@ monitors:
             # Now, extract the power supplies status thanks to a smart AWK script
             # DeviceID;Status;StatusInformation;
           - type: awk
-            script: EmbeddedFile(11)
+            script: $embedded.EmbeddedFile(11)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"

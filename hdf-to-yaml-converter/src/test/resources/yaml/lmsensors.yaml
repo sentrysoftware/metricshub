@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
     criteria:
@@ -32,7 +33,7 @@ monitors:
           computes:
           # '"MSHW;"Manufacturer";"Type";"SN";"'
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
         source(2):
@@ -41,7 +42,7 @@ monitors:
           computes:
           # '"MSHW;"Bios Info"'
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
         source(3):
@@ -72,7 +73,7 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -97,7 +98,7 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -116,7 +117,7 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -A"
           computes:
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -142,7 +143,7 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -A"
           computes:
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -161,7 +162,7 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
       mapping:
@@ -187,7 +188,7 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             keep: ^MSHW;
             separators: ;
       mapping:

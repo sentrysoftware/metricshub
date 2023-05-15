@@ -7,6 +7,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     criteria:
@@ -118,7 +119,7 @@ monitors:
             # Perform some computation to exclude non-real sensors, and calculate alarm thresholds when possible
             # SensorId;Name;WarningThreshold;AlarmThreshold;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -337,7 +338,7 @@ monitors:
             # (yes, we have the clock speed for each core, and they can be different)
             # CpuDeviceID;AverageClock
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -511,7 +512,7 @@ monitors:
           computes:
           # Name, gpuId, Value, SensorType
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9"

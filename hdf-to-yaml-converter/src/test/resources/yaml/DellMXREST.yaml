@@ -16,7 +16,7 @@ connector:
     - type: http
       method: GET
       url: /api/DeviceService/Devices
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       expectedResult: api
       errorMessage: Invalid credentials / not an MX7000
 monitors:
@@ -29,7 +29,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -66,7 +66,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -140,7 +140,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -184,7 +184,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('chassisControllerList')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -219,7 +219,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -239,7 +239,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('chassisControllerList')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -276,7 +276,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverProcessors')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -324,7 +324,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array
           url: $entry.column(2)$/InventoryDetails('serverProcessors')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -359,7 +359,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverMemoryDevices')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -398,7 +398,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverMemoryDevices')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -430,7 +430,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('chassisFansList')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -468,7 +468,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array
           url: $entry.column(2)$/InventoryDetails('chassisFansList')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -511,7 +511,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -548,7 +548,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -584,7 +584,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverArrayDisks')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -621,7 +621,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array
           url: $entry.column(2)$/InventoryDetails('serverArrayDisks')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -658,7 +658,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -692,7 +692,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array
           url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -724,7 +724,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('chassisPowerSupplies')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -767,7 +767,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array
           url: $entry.column(2)$/InventoryDetails('chassisPowerSupplies')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -810,7 +810,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('subsystemRollupStatus')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -842,7 +842,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array
           url: $entry.column(2)$/InventoryDetails('subsystemRollupStatus')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -877,7 +877,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('chassisTemperatureList')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -919,7 +919,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array
           url: $entry.column(2)$/InventoryDetails('chassisTemperatureList')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -964,7 +964,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverNetworkInterfaces')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -984,7 +984,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverFcCards')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -1034,7 +1034,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverNetworkInterfaces')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv
@@ -1053,7 +1053,7 @@ monitors:
             source: $monitors.enclosure.discovery.sources.source(2)$
             concatMethod: json_array_extended
           url: $entry.column(2)$/InventoryDetails('serverFcCards')
-          header: EmbeddedFile(1)
+          header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
           - type: json2csv

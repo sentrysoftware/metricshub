@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     - Linux
@@ -111,7 +112,7 @@ monitors:
             # Clean up in an awk script and extract enclosure
             # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6,7,8,9,10,11,12,13"
@@ -451,7 +452,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;PartNumber;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
@@ -530,7 +531,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;PartNumber;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
@@ -608,7 +609,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -681,7 +682,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;PartNumber;Type;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6"

@@ -7,6 +7,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     supersedes:
@@ -56,7 +57,7 @@ monitors:
             # Merge all info into a proper label for the "Model" field
             # __PATH;DeviceID;Model;FirmwareVersion;SerialNumber;Size
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -291,7 +292,7 @@ monitors:
             # Transform DriveLetterNumber into a letter, and change ObjectId for DriveLetter is possible
             # DeviceID;Label;Filesystem;Size;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -335,7 +336,7 @@ monitors:
             # Convert ObjectId and DriveLetterNumber into a DeviceId
             # DeviceID;Status;StatusInformation;SizeRemaning;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -380,7 +381,7 @@ monitors:
             # (which is often 0, in which case we set thresholds based on the type of the disk)
             # DeviceId;TemperatureType;WarningThreshold;AlarmThreshold;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"

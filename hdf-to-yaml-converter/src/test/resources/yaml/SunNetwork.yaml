@@ -10,6 +10,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Solaris
     criteria:
@@ -35,7 +36,7 @@ monitors:
             # Process the output of ifconfig through an AWK script
             # LogicalDeviceID;MacAddress;IPAddress;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -49,7 +50,7 @@ monitors:
             # Process the output of prtconf through an AWK script to keep only the NIC ID
             # DeviceID;Driver;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -150,7 +151,7 @@ monitors:
             # Process the output of this script through a smart AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10"

@@ -17,7 +17,7 @@ connector:
     - type: http
       method: POST
       url: /api/rest/ApiConnection/Login
-      header: EmbeddedFile(1)
+      header: $embedded.EmbeddedFile(1)$
       expectedResult: StorageCenter
 embedded:
   EmbeddedFile(1): |-

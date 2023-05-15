@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     - Linux
@@ -103,7 +104,7 @@ monitors:
             # Awk the results to get an overall consumed
             # ServerID;Supported;Status;CurrentReading;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -167,7 +168,7 @@ monitors:
             # Awk the results to get an overall consumed
             # ServerID;CurrentReading;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5"
@@ -657,7 +658,7 @@ monitors:
             # now take the worst case between condition and status
             # DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
       mapping:
         # ValueTable
         source: $monitors.power_supply.collect.sources.source(1)$

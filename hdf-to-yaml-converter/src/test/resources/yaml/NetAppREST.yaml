@@ -32,7 +32,7 @@ monitors:
           computes:
           # Convert xml output to multiLine
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = Multi-line XML for Nodes
           # Preserve Enclosure Discovery Source 1 for use elsewhere
@@ -42,7 +42,7 @@ monitors:
             # Convert xml output to CSV
             # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
           # Add Node column to act as type
           - type: rightConcat
             column: 1
@@ -57,7 +57,7 @@ monitors:
           computes:
           # Convert xml output to multiLine
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(4):
           # Source(4) = Multi-line XML for Shelves
           # Preserve Enclosure Discovery Source 3 for use elsewhere
@@ -67,7 +67,7 @@ monitors:
             # Convert xml output to CSV
             # MSHW;shelf;shelf-model;serial-number;;;op-status
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             # Concat ";Shelf" to Column for type
             # MSHW;type;shelf;shelf-model;serial-number;;;op-status
           - type: rightConcat
@@ -110,7 +110,7 @@ monitors:
           computes:
           # Convert xml output to multiLine
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = Multi-line XML for Nodes
           # Preserve Enclosure Discovery Source 1 for use elsewhere
@@ -120,7 +120,7 @@ monitors:
             # Convert xml output to CSV
             # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
         source(3):
           # Source(3) = Shelves
           # Get XML from REST API Call <storage-shelf-info-get-iter/>
@@ -131,7 +131,7 @@ monitors:
           computes:
           # Convert xml output to multiLine
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(4):
           # Source(4) = Multi-line XML for Nodes
           # Preserve Enclosure Discovery Source 3 for use elsewhere
@@ -141,7 +141,7 @@ monitors:
             # Convert xml output to CSV
             # MSHW;shelf;shelf-model;serial-number;;;op-status
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
         source(5):
           # Union the Nodes and Shelves tables\nSource(5) = All enclosures (Nodes + Shelves)\nTable 1 // MSHW; node; node-model; node-serial;  product-version;cpu-firmware-version;is-node-healthy\nTable 2 // MSHW;shelf;shelf-model;serial-number;\t\t\t\t\t\t    ;\t\t\t\t\t\t\t\t\t   ;op-status\nindex   //    1;   2;    3;          4;            5;              6;                   7;
           type: tableUnion
@@ -177,7 +177,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;env-failed-power-supply-count;env-failed-power-supply-message;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
             # Add "Global" as name
             # MSHW;node;Name;env-failed-power-supply-count;env-failed-power-supply-message;
           - type: rightConcat
@@ -196,7 +196,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;psu-id;op-status;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
           # Duplicate psu-id for use in uniqueId and DisplayID
           - type: duplicateColumn
             column: 3
@@ -245,7 +245,7 @@ monitors:
             # Convert XML to CSV
             # MSHW;node;env-failed-power-supply-count;env-failed-power-supply-message;
           - type: awk
-            script: EmbeddedFile(3)
+            script: $embedded.EmbeddedFile(3)$
         source(2):
           # Source(2) = Shelves
           type: copy
@@ -254,7 +254,7 @@ monitors:
             # Convert XML to CSV
             # MSHW;shelf;psu-id;op-status;
           - type: awk
-            script: EmbeddedFile(4)
+            script: $embedded.EmbeddedFile(4)$
             # Create unique-id (computes 2-3)
             # MSHW;shelf;unique-id;op-status;
           - type: leftConcat
@@ -308,7 +308,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;env-failed-fan-count;env-failed-fan-message;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
             # Add "Global" as name
             # MSHW;node;name;env-failed-fan-count;env-failed-fan-message;
           - type: rightConcat
@@ -326,7 +326,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;fan-id;op-status;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             # Duplicate fan-id since we need it for uniqueId and displayID
             # MSHW;shelf;fan-id;fan-id;op-status;
           - type: duplicateColumn
@@ -375,7 +375,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;env-failed-fan-count;env-failed-fan-message;
           - type: awk
-            script: EmbeddedFile(5)
+            script: $embedded.EmbeddedFile(5)$
         source(2):
           # Source(2) = Shelves
           type: copy
@@ -384,7 +384,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;psu-id;op-status;
           - type: awk
-            script: EmbeddedFile(6)
+            script: $embedded.EmbeddedFile(6)$
             # Concat Shelf and fan-id to create uniqueID (computes 2-3)
             # MSHW;shelf;psu-id;op-status;
           - type: leftConcat
@@ -437,7 +437,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;nvram-battery-status
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Add "NV RAM" as battery name (Column 2)
             # MSHW;node;name;nvram-battery-status
           - type: rightConcat
@@ -462,7 +462,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;nvram-battery-status
           - type: awk
-            script: EmbeddedFile(7)
+            script: $embedded.EmbeddedFile(7)$
             # Duplicate status column for StatusInformation
             # MSHW;node;nvram-battery-status;battery-status
           - type: duplicateColumn
@@ -497,7 +497,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;env-over-temperature
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
             # Add "Global" as bettery name (Column 2)
             # MSHW;node;name;env-over-temperature
           - type: rightConcat
@@ -515,7 +515,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;Temperature-id;op-status;
           - type: awk
-            script: EmbeddedFile(9)
+            script: $embedded.EmbeddedFile(9)$
             # Duplicate temperature-id for use in uniqueID and name
             # MSHW;shelf;Temperature-id;Temperature-id;op-status;
           - type: duplicateColumn
@@ -563,7 +563,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;env-over-temperature
           - type: awk
-            script: EmbeddedFile(8)
+            script: $embedded.EmbeddedFile(8)$
         source(2):
           # Source(2) = Shelves
           type: copy
@@ -572,7 +572,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;temp-sensor-id;temp-sens-op-status
           - type: awk
-            script: EmbeddedFile(9)
+            script: $embedded.EmbeddedFile(9)$
           # Create unique ID
           - type: leftConcat
             column: 3
@@ -623,7 +623,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;Voltage-id;voltage-op-status;
           - type: awk
-            script: EmbeddedFile(10)
+            script: $embedded.EmbeddedFile(10)$
             # Duplicate voltage-id for use in uniqueID and name
             # MSHW;shelf;voltage-sensor-id;voltage-sensor-id;voltage-op-status
           - type: duplicateColumn
@@ -663,7 +663,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;Voltage-id;voltage-op-status;
           - type: awk
-            script: EmbeddedFile(10)
+            script: $embedded.EmbeddedFile(10)$
           # create uniqueID
           - type: leftConcat
             column: 3
@@ -701,7 +701,7 @@ monitors:
           computes:
           # Convert xml output to multiLine
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = Storage Shelf Info
           type: copy
@@ -710,7 +710,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;shelf;bay-id;bay-has-disk;bay-type;bay-op-status;
           - type: awk
-            script: EmbeddedFile(11)
+            script: $embedded.EmbeddedFile(11)$
           # create uniqueID (Computes 2-3)
           - type: leftConcat
             column: 3
@@ -733,7 +733,7 @@ monitors:
           computes:
           # Convert xml to multi-line
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(4):
           # Source(4) = Disks
           type: copy
@@ -742,7 +742,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;disk-cluster-name;shelf-bay;model;serial-number;bytes-per-sector;capacity-sector;rpm;disk-type
           - type: awk
-            script: EmbeddedFile(12)
+            script: $embedded.EmbeddedFile(12)$
             # multiply bytes-per-sector (column 6) by capacity-sector (column 7) for size
             # MSHW;uniqueID;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
           - type: multiply
@@ -798,7 +798,7 @@ monitors:
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>
           computes:
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = PhysicalDisks
           type: copy
@@ -807,7 +807,7 @@ monitors:
             # Xml2Cvs with Awk
             # MSHW;shelf-id;bay-id;bay-has-disk;bay-type;bay-op-status;
           - type: awk
-            script: EmbeddedFile(11)
+            script: $embedded.EmbeddedFile(11)$
             # Translate bay-op-status into PatrolStatus
             # MSHW;shelf-id;bay-id;bay-has-disk;bay-type;PatrolStatus;
           - type: translate
@@ -841,7 +841,7 @@ monitors:
           computes:
           # multi-line the xml response
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = NetworkCards
           type: copy
@@ -850,7 +850,7 @@ monitors:
             # Xml2Cvs with Awk
             # MSHW;node;port;link-status;health-status;mac-address;operational-speed
           - type: awk
-            script: EmbeddedFile(13)
+            script: $embedded.EmbeddedFile(13)$
             # Add port identifying information for this source (always MAC and "Ethernet Port")
             # MSHW;node;port;link-status;health-status;mac-address;operational-speed;physical-address-type;device-type
           - type: rightConcat
@@ -865,7 +865,7 @@ monitors:
           computes:
           # multi-line the xml response
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(4):
           # Source(4) = Fiber Channels
           type: copy
@@ -874,7 +874,7 @@ monitors:
             # Xml2Cvs with Awk
             # MSHW;node;adapter;link-status;status-description;mac;max-speed
           - type: awk
-            script: EmbeddedFile(17)
+            script: $embedded.EmbeddedFile(17)$
           # Multiply column 8 to convert gbit/s to mbit/s
           - type: multiply
             column: 7
@@ -943,7 +943,7 @@ monitors:
           computes:
           # xml to multi-line
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = NetworkCards
           type: copy
@@ -952,7 +952,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;port;link-status;health-status;mac-address;operational-speed
           - type: awk
-            script: EmbeddedFile(13)
+            script: $embedded.EmbeddedFile(13)$
         source(3):
           # Source(1) = NetworkCards
           # Get XML from REST API Call
@@ -963,7 +963,7 @@ monitors:
           computes:
           # xml to multi-line
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(4):
           # Source(4) = Fiber Channels
           type: copy
@@ -972,7 +972,7 @@ monitors:
             # Xml2Cvs using AWK
             # MSHW;node;adapter;link-status;status-description;mac;max-speed
           - type: awk
-            script: EmbeddedFile(17)
+            script: $embedded.EmbeddedFile(17)$
           - type: multiply
             column: 7
             value: 1000
@@ -1035,7 +1035,7 @@ monitors:
           computes:
           # XML to multi-line xml
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = Aggregate (raid) inforamtion
           type: copy
@@ -1044,7 +1044,7 @@ monitors:
             # Xml2Cvs using Awk
             # MSHW;;aggregate-uuid;aggregate-name;raid-type;raid-status;
           - type: awk
-            script: EmbeddedFile(14)
+            script: $embedded.EmbeddedFile(14)$
         source(3):
           # Source(3) = Aggregate (raid) information (node)
           type: copy
@@ -1053,7 +1053,7 @@ monitors:
             # Xml2Cvs using Awk
             # MSHW;node-name;aggregate-uuid;
           - type: awk
-            script: EmbeddedFile(15)
+            script: $embedded.EmbeddedFile(15)$
         source(4):
           # Source (4) Join Raid and Node information
           # table1 // MSHW;         ;aggregate-uuid;aggregate-name;raid-type;raid-status;
@@ -1095,7 +1095,7 @@ monitors:
           computes:
           # XML to multi-line XML
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = Aggregate (raid) information
           type: copy
@@ -1104,7 +1104,7 @@ monitors:
             # Xml2Cvs using Awk
             # MSHW;;aggregate-uuid;aggregate-name;raid-type;raid-status;
           - type: awk
-            script: EmbeddedFile(14)
+            script: $embedded.EmbeddedFile(14)$
             # Duplicate Raid Status for StatusInformation
             # MSHW;node-name;aggregate-uuid;aggregate-name;raid-type;raid-status;StatusInformation;
           - type: duplicateColumn
@@ -1157,7 +1157,7 @@ monitors:
           computes:
           # xml to multi-line xml
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = Environment Sensors
           type: copy
@@ -1166,7 +1166,7 @@ monitors:
             # Xml2Cvs using awk
             # MSHW;node-name;sensor-name;discrete-sensor-state;discrete-sensor-value;
           - type: awk
-            script: EmbeddedFile(16)
+            script: $embedded.EmbeddedFile(16)$
           # Keep only "SP Status" sensor-names (DiskController)
           - type: keepOnlyMatchingLines
             column: 3
@@ -1205,7 +1205,7 @@ monitors:
           computes:
           # XML to multi-line XML
           - type: awk
-            script: EmbeddedFile(18)
+            script: $embedded.EmbeddedFile(18)$
         source(2):
           # Source(2) = Environment sensors
           type: copy
@@ -1214,7 +1214,7 @@ monitors:
             # Xml2Cvs using awk
             # MSHW;node-name;sensor-name;discrete-sensor-state;discrete-sensor-value;
           - type: awk
-            script: EmbeddedFile(16)
+            script: $embedded.EmbeddedFile(16)$
             # Translate discrete-sensor-state to PatrolStatus
             # MSHW;node-name;sensor-name;PatrolStatus;discrete-sensor-value;
           - type: translate

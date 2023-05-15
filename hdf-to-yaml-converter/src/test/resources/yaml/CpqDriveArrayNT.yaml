@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     - Linux
@@ -84,7 +85,7 @@ monitors:
             # now take the worst case between condition and status
             # ID;status;BoardStatus;BoardCondition
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             # Translate second BoardStatus into a statusInformation
             # ID;status;statusInformation;BoardCondition
           - type: translate

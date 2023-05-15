@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - HP
     supersedes:
@@ -33,7 +34,7 @@ monitors:
             # Process the output of the command through an AWK script
             # DeviceID;MacAddress;Model;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,8"
@@ -59,7 +60,7 @@ monitors:
             # Process the output of the command through an AWK script
             # DeviceID;MacAddress;Model;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,5,6,7,9,10,11"

@@ -257,7 +257,7 @@ monitors:
             # awk everything to have status activated if sensors!=null and deduct controller id
             # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             # Translate Status into PATROLStatus
             # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
           - type: translate
@@ -806,7 +806,7 @@ monitors:
             # awk everything to have status activated if sensors!=null and deduct controller id
             # Description;LowerThreshold;UpperThreshold,CurrentReading,Status
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             # Translate Status into PATROLStatus
             # Description;AlarmThreshold;WarningThreshold;CurrentReading;Status;
           - type: translate

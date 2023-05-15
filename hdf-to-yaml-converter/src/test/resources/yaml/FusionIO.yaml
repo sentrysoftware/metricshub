@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - NT
     - Linux
@@ -45,7 +46,7 @@ monitors:
             # Process fio-status's output through awk see EmbeddedFile(2)
             # adapterID;adapterModel;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW_ADAPTER;
             separators: ;
             selectColumns: "2,3"
@@ -75,7 +76,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # adapterID;PatrolStatus;StatusInformation;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW_ADAPTER;
             separators: ;
             selectColumns: "2,4,5"
@@ -100,7 +101,7 @@ monitors:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ioDriveID;blockDeviceID;model;addInfo;physicalSize;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW_PD;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -112,7 +113,7 @@ monitors:
             # Process fio-status's output through awk see EmbeddedFile(2)
             # ioDriveID;adapterID;
           - type: awk
-            script: EmbeddedFile(2)
+            script: $embedded.EmbeddedFile(2)$
             keep: ^MSHW_DISK_TO_ADAPTER;
             separators: ;
             selectColumns: "2,3"
@@ -181,7 +182,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # ioDriveID;PatrolStatus;StatusInformation
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW_PD;
             separators: ;
             selectColumns: "2,7,8"
@@ -206,7 +207,7 @@ monitors:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;temperture;upperThreshold
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW_TEMP;
             separators: ;
             selectColumns: "2,3,4"
@@ -233,7 +234,7 @@ monitors:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;temperture;upperThreshold
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW_TEMP;
             separators: ;
             selectColumns: "2,3,4"
@@ -255,7 +256,7 @@ monitors:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW_VOLT;
             separators: ;
             selectColumns: 2
@@ -280,7 +281,7 @@ monitors:
             # Process fio-status's output through awk see EmbeddedFile(1)
             # ID;voltage;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW_VOLT;
             separators: ;
             selectColumns: "2,3"

@@ -8,6 +8,7 @@ connector:
   detection:
     connectionTypes:
     - remote
+    - local
     appliesTo:
     - Linux
     criteria:
@@ -33,7 +34,7 @@ monitors:
             # AWK it
             # LunName;LunInfo;LunStatus;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,5"
@@ -58,7 +59,7 @@ monitors:
             # AWK it
             # LunName;NumberPaths;LunStatus;LunStatusInfo;AvailablePathInformation;
           - type: awk
-            script: EmbeddedFile(1)
+            script: $embedded.EmbeddedFile(1)$
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,5,6,7"
