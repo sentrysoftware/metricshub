@@ -1,5 +1,12 @@
 package com.sentrysoftware.matrix.converter.state;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COMMA;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTION_TYPES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ONE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.TRUE;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -10,15 +17,12 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.ConnectorLibraryConverter;
 import com.sentrysoftware.matrix.converter.PreConnector;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorSimpleProperty {
-
-	public static final String CONNECTION_TYPES = "connectionTypes";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
@@ -71,14 +75,13 @@ public class ConnectorSimpleProperty {
 	}
 
 	/**
-	 * Create ConntectionType node if not exists (Parent: connector.detection)
+	 * Create ConntectionTypes node if not exists (Parent: connector.detection)
 	 * 
 	 * @param connector global connector {@link JsonNode} 
 	 * @return ArrayNode instance
 	 */
-	private static ArrayNode getOrCreateConnectionType(final JsonNode connector) {
-		final ObjectNode detectionSection = getOrCreateDetection(connector);
-		return getOrCreateConnectionTypesNode(detectionSection);
+	private static ArrayNode getOrCreateConnectionTypes(final JsonNode connector) {
+		return getOrCreateConnectionTypesNode(getOrCreateDetection(connector));
 	}
 
 	/**
@@ -171,7 +174,7 @@ public class ConnectorSimpleProperty {
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
 			if (Boolean.parseBoolean(value) || ONE.equals(value)) {
-				getOrCreateConnectionType(connector).add("local");
+				getOrCreateConnectionTypes(connector).add("local");
 			}
 		}
 	}
@@ -187,7 +190,7 @@ public class ConnectorSimpleProperty {
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
 			if (Boolean.parseBoolean(value) || ONE.equals(value)) {
-				getOrCreateConnectionType(connector).add("remote");
+				getOrCreateConnectionTypes(connector).add("remote");
 			}
 		}
 	}

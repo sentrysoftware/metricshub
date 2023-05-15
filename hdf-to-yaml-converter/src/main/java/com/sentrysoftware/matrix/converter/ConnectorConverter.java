@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.sentrysoftware.matrix.converter.state.ConnectorSimpleProperty;
 import com.sentrysoftware.matrix.converter.state.ConnectorState;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 import com.sentrysoftware.matrix.converter.state.mapping.MappingConvertersWrapper;
@@ -79,7 +78,7 @@ public class ConnectorConverter {
 			final ObjectNode detectionNode = (ObjectNode) connectorNode.get(DETECTION);
 
 			if (detectionNode != null) {
-				final ArrayNode connectionTypeNode = (ArrayNode) detectionNode.get(ConnectorSimpleProperty.CONNECTION_TYPES);
+				final ArrayNode connectionTypeNode = (ArrayNode) detectionNode.get(CONNECTION_TYPES);
 				if (
 					connectionTypeNode != null &&
 					codeKeys.stream().noneMatch(s -> s.toLowerCase().startsWith("hdf.localsupport"))
