@@ -298,7 +298,6 @@ embedded:
     }
 translations:
   DiskStatusTranslationTable:
-    default: UNKNOWN
     offlinerequested: degraded
     optimal: ok
     missing: failed
@@ -308,3 +307,4 @@ translations:
     degraded: degraded
     notcompatible: failed
     failedrequested: failed
+    Default: UNKNOWN

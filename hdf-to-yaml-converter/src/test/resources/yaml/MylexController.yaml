@@ -145,19 +145,19 @@ translations:
   PhysicalDiskStatusInformationTranslationTable:
     "0": Dead
     "2": Rebuilding
-    default: Unknown Status
     "3": ""
     "4": Installation Abort
     "5": ""
     "16": Hot spare
     "6": Not present
+    Default: Unknown Status
     "130": Rebuild Cancelled
   LogicalDiskStatusInformationTranslationTable:
     "255": Off-line
-    default: Unknown Status
     "3": ""
     "4": Critical
     "128": Not present
+    Default: Unknown Status
   MylexControllerTranslationTable:
     "192": BT930
     "193": BT932
@@ -209,7 +209,6 @@ translations:
     "177": BT-946c
     "134": BT-445s
     "178": BT-948
-    default: ""
     "179": BT-948c
     "136": BT-640
     "137": BT-640a
@@ -224,6 +223,7 @@ translations:
     "183": BT-958c
     "140": BT-646s
     "184": BT-958d
+    Default: ""
     "185": BT-956cd
     "186": BT-958cd
     "100": DAC960ss
@@ -242,17 +242,17 @@ translations:
     "107": DAC960ffx
   LogicalDiskStatusTranslationTable:
     "255": failed
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "128": degraded
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
     "0": failed
     "2": degraded
-    default: UNKNOWN
     "3": ok
     "4": ok
     "5": ok
     "16": ok
     "6": degraded
+    Default: UNKNOWN
     "130": degraded

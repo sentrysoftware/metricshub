@@ -482,9 +482,9 @@ embedded:
     }
 translations:
   DRACStatusTranslationTable:
-    default: UNKNOWN
-    failure: failed
-    alarm: failed
-    warning: degraded
-    failed: failed
-    ok: ok
+    Warning: degraded
+    Failed: failed
+    Alarm: failed
+    OK: ok
+    Default: UNKNOWN
+    Failure: failed

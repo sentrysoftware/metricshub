@@ -261,24 +261,24 @@ embedded:
             done
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    default: Unknown
-    missing: Missing
-    failed: Failed
-    good: Good
+    FAILED: Failed
+    GOOD: Good
+    MISSING: Missing
+    Default: Unknown
   LogicalDiskStatusInformationTranslationTable:
-    default: Unknown
-    optimal: Optimal
-    syncing: Syncing
-    failed: Failed
-    degraded: Degraded
+    OPTIMAL: Optimal
+    FAILED: Failed
+    DEGRADED: Degraded
+    SYNCING: Syncing
+    Default: Unknown
   PhysicalDiskStatusTranslationTable:
-    default: UNKNOWN
-    missing: degraded
-    failed: failed
-    good: ok
+    FAILED: failed
+    GOOD: ok
+    MISSING: degraded
+    Default: UNKNOWN
   LogicalDiskStatusTranslationTable:
-    default: UNKNOWN
-    optimal: ok
-    syncing: ok
-    failed: failed
-    degraded: degraded
+    OPTIMAL: ok
+    FAILED: failed
+    DEGRADED: degraded
+    SYNCING: ok
+    Default: UNKNOWN

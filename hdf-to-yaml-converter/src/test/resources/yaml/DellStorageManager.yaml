@@ -792,40 +792,40 @@ translations:
     "1": Ready
     "12": Charging
     "2": Failed
-    default: Unknown Status
     "36": Learning
     "6": Degraded
     "7": Reconditioning
     "9": High
+    Default: Unknown Status
     "10": Low Power
     "21": Missing
   PhysicalDiskPredictedFailureTranslationTable:
     "2": "TRUE"
-    default: "FALSE"
+    Default: "FALSE"
   TypeTranslationTable:
     "0": ""
     "1": EMM
     "2": Termination Card
-    default: ""
+    Default: ""
   EnclosureStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "6": degraded
+    Default: UNKNOWN
   GenericStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   ComponentStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   LogicalDiskStatusTranslationTable:
     "24": degraded
     "35": ok
@@ -833,9 +833,9 @@ translations:
     "15": degraded
     "26": ok
     "38": ok
+    Default: UNKNOWN
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": ok
     "4": failed
     "6": degraded
@@ -857,9 +857,9 @@ translations:
     "26": ok
     "28": ok
     "39": degraded
+    Default: UNKNOWN
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": ok
     "4": failed
     "6": degraded
@@ -870,12 +870,12 @@ translations:
   PhysicalDiskBusTypeTranslationTable:
     "1": SCSI
     "2": IDE
-    default: ""
     "3": FC
     "4": SSA
     "6": USB
     "7": SATA
     "8": SAS
+    Default: ""
   RAIDLevelTranslationTable:
     "11": 30
     "12": 50
@@ -883,9 +883,9 @@ translations:
     "14": Delete Logical
     "15": Transform Logical
     "18": 0+1
+    Default: ""
     "1": Concatenated
     "2": 0
-    default: ""
     "3": 1
     "4": 2
     "5": 3
@@ -909,9 +909,9 @@ translations:
     "26": Formatting
     "28": Diagnosing
     "39": Foreign
+    Default: Unknown Status
     "1": Ready
     "2": Failed
-    default: Unknown Status
     "3": Online
     "4": Offline
     "6": Degraded
@@ -920,11 +920,11 @@ translations:
     "41": Unsupported
     "53": Incompatible
   ComponentStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Non-Critical Fault
     "5": Critical Fault
     "6": Non-Recoverable Fault
+    Default: Unknown Status
   LogicalDiskStatusInformationTranslationTable:
     "24": Rebuilding
     "35": Initializing
@@ -932,9 +932,9 @@ translations:
     "15": Resynching
     "26": Formatting
     "38": Resynching Paused
+    Default: Unknown Status
     "1": Ready
     "2": Failed
-    default: Unknown Status
     "3": Online
     "4": Offline
     "6": Degraded
@@ -944,13 +944,13 @@ translations:
   EnclosureStatusInformationTranslationTable:
     "1": Ready
     "2": Failed
-    default: Unknown Status
     "3": Online
     "4": Offline
     "6": Degraded
+    Default: Unknown Status
   GenericStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Non-Critical
     "5": Critical
     "6": Unrecoverable
+    Default: Unknown Status

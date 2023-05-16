@@ -204,32 +204,32 @@ embedded:
                                           WWN="";}
 translations:
   NetworkStatusInfoTranslationTable:
-    operational. need adapter port reset: Operational. Need Adapter Port Reset.
-    other: Other
-    default: UNKNOWN
-    in diagnostic mode: In Diagnostic Mode
-    link down. need adapter port reset: Link Down. Need Adapter Port Reset.
-    bypassed: Bypassed
-    link down: Link Down
-    operational: ""
-    user offline: User Offline
-    down: Port Down
-    port error: Port Error
-    loopback: Loopback
+    Link Down. Need Adapter Port Reset: Link Down. Need Adapter Port Reset.
+    Down: Port Down
+    Loopback: Loopback
+    User Offline: User Offline
+    Operational: ""
+    Operational. Need Adapter Port Reset: Operational. Need Adapter Port Reset.
+    In Diagnostic Mode: In Diagnostic Mode
+    Link Down: Link Down
+    Bypassed: Bypassed
+    Port Error: Port Error
+    Default: UNKNOWN
+    Other: Other
   NetworkLinkStatusTranslationTable:
-    default: UNKNOWN
-    link down: degraded
-    operational: ok
+    Operational: ok
+    Link Down: degraded
+    Default: UNKNOWN
   NetworkStatusTranslationTable:
-    operational. need adapter port reset: degraded
-    other: UNKNOWN
-    default: UNKNOWN
-    in diagnostic mode: degraded
-    link down. need adapter port reset: degraded
-    bypassed: degraded
-    link down: ok
-    operational: ok
-    user offline: degraded
-    down: failed
-    port error: failed
-    loopback: degraded
+    Link Down. Need Adapter Port Reset: degraded
+    Down: failed
+    Loopback: degraded
+    User Offline: degraded
+    Operational: ok
+    Operational. Need Adapter Port Reset: degraded
+    In Diagnostic Mode: degraded
+    Link Down: ok
+    Bypassed: degraded
+    Port Error: failed
+    Default: UNKNOWN
+    Other: UNKNOWN

@@ -2009,8 +2009,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -2021,31 +2021,31 @@ translations:
     "10": failed
   ACStatusTranslationTable:
     "1": '|OK'
-    default: '|UNKNOWN'
     "3": '|ALARM'
+    Default: '|UNKNOWN'
   PortTypeTranslationTable:
-    default: ""
-    tpd_ethernetport: Ethernet Port;MAC
-    tpd_fcport: FC Port;WWN
-    tpd_sasport: SAS Port;
+    TPD_FCPort: FC Port;WWN
+    TPD_EthernetPort: Ethernet Port;MAC
+    TPD_SASPort: SAS Port;
+    Default: ""
   DeviceTypeTranslationTable:
     "1": HDD
     "2": HDD-NL
-    default: Unknown
     "4": SSD
+    Default: Unknown
   FanSystemTypeTranslationTable:
-    default: Enclosure
-    tpd_storagesystem: Enclosure
-    tpd_nodesystem: Blade
+    TPD_NodeSystem: Blade
+    TPD_StorageSystem: Enclosure
+    Default: Enclosure
   InterconnectTypeTranslationTable:
     "1": Other
     "2": N/A
-    default: Unknown
     "3": ATA
     "4": SATA
     "5": SAS
     "6": FC
     "7": SOP
+    Default: Unknown
   DMTFOperationStatusInformationTranslationTable:
     "11": In Service
     "99": Stopped
@@ -2056,8 +2056,8 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: ""
     "2": ""
-    default: ""
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure
@@ -2067,10 +2067,10 @@ translations:
     "9": Stopping
     "10": Stopped
   PrimordialTranslationTable:
-    default: ""
     "true": Primordial
     "false": Disk Group
+    Default: ""
   ACStatusInformationTranslationTable:
     "1": ""
-    default: ""
     "3": ' AC Failure'
+    Default: ""

@@ -141,16 +141,16 @@ embedded:
     }
 translations:
   cpuStatusInformationTranslationTable:
-    default: Unknown Status
     powered: Powered off
     faulted: Faulted
     on-line: On-line
     off-line: Off-line
     no-intr: Non-interruptible
+    Default: Unknown Status
   cpuStatusTranslationTable:
-    default: UNKNOWN
     powered: failed
     faulted: failed
     on-line: ok
     off-line: failed
     no-intr: ok
+    Default: UNKNOWN

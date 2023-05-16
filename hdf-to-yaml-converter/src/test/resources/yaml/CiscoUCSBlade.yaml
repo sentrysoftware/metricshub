@@ -1096,23 +1096,23 @@ embedded:
     }
 translations:
   faultInstSeverityTranslationTable:
-    default: UNKNOWN
     minor: ok
     major: failed
     critical: failed
     warning: degraded
     cleared: ok
+    Default: UNKNOWN
     info: ok
   LinkStatusTranslationTable:
     link-down: degraded
-    default: ok
+    Default: ok
   EthernetTypeTranslationTable:
     server: Ethernet Port (Server)
     mgmt: Ethernet Port (Management)
-    default: Ethernet Port
+    Default: Ethernet Port
     network: Ethernet Port (Uplink)
   FCTypeTranslationTable:
     server: FC Port (Server)
     mgmt: FC Port (Management)
-    default: FC Port
+    Default: FC Port
     network: FC Port (Uplink)

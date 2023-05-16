@@ -575,13 +575,13 @@ translations:
     reachable: 'Reachable but not initialized - '
     foreign: 'Drive is foreign to the array - '
   LinkStatusTranslationTable:
-    default: ok
     "false": degraded
+    Default: ok
   DriveTranslationTable:
-    default: failed
     healthy: ok
     missing: failed
     failed: failed
+    Default: failed
     reachable: degraded
     foreign: degraded
   LinkSpeedActivationTable:
@@ -594,9 +594,9 @@ translations:
     degraded: Degraded
     not_installed: Missing
   StatusTranslationTable:
-    default: failed
     ready: ok
     failed: failed
     ok: ok
     degraded: degraded
+    Default: failed
     not_installed: failed

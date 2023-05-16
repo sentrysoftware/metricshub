@@ -680,46 +680,46 @@ monitors:
           hw.fan.speed: $column(2)
 translations:
   PSUStatusInformationTranslationTable:
-    default: UNKNOWN
-    mshw_101: Comm Error - AC Error
-    mshw_010: DC Error
-    mshw_001: AC Error
-    mshw_100: Comm Error - AC Error - DC Error
-    mshw_111: Comm Error
-    mshw_000: AC Error - DC Error
-    mshw_011: ""
-    mshw_110: Comm Error - DC Error
+    MSHW_000: AC Error - DC Error
+    MSHW_011: ""
+    MSHW_110: Comm Error - DC Error
+    MSHW_001: AC Error
+    MSHW_100: Comm Error - AC Error - DC Error
+    MSHW_111: Comm Error
+    MSHW_010: DC Error
+    MSHW_101: Comm Error - AC Error
+    Default: UNKNOWN
   sizeTranslationTable:
-    gib: 1073741824
-    default: 1
-    mb: 1000000
-    mib: 1048576
-    gb: 1000000000
-    tib: 1099511627776
-    tb: 1000000000000
+    GiB: 1073741824
+    MB: 1000000
+    MiB: 1048576
+    GB: 1000000000
+    TiB: 1099511627776
+    Default: 1
+    TB: 1000000000000
   PSUStatusTranslationTable:
-    default: UNKNOWN
-    mshw_101: failed
-    mshw_010: failed
-    mshw_001: failed
-    mshw_100: failed
-    mshw_111: degraded
-    mshw_000: failed
-    mshw_011: ok
-    mshw_110: failed
+    MSHW_000: failed
+    MSHW_011: ok
+    MSHW_110: failed
+    MSHW_001: failed
+    MSHW_100: failed
+    MSHW_111: degraded
+    MSHW_010: failed
+    MSHW_101: failed
+    Default: UNKNOWN
   linkTranslationTable:
-    offline: degraded
-    default: ""
-    no light: degraded
-    online: ok
-    disabled: degraded
-    none: UNKNOWN
+    Offline: degraded
+    Online: ok
+    Disabled: degraded
+    None: UNKNOWN
+    No Light: degraded
+    Default: ""
   StatusTranslationTable:
-    excluded: degraded
     "0": ok
-    offline: failed
     "1": failed
-    default: failed
-    online: ok
-    active: ok
-    degraded: degraded
+    Degraded: degraded
+    Active: ok
+    Offline: failed
+    Online: ok
+    Default: failed
+    Excluded: degraded

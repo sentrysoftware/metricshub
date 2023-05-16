@@ -242,17 +242,17 @@ embedded:
                                   }
 translations:
   PhysicalDiskTranslationTable:
-    default: UNKNOWN
-    up: ok
-    down: failed
+    DOWN: failed
+    UP: ok
+    Default: UNKNOWN
   ControllerTranslationTable:
-    n/a: ok
-    default: UNKNOWN
-    online: ok
-    failed: failed
-    degraded: degraded
+    N/A: ok
+    Degraded: degraded
+    Failed: failed
+    Default: UNKNOWN
+    ONLINE: ok
   LogicalDiskTranslationTable:
-    default: UNKNOWN
-    optimal: ok
-    failed: failed
-    degraded: degraded
+    OPTIMAL: ok
+    FAILED: failed
+    DEGRADED: degraded
+    Default: UNKNOWN

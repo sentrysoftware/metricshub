@@ -200,6 +200,6 @@ monitors:
 translations:
   LinkSpeedDeactivationTable:
     "0": ""
-    standbyoffline: ""
-    default: "True"
+    StandbyOffline: ""
     "null": ""
+    Default: "True"

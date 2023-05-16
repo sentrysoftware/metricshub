@@ -211,13 +211,13 @@ monitors:
 translations:
   VoltageStatusTranslationTable:
     "11": ok
-    default: failed
+    Default: failed
   PowerSupplyStatusTranslationTable:
     "11": ok
-    default: failed
+    Default: failed
   VoltageStatusInformationTranslationTable:
     "11": Normal
-    default: Failed
+    Default: Failed
   PowerSupplyStatusInformationTranslationTable:
     "11": Normal
-    default: Failed
+    Default: Failed

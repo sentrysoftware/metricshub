@@ -166,7 +166,6 @@ monitors:
           StatusInformation: $column(3)
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Degraded
     "5": Critical
@@ -174,19 +173,20 @@ translations:
     "7": Exercising
     "8": Verifying
     "9": Verifying with Replace
+    Default: Unknown Status
     "10": Zeroing
   PhysicalDiskSMARTTranslationTable:
     "1": "false"
     "2": "false"
-    default: "false"
     "3": "false"
     "4": "true"
+    Default: "false"
   LogicalDiskStatusInformationTranslationTable:
     "11": Rebuilding
     "12": Scrubbing
     "13": Updating snapshot
     "14": Zeroing
-    default: Unknown Status
+    Default: Unknown Status
     "3": ""
     "4": Degraded
     "5": Critical
@@ -200,7 +200,7 @@ translations:
     "12": degraded
     "13": ok
     "14": ok
-    default: UNKNOWN
+    Default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
@@ -210,7 +210,6 @@ translations:
     "9": ok
     "10": ok
   PhysicalDiskStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
@@ -218,4 +217,5 @@ translations:
     "7": ok
     "8": ok
     "9": ok
+    Default: UNKNOWN
     "10": ok

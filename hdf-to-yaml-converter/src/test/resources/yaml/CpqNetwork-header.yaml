@@ -247,28 +247,28 @@ translations:
     "1": Unknow
     "2": Primary
     "255": Not Applicable
-    default: Unknown
     "3": Secondary
     "4": Member
     "5": TxRx
     "6": Tx
     "7": Standby
     "8": None
+    Default: Unknown
   PhysicalAdapterStatusInformationTranslationTable:
     "1": Unknown
     "2": ok
-    default: Unknown
     "3": General Failure
     "4": Link Failure
+    Default: Unknown
   TeamNICStatusInformationTranslationTable:
     "1": Unknown
     "2": ""
-    default: Unknown
     "3": Primary Failed
     "4": Standby Failed
     "5": Group Failed
     "6": Redundancy Reduced
     "7": Redundancy Lost
+    Default: Unknown
   DuplexModeTranslationTable:
     "1": 1
     "2": 0
@@ -283,29 +283,28 @@ translations:
   PhysicalAdapterStatusTranslationTable:
     "1": UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   TeamNICStatusTranslationTable:
     "1": UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   TeamNICSSwitchoverModeTranslationTable:
     "1": Unknown
     "2": Not fault tolerant
-    default: Unknown
     "3": Manual switch
     "4": Switch On Fail
     "5": Preferred Primary
     "6": Auto
     "7": Preference Order
+    Default: Unknown
   TeamNICSGroupTypeTranslationTable:
     "11": Redundancy Set
     "1": Unknown
     "2": Not fault tolerant
-    default: Unknown
     "3": Redundant Pair
     "4": Network Fault Tolerance
     "5": Adaptive Load Balancing
@@ -313,4 +312,5 @@ translations:
     "7": Gigabit EtherChannel
     "8": IEEE802.3ad Link Aggregation
     "9": Switch-assisted load balancing
+    Default: Unknown
     "10": Transmit Load Balancing

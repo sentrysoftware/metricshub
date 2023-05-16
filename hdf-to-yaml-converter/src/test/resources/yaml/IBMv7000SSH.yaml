@@ -752,18 +752,18 @@ translations:
     "on": "On"
   endOfLifeStatusInformationTranslationTable:
     "no": ""
-    default: ""
     "yes": " -  The battery is reaching its end of life, and needs to be replaced."
+    Default: ""
   onlinedegradedofflineStatusInformationTranslationTable:
     offline: Offline
-    default: Unknown Status
     online: ok
     degraded: Degraded
+    Default: Unknown Status
   onlinedegradedofflineStatusTranslationTable:
     offline: failed
-    default: UNKNOWN
     online: ok
     degraded: failed
+    Default: UNKNOWN
   LEDStateTranslationTable:
     slow_flashing_canister_fault: Blinking
     slow_flashing: Blinking
@@ -774,9 +774,9 @@ translations:
     "on": "On"
   reconditioningStatusInformationTranslationTable:
     "no": ""
-    default: ""
     "yes": " - The battery needs to be reconditioned, but cannot be reconditioned because of one or more errors."
+    Default: ""
   yesnoWarningStatusTranslationTable:
     "no": ok
-    default: UNKNOWN
     "yes": degraded
+    Default: UNKNOWN

@@ -866,8 +866,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -879,8 +879,8 @@ translations:
   BatteryStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": degraded
+    Default: UNKNOWN
   BatteryDMTFOperationStatusTranslationTable:
     "11": ok
     "12": failed
@@ -890,8 +890,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -909,8 +909,8 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: ""
     "2": ""
-    default: ""
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure

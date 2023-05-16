@@ -136,23 +136,23 @@ monitors:
 translations:
   FanStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "4": failed
+    Default: UNKNOWN
   PowerSupplyStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   FanStatusInformationTranslationTable:
     "2": ok
-    default: Unknown Status
     "4": Failed
+    Default: Unknown Status
   FanTypeTranslationTable:
     "2": System
     default: ""
     "3": CPU
   PowerSupplyStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Failed
+    Default: Unknown Status

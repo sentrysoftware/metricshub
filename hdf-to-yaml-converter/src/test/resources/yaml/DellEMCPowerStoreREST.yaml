@@ -575,46 +575,46 @@ embedded:
 translations:
   NetworkStatusInformationTranslationTable:
     default: Unknown status
-    "true": Link is up
-    "false": Link is down
+    "TRUE": Link is up
+    "FALSE": Link is down
   LinkSpeedTranslationTable:
-    "1_gbps": 1000
-    "32_gbps": 32000
-    "25_gbps": 25000
-    "4_gbps": 4000
-    "12_gbps": 12000
+    "10_Mbps": 10
+    "6_Gbps": 6000
+    "10_Gbps": 10000
+    "40_Gbps": 40000
+    "3_Gbps": 3000
+    "100_Mbps": 100
+    "16_Gbps": 16000
+    "8_Gbps": 8000
+    "4_Gbps": 4000
+    "32_Gbps": 32000
     default: ""
     "null": ""
-    "40_gbps": 40000
-    "6_gbps": 6000
-    "3_gbps": 3000
-    "10_gbps": 10000
-    "16_gbps": 16000
-    "100_mbps": 100
-    "10_mbps": 10
-    "8_gbps": 8000
+    "1_Gbps": 1000
+    "12_Gbps": 12000
+    "25_Gbps": 25000
   StatusInformationTranslationTable:
-    disconnected: degraded
-    prepare_failed: ok
-    healthy: Hardware is healthy.
-    initializing: System is starting up.
-    failed: failed
-    trigger_update: ok
-    uninitialized: System is starting up.
-    empty: ok
+    Empty: ok
+    Failed: failed
+    Trigger_Update: ok
+    Uninitialized: System is starting up.
+    Healthy: Hardware is healthy.
+    Disconnected: degraded
+    Prepare_Failed: ok
+    Initializing: System is starting up.
   NetworkLinkStatusTranslationTable:
-    "true": ok
-    "false": degraded
+    "TRUE": ok
+    "FALSE": degraded
   StatusTranslationTable:
-    disconnected: degraded
-    prepare_failed: ok
-    healthy: ok
-    initializing: ok
-    failed: failed
-    trigger_update: ok
-    uninitialized: ok
-    empty: ok
+    Empty: ok
+    Failed: failed
+    Trigger_Update: ok
+    Uninitialized: ok
+    Healthy: ok
+    Disconnected: degraded
+    Prepare_Failed: ok
+    Initializing: ok
   NetworkStatusTranslationTable:
     default: degraded
-    "true": ok
-    "false": ok
+    "TRUE": ok
+    "FALSE": ok

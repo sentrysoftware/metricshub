@@ -199,36 +199,36 @@ monitors:
           StatusInformation: $column(3)
 translations:
   TemperatureStatusTranslationTable:
-    high: degraded
-    default: UNKNOWN
-    too high: failed
-    ok: ok
+    High: degraded
+    Too high: failed
+    Ok: ok
+    Default: UNKNOWN
   FanStatusTranslationTable:
-    too low: failed
-    default: UNKNOWN
-    low: degraded
-    ok: ok
+    Low: degraded
+    Too low: failed
+    Ok: ok
+    Default: UNKNOWN
   VoltageStatusTranslationTable:
-    too low: degraded
-    high: degraded
-    default: UNKNOWN
-    low: degraded
-    too high: degraded
-    ok: ok
+    High: degraded
+    Low: degraded
+    Too low: degraded
+    Too high: degraded
+    Ok: ok
+    Default: UNKNOWN
   TemperatureStatusInformationTranslationTable:
-    high: High
-    default: Unknown Status
-    too high: Too high
-    ok: ""
+    High: High
+    Too high: Too high
+    Ok: ""
+    Default: Unknown Status
   VoltageStatusInformationTranslationTable:
-    too low: Too low
-    high: High
-    default: Unknown Status
-    low: Low
-    too high: Too high
-    ok: ""
+    High: High
+    Low: Low
+    Too low: Too low
+    Too high: Too high
+    Ok: ""
+    Default: Unknown Status
   FanStatusInformationTranslationTable:
-    too low: Too low
-    default: Unknown Status
-    low: Low
-    ok: ""
+    Low: Low
+    Too low: Too low
+    Ok: ""
+    Default: Unknown Status

@@ -560,87 +560,87 @@ translations:
   TemperatureStatusTranslationTable:
     "1": degraded
     "2": degraded
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "1": degraded
     "2": degraded
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   VoltageStatusTranslationTable:
     "1": degraded
     "2": degraded
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   cpuStatusInformationTranslationTable:
     "0": Processor Not Present
     "1": Processor Present
-    default: Unknown Status
+    Default: Unknown Status
   PowerSupplyStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "4": failed
     "16": failed
     "8": failed
+    Default: UNKNOWN
     "32": failed
   VoltageStatusInformationTranslationTable:
     "1": Other
     "2": Unknown
-    default: Unknown Status
     "3": ok
     "4": Non Critical
     "5": Critical
     "6": Non Recoverable
+    Default: Unknown Status
   FanStatusInformationTranslationTable:
     "1": Other
     "2": Unknown
-    default: Unknown Status
     "3": ok
     "4": Non Critical
     "5": Critical
     "6": Non Recoverable
+    Default: Unknown Status
   memoryStatusTranslationTable:
     "0": failed
     "1": ok
-    default: UNKNOWN
+    Default: UNKNOWN
   PowerSupplyStatusInformationTranslationTable:
     "1": Present
     "2": Failure Dectected
-    default: Unknown Status
     "4": Predictive Failure
     "16": PowerSupply Lost Or Out Of Range
     "8": PowerSupply Input Lost
+    Default: Unknown Status
     "32": PowerSupply Out Of Range
   TemperatureStatusInformationTranslationTable:
     "1": Other
     "2": Unknown
-    default: Unknown Status
     "3": ok
     "4": Non Critical
     "5": Critical
     "6": Non Recoverable
+    Default: Unknown Status
   cpuStatusTranslationTable:
     "0": failed
     "1": ok
-    default: UNKNOWN
+    Default: UNKNOWN
   memoryStatusInformationTranslationTable:
     "0": Memory Not Present
     "1": Memory Present
-    default: Unknown Status
+    Default: Unknown Status
   enclosureStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": degraded
     "4": failed
     "5": degraded
+    Default: UNKNOWN

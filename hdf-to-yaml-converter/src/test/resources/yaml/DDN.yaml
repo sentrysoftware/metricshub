@@ -283,36 +283,36 @@ translations:
   TemperatureStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   TemperatureStatusInformationTranslationTable:
     "1": Normal
     "2": Warning
-    default: Unknown Status
     "3": Critical
+    Default: Unknown Status
   PowerSupplyStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   FanStatusInformationTranslationTable:
     "1": Healthy
     "2": Failed
-    default: Unknown Status
+    Default: Unknown Status
   diskStatusInformationTranslationTable:
     "1": Healthy
     "2": Failed
-    default: Unknown Status
     "3": Missing
+    Default: Unknown Status
   diskStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN
   PowerSupplyStatusInformationTranslationTable:
     "1": Healthy
     "2": Failed
-    default: Unknown Status
+    Default: Unknown Status

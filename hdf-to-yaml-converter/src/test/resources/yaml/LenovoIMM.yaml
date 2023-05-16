@@ -1044,19 +1044,19 @@ monitors:
           hw.status{hw.type="led"}: legacyLedStatus($column(2))
 translations:
   SizeUnitsTranslationTable:
-    default: 1
-    mb: 1048576
-    gb: 1073741824
-    tb: 1099511627776
+    MB: 1048576
+    GB: 1073741824
+    Default: 1
+    TB: 1099511627776
   statusTranslationTable:
-    normal: ok
-    default: degraded
-    critical: failed
-    optimal: ok
-    operational: ok
-    online: ok
-    unconfigured good: ok
-    unknown: UNKNOWN
+    Unknown: UNKNOWN
+    Unconfigured Good: ok
+    Operational: ok
+    Critical: failed
+    Normal: ok
+    Online: ok
+    Optimal: ok
+    Default: degraded
   LEDColorTranslationTable:
     green: OK;OK;ALARM
     blue: OK;OK;OK

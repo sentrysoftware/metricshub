@@ -362,20 +362,20 @@ translations:
   BatteryStatusInformationTranslationTable:
     "1": ""
     "2": Needs replacing
-    default: UNKNOWN
+    Default: UNKNOWN
   BatteryStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   EnclosureStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": ok
     "4": ok
+    Default: UNKNOWN
   EnclosureStatusInformationTranslationTable:
     "1": ""
     "2": Failed
-    default: Unknown
     "3": Invalid test
     "4": In progress
+    Default: Unknown

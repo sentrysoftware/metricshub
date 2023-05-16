@@ -103,10 +103,10 @@ translations:
   PortTypeTranslationTable:
     "11": HBA FC Port NL
     "12": HBA FC Port F/NL
-    default: HBA FC Port
+    Default: HBA FC Port
     "10": HBA FC Port N
   LinkStatusTranslationTable:
     "0": ok
     ? ""
     : degraded
-    default: degraded
+    Default: degraded

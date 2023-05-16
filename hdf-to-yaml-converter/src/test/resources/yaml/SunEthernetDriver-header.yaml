@@ -9,7 +9,6 @@ translations:
     nge: nVidia Gigabit Ethernet
     spwr: SMC EtherPower II 10/100 (9432) Ethernet
     rge: Realtek Gigabit Ethernet
-    default: ""
     vge: Gigabit Ethernet
     dnet: DEC2104x Ethernet
     xge: Neterion Xframe 10Gigabit Ethernet
@@ -21,6 +20,7 @@ translations:
     dmfe: Davicom Fast Ethernet DM9102A
     amd8111s: AMD-8111 Fast Ethernet
     bnx: Broadcom NetXtreme II Gigabit Ethernet
+    Default: ""
     qfe: Sun Quad Fast Ethernet
     elxl: 3Com Ethernet
     ipge: Intel 82571 PCI-E Gigabit Ethernet

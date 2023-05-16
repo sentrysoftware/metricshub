@@ -141,46 +141,46 @@ embedded:
                      PortID="";WWPN="";Model="";ActualDataRate="";PortType="";SerialNumber="";}
 translations:
   NetworkStatusInfoTranslationTable:
-    send loop down update: Send loop down update
-    port update: Port update
-    sfp not installed: failed
-    send link down update: Send link down update
-    link up: Link Up
-    loop up: Loop Up
-    unknown: UNKNOWN
-    default: UNKNOWN
-    currently up: Currently Up
-    system error: System Error
-    alt wwn sctive: Alt WWN sctive
-    disable: Disable
-    link down: Link Down
-    online: ""
-    loop down: Loop Down
-    lip occurred: Lip occurred
+    Link Up: Link Up
+    Loop Up: Loop Up
+    Currently Up: Currently Up
+    Send loop down update: Send loop down update
+    Lip occurred: Lip occurred
+    Send link down update: Send link down update
+    Default: UNKNOWN
+    Alt WWN sctive: Alt WWN sctive
+    Port update: Port update
+    Unknown: UNKNOWN
+    SFP not installed: failed
+    Loop Down: Loop Down
+    Link Down: Link Down
+    System Error: System Error
+    Online: ""
+    Disable: Disable
   NetworkLinkStatusTranslationTable:
-    send loop down update: degraded
-    default: UNKNOWN
-    link down: degraded
-    send link down update: degraded
-    online: ok
-    loop down: degraded
-    link up: ok
-    loop up: ok
-    unknown: UNKNOWN
+    Link Up: ok
+    Loop Up: ok
+    Unknown: UNKNOWN
+    Loop Down: degraded
+    Send loop down update: degraded
+    Link Down: degraded
+    Send link down update: degraded
+    Online: ok
+    Default: UNKNOWN
   NetworkStatusTranslationTable:
-    send loop down update: ok
-    port update: ok
-    sfp not installed: failed
-    send link down update: ok
-    link up: ok
-    loop up: ok
-    unknown: UNKNOWN
-    default: UNKNOWN
-    currently up: ok
-    system error: ok
-    alt wwn sctive: ok
-    disable: failed
-    link down: ok
-    online: ok
-    loop down: ok
-    lip occurred: degraded
+    Link Up: ok
+    Loop Up: ok
+    Currently Up: ok
+    Send loop down update: ok
+    Lip occurred: degraded
+    Send link down update: ok
+    Default: UNKNOWN
+    Alt WWN sctive: ok
+    Port update: ok
+    Unknown: UNKNOWN
+    SFP not installed: failed
+    Loop Down: ok
+    Link Down: ok
+    System Error: ok
+    Online: ok
+    Disable: failed

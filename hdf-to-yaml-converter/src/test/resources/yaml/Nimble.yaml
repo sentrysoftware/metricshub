@@ -921,33 +921,33 @@ monitors:
           StatusInformation: $column(7)
 translations:
   ShelfSensorTranslationTable:
-    default: degraded
-    alerted: failed
-    missing: degraded
-    failed: failed
-    ok: ok
+    Missing: degraded
+    Failed: failed
+    OK: ok
+    Default: degraded
+    Alerted: failed
   LinkStatusTranslationTable:
-    default: UNKNOWN
     up: ok
     down: degraded
+    Default: UNKNOWN
   SASPortTranslationTable:
     connected: ok
     disconnected: failed
-    default: degraded
+    Default: degraded
   PortStatusTranslationTable:
-    default: degraded
     operational: ok
+    Default: degraded
   PhysicalDiskStatusTranslationTable:
     okay: ok
-    n/a: UNKNOWN
+    N/A: UNKNOWN
     void: degraded
     in use: ok
     failed: failed
     resynchronizing: degraded
     faulty: failed
+    Default: UNKNOWN
     foreign: degraded
     valid: ok
-    default: UNKNOWN
     removed: failed
     t_fail: failed
     absent: failed

@@ -295,16 +295,16 @@ translations:
   powerStatusTranslationTable:
     "1": ok
     "2": failed
-    default: ok
     "3": failed
+    Default: ok
   tempStatusTranslationTable:
     "1": Not Present
     "2": Below Minimum Threshold
-    default: ok
     "3": Below Low Threshold
     "4": Within Normal Threshold
     "5": Above High Threshold
     "6": Above Max Threshold
+    Default: ok
   enclosureStatusTranslationTable:
     "1": ok
     "2": ok

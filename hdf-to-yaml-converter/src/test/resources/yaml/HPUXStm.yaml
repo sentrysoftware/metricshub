@@ -601,20 +601,20 @@ embedded:
                            }
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    incomplete: Testing Incomplete
-    default: Unknown Status
-    aborted: Testing Aborted
-    failure: Testing Failed
-    success: ""
-    testing: Testing in Progress
-    hung: Testing Hung
-    warning: Testing Warning
-    query pending: User Input Expected
-    suspended: Testing Suspended
+    HUNG: Testing Hung
+    SUSPENDED: Testing Suspended
+    QUERY PENDING: User Input Expected
+    INCOMPLETE: Testing Incomplete
+    ABORTED: Testing Aborted
+    WARNING: Testing Warning
+    FAILURE: Testing Failed
+    Default: Unknown Status
+    Success: ""
+    Testing: Testing in Progress
   PhysicalDiskStatusTranslationTable:
-    incomplete: failed
-    default: UNKNOWN
-    failure: failed
-    success: ok
-    hung: degraded
-    warning: degraded
+    HUNG: degraded
+    INCOMPLETE: failed
+    WARNING: degraded
+    FAILURE: failed
+    Default: UNKNOWN
+    Success: ok

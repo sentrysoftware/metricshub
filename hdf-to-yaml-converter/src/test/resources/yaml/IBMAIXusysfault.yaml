@@ -66,5 +66,5 @@ monitors:
 translations:
   LEDStatusTranslationTable:
     normal: "Off"
-    default: "Off"
     fault: "On"
+    Default: "Off"

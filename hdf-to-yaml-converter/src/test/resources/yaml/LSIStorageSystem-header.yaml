@@ -1424,28 +1424,28 @@ embedded:
     }
 translations:
   linkStatusTranslationTable:
-    connected: ok
-    default: degraded
-    up: ok
-    failed: degraded
-    down: degraded
+    Down: degraded
+    Connected: ok
+    Failed: degraded
+    Up: ok
+    Default: degraded
   statusTranslationTable:
     ? ""
     : ""
-    by-passed: failed
-    fixing: degraded
-    impending failure: degraded
-    optimal: ok
-    contacting storage: degraded
-    battery replacement: failed
-    failed: failed
-    battery learning: ok
-    needs upgrade: failed
-    offline: failed
-    default: degraded
-    near expiration: degraded
-    needs attention: failed
-    removed: failed
-    unresponsive: failed
-    battery maintenance: ok
-    online: ok
+    Near expiration: degraded
+    Failed: failed
+    Contacting Storage: degraded
+    Offline: failed
+    Battery maintenance: ok
+    Removed: failed
+    Default: degraded
+    Unresponsive: failed
+    Needs Attention: failed
+    By-passed: failed
+    Battery learning: ok
+    Battery replacement: failed
+    Needs Upgrade: failed
+    Online: ok
+    Optimal: ok
+    Fixing: degraded
+    Impending failure: degraded

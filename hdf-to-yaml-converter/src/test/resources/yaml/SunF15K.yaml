@@ -680,58 +680,58 @@ embedded:
     END { print "MSHW;PowerConsumption;" totalPower }
 translations:
   BoardStatusTranslationTable:
-    default: UNKNOWN
-    ipost: degraded
-    passed: ok
-    failed: failed
-    degraded: degraded
+    iPOST: degraded
+    FAILED: failed
+    DEGRADED: degraded
+    Default: UNKNOWN
+    PASSED: ok
   ShowEnvironmentStatusTranslationTable:
-    overlimit: failed
-    fail: failed
-    default: failed
-    low_min: failed
-    low_warn: degraded
-    bad: failed
-    high_max: failed
-    high_warn: degraded
-    invalid: ok
-    low_crit: failed
-    ok: ok
-    high_crit: failed
+    LOW_CRIT: failed
+    HIGH_CRIT: failed
+    HIGH_MAX: failed
+    BAD: failed
+    OVERLIMIT: failed
+    LOW_MIN: failed
+    OK: ok
+    HIGH_WARN: degraded
+    INVALID: ok
+    Default: failed
+    FAIL: failed
+    LOW_WARN: degraded
   DomainStatusTranslationTable:
-    loading solaris: ok
-    solaris panic continue: failed
-    booting solaris: ok
-    solaris panic debug: failed
-    domain down: failed
-    in obp callback: degraded
-    debugging solaris: degraded
-    powered off: ok
-    obp debugging: degraded
-    loading obp: ok
-    unknown: failed
-    solaris resume in-progress: degraded
-    environmental domain halt: failed
-    loading solaris failed: failed
-    default: UNKNOWN
-    solaris halt: degraded
-    solaris quiesce in-progress: ok
-    in obp error reset: failed
-    environmental emergency: failed
-    solaris panic exit: failed
-    solaris quiesced: ok
-    solaris panic: failed
-    obp in sync callback to os: degraded
-    booting solaris failed: failed
-    domain exited obp: degraded
-    keyswitch standby: ok
-    running obp: ok
-    obp failed: failed
-    solaris panic dump: failed
-    booting obp: ok
-    solaris halted, in obp: degraded
-    running domain post: ok
-    solaris exited: failed
-    in recovery: failed
-    exited obp: degraded
-    running solaris: ok
+    OBP Debugging: degraded
+    Solaris Panic: failed
+    Solaris Exited: failed
+    Running OBP: ok
+    Solaris Quiesced: ok
+    OBP in sync Callback to OS: degraded
+    Debugging Solaris: degraded
+    Running Solaris: ok
+    Loading Solaris Failed: failed
+    Solaris Halt: degraded
+    Solaris Panic Continue: failed
+    Unknown: failed
+    Powered Off: ok
+    Loading Solaris: ok
+    Solaris Panic Dump: failed
+    In OBP Callback: degraded
+    Solaris Panic Debug: failed
+    Environmental Emergency: failed
+    Environmental Domain Halt: failed
+    Running Domain POST: ok
+    Exited OBP: degraded
+    Domain Exited OBP: degraded
+    Loading OBP: ok
+    Solaris Halted, in OBP: degraded
+    Keyswitch Standby: ok
+    Booting OBP: ok
+    Domain Down: failed
+    Default: UNKNOWN
+    OBP Failed: failed
+    Solaris Quiesce In-progress: ok
+    Solaris Panic Exit: failed
+    Booting Solaris: ok
+    In Recovery: failed
+    Booting Solaris Failed: failed
+    Solaris Resume In-progress: degraded
+    In OBP Error Reset: failed

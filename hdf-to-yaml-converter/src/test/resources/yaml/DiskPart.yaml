@@ -197,13 +197,13 @@ embedded:
     }
 translations:
   LogicalDiskTranslationTable:
-    rebuild: degraded
-    default: UNKNOWN
-    healthy: ok
-    failed redundancy: degraded
-    failed rd: degraded
-    failed: failed
-    regenerating: degraded
-    formatting: ok
-    resynching: degraded
-    unknown: failed
+    Resynching: degraded
+    Unknown: failed
+    Failed: failed
+    Formatting: ok
+    Failed Rd: degraded
+    Failed Redundancy: degraded
+    Default: UNKNOWN
+    Healthy: ok
+    Regenerating: degraded
+    Rebuild: degraded

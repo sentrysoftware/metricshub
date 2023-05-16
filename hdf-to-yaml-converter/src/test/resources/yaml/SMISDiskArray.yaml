@@ -336,9 +336,9 @@ monitors:
           StatusInformation: $column(3)
 translations:
   replicationTypeTranslationTable:
-    default: ""
     "6": 'Mirror of '
     "8": 'Clone of '
+    Default: ""
   PrimordialStoragePoolTranslationTable:
-    default: 0;Storage Pool
     "true": 0;Primordial Storage Pool
+    Default: 0;Storage Pool

@@ -333,18 +333,17 @@ translations:
     "1": Standby
     "133": Hot Spare
     "254": Reserved
-    default: Unknown Status
     "4": Defunct Hot Spare
     "5": Standby Hot Spare
     "137": Online
     "139": Rebuild
     "8": Defunct
     "129": Ready
+    Default: Unknown Status
   VoltageTypeTranslationTable:
     "0": ""
     "1": +2.5a V
     "2": +1.5 V
-    default: ""
     "3": +3.3 V
     "4": +5 V
     "5": +12 V
@@ -352,16 +351,17 @@ translations:
     "7": -5 V
     "8": VIO
     "9": Vcore
+    Default: ""
     "10": Bus
   LogicalDiskStatusInformationTranslationTable:
     "0": Free
     "2": Offline
-    default: Unknown Status
     "3": ""
     "36": Critical System
     "4": Critical
     "5": Migration
     "6": System
+    Default: Unknown Status
     "20": Critical Migration
   TemperatureTypeTranslationTable:
     "1": Motherboard
@@ -375,22 +375,22 @@ translations:
   LogicalDiskStatusTranslationTable:
     "0": ok
     "2": failed
-    default: UNKNOWN
     "3": ok
     "36": degraded
     "4": degraded
     "5": ok
     "6": ok
+    Default: UNKNOWN
     "20": degraded
   PhysicalDiskStatusTranslationTable:
     "0": ok
     "1": ok
     "133": ok
     "254": ok
-    default: UNKNOWN
     "4": degraded
     "5": ok
     "137": ok
     "139": degraded
     "8": failed
     "129": ok
+    Default: UNKNOWN

@@ -348,18 +348,18 @@ embedded:
                                   }
 translations:
   LogicalDiskStatusTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    optimal: ok
-    degraded: degraded
-    partially: degraded
+    Degraded: degraded
+    Offline: failed
+    Partially: degraded
+    Optimal: ok
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
-    rebuild: degraded
-    offline: ok
-    copyback: degraded
-    unconfigured(good): ok
-    default: UNKNOWN
-    hotspare: failed
-    online: ok
-    failed: failed
-    unconfigured(bad): degraded
+    Copyback: degraded
+    Failed: failed
+    Unconfigured(good): ok
+    Hotspare: failed
+    Offline: ok
+    Unconfigured(bad): degraded
+    Online: ok
+    Default: UNKNOWN
+    Rebuild: degraded

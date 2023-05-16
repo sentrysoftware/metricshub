@@ -2605,23 +2605,23 @@ translations:
   bladeStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": UNKNOWN
+    Default: UNKNOWN
   statusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": UNKNOWN
+    Default: UNKNOWN
   validStatusTranslationTable:
     "1": failed
     "2": ok
-    default: UNKNOWN
     "3": UNKNOWN
+    Default: UNKNOWN
   PowerStateTranslationTable:
     "1": "off"
     "2": "off"
-    default: ""
     "3": "on"
     "4": ""
     "5": "off"
     "6": "off"
+    Default: ""

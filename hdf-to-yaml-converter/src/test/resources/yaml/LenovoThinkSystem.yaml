@@ -888,21 +888,21 @@ translations:
     "255": normal
     "4": nonCritical
   SizeUnitsTranslationTable:
-    default: 1
-    mb: 1048576
-    gb: 1073741824
-    tb: 1099511627776
+    MB: 1048576
+    GB: 1073741824
+    Default: 1
+    TB: 1099511627776
   statusTranslationTable:
-    normal: ok
-    default: UNKNOWN
-    critical: failed
-    optimal: ok
-    operational: ok
-    online: ok
-    warning: degraded
-    unconfigured good: ok
-    nocurrentreading: ""
-    unknown: UNKNOWN
+    Warning: degraded
+    Unknown: UNKNOWN
+    Unconfigured Good: ok
+    Operational: ok
+    NoCurrentReading: ""
+    Critical: failed
+    Normal: ok
+    Online: ok
+    Optimal: ok
+    Default: UNKNOWN
   LEDColorTranslationTable:
     green: OK;OK;ALARM
     blue: OK;OK;OK
@@ -915,5 +915,5 @@ translations:
     "0": failed
     "2": failed
     "255": ok
-    default: UNKNOWN
     "4": degraded
+    Default: UNKNOWN

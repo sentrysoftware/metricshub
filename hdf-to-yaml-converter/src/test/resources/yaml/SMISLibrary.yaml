@@ -177,6 +177,6 @@ monitors:
           StatusInformation: $column(3)
 translations:
   TapeDriveNeedsCleaningTranslationTable:
-    default: 0
     "true": 1
     "false": 0
+    Default: 0

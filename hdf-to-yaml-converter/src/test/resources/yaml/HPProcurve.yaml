@@ -241,17 +241,17 @@ translations:
   StatusInformationTranslationTable:
     "1": Unknow
     "2": Bad
-    default: Unknown Status
     "3": Warning
     "4": Good
     "5": Not Present
+    Default: Unknown Status
   StatusTranslationTable:
     "1": UNKNOWN
     "2": failed
-    default: UNKNOWN
     "3": degraded
     "4": ok
     "5": failed
+    Default: UNKNOWN
   TempStatusTranslationTable:
     "1": failed
     "2": ok

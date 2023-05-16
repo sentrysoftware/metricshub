@@ -1095,26 +1095,26 @@ translations:
     "4000": NETWORK IO Module
     "1000": Server
     "2000": Chassis
+    Enabled: FC;WWN
     "3000": Storage
-    disabled: Ethernet;MAC
-    enabled: FC;WWN
+    Disabled: Ethernet;MAC
   FcLinkStatusTranslationTable:
-    default: degraded
-    up: ok
+    Up: ok
+    Default: degraded
   StatusInformationTranslationTable:
-    default: failed
     "5000": The device/group does not have a valid status.
     "4000": The device is in critical state.
     "1000": The device is running normal.
     "2000": Status is not determined.
     "3000": The device has warning state.
+    Default: failed
   StatusTranslationTable:
-    default: failed
     "5000": UNKNOWN
     "4000": failed
     "1000": ok
     "2000": UNKNOWN
     "3000": degraded
+    Default: failed
   LinkSpeedDeactivationTranslationTable:
     "0": ""
-    default: "True"
+    Default: "True"

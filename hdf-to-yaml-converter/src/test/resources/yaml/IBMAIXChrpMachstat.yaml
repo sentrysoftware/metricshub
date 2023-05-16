@@ -125,25 +125,25 @@ monitors:
 translations:
   FanStatusTranslationTable:
     "1": degraded
-    default: ok
+    Default: ok
   PowerSupplyStatusTranslationTable:
     "0": ok
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": failed
     "7": failed
+    Default: UNKNOWN
   FanStatusInformationTranslationTable:
     "1": Non-critical Cooling Problem
-    default: ""
+    Default: ""
   PowerSupplyStatusInformationTranslationTable:
     "0": ""
     "1": ""
     "2": Non-critical Power Problem
-    default: Unknown Status
     "3": Severe Power Problem - Shutting down!
     "4": Critical Problem - Halting now!
     "5": Critical Problem
     "7": Critical Problem
+    Default: Unknown Status

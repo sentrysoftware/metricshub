@@ -772,8 +772,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -783,16 +783,16 @@ translations:
     "9": degraded
     "10": failed
   ExtentPoolRaidLevel:
-    default: ""
     "3": Fixed Block
     "4": Count Key Data
     "5": 3380
+    Default: ""
   LogicalDiskRaidLevel:
-    default: ""
     "3": JBOD
     "4": RAID 5
     "5": RAID 10
     "6": RAID 6
+    Default: ""
   DMTFOperationStatusInformationTranslationTable:
     "11": In Service
     "12": No Contact
@@ -802,8 +802,8 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: ""
     "2": ""
-    default: ""
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure

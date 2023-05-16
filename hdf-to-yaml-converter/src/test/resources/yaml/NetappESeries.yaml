@@ -924,25 +924,25 @@ monitors:
           StatusInformation: $column(4)
 translations:
   LinkStatusTranslationTable:
-    default: degraded
     none: degraded
     up: ok
     failed: failed
     down: degraded
+    Default: degraded
   StatusTranslationTable:
-    needsattn: degraded
-    default: failed
     optimal: ok
-    maintenancecharging: ok
+    needsAttn: degraded
+    maintenanceCharging: ok
+    Default: failed
   LinkSpeedParameterTranslationTable:
-    default: degraded
     none: ""
     up: ok
     failed: ""
     down: ""
+    Default: degraded
   NetworkCardStatusTranslationTable:
-    default: failed
     none: ok
     up: ok
     failed: failed
     down: ok
+    Default: failed

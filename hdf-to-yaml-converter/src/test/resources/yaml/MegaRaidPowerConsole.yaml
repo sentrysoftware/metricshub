@@ -167,31 +167,31 @@ monitors:
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     "1": Ready
-    default: Unknown Status
     "3": On-line
     "4": Failed
     "5": Rebuild
     "6": Hot-spare
+    Default: Unknown Status
     "20": Non-disk
   LogicalDiskStatusInformationTranslationTable:
     "0": Off-line
     "1": Degraded
     "2": ""
-    default: Unknown Status
     "3": Initializing
     "4": Check consistency
+    Default: Unknown Status
   LogicalDiskStatusTranslationTable:
     "0": failed
     "1": degraded
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
     "1": ok
-    default: UNKNOWN
     "3": ok
     "4": failed
     "5": degraded
     "6": ok
+    Default: UNKNOWN
     "20": ok

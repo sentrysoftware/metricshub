@@ -477,48 +477,48 @@ translations:
   cpuStatusInformationTranslationTable:
     "1": ""
     "2": Disabled by User
-    default: Unknown Status
     "3": Disabled by BIOS (POST Error)
     "4": Idle
-    ok: ""
+    OK: ""
+    Default: Unknown Status
   PowerSupplyStatusTranslationTable:
-    stopped: ok
-    error: failed
-    degraded: degraded
-    default: UNKNOWN
-    stressed: degraded
-    nonrecover: failed
-    stopping: degraded
-    service: degraded
-    no contact: degraded
-    lost comm: degraded
-    ok: ok
-    starting: degraded
-    pred fail: degraded
+    No Contact: degraded
+    Stopped: ok
+    Error: failed
+    Stopping: degraded
+    Service: degraded
+    Default: UNKNOWN
+    Stressed: degraded
+    Degraded: degraded
+    Starting: degraded
+    NonRecover: failed
+    Pred Fail: degraded
+    OK: ok
+    Lost Comm: degraded
   cpuStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": ok
-    ok: ok
+    OK: ok
+    Default: UNKNOWN
   memoryStatusTranslationTable:
     "0": ok
     "1": failed
-    default: UNKNOWN
-    "false": ok
-    "true": failed
+    "TRUE": failed
+    "FALSE": ok
+    Default: UNKNOWN
   PowerSupplyStatusInformationTranslationTable:
-    stopped: Stopped
-    error: Error
-    degraded: Degraded
-    default: Unknown Status
-    stressed: Stressed
-    nonrecover: Non Recover
-    stopping: Stopping
-    service: Service
-    no contact: No Contact
-    lost comm: Lost Communication
-    ok: ""
-    starting: Starting
-    pred fail: Predicted Failure
+    No Contact: No Contact
+    Stopped: Stopped
+    Error: Error
+    Stopping: Stopping
+    Service: Service
+    Default: Unknown Status
+    Stressed: Stressed
+    Degraded: Degraded
+    Starting: Starting
+    NonRecover: Non Recover
+    Pred Fail: Predicted Failure
+    OK: ""
+    Lost Comm: Lost Communication

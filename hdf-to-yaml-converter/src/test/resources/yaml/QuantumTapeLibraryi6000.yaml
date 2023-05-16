@@ -763,45 +763,45 @@ translations:
   CleaningStatusTranslationTable:
     "1": 1
     "2": 0
-    default: UNKNOWN
     "3": 2
+    Default: UNKNOWN
   EnclosureStatusTranslationTable:
     "1": degraded
     "2": UNKNOWN
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   StatusInformationTranslationTable:
     "1": ""
     "2": Failed
-    default: Unknown Status
     "3": Degraded
     "4": Warning
     "5": Informational
     "6": Unknown
     "7": Invalid
+    Default: Unknown Status
   StatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
     "6": UNKNOWN
     "7": failed
+    Default: UNKNOWN
   EnclosureStatusInformationTranslationTable:
     "1": Reporting status of 'Other'
     "2": Unknown
-    default: Unknown Status
     "3": ""
     "4": Non-Critical
     "5": Critical
     "6": Non-Recoverable
+    Default: Unknown Status
   CleaningStatusInformationTranslationTable:
     "0": ""
     "1": ' Cleaning Required'
     "2": ""
-    default: ' Unknown Cleaning Status'
     "3": ' Immediate Cleaning Required'
+    Default: ' Unknown Cleaning Status'

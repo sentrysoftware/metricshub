@@ -77,8 +77,8 @@ monitors:
           hw.vm.power_state: $column(3)
 translations:
   stateTranslationTable:
-    running: "ON"
-    offcritical: "OFF"
     default: "OFF"
-    "off": "OFF"
-    suspended: SUSPENDED
+    Running: "ON"
+    Suspended: SUSPENDED
+    OffCritical: "OFF"
+    "Off": "OFF"

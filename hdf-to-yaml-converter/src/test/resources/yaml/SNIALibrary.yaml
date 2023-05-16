@@ -186,7 +186,7 @@ translations:
   CleaningStatusTranslationTable:
     "1": 1
     "2": 0
-    default: UNKNOWN
+    Default: UNKNOWN
   StatusInformationTranslationTable:
     "11": In Service
     "12": No Contact
@@ -197,10 +197,10 @@ translations:
     "17": Completed
     "18": Power Mode
     "19": dMTFReserved
+    Default: UNKNOWN
     "0": unknown
     "1": Other (Unknown)
     "2": ""
-    default: UNKNOWN
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure
@@ -220,10 +220,10 @@ translations:
     "17": ok
     "18": ok
     "19": UNKNOWN
+    Default: UNKNOWN
     "0": UNKNOWN
     "1": failed
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded

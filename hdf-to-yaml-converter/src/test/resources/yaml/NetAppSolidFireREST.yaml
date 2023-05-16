@@ -958,41 +958,41 @@ embedded:
     }
 translations:
   PhysicalDiskTranslationTable:
-    default: failed
     available: ok
     erasing: degraded
     assigned: ok
     failed: failed
+    Default: failed
     removing: degraded
   DiskControllerTranslationTable:
     default: failed
     healthy: ok
   SensorStatusTranslationTable:
     default: failed
-    not available: ok
+    Not Available: ok
     ok: ok
   LinkStatusTranslationTable:
-    default: degraded
-    up: ok
-    down: degraded
-    upandrunning: ok
+    Down: degraded
+    UpAndRunning: ok
+    Up: ok
+    Default: degraded
   PowerSupplyStatusTranslationTable:
-    failure detected: failed
-    default: failed
-    presence detected: ok
-    power supply ac lost: failed
-    ac lost or out-of-range: failed
-    config error: degraded
-    power supply inactive: degraded
-    ac out-of-range, but present: degraded
+    Presence detected: ok
+    Failure detected: failed
+    Power Supply AC lost: failed
+    Power Supply Inactive: degraded
+    AC lost or out-of-range: failed
+    AC out-of-range, but present: degraded
+    Default: failed
+    Config Error: degraded
   HardwareConfigTranslationTable:
     "true": ok
     "false": failed
   LogicalDiskStatusTranslationTable:
-    default: failed
     active: ok
+    Default: failed
   NetworkCardStatusTranslationTable:
-    default: failed
-    up: ok
-    down: ok
-    upandrunning: ok
+    Down: ok
+    UpAndRunning: ok
+    Up: ok
+    Default: failed

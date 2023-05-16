@@ -211,16 +211,16 @@ monitors:
           name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
 translations:
   TemperatureStatusTranslationTable:
-    default: failed
-    (normal): ok
+    (NORMAL): ok
+    Default: failed
   SensorStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   TemperatureStatusInformationTranslationTable:
-    default: Temperature outside normal range.
-    (normal): ""
+    (NORMAL): ""
+    Default: Temperature outside normal range.
   SensorStatusInformationTranslationTable:
     "1": Active
     "2": Inactive
-    default: Unknown Status
+    Default: Unknown Status

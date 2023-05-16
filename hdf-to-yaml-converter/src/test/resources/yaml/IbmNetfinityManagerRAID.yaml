@@ -222,34 +222,34 @@ monitors:
           StatusInformation: $column(6)
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    rebuild: Rebuild
-    hot spare: Hot Spare
-    default: Unknown Status
-    defunct: Defunct
-    standby: Standby
-    defunct hot spare: Defunct Hot Spare
-    standby hot spare: Standby Hot Spare
-    ready: Ready
-    online: ""
-    pfa: Predicted failure
+    Hot Spare: Hot Spare
+    Ready: Ready
+    Standby Hot Spare: Standby Hot Spare
+    Defunct: Defunct
+    PFA: Predicted failure
+    Defunct Hot Spare: Defunct Hot Spare
+    Online: ""
+    Standby: Standby
+    Default: Unknown Status
+    Rebuild: Rebuild
   LogicalDiskStatusInformationTranslationTable:
-    offline: Offline
-    default: Unknown Status
-    critical: Critical
-    online: ""
+    Offline: Offline
+    Critical: Critical
+    Online: ""
+    Default: Unknown Status
   LogicalDiskStatusTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    critical: degraded
-    online: ok
+    Offline: failed
+    Critical: degraded
+    Online: ok
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
-    rebuild: degraded
-    hot spare: ok
-    default: UNKNOWN
-    defunct: failed
-    standby: ok
-    defunct hot spare: degraded
-    standby hot spare: ok
-    ready: ok
-    online: ok
-    pfa: degraded
+    Hot Spare: ok
+    Ready: ok
+    Standby Hot Spare: ok
+    Defunct: failed
+    PFA: degraded
+    Defunct Hot Spare: degraded
+    Online: ok
+    Standby: ok
+    Default: UNKNOWN
+    Rebuild: degraded

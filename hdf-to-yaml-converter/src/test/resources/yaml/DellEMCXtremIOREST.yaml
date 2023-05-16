@@ -768,25 +768,25 @@ embedded:
   EmbeddedFile(1): "authorization: Basic %{BASIC_AUTH_BASE64}"
 translations:
   LinkSpeedTranslationTable:
-    "100mfc": 100
-    "10mfc": 10
+    "100MFC": 100
+    "10MFC": 10
     not_in_use: 0
     "10mb": 10
-    "1gfc": 1000
-    "12gfc": 12000
+    "1GFC": 1000
+    "12GFC": 12000
     "12gb": 12000
     "1gb": 1000
-    "10gfc": 10000
+    "10GFC": 10000
     inconsistent: 0
     "10gb": 10000
+    Default: 0
     unknown: 0
     "100mb": 100
-    default: 0
-    "8gfc": 8000
+    "8GFC": 8000
   LinkStatusTranslationTable:
-    default: UNKNOWN
     up: ok
     down: degraded
+    Default: UNKNOWN
   StatusTranslationTable:
     minor: degraded
     critical: failed
@@ -797,7 +797,6 @@ translations:
     enabled: ok
     unknown: UNKNOWN
     disconnected: failed
-    default: UNKNOWN
     major: failed
     level_3_warning: degraded
     level_5_major: failed
@@ -810,6 +809,7 @@ translations:
     initializing: degraded
     failed: failed
     degraded: failed
+    Default: UNKNOWN
     level_4_minor: failed
     connected: ok
     healthy: ok

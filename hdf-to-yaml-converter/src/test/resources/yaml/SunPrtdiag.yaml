@@ -1799,42 +1799,42 @@ translations:
     okay: ok
     ? ""
     : ok
-    normal: ok
-    green: ok
     pass: ok
-    good: ok
+    Normal: ok
+    Default: failed
+    TooSlow: degraded
+    '[NO_FAULT]': ok
+    '[NO_FAULT': ok
     unknown: UNKNOWN
-    '[no_fault]': ok
-    '[no_fault': ok
-    unplugged: failed
-    fail: failed
-    default: failed
-    (ok): ok
-    '[ok': ok
+    (OK): ok
+    '[OK': ok
     self-regulating: ok
     no_status: ok
-    no_fault: ok
+    NO_FAULT: ok
     self: ok
-    tooslow: degraded
-    ok: ok
+    UNPLUGGED: failed
+    OK: ok
+    GOOD: ok
+    Green: ok
+    FAIL: failed
   PrtDiagStatusTranslationTable:
     okay: ok
     ? ""
     : ok
-    normal: ok
-    green: ok
     pass: ok
-    good: ok
+    Normal: ok
+    Default: failed
+    TooSlow: degraded
+    '[NO_FAULT]': ok
+    '[NO_FAULT': ok
     unknown: UNKNOWN
-    '[no_fault]': ok
-    '[no_fault': ok
-    unplugged: ok
-    default: failed
-    (ok): ok
-    '[ok': ok
+    (OK): ok
+    '[OK': ok
     self-regulating: ok
     no_status: ok
-    no_fault: ok
+    NO_FAULT: ok
     self: ok
-    tooslow: degraded
-    ok: ok
+    UNPLUGGED: ok
+    OK: ok
+    GOOD: ok
+    Green: ok

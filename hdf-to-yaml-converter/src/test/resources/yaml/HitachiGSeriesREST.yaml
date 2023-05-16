@@ -957,18 +957,18 @@ embedded:
   EmbeddedFile(1): "authorization: Basic %{BASIC_AUTH_BASE64}"
 translations:
   statusTranslationTable:
-    normal: ok
+    Warning: degraded
     default: UNKNOWN
-    blocked: failed
-    warning: degraded
-    failed: failed
+    Failed: failed
+    Normal: ok
+    Blocked: failed
   hddStatusTranslationTable:
-    blk: failed
+    BLK: failed
     default: UNKNOWN
-    bsy: degraded
-    nml: ok
+    BSY: degraded
+    NML: ok
   hddStatusInformationTranslationTable:
-    blk: Blocked
+    BLK: Blocked
     default: Unknown
-    bsy: Busy
-    nml: Normal
+    BSY: Busy
+    NML: Normal

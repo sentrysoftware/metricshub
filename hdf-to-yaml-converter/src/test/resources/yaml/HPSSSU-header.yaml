@@ -1159,6 +1159,7 @@ translations:
     sc_locked: SC Locked
     emu_unknown: Environmental Monitoring Unit Unknow Error
     notinstalled: Not installed
+    DiskenclosureWarn: Not Present
     contains_ilf_disk: 'Contains '
     initialized_ok: ""
     emu_critical: Environmental Monitoring Unit Critical
@@ -1177,7 +1178,6 @@ translations:
     not installed: Not installed
     initialized_attention: Initialization Error
     not_redundant_failed: Not Redundant
-    diskenclosurewarn: Not Present
     restoring_ok: Restoring
     restoring_failed: Restoring Failed
     asynch_member_add_in_progress: ok
@@ -1206,12 +1206,13 @@ translations:
     not_installed: Not installed
     asynch_member_remove_in_progress: ok
   cacheStatusInfoTT:
-    default: ""
     no_mirror: No Mirror
+    Default: ""
   predictedFailureTT:
     "no": "false"
     "yes": "true"
   opStatusTT:
+    Not Present: MISSING
     normal: ok
     not present: MISSING
     notpresent: MISSING
@@ -1219,10 +1220,10 @@ translations:
     notinstalled: MISSING
     no_mirror: degraded
     failed: failed
+    DiskenclosureWarn: degraded
     good: ok
+    Default: UNKNOWN
     not installed: MISSING
-    default: UNKNOWN
     attention: degraded
     not_present: MISSING
-    diskenclosurewarn: degraded
     not_installed: MISSING

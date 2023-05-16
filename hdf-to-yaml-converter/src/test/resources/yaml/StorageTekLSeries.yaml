@@ -504,32 +504,32 @@ monitors:
 translations:
   TapeDriveStatusTranslationTable:
     "2": ok
-    default: ok
     "3": failed
     "4": degraded
+    Default: ok
   CapStatusTranslationTable:
     "2": ok
-    default: ok
     "3": failed
     "4": degraded
+    Default: ok
   LibraryStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": degraded
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "1": failed
     "2": ok
-    default: UNKNOWN
+    Default: UNKNOWN
   PowerSupplyStatusTranslationTable:
     "1": failed
     "2": ok
-    default: UNKNOWN
+    Default: UNKNOWN
   FanStatusInformationTranslationTable:
     "1": Failed
     "2": ""
-    default: Unknown Status
+    Default: Unknown Status
   PowerSupplyStatusInformationTranslationTable:
     "1": Failed
     "2": ""
-    default: Unknown Status
+    Default: Unknown Status

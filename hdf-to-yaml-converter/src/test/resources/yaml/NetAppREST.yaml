@@ -2917,57 +2917,57 @@ embedded:
 translations:
   PhysicalDiskTranslationTable:
     normal: ok
-    default: failed
+    Default: failed
   BatteryStatusInformationTranslationTable:
     battery_ok: Battery OK
-    default: ""
+    Default: ""
   TemperatureStatusTranslationTable:
     normal: ok
-    default: failed
     "false": ok
+    Default: failed
   FanStatusTranslationTable:
     "0": ok
     normal: ok
-    default: failed
+    Default: failed
   VoltageStatusTranslationTable:
     normal: ok
-    default: failed
+    Default: failed
   BatteryStatusTranslationTable:
     battery_ok: ok
-    default: failed
+    Default: failed
   PowerSupplyStatusTranslationTable:
     "0": ok
     normal: ok
-    default: failed
+    Default: failed
   RaidStatusTranslationTable:
     mixed_raid_type: UNKNOWN
     normal: ok
     raid_dp: UNKNOWN
-    default: failed
     hybrid: UNKNOWN
+    Default: failed
   NetworkCardStatusTranslationTable:
     no carrier: ok
-    default: failed
     inactive: ok
     online: ok
     link not connected: ok
     up: ok
+    Default: failed
   DiskControllerStatusTranslationTable:
     normal: ok
-    default: failed
+    Default: failed
   EnclosureHealthTranslationTable:
     normal: ok
-    default: failed
     "true": ok
+    Default: failed
   LinkStatusTranslationTable:
     no carrier: degraded
-    default: degraded
     inactive: degraded
     online: ok
     link not connected: degraded
     up: ok
+    Default: degraded
   EnclosureStatusInformationTable:
     normal: ""
-    default: ""
     "false": Node is not healthy.
     "true": Node is healthy.
+    Default: ""

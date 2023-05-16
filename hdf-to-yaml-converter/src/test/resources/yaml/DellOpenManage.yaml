@@ -877,13 +877,12 @@ translations:
     "8,1": Disabled
     "9,1": Terminator
   RACTypeTranslationTable:
-    default: DRAC
     "3": DracIII
     "4": ERA
     "5": DRAC4
     "6": DRAC5
+    Default: DRAC
   EnvironmentStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
@@ -891,19 +890,20 @@ translations:
     "7": degraded
     "8": failed
     "9": failed
+    Default: UNKNOWN
     "10": failed
   GenericStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   GenericStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Non Critical
     "5": Critical
     "6": Unrecoverable
+    Default: Unknown Status
   MemoryTypeTranslationTable:
     "11": FEPROM
     "12": EPROM
@@ -1060,7 +1060,6 @@ translations:
     "87": UltraSPARC III
   PowerSupplyTypeTranslationTable:
     "11": VRM
-    default: ""
     "3": Linear
     "4": Switching
     "5": Battery
@@ -1068,9 +1067,9 @@ translations:
     "7": Converter
     "8": Regulator
     "9": AC
+    Default: ""
     "10": DC
   EnvironmentStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Non-Critical Upper
     "5": Critical Upper
@@ -1078,6 +1077,7 @@ translations:
     "7": Non-Critical Lower
     "8": Critical Lower
     "9": Unrecoverable Lower
+    Default: Unknown Status
     "10": Failed
   PowerSupplyStatusInformationTranslationTable:
     "13,1": AC Out-of-range

@@ -472,13 +472,13 @@ translations:
   systemStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   logicalDiskStatusTranslationTable:
     "11": failed
     "12": failed
+    Default: UNKNOWN
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -490,13 +490,13 @@ translations:
   systemStatusInformationTranslationTable:
     "1": ok
     "2": failed
-    default: Unknown Status
+    Default: Unknown Status
   logicalDiskStatusInformationTranslationTable:
     "11": Degraded
     "12": Crashed
+    Default: Unknown Status
     "1": Normal
     "2": Repairing
-    default: Unknown Status
     "3": Migrating
     "4": Expanding
     "5": Deleting
@@ -507,20 +507,20 @@ translations:
     "10": Cancelling
   BiosStatusTranslationTable:
     "1": degraded
-    default: ok
+    Default: ok
   diskStatusInformationTranslationTable:
     "1": Normal
     "2": Initialized
-    default: Unknown Status
     "3": Not Initialized
     "4": System Partition Failed
     "5": Crashed
+    Default: Unknown Status
   diskStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": failed
     "5": failed
+    Default: UNKNOWN
   BiosStatusInformationTranslationTable:
     "1": Requires Upgrade

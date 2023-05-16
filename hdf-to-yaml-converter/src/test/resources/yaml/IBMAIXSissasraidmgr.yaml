@@ -326,21 +326,21 @@ embedded:
                             }
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    default: Unknown Status
-    available: Available
-    active: Active
-    failed: Failed
-    rwprotected: RWProtected (Formatting/Rebuilding)
+    Active: Active
+    Failed: Failed
+    RWProtected: RWProtected (Formatting/Rebuilding)
+    Available: Available
+    Default: Unknown Status
   BatteryStatusTranslationTable:
-    default: failed
-    no battery warning/error: ok
+    No battery warning/error: ok
+    Default: failed
   LogicalDiskStatusTranslationTable:
-    default: failed
-    optimal: ok
-    rebuilding: degraded
+    Rebuilding: degraded
+    Optimal: ok
+    Default: failed
   PhysicalDiskStatusTranslationTable:
-    default: degraded
-    available: ok
-    active: ok
-    failed: failed
-    rwprotected: degraded
+    Active: ok
+    Failed: failed
+    RWProtected: degraded
+    Available: ok
+    Default: degraded

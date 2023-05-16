@@ -147,26 +147,26 @@ monitors:
 translations:
   NetworkCardStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Failed
+    Default: Unknown Status
   iLoStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Not Responding
+    Default: Unknown Status
   iLoStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
+    Default: UNKNOWN
   NetworkCardStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   iLoModelTranslationTable:
     "2": EISA Remote Insight
-    default: Unknown Remote/Integrated Insight Lights-Out
     "3": PCI Remote Insight
     "4": Remote Insight Lights-Out
     "5": Integrated Remote Insight Lights-Out
     "6": Remote Insight Lights-Out version II
+    Default: Unknown Remote/Integrated Insight Lights-Out

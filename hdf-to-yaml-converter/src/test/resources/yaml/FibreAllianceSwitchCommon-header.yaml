@@ -404,38 +404,38 @@ translations:
   MIB2PortStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "5": ok
     "6": failed
     "7": failed
+    Default: UNKNOWN
   PortLinkStatusInformationTranslationTable:
     "1": degraded
-    default: ok
     "7": degraded
     "8": degraded
+    Default: ok
   PortStatusInformationTranslationTable:
     "2": Failed
-    default: Unknown Status
     "3": "FCAL bypass, Loop only"
     "4": Connected
     "5": External Loopback
     "6": Transmitter Fault
     "7": No Media
     "8": Link Down
+    Default: Unknown Status
   MIB2PortStatusInformationTranslationTable:
     "1": Up
     "2": Down
-    default: Unknown Status
     "3": Testing
     "5": Dormant
     "6": Component Not Present
     "7": Lower Layer Down
+    Default: Unknown Status
   SensorStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
+    Default: UNKNOWN
   PortTypeTranslationTable:
     "11": SCSI Port
     "22": IP Storage Port
@@ -443,7 +443,7 @@ translations:
     "17": AC Port
     "18": DC Port
     "19": SSA Port
-    default: FC Port
+    Default: FC Port
     "4": FC Port Hub
     "5": FC Port N
     "6": FC Port NL (Public Loop)
@@ -456,13 +456,13 @@ translations:
   MIB2PortLinkStatusInformationTranslationTable:
     "1": ok
     "2": degraded
-    default: degraded
+    Default: degraded
   PortStatusTranslationTable:
     "2": failed
-    default: UNKNOWN
     "3": degraded
     "4": ok
     "5": ok
     "6": failed
     "7": failed
     "8": ok
+    Default: UNKNOWN

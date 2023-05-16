@@ -907,29 +907,29 @@ translations:
   LEDColor2OffStatusTranslationTable:
     red: ok
     orange: ok
-    default: ok
     green: ok
     blue: ok
     white: ok
-    locate: ok
-    activity: ok
-    service: ok
-    fault: ok
     amber: ok
-    ok: ok
+    SERVICE: ok
+    FAULT: ok
+    LOCATE: ok
+    OK: ok
+    Default: ok
+    ACTIVITY: ok
   LEDColor2OnStatusTranslationTable:
     red: failed
     orange: ok
-    default: ok
     green: ok
     blue: ok
     white: ok
-    locate: ok
-    activity: ok
-    service: failed
-    fault: failed
     amber: failed
-    ok: ok
+    SERVICE: failed
+    FAULT: failed
+    LOCATE: ok
+    OK: ok
+    Default: ok
+    ACTIVITY: ok
   LEDStateTranslationTable:
     flashing: Blinking
     blinking: Blinking
@@ -939,34 +939,34 @@ translations:
   LEDColor2BlinkingStatusTranslationTable:
     red: degraded
     orange: ok
-    default: degraded
     green: ok
     blue: ok
     white: ok
-    locate: ok
-    activity: ok
-    service: failed
-    fault: failed
     amber: degraded
-    ok: ok
+    SERVICE: failed
+    FAULT: failed
+    LOCATE: ok
+    OK: ok
+    Default: degraded
+    ACTIVITY: ok
   PrtDiagStatusTranslationTable:
     okay: ok
     ? ""
     : ok
-    normal: ok
-    green: ok
     pass: ok
-    good: ok
+    Normal: ok
+    Default: failed
+    TooSlow: degraded
+    '[NO_FAULT]': ok
+    '[NO_FAULT': ok
     unknown: UNKNOWN
-    '[no_fault]': ok
-    '[no_fault': ok
-    unplugged: ok
-    default: failed
-    (ok): ok
-    '[ok': ok
+    (OK): ok
+    '[OK': ok
     self-regulating: ok
     no_status: ok
-    no_fault: ok
+    NO_FAULT: ok
     self: ok
-    tooslow: degraded
-    ok: ok
+    UNPLUGGED: ok
+    OK: ok
+    GOOD: ok
+    Green: ok

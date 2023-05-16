@@ -193,24 +193,24 @@ translations:
   NetworkCardLinkStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: ok
     "3": ok
     "5": ok
     "6": ok
     "7": degraded
+    Default: ok
   NetworkCardStatusInformationTranslationTable:
     "1": Up
     "2": Down
-    default: Unknown Status
     "3": Testing
     "5": Dormant
     "6": Not present
     "7": Lower layer down
+    Default: Unknown Status
   NetworkCardStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "5": ok
     "6": failed
     "7": failed
+    Default: UNKNOWN

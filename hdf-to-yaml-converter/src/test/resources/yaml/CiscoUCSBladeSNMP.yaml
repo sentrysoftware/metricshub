@@ -507,7 +507,6 @@ translations:
     "29": degraded
     "210": ok
     "211": degraded
-    default: Unknown Status
     "212": degraded
     "50": failed
     "30": degraded
@@ -523,6 +522,7 @@ translations:
     "14": ok
     "36": ok
     "15": ok
+    Default: Unknown Status
     "0": UNKNOWN
     "1": degraded
     "101": ok
@@ -539,7 +539,6 @@ translations:
     "20": ok
     "21": ok
   statusInformationTranslationTable:
-    default: Unknown Status
     "51": Fabric Conn Problem
     "52": Fabric Unsupported Conn
     "10": Accessibility Problem
@@ -547,6 +546,7 @@ translations:
     "12": Bios Post Timeout
     "13": Disabled
     "14": Malformed FRU
+    Default: Unknown Status
     "0": Unknown
     "1": Operable
     "100": Not Supported
@@ -571,7 +571,6 @@ translations:
     "83": Decommissioning
     "84": Chassis Limit Exceeded
   statusTranslationTable:
-    default: Unknown Status
     "51": degraded
     "52": degraded
     "10": degraded
@@ -579,6 +578,7 @@ translations:
     "12": failed
     "13": degraded
     "14": degraded
+    Default: Unknown Status
     "0": UNKNOWN
     "1": ok
     "100": degraded
@@ -606,7 +606,6 @@ translations:
     "29": Compute Mismatch
     "210": Pending Reboot
     "211": Pending Reassociation
-    default: Unknown Status
     "212": Svnic Not Present
     "50": Inaccessible
     "30": Compute Failed
@@ -622,6 +621,7 @@ translations:
     "14": PowerOff
     "36": Maintenance Failed
     "15": Restart
+    Default: Unknown Status
     "0": Indeterminate
     "1": Unassociated
     "101": Decommissioning

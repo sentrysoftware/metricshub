@@ -672,43 +672,43 @@ translations:
   TemperatureStatusTranslationTable:
     "1": ""
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   EnclosureTypeTranslationTable:
     "2": Blade
-    default: Other
+    Default: Other
   PowerSupplyStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   EnclosureStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   VCStatusInformationTranslationTable:
     "2": Absent
-    default: Unknown Status
     "3": ""
+    Default: Unknown Status
   BladePowerStateTranslationTable:
     "1": ""
     "2": "on"
-    default: ""
     "3": "off"
     "4": "off"
     "5": ""
+    Default: ""
   FanStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Failed
+    Default: Unknown Status
   PowerSupplyStatusInformationTranslationTable:
     "11": Voltage Channel Failed
     "12": Orring Diode Failed
@@ -716,9 +716,9 @@ translations:
     "14": Give Up On Startup
     "15": NVRAM Invalid
     "16": Calibration Table Invalid
+    Default: Unknown Status
     "1": ""
     "2": General Failure
-    default: Unknown Status
     "3": Bist Failure
     "4": Fan Failure
     "5": Temperature Failure
@@ -730,35 +730,35 @@ translations:
   BladeStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   TemperatureStatusInformationTranslationTable:
     "1": ""
     "2": ""
-    default: Unknown Status
     "3": Too Hot
     "4": Critically Too Hot
+    Default: Unknown Status
   FuseStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "4": Tripped
+    Default: Unknown Status
   FuseStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "4": failed
+    Default: UNKNOWN
   VCStatusTranslationTable:
     "2": failed
-    default: UNKNOWN
     "3": ok
+    Default: UNKNOWN
   EnclosureStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Failed
+    Default: Unknown Status
   BladeStatusInformationTranslationTable:
     "1": ""
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Failed
+    Default: Unknown Status

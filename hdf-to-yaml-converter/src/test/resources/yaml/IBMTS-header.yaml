@@ -161,22 +161,22 @@ translations:
     "0": ok
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": failed
+    Default: UNKNOWN
   StatusInformationTranslationTable:
     "1": Other Status
     "2": Unknown
-    default: Unknown Status
     "3": ""
     "4": Non-Critical
     "5": Critical
     "6": Non-Recoverable
+    Default: Unknown Status
   StatusTranslationTable:
     "1": UNKNOWN
     "2": UNKNOWN
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN

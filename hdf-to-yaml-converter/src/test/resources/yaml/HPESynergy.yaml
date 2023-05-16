@@ -915,53 +915,53 @@ embedded:
     }
 translations:
   LinkStatusTranslationTable:
-    default: degraded
-    linked: ok
-    unknown: degraded
-    unlinked: degraded
+    Linked: ok
+    Unknown: degraded
+    Unlinked: degraded
+    Default: degraded
   StatusInformationTranslationTable:
-    needsattn: The device needs attention.
-    default: The device is in a critical state
+    Warning: The device has warning state.
     optimal: The device is running normal.
     "null": The device is not reporting a status.
-    critical: The device is in critical state.
-    warning: The device has warning state.
-    ok: The device is running normal.
-    good: The device is running normal.
-    maintenancecharging: The device is performing routine maintenance.
+    needsAttn: The device needs attention.
+    maintenanceCharging: The device is performing routine maintenance.
+    Critical: The device is in critical state.
+    OK: The device is running normal.
+    Good: The device is running normal.
+    Default: The device is in a critical state
   StatusTranslationTable:
-    needsattn: degraded
-    default: failed
+    Warning: degraded
     optimal: ok
     "null": degraded
-    critical: failed
-    warning: degraded
-    ok: ok
-    maintenancecharging: ok
+    needsAttn: degraded
+    maintenanceCharging: ok
+    Critical: failed
+    OK: ok
+    Default: failed
   SpeedTranslationTable:
-    auto: Auto
-    speed_100m: 100
-    speed_2_5g: 2500
-    speed_10m: 10
-    speed_1m: 1
-    speed_20g: 20000
-    speed_10g: 10000
-    speed_40g: 40000
-    speed_30g: 30000
-    speed_13g: 13000
-    speed_24g: 24000
-    speed_5g: 5000
-    default: 0
-    speed_12g: 12000
-    speed_4g: 4000
-    speed_2g: 2000
-    speed_15g: 15000
-    speed_1g: 1000
-    speed_16g: 16000
-    speed_100g: 100000
-    speed_8g: 8000
+    Speed_12G: 12000
+    Speed_13G: 13000
+    Speed_24G: 24000
+    Speed_15G: 15000
+    Speed_16G: 16000
+    Speed_1M: 1
+    Speed_100G: 100000
+    Default: 0
+    Auto: Auto
+    Speed_2_5G: 2500
+    Speed_8G: 8000
+    Speed_100M: 100
+    Speed_4G: 4000
+    Speed_10M: 10
+    Speed_5G: 5000
+    Speed_40G: 40000
+    Speed_1G: 1000
+    Speed_30G: 30000
+    Speed_20G: 20000
+    Speed_2G: 2000
+    Speed_10G: 10000
   NetworkCardStatusTranslationTable:
-    default: failed
-    linked: ok
-    unknown: ok
-    unlinked: ok
+    Linked: ok
+    Unknown: ok
+    Unlinked: ok
+    Default: failed

@@ -833,11 +833,11 @@ embedded:
         }
 translations:
   linkStatusTranslationTable:
-    default: degraded
     "yes": ok
     online: ok
+    Default: degraded
   statusTranslationTable:
-    default: failed
     failed: failed
     ok: ok
     notok: degraded
+    Default: failed

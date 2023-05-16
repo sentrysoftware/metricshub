@@ -111,26 +111,26 @@ translations:
     "7": Zinc Air
     "8": Lithium Polymer
   StatusInformationTranslationTable:
-    default: 'Unknown '
-    stressed: 'Stressed '
-    nonrecover: 'Non Recoverable Error '
-    stopping: ""
-    service: 'Service '
-    no contact: 'No Contact '
-    lost comm: 'Lost Communication '
-    ok: ""
-    error: 'Error '
-    degraded: 'Degraded '
-    starting: ""
+    No Contact: 'No Contact '
+    Stressed: 'Stressed '
+    Degraded: 'Degraded '
+    Starting: ""
+    Error: 'Error '
+    Stopping: ""
+    Service: 'Service '
+    NonRecover: 'Non Recoverable Error '
+    OK: ""
+    Lost Comm: 'Lost Communication '
+    Default: 'Unknown '
   StatusTranslationTable:
-    default: UNKNOWN
-    stressed: degraded
-    nonrecover: failed
-    stopping: ok
-    service: degraded
-    no contact: degraded
-    lost comm: degraded
-    ok: ok
-    error: failed
-    degraded: degraded
-    starting: ok
+    No Contact: degraded
+    Stressed: degraded
+    Degraded: degraded
+    Starting: ok
+    Error: failed
+    Stopping: ok
+    Service: degraded
+    NonRecover: failed
+    OK: ok
+    Lost Comm: degraded
+    Default: UNKNOWN

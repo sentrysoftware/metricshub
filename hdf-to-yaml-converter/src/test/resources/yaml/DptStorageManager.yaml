@@ -233,9 +233,9 @@ translations:
     "12": degraded
     "13": ok
     "14": ok
+    Default: UNKNOWN
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": failed
     "5": degraded
@@ -245,13 +245,13 @@ translations:
     "9": ok
     "10": degraded
   RAIDLevelTranslationTable:
-    default: Unknown
     "3": 0
     "4": 1
     "5": 5
     "6": Redirected
     "7": Hot-spare
     "8": jbod
+    Default: Unknown
   PhysicalDiskSMARTTranslationTable:
     "1": "false"
     "2": "false"
@@ -263,9 +263,9 @@ translations:
     "12": Rebuilding
     "13": Verify fixing
     "14": Abort activity
+    Default: Unknown Status
     "1": Invalid
     "2": ""
-    default: Unknown Status
     "3": Verifying
     "4": Failed
     "5": Warning

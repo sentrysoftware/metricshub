@@ -357,12 +357,12 @@ translations:
   McSensorInformationStatusTranslationTable:
     "1": Active
     "2": Backup
-    default: UNKNOWN
     "3": Update-Busy
     "4": Failed
+    Default: UNKNOWN
   McSensorStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": failed
+    Default: UNKNOWN
