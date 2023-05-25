@@ -513,14 +513,24 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
-	 * Create the a new boolean node in the given object node
+	 * Create the a new boolean node in the given object node if the text value is either
+	 * “1“, “0”, “true”, or “false“. Create a textNode using the text value in any other case.
 	 * 
 	 * @param key The node key
 	 * @param value The text value
 	 * @param objectNode The {@link ObjectNode} to update
 	 */
 	protected void createBooleanNode(final String key, final String value, final ObjectNode objectNode) {
-		objectNode.set(key, JsonNodeFactory.instance.booleanNode(convertToBoolean(value.trim())));
+		final String trimedValue = value.trim();
+		if ("1".equals(trimedValue)
+				|| "0".equals(trimedValue)
+				|| "true".equalsIgnoreCase(trimedValue)
+				|| "false".equalsIgnoreCase(trimedValue)
+				) {
+			objectNode.set(key, JsonNodeFactory.instance.booleanNode(convertToBoolean(trimedValue)));
+		} else {
+			objectNode.set(key, JsonNodeFactory.instance.textNode(trimedValue));
+		}
 	}
 
 	/**

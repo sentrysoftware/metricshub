@@ -5,12 +5,12 @@ connector:
     - type: osCommand
       commandLine: _EsxcliConstant system version get
       expectedResult: "Version: [567]"
-      executeLocally: false
+      executeLocally: _ExecuteLocally
     # Check that there are FC LUNs
     - type: osCommand
       commandLine: _EsxcliConstant storage core path list
       expectedResult: "Transport: fc"
-      executeLocally: false
+      executeLocally: _ExecuteLocally
 monitors:
   lun:
     discovery:
@@ -19,7 +19,7 @@ monitors:
           # Get the list of LUNs from esxcli storage core path list
           type: osCommand
           commandLine: _EsxcliConstant storage core path list
-          executeLocally: false
+          executeLocally: _ExecuteLocally
           computes:
             # AWK it
             # MSHW;LunName;LunInfo;NumberPaths;LunStatusInfo;
@@ -47,7 +47,7 @@ monitors:
           # Get the list of LUNs from esxcli storage core path list
           type: osCommand
           commandLine: _EsxcliConstant storage core path list
-          executeLocally: false
+          executeLocally: _ExecuteLocally
           computes:
             # AWK it
             # MSHW;LunName;LunInfo;NumberPaths;LunStatusInfo;
@@ -73,7 +73,7 @@ monitors:
           # Get the list of SD Cards from esxcli storage core device list
           type: osCommand
           commandLine: _EsxcliConstant storage core device list
-          executeLocally: false
+          executeLocally: _ExecuteLocally
           computes:
             # AWK it
             # Type;USBID;Vendor;Model;
@@ -101,7 +101,7 @@ monitors:
           # Get the list of SD Cards from esxcli storage core device list
           type: osCommand
           commandLine: _EsxcliConstant storage core device list
-          executeLocally: false
+          executeLocally: _ExecuteLocally
           computes:
             # AWK it
             # USBID;Status;StatusInformation;
