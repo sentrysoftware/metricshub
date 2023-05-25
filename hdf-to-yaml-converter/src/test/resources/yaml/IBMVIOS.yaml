@@ -785,28 +785,28 @@ embedded:
     }
 translations:
   PhysicalDiskStatusInformationTranslationTable:
-    stopped: Stopped
-    default: Unknown Status
-    available: Available
-    defined: Defined
+    Stopped: Stopped
+    Defined: Defined
+    Available: Available
+    Default: Unknown Status
   ErrorcounttoStatusTranslationTable:
     "0": ok
-    default: failed
+    Default: failed
   cpuStatusInformationTranslationTable:
-    stopped: Stopped
-    default: Unknown Status
-    available: Available
-    defined: Defined
+    Stopped: Stopped
+    Defined: Defined
+    Available: Available
+    Default: Unknown Status
   ErrorcounttoStatusInformationTranslationTable:
     "0": No Disk Controller Events found today (Parameter only collects every hour)
-    default: Disk Controller Events found today - Run errlog for more details
+    Default: Disk Controller Events found today - Run errlog for more details
   cpuStatusTranslationTable:
-    stopped: degraded
-    default: UNKNOWN
-    available: ok
-    defined: ok
+    Stopped: degraded
+    Defined: ok
+    Available: ok
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
-    stopped: degraded
-    default: UNKNOWN
-    available: ok
-    defined: ok
+    Stopped: degraded
+    Defined: ok
+    Available: ok
+    Default: UNKNOWN

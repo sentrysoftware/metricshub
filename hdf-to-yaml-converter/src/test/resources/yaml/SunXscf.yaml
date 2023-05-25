@@ -926,19 +926,19 @@ embedded:
     }
 translations:
   ShowHardConfStatusTranslationTable:
-    deconfigured: degraded
-    normal: ok
-    default: UNKNOWN
-    faulted: failed
-    degraded: degraded
-    input fail: failed
-    maintenance: ok
+    Degraded: degraded
+    Deconfigured: degraded
+    Input Fail: failed
+    Maintenance: ok
+    Faulted: failed
+    Normal: ok
+    Default: UNKNOWN
   DomainStatusTranslationTable:
-    openboot execution completed: ok
-    running: ok
-    initialization phase: ok
-    default: UNKNOWN
-    booting/openboot prom prompt: ok
-    shutdown started: ok
-    panic state: failed
-    powered off: ok
+    Panic State: failed
+    Powered Off: ok
+    Booting/OpenBoot PROM prompt: ok
+    Initialization Phase: ok
+    Running: ok
+    Shutdown Started: ok
+    OpenBoot Execution Completed: ok
+    Default: UNKNOWN

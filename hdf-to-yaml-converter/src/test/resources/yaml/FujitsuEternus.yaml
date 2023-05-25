@@ -1618,8 +1618,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -1632,27 +1632,27 @@ translations:
     "11": FC Port NL
     "12": FC Port F/NL
     "13": FC Port Nx
-    default: FC Port
     "14": FC Port E
     "15": FC Port F
     "16": FC Port FL
     "17": FC Port B
     "18": FC Port G
     "19": FC Port GL
+    Default: FC Port
     "10": FC Port N
   CreationClassNameStoragePoolTranslationTable:
-    default: 0;Storage Pool
-    fujitsu_raidstoragepool: 0;RAID Storage Pool
-    fujitsu_flexibletierpool: 0;Flexible Tier Pool
-    fujitsu_flexibletiersubpool: 0;Flexible Tier Sub Pool
-    fujitsu_thinprovisioningpool: 0;Thin Provisioning Pool
-    fujitsu_sdpvpool: 0;SDPV Pool
-    fujitsu_snapdatapool: 0;Snap Data Pool
-    fujitsu_primordialstoragepool: 0;Primordial Storage Pool
+    FUJITSU_SDPVPool: 0;SDPV Pool
+    FUJITSU_FlexibleTierPool: 0;Flexible Tier Pool
+    FUJITSU_SnapDataPool: 0;Snap Data Pool
+    FUJITSU_PrimordialStoragePool: 0;Primordial Storage Pool
+    FUJITSU_FlexibleTierSubPool: 0;Flexible Tier Sub Pool
+    Default: 0;Storage Pool
+    FUJITSU_ThinProvisioningPool: 0;Thin Provisioning Pool
+    FUJITSU_RAIDStoragePool: 0;RAID Storage Pool
   UsageRestrictionTranslationTable:
     "2": Front-end Port
-    default: ""
     "3": Back-end Port
+    Default: ""
   DMTFOperationStatusInformationTranslationTable:
     "11": In Service
     "12": No Contact
@@ -1662,8 +1662,8 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: ""
     "2": ""
-    default: ""
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure

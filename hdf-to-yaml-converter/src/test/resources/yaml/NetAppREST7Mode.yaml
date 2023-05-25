@@ -1870,51 +1870,51 @@ embedded:
       }
 translations:
   PhysicalDiskTranslationTable:
-    default: failed
     "false": ok
+    Default: failed
   ServiceElectornicsTranslationTable:
-    default: failed
     "false": ok
+    Default: failed
   TemperatureStatusTranslationTable:
-    default: failed
     "false": ok
+    Default: failed
   FanStatusTranslationTable:
-    default: failed
     "false": ok
+    Default: failed
   EnclosureHealthTranslationTable:
     normal: ok
-    default: failed
+    Default: failed
   LinkStatusTranslationTable:
     ? ""
     : degraded
     no carrier: degraded
-    default: degraded
     inactive: degraded
     online: ok
     link not connected: degraded
     up: ok
     offlined by user/system: degraded
+    Default: degraded
   PowerSupplyStatusTranslationTable:
-    default: failed
     "false": ok
+    Default: failed
   RaidStatusTranslationTable:
-    default: failed
     "false": ok
+    Default: failed
   FanStatusInformationTranslationTable:
-    default: ""
     "false": No Error Detected
     "true": Error Detected
+    Default: ""
   NetworkCardStatusTranslationTable:
     ? ""
     : ok
     no carrier: ok
-    default: failed
     inactive: ok
     online: ok
     link not connected: ok
     up: ok
     offlined by user/system: ok
+    Default: failed
   PowerSupplyStatusInformationTranslationTable:
-    default: ""
     "false": No Errors
     "true": Error Detected
+    Default: ""

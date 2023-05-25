@@ -183,28 +183,28 @@ translations:
     "1": Failed (Unconfigured)
     "2": Hotspare
     "24": ""
-    default: Unknown Status
     "16": Offline
     "17": Failed
+    Default: Unknown Status
     "20": Rebuilding
   LogicalDiskStatusInformationTranslationTable:
     "0": Offline
     "1": Partially Degraded
     "2": Degraded
-    default: Unknown Status
     "3": ""
+    Default: Unknown Status
   LogicalDiskStatusTranslationTable:
     "0": failed
     "1": degraded
     "2": degraded
-    default: UNKNOWN
     "3": ok
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
     "0": ok
     "1": degraded
     "2": ok
     "24": ok
-    default: UNKNOWN
     "16": degraded
     "17": failed
+    Default: UNKNOWN
     "20": degraded

@@ -914,94 +914,94 @@ embedded:
     }
 translations:
   SFPPortStatusTT:
-    default: failed
     online: ok
     disabled: ok
+    Default: failed
   SPPortStatusTT:
-    default: failed
     online: ok
     disabled: ok
+    Default: failed
   RaidGroupStatusInformationTranslationTable:
-    expanding: ""
-    halted: Halted
-    valid states are invalid: Valid States are Invalid
-    defragmenting: ""
-    valid_luns: ""
-    busy: ok
-    invalid: Invalid
-    explicit_remove: ""
-    degraded: Degraded
+    Defragmenting: ""
+    Degraded: Degraded
+    Explicit_Remove: ""
+    Expanding: ""
+    Halted: Halted
+    Busy: ok
+    Valid_luns: ""
+    Valid states are Invalid: Valid States are Invalid
+    Invalid: Invalid
   systemStatusTranslationTable:
-    default: UNKNOWN
-    "off": ok
-    "on": degraded
+    Default: UNKNOWN
+    "OFF": ok
+    "ON": degraded
   StatusTT:
-    expanding: ok
-    unbound: ok
-    rebuilding: degraded
-    binding: ok
+    Rebuilding: degraded
     no_mirror: degraded
     unformatted: degraded
-    enabled: ok
+    "Off": failed
     empty: failed
+    Equalizing: ok
     valid: ok
-    default: UNKNOWN
     '*fault*': failed
     unsupported: failed
+    Expanding: ok
     ready: ok
-    up: ok
-    power: ok
-    ok: ok
+    Unbound: ok
+    OK: ok
     spare: ok
+    Binding: ok
     normal: ok
     faulted: failed
     bound: ok
+    Formatting: degraded
+    Enabled: ok
     fault: failed
     failed: failed
     degraded: degraded
-    "off": failed
-    bypass: failed
+    Default: UNKNOWN
     removed: failed
-    transitioning: ok
+    Bypass: failed
+    Transitioning: ok
     attention: degraded
-    online: degraded
     alerts.: failed
+    Up: ok
+    Online: degraded
     present: ok
-    equalizing: ok
-    formatting: degraded
+    Power: ok
   systemStatusInformationTranslationTable:
-    default: Unknown System Fault LED Status
-    "off": System Fault LED OFF
-    "on": System Fault LED ON
+    Default: Unknown System Fault LED Status
+    "OFF": System Fault LED OFF
+    "ON": System Fault LED ON
   SPLinkStatusTT:
-    default: UNKNOWN
     up: ok
     down: degraded
+    Default: UNKNOWN
   RaidGroupStatusTranslationTable:
-    expanding: ok
-    unbound: ok
-    rebuilding: degraded
+    Busy: ok
+    Rebuilding: degraded
+    Valid_luns: ok
     no_mirror: degraded
-    enabled: ok
     empty: failed
     valid: ok
     '*fault*': failed
+    Expanding: ok
     ready: ok
-    busy: ok
-    ok: ok
-    halted: failed
+    Unbound: ok
+    OK: ok
+    Invalid: degraded
     normal: ok
+    Explicit_Remove: ok
     faulted: failed
+    Halted: failed
     bound: ok
+    Enabled: ok
     fault: failed
     failed: failed
     degraded: degraded
-    valid states are invalid: degraded
+    Defragmenting: ok
     removed: failed
-    defragmenting: ok
-    valid_luns: ok
-    invalid: degraded
     attention: degraded
-    online: degraded
-    explicit_remove: ok
+    Valid states are Invalid: degraded
+    Online: degraded
     present: ok

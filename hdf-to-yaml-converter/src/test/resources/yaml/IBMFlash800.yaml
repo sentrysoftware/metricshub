@@ -674,34 +674,34 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(3))
 translations:
   rpmTranslationTable:
-    default: ""
+    Default: ""
     rpm: speedActivated
   percentTranslationTable:
-    default: ""
     percent: speedPercentActivated
+    Default: ""
   temperatureTranslationTable:
-    default: ""
-    c: temperatureActivation
+    C: temperatureActivation
+    Default: ""
   linkTranslationTable:
-    offline: degraded
-    default: ""
-    no light: degraded
-    online: ok
-    disabled: degraded
-    none: UNKNOWN
+    Offline: degraded
+    Online: ok
+    Disabled: degraded
+    None: UNKNOWN
+    No Light: degraded
+    Default: ""
   StatusInformationTranslationTable:
-    notpresent: Missing
-    default: Status not recognized
+    Warning: Warning
     test: In Test Mode
-    commerror: Communication Error
-    warning: Warning
-    error: Error
-    good: ""
+    Error: Error
+    notPresent: Missing
+    Good: ""
+    Default: Status not recognized
+    commError: Communication Error
   StatusTranslationTable:
-    notpresent: degraded
-    default: failed
+    Warning: degraded
     test: degraded
-    commerror: UNKNOWN
-    warning: degraded
-    error: degraded
-    good: ok
+    Error: degraded
+    notPresent: degraded
+    Good: ok
+    Default: failed
+    commError: UNKNOWN

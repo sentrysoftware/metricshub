@@ -574,18 +574,18 @@ translations:
   StatusInformationTranslationTable:
     "1": Critical Fault
     "2": Major Fault
-    default: Unknown Status
     "3": Minor Fault
     "4": Missing (Indeterminate Status)
     "5": Warning
     "6": Pending
     "7": ""
+    Default: Unknown Status
   StatusTranslationTable:
     "1": failed
     "2": failed
-    default: UNKNOWN
     "3": degraded
     "4": failed
     "5": degraded
     "6": degraded
     "7": ok
+    Default: UNKNOWN

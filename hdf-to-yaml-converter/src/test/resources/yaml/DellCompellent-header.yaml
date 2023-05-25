@@ -1312,7 +1312,7 @@ embedded:
     }
 translations:
   statusTranslationTable:
-    default: UNKNOWN
-    up: ok
-    degraded: degraded
-    down: failed
+    Down: failed
+    Degraded: degraded
+    Up: ok
+    Default: UNKNOWN

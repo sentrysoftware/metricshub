@@ -493,14 +493,14 @@ embedded:
                       otherDeviceID = "" ; }
 translations:
   OKDegradedFailedStatusInformationTranslationTable:
-    n/a: ""
-    default: Unknown Status
-    failed: Failed
-    ok: ""
-    degraded: Degraded
+    N/A: ""
+    Degraded: Degraded
+    Failed: Failed
+    OK: ""
+    Default: Unknown Status
   OKDegradedFailedTranslationTable:
-    n/a: ok
-    default: UNKNOWN
-    failed: failed
-    ok: ok
-    degraded: degraded
+    N/A: ok
+    Degraded: degraded
+    Failed: failed
+    OK: ok
+    Default: UNKNOWN

@@ -96,20 +96,20 @@ monitors:
 translations:
   NetworkCardLinkStatusTranslationTable:
     "2": ok
-    default: ok
     "3": degraded
     "4": ok
     "5": ok
     "6": degraded
     "7": degraded
+    Default: ok
   NetworkCardStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Failed
     "4": Shutdown
     "5": Loop Degraded
     "6": Loop Failed
     "7": Not Connected
+    Default: Unknown Status
   HostControllerModelTranslationTable:
     "88": HPE Synergy 4820C 10/20/25Gb CNA
     "89": HPE StoreFabric CN1200R 10Gb T CNA
@@ -150,7 +150,6 @@ translations:
     "27": HP FC1242SR 4Gb PCI-e DC HBA
     "28": HP FC2142SR 4Gb PCI-e HBA
     "29": HP FC2242SR 4Gb PCI-e DC HBA
-    default: FC HBA
     "30": Emulex based BL20p FC Mezz HBA
     "31": HP StorageWorks 81Q 8Gb PCI-e FC HBA
     "32": HP StorageWorks 82Q 8Gb PCI-e Dual Port FC HBA
@@ -161,6 +160,7 @@ translations:
     "37": HP SN1000E 16Gb Single Port FC HBA
     "38": HP SN1000E 16Gb Dual Port FC HBA
     "39": HP SN1000Q 16Gb Single Port FC HBA
+    Default: FC HBA
     "40": HP SN1000Q 16Gb Dual Port FC HBA
     "41": HP SN1100E 16Gb Single Port FC HBA
     "42": HP SN1100E 16Gb Dual Port FC HBA
@@ -211,9 +211,9 @@ translations:
     "87": HPE SN1200E 32Gb 2p FC HBA
   NetworkCardStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": ok
     "5": degraded
     "6": ok
     "7": ok
+    Default: UNKNOWN

@@ -394,22 +394,22 @@ monitors:
           StatusInformation: $column(6)
 translations:
   DiskStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   RAIDLevelCodeTranslationTable:
     "2": 10
-    default: ""
     "3": 50
+    Default: ""
   PhysicalDiskSMARTTranslationTable:
-    default: "false"
     "5": "true"
     "6": "true"
+    Default: "false"
   DiskStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Degraded
     "5": Critical
     "6": Non-recoverable
+    Default: Unknown Status

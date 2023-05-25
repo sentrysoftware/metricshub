@@ -229,23 +229,23 @@ monitors:
 translations:
   PortLinkStatusInformationTranslationTable:
     "2": degraded
-    default: ok
     "6": degraded
     "7": degraded
+    Default: ok
   PortStatusInformationTranslationTable:
     "1": Up
     "2": Down
-    default: Unknown Status
     "3": Testing
     "5": Dormant
     "6": Component Not Present
     "7": Lower Layer Down
+    Default: Unknown Status
   PortTypeTranslationTable:
     "56": FC Port
     "26": Ethernet
     "37": ATM
+    Default: Ethernet
     "166": MPLS
-    default: Ethernet
     "6": Ethernet
     "7": Ethernet
     "117": Ethernet
@@ -258,8 +258,8 @@ translations:
   PortStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "5": ok
     "6": failed
     "7": failed
+    Default: UNKNOWN

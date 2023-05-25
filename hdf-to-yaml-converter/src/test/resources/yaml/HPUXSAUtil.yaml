@@ -396,46 +396,46 @@ embedded:
                                                     }
 translations:
   BatteryStatusInformationTranslationTable:
-    default: UNKNOWN
-    failed: Failed
-    ok: ""
+    FAILED: Failed
+    OK: ""
+    Default: UNKNOWN
   PhysicalDiskStatusInformationTranslationTable:
-    default: UNKNOWN
-    failed: Failed
-    unassigned: Unassigned
-    ok: ""
-    spare: Spare
+    SPARE: Spare
+    UNASSIGNED: Unassigned
+    FAILED: Failed
+    OK: ""
+    Default: UNKNOWN
   BatteryStatusTranslationTable:
-    default: UNKNOWN
-    failed: failed
-    ok: ok
+    FAILED: failed
+    OK: ok
+    Default: UNKNOWN
   LogicalDiskStatusInformationTranslationTable:
-    expanding: Expanding
-    using: Using Interim Recovery Mode
-    recovering: Recovering
-    not: Not Yet Available
-    default: UNKNOWN
-    ready: Ready for Recovery Operation
-    queued: Queued for Expanding
-    failed: Failed
-    ok: ""
-    physical: Physical Disk not Properly Connected
-    wrong: Wrong Physical Disk was Replaced
+    USING: Using Interim Recovery Mode
+    READY: Ready for Recovery Operation
+    NOT: Not Yet Available
+    FAILED: Failed
+    QUEUED: Queued for Expanding
+    PHYSICAL: Physical Disk not Properly Connected
+    RECOVERING: Recovering
+    EXPANDING: Expanding
+    OK: ""
+    WRONG: Wrong Physical Disk was Replaced
+    Default: UNKNOWN
   LogicalDiskStatusTranslationTable:
-    expanding: ok
-    using: degraded
-    recovering: degraded
-    not: degraded
-    default: UNKNOWN
-    ready: degraded
-    queued: ok
-    failed: failed
-    ok: ok
-    physical: failed
-    wrong: failed
+    USING: degraded
+    READY: degraded
+    NOT: degraded
+    FAILED: failed
+    QUEUED: ok
+    PHYSICAL: failed
+    RECOVERING: degraded
+    EXPANDING: ok
+    OK: ok
+    WRONG: failed
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
-    default: UNKNOWN
-    failed: failed
-    unassigned: ok
-    ok: ok
-    spare: ok
+    SPARE: ok
+    UNASSIGNED: ok
+    FAILED: failed
+    OK: ok
+    Default: UNKNOWN

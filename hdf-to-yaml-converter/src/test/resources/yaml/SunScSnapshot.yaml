@@ -512,22 +512,22 @@ embedded:
   EmbeddedFile(2): "showenvironment,7,8"
 translations:
   TemperatureStatusTranslationTable:
-    default: failed
     faulty: degraded
-    ok: ok
+    OK: ok
+    Default: failed
   FanStatusTranslationTable:
-    default: failed
     faulty: degraded
-    ok: ok
+    OK: ok
+    Default: failed
   VoltageStatusTranslationTable:
-    default: failed
     faulty: degraded
-    ok: ok
+    OK: ok
+    Default: failed
   PowerSupplyStatusTranslationTable:
-    default: failed
     faulty: failed
-    ok: ok
+    OK: ok
+    Default: failed
   OtherDeviceStatusTranslationTable:
-    default: failed
     faulty: degraded
-    ok: ok
+    OK: ok
+    Default: failed

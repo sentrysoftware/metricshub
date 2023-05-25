@@ -829,23 +829,23 @@ monitors:
           StatusInformation: $column(5)
 translations:
   LinkStatusTranslationTable:
-    default: degraded
-    disabled: degraded
-    enabled: ok
+    Enabled: ok
+    Disabled: degraded
+    Default: degraded
   StatusInformationTranslationTable:
-    default: failed
-    critical: The device is in critical state.
-    warning: The device has warning state.
-    ok: The device is running normal.
+    Warning: The device has warning state.
+    Critical: The device is in critical state.
+    OK: The device is running normal.
+    Default: failed
   StatusTranslationTable:
-    default: failed
-    critical: failed
-    warning: degraded
-    ok: ok
+    Warning: degraded
+    Critical: failed
+    OK: ok
+    Default: failed
   LinkSpeedDeactivationTranslationTable:
-    default: ""
-    enabled: "True"
+    Enabled: "True"
+    Default: ""
   NetworkCardStatusTranslationTable:
-    default: failed
-    disabled: ok
-    enabled: ok
+    Enabled: ok
+    Disabled: ok
+    Default: failed

@@ -140,18 +140,18 @@ embedded:
     /usr/sbin/ioscan -FkC processor|/bin/awk -F : -v Speed="$PROCESSORSPEED" -v Model="$PROCESSORMODEL" '{print "MSHW;" $11 ";" $13 ";" $16 ";" Speed ";" Model}'
 translations:
   cpuStatusInformationTranslationTable:
-    diff_hw: Bad driver
-    default: Unknown Status
-    unclaimed: Unclaimed
-    claimed: Claimed
-    scan: Locked
-    error: Error
-    no_hw: Not responding
+    CLAIMED: Claimed
+    ERROR: Error
+    SCAN: Locked
+    DIFF_HW: Bad driver
+    NO_HW: Not responding
+    Default: Unknown Status
+    UNCLAIMED: Unclaimed
   cpuStatusTranslationTable:
-    diff_hw: degraded
-    default: UNKNOWN
-    unclaimed: degraded
-    claimed: ok
-    scan: degraded
-    error: failed
-    no_hw: failed
+    CLAIMED: ok
+    ERROR: failed
+    SCAN: degraded
+    DIFF_HW: degraded
+    NO_HW: failed
+    Default: UNKNOWN
+    UNCLAIMED: degraded

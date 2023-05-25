@@ -1088,15 +1088,15 @@ translations:
   StatusTranslationTable:
     "1": failed
     "2": failed
-    default: UNKNOWN
     "3": degraded
     "4": failed
     "5": degraded
     "6": degraded
     "7": ok
+    Default: UNKNOWN
   LEDStatusTranslationTable:
     "1": ""
     "2": 8
-    default: ""
     "3": 9
     "4": 10
+    Default: ""

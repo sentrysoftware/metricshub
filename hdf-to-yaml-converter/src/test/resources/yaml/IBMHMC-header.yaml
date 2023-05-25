@@ -137,5 +137,5 @@ monitors:
           hw.status{hw.type="led"}: legacyLedStatus($column(2))
 translations:
   LEDStatusTranslationTable:
-    default: "Off"
+    Default: "Off"
     "on": "On"

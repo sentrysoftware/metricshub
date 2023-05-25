@@ -146,12 +146,12 @@ embedded:
     END { if (logicalDeviceID !="") {printMSHW()} }
 translations:
   LUNStatusTranslationTable:
-    default: UNKNOWN
     alive: ok
     unlic: degraded
     dead: failed
+    Default: UNKNOWN
   LUNStatusInformationTranslationTable:
-    default: UNKNOWN
     alive: ""
     unlic: One or more paths are unlicensed
     dead: Dead
+    Default: UNKNOWN

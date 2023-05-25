@@ -289,13 +289,12 @@ monitors:
 translations:
   DiskControllerStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": degraded
+    Default: UNKNOWN
   ArrayControllerModelTranslationTable:
     "2": Compaq StorageWorks RAID Array 4000
-    default: HP StorageWorks Controller
     "3": Compaq StorageWorks Modular Smart Array 1000
     "4": HP StorageWorks Modular Smart Array 500
     "5": Compaq StorageWorks HSG80 RAID Array
@@ -303,40 +302,41 @@ translations:
     "7": HP StorageWorks Modular Smart Array 500 G2
     "8": HP StorageWorks Modular Smart Array 20
     "9": HP StorageWorks Modular Smart Array 1510i
+    Default: HP StorageWorks Controller
   RAIDLevelTranslationTable:
     "1": ""
     "2": 0
-    default: ""
     "3": 1
     "4": 4
     "5": 5
     "7": ADG
+    Default: ""
   PhysicalDiskStatusInformationTranslationTable:
     "2": Unconfigured
-    default: Unknown Status
     "3": ""
     "4": Too many errors
     "5": Predicted failure
     "6": Failed
+    Default: Unknown Status
   DiskControllerStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Failed
     "4": Offline
     "5": Redundant path offline
+    Default: Unknown Status
   PhysicalDiskSMARTStatusTranslationTable:
     "1": "FALSE"
     "2": "FALSE"
-    default: "FALSE"
     "3": "TRUE"
+    Default: "FALSE"
   LogicalDiskStatusInformationTranslationTable:
     "11": Shutdown
     "12": Expanding
     "13": Not available
     "14": Queued for expansion
     "15": Hard error
+    Default: Unknown Status
     "2": ""
-    default: Unknown Status
     "3": Failed
     "4": Unconfigured
     "5": Recovering
@@ -347,7 +347,6 @@ translations:
     "10": Overheating
   StorageWorksModelTranslationTable:
     "2": Compaq StorageWorks RAID Array 4000/4100
-    default: HP/Compaq StorageWorks Array
     "3": Compaq StorageWorks Modular Smart Array 1000
     "4": HP StorageWorks Modular Smart Array 500
     "5": Compaq StorageWorks Enterprise/Modular RAID Array
@@ -355,22 +354,23 @@ translations:
     "7": HP StorageWorks Modular Smart Array 500 G2
     "8": HP StorageWorks Modular Smart Array 20
     "9": HP StorageWorks Modular Smart Array 1500 CS
+    Default: HP/Compaq StorageWorks Array
     "10": HP StorageWorks Modular Smart Array 1510i
   DiskControllerBatteryStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": failed
     "5": degraded
     "6": ok
+    Default: UNKNOWN
   LogicalDiskStatusTranslationTable:
     "11": failed
     "12": ok
     "13": failed
     "14": ok
     "15": failed
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": ok
     "5": degraded
@@ -381,8 +381,8 @@ translations:
     "10": degraded
   PhysicalDiskStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": degraded
     "6": failed
+    Default: UNKNOWN

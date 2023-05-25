@@ -216,16 +216,16 @@ monitors:
           StatusInformation: $column(4)
 translations:
   PhysicalDiskInformationStatusTranslationTable:
-    default: Unknown
-    service: Service
-    ok: ""
-    error: Error
-    degraded: Degraded
-    pred fail: Predicted Failure
+    Degraded: Degraded
+    Error: Error
+    Service: Service
+    Pred Fail: Predicted Failure
+    OK: ""
+    Default: Unknown
   PhysicalDiskStatusTranslationTable:
-    default: UNKNWON
-    service: degraded
-    ok: ok
-    error: failed
-    degraded: degraded
-    pred fail: degraded
+    Degraded: degraded
+    Error: failed
+    Service: degraded
+    Pred Fail: degraded
+    OK: ok
+    Default: UNKNWON

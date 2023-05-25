@@ -616,14 +616,14 @@ translations:
   StatusInformationTranslationTable:
     "1": ""
     "2": Minor Fault
-    default: Unknown Status
     "3": Major Fault
     "4": Critical Fault
     "5": Device Missing
+    Default: Unknown Status
   StatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": failed
+    Default: UNKNOWN

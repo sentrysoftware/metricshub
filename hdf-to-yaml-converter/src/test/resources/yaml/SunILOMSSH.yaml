@@ -600,21 +600,21 @@ embedded:
     END {print("MSHW;"ID";"fruName";"fruVendor";"type";"sensorValue";"upperAlarm";"upperWarn";"lowerAlarm";"lowerWarn";"numericalSensorValue";");}
 translations:
   DiskDiscreteTranslationTable:
-    default: UNKNOWN
-    predictive failure asserted: "true"
-    predictive failure deasserted: "false"
+    Predictive Failure Deasserted: "false"
+    Predictive Failure Asserted: "true"
+    Default: UNKNOWN
   TemperatureTranslationTable:
-    default: UNKNOWN
-    state deasserted: ok
-    state asserted: failed
+    State Deasserted: ok
+    Default: UNKNOWN
+    State Asserted: failed
   IndicatorTranslationTable:
-    default: UNKNOWN
-    fast blink: failed
-    "off": ok
-    "on": failed
+    Fast Blink: failed
+    Default: UNKNOWN
+    "Off": ok
+    "On": failed
   VoltageTranslationTable:
-    default: UNKNOWN
-    predictive failure asserted: failed
-    state deasserted: failed
-    state asserted: ok
-    predictive failure deasserted: ok
+    Predictive Failure Deasserted: ok
+    Predictive Failure Asserted: failed
+    State Deasserted: failed
+    Default: UNKNOWN
+    State Asserted: ok

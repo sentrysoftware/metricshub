@@ -1086,23 +1086,23 @@ embedded:
         }
 translations:
   LinkTranslationTable:
-    default: UNKNOWN
-    up: ok
-    down: degraded
+    Down: degraded
+    Up: ok
+    Default: UNKNOWN
   StatusTranslationTable:
-    normal: ok
-    rebuilding: degraded
-    initializing: degraded
-    global: ok
-    unassigned: ok
-    down: degraded
-    unknown: UNKNOWN
-    running: ok
-    default: failed
-    na: UNKNOWN
-    ready: ok
-    failure: failed
-    attention: degraded
-    warning: degraded
-    online: ok
-    up: ok
+    Down: degraded
+    Warning: degraded
+    Attention: degraded
+    Rebuilding: degraded
+    Normal: ok
+    Default: failed
+    Global: ok
+    Ready: ok
+    NA: UNKNOWN
+    Unknown: UNKNOWN
+    Running: ok
+    Unassigned: ok
+    Up: ok
+    Online: ok
+    Failure: failed
+    Initializing: degraded

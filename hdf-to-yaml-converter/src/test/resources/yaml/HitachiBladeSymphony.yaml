@@ -1230,43 +1230,43 @@ translations:
   OtherDeviceTT:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": UNKNOWN
+    Default: UNKNOWN
   FanTT:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": UNKNOWN
+    Default: UNKNOWN
   IntakeTempInfoTT:
     "1": ""
     "2": Intake Temperature High
-    default: UNKNOWN
     "3": Intake Temperature Exceeds Threshold
     "4": Intake Temperature Low
+    Default: UNKNOWN
   PSUTT:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": UNKNOWN
+    Default: UNKNOWN
   bladeStatusTT:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": UNKNOWN
+    Default: UNKNOWN
   LEDStateTranslationTable:
     "1": "Off"
     "2": "On"
   IntakeTempTT:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": degraded
+    Default: UNKNOWN
   PowerStateTranslationTable:
     "1": "off"
     "2": "on"
-    default: ""
     "3": "off"
     "4": ""
     "5": "off"
     "6": "off"
+    Default: ""

@@ -947,96 +947,96 @@ embedded:
       }
 translations:
   BatteryStatusTranslationTable:
-    good-test: ok
-    good-testing: ok
-    default: failed
-    good-good: ok
-    ready-enabled: ok
-    ready-enabled-fully charged: ok
-    testing-good: ok
-    good: ok
+    Ready-enabled: ok
+    Good-Test: ok
+    Good-Testing: ok
+    Testing-Good: ok
+    Good-Good: ok
+    Good: ok
+    Default: failed
+    Ready-enabled-fully charged: ok
   LinkStatusTranslationTable:
     no carrier: degraded
-    default: degraded
     inactive: degraded
     up: ok
+    Default: degraded
   PowerSupplyStatusTranslationTable:
-    default: failed
-    ok: ok
+    OK: ok
+    Default: failed
   ClusterStatusTranslationTable:
-    default: failed
-    ok: ok
+    OK: ok
+    Default: failed
   CPUStatusTranslationTable:
-    normal: ok
-    default: failed
+    Normal: ok
+    Default: failed
   NodeStatusInformationTranslationTable:
-    d--r: Down Read-Only
-    "-a--": Attention
-    "-asr": Attention Smartfailed Read-Only
-    d-sr: Down Smartfailed Read-Only
-    d---: Down
-    "--sr": Smartfailed Read-Only
-    "-a-r": Attention Read-Only
-    da-r: Down Attention Read-Only
-    d-s-: Down Smartfailed
-    "--s-": Smartfailed
-    "---r": Read-Only
-    dasr: Down Attention Smartfailed Read-Only
-    default: UNKNOWN
-    da--: Down Attention
+    "-A--": Attention
+    DA--: Down Attention
+    DASR: Down Attention Smartfailed Read-Only
+    "-ASR": Attention Smartfailed Read-Only
+    DAS-: Down Attention Smartfailed
+    "--SR": Smartfailed Read-Only
+    "-A-R": Attention Read-Only
+    Default: UNKNOWN
+    "--S-": Smartfailed
+    "---R": Read-Only
+    D--R: Down Read-Only
     "----": ""
-    das-: Down Attention Smartfailed
-    "-as-": Attention Smartfailed
-    ok: ""
+    D---: Down
+    D-SR: Down Smartfailed Read-Only
+    "-AS-": Attention Smartfailed
+    D-S-: Down Smartfailed
+    OK: ""
+    DA-R: Down Attention Read-Only
   NodeStatusTranslationTable:
-    d--r: failed
-    "-a--": degraded
-    "-asr": degraded
-    d-sr: failed
-    d---: failed
-    "--sr": degraded
-    "-a-r": degraded
-    da-r: failed
-    d-s-: failed
-    "--s-": degraded
-    "---r": degraded
-    dasr: failed
-    default: UNKNOWN
-    da--: failed
+    "-A--": degraded
+    DA--: failed
+    DASR: failed
+    "-ASR": degraded
+    DAS-: failed
+    "--SR": degraded
+    "-A-R": degraded
+    Default: UNKNOWN
+    "--S-": degraded
+    "---R": degraded
+    D--R: failed
     "----": ok
-    das-: failed
-    "-as-": degraded
-    ok: ok
+    D---: failed
+    D-SR: failed
+    "-AS-": degraded
+    D-S-: failed
+    OK: ok
+    DA-R: failed
   LogicalDiskStatusTranslationTable:
-    repair: failed
-    default: failed
-    toofewnodes: failed
-    smartfailed: degraded
-    ok: ok
-    down: degraded
-    missingdrives: failed
+    Down: degraded
+    MissingDrives: failed
+    TooFewNodes: failed
+    SmartFailed: degraded
+    OK: ok
+    Repair: failed
+    Default: failed
   PhysicalDiskStatusTranslationTable:
-    new: degraded
-    erase: degraded
-    l3: ok
-    replace: failed
-    used: degraded
-    boot_drive: ok
-    wrong_type: degraded
-    suspended: degraded
-    unencrypted: failed
-    restripe: degraded
-    smartfail: degraded
-    not: failed
-    default: failed
-    journal: ok
-    preparing: degraded
-    healthy: ok
-    stalled: ok
-    insecure: failed
-    sed_error: failed
+    NEW: degraded
+    WRONG_TYPE: degraded
+    SED_ERROR: failed
+    L3: ok
+    JOURNAL: ok
+    SMARTFAIL: degraded
+    HEALTHY: ok
+    BOOT_DRIVE: ok
+    PREPARING: degraded
+    STALLED: ok
+    Default: failed
+    NOT: failed
+    UNENCRYPTED: failed
+    ERASE: degraded
+    RESTRIPE: degraded
+    SUSPENDED: degraded
+    INSECURE: failed
+    USED: degraded
+    REPLACE: failed
   NetworkCardStatusTranslationTable:
     no carrier: ok
-    default: failed
     inactive: ok
     up: ok
+    Default: failed

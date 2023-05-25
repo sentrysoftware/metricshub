@@ -348,17 +348,17 @@ translations:
   SensorStatusTranslationTable:
     "0": failed
     "1": ok
-    default: UNKNOWN
+    Default: UNKNOWN
   LinkStatusTranslationTable:
     "0": ok
     "1": degraded
     "2": degraded
-    default: degraded
     "3": degraded
     "4": degraded
     "5": degraded
+    Default: degraded
   DuplexStatusTranslationTable:
     "0": ""
     "1": half
     "2": full
-    default: ""
+    Default: ""

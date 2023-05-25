@@ -187,20 +187,20 @@ translations:
   PhysicalDiskStatusInformationTranslationTable:
     available/data-spared: Spared
     unavailable/standby-spare: Unavailable spare
-    default: Unknown Status
     unavailable-: Unavailable
     available/active-spare: Active spare
     available/standby-spare: Spare
     available-: ""
     unavailable/data-spared: Unavailable but spared
     unavailable/active-spare: "Dead spare: Data loss!"
+    Default: Unknown Status
   PhysicalDiskStatusTranslationTable:
     available/data-spared: ok
     unavailable/standby-spare: degraded
-    default: UNKNOWN
     unavailable-: failed
     available/active-spare: ok
     available/standby-spare: ok
     available-: ok
     unavailable/data-spared: degraded
     unavailable/active-spare: failed
+    Default: UNKNOWN

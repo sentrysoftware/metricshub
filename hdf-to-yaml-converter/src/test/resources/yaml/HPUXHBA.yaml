@@ -148,27 +148,27 @@ embedded:
                                             }
 translations:
   NetworkStatusInfoTranslationTable:
-    offline: Offline - The host bus adapter is not participating on the loop
-    resetting: The host bus adapter is being reset.
-    default: Unknown Status
-    ready: ""
-    awaiting_link_up: Waiting for the Fibre Channel link to come up.
-    online: ""
-    loopback_state: The host bus adapter is in the loop back test phase.
-    disabled: Disabled - The host bus adapter is not participating on the loop
-    suspended: The driver has been suspended by the user.
+    DISABLED: Disabled - The host bus adapter is not participating on the loop
+    READY: ""
+    AWAITING_LINK_UP: Waiting for the Fibre Channel link to come up.
+    SUSPENDED: The driver has been suspended by the user.
+    LOOPBACK_STATE: The host bus adapter is in the loop back test phase.
+    RESETTING: The host bus adapter is being reset.
+    Default: Unknown Status
+    OFFLINE: Offline - The host bus adapter is not participating on the loop
+    ONLINE: ""
   NetworkLinkStatusTranslationTable:
-    default: UNKNOWN
-    ready: ok
-    awaiting_link_up: degraded
-    online: ok
+    READY: ok
+    AWAITING_LINK_UP: degraded
+    Default: UNKNOWN
+    ONLINE: ok
   NetworkStatusTranslationTable:
-    offline: failed
-    resetting: degraded
-    default: UNKNOWN
-    ready: ok
-    awaiting_link_up: ok
-    online: ok
-    loopback_state: failed
-    disabled: failed
-    suspended: degraded
+    DISABLED: failed
+    READY: ok
+    AWAITING_LINK_UP: ok
+    SUSPENDED: degraded
+    LOOPBACK_STATE: failed
+    RESETTING: degraded
+    Default: UNKNOWN
+    OFFLINE: failed
+    ONLINE: ok

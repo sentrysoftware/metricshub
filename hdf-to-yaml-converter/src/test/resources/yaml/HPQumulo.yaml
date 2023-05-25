@@ -242,14 +242,14 @@ embedded:
     }
 translations:
   LinkStatusTranslationTable:
-    connected: ok
-    default: degraded
+    CONNECTED: ok
+    Default: degraded
   EnclosureStatusTranslationTable:
-    default: degraded
     online: ok
+    Default: degraded
   PhysicalDiskStatusTranslationTable:
-    default: degraded
     healthy: ok
+    Default: degraded
   NetworkCardStatusTranslationTable:
-    default: degraded
-    up: ok
+    UP: ok
+    Default: degraded

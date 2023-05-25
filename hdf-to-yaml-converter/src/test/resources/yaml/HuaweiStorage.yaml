@@ -865,27 +865,26 @@ translations:
     "0": Ordinary Cluster Member
     "1": Cluster Master
     "2": Cluster Preparation
-    default: ""
+    Default: ""
   DiskTypeTranslationTable:
     "0": FC
     "1": SAS
     "2": SATA
-    default: ""
     "3": SSD
     "4": NL_SAS
     "5": SLC SSD
     "6": MLC SSD
+    Default: ""
   DiskRoleTranslationTable:
     "1": "Role: Idle Disk"
     "2": "Role: Member of a Logical Disk"
-    default: ""
     "3": "Role: Hot Spare"
     "4": "Role: Cache Disk"
+    Default: ""
   PortStatusInformationTranslationTable:
     "0": Link Down
     "1": Link Up
     "2": Missing
-    default: ""
     "3": Link Bad
     "4": Hardware Error
     "5": Speed Does Not Match
@@ -893,13 +892,14 @@ translations:
     "7": Disabled
     "8": MAC Error
     "9": Lane Does Not Match
+    Default: ""
   PortTypeTranslationTable:
     "0": SAS
     "1": FC
     "2": iSCSI
-    default: ""
     "5": iSCSI
     "8": FCoE
+    Default: ""
   TypeTranslationTable:
     "22": SVP
     "23": 2U 12GSAS 12 Disk Controller
@@ -910,10 +910,10 @@ translations:
     "17": 2U SAS 24 Disk Shelf
     "18": 4U SAS 24 Disk Shelf
     "19": 4U FC 24 Disk Shelf
+    Default: ""
     "0": BMC Controller
     "1": 2U SAS 12 Disk Controller
     "2": 2U SAS 24 Disk Controller
-    default: ""
     "96": 3U 2 Independent Controller Head
     "20": 1U PCIe Data Switch
     "97": 6U 4 Independent Controller Head
@@ -922,7 +922,6 @@ translations:
     "0": degraded
     "1": ok
     "2": ""
-    default: ""
     "3": degraded
     "4": ""
     "5": degraded
@@ -930,16 +929,17 @@ translations:
     "7": ""
     "8": ""
     "9": degraded
+    Default: ""
   StatusInformationTranslationTable:
     "11": No Input
     "12": Low Battery
     "13": Single Link Fault
     "14": Invalid
     "15": Write Protect
+    Default: UNKNOWN
     "0": Unknown Status
     "1": ""
     "2": Fault
-    default: UNKNOWN
     "3": Pre-Fail
     "4": Partially Broken
     "5": Degraded
@@ -952,7 +952,6 @@ translations:
     "0": ok
     "1": ok
     "2": failed
-    default: ""
     "3": degraded
     "4": failed
     "5": degraded
@@ -960,16 +959,17 @@ translations:
     "7": ok
     "8": degraded
     "9": degraded
+    Default: ""
   StatusTranslationTable:
     "11": degraded
     "12": degraded
     "13": degraded
     "14": degraded
     "15": ok
+    Default: UNKNOWN
     "0": UNKNOWN
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -982,13 +982,13 @@ translations:
     "0": Disk Shelf
     "1": Controller
     "2": Data Switch
-    default: ""
     "3": Managed Switch
     "4": Management Server
+    Default: ""
   AddressTypeTranslationTable:
     "0": WWN
     "1": WWN
     "2": MAC
-    default: ""
     "5": MAC
     "8": MAC
+    Default: ""

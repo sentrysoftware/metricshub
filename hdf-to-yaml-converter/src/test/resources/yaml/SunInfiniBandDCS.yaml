@@ -85,18 +85,18 @@ translations:
   LinkStateTranslationTable:
     "1": degraded
     "2": ok
-    default: ""
     "3": ok
     "4": ok
+    Default: ""
   SpeedTranslationTable:
     "1": 2500
     "2": 5000
-    default: ""
     "4": 10000
     "8": 30000
+    Default: ""
   WidthActiveTranslationTable:
     "1": IB Port 1x
     "2": IB Port 4x
-    default: ""
     "4": IB Port 8x
     "8": IB Port 12x
+    Default: ""

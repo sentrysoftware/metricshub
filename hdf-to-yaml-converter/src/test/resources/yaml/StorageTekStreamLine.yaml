@@ -225,7 +225,7 @@ translations:
     "0": ok
     "1": degraded
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   DriveStatusTranslationTable:
     "0": UNKNOWN
     "11": failed
@@ -243,18 +243,18 @@ translations:
     "0": ok
     "1": degraded
     "2": failed
-    default: UNKNOWN
     "3": ok
     "4": ok
+    Default: UNKNOWN
   RoboticStatusInformationTranslationTable:
     "0": ""
     "1": Degraded
     "2": Not Operative
-    default: Unknown Status
     "3": Info
     "4": Trace
+    Default: Unknown Status
   LibraryStatusInformationTranslationTable:
     "0": ""
     "1": Degraded
     "2": Not Operative
-    default: Unknown Status
+    Default: Unknown Status

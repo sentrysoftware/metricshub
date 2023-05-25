@@ -432,98 +432,98 @@ embedded:
     <!--endmultiple-->
 translations:
   VoltageUpperThresholdTranslationTable:
-    sys bd +5v: 5500
-    sys bd +12v: 13200
-    default: ""
-    sys bd -5v: -4500
-    pri proc core: 2200
-    sys bd -12v: -10800
-    sec proc core: 2200
-    sys bd +3.3v: 3600
+    Sys Bd +12V: 13200
+    Sys Bd -12V: -10800
+    Sys Bd +3.3V: 3600
+    Sys Bd -5V: -4500
+    Sec Proc Core: 2200
+    Sys Bd +5V: 5500
+    Pri Proc Core: 2200
+    Default: ""
   FanStatusTranslationTable:
     "22": failed
     "23": ok
-    default: UNKNOWN
+    Default: UNKNOWN
     "20": ok
     "21": degraded
   VoltageStatusTranslationTable:
     "22": failed
     "23": ok
-    default: UNKNOWN
+    Default: UNKNOWN
     "20": ok
     "21": degraded
   cpuStatusInformationTranslationTable:
-    stopped: Stopped
-    error: Error
-    degraded: Degraded
-    default: Unknown Status
-    stressed: Stressed
-    nonrecover: Non Recover
-    stopping: Stopping
-    service: Service
-    no contact: No Contact
-    lost comm: Lost Communication
-    ok: ""
-    starting: Starting
-    pred fail: Predicted Failure
+    No Contact: No Contact
+    Stopped: Stopped
+    Error: Error
+    Stopping: Stopping
+    Service: Service
+    Default: Unknown Status
+    Stressed: Stressed
+    Degraded: Degraded
+    Starting: Starting
+    NonRecover: Non Recover
+    Pred Fail: Predicted Failure
+    OK: ""
+    Lost Comm: Lost Communication
   PowerSupplyStatusTranslationTable:
     "22": failed
-    default: UNKNOWN
     "3": ok
     "4": failed
+    Default: UNKNOWN
     "20": ok
     "21": degraded
   VoltageStatusInformationTranslationTable:
     "22": Critical
     "23": Not available
-    default: Unknown Status
+    Default: Unknown Status
     "20": ""
     "21": Warning
   cpuStatusTranslationTable:
-    stopped: ok
-    error: failed
-    degraded: degraded
-    default: UNKNOWN
-    stressed: degraded
-    nonrecover: failed
-    stopping: degraded
-    service: degraded
-    no contact: degraded
-    lost comm: degraded
-    ok: ok
-    starting: degraded
-    pred fail: degraded
+    No Contact: degraded
+    Stopped: ok
+    Error: failed
+    Stopping: degraded
+    Service: degraded
+    Default: UNKNOWN
+    Stressed: degraded
+    Degraded: degraded
+    Starting: degraded
+    NonRecover: failed
+    Pred Fail: degraded
+    OK: ok
+    Lost Comm: degraded
   FanStatusInformationTranslationTable:
     "22": Critical
     "23": Not available
-    default: Unknown Status
+    Default: Unknown Status
     "20": ""
     "21": Warning
   memoryStatusTranslationTable:
     "0": ok
     "1": degraded
     "2": failed
-    default: UNKNOWN
     "8": ok
+    Default: UNKNOWN
   VoltageLowerThresholdTranslationTable:
-    sys bd +5v: 4500
-    sys bd +12v: 10800
-    default: ""
-    sys bd -5v: -5500
-    pri proc core: 1800
-    sys bd -12v: -13200
-    sec proc core: 1800
-    sys bd +3.3v: 3000
+    Sys Bd +12V: 10800
+    Sys Bd -12V: -13200
+    Sys Bd +3.3V: 3000
+    Sys Bd -5V: -5500
+    Sec Proc Core: 1800
+    Sys Bd +5V: 4500
+    Pri Proc Core: 1800
+    Default: ""
   memoryStatusInformationTranslationTable:
     "0": ""
     "1": Warning
     "2": Critical
-    default: Unknown Status
     "8": ""
+    Default: Unknown Status
   PowerSupplyStatusInformationTranslationTable:
     "22": Critical
-    default: Unknown Status
     "3": ""
     "4": Critical
+    Default: Unknown Status
     "20": ""
     "21": Warning

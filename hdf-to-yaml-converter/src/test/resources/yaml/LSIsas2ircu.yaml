@@ -319,48 +319,48 @@ embedded:
         }
 translations:
   PhysicalDiskTypeTranslationTable:
-    default: Hard Disk Drive
-    sata_ssd: SATA solid-state drive
-    sas_hdd: SAS hard-disk drive
-    sata_hdd: SATA hard-disk drive
-    sas_ssd: SAS solid-state drive
+    SAS_HDD: SAS hard-disk drive
+    SAS_SSD: SAS solid-state drive
+    SATA_HDD: SATA hard-disk drive
+    Default: Hard Disk Drive
+    SATA_SSD: SATA solid-state drive
   PhysicalDiskStatusInformationTranslationTable:
-    dgd: Degraded
-    opt: Optimal
-    default: Unknown Status
-    hsp: Hot Spare
-    osy: Out of Sync
-    avl: Available
-    mis: Missing
-    sby: Standby
-    onl: Online
-    rbld: Rebuilding
-    fld: Failed
+    DGD: Degraded
+    OPT: Optimal
+    HSP: Hot Spare
+    OSY: Out of Sync
+    MIS: Missing
+    AVL: Available
+    SBY: Standby
+    ONL: Online
+    Default: Unknown Status
+    RBLD: Rebuilding
+    FLD: Failed
   LogicalDiskStatusInformationTranslationTable:
-    dgd: Degraded
-    init: Initializing
-    default: Unknown Status
-    mis: Missing
-    onl: Online
-    oky: ok
-    fld: Failed
+    DGD: Degraded
+    INIT: Initializing
+    MIS: Missing
+    ONL: Online
+    OKY: ok
+    Default: Unknown Status
+    FLD: Failed
   LogicalDiskStatusTranslationTable:
-    dgd: failed
-    init: degraded
-    default: UNKNOWN
-    mis: failed
-    onl: ok
-    oky: ok
-    fld: failed
+    DGD: failed
+    INIT: degraded
+    MIS: failed
+    ONL: ok
+    OKY: ok
+    Default: UNKNOWN
+    FLD: failed
   PhysicalDiskStatusTranslationTable:
-    dgd: failed
-    opt: ok
-    default: UNKNOWN
-    hsp: ok
-    osy: failed
-    avl: ok
-    mis: failed
-    sby: degraded
-    onl: ok
-    rbld: degraded
-    fld: failed
+    DGD: failed
+    OPT: ok
+    HSP: ok
+    OSY: failed
+    MIS: failed
+    AVL: ok
+    SBY: degraded
+    ONL: ok
+    Default: UNKNOWN
+    RBLD: degraded
+    FLD: failed

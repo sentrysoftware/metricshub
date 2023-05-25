@@ -457,7 +457,6 @@ translations:
     "27": degraded
     "28": degraded
     "29": ok
-    default: UNKNOWN
     "30": ok
     "31": degraded
     "10": degraded
@@ -478,6 +477,7 @@ translations:
     "39": degraded
     "18": degraded
     "19": failed
+    Default: UNKNOWN
     "1": degraded
     "2": ok
     "3": ok
@@ -492,15 +492,15 @@ translations:
     "21": failed
   PortLinkStatusInformationTranslationTable:
     "2": ok
-    default: ""
     "3": degraded
+    Default: ""
   PortTypeTranslationTable:
     "121": sanFcPort
     "111": nwEthernet100Mbport
     "112": nwEthernet1GbPort
     "123": sanFcPort
-    default: ""
     "113": nwEthernet10GbPort
+    Default: ""
     "131": ib10GbPort
   XsigoOperStateInformationTranslationTable:
     "22": Underlying Resource InTest
@@ -511,7 +511,6 @@ translations:
     "27": Underlying Resource Shuttingdown
     "28": Partial Failure
     "29": Standby
-    default: UNKNOWN
     "30": Ready
     "31": Resource Unavailable
     "10": Resource Missing
@@ -532,6 +531,7 @@ translations:
     "39": Unassigned
     "18": Underlying Resource Down
     "19": Underlying Resource Failed
+    Default: UNKNOWN
     "1": Indeterminate
     "2": ""
     "3": ""

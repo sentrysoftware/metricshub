@@ -677,28 +677,28 @@ translations:
     err-pwd-dn: failed
     initializing: degraded
     pwr-denied: failed
+    Default: UNKNOWN
     powered-up: degraded
-    default: UNKNOWN
     failure: failed
     pwr-cycled: degraded
     poweredup: degraded
-    ha-standby: ok
     ok: ok
+    HA-standby: ok
   TemperatureStatusTranslationTable:
-    default: UNKNOWN
     failure: failed
     ok: ok
+    Default: UNKNOWN
   FanStatusTranslationTable:
-    default: UNKNOWN
     failure: failed
     absent: failed
     ok: ok
+    Default: UNKNOWN
   linkStatusTranslationTable:
-    default: UNKNOWN
     trunking: ok
     missing: degraded
     up: ok
     down: degraded
+    Default: UNKNOWN
   ModuleStatusInformationTranslationTable:
     upgrading: ok
     standby: Standby
@@ -709,25 +709,26 @@ translations:
     err-pwd-dn: Powered Down due to Fault
     initializing: Initializing
     pwr-denied: Power Issues
+    Default: UNKNOWN
     powered-up: Powered up - Waiting to Initialize
-    default: UNKNOWN
     failure: Failure
     pwr-cycled: Module Reloaded
     poweredup: Booting
-    ha-standby: HA Standby
     ok: ""
+    HA-standby: HA Standby
   PowerSupplyStatusTranslationTable:
     fail/shutdown: failed
-    default: UNKNOWN
     absent: failed
     ok: ok
+    Default: UNKNOWN
   OtherDeviceStatusTranslationTable:
-    default: UNKNOWN
     failure: failed
     ok: ok
+    Default: UNKNOWN
   networkStatusTranslationTable:
     suspendedduetoincompatiblemode: failed
     isolationduetoescfailure: failed
+    down (Out of Service): ok
     isolationduetoelpfailure: failed
     isolationduetoothersideeportisolated: failed
     isolationduetovsanmismatch: failed
@@ -735,11 +736,9 @@ translations:
     down: ok
     offline: degraded
     portchanneladministrativelydown: ok
-    default: UNKNOWN
     inactive: ok
     errordisabled: failed
     trunking: ok
-    down (out of service): ok
     up: ok
     linkfailureornotconnected: ok
     isolationduetodomainidassignmentfailure: failed
@@ -750,9 +749,10 @@ translations:
     administrativelydown: ok
     isolationduetodomainoverlap: failed
     suspendedduetoincompatiblespeed: failed
+    Default: UNKNOWN
+    down (Administratively down): ok
     nonparticipating: degraded
     isolationduetodomainmanagerdisabled: failed
-    down (administratively down): ok
     sfpnotpresent: MISSING
     isolationduetozonemergefailure: failed
     hardwarefailure: failed

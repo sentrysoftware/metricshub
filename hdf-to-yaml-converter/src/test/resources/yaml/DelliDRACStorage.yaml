@@ -637,7 +637,6 @@ translations:
   RAIDLevelTranslationTable:
     "1": ""
     "2": 0
-    default: ""
     "3": 1
     "4": 5
     "5": 6
@@ -645,10 +644,10 @@ translations:
     "7": 50
     "8": 60
     "9": Concatenated 1
+    Default: ""
     "10": Concatenated 5
   PhysicalStateInformationTranslationTable:
     "2": Ready
-    default: Unknown Status
     "3": Online
     "4": Foreign
     "5": Offline
@@ -656,15 +655,16 @@ translations:
     "7": Failed
     "8": Non-Raid
     "9": Removed
+    Default: Unknown Status
   GenericStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   GenericStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Non Critical
     "5": Critical
     "6": Unrecoverable
+    Default: Unknown Status

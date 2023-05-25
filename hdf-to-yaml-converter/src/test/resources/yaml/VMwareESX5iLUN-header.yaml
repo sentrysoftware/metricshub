@@ -171,7 +171,7 @@ embedded:
     $0 ~ /Is Boot USB Device: true/ { print "MSHW;" Type ";" USBID ";Vendor: " Vendor ";Model: " Model";" Status ";" StatusInformation ";" }
 translations:
   statusTranslationTable:
-    default: degraded
     dead: failed
+    Default: degraded
     "off": ok
     "on": ok

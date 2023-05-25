@@ -563,19 +563,18 @@ embedded:
 translations:
   WaveTypeTranslationTable:
     "2": LongWave Laser
-    default: ""
     "3": ShortWave Laser
     "4": LongWave LED
     "5": Copper
+    Default: ""
   PortLinkStatusInformationTranslationTable:
     "1": ok
     "2": degraded
-    default: ok
     "3": degraded
+    Default: ok
   PortStatusInformationTranslationTable:
     "1": Card No Longer Present
     "2": Transceiver No Longer Present
-    default: Unknown Status
     "3": Laser Fault
     "4": No Light
     "5": No Sync
@@ -583,14 +582,15 @@ translations:
     "7": Port Faulty
     "8": Failed Diagnostics
     "9": Port is Locking to Reference Signal
+    Default: Unknown Status
   SensorStatusTranslationTable:
     "1": UNKNOWN
     "2": failed
-    default: UNKNOWN
     "3": degraded
     "4": ok
     "5": degraded
     "6": failed
+    Default: UNKNOWN
   OtherDeviceTypeTT:
     "4": CP
     "5": CP-Other
@@ -598,31 +598,30 @@ translations:
     "7": WWN
     "10": CR-SB
   PortTypeTranslationTable:
-    default: FC Port
     "3": FC Port FL
     "4": FC Port F
     "5": FC Port E
     "6": FC Port G
     "7": FC Port EX
+    Default: FC Port
   AdminSpeedTranslationTable:
     "1": 1000
     "2": 2000
-    default: ""
     "3": ""
     "4": 4000
     "5": 8000
     "6": 10000
+    Default: ""
   OtherDeviceStatusInfoTT:
     "1": Other Status
     "2": Unknown Status
-    default: UNKNOWN
     "3": "On"
     "4": "Off"
     "5": Faulty
+    Default: UNKNOWN
   PortStatusTranslationTable:
     "1": failed
     "2": failed
-    default: UNKNOWN
     "3": failed
     "4": ok
     "5": ok
@@ -630,10 +629,11 @@ translations:
     "7": failed
     "8": failed
     "9": degraded
+    Default: UNKNOWN
   OtherDeviceStatusTT:
     "1": UNKNOWN
     "2": UNKNOWN
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
+    Default: UNKNOWN

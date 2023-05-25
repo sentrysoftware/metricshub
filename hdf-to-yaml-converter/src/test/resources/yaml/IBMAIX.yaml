@@ -622,12 +622,12 @@ embedded:
     done
 translations:
   cpuStatusInformationTranslationTable:
-    stopped: Stopped
-    default: Unknown Status
-    available: Available
-    defined: Defined
+    Stopped: Stopped
+    Defined: Defined
+    Available: Available
+    Default: Unknown Status
   cpuStatusTranslationTable:
-    stopped: degraded
-    default: UNKNOWN
-    available: ok
-    defined: ok
+    Stopped: degraded
+    Defined: ok
+    Available: ok
+    Default: UNKNOWN

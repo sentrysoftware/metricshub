@@ -1324,9 +1324,9 @@ translations:
     "17": degraded
     "18": ok
     "19": failed
+    Default: UNKNOWN
     "1": MISSING
     "2": MISSING
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": degraded
@@ -1339,20 +1339,20 @@ translations:
     "21": ok
   statusInformationTranslationTable:
     "0": Unknown
-    default: Unknown Status
     "25": Critical Failure
     "15": Minor Failure
     "5": ""
     "30": Non-Recoverable Error
+    Default: Unknown Status
     "20": Major Failure
     "10": Degraded
   statusTranslationTable:
     "0": UNKNOWN
-    default: UNKNOWN
     "25": failed
     "15": degraded
     "5": ok
     "30": failed
+    Default: UNKNOWN
     "20": failed
     "10": degraded
   psuAvailabilityInformationTranslationTable:
@@ -1365,9 +1365,9 @@ translations:
     "17": Power Save - Warning
     "18": Paused
     "19": Not Ready
+    Default: Unknown Status
     "1": Other / Unknown
     "2": Unknown
-    default: Unknown Status
     "3": ""
     "4": Warning
     "5": In Test
@@ -1383,12 +1383,12 @@ translations:
     "55": Ethernet Port
     "12": HBA FC Port F/NL (Node/Loop/Fabric)
     "56": Ethernet Port
+    Default: Unknown Network Port Type
     "0": Unknown Network Port Type
     "110": Ethernet Port
     "1": Other Network Port Type
     "100": Ethernet Port
     "101": Ethernet Port
-    default: Unknown Network Port Type
     "102": Ethernet Port
     "103": Ethernet Port
     "104": Ethernet Port
@@ -1404,8 +1404,8 @@ translations:
     "10": HBA FC Port N (Node)
     "54": Ethernet Port
   DuplexTypeTranslationTable:
-    default: 1
     "false": 0
+    Default: 1
   NetworkCardOperationStatusTranslationTable:
     "11": degraded
     "12": failed
@@ -1415,8 +1415,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -1434,8 +1434,8 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: Unknown Status
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure
@@ -1448,4 +1448,4 @@ translations:
     "0": degraded
     ? ""
     : degraded
-    default: ok
+    Default: ok

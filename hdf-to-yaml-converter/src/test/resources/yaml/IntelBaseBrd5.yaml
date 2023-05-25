@@ -440,9 +440,9 @@ translations:
   statusTranslationTable:
     "1": UNKNOWN
     "2": UNKNOWN
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
     "7": failed
+    Default: UNKNOWN

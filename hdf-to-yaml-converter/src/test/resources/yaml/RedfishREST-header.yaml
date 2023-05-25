@@ -797,66 +797,67 @@ embedded:
     Accept:application/json
 translations:
   NetworkCardStatusInformationTranslationTable:
-    standbyoffline: StandbyOffline
-    offline: Offline
-    default: Unknown Status
+    StandbyOffline: StandbyOffline
     "null": None
-    critical: Failed
+    Enabled: Enabled
+    Offline: Offline
+    Critical: Failed
     none: None
     up: Up
     failed: Failed
-    ok: ok
+    OK: ok
     down: Administratively Down
-    enabled: Enabled
+    Default: Unknown Status
   LinkStatusTranslationTable:
     ? ""
     : degraded
-    offline: degraded
-    standbyoffline: degraded
-    default: UNKNOWN
-    linkup: ok
+    StandbyOffline: degraded
     "null": degraded
+    Enabled: ok
+    Offline: degraded
     none: degraded
     up: ok
+    Up: ok
     failed: failed
     down: degraded
-    enabled: ok
+    Default: UNKNOWN
+    LinkUp: ok
   StatusInformationTranslationTable:
+    Warning: The device is in a warning state.
     optimal: The device is running normal.
-    critical: The device is in critical state.
-    degraded: The device needs attention.
-    error: The device is in a critical state.
-    good: The device is running normal.
-    unknown: The device is not reporting a status.
-    needsattn: The device needs attention.
-    default: The device is not reporting a status
+    needsAttn: The device needs attention.
+    GoodInUse: The device is running normal.
+    Error: The device is in a critical state.
+    Critical: The device is in critical state.
+    Default: The device is not reporting a status
+    Degraded: The device needs attention.
     "null": The device is not reporting a status.
-    warning: The device is in a warning state.
-    goodinuse: The device is running normal.
-    ok: The device is running normal.
-    maintenancecharging: The device is performing routine maintenance.
+    Unknown: The device is not reporting a status.
+    maintenanceCharging: The device is performing routine maintenance.
+    OK: The device is running normal.
+    Good: The device is running normal.
   StatusTranslationTable:
-    needsattn: degraded
-    default: UNKNOWN
+    Warning: degraded
+    Degraded: degraded
     optimal: ok
     "null": UNKNOWN
-    critical: failed
-    warning: degraded
-    goodinuse: ok
-    ok: ok
-    degraded: degraded
-    error: failed
-    maintenancecharging: ok
-    unknown: degraded
+    Unknown: degraded
+    needsAttn: degraded
+    maintenanceCharging: ok
+    GoodInUse: ok
+    Error: failed
+    Critical: failed
+    OK: ok
+    Default: UNKNOWN
   NetworkCardStatusTranslationTable:
-    standbyoffline: ok
-    offline: ok
-    default: UNKNOWN
+    StandbyOffline: ok
     "null": UNKNOWN
-    critical: failed
+    Enabled: ok
+    Offline: ok
+    Critical: failed
     none: ok
     up: ok
     failed: failed
-    ok: ok
+    OK: ok
     down: ok
-    enabled: ok
+    Default: UNKNOWN

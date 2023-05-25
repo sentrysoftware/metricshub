@@ -298,7 +298,7 @@ embedded:
     }
 translations:
   PhysicalDiskPredictedFailureTranslationTable:
-    default: 1;true
-    ok!: 1;false
-    passed: 1;false
-    ok: 1;false
+    Ok!: 1;false
+    OK: 1;false
+    Default: 1;true
+    PASSED: 1;false

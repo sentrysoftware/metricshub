@@ -993,43 +993,43 @@ embedded:
     }
 translations:
   EthernetInterfacesLinkSpeedDeactivationTable:
-    standbyoffline: ""
-    default: "True"
+    StandbyOffline: ""
+    Default: "True"
   LinkStatusTranslationTable:
-    standbyoffline: degraded
-    default: degraded
+    StandbyOffline: degraded
+    Enabled: ok
     none: degraded
     up: ok
     failed: failed
     down: degraded
-    enabled: ok
+    Default: degraded
   StatusInformationTranslationTable:
-    needsattn: The device needs attention.
-    default: The device is in a critical state
+    Warning: The device has warning state.
     optimal: The device is running normal.
     "null": The device is not reporting a status.
-    critical: The device is in critical state.
-    warning: The device has warning state.
-    ok: The device is running normal.
-    good: The device is running normal.
-    maintenancecharging: The device is performing routine maintenance.
+    needsAttn: The device needs attention.
+    maintenanceCharging: The device is performing routine maintenance.
+    Critical: The device is in critical state.
+    OK: The device is running normal.
+    Good: The device is running normal.
+    Default: The device is in a critical state
   StatusTranslationTable:
-    needsattn: degraded
-    default: failed
+    Warning: degraded
     optimal: ok
     "null": degraded
-    critical: failed
-    warning: degraded
-    ok: ok
-    maintenancecharging: ok
+    needsAttn: degraded
+    maintenanceCharging: ok
+    Critical: failed
+    OK: ok
+    Default: failed
   LinkSpeedDeactivationTranslationTable:
     "0": ""
-    default: "True"
+    Default: "True"
   NetworkCardStatusTranslationTable:
-    standbyoffline: ok
-    default: failed
+    StandbyOffline: ok
+    Enabled: ok
     none: ok
     up: ok
     failed: failed
     down: ok
-    enabled: ok
+    Default: failed

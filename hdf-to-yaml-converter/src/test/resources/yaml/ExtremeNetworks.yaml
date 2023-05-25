@@ -242,38 +242,38 @@ translations:
   TemperatureStatusTranslationTable:
     "1": failed
     "2": ok
-    default: UNKNOWN
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   TemperatureStatusInformationTranslationTable:
     "1": Over Temperature
     "2": ""
-    default: Unknown Temperature Status
+    Default: Unknown Temperature Status
   PowerSupplyStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": ok
+    Default: UNKNOWN
   PowerSupplyPowerTranslationTable:
     "1": 110;AC
     "2": 220;AC
-    default: UNKNOWN;UNKNOWN
     "3": 48;DC
     "4": ;
+    Default: UNKNOWN;UNKNOWN
   FanStatusInformationTranslationTable:
     "1": ""
     "2": Not Operational
-    default: UNKNOWN
+    Default: UNKNOWN
   SlotStatusTranslationTable:
     "11": ok
     "12": ok
     "13": degraded
     "14": ok
+    Default: UNKNOWN
     "100": failed
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
     "5": ok
@@ -287,9 +287,9 @@ translations:
     "12": booting
     "13": offline
     "14": initializing
+    Default: Unknown status
     "100": invalid
     "2": Testing
-    default: Unknown status
     "3": Mismatch
     "4": Failed
     "5": Operational
@@ -300,6 +300,6 @@ translations:
     "10": post
   PowerSupplyStatusInformationTranslationTable:
     "2": Present; OK
-    default: UNKNOWN
     "3": Present; Not OK
     "4": Present; Powered Off
+    Default: UNKNOWN

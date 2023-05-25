@@ -50,7 +50,6 @@ translations:
     "254": Reserved (SMBIOS Extension)
     "134": AMD Turion 64 Mobile
     "255": Reserved (Un-initialized Flash Content - Lo)
-    default: ""
     "135": Dual-Core AMD Opteron
     "136": AMD Athlon 64 X2 Dual-Core
     "137": AMD Turion 64 X2 Mobile
@@ -69,6 +68,7 @@ translations:
     "260": SH-3
     "140": AMD Phenom FX Quad-Core
     "261": SH-4
+    Default: ""
     "141": AMD Phenom X4 Quad-Core
     "142": AMD Phenom X2 Dual-Core
     "143": AMD Athlon X2 Dual-Core

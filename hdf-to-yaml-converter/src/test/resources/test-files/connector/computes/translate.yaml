@@ -9,7 +9,7 @@
   expected:
     translations: 
       SmartFailedTranslateTable: 
-        default: ""
+        Default: ""
         true: "SmartFailed"
           
     monitors:

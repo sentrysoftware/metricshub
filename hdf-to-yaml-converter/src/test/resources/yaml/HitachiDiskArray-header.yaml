@@ -1075,76 +1075,76 @@ monitors:
           StatusInformation: $column(3)
 translations:
   DMTFOperationStatusTranslationTable:
-    health30: failed
-    health10: degraded
-    default: UNKNOWN
+    Health30: failed
+    Health10: degraded
+    Health0: UNKNOWN
+    Health5: ok
     "10": failed
     "11": degraded
     "12": failed
     "13": failed
-    health25: failed
+    Health20: failed
     "14": failed
     "15": ok
     "16": degraded
     "17": ok
     "18": ok
-    health20: failed
+    Health25: failed
+    Default: UNKNOWN
     "2": ok
-    health5: ok
     "3": degraded
     "4": degraded
     "5": degraded
+    Heatlh15: degraded
     "6": failed
     "7": failed
     "8": degraded
     "9": degraded
-    heatlh15: degraded
-    health0: UNKNOWN
   PortStateToLinkStatusTranslationTable:
     "0": degraded
     ? ""
     : degraded
-    default: ok
+    Default: ok
   PortTypeTranslationTable:
     "0": Ethernet Port
     "11": FC Port NL
     "12": FC Port F/NL
     "13": FC Port Nx
-    default: FC Port
     "14": FC Port E
     "15": FC Port F
     "16": FC Port FL
     "17": FC Port B
     "18": FC Port G
     "19": FC Port GL
+    Default: FC Port
     "10": FC Port N
   UsageRestrictionTranslationTable:
     "2": Front-end Port
-    default: ""
     "3": Back-end Port
+    Default: ""
   DMTFOperationStatusInformationTranslationTable:
-    health30: Non-Recoverable Error
-    health10: Degraded
-    default: ""
+    Health30: Non-Recoverable Error
+    Health10: Degraded
+    Health0: Unknown
+    Health5: ""
     "10": Stopped
     "11": In Service
     "12": No Contact
     "13": Lost Communication
-    health25: Critical Failure
+    Health20: Major Failure
     "14": Aborted
     "15": Dormant
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
-    health20: Major Failure
+    Health25: Critical Failure
+    Default: ""
     "2": ""
-    health5: ""
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure
+    Heatlh15: Minor Failure
     "6": Error
     "7": Non-Recoverable Error
     "8": Starting
     "9": Stopping
-    heatlh15: Minor Failure
-    health0: Unknown

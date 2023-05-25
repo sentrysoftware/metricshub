@@ -673,35 +673,35 @@ embedded:
 translations:
   PhysicalDiskTranslationTable:
     offline: failed
-    default: UNKNOWN
     online: ok
+    Default: UNKNOWN
   PowerSupplyTranslationTable:
     offline: failed
-    default: UNKNOWN
     online: ok
+    Default: UNKNOWN
   LinkTranslationTable:
     no-link: degraded
-    default: degraded
     up: ok
     down: degraded
+    Default: degraded
   NetworkCardTranslationTable:
     stopped: ok
-    default: UNKNOWN
     ok: ok
     error: failed
+    Default: UNKNOWN
   OtherStatusTranslationTable:
-    default: UNKNOWN
     ko: failed
     ok: ok
+    Default: UNKNOWN
   FansTranslateTable:
     offline: failed
-    default: UNKNOWN
     online: ok
+    Default: UNKNOWN
   EnclosureTranslateTable:
     offline: failed
-    default: UNKNOWN
     online: ok
+    Default: UNKNOWN
   MemoryTranslationTable:
-    offline: failed
-    default: UNKNOWN
-    online: ok
+    Offline: failed
+    Online: ok
+    Default: UNKNOWN

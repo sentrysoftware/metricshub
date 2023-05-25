@@ -629,7 +629,6 @@ translations:
   FruStateTranslationTable:
     "1": UNKNOWN
     "2": UNKNOWN
-    default: UNKNOWN
     "3": ok
     "4": ok
     "5": ok
@@ -637,6 +636,7 @@ translations:
     "7": degraded
     "8": failed
     "9": degraded
+    Default: UNKNOWN
     "10": degraded
   TypeTranslationTable:
     "11": Port Interface Card
@@ -646,9 +646,9 @@ translations:
     "16": Protected System Domain
     "17": Power Distribution Unit
     "19": Switch Fabric Board
+    Default: ""
     "1": Other
     "2": Clock Generator
-    default: ""
     "3": Flexible Pic Concentrator
     "4": Switching and Forwarding Module
     "5": Control Board
@@ -1966,7 +1966,6 @@ translations:
     "1.3.6.1.4.1.2636.1.1.3.3.12.1.194.0": PicStoli100GESlot1
     "1.3.6.1.4.1.2636.1.1.2.3.47.2.0": IBM4274M06J06MMediaCardSpaceMIC
     "1.3.6.1.4.1.2636.1.1.2.2.121.3.0": ACX500OACSlotRE
-    default: ""
     "1.3.6.1.4.1.2636.1.1.2.2.151.0": SlotEX9251
     "1.3.6.1.4.1.2636.1.1.2.1.69.0": ChassisPTX5000
     "1.3.6.1.4.1.2636.1.1.1.2.136.0": ProductNameSRX345
@@ -2834,6 +2833,7 @@ translations:
     "1.3.6.1.4.1.2636.1.1.2.3.144.2.0": PicJNP2048XSFPP
     "1.3.6.1.4.1.2636.1.1.3.3.3.5.4.0": M160QuadT3
     "1.3.6.1.4.1.2636.1.1.2.2.145.3.0": MX2008SlotFPC
+    Default: ""
     "1.3.6.1.4.1.2636.1.1.2.2.76.1.1.0": EX3300SlotPower
     "1.3.6.1.4.1.2636.1.1.3.3.12.1.308.0": PicACX1xOC124xOC3SFP
     "1.3.6.1.4.1.2636.1.1.3.2.37.3.0": TXPPower

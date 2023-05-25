@@ -309,9 +309,9 @@ translations:
     "14": Delete Logical
     "15": Transform Logical
     "18": 0+1
+    Default: ""
     "1": Concatenated
     "2": 0
-    default: ""
     "3": 1
     "4": 2
     "5": 3
@@ -324,9 +324,9 @@ translations:
     "11": Formatting
     "12": Diagnosing
     "13": Initializing
+    Default: Unknown Status
     "1": Ready
     "2": Failed
-    default: Unknown Status
     "3": Online
     "4": Offline
     "5": Degraded
@@ -340,26 +340,26 @@ translations:
     "2": Failed
     "24": Rebuilding
     "35": Initializing
-    default: Unknown Status
     "3": Online
     "4": Offline
     "15": Resynching
     "26": Formatting
     "6": Degraded
+    Default: Unknown Status
   LogicalDiskStatusTranslationTable:
     "1": ok
     "2": failed
     "24": degraded
     "35": ok
-    default: UNKNOWN
     "3": ok
     "4": failed
     "15": degraded
     "26": ok
     "6": degraded
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
     "0": ok
     "1": degraded
     "2": failed
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN

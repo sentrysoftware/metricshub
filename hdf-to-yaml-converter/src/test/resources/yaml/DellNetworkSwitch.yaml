@@ -269,28 +269,28 @@ embedded:
     END {print "MSHW;"PowerConsumption";"}
 translations:
   EnclosureStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
+    Default: UNKNOWN
   StatusInformationTranslationTable:
     "1": normal
     "2": Non-Critical
-    default: Unknown Status
     "3": Critical
     "4": Shutdown
     "5": Not Present
     "6": Not Functioning
+    Default: Unknown Status
   StatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   EnclosureStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ok
     "4": Non-Critical
     "5": Critical
+    Default: Unknown Status

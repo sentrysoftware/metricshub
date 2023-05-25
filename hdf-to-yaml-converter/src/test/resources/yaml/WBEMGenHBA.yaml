@@ -227,33 +227,33 @@ embedded:
 translations:
   PortStateToLinkStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "6": degraded
+    Default: UNKNOWN
   PortStateToStatusInformationTranslationTable:
     "1": Unknown
     "2": ""
-    default: UNKNOWN
     "3": User Offline
     "4": Bypassed
     "5": In diagnostics mode
     "6": Link Down
     "7": Port Error
     "8": Loopback
+    Default: UNKNOWN
   PortTypeTranslationTable:
-    default: HBA FC Port
     "5": HBA FC Port N
     "6": HBA FC Port NL
     "7": HBA FC Port F/NL
     "8": HBA FC Port F
     "9": HBA FC Port E
+    Default: HBA FC Port
     "10": HBA FC Port G
   PortStateToStatusTranslationTable:
     "1": UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": ok
     "5": degraded
     "6": ok
     "7": failed
     "8": degraded
+    Default: UNKNOWN

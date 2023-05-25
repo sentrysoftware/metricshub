@@ -360,19 +360,19 @@ translations:
   SensorStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": failed
     "6": failed
+    Default: UNKNOWN
   SensorStatusInformationTranslationTable:
     "1": ""
     "2": Warning
-    default: Unknown Status
     "3": Critical
     "4": Shutdown
     "5": No Longer Present
     "6": Not Functioning
+    Default: Unknown Status
   SensorValueMultiplierTable:
-    default: 1
     "9": 1000 //V to mV
+    Default: 1

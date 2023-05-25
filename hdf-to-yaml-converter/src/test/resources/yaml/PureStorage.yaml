@@ -570,19 +570,19 @@ translations:
     degraded: Degraded
     not_installed: Missing
   statusTranslationTable:
-    default: failed
     failed: failed
     ok: ok
     degraded: degraded
+    Default: failed
     not_installed: failed
   linkTranslationTable:
     "0": degraded
-    default: ok
+    Default: ok
   driveTranslationTable:
-    default: failed
     healthy: ok
     missing: failed
     failed: failed
+    Default: failed
     reachable: degraded
     foreign: degraded
   driveInformationTranslationTable:

@@ -396,10 +396,10 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "0": ok
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -410,11 +410,11 @@ translations:
     "10": ok
   DMTFOperationToLinkStatusTranslationTable:
     "1": degraded
-    default: ""
+    Default: ""
   PortTypeTranslationTable:
     "11": HBA FC Port NL
     "12": HBA FC Port F/NL
-    default: HBA FC Port
+    Default: HBA FC Port
     "10": HBA FC Port N
   DMTFOperationStatusInformationTranslationTable:
     "11": In Service
@@ -425,10 +425,10 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: Unknown Status
     "0": ""
     "1": ""
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure
@@ -441,4 +441,4 @@ translations:
     "0": degraded
     ? ""
     : degraded
-    default: ok
+    Default: ok

@@ -379,9 +379,9 @@ monitors:
           StatusInformation: $column(5)
 translations:
   EthernetInterfacesLinkSpeedDeactivationTable:
-    standbyoffline: ""
-    default: "True"
+    StandbyOffline: ""
     "null": ""
+    Default: "True"
   LinkSpeedDeactivationTranslationTable:
     "0": ""
-    default: "True"
+    Default: "True"

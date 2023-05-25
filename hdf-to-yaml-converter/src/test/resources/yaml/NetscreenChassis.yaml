@@ -224,9 +224,9 @@ translations:
     "0": Failed
     "1": Good
     "2": Error
-    default: Unknown Status
+    Default: Unknown Status
   StatusTranslationTable:
     "0": failed
     "1": ok
     "2": failed
-    default: failed
+    Default: failed

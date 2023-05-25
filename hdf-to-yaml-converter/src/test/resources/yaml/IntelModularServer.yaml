@@ -608,11 +608,11 @@ monitors:
           hw.network.bandwidth.limit: megaBit2Bit($column(2))
 translations:
   DiskStatusTranslationTable:
-    default: failed
-    ok: ok
+    OK: ok
+    Default: failed
   DiskPFATranslationTable:
-    default: "true"
-    ok: "false"
+    OK: "false"
+    Default: "true"
   networkStatusTranslationTable:
     "1": ok
     "2": ok
@@ -628,7 +628,7 @@ translations:
     "1": degraded
     "-16": UNKNOWN
     "2": failed
-    default: UNKNOWN
     "-1": UNKNOWN
     "-4": ok
     "-32": UNKNOWN
+    Default: UNKNOWN

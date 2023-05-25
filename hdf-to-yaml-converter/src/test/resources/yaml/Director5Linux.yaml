@@ -600,7 +600,6 @@ translations:
   VoltageTypeTranslationTable:
     "22": Remote +18 V
     "23": Remote +1.8 V
-    default: ""
     "10": Bus
     "11": +1.25 V
     "12": +1.5 V
@@ -611,6 +610,7 @@ translations:
     "17": Remote +5 V
     "18": Remote +3.3 V
     "19": Remote +2.5 V
+    Default: ""
     "0": ""
     "1": +2.5a V
     "2": +2.5b V
@@ -626,24 +626,24 @@ translations:
   cpuStatusInformationTranslationTable:
     "1": ""
     "2": Disabled by User
-    default: Unknown Status
     "3": Disabled by BIOS (POST Error)
     "4": Idle
-    ok: ""
+    OK: ""
+    Default: Unknown Status
   PowerSupplyStatusTranslationTable:
-    stopped: ok
-    error: failed
-    degraded: degraded
-    default: UNKNOWN
-    stressed: degraded
-    nonrecover: failed
-    stopping: degraded
-    service: degraded
-    no contact: degraded
-    lost comm: degraded
-    ok: ok
-    starting: degraded
-    pred fail: degraded
+    No Contact: degraded
+    Stopped: ok
+    Error: failed
+    Stopping: degraded
+    Service: degraded
+    Default: UNKNOWN
+    Stressed: degraded
+    Degraded: degraded
+    Starting: degraded
+    NonRecover: failed
+    Pred Fail: degraded
+    OK: ok
+    Lost Comm: degraded
   MemoryBitTranslationTable:
     "13,1": Non-volatile
     "12,1": Cache DRAM
@@ -752,73 +752,73 @@ translations:
     default: ""
     "3": CPU
   memoryStatusTranslationTable:
-    "false": ok
-    "true": failed
+    "TRUE": failed
+    "FALSE": ok
   LogicalDiskStatusTranslationTable:
     "0": ok
     "2": failed
-    default: UNKNOWN
     "3": ok
     "36": degraded
     "4": degraded
     "5": ok
     "6": ok
+    Default: UNKNOWN
     "20": degraded
   PhysicalDiskStatusTranslationTable:
     "0": ok
     "1": ok
     "133": ok
     "254": ok
-    default: UNKNOWN
     "4": degraded
     "5": ok
     "137": ok
     "139": degraded
     "8": failed
     "129": ok
+    Default: UNKNOWN
   PowerSupplyStatusInformationTranslationTable:
-    stopped: Stopped
-    error: Error
-    degraded: Degraded
-    default: Unknown Status
-    stressed: Stressed
-    nonrecover: Non Recover
-    stopping: Stopping
-    service: Service
-    no contact: No Contact
-    lost comm: Lost Communication
-    ok: ""
-    starting: Starting
-    pred fail: Predicted Failure
+    No Contact: No Contact
+    Stopped: Stopped
+    Error: Error
+    Stopping: Stopping
+    Service: Service
+    Default: Unknown Status
+    Stressed: Stressed
+    Degraded: Degraded
+    Starting: Starting
+    NonRecover: Non Recover
+    Pred Fail: Predicted Failure
+    OK: ""
+    Lost Comm: Lost Communication
   PhysicalDiskStatusInformationTranslationTable:
     "0": Empty
     "1": Standby
     "133": Hot Spare
     "254": Reserved
-    default: Unknown Status
     "4": Defunct Hot Spare
     "5": Standby Hot Spare
     "137": Online
     "139": Rebuild
     "8": Defunct
     "129": Ready
+    Default: Unknown Status
   LogicalDiskStatusInformationTranslationTable:
     "0": Free
     "2": Offline
-    default: Unknown Status
     "3": ""
     "36": Critical System
     "4": Critical
     "5": Migration
     "6": System
+    Default: Unknown Status
     "20": Critical Migration
   cpuStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": ok
-    ok: ok
+    OK: ok
+    Default: UNKNOWN
   enclosureIntrusionStatusTranslationTable:
     "0": ok
     "1": ok

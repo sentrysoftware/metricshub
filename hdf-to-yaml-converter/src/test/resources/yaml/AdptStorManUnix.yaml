@@ -415,16 +415,15 @@ translations:
     rebuilding: degraded
     failed: failed
     down: failed
+    Default: UNKNOWN
     offline: failed
     device-error: failed
-    default: UNKNOWN
     unsupported: failed
     removed: failed
     ready: ok
     online: ok
     spare: ok
   ControllerBatteryStatusTranslationTable:
-    default: UNKNOWN
     discharging: ok
     maintenance mode: degraded
     optimal: ok
@@ -434,13 +433,14 @@ translations:
     failed: failed
     ok: ok
     degraded: degraded
+    Default: UNKNOWN
   DiskControllerStatusTranslationTable:
-    default: UNKNOWN
     optimal: ok
     warning: degraded
     failed: failed
     ok: ok
     degraded: degraded
+    Default: UNKNOWN
   LogicalDiskStatusTranslationTable:
     okay: ok
     inaccessible: failed
@@ -452,8 +452,8 @@ translations:
     failed: failed
     degraded: degraded
     hot: ok
+    Default: UNKNOWN
     logical: degraded
-    default: UNKNOWN
     ready: ok
     online: ok
     suboptimal: degraded

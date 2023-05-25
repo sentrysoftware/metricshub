@@ -532,12 +532,12 @@ embedded:
   EmbeddedFile(6): "%{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-phys -o LINK,DEVICE -p 2>/dev/null | /usr/bin/tr ':' ';'"
 translations:
   ifconfigFlagsTranslationTable:
-    running: ok
-    offline: ok
-    default: ok
-    inactive: ok
-    standby: ok
-    unplumbed: ok
-    deprecated: ok
-    failed: failed
-    up: ok
+    FAILED: failed
+    INACTIVE: ok
+    RUNNING: ok
+    STANDBY: ok
+    UP: ok
+    DEPRECATED: ok
+    UNPLUMBED: ok
+    Default: ok
+    OFFLINE: ok

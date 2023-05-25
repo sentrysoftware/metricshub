@@ -208,19 +208,19 @@ monitors:
 translations:
   statusInformationTranslationTable:
     "0": Unknown
-    default: Unknown Status
     "25": Critical Failure
     "15": Minor Failure
     "5": ""
     "30": Non-Recoverable Error
+    Default: Unknown Status
     "20": Major Failure
     "10": Degraded
   statusTranslationTable:
     "0": UNKNOWN
-    default: UNKNOWN
     "25": failed
     "15": degraded
     "5": ok
     "30": failed
+    Default: UNKNOWN
     "20": failed
     "10": degraded

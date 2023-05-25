@@ -199,9 +199,9 @@ translations:
   PhysicalDiskSmartStatusTranslationTable:
     "1": 0
     "2": 1
-    default: 0
     "3": 0
     "4": 0
+    Default: 0
   RAIDLevelTranslationTable:
     "11": 5e
     "12": 5ee
@@ -209,9 +209,9 @@ translations:
     "14": ""
     "15": ""
     "16": 60
+    Default: ""
     "1": ""
     "2": 0
-    default: ""
     "3": 0+1
     "4": 1
     "5": 1e
@@ -224,7 +224,6 @@ translations:
     "11": Formatting
     "12": Dead
     "2": Not a hard disk
-    default: Unknown Status
     "3": ""
     "4": Ready
     "5": Failed
@@ -232,13 +231,13 @@ translations:
     "7": Hotspare
     "8": Hotspare
     "9": Offline
+    Default: Unknown Status
     "10": Failed (Unconfigured)
   BatteryStatusTranslationTable:
-    default: ok
     "7": failed
+    Default: ok
   LogicalDiskStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Offline
     "5": Rebuilding
@@ -246,9 +245,9 @@ translations:
     "7": Initializing
     "8": Morphing
     "9": Partially Degraded
+    Default: Unknown Status
   LogicalDiskStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
     "5": degraded
@@ -256,11 +255,11 @@ translations:
     "7": ok
     "8": degraded
     "9": degraded
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
     "11": ok
     "12": failed
     "2": failed
-    default: UNKNOWN
     "3": ok
     "4": ok
     "5": failed
@@ -268,4 +267,5 @@ translations:
     "7": ok
     "8": ok
     "9": failed
+    Default: UNKNOWN
     "10": degraded

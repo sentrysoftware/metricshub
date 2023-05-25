@@ -849,7 +849,6 @@ embedded:
     }
 translations:
   EnvironmentStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
@@ -857,19 +856,20 @@ translations:
     "7": degraded
     "8": failed
     "9": failed
+    Default: UNKNOWN
     "10": failed
   GenericStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
     "6": failed
+    Default: UNKNOWN
   GenericStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Non Critical
     "5": Critical
     "6": Unrecoverable
+    Default: Unknown Status
   MemoryTypeTranslationTable:
     "11": FEPROM
     "12": EPROM
@@ -903,7 +903,6 @@ translations:
     "4": degraded
     "10": degraded
   EnvironmentStatusInformationTranslationTable:
-    default: Unknown Status
     "3": ""
     "4": Non-Critical Upper
     "5": Critical Upper
@@ -911,4 +910,5 @@ translations:
     "7": Non-Critical Lower
     "8": Critical Lower
     "9": Unrecoverable Lower
+    Default: Unknown Status
     "10": Failed

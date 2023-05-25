@@ -481,46 +481,46 @@ translations:
   BatteryStatusInformationTranslationTable:
     "1": ""
     "2": Disabled
-    default: UNKNOWN
     "3": Discharged
     "4": Unknown Status (Check Cabling)
     "5": Soft Disabled
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "0": UNKNOWN
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   BatteryStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": degraded
+    Default: UNKNOWN
   FanLevelTranslationTable:
     "0": ""
     "1": Speed Low
     "2": ""
-    default: UNKNOWN
     "3": Speed High
+    Default: UNKNOWN
   diskStatusInformationTranslationTable:
     "1": ok
     "2": Unknown
-    default: Unknown Status
     "3": Absent
     "4": Failed
     "5": Spare
     "6": Available
+    Default: Unknown Status
   diskStatusTranslationTable:
     "1": ok
     "2": UNKNOWN
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": ok
     "6": ok
+    Default: UNKNOWN
   powerSupplyStatusTranslationTable:
     "1": ok
     "2": UNKNOWN
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN

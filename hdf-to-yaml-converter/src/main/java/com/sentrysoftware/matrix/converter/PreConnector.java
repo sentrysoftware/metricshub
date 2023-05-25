@@ -367,7 +367,7 @@ public class PreConnector {
 		while (matcher.find()) {
 			String tableName = matcher.group(1);
 			translationTables.computeIfAbsent(tableName, k -> new HashMap<>());
-			translationTables.get(tableName).put(replaceQuotes(matcher.group(2).toLowerCase()), convertHdfStatusToOtelState(replaceQuotes(matcher.group(3))));
+			translationTables.get(tableName).put(replaceQuotes(matcher.group(2)), convertHdfStatusToOtelState(replaceQuotes(matcher.group(3))));
 			matcher.appendReplacement(tempRawCode, "");
 
 		}

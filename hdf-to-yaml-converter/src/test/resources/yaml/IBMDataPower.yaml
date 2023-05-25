@@ -373,9 +373,9 @@ translations:
   diskStatusInformationTranslationTable:
     "11": System
     "12": Undefined Status
+    Default: Unknown Status
     "1": Unconfigured Good
     "2": Unconfigured Good Foreign
-    default: Unknown Status
     "3": Unconfigured Bad
     "4": Unconfigured Bad Foreign
     "5": Hot Spare
@@ -387,9 +387,9 @@ translations:
   diskStatusTranslationTable:
     "11": ok
     "12": failed
+    Default: UNKNOWN
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": ok

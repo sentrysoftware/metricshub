@@ -142,9 +142,9 @@ monitors:
 translations:
   errorCountConditionTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   memoryTypeTranslationTable:
     "11": SRIMM
     "12": FB-DIMM
@@ -167,7 +167,6 @@ translations:
   memoryStatusTranslationTable:
     "11": degraded
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": ok
     "5": ok
@@ -175,11 +174,11 @@ translations:
     "7": failed
     "8": degraded
     "9": degraded
+    Default: UNKNOWN
     "10": failed
   memoryStatusInformationTranslationTable:
     "11": Too many ECC errors
     "2": Not Present or Uninitialized
-    default: Unknown Status
     "3": Not in use
     "4": Good
     "5": "Just added, not in use"
@@ -187,4 +186,5 @@ translations:
     "7": Missing!
     "8": Does not match other modules
     "9": Not supported
+    Default: Unknown Status
     "10": Bad configuration

@@ -965,16 +965,16 @@ embedded:
         }
 translations:
   LogicalDriveStatusTT:
-    normal: ok
-    default: failed
-    normal(correction: ok
+    Normal(Correction: ok
+    Normal: ok
+    Default: failed
   DriveStatusTT:
-    normal: ok
-    default: failed
-    standby: ok
-    rebuilding: degraded
-    mounted: ok
-    out: ok
+    Mounted: ok
+    Rebuilding: degraded
+    Normal: ok
+    Standby: ok
+    Default: failed
+    Out: ok
   opStatusTT:
-    normal: ok
-    default: failed
+    Normal: ok
+    Default: failed

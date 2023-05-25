@@ -1009,7 +1009,6 @@ monitors:
           StatusInformation: $column(4)
 translations:
   DMTFOperationStatusTranslationTable:
-    default: UNKNOWN
     "32768": failed
     "32769": ok
     "10": failed
@@ -1021,6 +1020,7 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "32775": ok
     "32776": degraded
     "2": ok
@@ -1047,8 +1047,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -1061,16 +1061,15 @@ translations:
     "11": FC Port NL
     "12": FC Port F/NL
     "13": FC Port Nx
-    default: FC Port
     "14": FC Port E
     "15": FC Port F
     "16": FC Port FL
     "17": FC Port B
     "18": FC Port G
     "19": FC Port GL
+    Default: FC Port
     "10": FC Port N
   DMTFOperationStatusInformationTranslationTable:
-    default: ""
     "32768": Removed
     "32769": Online
     "10": Stopped
@@ -1082,6 +1081,7 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: ""
     "32775": Write Protected
     "32776": Not Ready
     "2": ""
@@ -1103,4 +1103,4 @@ translations:
     "0": degraded
     ? ""
     : degraded
-    default: ok
+    Default: ok

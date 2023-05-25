@@ -941,7 +941,6 @@ translations:
     "27": IO Bus
     "28": Peripheral Bay
     "29": Device Bay
-    default: ""
     "30": Switch
     "10": Ambient / External / Room
     "11": Chassis
@@ -953,6 +952,7 @@ translations:
     "17": Blade Slot in Chassis/Infrastructure
     "18": Cabinet blower
     "19": Compute Cabinet I/O Fans
+    Default: ""
     "0": Unknown
     "1": Other
     "2": System board
@@ -974,10 +974,10 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "0": ok
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -987,18 +987,17 @@ translations:
     "9": degraded
     "10": failed
   iLOLinkStatusTranslationTable:
-    default: ok
     "5": degraded
+    Default: ok
   DMTFOperationToLinkStatusTranslationTable:
     "2": ok
-    default: ""
     "6": degraded
+    Default: ""
   memoryTypeTranslationTable:
     "22": BRAM
     "23": FB-DIMM
     "24": DDR3
     "25": FBD2
-    default: ""
     "10": ROM
     "11": Flash
     "12": EEPROM
@@ -1009,6 +1008,7 @@ translations:
     "17": SDRAM
     "18": SGRAM
     "19": RDRAM
+    Default: ""
     "0": Unknown Memory Type
     "1": Unknown Memory Type
     "2": DRAM
@@ -1024,11 +1024,11 @@ translations:
   iLONetworkCardStatusTranslationTable:
     "0": UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": ok
     "6": failed
+    Default: UNKNOWN
   psuTypeTranslationTable:
     "22": I/O Expansion Cabinet Bulk Power Supply
     "23": I/O Expansion Cabinet System Backplane Power Supply
@@ -1037,7 +1037,6 @@ translations:
     "26": Peripheral Bay
     "27": Device Bay
     "28": Switch
-    default: ""
     "10": Ambient / External / Room
     "11": Chassis
     "12": Bridge Card
@@ -1048,6 +1047,7 @@ translations:
     "17": Blade Slot in Chassis/Infrastructure
     "18": Computer Cabinet Bulk Power Supply
     "19": Computer Cabinet System Backplane Power Supply
+    Default: ""
     "0": Unknown
     "1": Other
     "2": System board
@@ -1069,10 +1069,10 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: Unknown Status
     "0": ""
     "1": ""
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure
@@ -1085,7 +1085,6 @@ translations:
     "22": Device Bay
     "23": Switch
     "24": Software-defined
-    default: ""
     "10": Ambient / External / Room
     "11": Chassis
     "12": Bridge Card
@@ -1096,6 +1095,7 @@ translations:
     "17": Blade Slot in Chassis/Infrastructure
     "18": Front Panel
     "19": Back Panel
+    Default: ""
     "0": Unknown
     "1": Other
     "2": System board
@@ -1110,28 +1110,28 @@ translations:
     "21": Peripheral Bay
   genStatusInformationTranslationTable:
     "0": Unknown
-    default: Unknown Status
     "25": Critical Failure
     "15": Minor Failure
     "5": ""
     "30": Non-recoverable Error
+    Default: Unknown Status
     "20": Major Failure
     "10": Degraded/Warning
   genStatusTranslationTable:
     "0": UNKNOWN
-    default: UNKNOWN
     "25": failed
     "15": degraded
     "5": ok
-    ok: ok
+    OK: ok
     "30": failed
+    Default: UNKNOWN
     "20": failed
     "10": degraded
   iLONetworkCardStatusInfoTranslationTable:
     "0": Unknown Status
     "2": ""
-    default: UNKNOWN
     "3": NIC disabled
     "4": NIC not in operation-alternate host NIC in use
     "5": NIC in operation but disconnected
     "6": Failed
+    Default: UNKNOWN

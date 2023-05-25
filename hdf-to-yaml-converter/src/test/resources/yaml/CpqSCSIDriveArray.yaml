@@ -268,20 +268,19 @@ monitors:
 translations:
   DiskControllerStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN
   RAIDLevelTranslationTable:
     "2": 0
-    default: ""
     "3": 1
     "4": 4
     "5": 5
     "6": 1E
+    Default: ""
   PhysicalDiskStatusInformationTranslationTable:
     "11": Missing
     "12": Hard error
     "2": ""
-    default: Unknown Status
     "3": Failed
     "4": Not configured
     "5": Bad cable
@@ -289,21 +288,21 @@ translations:
     "7": Missing
     "8": Predicted failure
     "9": Missing
+    Default: Unknown Status
     "10": Offline
   DiskControllerStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Failed
+    Default: Unknown Status
   PhysicalDiskSMARTStatusTranslationTable:
     "11": "TRUE"
-    default: "FALSE"
     "6": "TRUE"
     "7": "TRUE"
     "9": "TRUE"
+    Default: "FALSE"
   LogicalDiskStatusInformationTranslationTable:
     "11": Disabled
     "2": ""
-    default: Unknown Status
     "3": Failed
     "4": Unconfigured
     "5": Recovering
@@ -311,11 +310,11 @@ translations:
     "7": Rebuilding
     "8": Wrong drive
     "9": Bad connect
+    Default: Unknown Status
     "10": Degraded
   LogicalDiskStatusTranslationTable:
     "11": degraded
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": ok
     "5": degraded
@@ -323,12 +322,12 @@ translations:
     "7": degraded
     "8": failed
     "9": failed
+    Default: UNKNOWN
     "10": degraded
   PhysicalDiskStatusTranslationTable:
     "11": failed
     "12": failed
     "2": ok
-    default: UNKNOWN
     "3": failed
     "4": degraded
     "5": failed
@@ -336,4 +335,5 @@ translations:
     "7": failed
     "8": ok
     "9": failed
+    Default: UNKNOWN
     "10": degraded

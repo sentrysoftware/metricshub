@@ -310,19 +310,19 @@ translations:
   TemperatureStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN
   PSUandFANStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   diskStatusInformationTranslationTable:
     "1": Healthy
     "2": Failed
-    default: Unknown Status
     "3": Predicted Failure
+    Default: Unknown Status
   diskStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": degraded
+    Default: UNKNOWN

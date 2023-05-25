@@ -1540,7 +1540,6 @@ translations:
   BatteryStatusInformationTranslationTable:
     "1": ""
     "2": Partially Discharged
-    default: Unknown
     "3": Fully Discharged
     "4": Not Present
     "5": Near End of Life
@@ -1548,20 +1547,20 @@ translations:
     "7": Unknown
     "8": Over Charged'
     "9": Fully Charged
+    Default: Unknown
   raidPDiskStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": ok
     "5": ok
     "6": failed
     "9": degraded
+    Default: UNKNOWN
     "10": ok
   fcpStatusInformationTranslationTable:
     "1": Startup
     "2": Un-initialized
-    default: Unknown Status
     "3": Initializing Firmware
     "4": Link Not Connected
     "5": Waiting for Link Up
@@ -1569,6 +1568,7 @@ translations:
     "7": Link Disconnected
     "8": Resetting
     "9": Offline
+    Default: Unknown Status
     "10": Offlined by User
   aggrStatusTranslationTable:
     mixed_raid_type: ok
@@ -1600,7 +1600,6 @@ translations:
   BatteryStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": degraded
@@ -1608,6 +1607,7 @@ translations:
     "7": UNKNOWN
     "8": degraded
     "9": ok
+    Default: UNKNOWN
   aggrStatusInformationTranslationTable:
     mixed_raid_type: ""
     snapmirrored: ""
@@ -1638,10 +1638,10 @@ translations:
   tempStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
+    Default: UNKNOWN
   diskFailedCountTranslationTable:
     "0": ok
-    default: failed
+    Default: failed
   generalStatusTranslationTable:
     "11": failed
     "12": failed
@@ -1652,10 +1652,10 @@ translations:
     "17": failed
     "18": failed
     "19": failed
+    Default: UNKNOWN
     "0": ok
     "1": failed
     "2": failed
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": failed
@@ -1667,13 +1667,12 @@ translations:
   spareDiskStatusInformationTranslationTable:
     "1": Spare
     "2": Adding spare
-    default: Unknown Status
     "3": By-passed
+    Default: Unknown Status
     "10": Offline
   fcpStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": ok
     "4": ok
     "5": ok
@@ -1681,46 +1680,47 @@ translations:
     "7": ok
     "8": degraded
     "9": failed
+    Default: UNKNOWN
     "10": ok
   otherDiskStatusTranslationTable:
     "1": failed
     "2": ok
-    default: UNKNOWN
+    Default: UNKNOWN
   spareDiskStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": ok
+    Default: UNKNOWN
     "10": ok
   diskPrefailedCountTranslationTable:
     "0": "False"
-    default: "True"
+    Default: "True"
   PortTypeTranslationTable:
     "2": FC Port F
-    default: FC Port
     "3": FC Port
     "4": FC Port L
+    Default: FC Port
   raidPDiskStatusInformationTranslationTable:
     "1": Active
     "2": Reconstruction in progress
-    default: Unknown status
     "3": Parity reconstruction in progress
     "4": Parity verification in progress
     "5": Scrubbing in progress
     "6": Failed
     "9": Predicted Failure
+    Default: Unknown status
     "10": Offline
   VendorTranslationTable:
     "1": NetApp
     "2": Dell
-    default: NetApp
     "3": IBM
+    Default: NetApp
   otherDiskStatusInformationTranslationTable:
     "1": Broken
     "2": By-passed
-    default: Unknown Status
+    Default: Unknown Status
   fcpLinkStatusTranslationTable:
-    default: ok
     "4": degraded
     "5": degraded
     "7": degraded
+    Default: ok

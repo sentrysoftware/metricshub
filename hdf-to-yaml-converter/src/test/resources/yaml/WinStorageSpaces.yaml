@@ -508,9 +508,9 @@ embedded:
     }
 translations:
   PredictedFailureTranslationTable:
-    default: "False"
     "53285": "True"
     "5": "True"
+    Default: "False"
   OperationalStatusInformationTranslationTable:
     "53261": Scan Needed
     "53286": Abnormal Latency
@@ -553,14 +553,14 @@ translations:
     "0": ""
     "1": Scan Needed
     "2": Spot Fix Needed
-    default: Unknown
     "3": Full Repair Needed
+    Default: Unknown
   LogicalDiskHealthStatusTranslationTable:
     "0": ok
     "1": degraded
     "2": degraded
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN
   BustypeTranslationTable:
     "11": SATA
     "12": Secure Digital

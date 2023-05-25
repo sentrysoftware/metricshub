@@ -882,13 +882,13 @@ translations:
     "false": degraded
   FCspeedTranslationTable:
     "0": degraded
-    default: ok
+    Default: ok
   StatusTranslationTable:
-    default: failed
     faulted: failed
     absent: failed
     ok: ok
+    Default: failed
   LogicalDiskStatusTranslationTable:
-    default: failed
     faulted: failed
     online: ok
+    Default: failed

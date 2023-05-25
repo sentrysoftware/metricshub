@@ -539,20 +539,20 @@ translations:
   statusInformationTranslationTable:
     "1": ""
     "2": Acute
-    default: Unknown Status
     "3": Serious
     "4": Moderate
     "5": Service
+    Default: Unknown Status
   statusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": failed
     "4": degraded
     "5": degraded
+    Default: UNKNOWN
   modelTranslationTable:
-    raid450: Lightning 9900V
-    raid400: Lightning 9900
-    raid500: USP
-    raid600: USP_V
-    raid700: VSP
+    RAID600: USP_V
+    RAID700: VSP
+    RAID400: Lightning 9900
+    RAID500: USP
+    RAID450: Lightning 9900V

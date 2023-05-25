@@ -693,22 +693,22 @@ embedded:
 translations:
   TemperatureStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN
   cpuStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Failed
     "5": Disabled
     "6": Non-recoverable
+    Default: Unknown Status
   PowerSupplyStatusTranslationTable:
     "11": failed
     "12": failed
@@ -716,9 +716,9 @@ translations:
     "14": failed
     "15": failed
     "16": failed
+    Default: UNKNOWN
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": failed
     "4": failed
     "5": failed
@@ -745,9 +745,9 @@ translations:
   FanStatusInformationTranslationTable:
     "1": Other
     "2": ok
-    default: Unknown Status
     "3": Degraded
     "4": Failed
+    Default: Unknown Status
   FanTypeTranslationTable:
     "11": Ambient
     "12": Chassis
@@ -775,9 +775,9 @@ translations:
     "14": Giveup on startup
     "15": NVRAM Invalid
     "16": Calibration table invalid
+    Default: Unknown Status
     "1": ok
     "2": General failure
-    default: Unknown Status
     "3": Bist failure
     "4": Fan failure
     "5": Temperature failure
@@ -788,13 +788,12 @@ translations:
     "10": RAM test failed
   TemperatureStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "3": Degraded
     "4": Failed
+    Default: Unknown Status
   vendorTranslationTable:
     "1": ""
     "2": Intel
-    default: ""
     "3": AMD
     "4": Cyrix
     "5": Ti
@@ -802,20 +801,21 @@ translations:
     "7": Compaq
     "8": Samsung
     "9": Mitsubishi
+    Default: ""
     "10": Mips
   cpuPredictedFailureTranslationTable:
-    default: 0
     "3": 1
+    Default: 0
   cpuStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
     "5": degraded
     "6": failed
+    Default: UNKNOWN
   PowerSupplyConditionTranslationTable:
     "1": UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": failed
+    Default: UNKNOWN

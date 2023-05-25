@@ -409,8 +409,8 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -424,7 +424,6 @@ translations:
     "23": FB-DIMM
     "24": DDR3
     "25": FBD2
-    default: ""
     "10": ROM
     "11": Flash
     "12": EEPROM
@@ -435,6 +434,7 @@ translations:
     "17": SDRAM
     "18": SGRAM
     "19": RDRAM
+    Default: ""
     "0": Unknown Memory Type
     "1": Unknown Memory Type
     "2": DRAM
@@ -456,8 +456,8 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: ""
     "2": ""
-    default: ""
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure

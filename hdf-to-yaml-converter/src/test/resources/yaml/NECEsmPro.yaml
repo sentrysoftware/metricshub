@@ -317,7 +317,6 @@ translations:
     "3": SIMM
     "4": DIMM
   GenericStatusTranslationTable:
-    default: UNKNOWN
     "3": ok
     "4": degraded
     "5": failed
@@ -325,9 +324,9 @@ translations:
     "7": ok
     "8": degraded
     "9": ok
+    Default: UNKNOWN
     "10": failed
   GenericStatusInformationTranslationTable:
-    default: UNKNOWN
     "3": ""
     "4": Warning
     "5": Fatal
@@ -335,6 +334,7 @@ translations:
     "7": In test
     "8": Degraded
     "9": Disabled
+    Default: UNKNOWN
     "10": Down
   cpuVendorTranslationTable:
     "1": ""

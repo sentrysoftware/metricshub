@@ -1279,9 +1279,9 @@ translations:
     "16": degraded
     "17": ok
     "18": ok
+    Default: UNKNOWN
     "1": ok
     "2": ok
-    default: UNKNOWN
     "3": degraded
     "4": degraded
     "5": degraded
@@ -1292,7 +1292,6 @@ translations:
     "10": failed
   PortTypeTranslationTable:
     "110": Ethernet Port
-    default: Unknown Network Port Type
     "50": Ethernet Port
     "51": Ethernet Port
     "52": Ethernet Port
@@ -1308,6 +1307,7 @@ translations:
     "16": FC Port FL
     "17": FC Port B
     "18": FC Port G
+    Default: Unknown Network Port Type
     "0": Unknown Network Port Type
     "1": Other Network Port Type
     "100": Ethernet Port
@@ -1322,7 +1322,6 @@ translations:
     "109": Ethernet Port
   EnabledStateStatusTranslationTable:
     "2": ok
-    default: degraded
     "3": degraded
     "4": degraded
     "5": degraded
@@ -1330,6 +1329,7 @@ translations:
     "7": degraded
     "8": degraded
     "9": degraded
+    Default: degraded
     "10": degraded
   DMTFOperationStatusInformationTranslationTable:
     "11": In Service
@@ -1340,9 +1340,9 @@ translations:
     "16": Supporting Entity in Error
     "17": Completed
     "18": Power Mode
+    Default: ""
     "1": Dormant
     "2": ""
-    default: ""
     "3": Degraded
     "4": Stressed
     "5": Predicted Failure

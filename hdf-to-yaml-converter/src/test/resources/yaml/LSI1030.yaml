@@ -166,35 +166,35 @@ translations:
   RAIDLevelTranslationTable:
     "1": 0
     "2": 0+1
-    default: ""
     "3": 1
+    Default: ""
   PhysicalDiskStatusInformationTranslationTable:
     "1": ""
     "2": Not responding
-    default: Unknown Status
     "3": Not compatible!
     "256": Offline
     "4": Failed
     "5": Initializing
     "6": Offline requested
     "7": Failed requested
+    Default: Unknown Status
   LogicalDiskStatusInformationTranslationTable:
     "1": Optimal
     "2": Degraded
-    default: Unknown Status
     "3": Failed
+    Default: Unknown Status
   LogicalDiskStatusTranslationTable:
     "1": ok
     "2": degraded
-    default: UNKNOWN
     "3": failed
+    Default: UNKNOWN
   PhysicalDiskStatusTranslationTable:
     "1": ok
     "2": failed
-    default: UNKNOWN
     "3": failed
     "256": degraded
     "4": failed
     "5": ok
     "6": degraded
     "7": degraded
+    Default: UNKNOWN

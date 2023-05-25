@@ -229,39 +229,39 @@ monitors:
 translations:
   BladeStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "4": failed
     "5": failed
     "6": ok
+    Default: UNKNOWN
   FanStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "3": ok
     "4": failed
     "5": degraded
     "6": degraded
+    Default: UNKNOWN
   PowerSupplyStatusTranslationTable:
     "2": ok
-    default: UNKNOWN
     "4": failed
     "5": failed
     "6": ok
+    Default: UNKNOWN
   FanStatusInformationTranslationTable:
     "2": Disabled
-    default: Unknown Status
     "3": ""
     "4": Failed!
     "5": Failure predicted
     "6": Redundanct fan failed
+    Default: Unknown Status
   BladeStatusInformationTranslationTable:
     "2": ""
-    default: Unknown
     "4": Error
     "5": Critical
     "6": Standby
+    Default: Unknown
   PowerSupplyStatusInformationTranslationTable:
     "2": ""
-    default: Unknown Status
     "4": Error
     "5": Critical
     "6": "Off"
+    Default: Unknown Status
