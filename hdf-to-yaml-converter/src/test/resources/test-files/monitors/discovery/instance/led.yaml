@@ -27,6 +27,7 @@
               __on_status: $column(3)
               __blinking_status: $column(4)
               __off_status: $column(5)
+              __name: System Attention
               info: join($column(8), $column(9), $column(10), " ")
               hw.parent.type: enclosure
               name: sprintf("%s (%s - %s)", $column(1), $column(2), "System Attention")
