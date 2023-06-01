@@ -188,6 +188,7 @@ public class ConverterConstants {
 	public static final String YAML_BLINKING_STATUS = "__blinking_status";
 	public static final String YAML_ON_STATUS = "__on_status";
 	public static final String YAML_OFF_STATUS = "__off_status";
+	public static final String YAML_LED_NAME = "__name";
 	public static final String YAML_LED_COLOR = HDF_COLOR;
 	public static final String YAML_RAID_LEVEL = "raid_level";
 	public static final String YAML_DEVICE_HOSTNAME = "device_hostname";

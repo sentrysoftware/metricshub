@@ -27,6 +27,7 @@ public class LedConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_ON_STATUS, IMappingKey.of(ATTRIBUTES, YAML_ON_STATUS));
 		attributesMap.put(HDF_OFF_STATUS, IMappingKey.of(ATTRIBUTES, YAML_OFF_STATUS));
 		attributesMap.put(HDF_BLINKING_STATUS, IMappingKey.of(ATTRIBUTES, YAML_BLINKING_STATUS));
+		attributesMap.put(HDF_LED_NAME, IMappingKey.of(ATTRIBUTES, YAML_LED_NAME));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 

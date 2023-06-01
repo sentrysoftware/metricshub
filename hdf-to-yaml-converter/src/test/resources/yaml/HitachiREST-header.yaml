@@ -343,6 +343,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
+          __name: Drive Box
           __on_status: ALARM
           hw.parent.type: enclosure
           hw.parent.id: $column(2)

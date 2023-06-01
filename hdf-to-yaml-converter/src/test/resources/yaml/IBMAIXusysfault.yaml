@@ -36,6 +36,7 @@ monitors:
         source: $monitors.led.discovery.sources.source(1)$
         attributes:
           id: $column(1)
+          __name: $column(2)
           color: $column(3)
           __on_status: $column(4)
           __blinking_status: $column(5)
