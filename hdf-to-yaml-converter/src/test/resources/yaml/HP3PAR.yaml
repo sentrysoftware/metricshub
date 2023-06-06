@@ -1404,6 +1404,7 @@ monitors:
           __display_id: $column(1)
           raid_level: $column(5)
           type: $column(6)
+          __use_for_capacity_report: $column(7)
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(5), $column(3))"

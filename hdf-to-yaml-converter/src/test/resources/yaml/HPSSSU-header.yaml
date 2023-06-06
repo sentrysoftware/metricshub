@@ -299,6 +299,7 @@ monitors:
           id: $column(4)
           __display_id: $column(5)
           type: $column(3)
+          __use_for_capacity_report: $column(11)
           info: $column(10)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)

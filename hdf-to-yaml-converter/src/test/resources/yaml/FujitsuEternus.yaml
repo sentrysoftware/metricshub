@@ -1519,6 +1519,7 @@ monitors:
           id: $column(1)
           __display_id: $column(2)
           raid_level: $column(8)
+          __use_for_capacity_report: $column(5)
           type: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(7)

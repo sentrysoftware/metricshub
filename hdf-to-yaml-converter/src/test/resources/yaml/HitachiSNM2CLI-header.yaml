@@ -201,6 +201,7 @@ monitors:
           id: $column(3)
           __display_id: $column(4)
           type: $column(12)
+          __use_for_capacity_report: $column(13)
           raid_level: $column(8)
           info: "join($column(9), $column(6), \" \")"
           hw.parent.type: enclosure

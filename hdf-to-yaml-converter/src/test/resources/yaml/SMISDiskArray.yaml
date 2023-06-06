@@ -266,6 +266,7 @@ monitors:
         attributes:
           id: $column(1)
           raid_level: $column(3)
+          __use_for_capacity_report: $column(5)
           type: $column(6)
           info: $column(13)
           hw.parent.type: enclosure

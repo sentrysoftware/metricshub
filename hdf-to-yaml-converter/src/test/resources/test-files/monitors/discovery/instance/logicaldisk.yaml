@@ -29,5 +29,6 @@
               hw.parent.type: "enclosure"
               raid_level: $column(8)
               name: sprintf("%s (%s - %by2hf.s)", $column(2), $column(8), $column(3))
+              __use_for_capacity_report: $column(5)
             metrics:
               hw.logical_disk.limit: $column(3)
