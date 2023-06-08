@@ -443,6 +443,7 @@ monitors:
           id: $column(1)
           raid_level: $column(2)
           type: $column(5)
+          __use_for_capacity_report: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: NetApp
           name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(2), $column(4))"

@@ -93,7 +93,7 @@ class ConnectorLibraryConverterTest {
 
 			for (int i = 0; i < expectedLines.size(); i++) {
 				final int index = i;
-				assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index);
+				assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index + ". File: " + expectedFile.getName());
 			}
 		}
 	}

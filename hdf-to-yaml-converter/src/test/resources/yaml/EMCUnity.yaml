@@ -589,6 +589,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(4)
+          __use_for_capacity_report: $column(3)
           type: $column(6)
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(2))"

@@ -168,6 +168,7 @@ public class ConverterConstants {
 	public static final String HDF_TEMPERATURE_TYPE = "temperaturetype";
 	public static final String HDF_FAN_TYPE = "fantype";
 	public static final String HDF_HOSTNAME = "hostname";
+	public static final String HDF_USE_FOR_CAPACITY_REPORT = "useforcapacityreport";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -218,6 +219,7 @@ public class ConverterConstants {
 	public static final String YAML_LOGICAL_ADDRESS = "logical_address";
 	public static final String YAML_LOGICAL_ADDRESS_TYPE = "logical_address_type";
 	public static final String YAML_VM_HOSTNAME = "vm.host.name";
+	public static final String YAML_USE_FOR_CAPACITY_REPORT = "__use_for_capacity_report";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
