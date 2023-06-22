@@ -1,0 +1,368 @@
+---
+extends:
+- ../FibreAllianceSwitchCommon-header/FibreAllianceSwitchCommon-header
+connector:
+  displayName: McData Fibre Switch
+  platforms: McData SAN
+  reliesOn: McData SNMP Agent (EF-6000-MIB)
+  version: 1.0
+  information: "This connector discovers the enclosure and fiber-channel ports of McData SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Storage
+    supersedes:
+    - FibreAllianceSwitch
+    criteria:
+      # Detection Criteria 1
+      # Must have some FRU Status entries
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+monitors:
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Location;PartNumber;SerialNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,2,4,5"
+          computes:
+            # Keep only Fan sensors (Type 4 & 5)
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "4,5"
+            # Translate the Sensor Type
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: translate
+            column: 2
+            translationTable: SensorTypeTranslationTable
+            # Add an identifier to the Location
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 3
+            value: "Location: "
+          - type: leftConcat
+            column: 5
+            value: "SerialNumber: "
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;SensorType;Location;PartNumber;SerialNumber;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(2)
+          info: "join($column(3), $column(4), $column(5), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,3"
+          computes:
+            # Keep only Fan sensors (Type 4 & 5)
+            # ID;SensorType;Status;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "4,5"
+            # Duplicate the Status
+            # ID;SensorType;Status;
+          - type: duplicateColumn
+            column: 3
+            # Translate the Status
+            # ID;SensorType;PatrolStatus;Status;
+          - type: translate
+            column: 3
+            translationTable: McSensorStatusTranslationTable
+            # Translate the Status Information
+            # ID;SensorType;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 4
+            translationTable: McSensorInformationStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;SensorType;PatrolStatus;StatusInformation;
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Location;PartNumber;SerialNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,2,4,5"
+          computes:
+            # Keep only PowerSupply sensors (Type 6)
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: 6
+            # Translate the Sensor Type
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: translate
+            column: 2
+            translationTable: SensorTypeTranslationTable
+            # Add an identifier to the Location
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 3
+            value: "Location: "
+            # Add an identifier to Serial Number
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 4
+            value: "Model: "
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;SensorType;Location;PartNumber;SerialNumber;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          power_supply_type: $column(2)
+          info: "join($column(3), $column(5), $column(4), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,3"
+          computes:
+            # Keep only PowerSupply sensors (Type 6)
+            # ID;SensorType;Status;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: 6
+            # Duplicate the Status
+            # ID;SensorType;Status;
+          - type: duplicateColumn
+            column: 3
+            # Translate the Status
+            # ID;SensorType;PatrolStatus;Status;
+          - type: translate
+            column: 3
+            translationTable: McSensorStatusTranslationTable
+            # Translate the Status Information
+            # ID;SensorType;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 4
+            translationTable: McSensorInformationStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;SensorType;PatrolStatus;StatusInformation;
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Location;PartNumber;SerialNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,2,4,5"
+          computes:
+            # Keep only OtherDevice sensors (Type 1,2,3)
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,2,3"
+            # Translate the Sensor Type
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: translate
+            column: 2
+            translationTable: SensorTypeTranslationTable
+            # Add an identifier to the Location
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 3
+            value: "Location: "
+            # Add an identifier to the Part Number
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 4
+            value: "Part Number: "
+            # Add an identifier to the Serial Number
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 5
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;SensorType;Location;PartNumber;SerialNumber;
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          device_type: $column(2)
+          info: "join($column(3), $column(4), $column(5), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s: %s\", $column(2), $column(1))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,3"
+          computes:
+            # Keep only OtherDevice sensors (Type 1,2,3)
+            # ID;SensorType;Status;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "1,2,3"
+            # Duplicate the Status
+            # ID;SensorType;Status;
+          - type: duplicateColumn
+            column: 3
+            # Translate the Status
+            # ID;SensorType;PatrolStatus;Status;
+          - type: translate
+            column: 3
+            translationTable: McSensorStatusTranslationTable
+            # Translate the Status Information
+            # ID;SensorType;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 4
+            translationTable: McSensorInformationStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;SensorType;PatrolStatus;StatusInformation;
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Location;PartNumber;SerialNumber;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,2,4,5"
+          computes:
+            # Keep only Blade sensors (Type 8,9,10,11,12,13,14,15,16)
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "8,9,10,11,12,13,14,15,16"
+            # Translate the Sensor Type
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: translate
+            column: 2
+            translationTable: SensorTypeTranslationTable
+            # Add an identifier to the Location
+            # ID;SensorType;Location;PartNumber;SerialNumber;
+          - type: leftConcat
+            column: 3
+            value: "Location: "
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;SensorType;Location;PartNumber;SerialNumber;
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          blade_name: $column(2)
+          model: $column(4)
+          serial_number: $column(5)
+          info: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(4))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = ef6000FruEntry
+          # ID;SensorType;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.289.2.1.1.2.2.1.1
+          selectColumns: "ID,1,3"
+          computes:
+            # Keep only Blade sensors (Type 8,9,10,11,12,13,14,15,16)
+            # ID;SensorType;Status;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "8,9,10,11,12,13,14,15,16"
+            # Duplicate the Status
+            # ID;SensorType;Status;
+          - type: duplicateColumn
+            column: 3
+            # Translate the Status
+            # ID;SensorType;PatrolStatus;Status;
+          - type: translate
+            column: 3
+            translationTable: McSensorStatusTranslationTable
+            # Translate the Status Information
+            # ID;SensorType;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 4
+            translationTable: McSensorInformationStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        # ID;SensorType;PatrolStatus;StatusInformation;
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="blade"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+translations:
+  SensorTypeTranslationTable:
+    "11": SFO 1G
+    "12": SFO 2G
+    "13": LW SM MT-RJ 1G
+    "14": SW MM MT-RJ 1G
+    "15": Mixed MT-RJ 1G
+    "16": F-Port Internal 1G
+    "1": Backplane
+    "2": Control Processor Card
+    "3": Serial Crossbar
+    "4": Center Fan Module
+    "5": Fan Module
+    "6": Power Supply Module
+    "8": LW SM LC 1G
+    "9": SW MM LC 1G
+    "10": Mixed LC 1G
+  McSensorInformationStatusTranslationTable:
+    "1": Active
+    "2": Backup
+    "3": Update-Busy
+    "4": Failed
+    Default: UNKNOWN
+  McSensorStatusTranslationTable:
+    "1": ok
+    "2": ok
+    "3": ok
+    "4": failed
+    Default: UNKNOWN

@@ -1,0 +1,57 @@
+---
+extends:
+- ../HPSSSU-header/HPSSSU-header
+connector:
+  displayName: HP StorageWorks EVA (SSSU) - Patrol Agent on Windows
+  platforms: HP StorageWorks EVA
+  reliesOn: 'HP StorageWorks Command View EVA SSSU '
+  information: This connector provides hardware monitoring through the HP StorageWorks Command View EVA SSSU command line utility
+  version: 1.1
+  detection:
+    connectionTypes:
+    - local
+    - remote
+    appliesTo:
+    - Storage
+    disableAutoDetection: true
+    supersedes:
+    - SMISDiskArray
+    criteria:
+    # The Patrol Agent should be on a server running Windows
+    - type: osCommand
+      commandLine: echo %OS%
+      errorMessage: Connector only works when the Patrol Agent is installed on a server running Windows
+      expectedResult: Windows_NT
+      executeLocally: true
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "copy $file(\"embeddedFile-1\")$ $file(\"embeddedFile-1\")$.bat & $file(\"embeddedFile-1\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-1\")$.bat"
+          executeLocally: true
+          timeout: 600
+    collect:
+      sources:
+        source(1):
+          # Source(1) = the output of "$file("embeddedFile-1")$
+          type: osCommand
+          commandLine: "copy $file(\"embeddedFile-1\")$ $file(\"embeddedFile-1\")$.bat > NUL & $file(\"embeddedFile-1\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-1\")$.bat"
+          executeLocally: true
+          timeout: 600
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "copy $file(\"embeddedFile-3\")$ $file(\"embeddedFile-3\")$.bat & $file(\"embeddedFile-3\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-3\")$.bat"
+          executeLocally: true
+          timeout: 3600
+    collect:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: "copy $file(\"embeddedFile-3\")$ $file(\"embeddedFile-3\")$.bat & $file(\"embeddedFile-3\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-3\")$.bat"
+          executeLocally: true
+          timeout: 3600

@@ -1,0 +1,583 @@
+---
+connector:
+  displayName: Cisco MDS9000 Series (SSH)
+  platforms: Cisco SAN
+  reliesOn: Commands on the Cisco Bay Controller
+  version: 2.0
+  information: "This connector discovers the enclosure and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.)."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    supersedes:
+    - SMISSwitch
+    - FibreAllianceSwitch
+    criteria:
+    # host should respond to telnet the way described below
+    - type: osCommand
+      commandLine: show version
+      expectedResult: Cisco
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show hardware
+          computes:
+          - type: awk
+            script: $file("embeddedFile-2")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: 2
+        source(2):
+          type: osCommand
+          commandLine: show module
+        source(3):
+          type: osCommand
+          commandLine: show environment
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(2)$
+          - $monitors.enclosure.discovery.sources.source(3)$
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: MDS9000Bay
+          vendor: Cisco
+          type: Switch
+          model: $column(1)
+          serial_number: $column(2)
+          name: "sprintf(\"Switch: (%s %s)\", \"Cisco\", $column(1))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show environment
+        source(2):
+          # Source(2) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-3")$
+            keep: MSHW;
+            separators: ;
+            selectColumns: 2
+      mapping:
+        # ValueTable = Source(2)
+        # PowerConsumption
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: MDS9000Bay
+        metrics:
+          hw.enclosure.power: $column(1)
+          hw.enclosure.energy: fakeCounter($column(1))
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-1")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(3)
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          blade_name: $column(2)
+          model: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-1")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,5"
+            # Duplicate the status column
+            # PowerSupplyID; status ; status ;
+          - type: duplicateColumn
+            column: 2
+            # Now translate status into OK/Warning/Alarm
+            # status
+          - type: translate
+            column: 2
+            translationTable: ModuleStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: ModuleStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="blade"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show interface
+          computes:
+          - type: awk
+            script: $file("embeddedFile-4")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5,6,7,17"
+            # Exclude SPFs that are not present
+            # attachToType ; module ; port ; status ; wwn ; portMode ; portDescription ;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: (SFP not present)
+            # Exclude SPFs that are not inserted
+            # attachToType ; module ; port ; status ; wwn ; portMode ; portDescription ;
+          - type: excludeMatchingLines
+            column: 4
+            regExp: (SFP not inserted)
+        source(2):
+          type: osCommand
+          commandLine: "show interface detail-counters | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: $file("embeddedFile-9")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(3):
+          # Take into account the new Command \"show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'\\n\"
+          type: osCommand
+          commandLine: "show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: $file("embeddedFile-9")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.network.discovery.sources.source(2)$
+          - $monitors.network.discovery.sources.source(3)$
+        source(5):
+          # Table Joint the main Discovery to the ZeroBufferCreditCount
+          # attachToType ; module ; port ; status ; wwn ; portMode ; portDescription ; port ; ZeroBufferCreditCount ;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(4)$
+          leftKeyColumn: 3
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.network.discovery.sources.source(5)$
+        attributes:
+          id: $column(3)
+          physical_address: $column(5)
+          physical_address_type: WWN
+          device_type: $column(6)
+          hw.parent.type: $column(1)
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: show interface
+          computes:
+            # Now, extract the NICs thanks to a smart AWK script
+            #  RETURNS MSHW ; attachToType ; module ; port ; statusInformation ; wwn ; portDesc portMode ; speed ; linkStatus ; duplexMode ; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ;
+            #  SELECTS port ; statusInformation ; speed; link Status; duplexMode; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status
+          - type: awk
+            script: $file("embeddedFile-4")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "4,5,8,9,10,11,12,13,14,15,16"
+          - type: translate
+            column: 4
+            translationTable: linkStatusTranslationTable
+          - type: translate
+            column: 11
+            translationTable: networkStatusTranslationTable
+        source(2):
+          type: osCommand
+          commandLine: "show interface detail-counters | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: $file("embeddedFile-9")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(3):
+          # Take into account the new Command \"show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'\\n\"
+          type: osCommand
+          commandLine: "show interface counters detailed | grep '\\(fc[0-9]\\)\\|\\(waits due to lack of transmit credits\\)'"
+          computes:
+            # Now, extract the NICs ZeroBufferCreditCount
+            #  port;ZeroBufferCreditCount;
+          - type: awk
+            script: $file("embeddedFile-9")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+        source(4):
+          type: tableUnion
+          tables:
+          - $monitors.network.collect.sources.source(2)$
+          - $monitors.network.collect.sources.source(3)$
+        source(5):
+          # Table Joint the main Discovery to the ZeroBufferCreditCount
+          # port ; statusInformation ; speed; link Status; duplexMode; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ; port ; ZeroBufferCreditCount ;
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(1)$
+          rightTable: $monitors.network.collect.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # ValueTable = Source(1)
+        # port ; statusInformation ; speed; link Status; duplexMode; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ;
+        source: $monitors.network.collect.sources.source(5)$
+        deviceId: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+        metrics:
+          hw.network.up: legacyLinkStatus($column(4))
+          hw.errors{hw.type="network"}: $column(10)
+          hw.network.packets{direction="transmit"}: $column(6)
+          hw.network.packets{direction="receive"}: $column(7)
+          hw.network.io{direction="transmit"}: $column(8)
+          hw.network.io{direction="receive"}: $column(9)
+          hw.network.bandwidth.limit: megaBit2Bit($column(3))
+          hw.network.full_duplex: legacyFullDuplex($column(5))
+          hw.status{hw.type="network"}: $column(11)
+          hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $column(13)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-5")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          device_type: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: "sprintf(\"%s: %s\", $column(1), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-5")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "3,4,5"
+            # Now translate "OK/Degraded/Failed" into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: OtherDeviceStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS MSHW;module;module/sensor;status;status;temp;tempWarn;tempAlarm;attachToType;
+            #  SELECTS      module;module/sensor;            #      tempWarn;tempAlarm;attachToType;
+          - type: awk
+            script: $file("embeddedFile-7")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,7,8,9"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          hw.parent.type: $column(5)
+          hw.parent.id: $column(1)
+          name: $column(2)
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-7")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "3,4,5,6"
+            # Now translate status into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: TemperatureStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(4)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS MSHW;fanID;status;status;
+            #  SELECTS fanID;status
+          - type: awk
+            script: $file("embeddedFile-6")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+          # Exclude Power Supplies that are not present
+          - type: excludeMatchingLines
+            column: 2
+            regExp: absent
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: $column(1)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-6")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Now translate status into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: FanStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(4)$
+          computes:
+            # Now, extract the power supplies thanks to a smart AWK script
+            #  RETURNS  MSHW;powerSupply;status;status;
+            #  SELECTS  powerSupply;status;
+          - type: awk
+            script: $file("embeddedFile-8")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+          # Exclude Power Supplies that are not present
+          - type: excludeMatchingLines
+            column: 2
+            regExp: absent
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: enclosure
+          hw.parent.id: MDS9000Bay
+          name: $column(1)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-8")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+            # Now translate status into OK/Warning/Alarm
+            # status;powerState;  (using table in Enclosure Section)
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  ModuleStatusTranslationTable:
+    upgrading: ok
+    standby: ok
+    powered-down: degraded
+    testing: degraded
+    power-denied: failed
+    active: ok
+    err-pwd-dn: failed
+    initializing: degraded
+    pwr-denied: failed
+    Default: UNKNOWN
+    powered-up: degraded
+    failure: failed
+    pwr-cycled: degraded
+    poweredup: degraded
+    ok: ok
+    HA-standby: ok
+  TemperatureStatusTranslationTable:
+    failure: failed
+    ok: ok
+    Default: UNKNOWN
+  FanStatusTranslationTable:
+    failure: failed
+    absent: failed
+    ok: ok
+    Default: UNKNOWN
+  linkStatusTranslationTable:
+    trunking: ok
+    missing: degraded
+    up: ok
+    down: degraded
+    Default: UNKNOWN
+  ModuleStatusInformationTranslationTable:
+    upgrading: ok
+    standby: Standby
+    powered-down: User Requested Power Down
+    testing: Booting - Diagnostics
+    power-denied: Power Issues
+    active: Not Configured
+    err-pwd-dn: Powered Down due to Fault
+    initializing: Initializing
+    pwr-denied: Power Issues
+    Default: UNKNOWN
+    powered-up: Powered up - Waiting to Initialize
+    failure: Failure
+    pwr-cycled: Module Reloaded
+    poweredup: Booting
+    ok: ""
+    HA-standby: HA Standby
+  PowerSupplyStatusTranslationTable:
+    fail/shutdown: failed
+    absent: failed
+    ok: ok
+    Default: UNKNOWN
+  OtherDeviceStatusTranslationTable:
+    failure: failed
+    ok: ok
+    Default: UNKNOWN
+  networkStatusTranslationTable:
+    suspendedduetoincompatiblemode: failed
+    isolationduetoescfailure: failed
+    down (Out of Service): ok
+    isolationduetoelpfailure: failed
+    isolationduetoothersideeportisolated: failed
+    isolationduetovsanmismatch: failed
+    outofservice: ok
+    down: ok
+    offline: degraded
+    portchanneladministrativelydown: ok
+    inactive: ok
+    errordisabled: failed
+    trunking: ok
+    up: ok
+    linkfailureornotconnected: ok
+    isolationduetodomainidassignmentfailure: failed
+    isolationduetoinvalidfabricreconfiguration: failed
+    suspendedduetoincompatibleremoteswitchwwn: failed
+    reconfigurefabricinprogress: ok
+    initializing: ok
+    administrativelydown: ok
+    isolationduetodomainoverlap: failed
+    suspendedduetoincompatiblespeed: failed
+    Default: UNKNOWN
+    down (Administratively down): ok
+    nonparticipating: degraded
+    isolationduetodomainmanagerdisabled: failed
+    sfpnotpresent: MISSING
+    isolationduetozonemergefailure: failed
+    hardwarefailure: failed

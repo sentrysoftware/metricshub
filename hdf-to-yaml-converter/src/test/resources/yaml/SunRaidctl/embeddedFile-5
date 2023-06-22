@@ -1,0 +1,9 @@
+LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
+for VOLUME in $LOGICALDRIVELIST
+        do
+        %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | /usr/bin/nawk '{if ($1 ~ /[0-9]\056[0-9]\056[0-9]/) {Size=$2;
+                                                                                        if (Size ~ /[Gg]/) {gsub (/[Gg]/,"",Size) ; }
+                                                                                        if (Size ~ /[Mm]/) {gsub (/[Mm]/,"",Size) ; Size = Size / 1024};
+                                                                                        if (Size ~ /[Tt]/) {gsub (/[Tt]/,"",Size) ; Size = Size * 1024};
+                                                                                        print ("MSHW;"$1";"Size";"$3";")}}'
+        done

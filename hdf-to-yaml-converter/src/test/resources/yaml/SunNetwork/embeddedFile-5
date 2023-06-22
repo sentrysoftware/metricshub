@@ -1,0 +1,16 @@
+if /usr/bin/test -x /usr/sbin/dladm; then
+    if %{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-dev 2>/dev/null; then
+        /usr/bin/echo;
+        else
+        if showPhys=`%{SUDO:/usr/sbin/dladm} dladm show-phys -o LINK,DEVICE -p 2>/dev/null | grep "[a-zA-Z][0-9][0-9]*:[a-zA-Z]"`; then
+            for Phys in $showPhys; do
+                Phys1=`echo $Phys | cut -d: -f1`
+                Phys2=`echo $Phys | cut -d: -f2`
+                echo LinkID: $Phys1 DeviceID: $Phys2
+            done
+            /usr/bin/echo;
+            else /usr/sbin/ifconfig -a;
+        fi
+    fi
+    else /usr/sbin/prtconf -D;
+fi

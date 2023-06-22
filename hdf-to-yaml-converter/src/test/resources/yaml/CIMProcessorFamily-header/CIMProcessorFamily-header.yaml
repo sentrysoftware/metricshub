@@ -1,0 +1,4 @@
+---
+extends:
+- ../CpuFamilyTranslationTable-header/CpuFamilyTranslationTable-header
+- ../CpuVendorTranslationTable-header/CpuVendorTranslationTable-header

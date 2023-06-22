@@ -1,0 +1,10 @@
+LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
+for LOGICALDRIVE in $LOGICALDRIVELIST
+    do
+    %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $LOGICALDRIVE | /usr/bin/nawk -v logicalDrive=$LOGICALDRIVE '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {size=$2;
+                                                                                                             raid=$NF; gsub (/[A-Z]/,"",raid);
+                                                                                                             if (size ~ /[Gg]/) {gsub (/[Gg]/,"",size) ; }
+                                                                                                             if (size ~ /[Mm]/) {gsub (/[Mm]/,"",size) ; size = size / 1024};
+                                                                                                             if (size ~ /[Tt]/) {gsub (/[Tt]/,"",size) ; size = size * 1024};
+                                                                                                             print ("MSHW;"logicalDrive";"size";"raid";")}}'
+    done

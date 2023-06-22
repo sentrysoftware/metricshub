@@ -1,0 +1,19 @@
+BEGIN {FS=";";}
+# The output can be either:
+# SNMPID;ID;Status;Percentage;
+# SNMPID;Status;Percentage;;
+# So if 4th column is empty, take first 3, else take 1,3,4th.
+$0 ~ /;/ {
+if ($4 == "") {print "MSHW;" $1 ";" $2 ";" $3 ";"}
+else { status = $3
+# The translation table has also changed, so let's remap
+# 0 = OK => 1
+# 1 = Disabled => 2
+# 2 = Discharged => 3
+# 3 = SoftDisabled => 5
+  if ( status == "3" ) { status = 5 }
+  else if ( status == "2" ) { status = 3 }
+  else if ( status == "1" ) { status = 2 }
+  else if ( status == "0" ) { status = 1 }
+  print "MSHW;" $1 ";" status ";" $4 ";"}
+}

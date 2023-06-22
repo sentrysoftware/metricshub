@@ -1,0 +1,16 @@
+BEGIN {FS=";";}
+{ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+$2 ~ /^name/ && $3 ~ /^dimm/ {
+    Name[ID] = $3 ;
+    split($4,outputarray,"/")
+    Parent[ID]=outputarray[3]
+    }
+$2 ~ /^operational-status/  { Status[ID] = $3 ; }
+$2 ~ /^part-number/ { PartNumber[ID] = $3 ;}
+$2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
+
+END{
+for ( ID in Name) {
+    print "MSHW;" Name[ID] ";" Status[ID] ";" PartNumber[ID] ";" SerialNumber[ID] ";" Parent[ID] ";"
+    }
+}

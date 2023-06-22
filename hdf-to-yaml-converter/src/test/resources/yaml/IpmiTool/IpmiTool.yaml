@@ -1,0 +1,764 @@
+---
+connector:
+  displayName: IPMI
+  platforms: Any system with IPMI
+  reliesOn: IPMI
+  information: "Gives environmental information (temperatures, fans, etc.) on several IPMI-enabled servers in-band and out-of-band."
+  version: 2.0
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Linux
+    - Solaris
+    - NT
+    - OOB
+    criteria:
+    # Let the KM/PM validate whether IPMI is available or not
+    - type: ipmi
+      forceSerialization: true
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = IPMI source
+          type: ipmi
+          forceSerialization: true
+          computes:
+          # Process IPMI result througn an AWK script to interpret what can be interpreted
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11"
+        source(2):
+          # Source(2) = copy of Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only the enclosure line
+            # Enclosure;Vendor;Model;SerialNumber;Status;StatusInformation;PowerConsumption;AdditionalInformation
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: enclosure
+      mapping:
+        # InstanceTable = Source(2)
+        source: $monitors.enclosure.discovery.sources.source(2)$
+        attributes:
+          id: IPMI
+          vendor: $column(2)
+          model: $column(3)
+          serial_number: $column(4)
+          info: $column(8)
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(2), $column(3))"
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Get IPMI, will be re-used by all other collects
+          type: ipmi
+          forceSerialization: true
+          computes:
+          # Post-processing of the IPMI mess (which has already been greatly sorted out!)
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11"
+        source(2):
+          # Source(2) = copy of Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only the enclosure line
+            # Enclosure;Vendor;Model;SerialNumber;StatusArray;StatusInformation;PowerConsumption
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: enclosure
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Enclosure;Vendor;Model;SerialNumber;Status;StatusInformation;PowerConsumption
+          - type: convert
+            column: 5
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(2)
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: IPMI
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(5)
+          hw.enclosure.power: $column(7)
+          hw.enclosure.energy: fakeCounter($column(7))
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          # SensorType;SensorID;SensorName;Location;FanSpeed;WarningThreshold;AlarmThreshold
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only fans
+            # Fan;SensorID;SensorName;Location;FanSpeed;WarningThreshold;AlarmThreshold
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: fan
+            # Add empty Status and StatusInformation columns
+            # Fan;SensorID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;
+          - type: rightConcat
+            column: 3
+            value: ;;
+            # Add empty AdditionalInformation1 column at the very end
+            # Fan;SensorID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;AdditionalInformation1;
+          - type: rightConcat
+            column: 9
+            value: ;
+        source(2):
+          # Source(2) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only "Fan Device" lines
+            # Fan Device;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: Fan Device
+            # Keep only interesting columns
+            # Fan Device;DeviceID;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepColumns
+            columnNumbers: "1,2,3,7,8,9"
+            # Add empty Location, FanSpeed, WarningThreshold and AlarmThreshold columns
+            # Fan Device;DeviceID;DisplayID;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;AdditionalInformation1;
+          - type: rightConcat
+            column: 5
+            value: ;;;;
+        source(3):
+          # Source(3) = Table Union of Source(1) and Source(2)
+          # Fan;DeviceID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold;AdditionalInformation1;
+          type: tableUnion
+          tables:
+          - $monitors.fan.discovery.sources.source(1)$
+          - $monitors.fan.discovery.sources.source(2)$
+      mapping:
+        # The instance table
+        source: $monitors.fan.discovery.sources.source(3)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          sensor_location: $column(6)
+          info: $column(10)
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(8)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(9)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          # SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only fans
+            # Fan;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: fan
+            # Add empty Status and StatusInformation columns
+            # Fan;SensorID;SensorName;StatusArray;StatusInformation;Location;FanSpeed;WarningThreshold;AlarmThreshold
+          - type: rightConcat
+            column: 3
+            value: ;;
+        source(2):
+          # Source(2) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only "Fan Device" lines
+            # Fan Device;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: Fan Device
+            # Keep only interesting columns
+            # Fan Device;DeviceID;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepColumns
+            columnNumbers: "1,2,7,8,9"
+            # Add an empty "SensorName" column
+            # Fan Device;DeviceID;SensorName;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: rightConcat
+            column: 2
+            value: ;
+            # Add empty FanSpeed, WarningThreshold and AlarmThreshold columns
+            # Fan Device;DeviceID;SensorName;StatusArray;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+          - type: rightConcat
+            column: 6
+            value: ;;;
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Fan Device;DeviceID;SensorName;Status;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+          - type: convert
+            column: 4
+            conversion: array2SimpleStatus
+        source(3):
+          # Source(3) = Table Union of Source(1) and Source(2)
+          # Fan;DeviceID;SensorName;Status;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+          type: tableUnion
+          tables:
+          - $monitors.fan.collect.sources.source(1)$
+          - $monitors.fan.collect.sources.source(2)$
+      mapping:
+        # CollectTable = Source(3)
+        # Fan;DeviceID;SensorName;Status;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
+        source: $monitors.fan.collect.sources.source(3)$
+        deviceId: $column(2)
+        metrics:
+          hw.fan.speed: $column(7)
+          hw.status{hw.type="fan"}: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(5)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          # SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only fans
+            # Temperature;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: temperature
+      mapping:
+        # The instance table
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          sensor_location: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
+          hw.temperature.limit{limit_type="high.critical"}: $column(7)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          # SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only fans
+            # Temperature;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: temperature
+      mapping:
+        # CollectTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.temperature: $column(5)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          # SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only fans
+            # Voltage;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: voltage
+      mapping:
+        # The instance table
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          sensor_location: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: $column(6)
+          hw.voltage.limit{limit_type="high.degraded"}: $column(7)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          # SensorType;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only fans
+            # Voltage;SensorID;SensorName;Location;Value;WarningThreshold;AlarmThreshold
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: voltage
+      mapping:
+        # CollectTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.voltage: $column(5)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only power supply lines
+            # Power supply;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: Power supply
+          - type: leftConcat
+            column: 6
+            value: "SerialNumber: "
+          - type: leftConcat
+            column: 5
+            value: "Model: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          info: "join($column(9), $column(6), $column(5), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: $column(2)
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only power supply lines
+            # Power supply;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: Power supply
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Power supply;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only processor lines
+            # Processor;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: Processor
+          - type: leftConcat
+            column: 6
+            value: "SerialNumber: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          vendor: $column(4)
+          model: $column(5)
+          info: "join($column(9), $column(6), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(5))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only processor lines
+            # Processor;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: Processor
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Processor;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only memory lines
+            # Memory module;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: "Memory module,Memory Device"
+            # Duplicate the "Model" column because it is in the form of Model|Speed
+            # Memory module;DeviceID;Entity ID;Vendor;Model|Speed;Model|Speed;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: duplicateColumn
+            column: 5
+            # Now extract "Model" from "Model|Size"
+            # Memory module;DeviceID;Entity ID;Vendor;Model;Model|Speed;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: extract
+            column: 5
+            subColumn: 1
+            subSeparators: '|'
+            # Now extract "Size" from "Model|Size"
+            # Memory module;DeviceID;Entity ID;Vendor;Model;Speed;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: extract
+            column: 6
+            subColumn: 2
+            subSeparators: '|'
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          vendor: $column(4)
+          model: $column(5)
+          serial_number: $column(7)
+          info: $column(10)
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(4), $column(6))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(6))
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only memory lines
+            # Memory module;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: "Memory module,Memory Device"
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Memory module;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="memory"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only disk lines
+            # Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: "Disk or disk bay,Disk or Disk Bay,Disk Drive Bay"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          vendor: $column(4)
+          model: $column(5)
+          serial_number: $column(6)
+          info: $column(9)
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only disk lines
+            # Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: "Disk or disk bay,Disk or Disk Bay,Disk Drive Bay"
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only LED lines
+            # LED;DeviceID;Name;EntityID;Color;OnStatus;OffStatus;BlinkingStatus;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: led
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.led.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          color: $column(5)
+          __on_status: $column(6)
+          __off_status: $column(7)
+          __blinking_status: $column(8)
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only LED lines
+            # LED;DeviceID;Name;EntityID;Color;OnStatus;OffStatus;BlinkingStatus;Status;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: led
+          # Duplicate the Status column
+          - type: duplicateColumn
+            column: 9
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.led.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="led"}: legacyLedStatus($column(9))
+        legacyTextParameters:
+          StatusInformation: $column(10)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Exclude what we know already
+            # DeviceType;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: "Battery,Disk or Disk Bay,Disk or disk bay,Disk Drive Bay,Memory module,Memory Device,LED,Temperature,Voltage,Power supply,Fan,Fan Device,Enclosure,FRU,Processor,Current,PowerConsumption,EnergyUsage,Blade,Processing Blade"
+          - type: leftConcat
+            column: 6
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          device_type: $column(1)
+          id: $column(2)
+          __display_id: $column(3)
+          additional_label: $column(4)
+          info: "join($column(9), $column(6), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s: %s (%s)\", $column(1), $column(3), $column(4))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Exclude what we know already
+            # DeviceType;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+          - type: excludeMatchingLines
+            column: 1
+            valueList: "Battery,Disk or Disk Bay,Disk or disk bay,Disk Drive Bay,Memory module,Memory Device,LED,Temperature,Voltage,Power supply,Fan,Fan Device,Enclosure,FRU,Processor,Current,PowerConsumption,EnergyUsage,Blade,Processing Blade"
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Disk or disk bay;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only blade lines
+            # Blade;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: "Blade,Processing Blade"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          model: $column(5)
+          serial_number: $column(6)
+          info: $column(9)
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s)\", $column(2), $column(5))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only blade lines
+            # Blade;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: "Blade,Processing Blade"
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Blade;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="blade"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only battery lines
+            # Battery;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation;AdditionalInformation1;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: battery
+          - type: leftConcat
+            column: 6
+            value: "serialNumber: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          model: $column(5)
+          info: "join($column(9), $column(6), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: IPMI
+          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only Battery lines
+            # Battery;DeviceID;Entity ID;Vendor;Model;SerialNumber;StatusArray;StatusInformation
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: battery
+            # Convert StatusArray to a simple (unique) PATROLStatus
+            # Battery;DeviceID;Entity ID;Vendor;Model;SerialNumber;Status;StatusInformation
+          - type: convert
+            column: 7
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="battery"}: $column(7)
+        legacyTextParameters:
+          StatusInformation: $column(8)

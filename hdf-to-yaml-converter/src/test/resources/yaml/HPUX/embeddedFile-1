@@ -1,0 +1,36 @@
+#!/bin/sh
+
+/bin/echo "Getting processor information"
+
+ISIA64=`/usr/bin/model|/bin/cut -d " " -f1`
+
+case $ISIA64 in
+
+ia64)
+    PROCESSORSPEED=`/usr/contrib/bin/machinfo|/bin/awk '/Clock speed/ { print $4 }'`
+    PROCESSORMODEL=`/usr/contrib/bin/machinfo|/bin/awk '/processor model:/ { print $4 " " $5 " " $6 " " $7 " " $8 }'`
+    if /bin/test "$PROCESSORMODEL" = "" ; then
+        PROCESSORMODEL="Intel Itanium"
+    fi
+    ;;
+
+*)
+    MACHINEMODEL=`/usr/bin/model|/bin/cut -d / -f3`
+
+    OSREVISION=`/usr/bin/uname -r`
+    case $OSREVISION in
+
+    *10*)
+        PROCESSORSPEED=`/bin/echo itick_per_tick/D|%{SUDO:/usr/bin/adb}/usr/bin/adb /stand/vmunix /dev/kmem|/bin/tail -1|/bin/awk '{print $2/10000}'`
+        PROCESSORMODEL=`/bin/grep "^$MACHINEMODEL" /usr/lib/sched.models|/bin/awk '{print $3}'`
+        ;;
+
+    *11*)
+        PROCESSORSPEED=`/bin/echo itick_per_tick/D|%{SUDO:/usr/bin/adb}/usr/bin/adb -k /stand/vmunix /dev/kmem|/bin/tail -1|/bin/awk '{print $2/10000}'`
+        PROCESSORMODEL=`/bin/grep "^$MACHINEMODEL" /usr/sam/lib/mo/sched.models|/bin/awk '{print $3}'`
+        ;;
+
+    esac
+esac
+
+/usr/sbin/ioscan -FkC processor|/bin/awk -F : -v Speed="$PROCESSORSPEED" -v Model="$PROCESSORMODEL" '{print "MSHW;" $11 ";" $13 ";" $16 ";" Speed ";" Model}'

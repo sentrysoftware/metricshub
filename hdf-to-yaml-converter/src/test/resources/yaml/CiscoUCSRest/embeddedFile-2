@@ -1,0 +1,31 @@
+BEGIN {
+    FS = ";"
+    split(";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;", enclosureNameArray, ";");
+    split(";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;", enclosurePowerArray, ";");
+    enclosureCount = 0;
+}
+/.+;[0-9]+/ {
+    split($1, pathArray, "/");
+    enclosureID = pathArray[1] "/" pathArray[2];
+    enclosureAlreadyListed = 0;
+    for (i=1 ; i<=enclosureCount ; i++)
+    {
+        if (enclosureNameArray[i] == enclosureID)
+        {
+            enclosureAlreadyListed = 1;
+            enclosurePowerArray[i] = enclosurePowerArray[i] + $2;
+        }
+    }
+    if (enclosureAlreadyListed == 0)
+    {
+        enclosureCount++;
+        enclosureNameArray[enclosureCount] = enclosureID;
+        enclosurePowerArray[enclosureCount] = $2;
+    }
+}
+END {
+    for (i=1 ; i<=enclosureCount ; i++)
+    {
+        print "MSHW;" enclosureNameArray[i] ";" enclosurePowerArray[i] ";"
+    }
+}

@@ -1,12 +1,19 @@
 package com.sentrysoftware.matrix.converter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -31,41 +38,55 @@ class ConnectorLibraryConverterTest {
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
 
-		for (File yamlFile : List.of(processor.getOutputDirectory().toFile().list()).stream()
-				.map(x -> new File(processor.getOutputDirectory().toAbsolutePath() + "/" + x)).toList()) {
+		final AtomicInteger fileCounter = new AtomicInteger(0);
+		Files.walkFileTree(processor.getOutputDirectory(), new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				final String filename = file.getFileName().toString();
+				if (!Files.isDirectory(file) && filename.endsWith(".yaml")) {
 
-			final File expected = Path.of(YAML_DIRECTORY, yamlFile.getName()).toFile();
+					fileCounter.incrementAndGet();
 
-			assertTrue(expected.exists());
-			assertTrue(yamlFile.exists());
+					final File yamlFile = file.toFile();
+					final File expected = Path.of(YAML_DIRECTORY, filename.substring(0, filename.lastIndexOf('.')), filename).toFile();
 
-			JsonNode expectedNode = null;
-			JsonNode yaml = null;
+					assertTrue(expected.exists());
+					assertTrue(yamlFile.exists());
 
-			try {
-				yaml = mapper.readTree(yamlFile);
-				
-				if(yaml.findValues("_comment").size() != 0) {
-					Assertions.fail(String.format("_comment node found! in %s", yamlFile.getAbsolutePath()));
+					JsonNode expectedNode = null;
+					JsonNode yaml = null;
+
+					try {
+						yaml = mapper.readTree(yamlFile);
+
+						if (yaml.findValues("_comment").size() != 0) {
+							Assertions.fail(String.format("_comment node found! in %s", yamlFile.getAbsolutePath()));
+						}
+
+					} catch (Exception e) {
+						Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, yamlFile, yaml));
+					}
+
+					try {
+						expectedNode = mapper.readTree(expected);
+
+						if (expectedNode.findValues("_comment").size() != 0) {
+							Assertions.fail(String.format("_comment node found! in %s", expected.getAbsolutePath()));
+						}
+
+					} catch (Exception e) {
+						Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, expected, expectedNode));
+					}
+
+					assertEquals(expectedNode, yaml, () -> "Assertion failed on file: " + yamlFile.getName());
 				}
 
-			} catch (Exception e) {
-				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, yamlFile, yaml));
+				return FileVisitResult.CONTINUE;
 			}
+		});
 
-			try {
-				expectedNode = mapper.readTree(expected);
-
-				if(expectedNode.findValues("_comment").size() != 0) {
-					Assertions.fail(String.format("_comment node found! in %s", expected.getAbsolutePath()));
-				}
-
-			} catch (Exception e) {
-				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, expected, expectedNode));
-			}
-
-			assertEquals(expectedNode, yaml, () -> "Assertion failed on file: " + yamlFile.getName());
-		}
+		final int expectedFileCounter = 286;
+		assertEquals(expectedFileCounter, fileCounter.get());
 	}
 
 	@Test
@@ -73,28 +94,98 @@ class ConnectorLibraryConverterTest {
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
 
-		for (File inputFile : List.of(processor.getOutputDirectory().toFile().list()).stream()
-				.map(x -> new File(processor.getOutputDirectory().toAbsolutePath() + "/" + x)).toList()) {
+		Files.walkFileTree(processor.getOutputDirectory(), new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				final String filename = file.getFileName().toString();
+				if (!Files.isDirectory(file) && filename.endsWith(".yaml")) {
 
-			final File expectedFile = Path.of(YAML_DIRECTORY, inputFile.getName()).toFile();
+					final File yamlFile = file.toFile();
+					final File expected = Path.of(YAML_DIRECTORY, filename.substring(0, filename.lastIndexOf('.')), filename).toFile();
 
-			assertTrue(expectedFile.exists());
-			assertTrue(inputFile.exists());
+					assertTrue(expected.exists());
+					assertTrue(yamlFile.exists());
 
-			final List<String> inputLines = Files.readAllLines(inputFile.toPath());
-			final List<String> expectedLines = Files.readAllLines(expectedFile.toPath());
+					final List<String> inputLines = readLinesSafe(yamlFile);
+					final List<String> expectedLines = readLinesSafe(expected);
 
-			// Sanity
-			if(inputLines.contains("_comment")) {
-				Assertions.fail("_comment node not processed!");
+					// Sanity
+					if(inputLines.contains("_comment")) {
+						Assertions.fail("_comment node not processed!");
+					}
+
+					assertEquals(expectedLines.size(), inputLines.size());
+
+					for (int i = 0; i < expectedLines.size(); i++) {
+						final int index = i;
+						assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index + ". File: " + expected.getName());
+					}
+				}
+				return FileVisitResult.CONTINUE;
 			}
+		});
+	}
 
-			assertEquals(expectedLines.size(), inputLines.size());
+	private static final Pattern EMBEDDED_FILE_PATTERN = Pattern.compile(
+		"\\$file\\(\"(\\S+)\"\\)\\$",
+		Pattern.CASE_INSENSITIVE
+	);
 
-			for (int i = 0; i < expectedLines.size(); i++) {
-				final int index = i;
-				assertEquals(expectedLines.get(i), inputLines.get(i), () -> "Assertion failed at line " + index + ". File: " + expectedFile.getName());
+	@Test
+	void testProcessEmbeddedFiles() throws Exception {
+		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
+		processor.process();
+
+		Files.walkFileTree(processor.getOutputDirectory(), new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				final String filename = file.getFileName().toString();
+				if (!Files.isDirectory(file) && filename.endsWith(".yaml")) {
+
+					final File yamlFile = file.toFile();
+
+					assertTrue(yamlFile.exists());
+
+					final List<String> inputLines = readLinesSafe(yamlFile);
+
+					for (String line : inputLines) {
+						// Skip comments
+						if (line.trim().startsWith("#")) {
+							continue;
+						}
+
+						final Matcher matcher = EMBEDDED_FILE_PATTERN.matcher(line);
+						while (matcher.find()) {
+							final String embeddedFileRelativePath = matcher.group(1);
+							final Path resolvedPath = file.getParent().resolve(embeddedFileRelativePath);
+							assertTrue(
+								Files.exists(
+									resolvedPath
+								) || filename.endsWith("-header.yaml"),
+								// Headers reference embedded files defined in HDFs, The code will not produce a relative path here
+								// because the HHDF could be included in several connectors where each connector defines its 
+								// embedded file.
+								() -> resolvedPath + " doesn't exist for: " + filename
+							);
+						}
+					}
+				}
+				return FileVisitResult.CONTINUE;
 			}
+		});
+	}
+
+	/**
+	 * Read all lines from a file.
+	 * 
+	 * @param file
+	 * @return The lines from the file as a {@code List}
+	 */
+	private List<String> readLinesSafe(final File file) {
+		try {
+			return Files.readAllLines(file.toPath());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

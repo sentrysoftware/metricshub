@@ -1,0 +1,1 @@
+%{SUDO:/usr/sbin/dladm} /usr/sbin/dladm show-phys -o LINK,DEVICE -p 2>/dev/null | /usr/bin/tr ':' ';'

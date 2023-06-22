@@ -1,0 +1,28 @@
+BEGIN { fanCountPerTray = 0 }
+/^FANTRAY +POWER +SPEED +FAN0/ {
+    fanCountPerTray = NF - 3
+}
+
+/^FT[0-9] +/ {
+    for (i=0 ; i<fanCountPerTray ; i++)
+    {
+        print "MSHW;Fan;Tray " substr($0, 3, 1) " / Fan " i ";" $(i+4)
+    }
+}
+
+/^PS[0-9] +/ {
+    if (NF == 8)
+    {
+        print "MSHW;Fan;" $1 " / Fan 0;" $7
+        print "MSHW;Fan;" $1 " / Fan 1;" $8
+    }
+
+}
+
+($2 == "at" && $3 ~ /^PS[0-9]+/) {
+    if (NF == 10)
+    {
+        print "MSHW;Fan;" $3 " / Fan 0;" $9
+        print "MSHW;Fan;" $3 " / Fan 1;" $10
+    }
+}

@@ -1,0 +1,3 @@
+/Server Module Power Consumption Table/,/^ *$/ {
+    if (NF == 5) { print "MSHW;" $2 ";" $3 ";" }
+}

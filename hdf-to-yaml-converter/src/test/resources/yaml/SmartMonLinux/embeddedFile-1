@@ -1,0 +1,47 @@
+#!/bin/sh
+SMARTD=$1
+SMARTCTL=$2
+TMPFILE=/tmp/MS_HW_smartmontoolsHDF_$$
+
+$SMARTD -c>$TMPFILE
+$SMARTD -q onecheck>>$TMPFILE
+
+DISKIDLIST=`cat $TMPFILE|awk '/^Device: .* is SMART capable/ {
+    deviceID = $2;
+    if (substr(deviceID, length(deviceID), 1) == ",")
+    {
+        deviceID = substr(deviceID, 1, length(deviceID)-1);
+    }
+    print deviceID
+}'`
+
+/bin/rm -f $TMPFILE
+
+for DISKID in $DISKIDLIST
+do
+    $SMARTCTL -a $DISKID|awk -v deviceID=$DISKID 'BEGIN {
+        vendor = "";
+        serialNumber = "";
+    }
+    {
+        if ($1 == "Device:")
+        {
+            if ($5 == "Version:") { vendor = $2 " " $3 " " $4; }
+            else if ($4 == "Version:") { vendor = $2 " " $3; }
+            else { vendor = $2; }
+        }
+
+        if ($1 == "Device" && $2 == "Model:")
+        {
+            vendor = $3;
+        }
+
+        if ($0 ~ /^Serial [Nn]umber: /)
+        {
+            serialNumber = $3;
+        }
+    }
+    END {
+        print "MSHW;" deviceID ";" vendor ";" serialNumber
+    }'
+done

@@ -1,0 +1,24 @@
+function sizeConvert(size)
+{
+if (size ~ /P$/) {gsub(/P/,"",size); size = size * 1048576 }
+else if (size ~ /T$/) {gsub(/T/,"",size); size = size * 1024}
+else if (size ~ /G$/) {gsub(/G/,"",size); size = size }
+else if (size ~ /M$/) {gsub(/M/,"",size); size = size / 1024}
+else if (size ~ /K$/) {gsub(/K/,"",size); size = size / 1048576 }
+else {size = size / 1073741824 }
+return size
+}
+
+$1 ~ /:/ && $1 !~ /Storage:/ {pool = $1 ; gsub(/:/,"",pool)}
+$1 ~ /^Used/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Used = sizeConvert($2);}
+$1 ~ /^Avail/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Available = sizeConvert($2);}
+$1 ~ /^Free/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Free = sizeConvert($2);}
+
+
+
+
+$1 ~ /State/ && pool != "" {
+                            State = $2
+                            print "MSHW;" pool ";" State";" State";" Used ";" Available ";" Free ";"
+                            pool = "" ; State= ""
+                           }

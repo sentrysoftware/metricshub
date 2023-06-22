@@ -1,0 +1,1 @@
+MSHW;ComputerModel;<!--getscalar api="hpsmbapi" name="SMBAPI_GetSystemModel" default="unknown"-->

@@ -1,0 +1,7 @@
+{nodeName = $1 ; gsub (/:/,"",nodeName);}
+NF > 4 {
+    if ($2 ~ /battery/ && $(NF-2) ~ /:/) {ID = $0; gsub (/ :[^:]*$/,"",ID); gsub (/^[^:]*: /,"",ID);
+                            status = $(NF-1)
+                            print "MSHW_BATTERY;" nodeName ";" nodeName"-"ID ";" ID ";" status";"status";"
+                           }
+    }

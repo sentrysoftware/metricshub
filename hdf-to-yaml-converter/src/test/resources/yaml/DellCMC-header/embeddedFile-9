@@ -1,0 +1,13 @@
+$1 ~ /RAID.ChassisIntegrated/ {DeviceID = $1 ; gsub (/RAID.ChassisIntegrated./,"",DeviceID) }
+tolower($1) ~ /status/ {if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                          else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                          else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                          else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                         }
+
+tolower($1) ~ /name/ {Model = $0 ;  gsub (/.*= /,"",Model) }
+tolower($1) ~ /firmwareversion/ && DeviceID != "" {
+                                   Firmware = $3
+                                   print "MSHW;" DeviceID ";" status ";" statusInformation ";" Model ";" Firmware ";"
+                                   DeviceID = "" ; status = "" ; statusInformation = "" ; Model = "" ; Firmware = "" ;
+                                  }

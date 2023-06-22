@@ -1,0 +1,10 @@
+BEGIN { FS = ";"; }
+{
+  systemName[$2]=$2;
+  systemConsumption[$2] += $6;
+
+}
+END{
+  for (var in systemName)
+    printf "JSON;%s;%d\n",systemName[var],systemConsumption[var];
+}

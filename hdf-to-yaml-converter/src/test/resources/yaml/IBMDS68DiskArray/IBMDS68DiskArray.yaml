@@ -1,0 +1,808 @@
+---
+connector:
+  displayName: IBM DS6000/8000 Disk Arrays
+  platforms: "IBM DS6000,DS8000"
+  reliesOn: IBM SMI-S Agent (IBM System Storage DS6000/DS8000 Storage Manager)
+  version: 1.0
+  information: "This connector discovers the enclosure and the disks of IBM SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports, physical and logical disks of the array. It relies on the WBEM technology and supports SMI-S compliant disk arrays only."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Storage
+    supersedes:
+    - SMISDiskArray
+    criteria:
+    - type: wbem
+      namespace: root/ibm
+      query: "SELECT Name,Dedicated FROM IBMTSDS_StorageSystem"
+    # There also must be disk drives declared in this namespace
+    - type: wbem
+      query: SELECT DeviceID FROM IBMTSDS_DiskDrive
+      namespace: root/ibm
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = IBMTSDS_StorageSystem
+          # StorageSystemID,AdditionalInformationIndex,AdditionalInformationValues
+          type: wbem
+          query: "SELECT Name,IdentifyingDescriptions,OtherIdentifyingInfo FROM IBMTSDS_StorageSystem"
+          namespace: root/ibm
+      mapping:
+        # Instance Table
+        # Name,Caption,Manufacturer,Model,SerialNumber
+        source: $monitors.enclosure.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          vendor: IBM
+          model: DS6000/8000
+          type: Storage
+          name: "sprintf(\"Storage: %s (%s %s)\", $column(1), \"IBM\", \"DS6000/8000\")"
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # Name;OperationalStatus;
+          type: wbem
+          query: "SELECT Name,OperationalStatus FROM IBMTSDS_StorageSystem"
+          namespace: root/ibm
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # Name;OperationalStatus;OperationalStatus;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # Name;PATROLStatusArray;OperationalStatus;
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # Name;PATROLStatusArray;StatusDescriptions;
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # Name;PATROLStatus;StatusDescriptions;
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # Name;PATROLStatus;StatusDescriptions;
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = IBMTSDS_DiskDrive
+          # DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive
+          type: wbem
+          query: "SELECT Location,DeviceID,DDMSpeed,SystemName,__Path FROM IBMTSDS_DiskDrive"
+          namespace: root/ibm
+          computes:
+            # Duplicate the Disk ID
+            # Note actually used.  This is left here for the hope someday of trimming the display ID once we get an idea of system structure
+            # DiskID,DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive
+          - type: duplicateColumn
+            column: 1
+            # Add "Speed: " to the speed column to identify this information
+            # DiskID,DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive
+          - type: leftConcat
+            column: 4
+            value: "Speed: "
+        source(2):
+          # Source(2) = IBMTSDS_DiskExtent
+          # BlockSize,Blocks,IBMTSDS_DiskExtent
+          type: wbem
+          query: "SELECT BlockSize,NumberOfBlocks,__Path FROM IBMTSDS_DiskExtent"
+          namespace: root/ibm
+          computes:
+            # Convert Blocks to Size
+            # BlockSize,Size,IBMTSDS_DiskExtent
+          - type: multiply
+            column: 2
+            value: Column(1)
+        source(3):
+          # Source(3) = IBMTSDS_DiskDrivePackage
+          # Model,SerialNumber,IBMTSDS_DiskDrivePackage
+          type: wbem
+          query: "SELECT Model,SerialNumber,__Path FROM IBMTSDS_DiskDrivePackage"
+          namespace: root/ibm
+        source(4):
+          # Source(4) = IBMTSDS_DiskDriveRealizes
+          # IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive
+          type: wbem
+          query: "SELECT Antecedent,Dependent FROM IBMTSDS_DiskDriveRealizes"
+          namespace: root/ibm
+        source(5):
+          # Source(5) = IBMTSDS_DiskDrivePresent
+          # IBMTSDS_DiskDrive,IBMTSDS_DiskExtent
+          type: wbem
+          query: "SELECT Antecedent,Dependent FROM IBMTSDS_DiskDrivePresent"
+          namespace: root/ibm
+        source(6):
+          # Source (6) = Union of IBMTSDS_DiskDrive and Association Table
+          # DisplayID,DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(4)$
+          leftKeyColumn: 6
+          rightKeyColumn: 2
+          keyType: Wbem
+        source(7):
+          # Source (7) = Union of Source 6 and IBMTSDS_DiskDrivePackage
+          # DiskID,DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive,Model,SerialNumber,IBMTSDS_DiskDrivePackage
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(6)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(3)$
+          leftKeyColumn: 7
+          rightKeyColumn: 3
+          keyType: Wbem
+        source(8):
+          # Source (8) = Union of Source 7 and Association Table
+          # DiskID,DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive,Model,SerialNumber,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive,IBMTSDS_DiskExtent
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(7)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(5)$
+          leftKeyColumn: 6
+          rightKeyColumn: 1
+          keyType: Wbem
+        source(9):
+          # Source (9) = Union of Source 8 and IBMTSDS_DiskExtent
+          # DiskID,DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive,Model,SerialNumber,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive,IBMTSDS_DiskExtent,BlockSize,Size,IBMTSDS_DiskExtent
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(8)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 13
+          rightKeyColumn: 3
+          keyType: Wbem
+          computes:
+            # Clean up Columns
+            #    1       2         3        4      5        6            #      7            #            8            # 9        10            #  11            #       12            #     13            14      15    16
+            # DiskID,DiskID,AdditionalInformation,Speed,SystemName,IBMTSDS_DiskDrive,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive,Model,SerialNumber,IBMTSDS_DiskDrivePackage,IBMTSDS_DiskDrive,IBMTSDS_DiskExtent,BlockSize,Size,IBMTSDS_DiskExtent
+            # DiskID,DiskID,AdditionalInformation,Speed,SystemName,            #             #             #             #      Model,SerialNumber,            #             #             #             #       BlockSize,Size
+          - type: keepColumns
+            columnNumbers: "1,2,3,4,5,9,10,14,15"
+            # Fix the DisplayID with an awk script
+            # DiskID,DisplayID,AdditionalInformation,Speed,SystemName,Model,SerialNumber,BlockSize,Size
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10"
+      mapping:
+        # Instance Table
+        # DiskID,DisplayID,AdditionalInformation,Speed,SystemName,Model,SerialNumber,BlockSize,Size
+        source: $monitors.physical_disk.discovery.sources.source(9)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          model: $column(6)
+          serial_number: $column(7)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(5)
+          name: "sprintf(\"%s (%by10hf.s)\", $column(2), $column(9))"
+        metrics:
+          hw.physical_disk.size: $column(9)
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = IBMTSDS_DiskDrive
+          # DiskID;OperationalStatus;
+          type: wbem
+          query: "SELECT Location,OperationalStatus FROM IBMTSDS_DiskDrive"
+          namespace: root/ibm
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DiskID,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DiskID,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DiskID,PATROLStatusArray,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DiskID,PATROLStatus,StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # DiskID,PATROLStatus,StatusDescriptions
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = IBMTSDS_PrimordialStoragePool
+          # Size,DeviceID,IBMTSDS_PrimordialStoragePool
+          type: wbem
+          query: "SELECT TotalManagedSpace,InstanceID,__Path  FROM IBMTSDS_PrimordialStoragePool"
+          namespace: root/ibm
+          computes:
+            # Add ".Primordial" to the Device ID, the DisplayID of "Primordial", the LogicalDisk type of Storage Pool and a Blank Raid Level
+            # Size,DeviceID,DisplayID,DiskType,RaidLevel,IBMTSDS_PrimordialStoragePool
+          - type: rightConcat
+            column: 2
+            value: ;Primordial;Storage Pool;
+        source(2):
+          # Source(2) = IBMTSDS_ArrayPool
+          # Size,DeviceID,RAIDLevel,IBMTSDS_ArrayPool
+          type: wbem
+          query: "SELECT TotalManagedSpace,InstanceID,RAIDLevel,__Path  FROM IBMTSDS_ArrayPool"
+          namespace: root/ibm
+          computes:
+            # Duplicate the device ID
+            # Size,DeviceID,DeviceID,RAIDLevel,IBMTSDS_ArrayPool
+          - type: duplicateColumn
+            column: 2
+            # Add the Disk Type
+            # Size,DeviceID,DeviceID,DiskType,RAIDLevel,IBMTSDS_ArrayPool
+          - type: rightConcat
+            column: 3
+            value: ;Array Pool
+            # Translate the RaidLevel
+            # Size,DeviceID,DeviceID,DiskType,RAIDLevel,IBMTSDS_ArrayPool
+          - type: translate
+            column: 5
+            translationTable: LogicalDiskRaidLevel
+        source(3):
+          # Source(3) = IBMTSDS_ArraySitePool
+          # Size,DeviceID,IBMTSDS_ArraySitePool
+          type: wbem
+          query: "SELECT TotalManagedSpace,InstanceID,__Path  FROM IBMTSDS_ArraySitePool"
+          namespace: root/ibm
+          computes:
+            # Duplicate the DeviceID
+            # Size,DeviceID,DeviceID,IBMTSDS_ArraySitePool
+          - type: duplicateColumn
+            column: 2
+            # Add Disk Type and blank raid level
+            # Size,DeviceID,DeviceID,DiskType,RaidLevel,IBMTSDS_ArraySitePool
+          - type: rightConcat
+            column: 3
+            value: ;Array Site;
+        source(4):
+          # Source(4) = IBMTSDS_ExtentPool
+          # DeviceID,RaidLevel,IBMTSDS_ExtentPool
+          type: wbem
+          query: "SELECT InstanceID,ExtentType,__Path  FROM IBMTSDS_ExtentPool"
+          namespace: root/ibm
+          computes:
+            # Add a blank size
+            # Size,DeviceID,DeviceID,RaidLevel,IBMTSDS_ExtentPool
+          - type: leftConcat
+            column: 1
+            value: ;
+            # Duplicate the DeviceID
+            # Size,DeviceID,DeviceID,RaidLevel,IBMTSDS_ExtentPool
+          - type: duplicateColumn
+            column: 2
+            # Add Disk Type
+            # Size,DeviceID,DeviceID,DiskType,RaidLevel,IBMTSDS_ExtentPool
+          - type: rightConcat
+            column: 3
+            value: ;Extent Pool
+            # Translate the RaidLevel
+            # Size,DeviceID,DeviceID,DiskType,RAIDLevel,IBMTSDS_ExtentPool
+          - type: translate
+            column: 5
+            translationTable: ExtentPoolRaidLevel
+        source(5):
+          # Source(5) = IBMTSDS_RankPool
+          # Size,DeviceID,RAIDLevel,IBMTSDS_RankPool
+          type: wbem
+          query: "SELECT TotalManagedSpace,InstanceID,RAIDLevel,__Path  FROM IBMTSDS_RankPool"
+          namespace: root/ibm
+          computes:
+            # Duplicate the device ID
+            # Size,DeviceID,DeviceID,RAIDLevel,IBMTSDS_RankPool
+          - type: duplicateColumn
+            column: 2
+            # Add the Disk Type
+            # Size,DeviceID,DeviceID,DiskType,RAIDLevel,IBMTSDS_RankPool
+          - type: rightConcat
+            column: 3
+            value: ;Rank Pool
+            # Translate the RaidLevel
+            # Size,DeviceID,DeviceID,DiskType,RAIDLevel,IBMTSDS_RankPool
+          - type: translate
+            column: 5
+            translationTable: LogicalDiskRaidLevel
+        source(6):
+          # Union all the Logical Disks
+          # Size,DeviceID,DeviceID,DiskType,RAIDLevel,__PoolPath
+          type: tableUnion
+          tables:
+          - $monitors.logical_disk.discovery.sources.source(1)$
+          - $monitors.logical_disk.discovery.sources.source(2)$
+          - $monitors.logical_disk.discovery.sources.source(3)$
+          - $monitors.logical_disk.discovery.sources.source(4)$
+          - $monitors.logical_disk.discovery.sources.source(5)$
+        source(7):
+          # Get the System to Pool table
+          # IBMTSDS_StorageSystem,__PoolPath
+          type: wbem
+          query: "SELECT GroupComponent,PartComponent FROM CIM_HostedStoragePool"
+          namespace: root/ibm
+        source(8):
+          # Get the SystemID to System Path
+          # StorageSystemID,IBMTSDS_StorageSystem
+          type: wbem
+          query: "SELECT Name,__Path FROM IBMTSDS_StorageSystem"
+          namespace: root/ibm
+        source(9):
+          # Match the Pool Table to the System table
+          # IBMTSDS_StorageSystem,__PoolPath,StorageSystemID,IBMTSDS_StorageSystem
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(7)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(8)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: Wbem
+          computes:
+            # Keep only the Pool to SystemID
+            # IBMTSDS_StorageSystem,__PoolPath,StorageSystemID,IBMTSDS_StorageSystem
+            # __PoolPath,StorageSystemID
+          - type: keepColumns
+            columnNumbers: "2,3"
+        source(10):
+          # Link the main discovery table to the system ID table
+          # Size,DeviceID,DeviceID,DiskType,RAIDLevel,__PoolPath,__PoolPath,StorageSystemID
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(6)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(9)$
+          leftKeyColumn: 6
+          rightKeyColumn: 1
+          keyType: Wbem
+          computes:
+            # Get rid of the Paths
+            #   1      2       3        4        5           6           7          8
+            # Size,DeviceID,DeviceID,DiskType,RAIDLevel,__PoolPath,__PoolPath,StorageSystemID
+            # Size,DeviceID,DeviceID,DiskType,RAIDLevel,            #         StorageSystemID
+          - type: keepColumns
+            columnNumbers: "1,2,3,4,5,8"
+            # Remove IBMTSDS: and the SystemID from the DisplayID and the dash
+            # Size,DeviceID,DisplayID,DiskType,RAIDLevel,StorageSystemID
+          - type: replace
+            column: 3
+            existingValue: 'IBMTSDS:'
+            newValue: ""
+          - type: replace
+            column: 3
+            existingValue: Column(6)
+            newValue: ""
+          - type: replace
+            column: 3
+            existingValue: '-'
+            newValue: ""
+      mapping:
+        # Instance Table
+        # Size,DeviceID,DeviceID,DiskType,RAIDLevel,StorageSystemID
+        source: $monitors.logical_disk.discovery.sources.source(10)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(3)
+          raid_level: $column(5)
+          type: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(5), $column(1))"
+        metrics:
+          hw.logical_disk.limit: $column(1)
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = CIM_StoragePool
+          # DiskID;OperationalStatus;
+          type: wbem
+          query: "SELECT InstanceID,OperationalStatus FROM CIM_StoragePool"
+          namespace: root/ibm
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DiskID,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DiskID,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DiskID,PATROLStatusArray,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DiskID,PATROLStatus,StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # DiskID,PATROLStatus,StatusDescriptions
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # SCSI Protocol Controllers
+          # DeviceID,SystemName,Status
+          type: wbem
+          query: "SELECT DeviceID,SystemName,HealthState FROM IBMTSDS_SCSIProtocolController"
+          namespace: root/ibm
+          computes:
+            # Exclude SCSI Controllers with a Health State of Unknown (0) - This happened on our test system, not sure why...
+            # DeviceID,SystemName,Status
+          - type: excludeMatchingLines
+            column: 3
+            valueList: 0
+            # Duplicate the device ID
+            # DeviceID,DeviceID,SystemName,Status
+          - type: duplicateColumn
+            column: 1
+            # Duplicate the SystemName
+            # DeviceID,DeviceID,SystemName,SystemName,Status
+          - type: duplicateColumn
+            column: 3
+            # Add a Dash to the SystemName and the DeviceType
+            # DeviceID,DeviceID,SystemName,SystemName-,OtherDeviceType,Status
+          - type: rightConcat
+            column: 4
+            value: -;SCSI-ProtocolCtrl
+            # Remove the SystemName- from the DeviceID to get the DisplayID
+            # DeviceID,DisplayID,SystemName,SystemName-,OtherDeviceType,Status
+          - type: replace
+            column: 2
+            existingValue: Column(4)
+            newValue: ""
+            # Keep only used columns
+            # DeviceID,DisplayID,SystemName,OtherDeviceType
+          - type: keepColumns
+            columnNumbers: "1,2,3,5"
+        source(2):
+          # System LPARs
+          # DeviceID,IBMTSDS_StorageLPARSystem
+          type: wbem
+          query: "SELECT Name,__Path FROM IBMTSDS_StorageLPARSystem"
+          namespace: root/ibm
+        source(3):
+          # Get the association LPAR to System table
+          #  This has got to be the weirdest bug ever.  Querying IBMTSDS_ComponentOfStorageSystem, you lose the first parameter requested?!?
+          # BLANK_BUG,IBMTSDS_StorageSystem,IBMTSDS_StorageLPARSystem
+          type: wbem
+          query: "SELECT GroupComponent,PartComponent FROM IBMTSDS_ComponentOfStorageSystem"
+          namespace: root/ibm
+        source(4):
+          # Get SystemID to Path
+          # StorageSystemID,IBMTSDS_StorageSystem
+          type: wbem
+          query: "SELECT Name,__Path FROM IBMTSDS_StorageSystem"
+          namespace: root/ibm
+        source(5):
+          # Add the Association table to the LPAR instance table
+          # DeviceID,IBMTSDS_StorageLPARSystem,IBMTSDS_StorageSystem,IBMTSDS_StorageLPARSystem
+          type: tableJoin
+          leftTable: $monitors.other_device.discovery.sources.source(2)$
+          rightTable: $monitors.other_device.discovery.sources.source(3)$
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          keyType: Wbem
+        source(6):
+          # Add the Association table to the LPAR instance table
+          # DeviceID,IBMTSDS_StorageLPARSystem,IBMTSDS_StorageSystem,IBMTSDS_StorageLPARSystem,StorageSystemID,IBMTSDS_StorageSystem
+          type: tableJoin
+          leftTable: $monitors.other_device.discovery.sources.source(5)$
+          rightTable: $monitors.other_device.discovery.sources.source(4)$
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          keyType: Wbem
+          computes:
+            # Get Rid of all the Paths
+            #     1            #     2            #        3            #         4            #      5            #    6
+            # DeviceID,IBMTSDS_StorageLPARSystem,IBMTSDS_StorageSystem,IBMTSDS_StorageLPARSystem,StorageSystemID,IBMTSDS_StorageSystem
+            # DeviceID,            #             #             #             #             #     StorageSystemID
+          - type: keepColumns
+            columnNumbers: "1,5"
+            # Duplicate the DeviceID
+            # DeviceID,DeviceID,StorageSystemID
+          - type: duplicateColumn
+            column: 1
+            # Duplicate the StorageSystemID
+            # DeviceID,DeviceID,StorageSystemID,StorageSystemID
+          - type: duplicateColumn
+            column: 3
+            # Add a - to the Storage System ID
+            # DeviceID,DeviceID,StorageSystemID,StorageSystemID-,OtherDeviceType
+          - type: rightConcat
+            column: 4
+            value: -;LPAR
+            # Remove the SystemName- from the DeviceID to get the DisplayID
+            # DeviceID,DisplayID,SystemName,SystemName-,OtherDeviceType
+          - type: replace
+            column: 2
+            existingValue: Column(4)
+            newValue: ""
+            # Keep only  ed columns
+            # DeviceID,DisplayID,SystemName,OtherDeviceType
+          - type: keepColumns
+            columnNumbers: "1,2,3,5"
+        source(7):
+          # Union of SCSI PC (1) and LPARs (6)
+          # DeviceID,DisplayID,SystemName,OtherDeviceType
+          type: tableUnion
+          tables:
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(6)$
+      mapping:
+        # Instance Table
+        # DeviceID,DisplayID,StorageSystemName,DeviceType
+        source: $monitors.other_device.discovery.sources.source(7)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          device_type: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(3)
+          name: "sprintf(\"%s: %s\", $column(4), $column(2))"
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = IBMTSDS_SCSIProtocolController
+          # DeviceID;OperationalStatus;
+          type: wbem
+          query: "SELECT DeviceID,OperationalStatus FROM IBMTSDS_SCSIProtocolController"
+          namespace: root/ibm
+        source(2):
+          # Source(2) = IBMTSDS_StorageLPARSystem
+          # DeviceID;OperationalStatus;
+          type: wbem
+          query: "SELECT Name,OperationalStatus FROM IBMTSDS_StorageLPARSystem"
+          namespace: root/ibm
+        source(3):
+          # Source 3 = union of 1 SCSI and 2 LPARs
+          # DeviceID;OperationalStatus;
+          type: tableUnion
+          tables:
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,PATROLStatus,StatusDescriptions
+        source: $monitors.other_device.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # SCSI Protocol Controllers
+          # DeviceID,Location,SystemName,PermanentAddress,IBMTSDS_FCPort
+          type: wbem
+          query: "SELECT DeviceID,Location,SystemName,PermanentAddress,__PATH FROM IBMTSDS_FCPort"
+          namespace: root/ibm
+          computes:
+            # Duplicate the device ID
+            # DeviceID,DeviceID,Location,SystemName,PermanentAddress,IBMTSDS_FCPort
+          - type: duplicateColumn
+            column: 1
+            # Add an Underscore and the SystemName to the DeviceID
+            # DeviceID,DisplayID,Location,SystemName,PermanentAddress,IBMTSDS_FCPort
+          - type: leftConcat
+            column: 1
+            value: _
+          - type: leftConcat
+            column: 1
+            value: Column(4)
+        source(2):
+          # Get the Card to System Associataton
+          # Weird Bug Part 2 (See Otherdevice)
+          # IBMTSDS_StorageSystem,IBMTSDS_StorageSystem,IBMTSDS_FCPort
+          type: wbem
+          query: "SELECT GroupComponent,PartComponent FROM IBMTSDS_StorageSystemToFCPort"
+          namespace: root/ibm
+        source(3):
+          # Get SystemID to Path
+          # StorageSystemID,IBMTSDS_StorageSystem
+          type: wbem
+          query: "SELECT Name,__Path FROM IBMTSDS_StorageSystem"
+          namespace: root/ibm
+        source(4):
+          # Add the Association table to the Card instance table
+          # DeviceID,DisplayID,Location,SystemName,PermanentAddress,IBMTSDS_FCPort,IBMTSDS_StorageSystem,IBMTSDS_FCPort
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(1)$
+          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftKeyColumn: 6
+          rightKeyColumn: 2
+          keyType: Wbem
+        source(5):
+          # Card table to the System Instance Table
+          # DeviceID,DisplayID,Location,SystemName,PermanentAddress,IBMTSDS_FCPort,IBMTSDS_StorageSystem,IBMTSDS_FCPort,StorageSystemID,IBMTSDS_StorageSystem
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(4)$
+          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftKeyColumn: 7
+          rightKeyColumn: 2
+          keyType: Wbem
+          computes:
+            # Keep only  ed columns
+            # DeviceID,DisplayID,Location,SystemName,PermanentAddress,IBMTSDS_FCPort,IBMTSDS_StorageSystem,IBMTSDS_FCPort,StorageSystemID,IBMTSDS_StorageSystem
+            # DeviceID,DisplayID,Location,SystemName,PermanentAddress,            #             #             #           StorageSystemID
+          - type: keepColumns
+            columnNumbers: "1,2,3,4,5,9"
+          - type: leftConcat
+            column: 3
+            value: "Location: "
+      mapping:
+        # Instance Table
+        # DeviceID,DisplayID,Location,SystemName,PermanentAddress,StorageSystemID
+        source: $monitors.network.discovery.sources.source(5)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          physical_address: $column(5)
+          physical_address_type: WWN
+          info: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(6)
+          name: $column(2)
+    collect:
+      # Collect type is multiinstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = IBMTSDS_SCSIProtocolController
+          # DeviceID;SystemName;OperationalStatus;
+          type: wbem
+          query: "SELECT DeviceID,SystemName,OperationalStatus FROM IBMTSDS_FCPort"
+          namespace: root/ibm
+          computes:
+            # Add an Underscore and the SystemName to the DeviceID
+            # DeviceID;SystemName;OperationalStatus;
+          - type: leftConcat
+            column: 1
+            value: _
+          - type: leftConcat
+            column: 1
+            value: Column(2)
+            # Duplicate the "OperationalStatus" column
+            # DeviceID;SystemName;OperationalStatus;
+          - type: duplicateColumn
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,SystemName,PATROLStatusArray,OperationalStatus
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,SystemName,PATROLStatusArray,StatusInformation
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,SystemName,PATROLStatus,StatusInformation
+          - type: convert
+            column: 3
+            conversion: array2SimpleStatus
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,SystemName,PATROLStatus,StatusDescriptions
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": ok
+    "16": degraded
+    "17": ok
+    "18": ok
+    Default: UNKNOWN
+    "2": ok
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": failed
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  ExtentPoolRaidLevel:
+    "3": Fixed Block
+    "4": Count Key Data
+    "5": 3380
+    Default: ""
+  LogicalDiskRaidLevel:
+    "3": JBOD
+    "4": RAID 5
+    "5": RAID 10
+    "6": RAID 6
+    Default: ""
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    Default: ""
+    "2": ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": Error
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped

@@ -1,0 +1,11 @@
+{nodeName = $1 ; gsub (/:/,"",nodeName);}
+tolower($2) ~ /power/ && tolower($3) ~ /supplies/ {print "MSHW_POWERSUPPLY;"nodeName"-Global;" $4 ";"}
+
+tolower($2) ~ /cpu/ && tolower($3) ~ /operation/ {print "MSHW_CPU;" nodeName "-Global;" $NF ";"}
+
+NF > 3 && $NF ~ /^[0-9.-]+$/ {
+    if ($(NF-1) ~ /=/) {ID = $0 ; gsub (/^.*: */,"",ID);gsub (/ *=.*$/,"",ID);
+                           value = $NF
+                           print "MSHW;" nodeName "-" ID ";" value ";"
+                          }
+    }

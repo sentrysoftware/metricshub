@@ -1,0 +1,54 @@
+BEGIN {tableValid = ""}
+$1 ~ /MS_HW_SYSTEM_START/  { systemName = $2 }
+# AMS2100 / HUS 130 / SMS100 / HUS 110
+$0 ~ /Unit +HDU +Capacity +Drive +Type +Rotational +Speed +Vendor +ID +Product +ID +Revision +Serial.+/ {tableValid = "AMS2100"}
+# Lightning 9500
+$0 ~ /Unit +No. +HDU No. +Vendor +Product +Revision +Capacity +Serial +No. +Type/ {tableValid = "9500"}
+# AMS 500
+$0 ~ /Unit +HDU +Capacity +Drive +Type +Vendor +ID +Product +ID +Revision +Serial No./ {tableValid = "AMS500"}
+
+$1 ~ /MS_HW_SYSTEM_END/  { if (tableValid == "") {print "No valid table format found"}
+                                 else {print "Valid table format found. Type: " tableValid }
+                             systemName = "" ; tableValid = ""
+                           }
+
+$1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/ && tableValid != "" {
+    if (tableValid == "AMS2100") {
+        Unit = $1
+        HDU = $2 ;
+        Capacity = $3 ;
+        DriveType = $4
+        Speed = "RPM: " $5
+        Vendor = $6
+        Model = $7
+        Firmware = $8
+        Serial = $9
+        }
+    if (tableValid == "9500") {
+        Unit = $1
+        HDU = $2 ;
+        Capacity = $6
+        DriveType = $8
+        Speed = ""
+        Vendor = $3
+        Model = $4
+        Firmware = $5
+        Serial = $7
+        }
+    if (tableValid == "AMS500") {
+        Unit = $1
+        HDU = $2 ;
+        Capacity = $3 ;
+        DriveType = $4
+        Speed = ""
+        Vendor = $5
+        Model = $6
+        Firmware = $7
+        Serial = $8
+        }
+    gsub (/[Tt][Bb]/,"000000",Capacity) ; gsub (/[Gg][Bb]/,"000",Capacity) ;  gsub (/[Mm][Bb]/,"",Capacity) ; CapacityGB = Capacity /1000 ;
+#     Watch out - Identifiers must match between the audrive vendor script (discovery) and the audrive status awk script (collect)
+    DeviceID = systemName ".Unit-" Unit ".HDU-" HDU  ; DisplayID = "Unit-" Unit ".HDU-" HDU
+# MSHW;systemName;DeviceID;DisplayID;CapacityB;DriveType;Speed;Vendor;Model;Firmware;Serial;
+    print "MSHW;" systemName";" DeviceID ";" DisplayID ";" CapacityB ";" DriveType ";" Speed ";" Vendor ";" Model ";" Firmware ";" Serial ";"
+    }

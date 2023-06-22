@@ -1,0 +1,345 @@
+---
+extends:
+- ../SMISShared-header/SMISShared-header
+constants:
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)"'
+  _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
+connector:
+  displayName: SMI-S Compliant Disk Arrays
+  platforms: Any SMI-S compliant disk array
+  reliesOn: SMI-S Agent provided by the array vendor
+  version: 1.6
+  information: "This connector discovers the enclosure and the disks of SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Storage
+    criteria:
+    - type: wbem
+      namespace: Automatic
+      query: "SELECT Name,Dedicated FROM CIM_ComputerSystem"
+      expectedResult: "[;|]3|[0-9|]*;$"
+    # There also must be disk drives declared in this namespace
+    - type: wbem
+      query: SELECT DeviceID FROM CIM_DiskDrive
+      namespace: Automatic
+monitors:
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_DiskDrive
+          # DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfoLocation;
+          type: wbem
+          query: "SELECT __PATH,MaxMediaSize,deviceID,Caption,OtherIdentifyingInfo,Location FROM CIM_DiskDrive"
+          namespace: Automatic
+          computes:
+            # Convert SizeK from 1000 of bytes to bytes
+            # DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;
+          - type: multiply
+            column: 2
+            value: 1000
+            # Concat OtherIdentifyingInfo and Location together
+            # DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;
+          - type: rightConcat
+            column: 5
+            value: ' '
+          - type: rightConcat
+            column: 5
+            value: Column(6)
+        source(2):
+          # Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
+          # DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(18)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;;;;
+          computes:
+          # Add \"Disk Device ID: \" to label AdditionalInformation1
+          - type: leftConcat
+            column: 3
+            value: "Disk Device ID: "
+          # Add \"Caption: \" to label AdditionalInformation2
+          - type: leftConcat
+            column: 4
+            value: "Caption: "
+          # Add \"Address: \" to label AdditionalInformation3
+          - type: leftConcat
+            column: 5
+            value: "Address: "
+      mapping:
+        # Finally here is the instance table...
+        # DiskID;Size;DiskDeviceID;Caption;OtherIdentifyingInfo;Location;LogicalDeviceID;ChassisID;Manufacturer Model;Model;SerialNumber;
+        source: $monitors.physical_disk.discovery.sources.source(2)$
+        attributes:
+          id: $column(1)
+          vendor: $column(9)
+          model: $column(10)
+          serial_number: $column(11)
+          info: "join($column(3), $column(4), $column(5), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(8)
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(9), $column(2))"
+        metrics:
+          hw.physical_disk.size: $column(2)
+    collect:
+      # The physical disk collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the only source = CIM_DiskDrive
+          # DiskID;OperationalStatusArray
+          type: wbem
+          query: "SELECT __PATH,OperationalStatus FROM CIM_DiskDrive"
+          namespace: Automatic
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DiskID;OperationalStatusArray;OperationalStatusArray;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DiskID;PATROLStatusArray;Status
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DiskID;PATROLStatusArray;StatusInformation
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DiskID;PATROLStatus;StatusInformation
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_StorageVolume
+          # VolumeID;BlockSize;SizeInBlocks
+          type: wbem
+          query: "SELECT __PATH,BlockSize,NumberOfBlocks FROM CIM_StorageVolume"
+          namespace: Automatic
+          computes:
+            # Compute the real size of the volumes (SizeInBlocks * BlockSize)
+            # VolumeID;BlockSize;SizeBytes
+          - type: multiply
+            column: 3
+            value: Column(2)
+        source(2):
+          # Source(2) = CIM_StorageSetting
+          # StorageSettingInstanceID;Label
+          type: wbem
+          query: "SELECT __PATH,ElementName FROM CIM_StorageSetting"
+          namespace: Automatic
+        source(3):
+          # Source(3) = CIM_ElementSettingData
+          # This is the link between CIM_StorageSetting [Source(2)] and CIM_StorageVolumne [Source(1)]
+          # ManagedElementID;SettingDataID
+          type: wbem
+          query: "SELECT ManagedElement,SettingData FROM CIM_ElementSettingData"
+          namespace: Automatic
+        source(4):
+          # Source(4) = Table joint of  Source(3) and Source(2)
+          # ManagedElementID;SettingDataID;StorageSettingInstanceID;Label;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(3)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          keyType: Wbem
+        source(5):
+          # Source(5) = Table joint of  Source(1) and Source(4)
+          # VolumeID;BlockSize;SizeBytes;ManagedElementID;SettingDataID;StorageSettingInstanceID;Label;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;;;
+          computes:
+            # Keep only useful columns
+            # VolumeID;SizeBytes;Label;
+          - type: keepColumns
+            columnNumbers: "1,3,7"
+            # Add ";1" to indicate that this instance must be taken into account when counting the amount of
+            # logical disk space for the "Capacity Report"
+            # Add an empty column to deactivate the UnallocatedSpace parameter
+            # Add also ";Volume" as the type of this logical disk
+            # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+          - type: rightConcat
+            column: 3
+            value: ;;1;Volume
+        source(6):
+          # Source(6) = CIM_StoragePool
+          # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;Primordial;
+          type: wbem
+          query: "SELECT __PATH,TotalManagedSpace,Name,RemainingManagedSpace,Primordial FROM CIM_StoragePool"
+          namespace: Automatic
+          computes:
+            # Do not take into account the storage pools when counting the total logical disk size
+            # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+          - type: translate
+            column: 5
+            translationTable: PrimordialStoragePoolTranslationTable
+            # However, exclude storage pools whose size is zero
+            # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 0
+        source(7):
+          # Source(7) = Table union of Source(5) and Source(6)
+          # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;
+          type: tableUnion
+          tables:
+          - $monitors.logical_disk.discovery.sources.source(5)$
+          - $monitors.logical_disk.discovery.sources.source(6)$
+        source(8):
+          # Source(8) = Table joint of Source(7) and Enclosure.Discovery.Source(18)
+          # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(7)$
+          rightTable: $monitors.enclosure.discovery.sources.source(18)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;;;;
+        source(9):
+          # Source(9) = CIM_StorageSynchronized
+          # ReplicationTarget;ReplicateSource;SyncType
+          type: wbem
+          query: "SELECT SyncedElement,SystemElement,SyncType FROM CIM_StorageSynchronized"
+          namespace: Automatic
+        source(10):
+          # Source(10) = Table joint of Source(8) and (9)
+          # We are trying to match up volume names to the list of snapshots (Replcation Targets of SyncType 7)
+          # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+          type: tableJoin
+          leftTable: $monitors.logical_disk.discovery.sources.source(8)$
+          rightTable: $monitors.logical_disk.discovery.sources.source(9)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: Wbem
+          defaultRightLine: ;;;
+          computes:
+            # Exclude Volumes who are targets of SyncType 7
+            #    1        2        3             4            #           5            #     6             7            #     8            #   9       10     11             12            #    13           14
+            # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+          - type: excludeMatchingLines
+            column: 14
+            valueList: 7
+            # Translate the Replication Type
+            #    1        2        3             4            #           5            #     6             7            #     8            #   9       10     11             12            #    13           14
+            # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+          - type: translate
+            column: 14
+            translationTable: replicationTypeTranslationTable
+            # Left Concat the Replication Type to the Replication Source
+            #    1        2        3             4            #           5            #     6             7            #     8            #   9       10     11             12            #    13           14
+            # VolumeID;SizeBytes;Label;UnallocatedSpaceActivation;UseForCapacityReport;LogicalDiskType;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;ReplicationTarget;ReplicateSource;SyncType;
+          - type: leftConcat
+            column: 13
+            value: Column(14)
+          # Add \"Replication Source: \" as label for AdditionalInformation1
+          - type: leftConcat
+            column: 13
+            value: "Replication Source: "
+      mapping:
+        # Here is the instance table
+        source: $monitors.logical_disk.discovery.sources.source(10)$
+        attributes:
+          id: $column(1)
+          raid_level: $column(3)
+          __use_for_capacity_report: $column(5)
+          type: $column(6)
+          info: $column(13)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(8)
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.logical_disk.limit: $column(2)
+    collect:
+      # The LogicalDisk  collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the only source = CIM_StorageVolume
+          # DiskID;OperationalStatusArray
+          type: wbem
+          query: "SELECT __PATH,OperationalStatus FROM CIM_StorageVolume"
+          namespace: Automatic
+          computes:
+            # Add an empty column because there's no point in collecting the "unallocatedspace"
+            # value for something that is, by nature, an allocation, you know
+            # DiskID;OperationalStatusArray;UnallocatedSpace;
+          - type: rightConcat
+            column: 2
+            value: ;
+        source(2):
+          # Source(2) = CIM_StoragePool
+          # DiskID;OperationalStatusArray;UnallocatedSpace;
+          type: wbem
+          query: "SELECT __PATH,OperationalStatus,RemainingManagedSpace FROM CIM_StoragePool"
+          namespace: Automatic
+        source(3):
+          # Source(3) = Table union of Source(1) and Source(2)
+          # DiskID;OperationalStatusArray;UnallocatedSpace;
+          type: tableUnion
+          tables:
+          - $monitors.logical_disk.collect.sources.source(1)$
+          - $monitors.logical_disk.collect.sources.source(2)$
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DiskID;OperationalStatusArray;OperationalStatusArray;UnallocatedSpace;
+          - type: duplicateColumn
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DiskID;PATROLStatusArray;Status;UnallocatedSpace;
+          - type: arrayTranslate
+            column: 2
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DiskID;PATROLStatusArray;StatusInformation;UnallocatedSpace;
+          - type: arrayTranslate
+            column: 3
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DiskID;PATROLStatus;StatusInformation;UnallocatedSpace;
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+      mapping:
+        # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+        source: $monitors.logical_disk.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.logical_disk.usage{state="free"}: $column(4)
+          hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  replicationTypeTranslationTable:
+    "6": 'Mirror of '
+    "8": 'Clone of '
+    Default: ""
+  PrimordialStoragePoolTranslationTable:
+    "true": 0;Primordial Storage Pool
+    Default: 0;Storage Pool

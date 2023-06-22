@@ -1,0 +1,46 @@
+# m1000e
+($1 == "FanSpeed" && $(NF-2) ~ /rpm/ && NF > 7) {
+    if ($4 ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    else if ($4 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+    else if ($4 ~ /^[Nn]ot$/ && $5 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+    else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    WarningThreshold = $(NF-1) ; gsub(/N.A/,"",WarningThreshold )
+    AlarmThreshold = $(NF-3) ; gsub(/N.A/,"",AlarmThreshold )
+    # FanID;Location;WarningThreshold;AlarmThreshold;Speed;Status;StatusInformation;
+    print ("MSHW;" $2 ";" $3 ";;" WarningThreshold  ";" AlarmThreshold ";" status ";" statusInformation ";")
+}
+
+# MX7000
+($1 == "FanSpeed" && $(NF-3) ~ /rpm/ && NF > 7) {
+    if ($4 ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    else if ($4 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+    else if ($4 ~ /^[Nn]ot$/ && $5 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+    else { status = "WARN"; statusInformation = $4 ; }
+    WarningThreshold = $(NF-2) ; gsub(/N.A/,"",WarningThreshold)
+    AlarmThreshold = $(NF-4) ; gsub(/N.A/,"",AlarmThreshold )
+    # FanID;Location;WarningThreshold;AlarmThreshold;Speed;Status;StatusInformation;
+    print ("MSHW;" $2 ";" $3 ";;" WarningThreshold ";" AlarmThreshold ";" status ";" statusInformation ";")
+}
+
+# VRTX
+$1 ~ /Sensor/ && $2 ~ /Type/ && $4 ~ /FanSpeed/ {Section = "VRTX_FAN"}
+NF < 2 {Section = ""}
+$1 ~ "<Sensor" && $2 ~ "Name>" && Section == "VRTX_FAN" {statusOffset = index ($0,"<Status>")
+                                  readingOffset = index ($0,"<Reading>")
+                                  LWOffset = index ($0,"<LW>")
+                                  LCOffset = index ($0,"<LC>")
+                                  getline
+                                 }
+Section == "VRTX_FAN"  && statusOffset != "" {
+                                  deviceID = substr ($0,1,statusOffset-2) ; gsub(/ *$/,"",deviceID)
+                                  status = substr ($0,statusOffset,6)
+                                    if (status ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                    else if (status ~ /^[Oo][Kk]/) { status = "OK"; statusInformation = ""; }
+                                    else if (status ~ /[^Nn]ot [Oo][Kk]/) { status = "ALARM"; statusInformation = "Not OK"; }
+                                    else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                    Reading = substr ($0,readingOffset,4) ; gsub (/ /,"",Reading); gsub ("^[Nn]/[Aa]$","",Reading)
+                                    LW = substr ($0,LWOffset,4) ; gsub (/ /,"",LW);
+                                    LC = substr ($0,LCOffset,4) ; gsub (/ /,"",LC);
+# FanID;Location;WarningThreshold;AlarmThreshold;Speed;Status;StatusInformation;
+                                    print "MSHW;" deviceID ";" ";" LW ";" LC ";" Reading ";" status ";" statusInformation ";"
+                                   }

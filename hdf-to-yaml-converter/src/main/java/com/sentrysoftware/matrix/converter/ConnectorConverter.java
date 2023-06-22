@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.converter;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTION_TYPES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,9 +49,6 @@ public class ConnectorConverter {
 
 		// Go through each key-value entry in the connector
 		preConnector.getCodeMap().forEach((key, value) -> convertKeyValue(key, value, connector));
-
-		// Set embedded files
-		setEmbeddedFiles(connector);
 
 		// Set translation tables
 		setTranslationTables(connector);
@@ -119,29 +118,6 @@ public class ConnectorConverter {
 
 	}
 
-	/**
-	 * Set the connector's embedded files.
-	 * 
-	 * @param connector
-	 */
-	private void setEmbeddedFiles(final JsonNode connector) {
-		final Map<String, String> embeddedFilesMap = preConnector.getEmbeddedFiles();
-		// No need to create an empty node
-		if (embeddedFilesMap.isEmpty()) {
-			return;
-		}
-
-		final ObjectNode embeddedFiles = JsonNodeFactory.instance.objectNode();
-		embeddedFilesMap
-			.entrySet()
-			.forEach(entry -> embeddedFiles
-				.set(
-					entry.getKey(),
-					new TextNode(ConversionHelper.performValueConversions(entry.getValue()))
-				)
-			);
-		((ObjectNode) connector).set("embedded", embeddedFiles);
-	}
 
 	/**
 	 * Detect and convert the given line
@@ -214,7 +190,13 @@ public class ConnectorConverter {
 		}
 
 		final ArrayNode extendedConnectors = JsonNodeFactory.instance.arrayNode();
-		extendedConnectorsSet.forEach(extendedConnectors::add);
+
+		// Each connector or header is defined in a specific directory having the same name as the connector file without extension.
+		extendedConnectorsSet.forEach(parent -> {
+			var newName = ConnectorLibraryConverter.getConnectorFilenameNoExtension(parent);
+			extendedConnectors.add(String.format("../%s/%s", newName, newName));
+		});
+
 		((ObjectNode) jsonNode).set("extends", extendedConnectors);
 
 	}

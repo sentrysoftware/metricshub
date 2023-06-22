@@ -4,18 +4,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 import com.sentrysoftware.matrix.common.helpers.FileHelper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.converter.exception.ConnectorConverterException;
@@ -64,43 +66,93 @@ public class ConnectorLibraryConverter {
 		}
 
 		for (final String connectorName : connectorNameList) {
-
-			// Full path of the connector
-			Path connectorPath = sourceDirectory.resolve(connectorName);
-
-			// Remove the extension and resolve the future serialized file path (YAML)
-			Path serializePath = outputDirectory.resolve(getConnectorFilename(connectorName));
-
-			// Is the connector source more recent that the serialized one (if it exists)?
-			if (FileHelper.getLastModifiedTime(connectorPath) < FileHelper.getLastModifiedTime(serializePath)) {
-				// In which case, skip
-				continue;
-			}
-
-			// Create the PreConnector
-			final PreConnector preConnector = new PreConnector();
-
-			// Load PreConnector (code, constants, embedded files, extends, ...)
-			preConnector.load(connectorPath.toAbsolutePath().toString());
-
-			// Instantiate a new converter in order to convert the .HDFS or .HHDF to a YAML file
-			final ConnectorConverter converter = new ConnectorConverter(preConnector);
-
-			// Convert the .HDFS or .HHDF to a YAML file
-			final JsonNode connector = converter.convert();
-
-			final ObjectMapper mapper = JsonHelper.buildYamlMapper();
-			final YAMLFactory factory = (YAMLFactory) mapper.getFactory();
-
-			// For string containing newlines, the literal block styles is used
-			factory.configure(Feature.LITERAL_BLOCK_STYLE, true);
-
-			final ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
-
-			writer.writeValue(serializePath.toFile(), connector);
-
-			writeComments(serializePath);
+			process(connectorName, new HashSet<>());
 		}
+
+	}
+
+	/**
+	 * Process the given connector
+	 * 
+	 * @param connectorName unique name of the connector
+	 * @param parents       all parents encountered for the given connector 
+	 * @throws IOException
+	 */
+	private void process(final String connectorName, Set<String> parents) throws IOException {
+
+		// Full path of the connector
+		Path connectorPath = sourceDirectory.resolve(connectorName);
+
+		// Create the PreConnector
+		final PreConnector preConnector = new PreConnector();
+
+		// Load PreConnector (code, constants, embedded files, extends, ...)
+		preConnector.load(connectorPath.toAbsolutePath().toString());
+
+		final Set<String> extendedConnectors = preConnector.getExtendedConnectors();
+
+		// Start processing the parent first so that embedded files will already be extracted at the 
+		// externalization level
+		for (final String extended : extendedConnectors) {
+			process(extended, parents);
+		}
+
+		// Add all the encountered parents at any level (direct and indirect parents) to make the embedded file path retrieval working
+		// in a all cases.
+		parents.addAll(extendedConnectors);
+
+		// Remove the extension
+		final String filenameNoExtension = getConnectorFilenameNoExtension(connectorName);
+
+		// The final connector name with .yaml extension
+		final String connectorFilename = getConnectorFilename(filenameNoExtension);
+
+		// Resolve the future serialized file path (YAML)
+		final Path serializePath = outputDirectory.resolve(String.format("%s/%s", filenameNoExtension, connectorFilename));
+
+		// Create the connector output directory
+		final Path connectorDirectory = serializePath.getParent();
+
+		// Already processed? skip it
+		if (Files.isDirectory(connectorDirectory)) {
+			return;
+		}
+
+		createDirectories(connectorDirectory);
+
+		// Is the connector source more recent that the serialized one (if it exists)?
+		if (FileHelper.getLastModifiedTime(connectorPath) < FileHelper.getLastModifiedTime(serializePath)) {
+			// In which case, skip
+			return;
+		}
+
+		// Instantiate a new converter in order to convert the .HDFS or .HHDF to a YAML file
+		final ConnectorConverter converter = new ConnectorConverter(preConnector);
+
+		// Convert the .HDFS or .HHDF to a YAML file
+		final JsonNode connector = converter.convert();
+
+		// Externalize embedded files
+		EmbeddedFileExternalizer
+			.builder()
+			.withEmbeddedFiles(preConnector.getEmbeddedFiles())
+			.withConnectorDirectory(connectorDirectory)
+			.withConnector(connector)
+			.withParents(parents)
+			.build()
+			.externalize();
+
+		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
+		final YAMLFactory factory = (YAMLFactory) mapper.getFactory();
+
+		// For string containing newlines, the literal block styles is used
+		factory.configure(Feature.LITERAL_BLOCK_STYLE, true);
+
+		final ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
+
+		writer.writeValue(serializePath.toFile(), connector);
+
+		writeComments(serializePath);
 	}
 
 	/**
@@ -260,16 +312,14 @@ public class ConnectorLibraryConverter {
 	}
 
 	/**
-	 * Remove the extension from the file name and replace MS_HW_ prefix
-	 * Add -header as file suffix for .hhdf files.
 	 * Add the .yaml extension
 	 * 
 	 * @param filename
 	 * @return String value
 	 */
-	public static String getConnectorFilename(final String filename) {
+	public static String getConnectorFilename(final String filenameNoExtension) {
 		// Build final name "%name%.yaml
-		return String.format("%s.yaml", getConnectorFilenameNoExtension(filename));
+		return String.format("%s.yaml", filenameNoExtension);
 	}
 
 	/**
@@ -296,10 +346,19 @@ public class ConnectorLibraryConverter {
 		}
 
 		// Create it!
+		createDirectories(dir);
+	}
+
+	/**
+	 * Creates a directory by creating all nonexistent parent directories first.
+	 * 
+	 * @param directoryPath The directory hierarchy path
+	 */
+	private static void createDirectories(final Path directoryPath) {
 		try {
-			Files.createDirectories(dir);
+			Files.createDirectories(directoryPath);
 		} catch (IOException e) {
-			throw new ConnectorConverterException("Could not create outputDirectory: " + dir.toString());
+			throw new ConnectorConverterException("Could not create directory: " + directoryPath.toString());
 		}
 	}
 
@@ -317,12 +376,12 @@ public class ConnectorLibraryConverter {
 
 		try (Stream<Path> fileStream = Files.list(sourceDirectory)) {
 			return fileStream
-					.filter(Objects::nonNull)
-					.filter(path -> !Files.isDirectory(path))
-					.map(path -> path.getFileName().toString())
-					.filter(ConnectorLibraryConverter::isSource)
-					.sorted(String::compareToIgnoreCase)
-					.toList();
+				.filter(Objects::nonNull)
+				.filter(path -> !Files.isDirectory(path))
+				.map(path -> path.getFileName().toString())
+				.filter(ConnectorLibraryConverter::isSource)
+				.sorted(String::compareToIgnoreCase)
+				.toList();
 		}
 	}
 

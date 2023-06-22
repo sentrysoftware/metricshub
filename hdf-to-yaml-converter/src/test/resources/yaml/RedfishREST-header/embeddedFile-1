@@ -1,0 +1,2 @@
+authorization: Basic %{BASIC_AUTH_BASE64}
+Accept:application/json

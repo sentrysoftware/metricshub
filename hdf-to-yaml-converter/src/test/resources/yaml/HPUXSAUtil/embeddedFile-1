@@ -1,0 +1,5 @@
+DEVICES=`/usr/bin/ls -1 /dev/ | /usr/bin/egrep ^ciss[0-9]$`
+for VOLUME in $DEVICES
+                do
+                %{SUDO:/opt/raidsa/bin/sautil}/opt/raidsa/bin/sautil /dev/$VOLUME -s
+                done

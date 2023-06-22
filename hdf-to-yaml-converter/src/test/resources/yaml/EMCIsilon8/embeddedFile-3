@@ -1,0 +1,10 @@
+{nodeName = $1 ; gsub (/:/,"",nodeName);}
+NF > 7 {
+    if ($0 ~ /.*[Rr]eady, [Ee]nabled, and [Ff]ully [Cc]harged.*/)
+          {
+              print "MSHW_BATTERY;" nodeName ";" nodeName"-"$2 ";" nodeName"-"$2 ";""Ready-enabled-fully charged"";""Ready-enabled-fully charged"";"
+                  }
+  else
+          print "MSHW_BATTERY;" nodeName ";" nodeName"-"$2 ";" nodeName"-"$2 ";" $3"-"$5";"$3"-"$5";"
+
+    }

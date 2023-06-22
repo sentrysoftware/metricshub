@@ -1,0 +1,10 @@
+BEGIN {FS="[;]";individualFound="false";globalFound="false";}
+# Individual Found
+# $4 does not exist for Fans, but this is dealt with
+(NF >= 2) && ($2 ~ /.+/) { bladeID = $1; gsub(/-.*/,"",bladeID)
+                          print ("MSHW;"$1";"$2";"$3";"$4";"bladeID";blade;")
+                          individualFound="true"
+                          }
+(NF == 1) && ($1 ~ /[0-9]+/) {globalFound = "true"}
+(NF == 2) && ($1 ~ /[0-9]+/) && ($2 ~ /^$/) {globalFound = "true"}
+END {if (individualFound == "false" && globalFound != "false") {print "MSHW;Global;;Global;;NetApp;Enclosure;"}}

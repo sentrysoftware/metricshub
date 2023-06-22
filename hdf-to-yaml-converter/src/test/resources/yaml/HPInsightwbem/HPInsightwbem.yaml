@@ -1,0 +1,1137 @@
+---
+extends:
+- ../CIMProcessorFamily-header/CIMProcessorFamily-header
+connector:
+  displayName: HP Insight Management Agent - Server (WBEM)
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents (WBEM)
+  version: 1.2
+  information: "This connector provides hardware monitoring through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Linux
+    - OOB
+    supersedes:
+    - SunCediag
+    - SunFmadm
+    - SunPrtdiag
+    - SunPrtpicl
+    - SunPsrinfo
+    - SunPsrinfoT1
+    - SunScSnapshot
+    - IpmiTool
+    - VMwareESX4i
+    - VMwareESXi
+    - VMwareESXiDisksIPMI
+    - VMwareESXiDisksStorage
+    criteria:
+    # OS must be Windows
+    - type: deviceType
+      keep:
+      - Linux
+      - OOB
+    # The HP_ComputerSystemChassis WBEM class must be instanciated
+    - type: wbem
+      query: SELECT Model FROM HP_ComputerSystemChassis
+      namespace: root/hpq
+      errorMessage: The HP Insight Agent seems to not be working properly. Please reinstall the HP Insight Agent.
+    # The HP_NumericSensor WBEM class must have instances.
+    - type: wbem
+      query: SELECT DeviceID FROM HP_NumericSensor
+      namespace: root/hpq
+      errorMessage: The HP Insight Agent is unable to access environmental sensors.  Check installation of IPMI for Linux and HCL for ESX.
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the HP_ComputerSystemChassis WBEM class
+          type: wbem
+          query: "SELECT Model,SerialNumber FROM HP_ComputerSystemChassis"
+          namespace: root/hpq
+          computes:
+            # Add an identifier
+            # ID;Model;SerialNumber;
+          - type: leftConcat
+            column: 1
+            value: HPWBEM;
+        source(2):
+          # Check if the cimv2 namespace (ESX) has a power sensor
+          # BaseUnits,CurrentReading
+          type: wbem
+          namespace: root/cimv2
+          query: "SELECT BaseUnits,CurrentReading FROM CIM_NumericSensor"
+          computes:
+            # Keep only lines with units of type 7 (Watts)
+            # ..hoping that there is only one power sensor per server.
+            # BaseUnits,CurrentReading
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: 7
+            # Replace the first column by an identifier
+            # ID;CurrentReading
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: HPWBEM
+            # Exclude sensors with currentreading of 0
+            # ID;CurrentReading
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 0
+        source(3):
+          # Check if the hpq namespace (HP) has a power sensor
+          # BaseUnits,CurrentReading
+          type: wbem
+          namespace: root/cimv2
+          query: "SELECT BaseUnits,CurrentReading FROM HP_PowerMeter"
+          computes:
+            # Keep only lines with units of type 7 (Watts)
+            # ..hoping that there is only one power sensor per server.
+            # BaseUnits,CurrentReading
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: 7
+            # Replace the first column by an identifier
+            # ID;CurrentReading
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: HPWBEM
+            # Exclude sensors with currentreading of 0
+            # ID;CurrentReading
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 0
+        source(4):
+          # Source(4) = Union of 2 & 3
+          # Ok, let's join the ESX and HP sources together
+          # ID;CurrentReading
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(3)$
+          - $monitors.enclosure.discovery.sources.source(2)$
+        source(5):
+          # Join the computer system instance with the first power consumption available (if any)
+          # ID;Model;SerialNumber;ID;CurrentReading;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # InstanceTable = Source(1)
+        # Note: InstanceTable must contain only one line! so DeviceID is hard coded
+        # ID;Model;SerialNumber;ID;CurrentReading;
+        source: $monitors.enclosure.discovery.sources.source(5)$
+        attributes:
+          id: HPWBEM
+          __display_id: HPWBEM
+          vendor: HP
+          model: $column(2)
+          serial_number: $column(3)
+          type: Computer
+          name: "sprintf(\"Computer: %s (%s %s)\", \"HPWBEM\", \"HP\", $column(2))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the HP_ComputerSystemChassis WBEM class
+          type: wbem
+          query: "SELECT Model,SerialNumber FROM HP_ComputerSystemChassis"
+          namespace: root/hpq
+          computes:
+            # Add an identifier
+            # ID;Model;SerialNumber;
+          - type: leftConcat
+            column: 1
+            value: HPWBEM;
+        source(2):
+          # Check if the cimv2 namespace (ESX) has a power sensor
+          # BaseUnits,CurrentReading
+          type: wbem
+          namespace: root/cimv2
+          query: "SELECT BaseUnits,CurrentReading FROM CIM_NumericSensor"
+          computes:
+            # Keep only lines with units of type 7 (Watts)
+            # ..hoping that there is only one power sensor per server.
+            # BaseUnits,CurrentReading
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: 7
+            # Replace the first column by an identifier
+            # ID;CurrentReading
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: HPWBEM
+            # Exclude sensors with currentreading of 0
+            # ID;CurrentReading
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 0
+        source(3):
+          # Check if the hpq namespace (HP) has a power sensor
+          # BaseUnits,CurrentReading
+          type: wbem
+          namespace: root/cimv2
+          query: "SELECT BaseUnits,CurrentReading FROM HP_PowerMeter"
+          computes:
+            # Keep only lines with units of type 7 (Watts)
+            # ..hoping that there is only one power sensor per server.
+            # BaseUnits,CurrentReading
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: 7
+            # Replace the first column by an identifier
+            # ID;CurrentReading
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: HPWBEM
+            # Exclude sensors with currentreading of 0
+            # ID;CurrentReading
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 0
+        source(4):
+          # Source(4) = Union of 2 & 3
+          # Ok, let's join the ESX and HP sources together
+          # ID;CurrentReading
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.collect.sources.source(3)$
+          - $monitors.enclosure.collect.sources.source(2)$
+        source(5):
+          # Join the computer system instance with the first power consumption available (if any)
+          # ID;Model;SerialNumber;ID;CurrentReading;
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # Instance Table
+        # ID;Model;SerialNumber;ID;CurrentReading;
+        source: $monitors.enclosure.collect.sources.source(5)$
+        deviceId: HPWBEM
+        metrics:
+          hw.enclosure.power: $column(5)
+          hw.enclosure.energy: fakeCounter($column(5))
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Source 1 = HP_Processor Class
+          type: wbem
+          query: "SELECT CurrentClockSpeed,DeviceID,Family FROM HP_Processor"
+          namespace: root/hpq
+          computes:
+          # Copy Family number to translate vendor as well
+          - type: duplicateColumn
+            column: 3
+          # Translate the Family number into a vendor
+          - type: translate
+            column: 3
+            translationTable: cpuVendorTranslationTable
+          # Translate the Family number into a model name
+          - type: translate
+            column: 4
+            translationTable: cpuFamilyTranslationTable
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          model: $column(4)
+          vendor: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: HPWBEM
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(2), $column(3), $column(4), $column(1))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = The HP_Processor WBEM class
+          type: wbem
+          query: "SELECT CurrentClockSpeed,DeviceID,HealthState FROM HP_Processor"
+          namespace: root/hpq
+          computes:
+          - type: duplicateColumn
+            column: 3
+          - type: translate
+            column: 3
+            translationTable: genStatusTranslationTable
+          - type: translate
+            column: 4
+            translationTable: genStatusInformationTranslationTable
+      mapping:
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.cpu.speed: megaHertz2Hertz($column(1))
+          hw.status{hw.type="cpu"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          type: wbem
+          query: "SELECT Capacity,MemoryType,Name,SerialNumber FROM HP_MemoryModule"
+          namespace: root/hpq
+          computes:
+          # Convert size to MB
+          - type: divide
+            column: 1
+            value: 1048576
+          # Translate memory type
+          - type: translate
+            column: 2
+            translationTable: memoryTypeTranslationTable
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(3)
+          serial_number: $column(4)
+          type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: HPWBEM
+          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(2), $column(1))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(1))
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = The IBMPSG_Processor WBEM class
+          type: wbem
+          query: "SELECT HealthState,Name FROM HP_MemoryModule"
+          namespace: root/hpq
+          computes:
+          - type: duplicateColumn
+            column: 1
+          - type: translate
+            column: 1
+            translationTable: genStatusTranslationTable
+          - type: translate
+            column: 2
+            translationTable: genStatusInformationTranslationTable
+      mapping:
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(3)
+        metrics:
+          hw.status{hw.type="memory"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the HP_WinFan WBEM class
+          type: wbem
+          query: "SELECT DeviceID,FanType,Caption FROM HP_Fan"
+          namespace: root/hpq
+          computes:
+          # Translate fan type
+          - type: translate
+            column: 2
+            translationTable: fanTypeTranslationTable
+            # Duplicate the Caption
+            # DeviceID,FanType,Caption,Caption
+          - type: duplicateColumn
+            column: 7
+            # Extract Everything before the dash
+            # DeviceID,FanType,Caption,CaptionPart1
+          - type: extract
+            column: 4
+            subColumn: 1
+            subSeparators: '-'
+          # Re-add the dash
+          - type: rightConcat
+            column: 4
+            value: '-'
+          # Remove part 1 from the main caption
+          - type: replace
+            column: 3
+            existingValue: Column(4)
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(3), $column(2))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # ID, status
+          type: wbem
+          query: "SELECT DeviceID,HealthState FROM HP_Fan"
+          namespace: root/hpq
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: genStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: genStatusInformationTranslationTable
+      mapping:
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # DeviceID, Type
+          type: wbem
+          query: "SELECT DeviceID,PowerSupplyType,TotalOutputPower,Caption FROM HP_PowerSupply"
+          namespace: root/hpq
+          computes:
+          # Translate power supply type
+          - type: translate
+            column: 2
+            translationTable: psuTypeTranslationTable
+            # When TotalOutputPower is an information unavailable on the server, the agent returns 0.
+            # Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
+          - type: leftConcat
+            column: 3
+            value: MSHW_
+          # Remove 0 value
+          - type: replace
+            column: 3
+            existingValue: MSHW_0
+            newValue: ""
+          # Remove MSHW_ for not zero values
+          - type: replace
+            column: 3
+            existingValue: MSHW_
+            newValue: ""
+            # Duplicate the Caption
+            #  DeviceID,PowerSupplyType,TotalOutputPower,Caption
+          - type: duplicateColumn
+            column: 4
+            # Extract Everything before the dash
+            #  DeviceID,PowerSupplyType,TotalOutputPower,Caption,Caption1
+          - type: extract
+            column: 5
+            subColumn: 1
+            subSeparators: '-'
+          # Re-add the dash
+          - type: rightConcat
+            column: 5
+            value: '-'
+          # Remove part 1 from the main caption
+          - type: replace
+            column: 4
+            existingValue: Column(5)
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          power_supply_type: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(2), $column(3))"
+        metrics:
+          hw.power_supply.limit: $column(3)
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # ID, status
+          type: wbem
+          query: "SELECT DeviceID,HealthState FROM HP_PowerSupply"
+          namespace: root/hpq
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: genStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: genStatusInformationTranslationTable
+      mapping:
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # DeviceID, Type
+          type: wbem
+          query: "SELECT DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal,Caption FROM HP_NumericSensor"
+          namespace: root/hpq
+          computes:
+          # Only Keep Temperature Sensors (Type 2)
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 2
+          # Translate type
+          - type: translate
+            column: 2
+            translationTable: sensorTypeTranslationTable
+            # Treat the Warning Threshold
+            # Remove Thresholds of "0"
+            # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal,Caption
+          - type: leftConcat
+            column: 4
+            value: MSHW_
+          # Remove 0 value
+          - type: replace
+            column: 4
+            existingValue: MSHW_0
+            newValue: ""
+          # Remove MSHW_ for not zero values
+          - type: replace
+            column: 4
+            existingValue: MSHW_
+            newValue: ""
+            # Now let's choose the Alarm Threshold
+            # Blank Critical if it equals NonCritical
+            # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal,Caption
+          - type: replace
+            column: 5
+            existingValue: Column(4)
+            newValue: ""
+          - type: leftConcat
+            column: 5
+            value: MSHW
+          - type: rightConcat
+            column: 5
+            value: MSHW
+          # If UpperThresholdNonCritical = UpperThresholdCritical use Fatal
+          - type: replace
+            column: 5
+            existingValue: MSHWMSHW
+            newValue: Column(6)
+          # Otherwise remove unwanted thresholds.
+          - type: replace
+            column: 5
+            existingValue: MSHW
+            newValue: ""
+            # Duplicate the Caption
+            # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal,Caption,Caption
+          - type: duplicateColumn
+            column: 7
+            # Extract Everything before the dash
+            # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal,Caption,CaptionPart1
+          - type: extract
+            column: 8
+            subColumn: 1
+            subSeparators: '-'
+          # Re-add the dash
+          - type: rightConcat
+            column: 8
+            value: '-'
+          # Remove part 1 from the main caption
+          - type: replace
+            column: 7
+            existingValue: Column(8)
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(7)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(7), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.critical"}: $column(5)
+          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
+    collect:
+      # Like all WBEM collects, this one is \"MultiInstance\"
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the HP_NumericSensor WBEM class
+          type: wbem
+          query: "SELECT CurrentReading,DeviceID,HealthState,SensorType FROM HP_NumericSensor"
+          namespace: root/hpq
+          computes:
+          # Only Keep Temperature Sensors (Type 2)
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 2
+          - type: duplicateColumn
+            column: 3
+          - type: translate
+            column: 3
+            translationTable: genStatusTranslationTable
+          - type: translate
+            column: 4
+            translationTable: genStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.temperature: $column(1)
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HP_ManagementProcessor
+          # ID;ModelCode
+          type: wbem
+          query: SELECT ElementName FROM HP_ManagementProcessor
+          namespace: root/hpq
+      mapping:
+        # Instance Table
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          device_type: Management Card
+          additional_label: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s: %s (%s)\", \"Management Card\", $column(1), $column(1))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = HP_ManagementProcessor
+          type: wbem
+          query: "SELECT ElementName,HealthState FROM HP_ManagementProcessor"
+          namespace: root/hpq
+          computes:
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: genStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: genStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  HP_ManagementProcessor
+          # NIDid;IP;Status;
+          type: wbem
+          query: "SELECT ElementName,IPAddress,NICCondition FROM HP_ManagementProcessor"
+          namespace: root/hpq
+          computes:
+          # Filter out disabled network cards  (NIC Condition = 3)
+          - type: excludeMatchingLines
+            column: 3
+            valueList: 3
+            # Add in the Location,Speed,MAC fields and Statistics
+            # NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;InterfaceName;
+          - type: rightConcat
+            column: 3
+            value: ;;;;;;iLO
+            # Actually feed the Model field
+            # NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;InterfaceName;
+          - type: rightConcat
+            column: 7
+            value: Column(1)
+        source(2):
+          # Source(2) =  HP_EthernetPort
+          # __PATH;NIDid;Location;Speed;MAC;Model
+          type: wbem
+          query: "SELECT __PATH,DeviceID,Description,Speed,PermanentAddress,ElementName FROM HP_EthernetPort"
+          namespace: root/hpq
+          computes:
+            # Convert Speed from bit to Mbit
+            # __PATH;NIDid;Location;Speed;MAC;Model;
+          - type: divide
+            column: 4
+            value: 1000000
+            # Add in the IP and Status fields
+            # __PATH;NIDid;IP;Status;Location;Speed;MAC;Model;
+          - type: rightConcat
+            column: 2
+            value: ;;
+        source(3):
+          # Source(3) =  HP_EthernetStatistics
+          # Statistics;
+          type: wbem
+          query: SELECT Description FROM HP_EthernetStatistics
+          namespace: root/hpq
+        source(4):
+          # Source (4) = Table Joint of (2) and (3).  Any network cards without statistics (i.e. Linux System) will be discarded.
+          # __PATH;NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(2)$
+          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftKeyColumn: 5
+          rightKeyColumn: 1
+          defaultRightLine: ;
+        source(5):
+          # Source(5) =  HP_EthernetLANEndpoint
+          # LANEndpoint__PATH;InterfaceName;
+          type: wbem
+          query: "SELECT __PATH,Description FROM HP_EthernetLANEndpoint"
+          namespace: root/hpq
+        source(6):
+          # Source(6) = HP_EthernetPortToLANEndpoint
+          # Port__PATH;LANEndpoint__PATH;
+          type: wbem
+          query: "SELECT Antecedent,Dependent FROM HP_EthernetPortToLANEndpoint"
+          namespace: root/hpq
+        source(7):
+          # Source(7) = Table Joint of Source(4) with Source(6)
+          # __PATH;NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;Port__PATH;LANEndpoint__PATH;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(4)$
+          rightTable: $monitors.network.discovery.sources.source(6)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+        source(8):
+          # Source(8) = Table Joint of Source(7) with Source(5)
+          # __PATH;NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;Port__PATH;LANEndpoint__PATH;LANEndpoint__PATH;InterfaceName;
+          type: tableJoin
+          leftTable: $monitors.network.discovery.sources.source(7)$
+          rightTable: $monitors.network.discovery.sources.source(5)$
+          leftKeyColumn: 11
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+          computes:
+            # Some clean-up: keep only the columns we are interested in
+            # NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;InterfaceName;
+          - type: keepColumns
+            columnNumbers: "2,3,4,5,6,7,8,9,13"
+        source(9):
+          # Source(9) = Union of 1 & 8
+          # NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;InterfaceName;
+          type: tableUnion
+          tables:
+          - $monitors.network.discovery.sources.source(1)$
+          - $monitors.network.discovery.sources.source(8)$
+          computes:
+          - type: leftConcat
+            column: 4
+            value: "Location: "
+      mapping:
+        # InstanceTable = Source(9)
+        # NIDid;IP;Status;Location;Speed;MAC;
+        source: $monitors.network.discovery.sources.source(9)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(9)
+          model: $column(7)
+          logical_address: $column(2)
+          logical_address_type: IP
+          physical_address: $column(6)
+          physical_address_type: MAC
+          info: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(9), $column(7))"
+    collect:
+      # Collect type is "multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the HP_ManagementProcessor WMI Table
+          # ID;Condition
+          type: wbem
+          query: "SELECT ElementName,NICCondition FROM HP_ManagementProcessor"
+          namespace: root/hpq
+          computes:
+            # Duplicate Condition
+            # ID;Condition;Condition;
+          - type: duplicateColumn
+            column: 2
+            # Duplicate Condition
+            # ID;Condition;Condition;Condition;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Condition into PATROLStatus
+            # ID;PATROLStatusArray;Condition;Condition;
+          - type: arrayTranslate
+            column: 2
+            translationTable: iLONetworkCardStatusTranslationTable
+            # Translate second Condition into a more readable string
+            # ID;PATROLStatusArray;statusInformation;Condition;
+          - type: arrayTranslate
+            column: 3
+            translationTable: iLONetworkCardStatusInfoTranslationTable
+            resultSeparator: ' - '
+            # Translate second Condition into a more LinkStatus (OK|WARN)
+            # ID;PATROLStatusArray;statusInformation;LinkStatusArray;
+          - type: translate
+            column: 4
+            translationTable: iLOLinkStatusTranslationTable
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # ID;PATROLStatus;statusInformation;LinkStatusArray;
+          - type: convert
+            column: 2
+            conversion: array2SimpleStatus
+            # Convert LinkStatusArray to a simple (unique) LinkStatus
+            # ID;PATROLStatus;statusInformation;LinkStatus;
+          - type: convert
+            column: 4
+            conversion: array2SimpleStatus
+            # Need to Pad out the table so that it matches the other sources:
+            # ID;            #     PATROLStatus;statusInformation;LinkStatus;
+            # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
+          - type: rightConcat
+            column: 1
+            value: ;;
+          - type: rightConcat
+            column: 6
+            value: ;;;;;
+        source(2):
+          # Source(1) = the HP_EthernetStatistics WBEM Table
+          #  1     2          #   3          #     4          #          5          # 6          #       7          #        8          #     9          # 10          #         11          #           #    12          #     13          #         14
+          # Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,AlignmentErrors,DeferredTransmissions,ExcessiveCollisions,FCSErrors,InternalMACReceiveErrors,InternalMACTransmitErrors,LateCollisions,MultipleCollisionFrames,SingleCollisionFrames
+          type: wbem
+          query: "SELECT Description,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,AlignmentErrors,DeferredTransmissions,ExcessiveCollisions,FCSErrors,InternalMACReceiveErrors,InternalMACTransmitErrors,LateCollisions,MultipleCollisionFrames,SingleCollisionFrames FROM HP_EthernetStatistics"
+          namespace: root/hpq
+          computes:
+          # Combine all the errors into one errorcount
+          - type: add
+            column: 6
+            value: Column(7)
+          - type: add
+            column: 6
+            value: Column(8)
+          - type: add
+            column: 6
+            value: Column(9)
+          - type: add
+            column: 6
+            value: Column(10)
+          - type: add
+            column: 6
+            value: Column(11)
+          - type: add
+            column: 6
+            value: Column(12)
+          - type: add
+            column: 6
+            value: Column(13)
+          - type: add
+            column: 6
+            value: Column(14)
+            # Remove all the unwanted error columns
+            #  1     2            # 3            #   4            #        5            6
+            # Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
+          - type: keepColumns
+            columnNumbers: "1,2,3,4,5,6"
+        source(3):
+          # Source(3) =  HP_EthernetPort
+          # NIDid;Location;Speed;OperationalStatus;
+          type: wbem
+          query: "SELECT DeviceID,Description,Speed,OperationalStatus FROM HP_EthernetPort"
+          namespace: root/hpq
+          computes:
+          # NIDid;Location;Speed;OperationalStatus;OperationalStatus;OperationalStatus;
+          - type: duplicateColumn
+            column: 4
+          - type: duplicateColumn
+            column: 4
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # NIDid;Location;Speed;PatrolStatus;OperationalStatus;OperationalStatus;
+          - type: arrayTranslate
+            column: 4
+            translationTable: DMTFOperationStatusTranslationTable
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # NIDid;Location;Speed;PatrolStatus;StatusInformation;OperationalStatus;
+          - type: arrayTranslate
+            column: 5
+            translationTable: DMTFOperationStatusInformationTranslationTable
+            resultSeparator: ' - '
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # NIDid;Location;Speed;PatrolStatus;StatusInformation;OperationalStatus;
+          - type: convert
+            column: 4
+            conversion: array2SimpleStatus
+            # Then we translate DMTF's OperationStatus code into OK/WARN (for the LINK Status)
+            # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatusArray;
+          - type: arrayTranslate
+            column: 6
+            translationTable: DMTFOperationToLinkStatusTranslationTable
+            # Convert LinkStatusArray to a simple (unique) LinkStatus
+            # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;
+          - type: convert
+            column: 6
+            conversion: array2SimpleStatus
+            # Convert Speed from bit to Mbit
+            # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;
+          - type: divide
+            column: 3
+            value: 1000000
+        source(4):
+          # Source(4) = Source (3) and Source(2)
+          # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
+          type: tableJoin
+          leftTable: $monitors.network.collect.sources.source(3)$
+          rightTable: $monitors.network.collect.sources.source(2)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;;;
+        source(5):
+          # Source (5) = Union of 1 & 4
+          # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
+          type: tableUnion
+          tables:
+          - $monitors.network.collect.sources.source(1)$
+          - $monitors.network.collect.sources.source(4)$
+      mapping:
+        # ValueTable = Source(5)
+        # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
+        source: $monitors.network.collect.sources.source(5)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="network"}: $column(4)
+          hw.network.up: legacyLinkStatus($column(6))
+          hw.network.bandwidth.limit: megaBit2Bit($column(3))
+          hw.network.packets{direction="receive"}: $column(10)
+          hw.network.packets{direction="transmit"}: $column(11)
+          hw.errors{hw.type="network"}: $column(12)
+          hw.network.io{direction="receive"}: $column(8)
+          hw.network.io{direction="transmit"}: $column(9)
+        legacyTextParameters:
+          StatusInformation: $column(5)
+translations:
+  fanTypeTranslationTable:
+    "22": Processor Fan
+    "23": Cell Fan
+    "24": Cooling Device
+    "25": Front Panel
+    "26": Back Panel
+    "27": IO Bus
+    "28": Peripheral Bay
+    "29": Device Bay
+    "30": Switch
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Cabinet blower
+    "19": Compute Cabinet I/O Fans
+    Default: ""
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": I/O Expansion Cabinet Utility Chassis Fan
+    "21": I/O Expansion Cabinet I/O Fan
+  DMTFOperationStatusTranslationTable:
+    "11": degraded
+    "12": failed
+    "13": failed
+    "14": failed
+    "15": degraded
+    "16": degraded
+    "17": ok
+    "18": ok
+    Default: UNKNOWN
+    "0": ok
+    "1": ok
+    "2": ok
+    "3": degraded
+    "4": degraded
+    "5": degraded
+    "6": ok
+    "7": failed
+    "8": degraded
+    "9": degraded
+    "10": failed
+  iLOLinkStatusTranslationTable:
+    "5": degraded
+    Default: ok
+  DMTFOperationToLinkStatusTranslationTable:
+    "2": ok
+    "6": degraded
+    Default: ""
+  memoryTypeTranslationTable:
+    "22": BRAM
+    "23": FB-DIMM
+    "24": DDR3
+    "25": FBD2
+    "10": ROM
+    "11": Flash
+    "12": EEPROM
+    "13": FEPROM
+    "14": EPROM
+    "15": CDRAM
+    "16": 3DRAM
+    "17": SDRAM
+    "18": SGRAM
+    "19": RDRAM
+    Default: ""
+    "0": Unknown Memory Type
+    "1": Unknown Memory Type
+    "2": DRAM
+    "3": Synchronous DRAM
+    "4": Cache DRAM
+    "5": EDO
+    "6": EDRAM
+    "7": VRAM
+    "8": SRAM
+    "9": RAM
+    "20": DDR
+    "21": DDR-2
+  iLONetworkCardStatusTranslationTable:
+    "0": UNKNOWN
+    "2": ok
+    "3": ok
+    "4": degraded
+    "5": ok
+    "6": failed
+    Default: UNKNOWN
+  psuTypeTranslationTable:
+    "22": I/O Expansion Cabinet Bulk Power Supply
+    "23": I/O Expansion Cabinet System Backplane Power Supply
+    "24": I/O Expansion Cabinet I/O chassis enclosure Power Supply
+    "25": I/O Expansion Cabinet AC Input Line
+    "26": Peripheral Bay
+    "27": Device Bay
+    "28": Switch
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Computer Cabinet Bulk Power Supply
+    "19": Computer Cabinet System Backplane Power Supply
+    Default: ""
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": Computer Cabinet I/O chassis enclosure Power Supply
+    "21": Computer Cabinet AC Input Line
+  DMTFOperationStatusInformationTranslationTable:
+    "11": In Service
+    "12": No Contact
+    "13": Lost Communication
+    "14": Aborted
+    "15": Dormant
+    "16": Supporting Entity in Error
+    "17": Completed
+    "18": Power Mode
+    Default: Unknown Status
+    "0": ""
+    "1": ""
+    "2": ""
+    "3": Degraded
+    "4": Stressed
+    "5": Predicted Failure
+    "6": ""
+    "7": Non-Recoverable Error
+    "8": Starting
+    "9": Stopping
+    "10": Stopped
+  sensorTypeTranslationTable:
+    "22": Device Bay
+    "23": Switch
+    "24": Software-defined
+    "10": Ambient / External / Room
+    "11": Chassis
+    "12": Bridge Card
+    "13": Management board
+    "14": Remote Management Card
+    "15": Generic Backplane
+    "16": Infrastructure Network
+    "17": Blade Slot in Chassis/Infrastructure
+    "18": Front Panel
+    "19": Back Panel
+    Default: ""
+    "0": Unknown
+    "1": Other
+    "2": System board
+    "3": Host System board
+    "4": I/O board
+    "5": CPU board
+    "6": Memory board
+    "7": Storage bays
+    "8": Removable Media Bays
+    "9": Power Supply Bays
+    "20": IO Bus
+    "21": Peripheral Bay
+  genStatusInformationTranslationTable:
+    "0": Unknown
+    "25": Critical Failure
+    "15": Minor Failure
+    "5": ""
+    "30": Non-recoverable Error
+    Default: Unknown Status
+    "20": Major Failure
+    "10": Degraded/Warning
+  genStatusTranslationTable:
+    "0": UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    OK: ok
+    "30": failed
+    Default: UNKNOWN
+    "20": failed
+    "10": degraded
+  iLONetworkCardStatusInfoTranslationTable:
+    "0": Unknown Status
+    "2": ""
+    "3": NIC disabled
+    "4": NIC not in operation-alternate host NIC in use
+    "5": NIC in operation but disconnected
+    "6": Failed
+    Default: UNKNOWN

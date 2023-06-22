@@ -1,0 +1,69 @@
+#!/bin/sh
+
+LSDEV=/usr/sbin/lsdev
+LSDEVARGS="-C -c adapter -F name"
+
+LSCFG=/usr/sbin/lscfg
+LSCFGARGS="-vp -l "
+
+FCSTAT="/usr/sbin/fcstat"
+FCSTATARGS=
+
+#LSDEV=cat
+#LSDEVARGS=/tmp/lsdevfcs0
+
+#LSCFG=cat
+#LSCFGARGS=/tmp/lscfg
+
+#FCSTAT=cat
+#FCSTATARGS=/tmp/fcstat
+
+for HBA in `$LSDEV $LSDEVARGS|/usr/bin/grep "^fcs[0-9][0-9]*$"`
+do
+    HBAMODEL=`$LSCFG $LSCFGARGS$HBA |
+              /bin/tr "." " " |
+              /usr/bin/awk '/^ *Model: / { printf $2; for (i=3 ; i<NF ; i++) { printf " " $i; } printf "\n"; }'`
+
+    if [ $( /usr/sbin/lsdev -p $HBA | grep fscsi | grep Avai | wc -l ) -ne 0 ]; then
+        if [ $( ( /usr/sbin/lspath ) | grep $(/usr/sbin/lsdev -p $HBA -r name) | grep -v hdiskpower | grep Enab | wc -l ) -o $( ( /usr/sbin/lsdev -Cc tape ) | grep $(lsdev -p $HBA |  grep fscsi | awk '{print $3}') | grep Avai | wc -l ) -ne 0 ]; then
+            $FCSTAT $FCSTATARGS$HBA | /usr/bin/awk -v hbaID=$HBA -v hbaModel="$HBAMODEL" 'BEGIN {
+             #SETTING THIS TO "1" INSTEAD OF ZERO AS A TEMPORARY FIX.
+                foundValidInformation = 1
+            }
+            /^FIBRE CHANNEL STATISTICS REPORT:/ {
+                foundValidInformation = 1;
+            }
+            /^ *Port Speed \(running\): +[0-9\.]+ GBIT/ {
+                speed = $4 * 1000
+            }
+            /^ *Port Type: / {
+                portType = $3
+                for (i=4 ; i<NF ; i++)
+                {
+                    portType = portType " " $i
+                }
+            }
+            /^ *Port WWN: / {
+                wwnAddress = $3
+            }
+            /^ *World Wide Port Name: / {
+                wwnAddress = $5
+            }
+            /^ *Serial Number: / {
+                serialNumber = $3
+            }
+            END {
+                gsub("0x", "", wwnAddress)
+                gsub("0X", "", wwnAddress)
+                if (foundValidInformation == 1)
+                {
+                    print "MSHW;" hbaID ";" hbaModel ";" wwnAddress ";" serialNumber ";" portType ";" speed ";"
+                }
+            }'
+        else
+                   echo "MSHW;"$HBA";"$HBAMODEL";;;Unmonitored - No Child Devices;;"
+            fi
+    else
+        echo "MSHW;"$HBA";"$HBAMODEL";;;Unplumbed;;"
+    fi
+done

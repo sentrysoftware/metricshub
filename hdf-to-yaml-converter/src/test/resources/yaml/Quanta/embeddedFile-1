@@ -1,0 +1,8 @@
+BEGIN {FS=";";}
+{
+    if($3 < 0) AlarmThreshold = ""; else AlarmThreshold = $3;
+    if($4 < 0) WarningThreshold = ""; else WarningThreshold = $4;
+    if($5 < 0) SensorReading = ""; else SensorReading = $5;
+    if(AlarmThreshold == "" && WarningThreshold == "" || SensorReading == "") StatusActivation=1;
+    print $1";"$2";"AlarmThreshold";"WarningThreshold";"SensorReading";"$6";"StatusActivation";"
+}

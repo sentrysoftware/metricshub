@@ -1,0 +1,535 @@
+---
+connector:
+  displayName: StorageTek LSeries Tape Library
+  platforms: StorageTek LSeries
+  reliesOn: StorageTek LSeries SNMP Agent
+  version: 1.1
+  information: This connector provides basic hardware monitoring of the StorageTek LSeries tape libraries through their built-in SNMP agent. Needs to run remotely.
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage
+    criteria:
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.1211.1.12.4.2.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model name and manufacturer of the tape library
+          # Vendor;Vendor
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.3.16
+          selectColumns: "1,2"
+          computes:
+          # Add "LSeries" to the model name
+          - type: leftConcat
+            column: 2
+            value: LSeries ;
+        source(2):
+          # Get the serial number the tape library
+          type: snmpGet
+          oid: 1.3.6.1.4.1.1211.1.12.3.4.0
+        source(3):
+          # Get the IP address of the library
+          type: snmpGet
+          oid: 1.3.6.1.4.1.1211.1.12.3.13.1.0
+          computes:
+          # Add IP Address title
+          - type: leftConcat
+            column: 1
+            value: "IP Address: "
+        source(4):
+          # Get the Ethernet address of the library
+          type: snmpGet
+          oid: 1.3.6.1.4.1.1211.1.12.3.13.3.0
+          computes:
+          # Add Ethernet Address title
+          - type: leftConcat
+            column: 1
+            value: "Ethernet Address: "
+            # Start the process of concatenating our information sources together
+            # IPAddress;EthernetAddress
+          - type: leftConcat
+            column: 1
+            value: $monitors.enclosure.discovery.sources.source(3)$
+          # SerialNumber;IPAddress;EthernetAddress
+          - type: leftConcat
+            column: 1
+            value: $monitors.enclosure.discovery.sources.source(2)$
+          # Vendor;Model;SerialNumber;IPAddress;EthernetAddress
+          - type: leftConcat
+            column: 1
+            value: $monitors.enclosure.discovery.sources.source(1)$
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(4)$
+        attributes:
+          id: STKLSeries
+          vendor: $column(1)
+          model: $column(2)
+          serial_number: $column(3)
+          type: Storage
+          info: "join($column(4), $column(5), \" \")"
+          name: "sprintf(\"Storage: (%s %s)\", $column(1), $column(2))"
+    collect:
+      # Collect
+      type: monoInstance
+      sources:
+        source(1):
+          # Retrieve the lserLibState and lserLibStatusEnum OIDs (as it was a SNMP Table)
+          # lserLibStatusEnum;statusInformation
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.3
+          selectColumns: "8,7"
+          computes:
+            # Translate the lserLibStatusEnum into a PATROL status
+            # PATROLStatus;statusInformation
+          - type: translate
+            column: 1
+            translationTable: LibraryStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lserHdwTempSensorTable
+          # ID;temperatureName;warnThreshold;alarmThreshold
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.10.2.1
+          selectColumns: "ID,2,5,6"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: STKLSeries
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+    collect:
+      type: monoInstance
+      sources:
+        source(1):
+          type: snmpGet
+          oid: 1.3.6.1.4.1.1211.1.12.10.2.1.3.$temperature.id$
+      mapping:
+        source: $monitors.temperature.collect.sources.source(1)$
+        metrics:
+          hw.temperature: $column(1)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lserHdwFanTable SNMP table
+          # ID;fanName
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.10.4.1
+          selectColumns: "ID,2"
+      mapping:
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: STKLSeries
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect-type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lserHdwFanTable SNMP table
+          # ID;fanStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.10.4.1
+          selectColumns: "ID,3"
+          computes:
+            # duplicate the status column
+            # ID;fanStatus;fanStatus
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL Status
+            # ID;PATROLStatus;fanStatus
+          - type: translate
+            column: 2
+            translationTable: FanStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: FanStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the lserHdwSupplrTable SNMP table
+          # DeviceID;psName;psInstalled
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.10.6.1
+          selectColumns: "ID,2,3"
+          computes:
+            # Keep only actually installed power supplies
+            # DeviceID;psName;psInstalled
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 2
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          power_supply_type: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: STKLSeries
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type = Mono-Instance (one collect for each instance)
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the lserHdwSupplrTable SNMP table
+          # DeviceID;psStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.10.6.1
+          selectColumns: "ID,4"
+          computes:
+            # Duplicate this psStatus column
+            # DeviceID;psStatus;psStatus
+          - type: duplicateColumn
+            column: 2
+          # Now translate the 1st psStatus into a PATROL Status
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+          # Translate the 2nd psStatus into a more readable string
+          - type: translate
+            column: 3
+            translationTable: PowerSupplyStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # CAP
+          # Source(1) = the lserCapTable
+          # ID;Name;Name
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.5.2.1
+          selectColumns: "ID,30,30"
+          computes:
+            # Add the device type: "Cartridge Access Port", as a 4th column
+            # ID;Name;Name;"Cartright Access Port"
+          - type: rightConcat
+            column: 3
+            value: ;Cartridge Access Port
+            # Now add the "CAP" mention to the ID, to help us distinguish drives from CAPs, during the collect
+            # CAP_ID;Name;Name;"Cartridge Access Port"
+          - type: leftConcat
+            column: 1
+            value: CAP
+          # Activate Status parameter, deactivate UsageCount parameter
+          - type: rightConcat
+            column: 4
+            value: ;1;;
+        source(2):
+          # Cleaning cartridge
+          # ID;Label;Type;LocationElementID
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.3.17.5.1
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Start the process of concatenating Element ID to Label and Type and do it nicely
+            # ID; - Label;Type;LocationElementID
+          - type: leftConcat
+            column: 2
+            value: ' - '
+          # ID;Type - Label;Type;LocationElementID
+          - type: leftConcat
+            column: 2
+            value: Column(3)
+          # ID; - Type - Label;Type;LocationElementID
+          - type: leftConcat
+            column: 2
+            value: ' - '
+          # ID;LocationElementID - Type - Label;Type;LocationElementID
+          - type: leftConcat
+            column: 2
+            value: Column(4)
+            # Now add the device type: "Cleaning Cartridge", as a 4th column
+            # ID;LocationElementID (Type - Label);Type;LocationElementID;Cleaning Cartridge
+          - type: rightConcat
+            column: 3
+            value: ;Cleaning Cartridge
+            # Now add the "CleaningCartridge" mention to the ID, to help us distinguish CAPs from Cleaning Cartridges, during the collect
+            # CLeaningCartridge_ID;LocationElementID (Type - Label);Type;LocationElementID;Cleaning Cartridge
+          - type: leftConcat
+            column: 1
+            value: CleaningCartridge
+            # Deactivate Status parameter, activate UsageCount parameter
+            # CleaningCartridge_ID;LocationElementID (Type - Label);Type;LocationElementID;;1;Cleaning Cartridge
+          - type: rightConcat
+            column: 4
+            value: ;;1
+        source(3):
+          # Union of the CAP and Cleaning Cartridge table
+          type: tableUnion
+          tables:
+          - $monitors.other_device.discovery.sources.source(1)$
+          - $monitors.other_device.discovery.sources.source(2)$
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          additional_label: $column(2)
+          device_type: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: STKLSeries
+          name: "sprintf(\"%s: %s (%s)\", $column(4), $column(1), $column(2))"
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(2) = the lserCapTable
+          # ID;lserCapStatusEnum;lserCapState
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.5.2.1
+          selectColumns: "ID,5,4"
+          computes:
+            # Translate lserCapStatusEnum into a PATROL Status
+            # ID;PATROLStatus;lserCapState
+          - type: translate
+            column: 2
+            translationTable: CapStatusTranslationTable
+            # Now add the "CAP" mention to the ID, to help us distinguish CAPs from CleaningCartrdiges
+            # CAP_ID;PATROLStatus;lserCapState
+          - type: leftConcat
+            column: 1
+            value: CAP
+        source(2):
+          # Cleaning cartridge
+          # ID;UsageCount
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.3.17.5.1
+          selectColumns: "ID,6"
+          computes:
+          # Now add the \"CleaningCartridge\" mention to the ID, to help us distinguish CAPs from Cleaning Cartridges, during the collect
+          - type: leftConcat
+            column: 1
+            value: CleaningCartridge
+            # Add blank columns between ID and UsageCount for UsageCount to be in the right column
+            # ID;;;UsageCount
+          - type: rightConcat
+            column: 1
+            value: ;;
+        source(3):
+          # Union of the CAP and Cleaning Cartridge table
+          # CAP_ID;PATROLStatus;lserCapState
+          # CleaningCartridge_ID;;;UsageCount
+          type: tableUnion
+          tables:
+          - $monitors.other_device.collect.sources.source(1)$
+          - $monitors.other_device.collect.sources.source(2)$
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+          hw.other_device.uses: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  robotics:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lserDriveTable
+          # ID;SerialNumber;PartNumberFirmWare version
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.6.2.1
+          selectColumns: "ID,4,5,6"
+          computes:
+          # Add Part number string to the part number
+          - type: leftConcat
+            column: 3
+            value: "Part Number: "
+          # Add firmware version string to the firmware version
+          - type: leftConcat
+            column: 4
+            value: "Firmware Version: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.robotics.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          serial_number: $column(2)
+          info: "join($column(3), $column(4), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: STKLSeries
+          name: $column(1)
+    collect:
+      # Collect
+      # Collect-type = mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # ID;StatusInformation;StatusEnum;GoodEmptyMotionCount;FailedEmptyMotionCount;GoodPartMotion;FailedPartMotion;GoodFullMotionCount;FailedFullMotionCount
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.6.2.1
+          selectColumns: "ID,2,3,14,15,16,17,18,19"
+          computes:
+            # Translate the statusEnum into a PATROL status. Same possible values as the library status
+            # ID;StatusInformation;PATROLStatus;GoodEmptyMotionCount;FailedEmptyMotionCount;GoodPartMotion;FailedPartMotion;GoodFullMotionCount;FailedFullMotionCount
+          - type: translate
+            column: 3
+            translationTable: LibraryStatusTranslationTable
+          # Add all motions (good and failed ones) together in column 4
+          - type: add
+            column: 4
+            value: Column(5)
+          - type: add
+            column: 4
+            value: Column(6)
+          - type: add
+            column: 4
+            value: Column(7)
+          - type: add
+            column: 4
+            value: Column(8)
+          - type: add
+            column: 4
+            value: Column(9)
+          # Add failed motions (only!) to column 5
+          - type: add
+            column: 5
+            value: Column(7)
+          - type: add
+            column: 5
+            value: Column(9)
+      mapping:
+        # In the end, we have:
+        # ID;StatusInformation;StatusEnum;TotalMoves;ErrorCount (i.e. total failed moves);various move counts that we don't need
+        # ValueTable = Source(1)
+        source: $monitors.robotics.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="robotics"}: $column(2)
+          hw.robotics.moves: $column(4)
+          hw.errors{hw.type="robotics"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  tape_drive:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lserDriveTable
+          # ID;ElementID;Row;Column;Type;Vendor;SerialNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.4.2.1
+          selectColumns: "ID,2,3,4,5,6,7"
+          computes:
+          - type: leftConcat
+            column: 2
+            value: "Element ID: "
+          - type: leftConcat
+            column: 3
+            value: "Physical Row No: "
+          - type: leftConcat
+            column: 4
+            value: "Physical Column No: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.tape_drive.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(5)
+          vendor: $column(6)
+          serial_number: $column(7)
+          info: "join($column(2), $column(3), $column(4), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: STKLSeries
+          name: "sprintf(\"%s (%s %s)\", $column(1), $column(6), $column(5))"
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = lserDriveTable
+          # ID;lserDriveStatusEnum;lserDriveState;MountCount
+          type: snmpTable
+          oid: 1.3.6.1.4.1.1211.1.12.4.2.1
+          selectColumns: "ID,11,10,25"
+          computes:
+            # Translate lserDriveStatusEnum into a PATROLStatus
+            # ID;PATROLStatus;lserDriveState;MountCount
+          - type: translate
+            column: 2
+            translationTable: TapeDriveStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.tape_drive.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="tape_drive"}: $column(2)
+          hw.tape_drive.operations{type="mount"}: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  TapeDriveStatusTranslationTable:
+    "2": ok
+    "3": failed
+    "4": degraded
+    Default: ok
+  CapStatusTranslationTable:
+    "2": ok
+    "3": failed
+    "4": degraded
+    Default: ok
+  LibraryStatusTranslationTable:
+    "2": ok
+    "3": failed
+    "4": degraded
+    Default: UNKNOWN
+  FanStatusTranslationTable:
+    "1": failed
+    "2": ok
+    Default: UNKNOWN
+  PowerSupplyStatusTranslationTable:
+    "1": failed
+    "2": ok
+    Default: UNKNOWN
+  FanStatusInformationTranslationTable:
+    "1": Failed
+    "2": ""
+    Default: Unknown Status
+  PowerSupplyStatusInformationTranslationTable:
+    "1": Failed
+    "2": ""
+    Default: Unknown Status

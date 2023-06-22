@@ -1,0 +1,20 @@
+BEGIN {FS=";";ID =""}
+{ID = $1; gsub(/.*context./,"",ID); gsub(/..attributes.*$/,"",ID);}
+$2 ~ /^marker-led/  { MarkerLED[ID] = $3 ;}
+$2 ~ /^name/  {
+    Name[ID] = $3 ;
+    split($4,outputarray,"/")
+    Parent[ID]=outputarray[3]
+    }
+$2 ~ /^onDC/ { OnDC[ID] = $3 ;}
+$2 ~ /^operational-status/ { Status[ID] = $3 ;}
+$2 ~ /^part-number/ { PartNumber[ID] = $3 ;}
+$2 ~ /^revision-number/ { RevNumber[ID] = $3 ;}
+$2 ~ /^serial-number/ { SerialNumber[ID] = $3 ;}
+$2 ~ /^temperature-threshold-exceeded/ { TemperatureThresholdExceeded[ID] = $3 ;}
+
+END{
+for ( ID in Name){
+    print "MSHW;" MarkerLED[ID] ";" Name[ID] ";" OnDC[ID] ";" Status[ID] ";" PartNumber[ID] ";" RevNumber[ID] ";" SerialNumber[ID] ";" TemperatureThresholdExceeded[ID] ";" Parent[ID] ";"
+    }
+}

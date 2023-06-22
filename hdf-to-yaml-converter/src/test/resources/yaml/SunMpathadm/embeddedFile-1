@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# First of all, make sure the thing speaks english
+LANG=C
+export LANG
+
+LunList=`%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu | grep /dev/rdsk/`
+for Lun in $LunList; do
+     %{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm show lu $Lun
+     done

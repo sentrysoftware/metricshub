@@ -1,0 +1,16 @@
+BEGIN {
+    controllerID="" ; model="" ; serialnumber="";firmwareversion="";
+}
+
+$1 ~ /^[Aa]dapter$/ && $2 ~ /#[0-9]+/ {controllerID = $2}
+$1 ~ /^[Pp]roduct$/ && $2 ~ /^[Nn]ame$/ {colonIndex = index($0, ":") ;
+                                         model = substr($0, colonIndex + 2) ;
+                                        }
+$1 ~ /^[Ss]erial$/ && $2 ~ /^[Nn]/      {colonIndex = index($0, ":") ;
+                                         serialnumber = substr($0, colonIndex + 2) ;
+                                        }
+$1 ~ /^[Ff][Ww]$/ && $2 ~ /^[Pp]ackage/ && controllerID != ""{colonIndex = index($0, ":") ;
+                                         firmwareversion = substr($0, colonIndex + 2) ;
+                                        print ("MSHW;"controllerID";"model";"serialnumber";"firmwareversion";"biosversion";");
+                                        controllerID="" ; model="" ; serialnumber="";firmwareversion="";
+                                        }

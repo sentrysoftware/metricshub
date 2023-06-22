@@ -1142,7 +1142,7 @@ class PreConnectorTest {
 
 		// Check the order
 		assertEquals(
-			List.of("Parent1Connector-header", "Parent2Connector-header"),
+			List.of("Parent1Connector.hhdf", "Parent2Connector.hhdf"),
 			preConnector.getExtendedConnectors().stream().toList()
 		);
 	}

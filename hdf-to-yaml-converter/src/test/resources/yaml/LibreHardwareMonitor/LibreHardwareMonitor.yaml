@@ -1,0 +1,531 @@
+---
+connector:
+  displayName: Libre Hardware Monitor
+  platforms: Any Windows system
+  reliesOn: Libre Hardware Monitor
+  information: "This connector provides the hardware monitoring of Processors, Temperatures, Fans, Voltages, GPU, Memory Modules, Physical Disk of a computer."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - NT
+    criteria:
+      # DETECTION
+      # OS must be NT
+    - type: deviceType
+      keep:
+      - NT
+    # The root\LibreHardwareMonitor must be available
+    - type: wmi
+      query: SELECT Name FROM WMINET_InstrumentedAssembly
+      namespace: root\LibreHardwareMonitor
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Hardware Discovery (no information about Enclosure)
+          # Identifier, Name, HardwareType
+          type: wmi
+          query: "SELECT Identifier, Name, HardwareType FROM Hardware"
+          namespace: root\LibreHardwareMonitor
+        source(2):
+          # Hardware Discovery (no information about Enclosure)
+          # Manufacturer, Model
+          type: wmi
+          query: "SELECT Manufacturer, Model FROM Win32_ComputerSystem"
+          namespace: root\cimv2
+      mapping:
+        # InstanceTable
+        # Manufacturer, Model
+        source: $monitors.enclosure.discovery.sources.source(2)$
+        attributes:
+          id: PC
+          type: Computer
+          vendor: $column(1)
+          model: $column(2)
+          name: "sprintf(\"Computer: (%s %s)\", $column(1), $column(2))"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Source 1 = Voltage Sensor
+          # Identifier, Name, SensorType, Parent
+          type: wmi
+          query: "SELECT Identifier, Name, Parent FROM Sensor WHERE SensorType = 'Voltage'"
+          namespace: root\LibreHardwareMonitor
+        source(2):
+          # Source 2 = Merge source 1 (voltage) and enclosure Hardware source
+          # SensorIdentifier, SensorName,SensorParent, HardwareIdentifier, HardwareName, HardwareType
+          type: tableJoin
+          leftTable: $monitors.voltage.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 3
+          rightKeyColumn: 1
+      mapping:
+        # Instance table
+        # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+        source: $monitors.voltage.discovery.sources.source(2)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(5)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: PC
+          name: "sprintf(\"%s (%s)\", $column(5), $column(2))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = The Processor WMI class
+          # Identifier, Value, SensorType
+          type: wmi
+          query: "SELECT Identifier, Value FROM Sensor WHERE SensorType = 'Voltage'"
+          namespace: root\LibreHardwareMonitor
+          computes:
+            # Convert volts to millivolts
+            # Identifier, Value, SensorType
+          - type: multiply
+            column: 2
+            value: 1000
+      mapping:
+        # Value Table
+        # Identifier, Value
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(2)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Source 1 = Temperature Sensor
+          # Identifier, Name, Parent, Value
+          type: wmi
+          query: "SELECT Identifier, Name, Parent, Value FROM Sensor WHERE SensorType ='Temperature'"
+          namespace: root\LibreHardwareMonitor
+        source(2):
+          # Source 3 = Merge Source 1 and 2 Together
+          # SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
+          type: tableJoin
+          leftTable: $monitors.temperature.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 3
+          rightKeyColumn: 1
+          computes:
+            # Perform some computation to exclude non-real sensors, and calculate alarm thresholds when possible
+            # SensorId;Name;WarningThreshold;AlarmThreshold;
+          - type: awk
+            script: $file("embeddedFile-2")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # Instance table
+        # SensorId;Name;WarningThreshold;AlarmThreshold;
+        source: $monitors.temperature.discovery.sources.source(2)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          sensor_location: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: PC
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = The Processor WMI class
+          # Identifier, Value
+          type: wmi
+          query: "SELECT Identifier, Value FROM Sensor where SensorType = 'Temperature'"
+          namespace: root\LibreHardwareMonitor
+      mapping:
+        # Value Table
+        # Identifier, Value
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source 1 = Hardware Storage
+          # Identifier, Name, HardwareType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Storage Type
+            # Identifier, Name, HardwareType
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: Storage
+        source(2):
+          # Source 2 = Storage Sensor
+          # Parent
+          type: wmi
+          query: SELECT Parent FROM Sensor where Name = 'Available Spare' OR Name = 'Remaining Life'
+          namespace: root\LibreHardwareMonitor
+        source(3):
+          # Source 3 = Table join to keep only disks that do have an Endurance Remaining sensor
+          # Identifier, Name, HardwareType, Identifier
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # Instance table
+        # Identifier, Name, HardwareType
+        source: $monitors.physical_disk.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          vendor: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: PC
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Source 1 = Storage Sensor
+          # Identifier, Parent, Value, Name
+          type: wmi
+          query: "SELECT Identifier, Parent, Value, Name FROM Sensor where Name = 'Available Spare' OR Name = 'Remaining Life'"
+          namespace: root\LibreHardwareMonitor
+        source(2):
+          # LeftTable = SensorIdentifier, SensorParent, SensorValue, SensorName
+          # RightTable = Identifier, Name, HardwareType
+          # Match SensorParent with HardwareIdentifier
+          # TableJoint = SensorIdentifier, SensorParent, SensorValue, SensorName, HardwareIdentifier,  HardwareName, HardwareType
+          type: tableJoin
+          leftTable: $monitors.physical_disk.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+      mapping:
+        # Instance table
+        # SensorIdentifier, SensorParent, SensorValue, SensorName, HardwareIdentifier,  HardwareName, HardwareType
+        source: $monitors.physical_disk.collect.sources.source(2)$
+        deviceId: $column(2)
+        metrics:
+          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(3))
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source 1 = Fan Sensor
+          # Identifier, Name, Parent
+          type: wmi
+          query: "SELECT Identifier, Name, Parent FROM Sensor WHERE SensorType = 'Fan'"
+          namespace: root\LibreHardwareMonitor
+        source(2):
+          # Source 3 = Merge Source 1 and 2 Together
+          # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+          type: tableJoin
+          leftTable: $monitors.fan.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 3
+          rightKeyColumn: 1
+          computes:
+          # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+          - type: leftConcat
+            column: 5
+            value: ' - '
+            # Concatene SensorName and HardwareName
+            # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+          - type: leftConcat
+            column: 5
+            value: Column(2)
+      mapping:
+        # Instance table
+        # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+        source: $monitors.fan.discovery.sources.source(2)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: PC
+          name: $column(5)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = The Processor WMI class
+          # Identifier, Value
+          type: wmi
+          query: "SELECT Identifier, Value FROM Sensor where SensorType ='Fan'"
+          namespace: root\LibreHardwareMonitor
+      mapping:
+        # Value Table
+        # Identifier, Value
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(2)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source 1 = Hardware CPU
+          # Identifier, Name, HardwareType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Storage Type
+            # HardwareIdentifier, HardwareName, HardwareType
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: cpu
+        source(2):
+          # Source 2 = CPU Power Consumption
+          # Name, Parent, CPUPowerConsumption
+          type: wmi
+          query: "SELECT Name, Parent, Value FROM Sensor where SensorType='Power' and Name = 'CPU Package' or Name ='Package'"
+          namespace: root\LibreHardwareMonitor
+        source(3):
+          # Source 1 : Hardware ID and Name
+          # Source 2 : CPUPowerConsumption
+          # HardwareIdentifier, HardwareName, HardwareType, Name, Parent, CPUPowerConsumption
+          type: tableJoin
+          leftTable: $monitors.cpu.discovery.sources.source(1)$
+          rightTable: $monitors.cpu.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          defaultRightLine: ;;;;
+          computes:
+          # If CPUPowerConsumption < 1 then disable PowerConsumption parameter
+          - type: extract
+            column: 6
+            subColumn: 1
+            subSeparators: .
+          # Replace 0 by empty: ParameterActivation must be empty to be disabled
+          - type: replace
+            column: 6
+            existingValue: 0
+            newValue: ""
+      mapping:
+        # Instance table
+        # HardwareIdentifier, HardwareName, HardwareType, Name, Parent, CPUPowerConsumption
+        source: $monitors.cpu.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: PC
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Sensor type 'Clock'
+          # SensorName;CpuDeviceID;Clock
+          type: wmi
+          query: "SELECT Name, Parent, Value FROM Sensor where SensorType ='Clock'"
+          namespace: root\LibreHardwareMonitor
+          computes:
+            # Process that through an AWK script that will compute the clock speed average
+            # (yes, we have the clock speed for each core, and they can be different)
+            # CpuDeviceID;AverageClock
+          - type: awk
+            script: $file("embeddedFile-3")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3"
+        source(2):
+          # SensorName;CpuDeviceID;CPUPowerConsumption
+          type: wmi
+          query: "SELECT Name, Parent, Value FROM Sensor where SensorType='Power' and Name = 'CPU Package' or Name ='Package'"
+          namespace: root\LibreHardwareMonitor
+        source(3):
+          # Source 1 : Hardware ID and Name
+          # Source 2 : CPUPowerConsumption
+          # CpuDeviceID;AverageClock;SensorName;CpuDeviceID;CPUPowerConsumption
+          type: tableJoin
+          leftTable: $monitors.cpu.collect.sources.source(1)$
+          rightTable: $monitors.cpu.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          defaultRightLine: ;;;;
+      mapping:
+        # The Collect Table
+        # CpuDeviceID;AverageClock;SensorName;CpuDeviceID;CPUPowerConsumption
+        source: $monitors.cpu.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.cpu.speed: megaHertz2Hertz($column(2))
+          hw.power{hw.type="cpu"}: $column(5)
+          hw.energy{hw.type="cpu"}: fakeCounter($column(5))
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source 1 = Hardware Memory
+          # Identifier, Name, HardwareType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Storage Type
+            # Identifier, Name, HardwareType
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: memory
+        source(2):
+          # Source 2 = Memory Sensor
+          # Name, Parent, MemoryAvailable
+          type: wmi
+          query: "SELECT Name, Parent, Value FROM Sensor where Name = 'Memory Available' OR Name ='Memory Used'"
+          namespace: root\LibreHardwareMonitor
+        source(3):
+          # Keep only Memory Available
+          # Name, Parent, MemoryAvailable
+          type: copy
+          from: $monitors.memory.discovery.sources.source(2)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: Memory Available
+        source(4):
+          # Keep only ram
+          # Name, Parent, MemoryUsed
+          type: copy
+          from: $monitors.memory.discovery.sources.source(2)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: Memory Used
+        source(5):
+          # Source 2 : MemoryAvailable
+          # Source 3 : MemoryUsed
+          # Name, Parent, MemoryAvailable, Name, Parent, MemoryUsed
+          type: tableJoin
+          leftTable: $monitors.memory.discovery.sources.source(3)$
+          rightTable: $monitors.memory.discovery.sources.source(4)$
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          computes:
+            # Clean duplicate column
+            # Parent, MemoryAvailable; MemoryUsed
+          - type: keepColumns
+            columnNumbers: "2,3,6"
+            # Sum up MemoryAvailable and MemoryUsed to get MemorySize
+            # Parent, MemorySize; MemoryUsed
+          - type: add
+            column: 2
+            value: Column(3)
+            # Convert to GB
+            # Parent, MemorySize; MemoryUsed
+          - type: multiply
+            column: 2
+            value: 1024
+        source(6):
+          # Source 1 : MemoryName
+          # Source 6 : MemorySize
+          # Identifier, Name, HardwareType, Parent, MemorySize; MemoryUsed
+          type: tableJoin
+          leftTable: $monitors.memory.discovery.sources.source(1)$
+          rightTable: $monitors.memory.discovery.sources.source(5)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # Instance table
+        # Identifier, Name, HardwareType, Parent, MemorySize; MemoryUsed
+        source: $monitors.memory.discovery.sources.source(6)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          hw.parent.id: PC
+          name: "sprintf(\"%s (%s MB)\", $column(2), $column(5))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(5))
+  gpu:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Source 1 = Hardware GPU
+          # Identifier, Name, HardwareType
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only GPU
+            # Identifier, Name, HardwareType
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: gpu
+            # Remove the Gpu word in HardwareVendor
+            # Identifier, Name, HardwareType
+          - type: replace
+            column: 3
+            existingValue: gpu
+            newValue: ""
+        source(2):
+          # Source 2 = Retrieve GPU Memory Size from Sensor
+          # Parent, Name, Value
+          type: wmi
+          query: "SELECT Parent, Name, Value FROM Sensor WHERE Name = 'GPU Memory Total'"
+          namespace: root\LibreHardwareMonitor
+        source(3):
+          # Source 3 = Joint source
+          # Source 1 : Get the Hardware Name
+          # Source 2 : Get the Memory Size
+          # Identifier, Name, HardwareType, ParentSensor, SensorName, MemorySize
+          type: tableJoin
+          leftTable: $monitors.gpu.discovery.sources.source(1)$
+          rightTable: $monitors.gpu.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+      mapping:
+        # Instance table
+        # Identifier, Name, HardwareType, ParentSensor, SensorName, MemorySize
+        source: $monitors.gpu.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: PC
+          name: "sprintf(\"%s (%s - %mibyhf.s)\", $column(2), $column(3), $column(6))"
+        metrics:
+          hw.gpu.memory.limit: mebiByte2Byte($column(6))
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = The Processor WMI class
+          # Name, Parent, Value, SensorType
+          type: wmi
+          query: "SELECT Name, Parent, Value, SensorType FROM Sensor"
+          namespace: root\LibreHardwareMonitor
+          computes:
+          # Name, gpuId, Value, SensorType
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9"
+      mapping:
+        # Value Table
+        # gpuID, VideoDecode, VideoEncode, Memory, PowerConsumption, ReveivedBytes, TransmittedBytes, UsedTimePercent
+        source: $monitors.gpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.gpu.utilization{task="decoder"}: percent2Ratio($column(2))
+          hw.gpu.utilization{task="encoder"}: percent2Ratio($column(3))
+          hw.gpu.memory.utilization: percent2Ratio($column(4))
+          hw.power{hw.type="gpu"}: $column(5)
+          hw.energy{hw.type="gpu"}: fakeCounter($column(5))
+          hw.gpu.io{direction="receive"}: fakeCounter($column(6))
+          hw.gpu.utilization{task="general"}: percent2Ratio($column(8))

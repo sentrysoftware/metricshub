@@ -1,0 +1,45 @@
+# if [ $( ( lsdev -Cc disk; lsdev -Cc tape ) | grep $(lsdev -p $1 | grep fscsi | awk '{print $3}') | grep -v hdiskpower | grep Avai | wc -l ) -ne 0 ]; then
+FSC=$(/usr/sbin/lsdev -p $1 -r name |/usr/bin/grep fscsi )
+
+# Manage Multipathing
+if [  $((/usr/sbin/lspath -p $FSC -s Enabled ; /usr/sbin/lsdev -p $FSC |grep Available)| /usr/bin/grep -v hdiskpower  | /usr/bin/wc -l) -ne 0 ]; then
+   /usr/sbin/fcstat $1 | awk '
+              BEGIN {
+                    nicStatus = "";
+                    errorFrames = 0;
+                    dumpFrames = 0;
+                    receivedFrames = 0;
+                    transmittedFrames = 0;
+                    linkStatus = "WARN";
+                    inputBytes = 0;
+                    outputBytes = 0;
+                    speed = "";
+                    }
+              ($1 == "Frames:") {
+                                 transmittedFrames = $2
+                                 receivedFrames = $3
+                                }
+              ($1 == "Error" && $2 == "Frames:") {
+                                                  errorFrames = $3
+                                                 }
+              ($1 == "Dumped" && $2 == "Frames:") {
+                                                   dumpFrames = $3
+                                                  }
+              /^ *Port Speed \(running\): +[0-9]+ GBIT/ {
+                                                         linkStatus = "OK"
+                                                         speed = $4 * 1000
+                                                        }
+              /^ +Input Bytes: +[0-9]+ *$/ {
+                                            inputBytes = inputBytes + $3
+                                           }
+              /^ +Output Bytes: +[0-9]+ *$/ {
+                                             outputBytes = outputBytes + $3
+                                            }
+              END {
+                   totalErrors = errorFrames + dumpFrames;
+                   printf("MSHW;%s;%.0f;%.0f;%.0f;%.0f;%.0f;%.0f;\n", linkStatus, speed, totalErrors, receivedFrames, transmittedFrames, inputBytes, outputBytes);
+                  }
+                  '
+  else
+      echo "MSHW;WARN;;;;;;;"
+fi

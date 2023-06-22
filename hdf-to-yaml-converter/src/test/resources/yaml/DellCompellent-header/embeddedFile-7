@@ -1,0 +1,32 @@
+BEGIN {FS=";";}
+{
+
+
+    if ($5 ~ /^ScControllerPortSasConfiguration/)
+      {
+        split($3,outputarray," ")
+        if (outputarray[4] == "Gbps")
+          {
+            speed = outputarray[3] * 1000
+          }
+        else
+          {
+            speed = outputarray[3]
+          }
+        print $1";"$2";"speed";"$4
+      }
+    else
+    {
+        split($3,outputarray," ")
+        if (outputarray[2] == "Gbps")
+          {
+            speed = outputarray[1] * 1000
+          }
+        else
+          {
+            speed = outputarray[1]
+          }
+        print $1";"$2";"speed";"$4
+    }
+
+}

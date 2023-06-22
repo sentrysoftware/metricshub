@@ -1,0 +1,19 @@
+---
+extends:
+- ../VMwareESX5iLUN-header/VMwareESX5iLUN-header
+constants:
+  _ExecuteLocally: '"0"'
+  _EsxcliConstant: esxcli
+connector:
+  displayName: VMware ESXi 5 LUN (SSH)
+  platforms: VMWare ESXi
+  reliesOn: ESX SSH interface
+  version: 1.0
+  information: This connector discovers the LUNs of an ESX5i server. It requires SSH access to the ESX host.
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Linux
+    - OOB

@@ -1,0 +1,102 @@
+---
+connector:
+  displayName: Oracle/Sun Solaris - Processors (psrinfo)
+  platforms: Oracle/Sun
+  reliesOn: "Sun Solaris system commands (psrinfo, etc.)"
+  information: This connector discovers and monitors the processor in any Sun SPARC-based Solaris machine through the psrinfo system command.
+  version: 1.1
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Solaris
+    criteria:
+    # OS should be SunOS or Solaris
+    - type: deviceType
+      keep:
+      - SunOS
+      - Solaris
+    # psrinfo should return something
+    - type: osCommand
+      commandLine: /usr/sbin/psrinfo
+      expectedResult: on-line
+monitors:
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = psrinfo -v
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -v
+          computes:
+            # Send psrinfo'soutput through awk $file("embeddedFile-1")$
+            # cpuID;cpuModel;cpuSpeed
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # Instance table = source(1)
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: $column(2)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = psrinfo -v
+          type: osCommand
+          commandLine: /usr/sbin/psrinfo -v
+          computes:
+            # Send psrinfo's output through awk $file("embeddedFile-2")$
+            # cpuID;cpuStatus
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,5"
+            # Duplicate the status column
+            # cpuID;cpuStatus;cpuStatus
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # cpuID;PATROLStatus;cpuStatus
+          - type: translate
+            column: 2
+            translationTable: cpuStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # cpuID;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: cpuStatusInformationTranslationTable
+      mapping:
+        # ValueTable = source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  cpuStatusInformationTranslationTable:
+    faulted: Faulted
+    on-line: On-line
+    off-line: Off-line
+    no-intr: Non-interruptible
+    Default: Unknown Status
+    powered off: Powered off
+  cpuStatusTranslationTable:
+    faulted: failed
+    on-line: ok
+    off-line: failed
+    no-intr: ok
+    Default: UNKNOWN
+    powered off: failed

@@ -1,0 +1,51 @@
+BEGIN { capture = 0 }
+{
+    if ($1 == "Domain" && $2 == "Configurations:")
+    {
+        capture = 1
+    }
+
+    if (NF == 0)
+    {
+        capture = 0
+    }
+
+    if (capture == 1 && substr($0, 1, 2) ~ /^[A-Z] $/)
+    {
+        domainTag = $2
+        if (domainTag == "-")
+        {
+            domainTag = ""
+        }
+
+        nodeName = $3
+        if (nodeName == "-")
+        {
+            nodeName = ""
+        }
+
+        if (domainTag != "" && nodeName != "")
+        {
+            label = domainTag " - " nodeName
+        }
+        else if (domainTag != "" && nodeName == "")
+        {
+            label = domainTag
+        }
+        else if (domainTag == "" && nodeName != "")
+        {
+            label = nodeName
+        }
+        else
+        {
+            label = ""
+        }
+
+        status = $4
+        for (i=5 ; i<=NF ; i++)
+        {
+            status = status " " $i
+        }
+        print "MSHW;Domain;" $1 ";" label ";" status
+    }
+}

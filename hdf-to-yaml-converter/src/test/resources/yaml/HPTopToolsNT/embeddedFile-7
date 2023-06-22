@@ -1,0 +1,2 @@
+<!--getmultiple api="hpiepapi" name="HPIEPAPI_GetPowerSupplyNumberOfRows" entry="HPIEPAPI_GetPowerSupplyTableProp" default="No manageable power supplies are installed on this system"-->MSHW;PowerSupply;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Status" default="unknown"-->;<!--getprop name="Present" default="unknown"-->
+<!--endmultiple-->

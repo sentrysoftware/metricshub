@@ -1,0 +1,27 @@
+BEGIN { FS = ";" }
+{
+    tierID = $1
+
+    diskA = $2
+    diskB = $3
+    diskC = $4
+    diskD = $5
+    diskE = $6
+    diskF = $7
+    diskG = $8
+    diskH = $9
+    diskP = $10
+    diskS = $11
+
+    print "MSHW;Tier " tierID " Disk A;Data;" diskA
+    print "MSHW;Tier " tierID " Disk B;Data;" diskB
+    print "MSHW;Tier " tierID " Disk C;Data;" diskC
+    print "MSHW;Tier " tierID " Disk D;Data;" diskD
+    print "MSHW;Tier " tierID " Disk E;Data;" diskE
+    print "MSHW;Tier " tierID " Disk F;Data;" diskF
+    print "MSHW;Tier " tierID " Disk G;Data;" diskG
+    print "MSHW;Tier " tierID " Disk H;Data;" diskH
+    print "MSHW;Tier " tierID " Disk P;Parity;" diskP
+    print "MSHW;Tier " tierID " Disk S;Spare;" diskS
+
+}

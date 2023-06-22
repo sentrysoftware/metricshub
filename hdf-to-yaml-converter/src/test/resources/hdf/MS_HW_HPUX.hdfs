@@ -73,7 +73,7 @@ Enclosure.Discovery.Instance.Type="Computer"
 //
 // Discovery
 
-// Source(1) = sh -%EmbeddedFile(2)%
+// Source(1) = sh -%EmbeddedFile(1)%
 // cpuID;cpuSpeed;cpuModel
 cpu.Discovery.Source(1).Type="OsCommand"
 cpu.Discovery.Source(1).CommandLine="/bin/sh %EmbeddedFile(1)%"

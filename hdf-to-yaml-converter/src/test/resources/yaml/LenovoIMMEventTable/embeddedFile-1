@@ -1,0 +1,324 @@
+function power(x, n) {
+    r = 1;
+    #Convert n to integer because if it's a negative value, java considere it as a string (I think :-) )
+    n=n*1
+    if (n > 0) { for (i = 0; i < n; i++) { r = r * x; } }
+    if (n < 0) { for (i = 0; i > n; i--) { r = r / x; } }
+    return r;
+}
+
+function hex2dec(hex) {
+    digits=split(hex,hexArray,"") ;
+    decimal=0
+    for (n=1;n<=digits;n++) {
+      place = digits - n
+      multiplier = power(16,place)
+      gsub(/[Aa]/,10,hexArray[n])
+      gsub(/[Bb]/,11,hexArray[n])
+      gsub(/[Cc]/,12,hexArray[n])
+      gsub(/[Dd]/,13,hexArray[n])
+      gsub(/[Ee]/,14,hexArray[n])
+      gsub(/[Ff]/,15,hexArray[n])
+      decimal=decimal + hexArray[n] * multiplier
+      }
+    return decimal
+    }
+
+function previousXDays(year,month,day,numberOfDays) {
+    for (n=1;n<=numberOfDays;n++) {
+        datesList[n] = month "/" day "/" year
+        datesList[n"a"] = "0" month "/" day "/" year
+        datesList[n"b"] = month "/0" day "/" year
+        datesList[n"c"] = "0" month "/0" day "/" year
+    if (day == 1) {
+            if (month == 1) { day = 31 ; month = 12 ; year = year - 1}
+            if (month == 2) { day = 31 ; month = month - 1}
+            if (month == 3) { day = 28 ; month = month - 1 ; datesList["0"] = month "/29/" year}
+            if (month == 4) { day = 31 ; month = month - 1}
+            if (month == 5) { day = 30 ; month = month - 1}
+            if (month == 6) { day = 31 ; month = month - 1}
+            if (month == 7) { day = 30 ; month = month - 1}
+            if (month == 8) { day = 31 ; month = month - 1}
+            if (month == 9) { day = 31 ; month = month - 1}
+            if (month == 10) { day = 30 ; month = month - 1}
+            if (month == 11) { day = 31 ; month = month - 1}
+      if (month == 12) { day = 30 ; month = month - 1}
+            }
+        else {
+            day = day - 1
+            }
+
+        }
+    }
+
+function cancelEvent(searchText) {
+    searchTextLower = tolower(searchText)
+    for (id in faultArray) {
+        faultTextLower = tolower(faultArray[id])
+        if ( faultTextLower ~ searchTextLower ) { faultArray[id] = "" }
+        }
+    }
+
+
+BEGIN {FS="[;]";faultFound="0"}
+$1 == "CurrentDate" {
+  split($2,dateArray," ")
+  year = dateArray[1] dateArray[2]
+    year = hex2dec(year)
+    month = hex2dec(dateArray[3])
+    day = hex2dec(dateArray[4])
+  # The last number in this function sets the number of days before unknown events are discarded
+    previousXDays(year,month,day,30) ;
+    }
+$1 ~ /^[0-9]*$/ {
+  # Check if this is a fault
+  severity = $3
+    eventDescription = $2
+    eventDate = $4
+    if ( severity ~ /[01]/ && eventDescription !~ /Numeric sensor/ )  {
+    # Scan the array to see if the fault is already there
+    newFault = "1"
+        for (id in faultArray) {
+            if ( faultArray[id] ==  eventDescription ) { newFault = "0" }
+            }
+        if ( newFault == "1")     { faultArray[$1] = eventDescription ; faultFound = "1" ; faultTimeStamp[$1] = eventDate ; faultSeverity[$1] = severity }
+        }
+   # Known Messages (in Pairs of Fault/Fix, no as efficient, but easier to maintain)
+    if ( faultFound == "1") {
+        # Drive Failures
+        if ( eventDescription ~ /Failure Predicted on drive/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Failure no longer Predicted on drive/ ) {
+                split(eventDescription,eventDescriptionArray," ")
+                searchText = "Failure Predicted on drive " eventDescriptionArray[7] " " eventDescriptionArray[8]
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /The Drive.*has been disabled due to a detected fault/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /The Drive.*has been enabled/ ) {
+                searchText = eventDescription ; gsub(/has.*/,"",searchText) ;
+                searchText = searchText "has been disabled"
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /The Drive.*has been removed from unit/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /The Drive.*has been added/ ) {
+                searchText = eventDescription ; gsub(/has.*/,"",searchText) ;
+                searchText = searchText "has been removed"
+                cancelEvent(searchText)
+                }
+        # Power / Fan
+        if ( eventDescription ~ /Redundancy Lost for / ) { eventDate = "NA" }
+        if ( eventDescription ~ /Redundancy .* has been restored/ ) {
+                searchText = eventDescription ; gsub(/has.*/,"",searchText) ; gsub(/Redundancy /,"Redundancy Lost for ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Redundancy .* has deasserted/ ) {
+                searchText = eventDescription ; gsub(/ has.*/," has asserted",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Non-redundant.Insufficient Resources for.*has asserted/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Non-redundant:Insufficient Resources for.*has deasserted/ ) {
+                searchText = eventDescription ; gsub(/has.*/,"",searchText) ;
+                searchText = searchText ;
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /has a Configuration Mismatch/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /has Recovered from a Configuration Mismatch/ ) {
+                searchText = eventDescription ; gsub(/ has.*/," has a Configuration Mismatch",searchText) ;
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /has Failed/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /has returned to OK status/ ) {
+                searchText = eventDescription ; gsub(/ has.*/," has Failed",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /has lost input/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /has returned to a Normal Input State/ ) {
+                searchText = eventDescription ; gsub(/ has.*/," has lost input",searchText) ;
+                searchText = searchText ;
+                cancelEvent(searchText)
+                }
+        # CPUs
+        if ( eventDescription ~ /.*has Failed with IERR/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /.*has Recovered from IERR/  ) {
+                searchText = eventDescription ; gsub(/has.*/,"",searchText)
+                searchText = searchText "has Failed with IERR";
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /is operating in a Degraded State/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /is no longer operating in a Degraded State/  ) {
+                searchText = eventDescription ; gsub(/is no longer operating in a Degraded State/,"is operating in a Degraded State",searchText)
+                cancelEvent(searchText)
+                }
+
+        # Memory
+        if ( eventDescription ~ /Disabled on Subsystem/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Enabled on Subsystem/  ) {
+                searchText = eventDescription ; gsub(/Enabled on Subsystem/,"Disabled on Subsystem",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Uncorrectable error detected for/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Uncorrectable error recovery detected for/  ) {
+                searchText = eventDescription ; gsub(/ on .*/," on",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Scrub Failure for/ && eventDescription !~ /recovered/  ) { eventDate = "NA" }
+        if ( eventDescription ~ /Scrub Failure for.*recovered/  ) {
+                searchText = eventDescription ; gsub(/ on .*/," on",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Configuration [Ee]rror for/ && eventDescription !~ /deasserted/  ) { eventDate = "NA" }
+        if ( eventDescription ~ /Configuration [Ee]rror for.*deasserted/  ) {
+                searchText = eventDescription ; gsub(/ on .*/," on",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /on Subsystem.*Throttled/ && eventDescription !~ /is no longer/  ) { eventDate = "NA" }
+        if ( eventDescription ~ /on Subsystem.*is no longer Throttled/  ) {
+                searchText = eventDescription ; gsub(/is no longer Throttled.*/,"",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /An Over-Temperature Condition has been detected on the/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /An Over-Temperature Condition has been removed on the/  ) {
+                searchText = eventDescription ; gsub(/removed/,"detected",searchText) ; gsub(/ on Subsystem.*/,"",searchText)
+                cancelEvent(searchText)
+                }
+        # Logical Disk
+        if ( eventDescription ~ /Array.*is in critical condition/ ) { eventDate = "NA"}
+        if ( eventDescription ~ /Critical Array.*has.*deasserted/  ) {
+                searchText = eventDescription ; gsub(/Critical Array /,"Array ",searchText) ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                searchText = eventDescription ; gsub(/Critical Array /,"Array in system ",searchText) ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+    if ( eventDescription ~ /Array.*has failed/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Array in system.*has been restored/  ) {
+                searchText = eventDescription ; gsub(/Array in system /,"",searchText) ; gsub(/ has.*/," ",searchText)
+                searchText = "Array " searchText ;
+                cancelEvent(searchText)
+                }
+    if ( eventDescription ~ /has been disabled due to a detected fault/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /has been enabled/  ) {
+                searchText = eventDescription ; gsub(/disabled due to a detected.*/,"enabled",searchText)
+                cancelEvent(searchText)
+                }
+
+        # slot
+    if ( eventDescription ~ /Fault in slot/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Fault condition removed on slot/  ) {
+                searchText = eventDescription ; gsub(/Fault condition removed on slot/,"Fault in slot",searchText) ;
+                searchText = "Array " searchText ;
+                cancelEvent(searchText)
+                }
+    if ( eventDescription ~ /A PCI PERR has occurred on system/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /A PCI PERR recovery has occurred on system/  ) {
+                searchText = eventDescription ; gsub(/has occurred on system/,"recovery has occurred on system",searchText)
+                cancelEvent(searchText)
+                }
+    if ( eventDescription ~ /A Fatal Bus Error has occurred on bus/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /A PCI PERR recovery has occurred on system/  ) {
+                searchText = eventDescription ; gsub(/ has recovered from a Fatal Bus Error/,"",searchText)
+                gsub(/Bus /,"A Fatal Bus Error has occurred on bus ",searchText)
+                cancelEvent(searchText)
+                }
+
+
+# Batteries
+# Sensor Planar VBAT has detected low battery voltage
+
+        # Generic Sensor Event
+        if ( eventDescription ~ /Device.*has been removed from unit / ) { eventDate = "NA" }
+        if ( eventDescription ~ /Device.*has been added/ ) {
+                searchText = eventDescription ; gsub(/has.*/,"",searchText) ;
+                searchText = searchText "has been removed"
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has indicated limit exceeded/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has indicated limit no longer exceeded/  ) {
+                searchText = eventDescription ; gsub(/ limit.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+    if ( eventDescription ~ /Sensor.*has asserted/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has deasserted/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has transitioned to critical from a less severe state/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has deasserted the transition from less severe state to critical/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has transitioned from a less severe state to critical/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has deasserted the transition to critical from less severe state/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has transitioned to non-recoverable from a less severe state/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has deasserted the transition from less severe state to non-recoverable/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has transitioned from a less severe state to non-recoverable/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has deasserted the transition to non-recoverable from less severe state/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has transitioned from normal to non-critical state/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has deasserted the transition from normal to non-critical state/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has transitioned to non-critical state from normal/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has deasserted the transition to non-critical state from normal/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        if ( eventDescription ~ /Sensor.*has indicated a degraded state/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has indicated an off-line state/ ) { eventDate = "NA" }
+        if ( eventDescription ~ /Sensor.*has indicated a on-line state/  ) {
+                searchText = eventDescription ; gsub(/ has.*/," ",searchText)
+                cancelEvent(searchText)
+                }
+        # Unwanted Events (ignore)
+         if ( eventDescription ~ /BOFM/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /DRIVER HEALTH/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /[Pp]ower [Cc]ap/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /Software/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /POST Error/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /firmware mismatch/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /firmware error/ && ( eventDescription ~ /[Kk]eyboard/ || eventDescription ~ /[Vv]ideo/ )) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /[Mm]anagement [Cc]ontroller/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /[Ww]atchdog/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /Certificate Authority/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /.*has been Power Cycled/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /.*has been turned off/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /.*has been turned on/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /^Sensor.*temperature/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /^Sensor.*voltage/ )  { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /Remote access attempt failed/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /DHCP/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /Management Controller Test Alert Generated/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        if ( eventDescription ~ /^Security/ ) { faultArray[$1] = "" ; eventDate = "NA" }
+        # If Event Not Known (TimeStamp != N/A) and severity = 0 / 1, then delete events that are too old (length set in Date Function)
+        if ( severity ~ /[01]/ && eventDate !~ "NA" ) {
+                eventTooOld = "1"
+
+                for ( n in datesList ) {
+                    if ( eventDate == datesList[n] ) { eventTooOld = "0"}
+                    }
+                if ( eventTooOld == "1") { faultArray[$1] = "" }
+                else { if ( faultArray[$1] ~ /.../ ) {faultArray[$1] = faultArray[$1] " (Event not in automatic acknowledgement list)"}}
+                }
+        }
+    }
+END {
+  status = "OK"
+    statusInformation = "Events here might be duplicates, check if any other events are present for this system.  "
+    for (id in faultArray) {
+        if ( faultArray[id] ~ /.../ ) {
+            if ( faultSeverity[id] == "0" ) { faultType = " Warning: "}
+            if ( faultSeverity[id] == "1" ) { faultType = " Error: "}
+            statusInformation = statusInformation faultTimeStamp[id] faultType faultArray[id] " - "
+            if ( faultSeverity[id] == "0" ) { status = "ALARM" }
+            if ( faultSeverity[id] == "1" && status != "ALARM") { status = "WARN" }
+            }
+        }
+    print "MSHW;EventLog;" status ";" statusInformation ";"
+    }

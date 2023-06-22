@@ -1,0 +1,36 @@
+BEGIN { portID = ""; WWPN = ""; linkStatus = "WARN"; TxPackets = ""; RxPackets = ""; TxBytes = ""; RxBytes = ""; ErrorCountFrames = ""; PortType = ""; speed = ""; SerialNumber = ""; }
+
+($1 == "FIBRE" && $2 == "CHANNEL" && $3 == "STATISTICS") {
+
+    # If portID != "", it means we're starting the section for a new port, so report the one that we've just processed
+      if (portID != "") { print("MSHW;" portID ";"  ";" linkStatus ";" ErrorCountFrames ";" TxPackets ";" RxPackets ";" TxBytes ";" RxBytes ";" speed ";Full;" PortType ";" WWPN ";WWN;"  SerialNumber ";" ); }
+    portID = ""; WWPN = ""; linkStatus = "WARN"; TxPackets = ""; RxPackets = ""; TxBytes = ""; RxBytes = ""; ErrorCountFrames = ""; PortType = ""; speed = ""; SerialNumber = "";
+
+    portID = $NF;
+}
+
+($1 == "World" && $2 == "Wide" && $3 == "Port") { WWPN = $NF; gsub(/^0x/, "" , WWPN); }
+($1 == "Port" && $2 == "WWN") { WWPN=$NF; gsub(/^0x/, "" , WWPN); }
+
+$0 ~ /[Aa]ttention.*[Tt]ype.*[Ll]ink.*[Uu]p/ {linkStatus = "OK"}
+$0 ~ /[Aa]ttention.*[Tt]ype.*[Ll]ink.*[Dd]own/ {linkStatus = "WARN"}
+($1 == "Port" && $2 == "Speed" && $3 ~ /running/) { speed = $(NF-1); speed = speed * 1000; linkStatus = "OK"; }
+
+($1 == "Port" && $2 == "Type:") { PortType = "HBA FC Port (" $3 ")"; }
+
+($1 == "Serial" && $2 == "Number:") { SerialNumber = $NF; }
+
+($1 ~ /^Frames/ && $2 ~ /^[0-9]+$/ && $3 ~ /^[0-9]+$/) { TxPackets = $2; RxPackets = $3; }
+($1 ~ /^Frames/ && $2 ~ /^[0-9]+$/ && $3 ~ /^Frames/ && $4 ~ /^[0-9]+$/) { TxPackets = $2; RxPackets = $4; }
+
+($1 ~ /Error/ && $2 ~ /Frames/ && $3 ~ /^[0-9]+$/) { if (ErrorCountFrames == "") { ErrorCountFrames = $3; } else { ErrorCountFrames = ErrorCountFrames + $3;} }
+
+($1 ~ /Dumped/ && $2 ~ /Frames/ && $3 ~ /^[0-9]+$/) { if (ErrorCountFrames == "") { ErrorCountFrames = $3; } else { ErrorCountFrames = ErrorCountFrames + $3;} }
+
+($1 ~ /Input/ && $2 ~ /Bytes/ && $3 ~ /^[0-9]+$/) { if (RxBytes == "") { RxBytes = $3; } else { RxBytes = RxBytes + $3;} }
+
+($1 ~ /Output/ && $2 ~ /Bytes/ && $3 ~ /^[0-9]+$/) { if (TxBytes == "") { TxBytes = $3; } else { TxBytes = TxBytes + $3;} }
+
+END {
+    if (portID != "") { print("MSHW;" portID ";"  ";" linkStatus ";" ErrorCountFrames ";" TxPackets ";" RxPackets ";" TxBytes ";" RxBytes ";" speed ";Full;" PortType ";" WWPN ";WWN;"  SerialNumber ";" ); }
+}

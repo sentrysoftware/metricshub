@@ -1,0 +1,596 @@
+---
+sudoCommands:
+- Second_Address
+connector:
+  detection:
+    criteria:
+    # Only for type storage
+    - type: deviceType
+      keep:
+      - Storage
+    # Checks that SMCLI is on the local machine - in Portal smcli is run from the RSM
+    - type: osCommand
+      commandLine: SMcli
+      executeLocally: true
+      expectedResult: Incorrect
+      errorMessage: SMCLI not installed or not in path.
+    # Checks that SMCLI returns a physical disk
+    - type: osCommand
+      commandLine: "SMcli %{HOSTNAME} %{SUDO:Second_Address} -c \"show _COMMAND;\""
+      executeLocally: true
+      expectedResult: drive
+      errorMessage: "SMCLI did not return any disks, check hostname."
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the output of smcli "show enclosure / show storage array
+          type: osCommand
+          commandLine: "SMcli %{HOSTNAME} %{SUDO:Second_Address} -c \"show _COMMAND;\""
+          executeLocally: true
+          timeout: 360
+          computes:
+          # Process smcli's output through awk EmbeddedFile(1)
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            # Exclude StatusInformation that contain Not Present
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;vendor;serialNumber;<blank>;<blank>;
+          - type: excludeMatchingLines
+            column: 8
+            regExp: Not Present
+        source(2):
+          # Make a copy of show enclosure
+          # Enclosure.Discovery.Source(2)=$monitors.enclosure.discovery.sources.source(1)$
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Enclosures
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11         12      13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;vendor;serialNumber;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: enclosure
+      mapping:
+        # The discovery table
+        source: $monitors.enclosure.discovery.sources.source(2)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          vendor: $column(10)
+          serial_number: $column(11)
+          type: Storage
+          info: $column(9)
+          name: "sprintf(\"Storage: %s (%s)\", $column(4), $column(10))"
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the output of smcli "show enclosure / show storage array
+          type: osCommand
+          commandLine: "SMcli %{HOSTNAME} %{SUDO:Second_Address} -c \"show _COMMAND;\""
+          executeLocally: true
+          timeout: 360
+          computes:
+          # Process smcli's output through awk EmbeddedFile(1)
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            # Trim down the table to make it easier to understand
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11         12       13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;vendor;serialNumber;<blank>;<blank>;
+            # Type;ID;Status;StatusInformation;
+          - type: keepColumns
+            columnNumbers: "2,3,7,8"
+        source(2):
+          # Make a copy of show enclosure
+          # Source(1) will be for other classes that do NOT want a translated status value
+          # Source(2) will be for other classes that want a translated status value
+          # Type;ID;Status;StatusInformation;
+          # Enclosure.Collect.Source(2)=$monitors.enclosure.collect.sources.source(1)$
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Now translate Status into OK/Warning/Alarm
+            # Only the first two words of the status are used to translate.  The full status is left in StatusInformation
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: statusTranslationTable
+        source(3):
+          # Make a copy of Source(2) to use in Enclosure Collect
+          # Enclosure.Collect.Source(3)=$monitors.enclosure.collect.sources.source(2)$
+          type: tableUnion
+          tables:
+          - $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: enclosure
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(3)$
+        deviceId: $column(2)
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Blade Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11         12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;model;serialNumber;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: Controller
+      mapping:
+        # Instance Table
+        source: $monitors.blade.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          model: $column(10)
+          serial_number: $column(11)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: "sprintf(\"%s (%s)\", $column(4), $column(10))"
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: Controller
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.blade.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="blade"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Battery Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11       12    13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;<blank>;<blank>;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: battery
+      mapping:
+        # Instance Table
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: $column(4)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: battery
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="battery"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Fan Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11      12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;<blank>;<blank>;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: fan
+      mapping:
+        # Instance Table
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: $column(4)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: fan
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="fan"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only PowerSupply Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11      12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;<blank>;<blank>;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: power_supply
+      mapping:
+        # Instance Table
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: $column(4)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: power_supply
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only Temperature Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11      12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;<blank>;<blank>;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: temperature
+      mapping:
+        # Instance Table
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: $column(4)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: temperature
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only PhysicalDisk Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11         12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;sizeGB;serialNumber;model;vendor;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: physical_disk
+            # ConvertGB to B
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;sizeB;serialNumber;model;vendor;
+          - type: multiply
+            column: 10
+            value: 1000000000
+      mapping:
+        # Instance Table
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          serial_number: $column(11)
+          model: $column(12)
+          vendor: $column(13)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(13), $column(10))"
+        metrics:
+          hw.physical_disk.size: $column(10)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: physical_disk
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only LogicalDisk Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11      12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;Size;<blank>;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: DiskGroup
+            # ConvertGB to B
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;sizeB;serialNumber;model;vendor;
+          - type: multiply
+            column: 10
+            value: 1000000000
+      mapping:
+        # Instance Table
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(10))"
+        metrics:
+          hw.logical_disk.limit: $column(10)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: DiskGroup
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Keep only NetworkCard Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11            12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;MacAddress;AddressType;<blank>;<blank>;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: "EthernetPort,HostInterface,PhysicalDiskInterface"
+      mapping:
+        # Instance Table
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          physical_address: $column(10)
+          physical_address_type: $column(11)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: $column(4)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(1) (Not 2 as we need raw data)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+            # Keep only Enclosures
+            # Type;ID;LinkStatus;Speed>;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: "EthernetPort,HostInterface,PhysicalDiskInterface"
+            # Translate the Link STATUS
+            # Type;ID;PatrolStatus;Speed;
+          - type: translate
+            column: 3
+            translationTable: linkStatusTranslationTable
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;Speed;
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.network.up: legacyLinkStatus($column(3))
+          hw.network.bandwidth.limit: megaBit2Bit($column(4))
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Make a copy of Enclosure(1)
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+            # Exclude Known Classes
+            #  1    2   3   4         5           6             7      8            #    9            #        10        11      12     13
+            # MSHW;Type;ID;displayID;enclosureID;enclosureType;status;statusInformation;additionalInformation;<blank>;<blank>;<blank>;<blank>;
+          - type: excludeMatchingLines
+            column: 2
+            valueList: "ERROR;Enclosure,Controller,Battery,PhysicalDisk,PowerSupply,Fan,Temperature,DiskGroup,EthernetPort,HostInterface,PhysicalDiskInterface"
+      mapping:
+        # Instance Table
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          device_type: $column(2)
+          info: $column(9)
+          hw.parent.type: $column(6)
+          hw.parent.id: $column(5)
+          name: "sprintf(\"%s: %s\", $column(2), $column(4))"
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Make a copy of Enclosure Source(2)
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+            # Exclude Known Classes
+            # Type;ID;PatrolStatus;StatusInformation;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: "ERROR;Enclosure,Controller,Battery,PhysicalDisk,PowerSupply,Fan,Temperature,DiskGroup,EthernetPort,HostInterface,PhysicalDiskInterface"
+      mapping:
+        # Value Table
+        # Type;ID;PatrolStatus;StatusInformation;
+        source: $monitors.other_device.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+translations:
+  linkStatusTranslationTable:
+    Down: degraded
+    Connected: ok
+    Failed: degraded
+    Up: ok
+    Default: degraded
+  statusTranslationTable:
+    ? ""
+    : ""
+    Near expiration: degraded
+    Failed: failed
+    Contacting Storage: degraded
+    Offline: failed
+    Battery maintenance: ok
+    Removed: failed
+    Default: degraded
+    Unresponsive: failed
+    Needs Attention: failed
+    By-passed: failed
+    Battery learning: ok
+    Battery replacement: failed
+    Needs Upgrade: failed
+    Online: ok
+    Optimal: ok
+    Fixing: degraded
+    Impending failure: degraded

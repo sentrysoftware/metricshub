@@ -1,0 +1,22 @@
+BEGIN {FS=";";}
+{
+if ($4 ~ /^ScEnclosure/)
+    {
+         split($2,outputarray,".")
+         enclosureID=outputarray[1]
+         if ($4  ~ /^ScEnclosureAudibleAlarm/)
+         {
+           print $1";ScEnclosureAudibleAlarm"$2";"$3";"$4";"enclosureID ";Enclosure"
+         }
+         else
+         {
+                    print $0 enclosureID ";Enclosure"
+         }
+    }
+else
+        {
+             split($2,outputarray,".")
+             controllerID=outputarray[1]"."outputarray[2]
+           print $0 controllerID";Blade"
+         }
+}

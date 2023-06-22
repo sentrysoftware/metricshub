@@ -1,0 +1,11 @@
+BEGIN {controller = "";
+         volume = ""; raid = ""; size = ""; status = "";
+       }
+
+$1 ~ /Device/ && $2 ~ /File/ {controller=$NF;gsub(/\057dev\057ciss/,"",controller);}
+
+/LOGICAL DRIVE SUMMARY/,/SCSI DEVICE SUMMARY/ {
+           if ($1 ~ /([0-9]+)/ && $2 ~ /[0-9+]+|([Aa][Dd][Gg])/ && $4 ~ /[TtGgMm][Bb]/) {size=$3; if ($4 ~ /[Mm][Bb]/) {size=size/1024}
+                                                                                   else if ($4 ~ /[Tt][Bb]/) {size=size*1024} ;
+                                                                          print ("MSHW;"controller";C" controller"-LD"$1";"$2";"size";"$5";Controller ciss"controller" - Logical Disk " $1";");}
+                                                }

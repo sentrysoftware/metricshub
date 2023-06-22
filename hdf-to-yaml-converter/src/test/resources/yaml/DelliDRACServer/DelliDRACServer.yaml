@@ -1,0 +1,900 @@
+---
+connector:
+  displayName: Dell iDRAC - Server
+  platforms: Dell PowerEdge
+  reliesOn: Dell iDRAC Management Card (iDRAC7 or Later)
+  version: 1.0
+  information: This connector provides hardware monitoring through Dell's iDRAC Management Card for Dell servers with iDRAC7 or later.
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - OOB
+    criteria:
+      # Detection
+      # Ensure that the systemDetailsGroup is populated
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.674.10892.5.4
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model code in the chassis table
+          # ChassisID;Status;Manufacturer;Model;SerialNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.300.10.1
+          selectColumns: "1,3,8,9,11"
+        source(2):
+          # Get the Power Consumption
+          # ChassisID;PowerConsumption;SensorType;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.30.1
+          selectColumns: "1,6,7"
+          computes:
+            # Keep Only Sensors of type 26 = Watts (the other is amps)
+            # ChassisID;PowerConsumption;SensorType;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 26
+        source(3):
+          # Join the Chassis to the Power Consumption
+          # ChassisID;Status;Manufacturer;Model;SerialNumber;ChassisID;PowerConsumption;SensorType;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+      mapping:
+        # The Instance Table
+        # ChassisID;Status;Manufacturer;Model;SerialNumber;ChassisID;PowerConsumption;SensorType;
+        source: $monitors.enclosure.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          vendor: Dell
+          model: $column(4)
+          serial_number: $column(5)
+          type: Computer
+          name: "sprintf(\"Computer: (%s %s)\", \"Dell\", $column(4))"
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # ChassisID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.300.10.1
+          selectColumns: "1,4"
+          computes:
+            # Duplicate systemStateChassisStatus
+            # ChassisID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first systemStateChassisStatus into a PATROL status
+            # ChassisID;PATROLStatus;Status
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate the second systemStateChassisStatus into a more readable string
+            # ChassisID;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+        source(2):
+          # Get the Power Consumption
+          # ChassisID;PowerConsumption;SensorType;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.30.1
+          selectColumns: "1,6,7"
+          computes:
+            # Keep Only Sensors of type 26 = Watts (the other is amps)
+            # ChassisID;PowerConsumption;SensorType;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 26
+        source(3):
+          # Join the Chassis to the Power Consumption
+          # ChassisID;PATROLStatus;statusInformation;ChassisID;PowerConsumption;SensorType;
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+      mapping:
+        # The ValueTable = Source(3)
+        # ChassisID;PATROLStatus;statusInformation;ChassisID;PowerConsumption;SensorType;
+        source: $monitors.enclosure.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+          hw.enclosure.power: $column(5)
+          hw.enclosure.energy: fakeCounter($column(5))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Temperature discovery
+          # TemperatureID;ChassisID;TemperatureStatus;Temperature;Location;UpperCritical;UpperNonCritical;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.700.20.1
+          selectColumns: "ID,1,5,6,8,10,11"
+          computes:
+            # Convert tenth of celsius to celsius
+            # TemperatureID;ChassisID;TemperatureStatus;Temperature;Location;UpperCritical;UpperNonCritical;
+          - type: divide
+            column: 6
+            value: 10
+          - type: divide
+            column: 7
+            value: 10
+      mapping:
+        # Instance Table
+        # TemperatureID;ChassisID;TemperatureStatus;Temperature;Location;UpperCritical;UpperNonCritical;
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(5)
+          info: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(7)
+          hw.temperature.limit{limit_type="high.critical"}: $column(6)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # TemperatureID;Status;Temperature;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.700.20.1
+          selectColumns: "ID,5,6"
+          computes:
+            # Duplicate the Status column
+            # TemperatureID;Status;Status;Temperature;
+          - type: duplicateColumn
+            column: 2
+            # The value given by OpenManage is in tenth of degrees, so convert it to degrees
+            # TemperatureID;Status;Status;Temperature;
+          - type: divide
+            column: 4
+            value: 10
+            # Translate first temperatureProbeStatus into a PATROL status
+            # TemperatureID;PATROLStatus;Status;Temperature;
+          - type: translate
+            column: 2
+            translationTable: EnvironmentStatusTranslationTable
+            # Translate second temperatureProbeStatus into a more readable string
+            # TemperatureID;PATROLStatus;statusInformation;Temperature;
+          - type: translate
+            column: 3
+            translationTable: EnvironmentStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Fan.discovery
+          # FanID;ChassisID;Status;Speed;Location;LowerNonCritical;LowerCritical;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.700.12.1
+          selectColumns: "ID,1,5,6,8,12,13"
+      mapping:
+        # Instance Table
+        # FanID;ChassisID;Status;Speed;Location;LowerNonCritical;LowerCritical;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(5)
+          info: $column(5)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: $column(7)
+          hw.fan.speed.limit{limit_type="low.critical"}: $column(6)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # FanID;Status;Speed
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.700.12.1
+          selectColumns: "ID,5,6"
+          computes:
+            # Duplicate the Status column
+            # FanID;Status;Status;Speed
+          - type: duplicateColumn
+            column: 2
+            # Translate first Fan.robeStatus into a PATROL status
+            # FanID;PATROLStatus;Status;Speed
+          - type: translate
+            column: 2
+            translationTable: EnvironmentStatusTranslationTable
+            # Translate second Fan.robeStatus into a more readable string
+            # FanID;PATROLStatus;statusInformation;Speed
+          - type: translate
+            column: 3
+            translationTable: EnvironmentStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $column(4)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Voltage.discovery
+          # VoltageID;ChassisID;Status;Location;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.20.1
+          selectColumns: "ID,1,5,8"
+      mapping:
+        # Instance Table
+        # VoltageID;ChassisID;Status;Speed;Location;LowerNonCritical;LowerCritical;
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: $column(4)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # VoltageID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.20.1
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the Status column
+            # VoltageID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Voltage.robeStatus into a PATROL status
+            # VoltageID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: EnvironmentStatusTranslationTable
+            # Translate second Voltage.robeStatus into a more readable string
+            # VoltageID;PATROLStatus;statusInformation;
+          - type: translate
+            column: 3
+            translationTable: EnvironmentStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="voltage"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Battery.discovery
+          # BatteryID;ChassisID;Location;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.50.1
+          selectColumns: "ID,1,7"
+      mapping:
+        # Instance Table
+        # BatteryID;ChassisID;Location;
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          type: $column(3)
+          info: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # BatteryID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.50.1
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the Status column
+            # BatteryID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Battery.robeStatus into a PATROL status
+            # BatteryID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate second Battery.robeStatus into a more readable string
+            # BatteryID;PATROLStatus;statusInformation;
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # PowerSupply.discovery
+          # PowerSupplyID;ChassisID;Location;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.12.1
+          selectColumns: "ID,1,8"
+      mapping:
+        # Instance Table
+        # PowerSupplyID;ChassisID;Location;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          power_supply_type: $column(3)
+          info: $column(3)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # PowerSupplyID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.600.12.1
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the Status column
+            # PowerSupplyID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first PowerSupply.robeStatus into a PATROL status
+            # PowerSupplyID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate second PowerSupply.robeStatus into a more readable string
+            # PowerSupplyID;PATROLStatus;statusInformation;
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # CPU.discovery
+          # CPUID;ChassisID;CPUStateSettings;Location;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.1100.32.1
+          selectColumns: "ID,1,4,7"
+          computes:
+            # Keep only installed CPUs
+            # CPUID;ChassisID;CPUStateSettings;Location;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: "2,4,6"
+            # Replace " Status" from CPU Location
+            # CPUID;ChassisID;CPUStateSettings;Location;
+          - type: replace
+            column: 4
+            existingValue: ' Status'
+            newValue: ""
+            # Add "Location: " to the location column
+            # CPUID;ChassisID;CPUStateSettings;Location;
+          - type: leftConcat
+            column: 4
+            value: "Location: "
+      mapping:
+        # Instance Table
+        # CPUID;ChassisID;CPUStateSettings;Location;
+        source: $monitors.cpu.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          info: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(1)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # CPUID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.1100.32.1
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the Status column
+            # CPUID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first CPU.robeStatus into a PATROL status
+            # CPUID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate second CPU.robeStatus into a more readable string
+            # CPUID;PATROLStatus;statusInformation;
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="cpu"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Memory.discovery
+          # MemoryID;ChassisID;Type;Location;Size;Speed;Manufacturer;PartNumber;SerialNumber
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.1100.50.1
+          selectColumns: "ID,1,7,8,14,15,21,22,23"
+          computes:
+            # Translate memory from KM in MB
+            # MemoryID;ChassisID;Type;Location;SizeMB;Speed;Manufacturer;PartNumber;SerialNumber
+          - type: divide
+            column: 5
+            value: 1024
+            # Translate memory type
+            # MemoryID;ChassisID;Type;Location;SizeMB;Speed;Manufacturer;PartNumber;SerialNumber
+          - type: translate
+            column: 3
+            translationTable: MemoryTypeTranslationTable
+            # Add "Part Number: " to the part number column
+            # Add "Serial Number: " to the AssetTagName column
+            # MemoryID;ChassisID;Type;Location;SizeMB;Speed;Manufacturer;PartNumber;SerialNumber
+          - type: leftConcat
+            column: 8
+            value: "Part Number: "
+            # Add "Location: " to the location column
+            # MemoryID;ChassisID;Type;Location;SizeMB;Speed;Manufacturer;PartNumber;SerialNumber
+          - type: leftConcat
+            column: 4
+            value: "Location: "
+      mapping:
+        # Instance Table
+        # MemoryID;ChassisID;Type;Location;SizeMB;Speed;Manufacturer;PartNumber;SerialNumber
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          vendor: $column(7)
+          serial_number: $column(9)
+          info: "join($column(4), $column(3), $column(8), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(7), $column(5))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(5))
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # MemoryID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.1100.50.1
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the Status column
+            # MemoryID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Memory.robeStatus into a PATROL status
+            # MemoryID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate second Memory.robeStatus into a more readable string
+            # MemoryID;PATROLStatus;statusInformation;
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="memory"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # NetworkCard.discovery
+          # NetworkID;ChassisID;ProductName;FQDD(slot number);MacAddress
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.1100.90.1
+          selectColumns: "ID,1,6,30,15"
+          computes:
+          # NetworkID;ChassisID;ProductName;FQDD(slot number);MacAddress;DisplayName
+          - type: awk
+            script: $file("embeddedFile-1")$
+      mapping:
+        # Instance Table
+        # NetworkID;ChassisID;ProductName;FQDD(slot number);MacAddress;DisplayName
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(4)
+          __display_id: $column(6)
+          physical_address: $column(5)
+          physical_address_type: MAC
+          hw.parent.type: enclosure
+          hw.parent.id: $column(2)
+          name: $column(6)
+    collect:
+      # Collect type is MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # NetworkID;Status;LinkStatus;FQDD
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.1100.90.1
+          selectColumns: "ID,3,4,30"
+          computes:
+            # Duplicate the Status column
+            # NetworkID;Status;Status;LinkStatus;FQDD
+          - type: duplicateColumn
+            column: 2
+            # Translate first NetworkCard.robeStatus into a PATROL status
+            # NetworkID;PATROLStatus;Status;LinkStatus;FQDD
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate second NetworkCard.robeStatus into a more readable string
+            # NetworkID;PATROLStatus;statusInformation;LinkStatus;FQDD
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+            # Translate the Link Status
+            # NetworkID;PATROLStatus;statusInformation;LinkStatus;FQDD
+          - type: translate
+            column: 4
+            translationTable: GenericLinkStatusTranslationTable
+      mapping:
+        # The ValueTable = Source(1)
+        # NetworkID;PATROLStatus;statusInformation;LinkStatus;FQDD
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(5)
+        metrics:
+          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($column(4))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = systemStateTable SNMP table
+          # DeviceID;SDCardUnit;SCCardDevice;IDSDMCardUnit;IDSDMDevice;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.200.10.1
+          selectColumns: "ID,54,56,58,60"
+        source(2):
+          # Source(2) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.discovery.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;SDCardUnit;
+          - type: keepColumns
+            columnNumbers: "1,2"
+            # Keep only lines with values
+            # DeviceID;SDCardUnit;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;SDCardUnit;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: SDCardUnit
+        source(3):
+          # Source(3) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.discovery.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;SCCardDevice;
+          - type: keepColumns
+            columnNumbers: "1,3"
+            # Keep only lines with values
+            # DeviceID;SCCardDevice;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;SCCardDevice;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: SCCardDevice
+        source(4):
+          # Source(4) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.discovery.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;IDSDMCardUnit;
+          - type: keepColumns
+            columnNumbers: "1,4"
+            # Keep only lines with values
+            # DeviceID;IDSDMCardUnit;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;IDSDMCardUnit;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: IDSDMCardUnit
+        source(5):
+          # Source(4) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.discovery.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;IDSDMDevice;
+          - type: keepColumns
+            columnNumbers: "1,5"
+            # Keep only lines with values
+            # DeviceID;IDSDMDevice;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;IDSDMDevice;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: IDSDMDevice
+        source(6):
+          # Source(3) = Union of Source(1) and Source(2)
+          # DeviceID;Status;
+          type: tableUnion
+          tables:
+          - $monitors.other_device.discovery.sources.source(2)$
+          - $monitors.other_device.discovery.sources.source(3)$
+          - $monitors.other_device.discovery.sources.source(4)$
+          - $monitors.other_device.discovery.sources.source(5)$
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.other_device.discovery.sources.source(6)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(1)
+          hw.parent.type: enclosure
+          name: $column(1)
+    collect:
+      # Collect type is mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = systemStateTable SNMP table
+          # DeviceID;SDCardUnit;SCCardDevice;IDSDMCardUnit;IDSDMDevice;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.674.10892.5.4.200.10.1
+          selectColumns: "ID,54,56,58,60"
+        source(2):
+          # Source(2) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.collect.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;SDCardUnit;
+          - type: keepColumns
+            columnNumbers: "1,2"
+            # Keep only lines with values
+            # DeviceID;SDCardUnit;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;SDCardUnit;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: SDCardUnit
+        source(3):
+          # Source(3) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.collect.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;SCCardDevice;
+          - type: keepColumns
+            columnNumbers: "1,3"
+            # Keep only lines with values
+            # DeviceID;SCCardDevice;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;SCCardDevice;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: SCCardDevice
+        source(4):
+          # Source(4) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.collect.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;IDSDMCardUnit;
+          - type: keepColumns
+            columnNumbers: "1,4"
+            # Keep only lines with values
+            # DeviceID;IDSDMCardUnit;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;IDSDMCardUnit;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: IDSDMCardUnit
+        source(5):
+          # Source(4) = Copy of (1)
+          type: copy
+          from: $monitors.other_device.collect.sources.source(1)$
+          computes:
+            # Select Columns
+            # DeviceID;IDSDMDevice;
+          - type: keepColumns
+            columnNumbers: "1,5"
+            # Keep only lines with values
+            # DeviceID;IDSDMDevice;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Make the ID unique
+            # DeviceID;IDSDMDevice;
+          - type: replace
+            column: 1
+            existingValue: Column(1)
+            newValue: IDSDMDevice
+        source(6):
+          # Source(3) = Union of Source(1) and Source(2)
+          # DeviceID;Status;
+          type: tableUnion
+          tables:
+          - $monitors.other_device.collect.sources.source(2)$
+          - $monitors.other_device.collect.sources.source(3)$
+          - $monitors.other_device.collect.sources.source(4)$
+          - $monitors.other_device.collect.sources.source(5)$
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first Status into a PATROL Status
+            # DeviceID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+            # Translate the second Status into a more readable string
+            # DeviceID;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(3)
+        source: $monitors.other_device.collect.sources.source(6)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="other_device"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  EnvironmentStatusTranslationTable:
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    "7": degraded
+    "8": failed
+    "9": failed
+    Default: UNKNOWN
+    "10": failed
+  GenericStatusTranslationTable:
+    "3": ok
+    "4": degraded
+    "5": failed
+    "6": failed
+    Default: UNKNOWN
+  GenericStatusInformationTranslationTable:
+    "3": ""
+    "4": Non Critical
+    "5": Critical
+    "6": Unrecoverable
+    Default: Unknown Status
+  MemoryTypeTranslationTable:
+    "11": FEPROM
+    "12": EPROM
+    "13": CDRAM
+    "24": DDR3
+    "14": 3DRAM
+    "15": SDRAM
+    "16": SGRAM
+    "17": RDRAM
+    "18": DDR
+    "19": DDR2
+    "1": Other type
+    "2": Unknown type
+    default: ""
+    "3": DRAM
+    "4": EDRAM
+    "5": VRAM
+    "6": SRAM
+    "7": RAM
+    "8": ROM
+    "9": Flash
+    "20": DDR2 FB-DIMM
+    "10": EEPROM
+  GenericLinkStatusTranslationTable:
+    "11": degraded
+    "1": ok
+    "12": degraded
+    "2": degraded
+    "13": degraded
+    "3": degraded
+    "4": degraded
+    "10": degraded
+  EnvironmentStatusInformationTranslationTable:
+    "3": ""
+    "4": Non-Critical Upper
+    "5": Critical Upper
+    "6": Unrecoverable Upper
+    "7": Non-Critical Lower
+    "8": Critical Lower
+    "9": Unrecoverable Lower
+    Default: Unknown Status
+    "10": Failed
