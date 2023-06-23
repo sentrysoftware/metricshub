@@ -1,0 +1,14 @@
+---
+extends:
+- ../DellCompellent-header/DellCompellent-header
+connector:
+  displayName: Dell Compellent Storage Manager - Unisphere For Storage Center
+  platforms: Dell Compellent
+  reliesOn: Dell Compellent Storage Manager REST API
+  version: 1.0
+  information: "This connector discovers the enclosures, controllers and their associated hardware components through Dell Storage Manager REST API. IP address of the proxy should be specified."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage

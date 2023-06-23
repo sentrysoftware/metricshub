@@ -1,0 +1,7 @@
+BEGIN {FS="[;]"}
+{RemoteWWN = $7
+ gsub(/^.*<portname>/,"",RemoteWWN)
+ gsub(/<\057portname>.*$/,"",RemoteWWN)
+ gsub(/:/,"",RemoteWWN)
+ print ("MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" $6 ";" RemoteWWN ";" $8 ";" $9 ";" $10 ";" $11 ";")
+}

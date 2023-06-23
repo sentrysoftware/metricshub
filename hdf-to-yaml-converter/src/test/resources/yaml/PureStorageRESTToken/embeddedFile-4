@@ -1,0 +1,29 @@
+BEGIN {FS=";";}
+{
+  enclosure = $4 ; gsub ("[.].+","",enclosure);
+  displayID = $4 ; gsub ("^.+[.]","",displayID);
+  if ($4 ~ /^CH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Enclosure;Enclosure" }
+
+  if ($4 ~ /^SH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+  if ($4 ~ /^CT[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+
+  if ($4 ~ /^CT[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+  if ($4 ~ /^CH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Enclosure"}
+  if ($4 ~ /^SH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+
+  if ($4 ~ /^CT[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+  if ($4 ~ /^CH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Enclosure"}
+  if ($4 ~ /^SH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+
+  if ($4 ~ /^CT[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+  if ($4 ~ /^CH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Enclosure"}
+  if ($4 ~ /^SH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+
+  if ($4 ~ /^CT[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+  if ($4 ~ /^CH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;MAC"}
+  if ($4 ~ /^SH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+
+  if ($4 ~ /^CT[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+  if ($4 ~ /^CH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;WWN"}
+  if ($4 ~ /^SH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+}

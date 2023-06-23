@@ -1,0 +1,16 @@
+BEGIN { DeviceID = ""; Status = ""; OperationalStatus=""; Name = ""; }
+($2 == "(voltage-indicator,") { DeviceID = substr($3, 1, length($3) - 1); }
+($1 == ":Condition") { Status = $2 }
+($1 == ":OperationalStatus") { OperationalStatus = $2 }
+($1 == ":name") {
+    Name = $2
+
+    if (Status == "<ERROR:")
+    {
+        Status = "UNKNOWN";
+    }
+
+    if ((DeviceID != "") && (OperationalStatus != "disabled")) {print "MSHW;" DeviceID ";" Name ";;;;" Status}
+
+    DeviceID = ""; Status = ""; OperationalStatus=""; Name = "";
+}

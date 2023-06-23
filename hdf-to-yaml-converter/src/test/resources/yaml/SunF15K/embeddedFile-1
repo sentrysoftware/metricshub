@@ -1,0 +1,57 @@
+(NF > 4) {
+    if ($(NF-3) ~ /^[ACV]$/)
+    {
+        unit = $(NF-3)
+        value = $(NF-4)
+        status = $NF
+
+        if (unit == "A")
+        {
+            deviceType = "Current"
+        }
+        else if (unit == "C")
+        {
+            deviceType = "Temperature"
+        }
+        else if (unit == "V")
+        {
+            deviceType = "Voltage"
+        }
+        else
+        {
+            deviceType = ""
+        }
+
+        if (value == "--")
+        {
+            value = ""
+        }
+
+        DeviceID = $1 " " $2 " " $3 " / " $4 " /"
+        for (i = 5 ; i<=NF - 5 ; i++)
+        {
+            if ($i != "Temp" && $i != "Volt" && $i != "VDC")
+            {
+                DeviceID = DeviceID " " $i
+            }
+        }
+
+        print "MSHW;" deviceType ";" DeviceID ";" value ";" status
+    }
+}
+
+/^PS[0-9] +/ {
+    if (NF == 8)
+    {
+        print "MSHW;Current;" $1 " / AC0;;" $3
+        print "MSHW;Current;" $1 " / AC1;;" $4
+    }
+}
+
+($2 == "at" && $3 ~ /^PS[0-9]+/) {
+    if (NF == 10)
+    {
+        print "MSHW;Current;" $3 " / AC0;;" $5
+        print "MSHW;Current;" $3 " / AC1;;" $6
+    }
+}

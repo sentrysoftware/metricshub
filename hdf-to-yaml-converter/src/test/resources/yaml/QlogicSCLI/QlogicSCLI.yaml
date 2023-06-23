@@ -1,0 +1,166 @@
+---
+connector:
+  displayName: QLogic HBAs (scli)
+  platforms: Any system with QLogic
+  reliesOn: QLogic's SCLI utility
+  information: This connector discovers QLogic HBAs of servers running Linux using the scli utility provided with the QLogic Drivers.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Linux
+    - Solaris
+    supersedes:
+    - CpqHBA
+    - SMISHBA
+    criteria:
+    # SCLI should be in the path
+    - type: osCommand
+      commandLine: which scli
+      expectedResult: /scli$
+    # Test the scli command
+    - type: osCommand
+      commandLine: "%{SUDO:scli} scli -g"
+      expectedResult: "Total QLogic HBA(s) : [1-9]"
+sudoCommands:
+- scli
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Get the list of Ports from SCLI -i -x2
+          type: osCommand
+          commandLine: "%{SUDO:scli} scli -i -x2"
+          computes:
+            # AWK it
+            # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8"
+            # Exclude Ports with SFP not Installed
+            # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+          - type: excludeMatchingLines
+            column: 7
+            valueList: "SFP not installed,Disable"
+            # Convert Speed from Gbps to Mbps (multiply by 1000)
+            # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+          - type: multiply
+            column: 4
+            value: 1000
+      mapping:
+        # InstanceTable = Source(1)
+        # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
+        source: $monitors.network.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          vendor: QLogic
+          model: $column(2)
+          serial_number: $column(6)
+          physical_address: $column(3)
+          physical_address_type: WWN
+          device_type: $column(5)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), \"QLogic\", $column(2))"
+    collect:
+      # The NetworkCard collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Get the list of Ports and Status from SCLI -i -x2
+          type: osCommand
+          commandLine: "%{SUDO:scli} scli -i -x2"
+          computes:
+            # AWK it
+            # PortID;Speed;Status;
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,5,8"
+            # Duplicate Staus Column
+            # PortID;Speed;Status;Status;Status;
+          - type: duplicateColumn
+            column: 3
+          - type: duplicateColumn
+            column: 3
+            # Translate Network Status
+            # PortID;Speed;PatrolStatus;Status;Status;
+          - type: translate
+            column: 3
+            translationTable: NetworkStatusTranslationTable
+            # Translate Network Status Information
+            # PortID;Speed;PatrolStatus;StatusInformation;Status;
+          - type: translate
+            column: 4
+            translationTable: NetworkStatusInfoTranslationTable
+            # Translate Network Status Information
+            # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
+          - type: translate
+            column: 5
+            translationTable: NetworkLinkStatusTranslationTable
+            # Convert Speed from Gbps to Mbps (multiply by 1000)
+            # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
+          - type: multiply
+            column: 2
+            value: 1000
+      mapping:
+        # ValueTable = Source(1)
+        # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $column(3)
+          hw.network.up: legacyLinkStatus($column(5))
+        legacyTextParameters:
+          StatusInformation: $column(4)
+translations:
+  NetworkStatusInfoTranslationTable:
+    Link Up: Link Up
+    Loop Up: Loop Up
+    Currently Up: Currently Up
+    Send loop down update: Send loop down update
+    Lip occurred: Lip occurred
+    Send link down update: Send link down update
+    Default: UNKNOWN
+    Alt WWN sctive: Alt WWN sctive
+    Port update: Port update
+    Unknown: UNKNOWN
+    SFP not installed: failed
+    Loop Down: Loop Down
+    Link Down: Link Down
+    System Error: System Error
+    Online: ""
+    Disable: Disable
+  NetworkLinkStatusTranslationTable:
+    Link Up: ok
+    Loop Up: ok
+    Unknown: UNKNOWN
+    Loop Down: degraded
+    Send loop down update: degraded
+    Link Down: degraded
+    Send link down update: degraded
+    Online: ok
+    Default: UNKNOWN
+  NetworkStatusTranslationTable:
+    Link Up: ok
+    Loop Up: ok
+    Currently Up: ok
+    Send loop down update: ok
+    Lip occurred: degraded
+    Send link down update: ok
+    Default: UNKNOWN
+    Alt WWN sctive: ok
+    Port update: ok
+    Unknown: UNKNOWN
+    SFP not installed: failed
+    Loop Down: ok
+    Link Down: ok
+    System Error: ok
+    Online: ok
+    Disable: failed

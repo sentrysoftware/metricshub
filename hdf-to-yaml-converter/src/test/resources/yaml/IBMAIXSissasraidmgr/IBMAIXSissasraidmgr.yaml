@@ -1,0 +1,313 @@
+---
+connector:
+  displayName: IBM AIX - sissasraidmgr Disk Controllers
+  platforms: IBM POWER
+  reliesOn: sissasraidmgr managed RAID card
+  information: Provides the monitoring of RAID controllers in IBM AIX servers through the syssasraidmgr command line utility.
+  version: 1.1
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - RS6000
+    criteria:
+    # Check the utility exists
+    - type: osCommand
+      commandLine: "cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr}/usr/bin/sissasraidmgr"
+      expectedResult: 0940-002 Invalid or no command specified
+      errorMessage: sissasraidmgr not installed on this server / insufficient rights
+    # Check there are appropriate controllers installed
+    - type: osCommand
+      commandLine: ls /dev/sissas*
+      expectedResult: "/dev/sissas[0-9]"
+      errorMessage: No sissas controllers found
+    - type: osCommand
+      commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
+      expectedResult: "hdisk[0-9]"
+      errorMessage: No sissasraidmgr managed disks found.
+sudoCommands:
+- /usr/bin/sissasraidmgr
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Output of sas2ircu script
+          type: osCommand
+          commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
+          computes:
+          # Reformat Source(1) output via EmbeddedFile(2)
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW
+            separators: ;
+        source(2):
+          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
+          computes:
+            # Keep only Controllers
+            # MSHW_CTRL;ControllerID;State;Description;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_CTRL
+          - type: leftConcat
+            column: 3
+            value: "State: "
+      mapping:
+        # The InstanceTable
+        # MSHW_CTRL;ControllerID;State;Description;
+        source: $monitors.disk_controller.discovery.sources.source(2)$
+        attributes:
+          id: $column(2)
+          controller_number: $column(2)
+          model: $column(4)
+          info: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(2), $column(4))"
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Output of sas2ircu script
+          type: osCommand
+          commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
+          computes:
+          # Reformat Source(1) output via EmbeddedFile(2)
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW
+            separators: ;
+        source(2):
+          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
+          computes:
+            # Keep only Controllers
+            # MSHW_CTRL;ControllerID;State;Description;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_CTRL
+      mapping:
+        # ValueTable = Source(1)
+        # MSHW_CTRL;ControllerID;ControllerType;BIOS;ControllerFirmware;ControllerSlot;
+        source: $monitors.disk_controller.collect.sources.source(2)$
+        deviceId: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Discovery Instance Table
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
+          computes:
+            # Keep only PhysicalDisks
+            # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_PD
+            # Translate size into bytes
+            # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+          - type: multiply
+            column: 5
+            value: 1000000000
+      mapping:
+        # InstanceTable = Source(1)
+        # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          info: $column(4)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
+          name: "sprintf(\"%s (%by10hf.s)\", $column(2), $column(5))"
+        metrics:
+          hw.physical_disk.size: $column(5)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Collect Instance Table
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
+          computes:
+            # Keep only PhysicalDisks
+            # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_PD
+            # Keep only ID and State
+            # EnclosureSlot;State;
+          - type: keepColumns
+            columnNumbers: "2,3"
+            # Duplicate the state column
+            # EnclosureSlot;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first state column into a PATROLStatus
+            # EnclosureSlot;PATROLStatus;state
+          - type: translate
+            column: 2
+            translationTable: PhysicalDiskStatusTranslationTable
+            # Translate the second state column into a more readable string
+            # EnclosureSlot;PATROLStatus;statusInformation
+          - type: translate
+            column: 3
+            translationTable: PhysicalDiskStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Discovery Instance Table
+          type: copy
+          from: $monitors.disk_controller.discovery.sources.source(1)$
+          computes:
+            # Keep only LogicalDisks
+            # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_LD
+            # Translate size into bytes
+            # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+          - type: multiply
+            column: 5
+            value: 1073741824
+      mapping:
+        # InstanceTable = Source(1)
+        # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          info: $column(4)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
+          name: "sprintf(\"%s (%by2hf.s)\", $column(2), $column(5))"
+        metrics:
+          hw.logical_disk.limit: $column(5)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Collect Instance Table
+          type: copy
+          from: $monitors.disk_controller.collect.sources.source(1)$
+          computes:
+            # Keep only LogicalDisks
+            # MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: MSHW_LD
+            # Keep only ID and State
+            # EnclosureSlot;State;
+          - type: keepColumns
+            columnNumbers: "2,3"
+            # Duplicate the state column
+            # EnclosureSlot;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first state column into a PATROLStatus
+            # EnclosureSlot;PATROLStatus;state
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Output of sas2ircu script
+          type: osCommand
+          commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -M -o0 -l $CTRL;done;"
+          computes:
+            # Reformat Source(1) output via EmbeddedFile(2)
+            # MSHW;Controller;State;
+          - type: awk
+            script: $file("embeddedFile-2")$
+            keep: ^MSHW
+            separators: ;
+      mapping:
+        # The InstanceTable
+        # MSHW;Controller;State;
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          hw.parent.type: disk_controller
+          hw.parent.id: $column(2)
+          name: $column(2)
+    collect:
+      # Collect type is "all instances in one shot
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = Output of sas2ircu script
+          type: osCommand
+          commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -M -o0 -l $CTRL;done;"
+          computes:
+            # Reformat Source(1) output via EmbeddedFile(2)
+            # MSHW;Controller;State;
+          - type: awk
+            script: $file("embeddedFile-2")$
+            keep: ^MSHW
+            separators: ;
+            # Keep only ID and State
+            # Controller;State;
+          - type: keepColumns
+            columnNumbers: "2,3"
+            # Duplicate the state column
+            # Controller;State;State;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first state column into a PATROLStatus
+            # Controller;PATROLStatus;state
+          - type: translate
+            column: 2
+            translationTable: BatteryStatusTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    Active: Active
+    Failed: Failed
+    RWProtected: RWProtected (Formatting/Rebuilding)
+    Available: Available
+    Default: Unknown Status
+  BatteryStatusTranslationTable:
+    No battery warning/error: ok
+    Default: failed
+  LogicalDiskStatusTranslationTable:
+    Rebuilding: degraded
+    Optimal: ok
+    Default: failed
+  PhysicalDiskStatusTranslationTable:
+    Active: ok
+    Failed: failed
+    RWProtected: degraded
+    Available: ok
+    Default: degraded

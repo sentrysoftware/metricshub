@@ -1,0 +1,22 @@
+BEGIN {
+    nicUp = 0;
+    nicSpeed = "";
+}
+/^Driver Flags:.*Up/ {
+    nicUp = 1;
+}
+
+/^Media Speed Running: +[0-9]+ / {
+    nicSpeed = $4;
+}
+
+/^Hardware Address:/ {
+    address = $3;
+}
+
+END {
+    if (nicUp == 1)
+    {
+        print "MSHW;" nicId ";" nicSpeed ";" address ";"
+    }
+}

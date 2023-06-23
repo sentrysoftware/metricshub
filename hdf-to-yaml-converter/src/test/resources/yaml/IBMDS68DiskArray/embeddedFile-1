@@ -1,0 +1,4 @@
+BEGIN {FS=";";}
+NF > 8 && $1 != "" {displayID = $2 ; gsub(/^.*\./,"",displayID);
+                    print "MSHW;" $1 ";" displayID ";" $3 ";" $4 ";" $5 ";" $6 ";" $7 ";" $8 ";" $9 ";"
+                   }

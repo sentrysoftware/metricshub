@@ -1,0 +1,17 @@
+{nodeName = $1 ; gsub (/:/,"",nodeName);}
+
+$3 ~ /^Bay$/  {
+  nodeNumber = $2 ; nodeArray[nodeNumber] = nodeName ;
+  Location = $4 ; Location = "Bay-" Location
+    Lnum = $6 ; Lnum = "Lnum-" Lnum
+    Status = $7 ; gsub(/\].*$/,"",Status);gsub(/^.*\[/,"",Status);
+    SerialNumber = $8 ; gsub (/^SN:/,"",SerialNumber)
+    if ( Status != "EMPTY" ) {
+      print "MSHW_PhysicalDisk;" nodeName ";" nodeName "-" Location ";" Location ";" Lnum ";" SerialNumber ";" Status ";" Status ";"
+      }
+    }
+END {
+  for (nodeNumber in nodeArray) {
+    print "MSHW_Node;" nodeArray[nodeNumber] ";" nodeNumber ";"
+    }
+  }

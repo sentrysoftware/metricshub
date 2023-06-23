@@ -1,0 +1,4 @@
+Content-Type:application/json
+Accept:application/json
+X-Api-Version:1200
+Auth: %{AUTHENTICATIONTOKEN}

@@ -1,0 +1,7 @@
+BEGIN { FS = ";"; }
+{
+  systemConsumption[$4] += $5;
+}
+END {
+  printf "Cluster;%s\n",systemConsumption["PW Consumption"];
+}

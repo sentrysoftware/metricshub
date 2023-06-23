@@ -1,0 +1,1 @@
+authorization: Basic %{BASIC_AUTH_BASE64}

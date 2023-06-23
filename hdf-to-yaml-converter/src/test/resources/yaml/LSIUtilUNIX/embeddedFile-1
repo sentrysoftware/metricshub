@@ -1,0 +1,20 @@
+BEGIN {
+    controllerID = "";
+}
+/^MSHW_Controller / {
+    controllerID = $2
+    model = ""
+    firmware = ""
+}
+($1 == controllerID "." && $(NF-6) == "LSI" && $(NF-5) == "Logic") {
+    model = $(NF-4)
+    firmware = $(NF-1)
+}
+/^PhysDisk [0-9]/ {
+    if (controllerID != "" && model != "")
+    {
+        print "MSHW;" controllerID ";LSI Logic;" model ";" firmware
+        controllerID = ""
+        model = ""
+    }
+}

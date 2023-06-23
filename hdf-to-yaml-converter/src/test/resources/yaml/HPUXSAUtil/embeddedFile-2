@@ -1,0 +1,17 @@
+BEGIN {
+        controller = "";
+        model = "";
+        modelnumber = "";
+        serialnbr = "";
+        devicefile = "";
+        firmware = "";
+}
+$1 ~ /Controller/ && $2 ~ /Product/ && $3 ~ /Number/   {modelnumber=$NF}
+$1 ~ /Controller/ && $2 ~ /Product/ && $3 ~ /Name/     {model=substr($0,index($0,$4)); model=model " (" modelnumber")"}
+$1 ~ /Adapter/ && model == ""                          {model=substr($0,index($0,$2))}
+$1 ~ /Serial/ && $2 ~ /Number/                         {serialnbr=$NF}
+$1 ~ /Device/ && $2 ~ /File/                           {devicefile=$NF;controller=$NF;gsub(/\057dev\057ciss/,"",controller);}
+$1 ~ /Firmware/ && $2 ~ /Revision/ && controller != "" {firmware=$NF;
+                                                          print ("MSHW;"controller";"model";"serialnbr";"devicefile";"firmware";")
+                                                          controller = "";model = "";modelnumber = "";serialnbr = "";devicefile = "";firmware = "";
+                                                         }

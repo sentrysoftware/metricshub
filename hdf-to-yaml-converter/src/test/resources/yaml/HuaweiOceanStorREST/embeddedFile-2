@@ -1,0 +1,8 @@
+BEGIN {FS=":";}
+{
+if ($1 == "Set-Cookie")
+    {
+       cookie = $2 ; gsub(/^[ \t]+/, "", cookie) ;
+         print "Cookie:" cookie
+    }
+}

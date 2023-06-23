@@ -1,0 +1,352 @@
+---
+extends:
+- ../MIB2-header/MIB2-header
+connector:
+  displayName: Cisco Entity Sensor (SNMP)
+  platforms: Cisco
+  reliesOn: Cisco SNMP Agent (ciscoMgmt)
+  version: 1.0
+  information: "This connector discovers the enclosure Cisco Ethernet switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Network
+    supersedes:
+    - GenericSwitchEnclosure
+    - MIB2
+    criteria:
+      # Detection Criteria 1
+      # Must have A Cisco Enviroment Monitor Present
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.9.9.91.1.1.1.1
+      # Detection Criteria 1
+      # Must have A Cisco Entity Sensor Present
+    - type: snmpGetNext
+      oid: 1.3.6.1.2.1.47.1.1.1.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Entities
+          # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+          type: snmpTable
+          oid: 1.3.6.1.2.1.47.1.1.1.1
+          selectColumns: "ID,4,5,7,11,12,13"
+          computes:
+          # Remove Container Class as they are redundant.
+          - type: excludeMatchingLines
+            column: 3
+            valueList: 5
+        source(2):
+          # Save Enclosure.Discovery.Source(1) for further computes
+          # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          # Keep only Chassis class for Enclosure.
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: 3
+        source(3):
+          # Sensor Table
+          # ID;Type;Value;Status;Entity;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.91.1.1.1.1
+          selectColumns: "ID,1,2,4,5,8"
+      mapping:
+        # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+        # InstanceTable = Source(2)
+        source: $monitors.enclosure.discovery.sources.source(2)$
+        attributes:
+          id: Chassis
+          __display_id: $column(4)
+          serial_number: $column(5)
+          vendor: $column(6)
+          model: $column(7)
+          type: Chassis
+          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(4), $column(6), $column(7))"
+    collect:
+      # Collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Sensor
+          # ID;Type;Units;Value;Status;Parent
+          type: snmpTable
+          oid: 1.3.6.1.4.1.9.9.91.1.1.1.1
+          selectColumns: "ID,1,2,4,5,8"
+        source(2):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(1)$
+          computes:
+          # ID;Type;Unit;Value;Status;Status;
+          - type: duplicateColumn
+            column: 5
+          # ID;Type;Unit;Value;PatrolStatus;Status;
+          - type: translate
+            column: 5
+            translationTable: SensorStatusTranslationTable
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 6
+            translationTable: SensorStatusInformationTranslationTable
+        source(3):
+          # Entities
+          # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+          type: snmpTable
+          oid: 1.3.6.1.2.1.47.1.1.1.1
+          selectColumns: "ID,4,5,7,11,12,13"
+        source(4):
+          # LEFT  ID;Type;Units;Value;Status;Parent
+          # RIGHT ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+          # Result
+          # SensorID;Type;Unit;Value;Status;Entity(parent);ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(3)$
+          leftKeyColumn: 6
+          rightKeyColumn: 1
+          computes:
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: awk
+            script: $file("embeddedFile-1")$
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: translate
+            column: 9
+            translationTable: SensorStatusTranslationTable
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: translate
+            column: 10
+            translationTable: SensorStatusInformationTranslationTable
+          # Watts for if we find total watt capacity
+          - type: multiply
+            column: 8
+            value: Column(7)
+        source(5):
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(4)$
+          computes:
+          - type: awk
+            script: $file("embeddedFile-2")$
+      mapping:
+        # Chassis;PowerConsumption
+        source: $monitors.enclosure.collect.sources.source(5)$
+        deviceId: $column(1)
+        metrics:
+          hw.enclosure.power: $column(2)
+          hw.enclosure.energy: fakeCounter($column(2))
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # LEFT   ID;Type;Unit;Value;Status;Parent; (sensor)
+          # RIGHT  ID;Parent;Type;Name;SerialNumber;Vendor;Model; (entity)
+          # Result
+          # SensorID;Type;Unit;Value;Status;Entity(parent);ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftKeyColumn: 6
+          rightKeyColumn: 1
+          computes:
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: awk
+            script: $file("embeddedFile-1")$
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: keepOnlyMatchingLines
+            column: 2
+            valueList: 6
+      mapping:
+        # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(3)
+          info: "join($column(4), $column(5), $column(6), \" \")"
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(3)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      mapping:
+        # PowerSupply Status is a rollup of all sensors associated to it.
+        # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+        source: $monitors.enclosure.collect.sources.source(4)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(9)
+        legacyTextParameters:
+          StatusInformation: $column(10)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # LEFT  ID;Parent;Type;Name;SerialNumber;Vendor;Model; (entity) EDS1
+          # RIGHT ID;Type;Unit;Value;Status;Parent; (sensor) EDS3
+          # Result
+          # ID;Parent;Type;Name;SerialNumber;Vendor;Model;ID;Type;Unit;Value;Status;Parent;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          # Keep only celsius sensors
+          - type: keepOnlyMatchingLines
+            column: 9
+            valueList: 8
+      mapping:
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(4)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      mapping:
+        # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+        source: $monitors.enclosure.collect.sources.source(2)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # LEFT  ID;Parent;Type;Name;SerialNumber;Vendor;Model; (entity) EDS1
+          # RIGHT ID;Type;Unit;Value;Status;Parent; (sensor) EDS3
+          # Result
+          # ID;Parent;Type;Name;SerialNumber;Vendor;Model;ID;Type;Unit;Value;Status;Parent;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          # Keep only DC sensors
+          - type: keepOnlyMatchingLines
+            column: 9
+            valueList: 4
+      mapping:
+        # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          sensor_location: DC
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: "sprintf(\"%s (%s)\", $column(4), \"DC\")"
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+          computes:
+          - type: translate
+            column: 3
+            translationTable: SensorValueMultiplierTable
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          - type: multiply
+            column: 4
+            value: Column(3)
+      mapping:
+        # ID;Type;Value;PatrolStatus;StatusInformation;
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # LEFT  ID;Parent;Type;Name;SerialNumber;Vendor;Model; (entity) EDS1
+          # RIGHT ID;Type;Unit;Value;Status;Parent; (sensor) EDS3
+          # Result
+          # ID;Parent;Type;Name;SerialNumber;Vendor;Model;ID;Type;Unit;Value;Status;Parent;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(3)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          # Keep only RPM sensors
+          - type: keepOnlyMatchingLines
+            column: 9
+            valueList: 10
+      mapping:
+        # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(4)
+          hw.parent.type: enclosure
+          hw.parent.id: Chassis
+          name: $column(4)
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          type: copy
+          from: $monitors.enclosure.collect.sources.source(2)$
+      mapping:
+        # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(4)
+          hw.status{hw.type="fan"}: $column(5)
+        legacyTextParameters:
+          StatusInformation: $column(6)
+  network:
+    discovery:
+      mapping:
+        # add network card discovery present in mib2.hdf and not in mib2.hhdf
+        # PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
+        source: $monitors.network.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(7)
+          physical_address: $column(4)
+          physical_address_type: MAC
+          device_type: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+translations:
+  SensorStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    Default: UNKNOWN
+  SensorStatusInformationTranslationTable:
+    "1": ""
+    "2": Warning
+    "3": Critical
+    "4": Shutdown
+    "5": No Longer Present
+    "6": Not Functioning
+    Default: Unknown Status
+  SensorValueMultiplierTable:
+    "9": 1000 //V to mV
+    Default: 1

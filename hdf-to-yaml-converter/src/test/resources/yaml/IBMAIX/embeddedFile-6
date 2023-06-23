@@ -1,0 +1,11 @@
+#!/bin/sh
+for NIC in `/usr/sbin/lsdev -C -S a -c adapter -F 'name'|/usr/bin/grep ^ent[0-9]`
+do
+    echo MS_HW_lscfg_Start: $NIC
+    /usr/sbin/lscfg -v -s -l $NIC 2> /dev/null
+    if [ $? -gt 0 ]; then
+    echo $NIC
+    lsdev -l $NIC |cut -c 17-
+    fi
+    echo MS_HW_lscfg_End: $NIC
+done

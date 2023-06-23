@@ -1,0 +1,39 @@
+# m1000e
+($1 == "PWR" && $3 ~ /^PS-[0-9]$/ && NF > 4) {
+  if ($4 ~ /^Slot$/ && $5 ~ /^Empty$/) {next}
+  else if ($4 ~ /^Redundant$/) {status="OK";statusInformation="Redundant"}
+  else if ($4 ~ /^Online$/) {status="OK";statusInformation="Online"}
+  else if ($4 ~ /^Failed$/) {status="ALARM";statusInformation="Failed"}
+  else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    if ($(NF-1) ~ /^[Nn]ot$/ && $NF ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = statusInformation " - No AC"; }
+# PowerSupplyID;Status;StatusInformation
+    print "MSHW;" $3 ";" status ";" statusInformation ";"
+}
+
+# Both VRTX and M1000e
+$0 ~ /^Overall Power Health/ {deviceID = "Overall Power Health"
+                              if ($NF ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                else if ($(NF-1) ~ /^[Nn]ot$/ && $NF ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                              else if ($NF ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                                else { status = "UNKNOWN"; statusInformation = "Unknown Status"; } ;
+                                print "MSHW;" deviceID ";" status ";" statusInformation ";"
+                             }
+
+# VRTX
+$1 ~ /Sensor/ && $2 ~ /Type/ && $4 ~ /Power/ {Section = "VRTX_PSU"}
+NF < 2 {Section = ""}
+$1 ~ "<Sensor" && $2 ~ "Name>" && Section == "VRTX_PSU" {statusOffset = index ($0,"<Status>")
+                                  getline
+                                 }
+Section == "VRTX_PSU"  && statusOffset != "" {
+                                  deviceID = substr ($0,1,statusOffset-2) ; gsub(/ *$/,"",deviceID)
+                                  status = substr ($0,statusOffset,10)
+                                  if (status ~ /^Slot Empty/) {next}
+                                else if (status ~ /^Redundant/) {status="OK";statusInformation="Redundant"}
+                                else if (status ~ /^Online/) {status="OK";statusInformation="Online"}
+                                else if (status ~ /^Failed/) {status="ALARM";statusInformation="Failed"}
+                                else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                if ($(NF-1) ~ /^[Nn]ot$/ && $NF ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = statusInformation " - No AC"; }
+# PowerSupplyID;Status;StatusInformation
+                                    print "MSHW;" deviceID ";" status ";" statusInformation ";"
+                                   }

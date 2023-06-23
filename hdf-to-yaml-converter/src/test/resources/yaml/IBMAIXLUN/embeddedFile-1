@@ -1,0 +1,19 @@
+($2 ~ /hdisk[0-9]+/ && $3 ~ /fscsi/) {
+    if ($2 in ExpectedPaths == 0)
+    {
+        ExpectedPaths[$2] = 0;
+        AvailablePaths[$2] = 0;
+    }
+
+    ExpectedPaths[$2] = ExpectedPaths[$2] + 1;
+    if ($1 ~ /[Ee]nabled/)
+    {
+        AvailablePaths[$2] = AvailablePaths[$2] + 1;
+    }
+}
+END {
+    for (id in ExpectedPaths)
+    {
+        print "MSHW;" id ";" ExpectedPaths[id] ";" AvailablePaths[id] ";"
+    }
+}

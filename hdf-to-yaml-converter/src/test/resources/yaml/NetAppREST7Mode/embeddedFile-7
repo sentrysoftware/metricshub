@@ -1,0 +1,95 @@
+BEGIN{
+    # Set the name for each object level
+  InstanceLevel = "interface-config-info"
+    ParentLevel = ""
+    GrandParentLevel = ""
+
+  # Set the Properties to Extract
+  # The number indicates which column that property will be put in
+  # If you specify property[1] and property[3], you will end up with:
+  # MSHW;propertyvalue1;;propertyvalue3;
+    property[1] = "interface-name"
+    property[2] = "mac-address"
+    property[3] = "mediatype"
+
+  # The rest of this script is standardized
+  # and does not need to be edited
+  #
+  #
+  # System Constants
+  Level = "Unknown"
+  FS="[<>]"
+  skip = "0"
+  InstanceEnum = "0"
+  ParentEnum = "0"
+  GrandParentEnum = "0"
+  InstanceLevelEnd = "/" InstanceLevel
+  ParentLevelEnd = "/" ParentLevel
+  GrandParentLevelEnd = "/" GrandParentLevel
+  }
+(NF == 3 ) && ($2 == GrandParentLevel) {
+  GrandParentEnum = GrandParentEnum + 1
+  Level = "GrandParent"
+  }
+(NF == 3 ) && ($2 == GrandParentLevelEnd) {
+  Level = "Unknown"
+  skip = "0"
+  }
+(NF == 3) && ($2 == ParentLevel) {
+  ParentEnum = ParentEnum + 1
+  Level = "Parent"
+  skip = "0"
+  }
+(NF == 3) && ($2 == ParentLevelEnd) {
+  Level = "GrandParent"
+  }
+(NF == 3) && ($2 == InstanceLevel) {
+  InstanceEnum = InstanceEnum + 1
+  InstanceParentID[InstanceEnum] = ParentEnum
+  InstanceGrandParentID[InstanceEnum] = GrandParentEnum
+  Level = "Instance"
+  skip = "0"
+  }
+(NF == 3) && ($2 == InstanceLevelEnd) {
+  Level = "Parent"
+  }
+
+# Skip unknown subsections
+NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+  skip = "1"
+  skipTo = "/" $2
+  }
+skip == "1" {
+  if ( $2 == skipTo ) { skip = "0"}
+    else { next }
+  }
+
+# Values
+# When we get a property, we search through the "property" array to see if it matches something we are looking for
+# We then stick the value in the "outputArray" for the right ID (instance / parent / grandparent"
+NF == 5 {
+  currentProperty = $2
+  value = $3
+  propertyID = InstanceEnum
+  if ( Level == "Parent" ) { currentProperty = "\.\.\/" currentProperty ; propertyID = ParentEnum }
+  if ( Level == "GrandParent" ) { currentProperty = "\.\.\/\.\.\/" currentProperty ; propertyID = GrandParentEnum }
+  for ( pID in property) {
+    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }
+    }
+  }
+
+END {
+  # figure out highest property value
+  highestProperty = "0"
+  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }
+  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {
+    printf("%s","MSHW;")
+    for ( pID = 1 ; pID <= highestProperty ; pID++) {
+      if ( property[pID] ~ "\.\.\/\.\.\/" ) { printID = InstanceGrandParentID[instanceID] ; Level = "GrandParent" }
+      else if ( property[pID] ~ "\.\.\/" ) { printID = InstanceParentID[instanceID] ; Level = "Parent" }
+      else { printID = instanceID ; Level = "Instance" }
+      printf("%s",outputArray[Level,printID,pID] ";" )
+      }
+    print " "
+    }
+  }

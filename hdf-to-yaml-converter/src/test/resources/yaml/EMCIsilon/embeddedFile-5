@@ -1,0 +1,14 @@
+{nodeName = $1 ; gsub (/:/,"",nodeName);}
+
+$2 ~ /^Node$/ { nodeNumber = $3 ; gsub (/,/,"",nodeNumber);
+                  print "MSHW_Node;" nodeName ";" nodeNumber ";"
+                }
+
+$2 ~ /^Bay$/  { Location = $3 ; Location = "Bay-" Location
+                  Lnum = $5 ; Lnum = "Lnum-" Lnum
+                  Status = $6 ; gsub(/\].*$/,"",Status);gsub(/^.*\[/,"",Status);
+                  SerialNumber = $7 ; gsub (/^SN:/,"",SerialNumber)
+                  if ( Status != "EMPTY" ) {
+                     print "MSHW_PhysicalDisk;" nodeName ";" nodeName "-" Location ";" Location ";" Lnum ";" SerialNumber ";" Status ";" Status ";"
+                    }
+                }

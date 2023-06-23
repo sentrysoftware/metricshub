@@ -1,0 +1,4 @@
+$2 ~ /hdisk[0-9]+/ && $3 ~ /fscsi/ {if ($2 in LUN == 0) {LUN[$2] = 0}
+                                      if ($1 ~ /[Ee]nabled/) {LUN[$2] = LUN[$2] + 1}
+                                     }
+END {for (id in LUN) {print "MSHW;" id ";" LUN[id] ";"} }

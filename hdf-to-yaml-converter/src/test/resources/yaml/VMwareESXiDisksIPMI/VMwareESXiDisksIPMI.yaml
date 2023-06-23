@@ -1,0 +1,125 @@
+---
+connector:
+  displayName: VMware ESXi - Disks (IPMI)
+  platforms: VMware ESXi
+  reliesOn: WBEM
+  version: 1.1
+  information: This connector provides disk monitoring through the VMware ESX4i agent's discrete IPMI sensors
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - OOB
+    - Linux
+    criteria:
+    # Checking the version of ESXi
+    - type: wbem
+      namespace: root/cimv2
+      query: SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity
+      expectedResult: "^[34567]"
+    # Check that there are sensors of IPMI Type 13 and SensorType 11 (Presence)
+    - type: wbem
+      namespace: root/cimv2
+      query: "SELECT IpmiSensorType,SensorType,CurrentState FROM OMC_DiscreteSensor"
+      expectedResult: ^13;11;Assert;
+monitors:
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          type: wbem
+          query: "SELECT MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID FROM OMC_DiscreteSensor"
+          namespace: root/cimv2
+          computes:
+            # Keep only Sensors of IPMI type 13
+            # MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 13
+            # Keep only Sensors of SensorType 11 (Presence)
+            # MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+          - type: keepOnlyMatchingLines
+            column: 5
+            valueList: 11
+            # Keep only Disks that are "Present", i.e. presence = Assert
+            # MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+          - type: keepOnlyMatchingLines
+            column: 6
+            valueList: Assert
+            # Remove "Drive Present" from caption
+            # MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+          - type: replace
+            column: 2
+            existingValue: Drive Present
+            newValue: ""
+            # Concat PD to the Device ID (to avoid numerical comparison table join in Patrol)
+            # MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+          - type: leftConcat
+            column: 7
+            value: PD
+      mapping:
+        # The Instance table
+        # MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(7)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      # The DiskController collect is a "MultiInstance" collect
+      type: multiInstance
+      sources:
+        source(1):
+          # Get a list of discrete sensors
+          # DeviceID,Caption,HealthState,IpmiSensorType
+          type: wbem
+          query: "SELECT MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,DeviceID FROM OMC_DiscreteSensor"
+          namespace: root/cimv2
+          computes:
+            # Keep only Sensors of IPMI type 13
+            # MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,DeviceID
+          - type: keepOnlyMatchingLines
+            column: 4
+            valueList: 13
+            # Keep only MonitoredDeviceID,Caption,HealthState so that we can use the same awk array translation as in memory.collect
+            # MonitoredDeviceID,Caption,HealthState,SensorType,DeviceID
+          - type: keepColumns
+            columnNumbers: "1,2,3,5,6"
+            # Process the discrete sensors to take worse Status and make each ID unique
+            # DeviceID,StatusInformation,HealthState
+          - type: awk
+            script: $file("embeddedFile-1")$
+            keep: ^MSHW;
+            separators: ;
+            selectColumns: "2,3,4"
+            # Patrol Status comes from HealthState
+            # DeviceID,StatusInformation,HealthState
+          - type: translate
+            column: 3
+            translationTable: statusTranslationTable
+            # Add PD to the Identifier (see discovery)
+            # DeviceID,StatusInformation,HealthState
+          - type: leftConcat
+            column: 1
+            value: PD
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,StatusInformation,PatrolStatus
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+translations:
+  statusTranslationTable:
+    "0": UNKNOWN
+    "25": failed
+    "15": degraded
+    "5": ok
+    "30": failed
+    Default: UNKNOWN
+    "20": failed
+    "10": degraded

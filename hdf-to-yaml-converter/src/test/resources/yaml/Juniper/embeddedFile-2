@@ -1,0 +1,89 @@
+BEGIN { FS="[;]" }
+$1 ~ /^[0-9.]+$/ {
+  Index = $1
+  FruName = $2
+  Type = $3
+  Slot = $4
+  Status = $5
+  ChassisID = $6
+  ChassisName = $7
+  DisplayName = FruName ; gsub (/.* /,"",DisplayName);
+  AttachedToType = ""
+
+
+# Calculate what everything is atttached to
+# For Single Chassis, extract the ChassisName from the name
+  if ( ChassisID == "2" ) {
+
+# Routing Engines
+    if ( FruName ~ /Routing Engine/ ) {
+      ChassisName = FruName
+      gsub (/.*Routing Engine /,"",ChassisName);
+    if ( ChassisName ~ /Routing Engine/ ) { ChassisName = "Global" }
+    AttachedToType = "Enclosure"
+      }
+# PICs
+      else if ( Type == "11" ) {
+      ChassisName = FruName
+      gsub(/^.*@ /,"",ChassisName)
+      gsub("/.*","",ChassisName)
+      gsub("/[*].*","",DisplayName)
+      AttachedToType = "Blade"
+      }
+# FPCs
+      else if ( Type == "3" ) {
+      ChassisName = FruName
+      gsub(/^.*@ /,"",ChassisName)
+      gsub("/.*","",ChassisName)
+      gsub("/.*","",DisplayName)
+      AttachedToType = "Enclosure"
+# For Single Chassis Switches, there is one FPC per enclosure, so add an enclosure to the array using the description
+      EnclosureArray[ChassisName] = FruName
+      }
+# Other
+      else {
+      if ( ChassisName ~ "/.*/" ) {
+        ChassisName = FruName
+        gsub(/^.*@ /,"",ChassisName)
+        gsub("/.*","",ChassisName)
+        }
+      else { ChassisName = "Global"
+      AttachedToType = "Enclosure"
+        }
+      }
+    }
+# For Blade Systems, only change the PICs attach to
+  else {
+    if ( Type == "11" ) {
+      ChassisNameTemp = FruName
+      gsub(/^.*@ /,"",ChassisNameTemp)
+      gsub("/.*","",ChassisNameTemp)
+      ChassisName = ChassisName "-" ChassisNameTemp
+      AttachedToType = "Blade"
+        }
+      else if ( Type == "3" ) {
+        gsub("/.*","",DisplayName)
+        DisplayName = ChassisName "-" DisplayName
+        AttachedToType = "Enclosure"
+        }
+      else { AttachedToType = "Enclosure" }
+# Blade Enclosures - Build up an Array with each Enclosure we encounter to be printed at the end
+    if ( AttachedToType == "Enclosure" ) {
+    EnclosureArray[ChassisName] = ChassisName " backplane"
+      }
+    }
+
+
+    # Print
+  print "MSHW;" Index ";" FruName ";" Type ";" Slot ";" Status ";" ChassisID ";" ChassisName ";" AttachedToType ";" DisplayName ";"
+  }
+
+END {
+# Add a "Global Ports" Chassis to the EnclosureArray
+  EnclosureArray["Global"] = "Global"
+# Print the Enclosure Array
+  for (ChassisName in EnclosureArray) {
+    print "MSHW;" ChassisName ";" EnclosureArray[ChassisName] ";Enclosure;;;;;;;"
+
+    }
+  }

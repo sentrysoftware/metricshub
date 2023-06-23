@@ -1,0 +1,14 @@
+BEGIN {FS=";";}
+{
+  status = "UNKNOWN";
+  if ($2 == "OK" || $4 == "OK") {
+    status = "OK";
+  }
+  if ($2 == "WARN" || $4 == "WARN") {
+    status = "WARN";
+  }
+  if ($2 == "ALARM" || $4 == "ALARM") {
+    status = "ALARM";
+  }
+  print $1";"status";"$3";"$4";"
+}

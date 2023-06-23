@@ -1,0 +1,5 @@
+$0 ~ /Link Speed =/ && $NF ~ /[MmGg][Bb]/ {speed = $NF ; gsub (/ ?[Gg][Bb]/,"000",speed) ; gsub (/ ?[Mm][Bb]/,"",speed) }
+
+$0 ~ /Driver state = / {status = $NF}
+
+END { if (speed != "") {print ( "MSHW;" speed ";" status ";" )}}

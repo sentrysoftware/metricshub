@@ -1,0 +1,44 @@
+---
+extends:
+- ../HitachiSNM2CLI-header/HitachiSNM2CLI-header
+constants:
+  _EF1_COMMAND_PART2: '& del /F /Q $file("embeddedFile-1")$.bat'
+  _EF1_COMMAND_PART1: "copy $file(\"embeddedFile-1\")$ $file(\"embeddedFile-1\")$.bat & $file(\"embeddedFile-1\")$.bat %{USERNAME} %{PASSWORD}"
+connector:
+  displayName: Hitachi HDS AMS/HUS (SNM2 CLI on Windows)
+  platforms: "Hitachi AMS,Hitachi HUS"
+  reliesOn: Hitachi SNM2 CLI
+  version: 1.0
+  information: "This connector discovers the status of Hitachi AMS/HUS's Processors, CSW, Cache, SM, Power Supplies, Batteries, Fans, Physical Disks and Environment."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Storage
+    disableAutoDetection: true
+    criteria:
+      # Check we are running these commands locally on a Windows Server
+      # WINDOWS ONLY
+    - type: osCommand
+      commandLine: echo %OS%
+      errorMessage: Connector only works on a Windows NT Server
+      expectedResult: Windows_NT
+      executeLocally: true
+      forceSerialization: true
+      # STONAVM_HOME should be defined
+      # WINDOWS ONLY
+    - type: osCommand
+      commandLine: IF DEFINED STONAVM_HOME ( echo STONAVM_HOME Defined )
+      errorMessage: STONAVM_HOME is not defined
+      expectedResult: STONAVM_HOME Defined
+      executeLocally: true
+      forceSerialization: true
+      # We should be able to authenticate
+      # WINDOWS ONLY
+    - type: osCommand
+      commandLine: "set STONAVM_RSP_PASS=on&& echo %{PASSWORD}> \"%STONAVM_HOME%\\MS_HW_pwdfile\" && \"%STONAVM_HOME%\\auaccountenv\" -set -uid %{USERNAME} -passwdfile \"%STONAVM_HOME%\\MS_HW_pwdfile\""
+      errorMessage: SNM2 CLI is unable to authenticate.
+      expectedResult: The account information has been set successfully
+      executeLocally: true
+      forceSerialization: true

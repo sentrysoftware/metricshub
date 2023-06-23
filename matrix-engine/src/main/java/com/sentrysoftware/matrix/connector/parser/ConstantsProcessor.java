@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,7 +32,8 @@ public class ConstantsProcessor implements NodeProcessor {
 
 			final UnaryOperator<String> transformer = value ->  performReplacements(replacements, value);
 
-			replacePlaceholderValues(node, transformer);
+			final Predicate<String> replacementPredicate = value -> value.indexOf("$constants.") != -1;
+			replacePlaceholderValues(node, transformer, replacementPredicate);
 
 			((ObjectNode) node).remove("constants");
 		}
@@ -70,8 +72,13 @@ public class ConstantsProcessor implements NodeProcessor {
 	 * 
 	 * @param node {@link JsonNode} instance
 	 * @param transformer value transformer function
+	 * @param replacementPredicate replacement predicate
 	 */
-	public static void replacePlaceholderValues(final JsonNode node, final UnaryOperator<String> transformer) {
+	public static void replacePlaceholderValues(
+		final JsonNode node,
+		final UnaryOperator<String> transformer,
+		final Predicate<String> replacementPredicate
+	) {
 		if (node.isObject()) {
 
 			// Get JsonNode fields
@@ -85,14 +92,15 @@ public class ConstantsProcessor implements NodeProcessor {
 
 				// Means it wrap sub JsonNode(s)
 				if (child.isContainerNode()) {
-					replacePlaceholderValues(child, transformer);
+					replacePlaceholderValues(child, transformer, replacementPredicate);
 				} else {
 					// Perform the replacement
 					final String oldValue = child.asText();
 					// No need to transform value if it doesn't have the placeholder
 					replaceJsonNode(
 						() -> ((ObjectNode) node).set(fieldName, new TextNode(transformer.apply(oldValue))),
-						oldValue
+						oldValue,
+						replacementPredicate
 					);
 				}
 			}
@@ -105,7 +113,7 @@ public class ConstantsProcessor implements NodeProcessor {
 
 				// Means this node is a JsonNode element
 				if (child.isContainerNode()) {
-					replacePlaceholderValues(child, transformer);
+					replacePlaceholderValues(child, transformer, replacementPredicate);
 				} else {
 					// Means this is a simple array node
 					final String oldValue = child.asText();
@@ -113,7 +121,8 @@ public class ConstantsProcessor implements NodeProcessor {
 					final int index = i;
 					replaceJsonNode(
 						() -> ((ArrayNode) node).set(index, new TextNode(transformer.apply(oldValue))),
-						oldValue
+						oldValue,
+						replacementPredicate
 					);
 				}
 			}
@@ -126,8 +135,8 @@ public class ConstantsProcessor implements NodeProcessor {
 	 * @param replacer
 	 * @param oldValue
 	 */
-	private static void replaceJsonNode(Runnable replacer, String oldValue) {
-		if (oldValue.indexOf("$constants.") != -1) {
+	private static void replaceJsonNode(Runnable replacer, String oldValue, Predicate<String> replacementPredicate) {
+		if (replacementPredicate.test(oldValue)) {
 			replacer.run();
 		}
 	}

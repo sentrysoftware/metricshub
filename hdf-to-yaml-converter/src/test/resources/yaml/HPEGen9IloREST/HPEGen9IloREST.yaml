@@ -1,0 +1,205 @@
+---
+extends:
+- ../RedfishREST-header/RedfishREST-header
+constants:
+  _MEMORY_STATUS_PATH: DIMMStatus
+  _POWER_CONSUMPTION_PATH: PowerMetrics/AverageConsumedWatts
+  _PS_ID: Oem/Hp/BayNumber
+  _REF: href
+  _FAN_ID: FanName
+  _TEMP_ID: Number
+  _MEMORY_SIZE_PARAMETER: SizeMB
+  _OEM_SPECIFIC: OEM/HP/Links
+  _FAN_LOCATION: Oem/Hp/Location
+connector:
+  displayName: HP iLO Gen 9 (REST)
+  platforms: HP iLO Gen 9 REST
+  version: 1.0
+  information: "This connector discovers the status of an HPE Proliant Gen 9 system using iLO 4, as well as the various environment sensors (temperatures, fans, power supplies, etc.). Requires iLO 4."
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - OOB
+    criteria:
+    # Hardware Sentry v10.3.00+
+    - type: productRequirements
+      kmVersion: 10.3.00
+    - type: http
+      method: GET
+      url: /redfish/v1/
+      header: $embedded.EmbeddedFile(1)$
+      expectedResult: iLO 4
+      errorMessage: Invalid credentials / not an HP iLO 4
+monitors:
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Query /Systems/?/
+          type: http
+          method: GET
+          executeForEachEntryOf:
+            source: $monitors.enclosure.discovery.sources.source(3)$
+            concatMethod: json_array_extended
+          url: $entry.column(3)$
+          header: $embedded.EmbeddedFile(1)$
+          resultContent: body
+          computes:
+          - type: json2csv
+            entryKey: /Entry/Value/Oem/Hp/Battery
+            properties: ../../../../Column(2);/Index;/SerialNumber;/ProductName;/Model;/Spare;
+          - type: leftConcat
+            column: 7
+            value: "Part Number: "
+          - type: leftConcat
+            column: 4
+            value: "Serial Number: "
+      mapping:
+        # Battery Instance Table
+        # JSONid;ChassisID;SerialNumber;ElementName;Id;
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(5)
+          model: $column(6)
+          info: "join($column(4), $column(7), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(5), $column(6))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # Query /Chassis/?/
+          type: http
+          method: GET
+          executeForEachEntryOf:
+            source: $monitors.enclosure.discovery.sources.source(3)$
+            concatMethod: json_array
+          url: $entry.column(3)$
+          header: $embedded.EmbeddedFile(1)$
+          resultContent: body
+          computes:
+            # Extract Data
+            # JSONId;SerialNumber;Health;health;
+          - type: json2csv
+            entryKey: /Oem/Hp/Battery
+            properties: /Index;/Condition;/Condition;
+          - type: translate
+            column: 3
+            translationTable: StatusTranslationTable
+          - type: translate
+            column: 4
+            translationTable: StatusInformationTranslationTable
+      mapping:
+        # Battery Value Table
+        # JsonID;PatrolStatus;StatusInformation
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.status{hw.type="battery"}: $column(3)
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  network:
+    discovery:
+      sources:
+        source(1):
+          # iLO 4
+          # Query /Chassis/?/NetworkAdapters/
+          type: http
+          method: GET
+          executeForEachEntryOf:
+            source: $monitors.enclosure.discovery.sources.source(3)$
+            concatMethod: json_array_extended
+          url: $entry.column(3)$NetworkAdapters/
+          header: $embedded.EmbeddedFile(1)$
+          resultContent: body
+          computes:
+          # JSONID;ChassisID;NetworkAdapterURL;
+          - type: json2csv
+            entryKey: /Entry/Value/Members
+            properties: ../../Column(2);/@odata.id;
+            separator: ;
+        source(2):
+          # Query /Chassis/?/NetworkAdapters/?/
+          type: http
+          method: GET
+          executeForEachEntryOf:
+            source: $monitors.network.discovery.sources.source(1)$
+            concatMethod: json_array_extended
+          url: $entry.column(3)$
+          header: $embedded.EmbeddedFile(1)$
+          resultContent: body
+          computes:
+            # JsonID;ChassisID;NetworkPorts;Manufacturer;Model;PartNumber;SerialNumber;
+            # JSONID;ChassisID;Id;Manufacturer;Model;SerialNumber;LinkSpeed;AddressType;Address;   Name;
+          - type: json2csv
+            entryKey: /Entry/Value/PhysicalPorts
+            properties: ../../Column(2);/MacAddress;/Name;../Model;../SerialNumber;/SpeedMbps;/MacAddress;
+          - type: translate
+            column: 7
+            translationTable: LinkSpeedDeactivationTable
+          - type: excludeMatchingLines
+            column: 4
+            valueList: "unknown,null"
+          - type: leftConcat
+            column: 10
+            value: ' '
+          - type: leftConcat
+            column: 10
+            value: Column(12)
+      mapping:
+        source: $monitors.network.discovery.sources.source(2)$
+        attributes:
+          id: $column(3)
+          __display_id: $column(4)
+          model: $column(5)
+          serial_number: $column(6)
+          physical_address: $column(8)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          # NetworkAdapters
+          type: http
+          method: GET
+          executeForEachEntryOf:
+            source: $monitors.network.discovery.sources.source(1)$
+            concatMethod: json_array
+          url: $entry.column(3)$
+          header: $embedded.EmbeddedFile(1)$
+          resultContent: body
+          computes:
+          # PhysicalPortAssignment
+          - type: json2csv
+            entryKey: /PhysicalPorts
+            properties: /MacAddress;/Status/State;/Status/Health;/Status/Health;/SpeedMbps;
+            separator: ;
+          - type: translate
+            column: 3
+            translationTable: LinkStatusTranslationTable
+          - type: translate
+            column: 4
+            translationTable: NetworkCardStatusTranslationTable
+          - type: translate
+            column: 5
+            translationTable: NetworkCardStatusInformationTranslationTable
+      mapping:
+        # NetworkCard Value Table
+        # JSON/ID/NetworkCardStatus/LinkStatus/StatusInformation;Speed;
+        source: $monitors.network.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.network.up: legacyLinkStatus($column(3))
+          hw.status{hw.type="network"}: $column(4)
+          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+        legacyTextParameters:
+          StatusInformation: $column(5)
+translations:
+  LinkSpeedDeactivationTable:
+    "0": ""
+    StandbyOffline: ""
+    "null": ""
+    Default: "True"

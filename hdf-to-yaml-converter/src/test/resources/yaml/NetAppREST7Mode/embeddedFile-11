@@ -1,0 +1,24 @@
+{
+    # the line contains multiple objects
+    if ($0 ~ />.*>.*>.*>/) {
+    line = $0
+    xmlArraySize = split(line,xmlArray,">")
+    for ( objectNumber = 1; objectNumber <= xmlArraySize ; objectNumber++ ) {
+      name = xmlArray[objectNumber]
+      gsub(/.*</,"",name)
+      nextobjectNumber = objectNumber + 1
+      nextname = xmlArray[nextobjectNumber]
+      gsub(/.*</,"",nextname)
+      # if the object is blank, or its the second part of an array ( data</objectname ), then skip
+      if ( name != "" || xmlArray[objectNumber] ~ /^</ ) {
+        # if the next object contains the same object name (basically it's the </object>) , then print both objects
+        if ( nextname ~ name && xmlArray[objectNumber] ) {
+          print xmlArray[objectNumber] ">" xmlArray[nextobjectNumber] ">" }
+        # else just print the current object
+        else { print xmlArray[objectNumber] ">" }
+        }
+      }
+    }
+  # else if it's in the header, just print the line
+  else { print $0 }
+}

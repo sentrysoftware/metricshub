@@ -1,0 +1,35 @@
+BEGIN { enclosureSection = 0 ; canisterSection = 0; faultLED = "" ; identify_LED = ""}
+
+$1 ~ /MS_HW_ENCLOSURE_START/  {enclosureSection = 1}
+$1 ~ /^id$/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+$1 ~ /fault_LED/ {faultLED = $2 ; }
+$1 ~ /identify_LED/ {identifyLED = $2 ; }
+$1 ~ /MS_HW_ENCLOSURE_END/ && enclosureID != "" {
+                             if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_fault" }
+                                              #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                  print "MS_HW_LED;Enclosure " enclosureID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+                                                 }
+                             if (identifyLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_identify" }
+                                              #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                  print "MS_HW_LED;Enclosure " enclosureID " Indentify;" identifyLED ";OK;OK;OK;" enclosureID ";"
+                                                 }
+                             enclosureID = ""; faultLED = ""; identifyLED = "";
+                             }
+
+
+$1 ~ /MS_HW_CANISTER_START/  {canisterSection = 1}
+$1 ~ /enclosure_id/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+$1 ~ /canister_id/  && $2 ~ /^[0-9]+$/ {canisterID = $2}
+$1 ~ /fault_LED/ {faultLED = $2 ; }
+$1 ~ /temperature/ && $2 ~ /^[0-9]+$/ {temperature = $2 ; }
+$1 ~ /MS_HW_CANISTER_END/ && enclosureID != ""{
+                             if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_canister_fault" }
+                                              #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+                                                  print "MS_HW_LED;Enclosure " enclosureID ":Canister " canisterID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+                                                 }
+                           if (temperature != "") {
+                                              #                 ID                 ; Temperature   ; AttachToDeviceID
+                                                  print "MS_HW_TEMPERATURE;Enclosure " enclosureID ":Canister " canisterID ";"temperature";" enclosureID ";"
+                                                 }
+                              enclosureID = ""; canisterID = "" ; faultLED = ""; temperature = "";
+                             }

@@ -1,0 +1,26 @@
+$1 ~ /</ && $2 ~ /value=/ {
+    value = $0
+    gsub(/.*value="/,"",value)
+    gsub(/".>/,"",value)
+    if ($1 ~ /component_id/) { ID = value }
+    if ($1 ~ /status/) { status[ID] = value }
+    if ($1 ~ /currently_functioning/) { currentFunctioning[ID] = value }
+    if ($1 ~ /requires_service/) { requiresService[ID] = value }
+    if ($1 ~ /service_reason/) { serviceReason[ID] = value }
+    }
+
+END {
+    for (ID in status) {
+        statusInformation = ""
+        if (currentFunctioning[ID] == "no") { statusInformation = "Not Currently Functioning" }
+        if (requiresService[ID] != "") {
+            if (statusInformation != "") {statusInformation=statusInformation " - " }
+            statusInformation = statusInformation "Requires Service: " requiresService[ID]
+            }
+        if (serviceReason[ID] != "") {
+            if (statusInformation != "") {statusInformation=statusInformation " - " }
+            statusInformation = statusInformation "Service Reason: " serviceReason[ID]
+            }
+        print "MSHW;" ID ";" status[ID] ";" statusInformation ";"
+        }
+    }

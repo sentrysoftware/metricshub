@@ -1,0 +1,58 @@
+# m1000e / MX7000
+# Find the location of the rawStatus and sensorName as they now contain spaces
+$4 ~ /.status./ { rawStatusStart = index($0,"status") - 1  ; rawStatusLength = index($0,$5) - rawStatusStart  }
+$3 ~ /.sensorName./ { sensorNameStart = index($0,"sensorName") - 1 ; sensorNameLength = index($0,$4) - sensorNameStart  }
+
+# Extract the rawStatus and sensorName
+($1 == "Temp" && $(NF-2) ~ /[Cc]el[cs]ius/ && NF > 7) {
+    rawStatus = substr($0,rawStatusStart,rawStatusLength) ; gsub(/ *$/,"",rawStatus)
+    sensorName = substr($0,sensorNameStart ,sensorNameLength ) ; gsub(/ *$/,"",sensorName)
+    if (rawStatus  ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    else if (rawStatus  ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+    else if (rawStatus  ~ /^[Nn]ot [Oo][Kk]$/ ) { status = "ALARM"; statusInformation = "Not OK"; }
+    else { status = "WARN"; statusInformation = rawStatus; }
+
+  # TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;StatusInformation;
+  print ("MSHW;" $2 ";" sensorName  ";;" $NF ";" $(NF-3) ";" status ";" statusInformation ";")
+}
+
+
+# VRTX
+$1 ~ /Sensor/ && $2 ~ /Type/ && $4 ~ /Temperature/ {Section = "VRTX_TEMP"}
+NF < 2 {Section = ""}
+$1 ~ "<Sensor" && $2 ~ "Name>" && Section == "VRTX_TEMP" {statusOffset = index ($0,"<Status>")
+                                  readingOffset = index ($0,"<Reading>")
+                                  UWOffset = index ($0,"<UW>")
+                                  UCOffset = index ($0,"<UC>")
+                                  getline
+                                 }
+Section == "VRTX_TEMP"  && statusOffset != "" {
+                                  deviceID = substr ($0,1,statusOffset-2) ; gsub(/ *$/,"",deviceID)
+                                  status = substr ($0,statusOffset,6)
+                                    if (status ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                    else if (status ~ /^[Oo][Kk]/) { status = "OK"; statusInformation = ""; }
+                                    else if (status ~ /[^Nn]ot [Oo][Kk]/) { status = "ALARM"; statusInformation = "Not OK"; }
+                                    else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                                    Reading = substr ($0,readingOffset,4) ; gsub (/ /,"",Reading); gsub ("^[Nn]/[Aa]$","",Reading)
+                                    UW = substr ($0,UWOffset,4) ; gsub (/ /,"",UW);
+                                    UC = substr ($0,UCOffset,4) ; gsub (/ /,"",UC);
+# TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;StatusInformation;
+                                    print "MSHW;" deviceID ";" ";" UW ";" UC ";" Reading ";" status ";" statusInformation ";"
+                                    deviceID=""; UW =""; UC=""; Reading=""; status=""; statusInformation="";
+                                   }
+# VRTX RAID
+$1 ~ /TempSensor./ {DeviceID = $1 ; gsub (/TempSensor.Embedded./,"",DeviceID) }
+tolower($1) ~ /name/ {Location = $0 ;  gsub (/.*= /,"",Location) }
+tolower($1) ~ /status/ {if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                          else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                          else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                          else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                         }
+tolower($1) ~ /readingdegreecelcius/ && ($3 > 0) {Temperature = $3 ;}
+tolower($1) ~ /maximumwarningthreshold/ && ($3 > 0) {WarningThreshold = $3 ; }
+tolower($1) ~ /maximumfailurethreshold/ && DeviceID != "" {
+                                           if ($3 > 0) {AlarmThreshold = $3 }
+# TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;StatusInformation;
+                                           print "MSHW;" DeviceID ";" Location ";" WarningThreshold ";" AlarmThreshold ";" Temperature ";" status ";" statusInformation ";"
+                                           DeviceID="" ; Location="" ; WarningThreshold="" ; AlarmThreshold="" ; Temperature="" ; status="" ; statusInformation="" ;
+                                          }

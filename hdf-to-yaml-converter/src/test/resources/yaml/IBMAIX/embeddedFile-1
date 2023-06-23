@@ -1,0 +1,6 @@
+#!/bin/sh
+for PROC in `/usr/sbin/lsdev -C -c processor -S as -F 'name'`
+    do
+    PROCDETAILS=`/usr/sbin/lsattr -El $PROC -O -a frequency -a type|/usr/bin/grep -v ^#`
+    /usr/bin/echo "MSHW:$PROC:$PROCDETAILS"
+done

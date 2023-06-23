@@ -1,0 +1,106 @@
+---
+connector:
+  displayName: Windows - DiskPart
+  platforms: Any system
+  reliesOn: The DISKPART.EXE command-line utility
+  information: "Discovers and monitors the logical disks in a Microsoft Windows system through the DISKPART.EXE utility, notably the software RAID volumes."
+  version: 1.0
+  detection:
+    appliesTo:
+    - NT
+    criteria:
+    # OS should be Windows
+    - type: deviceType
+      keep:
+      - NT
+    # Diskpart must be int he path and return something meaningful. Please note that we're using CHCP 437 to make sure the locale is English.
+    - type: osCommand
+      commandLine: CHCP 437&&DISKPART.EXE /S $file("embeddedFile-3")$
+      expectedResult: Leaving DiskPart
+      timeout: 120
+monitors:
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = DISKPART.EXE running "list volume" and "exit
+          type: osCommand
+          commandLine: CHCP 437&&DISKPART.EXE /S $file("embeddedFile-1")$
+          timeout: 120
+          computes:
+            # Run Source(1) through an AWK script
+            # ID;Label;Letter;VolumeType;FileSystem;Size;Status;MoreInformation
+          - type: awk
+            script: $file("embeddedFile-2")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4,5,6,7,8,9"
+            # Exclude DVDs and stupid stuff
+            # ID;Label;Letter;VolumeType;FileSystem;Size;Status;MoreInformation
+          - type: excludeMatchingLines
+            column: 4
+            valueList: "CD-ROM,DVD-ROM,Removable"
+          - type: leftConcat
+            column: 5
+            value: "File System: "
+          - type: leftConcat
+            column: 8
+            value: "Volume Information: "
+      mapping:
+        # The InstanceTable
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          raid_level: $column(4)
+          info: "join($column(5), $column(8), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(4), $column(6))"
+        metrics:
+          hw.logical_disk.limit: $column(6)
+    collect:
+      # Collection is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = DISKPART.EXE running "list volume" and "exit
+          type: osCommand
+          commandLine: CHCP 437&&DISKPART.EXE /S $file("embeddedFile-1")$
+          timeout: 120
+          computes:
+            # Run Source(1) through an AWK script
+            # ID;Status;
+          - type: awk
+            script: $file("embeddedFile-2")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,8"
+            # Duplicate the status column
+            # ID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Now translate Status to Patrol Status
+            # status
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  LogicalDiskTranslationTable:
+    Resynching: degraded
+    Unknown: failed
+    Failed: failed
+    Formatting: ok
+    Failed Rd: degraded
+    Failed Redundancy: degraded
+    Default: UNKNOWN
+    Healthy: ok
+    Regenerating: degraded
+    Rebuild: degraded

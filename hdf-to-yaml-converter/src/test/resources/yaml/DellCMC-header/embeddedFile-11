@@ -1,0 +1,14 @@
+$NF ~ /Disk.Virtual./ {DeviceID = $NF ; gsub (/Disk.Virtual./,"",DeviceID) }
+tolower($1) ~ /^status$/ {if ($3~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                          else if ($3 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+                          else if ($3 ~ /^[Nn]ot$/ && $4 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+                          else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+                       }
+tolower($1) ~ /name/ {Name = $3}
+tolower($1) ~ /layout/ {RaidLevel = $3}
+tolower($1) ~ /^size$/ && DeviceID != "" {
+                          Size = $3 ; if (toupper($4) ~ /TB/) {size = size * 1024}
+# DeviceID;Status;StatusInformation;Name;RaidLevel;Size;
+                          print "MSHW;" DeviceID ";" status ";" statusInformation ";" Name ";" RaidLevel ";" Size ";"
+                          DeviceID="" ; status="" ; statusInformation="" ; Name = "" ; RaidLevel = "" ; Size = "" ;
+                         }

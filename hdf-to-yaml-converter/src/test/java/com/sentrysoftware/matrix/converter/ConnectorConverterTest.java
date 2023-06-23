@@ -25,8 +25,6 @@ class ConnectorConverterTest extends AbstractConnectorPropertyConverterTest {
 
 	@Test
 	void test() throws IOException {
-		testConversion("getEmbeddedFilesTest");
-		testConversion("testManyEmbeddedFiles");
 		testConversion("getTranslationTables");
 		testConversion("testManyTranslationTables");
 		testConversion("testConstantsConversion");

@@ -1,0 +1,7 @@
+$1 ~ "/dev/rdsk" {LUNID = $1}
+$0 ~ /Total Path Count/ {TotalPathCount = $NF }
+$0 ~ /Operational Path Count/ {OperationalPathCount = $NF
+                               PathCountInformation = OperationalPathCount " out of " TotalPathCount " operational. "
+#                                  MSHW;LUNID;OperationalPathCount;PathCountInformation;
+                               print "MSHW;" LUNID ";" OperationalPathCount ";" PathCountInformation ";"
+                              }

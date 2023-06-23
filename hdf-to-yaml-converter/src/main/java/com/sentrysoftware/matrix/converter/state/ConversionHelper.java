@@ -138,6 +138,15 @@ public class ConversionHelper {
 	);
 
 	/**
+	 * A compiled representation of a mono instance id reference regular expression.
+	 * We attempt to match input like "%NetworkCard.Collect.DeviceID%"
+	 */
+	private static final Pattern MONO_INSTANCE_ID_PATTERN = Pattern.compile(
+		"%(\\w+)\\.collect\\.deviceid%",
+		Pattern.CASE_INSENSITIVE
+	);
+
+	/**
 	 * List of pattern function converters
 	 */
 	private static final List<PatternFunctionConverter> PATTERN_FUNCTION_CONVERTERS = List.of(
@@ -145,7 +154,8 @@ public class ConversionHelper {
 		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, ConversionHelper::convertEntryReference),
 		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference),
 		new PatternFunctionConverter(EMBEDDED_FILE_PATTERN, ConversionHelper::convertEmbeddedFileReference),
-		new PatternFunctionConverter(EMBEDDED_FILE_NO_PERCENT_PATTERN, ConversionHelper::convertEmbeddedFileReference)
+		new PatternFunctionConverter(EMBEDDED_FILE_NO_PERCENT_PATTERN, ConversionHelper::convertEmbeddedFileReference),
+		new PatternFunctionConverter(MONO_INSTANCE_ID_PATTERN, ConversionHelper::convertMonoInstanceReference)
 	);
 
 	/**
@@ -243,6 +253,23 @@ public class ConversionHelper {
 		return input.replace(
 			matcher.group(),
 			String.format("$embedded.EmbeddedFile(%s)$", index)
+		);
+	}
+
+	/**
+	 * Convert mono instance reference. E.g.
+	 * <b><u>%NetworkCard.Collect.DeviceID%</u></b> becomes
+	 * <b><u>$network.id$</u></b>
+	 * 
+	 * @param matcher matcher used to find groups
+	 * @param input   input value to be replaced
+	 * @return updated string value
+	 */
+	private static String convertMonoInstanceReference(final Matcher matcher, final String input) {
+		final String monitorName = getYamlMonitorName(matcher.group(1));
+		return input.replace(
+			matcher.group(),
+			String.format("$%s.id$", monitorName)
 		);
 	}
 

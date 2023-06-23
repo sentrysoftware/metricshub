@@ -1,0 +1,13 @@
+(NF == 7 && $4 == 2 && ($3 ~ /^DRAC.MC-[0-9]$/ || $3 ~ /^Switch-[0-9]$/)) || (NF == 6 && $4 == 2 && $3 == "KVM") {
+    if ($6 == 0) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    else if ($6 == 1) { status = "OK"; statusInformation = "OK"; }
+    else if ($6 == 2) { status = "WARN"; statusInformation = "Degraded"; }
+    else if ($6 == 3 || $6 == 4) { status = "ALARM"; statusInformation = "Failed"; }
+    else { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+
+    if ($3 ~ /^DRAC.MC-[0-9]$/) { deviceType = "DRAC"; }
+    else if ($3 ~ /^Switch-[0-9]$/) { deviceType = "Switch"; }
+    else if ($3 == "KVM") { deviceType = "KVM"; }
+
+    print "MSHW;" $1 ";" deviceType ";" $3 ";" status ";" statusInformation ";"
+}

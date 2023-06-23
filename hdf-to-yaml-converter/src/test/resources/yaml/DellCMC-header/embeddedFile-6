@@ -1,0 +1,25 @@
+BEGIN {chassislogStatus = "" ; chassislogStatusInformation = "Event Messages" ; EventTrigger = 0 }
+$0 ~ /^[ ]*No records available to display[ ]*$/ {chassislogStatus = "OK"}
+
+$1 ~ /Severity/ && $3 ~ /[Cc]ritical/ {chassislogStatus = "ALARM" ; EventTrigger = 1}
+$0 ~ /^Message[ ]*=[ ]*/ && EventTrigger == 1  {Message = $0 ; gsub(/^Message[ ]*=[ ]*/,"",Message) ;
+                                       if ( Message !~ /log *in/ && Message !~ /user/) {chassislogStatusInformation = chassislogStatusInformation " - " Message}
+                                       EventTrigger = 0
+                                      }
+
+# VRTX and M1000e
+(($1 ~ /Storage-[0-9]+/ || $1 ~ /MM-[0-9]+/ || $1 ~ /CMC-[0-9]+/ || $1 ~ /Switch-[0-9]+/ || $1 ~ /KVM/ || $1 ~ /DVD/ || $1 ~ /IO-Cable/ || $1 ~ /FPC-Cable/ || $1 ~ /Main-Board/ ) && $2 ~ /Present/ ) {
+    if ($4 ~ "^[Nn]/[Aa]$" ) { status = "UNKNOWN"; statusInformation = "Unknown Status"; }
+    else if ($4 ~ /^[Oo][Kk]$/) { status = "OK"; statusInformation = ""; }
+    else if ($4 ~ /^[Nn]ot$/ || $5 ~ /^[Oo][Kk]$/) { status = "ALARM"; statusInformation = "Not OK"; }
+    else { status = "UNKNOWN"; statusInformation = "Unknown Status"; } ;
+    deviceType = $1 ; gsub (/-[0-9]+/,"",deviceType) ;
+    print "MSHW;" $1 ";" deviceType ";" status ";" statusInformation ";"
+}
+
+#ChassisLog Section (VRTX / MX7000 only)
+END {  # if no true events were found reset the status
+    if ( chassislogStatusInformation ~ /^Event Messages$/ ) {chassislogStatus = "OK" ;  chassislogStatusInformation = "No Critical Events Found (Login / User events ignored)" }
+    # print
+    if (chassislogStatus != "") {print "MSHW;ChassisLog;EventLog;"chassislogStatus";" chassislogStatusInformation ";"}
+    }

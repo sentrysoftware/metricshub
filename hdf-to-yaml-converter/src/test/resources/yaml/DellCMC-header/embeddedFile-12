@@ -1,0 +1,2 @@
+# MSHW;BladeID;SlotName;HostName;
+$1 ~ /^[0-9]+$/ {print "MSHW;" $1 ";" $2 ";" $3 ";" }

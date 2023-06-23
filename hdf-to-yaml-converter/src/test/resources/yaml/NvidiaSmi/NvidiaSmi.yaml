@@ -1,0 +1,194 @@
+---
+connector:
+  displayName: Nvidia-Smi
+  platforms: Any system with Nvidia GPUs
+  reliesOn: NVIDIA drivers with NVIDIA-SMI support.
+  information: Gives hardware information on most Nvidia GPUs. (Clocking)
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - NT
+    - Linux
+    criteria:
+    - type: osCommand
+      commandLine: nvidia-smi
+      expectedResult: Driver Version
+      errorMessage: nvidia-smi not found at target host.
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: nvidia-smi -q
+          timeout: 90
+          computes:
+          - type: awk
+            script: $file("embeddedFile-1")$
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(1)$
+  gpu:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^MSHW_GPU
+      mapping:
+        source: $monitors.gpu.discovery.sources.source(1)$
+        attributes:
+          vendor: NVIDIA
+          id: $column(2)
+          __display_id: $column(2)
+          model: $column(14)
+          serial_number: $column(15)
+          driver_version: $column(17)
+          firmware_version: $column(19)
+          info: "join($column(16), $column(18), \" \")"
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s - %s - %mibyhf.s)\", $column(2), \"NVIDIA\", $column(14), $column(20))"
+        metrics:
+          hw.gpu.memory.limit: mebiByte2Byte($column(20))
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: nvidia-smi -q
+          timeout: 90
+          computes:
+          - type: awk
+            script: $file("embeddedFile-1")$
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^MSHW_GPU
+      mapping:
+        source: $monitors.gpu.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.gpu.utilization{task="general"}: percent2Ratio($column(5))
+          hw.gpu.memory.utilization: percent2Ratio($column(6))
+          hw.gpu.utilization{task="encoder"}: percent2Ratio($column(7))
+          hw.gpu.utilization{task="decoder"}: percent2Ratio($column(8))
+          hw.gpu.io{direction="receive"}: fakeCounter($column(4))
+          hw.power{hw.type="gpu"}: $column(9)
+          hw.energy{hw.type="gpu"}: fakeCounter($column(9))
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^MSHW_TEMP
+      mapping:
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          sensor_location: gpu
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
+          hw.temperature.limit{limit_type="high.critical"}: $column(5)
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: nvidia-smi -q
+          timeout: 90
+          computes:
+          - type: awk
+            script: $file("embeddedFile-1")$
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^MSHW_TEMP
+      mapping:
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.temperature: $column(3)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: .
+      mapping:
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          sensor_location: gpu
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: nvidia-smi -q
+          timeout: 90
+          computes:
+          - type: awk
+            script: $file("embeddedFile-1")$
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^MSHW_VOLTAGE
+      mapping:
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.voltage: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(1)$
+          computes:
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^MSHW_FAN
+      mapping:
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          sensor_location: gpu
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
+        metrics:
+          hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
+          hw.fan.speed_ratio.limit{limit_type="low.critical"}: percent2Ratio("0")
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: nvidia-smi -q
+          timeout: 90
+          computes:
+          - type: awk
+            script: $file("embeddedFile-1")$
+          - type: keepOnlyMatchingLines
+            column: 1
+            regExp: ^MSHW_FAN
+      mapping:
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(2)
+        metrics:
+          hw.fan.speed_ratio: percent2Ratio($column(3))

@@ -1,0 +1,13 @@
+BEGIN {FS=";"}
+{
+  INDEX[$7] = $7;
+  PS[$7] = $7 ";" $9 ";" $10 ";Serial Number: " $11 ";Vendor: " $12 ";Model: " $13
+  if ($2 == 5) { AMPS[$7] = $4 }
+  if ($2 == 3) { AC[$7] = $4 }
+  if ($5 >= STATUS[$7] || "" == STATUS[$7]) { STATUS[$7] = $5 }
+}
+
+END {
+  for (var in INDEX)
+    print PS[var] ";" AC[var] ";" AMPS[var] ";" STATUS[var] ";" STATUS[var]
+}

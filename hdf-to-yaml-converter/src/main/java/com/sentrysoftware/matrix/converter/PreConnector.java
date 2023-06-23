@@ -201,7 +201,7 @@ public class PreConnector {
 		StringBuffer tempRawCode = new StringBuffer();
 
 		while (includeMatcher.find()) {
-			extendedConnectors.add(ConnectorLibraryConverter.getConnectorFilenameNoExtension(includeMatcher.group(2)));
+			extendedConnectors.add(includeMatcher.group(2));
 			includeMatcher.appendReplacement(tempRawCode, "");
 		}
 

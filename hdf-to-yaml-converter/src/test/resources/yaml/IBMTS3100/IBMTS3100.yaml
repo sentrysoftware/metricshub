@@ -1,0 +1,17 @@
+---
+extends:
+- ../IBMTS-header/IBMTS-header
+constants:
+  _ROOT_OID: 1.3.6.1.4.1.2.6.210
+  _LIBRARY_ID: TS3100
+connector:
+  displayName: IBM TS3100 Tape Libraries
+  platforms: IBM TS3100 Tape Library
+  reliesOn: IBM SNMP Agent SNMP Agent (IBM-3100-MIB)
+  information: This connector monitors IBM TS3100 tape libraries through SNMP.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    appliesTo:
+    - Storage

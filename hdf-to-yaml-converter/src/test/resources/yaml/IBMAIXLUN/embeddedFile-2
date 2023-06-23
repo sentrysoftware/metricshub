@@ -1,0 +1,37 @@
+BEGIN {
+    manufacturer = "";
+    model = "";
+    hardwareLocationCode = "";
+    wwn = "";
+    diskId = "";
+}
+($1 ~ /^hdisk[0-9]+$/) {
+    if (diskId != "")
+    {
+        print "MSHW;" diskId ";" hardwareLocationCode ";" manufacturer " " model ";" wwn;
+        manufacturer = "";
+        model = "";
+        hardwareLocationCode = "";
+        wwn = "";
+        diskId = "";
+    }
+
+    diskId = $1;
+    hardwareLocationCode = $2;
+}
+/^ *Manufacturer/ {
+    gsub("\\.+", " ");
+    manufacturer = $2;
+}
+/^ *Machine Type and Model/ {
+    gsub("\\.+", " ");
+    model = $5;
+    for (i=6 ; i<=NF ; i++) { model = model $i; }
+}
+/^ *Device Specific..Z0/ {
+    gsub("\\.+", " ");
+    wwn = $4;
+}
+END {
+    print "MSHW;" diskId ";" hardwareLocationCode ";" manufacturer " " model ";" wwn
+}

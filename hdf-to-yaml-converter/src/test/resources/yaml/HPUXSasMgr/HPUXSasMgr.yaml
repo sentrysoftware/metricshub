@@ -1,0 +1,198 @@
+---
+connector:
+  displayName: HP-UX - sasmgr Disk Controllers
+  platforms: "HP 9000,HP Integrity,HP SuperDome"
+  reliesOn: "HP-UX system commands (sasmgr, ioscan etc.)"
+  information: Provides hardware SAS RAID disks status information on HP-UX systems. Requires root privileges.
+  version: 1.0
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - HP
+    criteria:
+    # OS should be HP (for HP-UX, whatever version)
+    - type: deviceType
+      keep:
+      - HP
+    # STM should not be present, because in this case, we will use the HPUX-CSTM connector
+    - type: osCommand
+      commandLine: /bin/ls /opt/sas/bin/sasmgr
+      expectedResult: sasmgr$
+    # The various following tools have to be present
+    - type: osCommand
+      commandLine: /bin/sh $file("embeddedFile-1")$
+      expectedResult: Info for PHY ID
+sudoCommands:
+- /opt/sas/bin/sasmgr
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          type: osCommand
+          commandLine: /bin/sh $file("embeddedFile-3")$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: $file("embeddedFile-4")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          controller_number: $column(1)
+          firmware_version: $column(3)
+          model: $column(2)
+          vendor: $column(1)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(1), $column(2))"
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: /bin/sh $file("embeddedFile-3")$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: $file("embeddedFile-4")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,5"
+            # Now translate Status to Patrol Status
+            # status
+          - type: translate
+            column: 2
+            translationTable: ControllerTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          type: osCommand
+          commandLine: /bin/sh $file("embeddedFile-1")$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: $file("embeddedFile-2")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,4"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: $column(1)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: /bin/sh $file("embeddedFile-1")$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: $file("embeddedFile-2")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+            # Now translate Status to Patrol Status
+            # status
+          - type: translate
+            column: 2
+            translationTable: PhysicalDiskTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          type: osCommand
+          commandLine: /bin/sh $file("embeddedFile-5")$
+          computes:
+            # Run Source(1) through an AWK script
+            # MSHW;ID;Status;Controller it is attached to; Raid Level; ; Size
+          - type: awk
+            script: $file("embeddedFile-6")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,4,5,6"
+      mapping:
+        # The InstanceTable
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          raid_level: $column(3)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(3), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
+    collect:
+      # Collect type: MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          type: osCommand
+          commandLine: /bin/sh $file("embeddedFile-5")$
+          computes:
+            # Run Source(1) through an AWK script
+            # Output:  MSHW;ID;model;firmwareversion;status;
+          - type: awk
+            script: $file("embeddedFile-6")$
+            separators: ;
+            keep: ^MSHW;
+            selectColumns: "2,3"
+            # Now translate Status to Patrol Status
+            # status
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+translations:
+  PhysicalDiskTranslationTable:
+    DOWN: failed
+    UP: ok
+    Default: UNKNOWN
+  ControllerTranslationTable:
+    N/A: ok
+    Degraded: degraded
+    Failed: failed
+    Default: UNKNOWN
+    ONLINE: ok
+  LogicalDiskTranslationTable:
+    OPTIMAL: ok
+    FAILED: failed
+    DEGRADED: degraded
+    Default: UNKNOWN

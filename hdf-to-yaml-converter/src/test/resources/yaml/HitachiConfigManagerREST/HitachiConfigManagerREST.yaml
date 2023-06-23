@@ -1,0 +1,24 @@
+---
+extends:
+- ../HitachiREST-header/HitachiREST-header
+connector:
+  displayName: Hitachi Configuration Manager (REST)
+  platforms: Hitachi VSP F-Series and VSP G-Series Storage Systems
+  reliesOn: Hitachi Configuration Manager
+  information: "This connector provides hardware monitoring for VSP F-Series and G-Series Hitachi Storage Systems through the Hitachi Configuration Manager REST API on port 23451.If you are interacting with Hitachi SVP, use Hitachi G-Series (REST) instead"
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Storage
+    supersedes:
+    - HitachiGSeriesREST
+monitors:
+  enclosure:
+    discovery:
+      mapping:
+        attributes:
+          id: $column(1)
+          device_hostname: $column(2)
+          name: "sprintf(\"Enclosure: %s\", $column(1))"

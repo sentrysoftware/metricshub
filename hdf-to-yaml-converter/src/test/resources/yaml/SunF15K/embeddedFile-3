@@ -1,0 +1,12 @@
+/^PS[0-9] +/ {
+    if (NF == 8)
+    {
+        print "MSHW;PowerSupply;" $1 ";" $2
+    }
+}
+($2 == "at" && $3 ~ /^PS[0-9]+/) {
+    if (NF == 10)
+    {
+        print "MSHW;PowerSupply;" $3 ";" $4
+    }
+}

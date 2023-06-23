@@ -1,0 +1,16 @@
+BEGIN {FS = ": |,"}
+
+/"interface_id"/ {id = Interface $2}
+/"address"/ {ip = $2}
+/"mac_address"/ {mac = $2}
+/"interface_status": "/ {status = $2}
+/"cable_status"/ {linkStatus = $2}
+/"speed"/ {speed = $2}
+/"bytes_received"/ {bytesReceived = $2}
+/"bytes_sent"/ {bytesSent = $2}
+/"node_id"/ {
+  nodeId = $2;
+  result = nodeId "-" id ";" nodeId ";" ip ";" mac ";" speed ";" bytesSent ";" bytesReceived ";" linkStatus ";" status ";" status;
+  gsub(/"/, "", result);
+  print result
+}

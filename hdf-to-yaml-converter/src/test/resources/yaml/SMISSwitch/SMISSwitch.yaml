@@ -1,0 +1,29 @@
+---
+extends:
+- ../SMISShared-header/SMISShared-header
+constants:
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^5|\)\|\(|5|\)"'
+  _FCPORT_TYPE_VALUELIST: "\"14,15,16,17,18\""
+connector:
+  displayName: SMI-S Compliant SAN Switches
+  platforms: Any SMI-S compliant SAN switch
+  reliesOn: SMI-S Agent provided by the switch vendor
+  version: 1.1
+  information: "This connector discovers the enclosure and fiber-channel ports of SAN switches as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant switches only."
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - Storage
+    criteria:
+    # There must be ComputerSystem of type Switch (5)
+    - type: wbem
+      namespace: Automatic
+      query: SELECT Dedicated FROM CIM_ComputerSystem
+      expectedResult: ^5|;*$
+    # There must be FC Ports declared in the automatically discovered namespace
+    - type: wbem
+      query: SELECT PortType FROM CIM_FCPort
+      namespace: Automatic
+      expectedResult: ^\(14\)\|\(15\)\|\(16\)\|\(17\)\|\(18\);$

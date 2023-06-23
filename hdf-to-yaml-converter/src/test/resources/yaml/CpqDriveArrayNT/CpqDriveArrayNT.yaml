@@ -1,0 +1,836 @@
+---
+connector:
+  displayName: HP Insight Management Agent - Drive Array
+  platforms: HP ProLiant
+  reliesOn: HP Insight Management Agents
+  version: 1.0
+  information: This connector monitors the HP/Compaq Drive Arrays by connecting to the Storage Management SNMP sub-agent of the HP Insight Manager agent.
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - NT
+    - Linux
+    - VMS
+    - OSF1
+    - OOB
+    - Solaris
+    supersedes:
+    - Director52ServeRAIDLinux
+    - Director52ServeRAIDNT
+    - SunRaidctl
+    - SunIostat
+    - SunIostatNonSun
+    - SunTapeDrives
+    criteria:
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.232.3.2.2.1.1
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqDaCntlrTable
+          # ID;ControllerIndex;ModelCode;FWRev;SerialNumber;Location;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.2.1.1
+          selectColumns: "ID,1,2,3,15,20"
+          computes:
+            # Translate the Model code into a more readable string
+            # ID;ControllerIndex;Model;FWRev;SerialNumber;Location;
+          - type: translate
+            column: 3
+            translationTable: DiskControllerModelTranslationTable
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+      mapping:
+        # The InstanceTable
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          controller_number: $column(2)
+          model: $column(3)
+          firmware_version: $column(4)
+          serial_number: $column(5)
+          info: $column(6)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(2), $column(3))"
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqDaCntlrTable
+          # ID;BoardStatus;BoardCondition
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.2.1.1
+          selectColumns: "ID,10,12"
+          computes:
+            # Now, duplicate BoardStatus
+            # ID;BoardStatus;BoardStatus;BoardCondition
+          - type: duplicateColumn
+            column: 2
+            # Translate first BoardStatus into a PATROL status
+            # ID;status;BoardStatus;BoardCondition
+          - type: translate
+            column: 2
+            translationTable: DiskControllerStatusTranslationTable
+            # Translate first BoardCondition into a PATROL status
+            # ID;status;BoardStatus;BoardCondition
+          - type: translate
+            column: 4
+            translationTable: DiskControllerConditionTranslationTable
+            # now take the worst case between condition and status
+            # ID;status;BoardStatus;BoardCondition
+          - type: awk
+            script: $file("embeddedFile-1")$
+            # Translate second BoardStatus into a statusInformation
+            # ID;status;statusInformation;BoardCondition
+          - type: translate
+            column: 3
+            translationTable: DiskControllerStatusInformationTranslationTable
+      mapping:
+        # The collect table
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqDaAccelTable
+          # ID;ControllerNumber;BatteryStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.2.2.1
+          selectColumns: "ID,1,6"
+          computes:
+            # Keep only Array Accelerator instances equipped with a battery
+            # ID;ControllerNumber;BatteryStatus
+          - type: excludeMatchingLines
+            column: 3
+            valueList: "0,1,6"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.battery.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          model: HP Array Accelerator
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(1), \"HP Array Accelerator\")"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqDaAccelTable
+          # ID;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.2.2.1
+          selectColumns: "ID,6"
+          computes:
+            # Duplicate the Status column
+            # ID;Status;Status;
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROLStatus
+            # ID;PATROLStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: BatteryStatusTranslationTable
+            # Translate the second Status into a more readable string
+            # ID;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: BatteryStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.battery.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="battery"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqDaPhyDrv snmp table
+          # ID;ControllerNumber;Model;SizeMB;SerialNumber;Location;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.5.1.1
+          selectColumns: "ID,1,3,45,51,64"
+          computes:
+            # Change the 4294967295 size value into an empty string
+            # because this is not a real size
+            # ID;ControllerNumber;Model;SizeMB;SerialNumber;Location;
+          - type: replace
+            column: 4
+            existingValue: 4294967295
+            newValue: ""
+            # Convert the size into bytes
+            # ID;ControllerNumber;Model;SizeBytes;SerialNumber;Location;
+          - type: multiply
+            column: 4
+            value: 1048576
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+      mapping:
+        # The instance table = Source(1)
+        source: $monitors.physical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          vendor: $column(3)
+          serial_number: $column(5)
+          info: $column(6)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(3), $column(4))"
+        metrics:
+          hw.physical_disk.size: $column(4)
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqDaPhyDrv snmp table
+          # ID;status;SMARTstatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.5.1.1
+          selectColumns: "ID,6,57"
+          computes:
+            # Duplicate the status column
+            # ID;status;status;SMARTstatus
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLstatus;status;SMARTstatus
+          - type: translate
+            column: 2
+            translationTable: PhysicalDiskStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLstatus;statusInformation;SMARTstatus
+          - type: translate
+            column: 3
+            translationTable: PhysicalDiskStatusInformationTranslationTable
+            # Translate the SMARTstatus into a 0 (no failure predicted) or 1 (failure is predicted)
+            # ID;PATROLstatus;statusInformation;predictFailureStatus
+          - type: translate
+            column: 4
+            translationTable: PhysicalDiskSMARTStatusTranslationTable
+      mapping:
+        # The ValueTable = source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqDaLogDrv snmp table
+          # ID;ControllerNumber;FaultToleranceLevel;SizeMB;OsName;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.3.1.1
+          selectColumns: "ID,1,3,9,14"
+          computes:
+            # Translate size into bytes
+            # ID;ControllerNumber;FaultToleranceLevel;Size;OsName;
+          - type: multiply
+            column: 4
+            value: 1048576
+            # Translate the FaultToleranceLevel into a more readable string
+            # ID;ControllerNumber;RAIDLevel;Size;OsName;
+          - type: translate
+            column: 3
+            translationTable: RAIDLevelTranslationTable
+      mapping:
+        # The InstanceTable
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          raid_level: $column(3)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(3), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
+    collect:
+      # Collect type = MultiInstance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the cpqDaLogDrv snmp table
+          # ID;Status
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.3.1.1
+          selectColumns: "ID,4"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLStatus;Status
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;StatusInformation
+          - type: translate
+            column: 3
+            translationTable: LogicalDiskStatusInformationTranslationTable
+      mapping:
+        # The ValueTable = source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,1,4,5,6,13,17,23"
+          computes:
+            # Exclude lines that have no Model as these are not real external bays.
+            # BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: .
+            # Concat " Bays" to Total Bays
+            # BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;
+          - type: rightConcat
+            column: 6
+            value: ' Bay'
+        source(2):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.3.2.2.1.1
+          selectColumns: "1,2,5"
+          computes:
+            # Translate the Model code into a more readable string
+            # ControllerIndex;Model;Slot
+          - type: translate
+            column: 2
+            translationTable: DiskControllerModelTranslationTable
+            # Concat "Attached to " to Model
+            # ControllerIndex;Model;Slot
+          - type: leftConcat
+            column: 2
+            value: 'Attached to '
+            # Concat " #" to Model
+            # ControllerIndex;Model;Slot
+          - type: rightConcat
+            column: 2
+            value: " #"
+            # Concat Slot to Model
+            # ControllerIndex;Model;Slot
+          - type: rightConcat
+            column: 2
+            value: Column(1)
+            # Concat " in Slot " to Slot
+            # ControllerIndex;Model;Slot
+          - type: leftConcat
+            column: 3
+            value: ' in Slot '
+            # Concat Slot to Model
+            # ControllerIndex;Model in Slot;Slot
+          - type: rightConcat
+            column: 2
+            value: Column(3)
+        source(3):
+          # Source(3) = Join(Source(1), Source(2))
+          # BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;ControllerIndex;Model in Slot;Slot;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+        source(4):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,11"
+          computes:
+            # Exclude lines that have a status of "No PowerSupply" or "Other"
+            # BayID;PowerSupplyStatus;
+          - type: excludeMatchingLines
+            column: 2
+            valueList: "1,5"
+        source(5):
+          # Source(5) = Join(Source(3), Source(4))
+          # Keep only those enclosures with a real power supply status (avoids "fake" internal bays being reported)
+          # BayID;CtlIndex;ModelName;FWRev;Vendor;TotalBays;SerialNumber;Location;ControllerIndex;Model in Slot;Slot;BayID;PowerSupplyStatus;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(3)$
+          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(5)$
+        attributes:
+          id: $column(1)
+          vendor: $column(5)
+          model: $column(3)
+          type: MSADiskBay
+          serial_number: $column(7)
+          bios_version: $column(4)
+          info: "join($column(10), $column(8), $column(6), \" \")"
+          name: "sprintf(\"Enclosure: (%s %s)\", $column(5), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,8"
+          computes:
+            # Now, duplicate Status
+            # BayID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # BayID;PatrolStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: EnclosureStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # BayID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: EnclosureStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.enclosure.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,4,7"
+          computes:
+            # Exclude lines that have no Model as these are not real external bays.
+            # BayID;Model;FanStatus;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Exclude lines that have a status of "No Fan" or "Other"
+            # BayID;Model;FanStatus;
+          - type: excludeMatchingLines
+            column: 3
+            valueList: "1,4"
+      mapping:
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: Overall Fan Status
+          hw.parent.type: MSADiskBay
+          hw.parent.id: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Fan Status\")"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,7"
+          computes:
+            # Now, duplicate Status
+            # BayID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # BayID;PatrolStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: FanStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # BayID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: FanStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,4,9"
+          computes:
+            # Exclude lines that have no Model as these are not real external bays.
+            # BayID;Model;TemperatureStatus;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Exclude lines that have a status of "No Temperature" or "Other"
+            # BayID;Model;TemperatureStatus;
+          - type: excludeMatchingLines
+            column: 3
+            valueList: "1,5"
+      mapping:
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          sensor_location: Overall Temperature Status
+          hw.parent.type: MSADiskBay
+          hw.parent.id: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Temperature Status\")"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,9"
+          computes:
+            # Now, duplicate Status
+            # BayID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # BayID;PatrolStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: TemperatureStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # BayID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: TemperatureStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="temperature"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,4,11"
+          computes:
+            # Exclude lines that have no Model as these are not real external bays.
+            # BayID;Model;PowerSupplyStatus;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: .
+            # Exclude lines that have a status of "No PowerSupply" or "Other"
+            # BayID;Model;PowerSupplyStatus;
+          - type: excludeMatchingLines
+            column: 3
+            valueList: "1,5"
+      mapping:
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          power_supply_type: Overall Power Supplies Status
+          hw.parent.type: MSADiskBay
+          hw.parent.id: $column(1)
+          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Power Supplies Status\")"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.232.8.2.1.1
+          selectColumns: "ID,11"
+          computes:
+            # Now, duplicate Status
+            # BayID;Status;Status
+          - type: duplicateColumn
+            column: 2
+            # Translate first Status into a PATROL status
+            # BayID;PatrolStatus;Status;
+          - type: translate
+            column: 2
+            translationTable: PowerSupplyStatusTranslationTable
+            # Translate second Status into a statusInformation
+            # BayID;PatrolStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: PowerSupplyStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+translations:
+  BatteryStatusInformationTranslationTable:
+    "2": ""
+    "3": Charging
+    "4": Failed
+    "5": Degraded
+    "7": Capacitor Failed
+    Default: Unknown Status
+  DiskControllerModelTranslationTable:
+    "88": HP P840ar
+    "89": HP P542d
+    "90": HP S100i
+    "91": HP E208i-p
+    "92": HP E208i-a
+    "93": HP E208i-c
+    "94": HP E208e-p
+    "95": HP E204i-b
+    "96": HP P204i-c
+    "97": HP P408i-p
+    "10": Compaq Smart Array 3200
+    "98": HP P408i-a
+    "11": Compaq SMART-2DH Array
+    "99": HP P408e-p
+    "12": Compaq Smart Array 221
+    "13": Compaq Smart Array 4250ES
+    "14": Compaq Smart Array 4200
+    "15": Compaq Integrated Smart Array
+    "16": Compaq Smart Array 431
+    "17": Compaq Smart Array 5300
+    "18": Compaq RAID LC2
+    "19": Compaq Smart Array 5i
+    "1": Compaq Array
+    "2": Compaq 32-Bit Intelligent Drive Array
+    "3": Compaq 32-Bit Intelligent Drive Array Expansion
+    "4": Compaq Intelligent Drive Array-2
+    "5": Compaq SMART Array
+    "6": Compaq SMART-2/E Array
+    "7": Compaq SMART-2/P Array
+    "8": Compaq SMART-2SL Array
+    "9": Compaq Smart Array 3100ES
+    "20": Compaq Smart Array 532
+    "21": Compaq Smart Array 5312
+    "22": HP Smart Array 641
+    "23": HP Smart Array 642
+    "24": HP Smart Array 6400
+    "25": HP Smart Array 6400 EM
+    "26": HP Smart Array 6i
+    "27": Generic Array
+    "29": HP Smart Array P600
+    "30": HP Smart Array P400
+    "31": HP Smart Array E200
+    "32": HP Smart Array E200i
+    "33": HP Smart Array P400i
+    "34": HP Smart Array P800
+    "35": HP Smart Array E500
+    "36": HP Smart Array P700m
+    "37": HP Smart Array P212
+    "38": HP Smart Array P410
+    "39": HP Smart Array P410i
+    Default: HP Smart Array
+    "40": HP Smart Array P411
+    "41": HP Smart Array B110i SATA RAID
+    "42": HP Smart Array P712m
+    "43": HP Smart Array P711m
+    "44": HP Smart Array P812
+    "45": HP SW 1210M
+    "46": HP Smart Array P220i
+    "47": HP Smart Array P222
+    "48": HP Smart Array P420
+    "49": HP Smart Array P420i
+    "50": HP Smart Array P421
+    "51": HP Smart Array B320i
+    "52": HP Smart Array P822
+    "53": HP Smart Array P721M
+    "54": HP Smart Array B120i
+    "55": HP HPS-1224
+    "56": HP HPS-1228
+    "57": HP HPS-1228m
+    "58": HP Smart Array P822SE
+    "59": HP HPS-1224e
+    "60": HP HPS-1228e
+    "61": HP HPS-1228em
+    "62": HP Smart Array P230i
+    "63": HP Smart Array P430i
+    "64": HP Smart Array P430
+    "65": HP Smart Array P431
+    "66": HP Smart Array P731m
+    "67": HP Smart Array P830i
+    "68": HP Smart Array P830
+    "69": HP Smart Array P831
+    "70": HP Smart Array P530
+    "71": HP Smart Array P531
+    "72": HP Smart Array P244br
+    "73": HP Smart Array P246br
+    "74": HP Smart Array P440
+    "75": HP Smart Array P440ar
+    "76": HP Smart Array P441
+    "77": HP Smart Array P741m
+    "78": HP Smart Array P840
+    "79": HP Smart Array P841
+    "100": HP P408i-c
+    "101": HP P408e-m
+    "102": HP P416ie-m
+    "103": HP P816i-a
+    "80": HP SH-H240ar
+    "81": HP SH-H244br
+    "82": HP SH-240
+    "83": HP SH-241
+    "84": HP SA-B140i
+    "85": HP SH-Generic
+    "86": HP SA-P240nr
+    "87": HP SA-H240nr
+  TemperatureStatusTranslationTable:
+    "2": ok
+    "3": degraded
+    "4": failed
+    Default: UNKNOWN
+  FanStatusTranslationTable:
+    "2": ok
+    "3": failed
+    "5": degraded
+    Default: UNKNOWN
+  BatteryStatusTranslationTable:
+    "2": ok
+    "3": ok
+    "4": failed
+    "5": degraded
+    "7": failed
+    Default: UNKNOWN
+  DiskControllerConditionTranslationTable:
+    "2": ok
+    "3": degraded
+    "4": failed
+    Default: UNKNOWN
+  PowerSupplyStatusTranslationTable:
+    "2": ok
+    "3": degraded
+    "4": failed
+    Default: UNKNOWN
+  EnclosureStatusTranslationTable:
+    "1": UNKNOWN
+    "2": ok
+    "3": degraded
+    "4": failed
+    Default: UNKNOWN
+  FanStatusInformationTranslationTable:
+    "2": ""
+    "3": Failed
+    "5": Degraded
+    Default: Unknown Status
+  LogicalDiskStatusTranslationTable:
+    "11": failed
+    "12": ok
+    "13": failed
+    "14": ok
+    "15": degraded
+    "16": ok
+    Default: UNKNOWN
+    "2": ok
+    "3": failed
+    "4": ok
+    "5": degraded
+    "6": ok
+    "7": degraded
+    "8": failed
+    "9": failed
+    "10": degraded
+  PhysicalDiskStatusTranslationTable:
+    "2": ok
+    "3": failed
+    "4": degraded
+    "5": ok
+    "6": ok
+    "7": ok
+    Default: UNKNOWN
+  PowerSupplyStatusInformationTranslationTable:
+    "2": ""
+    "3": Degraded
+    "4": Failed
+    Default: Unknown Status
+  DiskControllerStatusTranslationTable:
+    "2": ok
+    "3": failed
+    "4": failed
+    "5": degraded
+    Default: UNKNOWN
+  RAIDLevelTranslationTable:
+    "1": ""
+    "2": 0
+    "3": 1
+    "4": 4
+    "5": 5
+    "7": 6
+    "8": 50
+    "9": 60
+    Default: ""
+  PhysicalDiskStatusInformationTranslationTable:
+    "2": ""
+    "3": Failed
+    "4": Predicted Failure
+    "5": Erasing
+    "6": Erase Done
+    "7": Erase Queued
+    Default: Unknown Status
+  TemperatureStatusInformationTranslationTable:
+    "2": ""
+    "3": Degraded
+    "4": Failed
+    Default: Unknown Status
+  DiskControllerStatusInformationTranslationTable:
+    "2": ""
+    "3": General failure
+    "4": Cable problem
+    "5": Powered off
+    Default: Unknown Status
+  PhysicalDiskSMARTStatusTranslationTable:
+    "1": "FALSE"
+    "2": "FALSE"
+    "3": "TRUE"
+    Default: "FALSE"
+  LogicalDiskStatusInformationTranslationTable:
+    "11": Shutdown
+    "12": Expanding
+    "13": Not available
+    "14": Queued for expansion
+    "15": Multi-path Degraded
+    "16": Erasing
+    Default: Unknown Status
+    "2": ""
+    "3": Failed
+    "4": Unconfigured
+    "5": Recovering
+    "6": Ready for rebuild
+    "7": Rebuilding
+    "8": Wrong drive
+    "9": Bad connect
+    "10": Overheating
+  EnclosureStatusInformationTranslationTable:
+    "1": Status Not Recognized
+    "2": ""
+    "3": Degraded
+    "4": Failed
+    Default: Unknown Status

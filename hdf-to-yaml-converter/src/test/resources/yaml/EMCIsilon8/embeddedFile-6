@@ -1,0 +1,7 @@
+$1 ~ /^IP/ && $2 ~ /Addresses/ {IPAddress = $NF}
+$1 ~ /^LNN/ {NodeNumber = $NF}
+$1 ~ /^Name/ {Interface = $NF }
+$1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}
+$1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,"",Status) ; gsub (/ +$/,"",Status)
+                              print "MSHW;" NodeNumber ";" NICName ";" NICName ";" Interface ";" IPAddress ";" Status ";"
+                              }

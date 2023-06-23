@@ -1,0 +1,25 @@
+BEGIN {
+    readErrors = 0;
+    writeErrors = 0;
+    readReverseErrors = 0;
+    verifyErrors = 0;
+    status = "";
+}
+/^ *Read Errors: +[0-9]+/ {
+    readErrors = $3;
+}
+/^ *Read Reverse Errors: +[0-9]+/ {
+    readReverseErrors = $4;
+}
+/^ *Write Errors: +[0-9]+/ {
+    writeErrors = $3;
+}
+/^ *Verify Errors: +[0-9]+/ {
+    verifyErrors = $3;
+}
+/^Current [Ss]tatus +:/ {
+    status = $4;
+
+    totalErrors = readErrors + readReverseErrors + writeErrors + verifyErrors;
+    print "MSHW;" totalErrors ";" status ";";
+}

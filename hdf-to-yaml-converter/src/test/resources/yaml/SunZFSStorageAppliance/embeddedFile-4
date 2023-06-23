@@ -1,0 +1,25 @@
+BEGIN {valid=""}
+
+# Process instances
+valid != "" && NF > 4 && $1 ~ /target-/ {
+    name = substr($0,nameStart,nameLength) ; gsub(/ +$/,"",name);
+    mode = substr($0,modeStart,modeLength) ; gsub(/ +$/,"",mode);
+    WWN = substr($0,WWNStart,WWNLength ) ; gsub(/ +$/,"",WWN); gsub(/wwn./,"",WWN);
+    port = substr($0,portStart,portLength) ; gsub(/ +$/,"",port);
+    speed = substr($0,speedStart) ; gsub(/ +$/,"",speed); gsub(/ Gbit.*/,"",speed); speed = speed * 1000;
+    print "MSHW;" name ";" WWN ";" speed ";" port ";FC " mode ";" speed ";WWN;"
+    }
+
+# Check for header
+$0 ~ /^ *NAME +MODE +WWN +PORT +SPEED/ {
+     valid="1"
+     nameStart = index($0,"NAME")
+     modeStart = index($0,"MODE")
+     WWNStart = index($0,"WWN")
+     portStart = index($0,"PORT")
+     speedStart = index($0,"SPEED")
+     nameLength = modeStart - nameStart - 1
+     modeLength = WWNStart - modeStart - 1
+     WWNLength = portStart - WWNStart - 1
+     portLength = speedStart - portStart - 1
+    };

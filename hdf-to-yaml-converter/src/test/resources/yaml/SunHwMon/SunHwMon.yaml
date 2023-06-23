@@ -1,0 +1,1137 @@
+---
+connector:
+  displayName: Oracle Hardware Management Agent
+  platforms: Oracle/Sun
+  reliesOn: Oracle Hardware Management Pack
+  version: 1.1
+  information: This connector provides hardware monitoring through the Oracle Hardware Management Pack which is pre-installed with Solaris and can be installed on Linux / Windows.
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - NT
+    - Linux
+    - Solaris
+    supersedes:
+    - IpmiTool
+    - Director52ServeRAIDLinux
+    - Director52ServeRAIDNT
+    - SunFmadm
+    - SunIostat
+    - SunIostatNonSun
+    - SunNetwork
+    - SunPrtdiag
+    - SunPrtpicl
+    - SunPsrinfo
+    - SunPsrinfoT1
+    - SunScSnapshot
+    - WBEMGenDiskNT
+    - SmartMonLinux
+    criteria:
+    # Check that there is an enclosure
+    - type: snmpGetNext
+      oid: 1.3.6.1.4.1.42.2.2.6.1.1.1
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model name
+          # Model;PartNumber;SerialNumber;Manufacturer;SlotNumber;BiosVersion;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.1
+          selectColumns: "1,3,4,5,6,8"
+          computes:
+            # Add a server ID
+            # ServerID;Model;PartNumber;SerialNumber;Manufacturer;SlotNumber;BiosVersion;
+          - type: leftConcat
+            column: 1
+            value: Server;
+            # Add slot:
+            # ServerID;Model;PartNumber;SerialNumber;Manufacturer;SlotNumber;BiosVersion;
+          - type: leftConcat
+            column: 6
+            value: "Location: "
+        source(2):
+          # Source(2) = sunHwMonTotalPowerConsumption SNMP Table
+          # CurrentReading;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.9
+          selectColumns: 6
+          computes:
+            # Keep only if CurrentReading is not -1 or 0
+            # CurrentReading;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: "-1,0"
+            # Add a server ID
+            # ServerID;CurrentReading;
+          - type: leftConcat
+            column: 1
+            value: Server;
+        source(3):
+          # Source(3) = Table joint between Source(1) and Source(2)
+          # ServerID;Model;PartNumber;SerialNumber;Manufacturer;SlotNumber;BiosVersion;ServerID;CurrentReading;
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+          computes:
+          - type: leftConcat
+            column: 3
+            value: "Part Number: "
+      mapping:
+        # InstanceTable
+        # ServerID;Model;PartNumber;SerialNumber;Manufacturer;SlotNumber;BiosVersion;ServerID;CurrentReading;
+        source: $monitors.enclosure.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          vendor: $column(5)
+          model: $column(2)
+          type: Computer
+          serial_number: $column(4)
+          bios_version: $column(7)
+          info: "join($column(3), $column(6), \" \")"
+          name: "sprintf(\"Computer: (%s %s)\", $column(5), $column(2))"
+    collect:
+      # Collect type is mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Get a list of Enclosures
+          # FruType,FruStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1
+          selectColumns: "3,8"
+          computes:
+            # Keep only hostSystem fans
+            # FruType,FruStatus
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: 49
+            # Add a server ID
+            # ServerID,FruType,FruStatus
+          - type: leftConcat
+            column: 1
+            value: Server;
+            # Duplicate the Status
+            # ServerID,FruType,FruStatus,FruStatus
+          - type: duplicateColumn
+            column: 3
+            # Translate the first Status code into a PATROLStatus
+            # ServerID;FruType;PATROLStatus;FruStatus
+          - type: translate
+            column: 3
+            translationTable: FRUStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # ServerID;FruType;PATROLStatus;StatusInformation;
+          - type: translate
+            column: 4
+            translationTable: FRUStatusInformationTranslationTable
+        source(2):
+          # Source(2) = sunHwMonTotalPowerConsumption SNMP Table
+          # CurrentReading;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.9
+          selectColumns: 6
+          computes:
+            # Keep only if CurrentReading is not -1 or 0
+            # CurrentReading;
+          - type: excludeMatchingLines
+            column: 1
+            valueList: "-1,0"
+            # Add a server ID
+            # ServerID;CurrentReading;
+          - type: leftConcat
+            column: 1
+            value: Server;
+        source(3):
+          # Source(3) = Table joint between Source(1) and Source(2)
+          # This is because the PowerMeter Table does not exist in early versions of the HP agent, so we collect a list of IDs from the main table to avoid "no collect value errors"
+          # ServerID;FruType;PATROLStatus;StatusInformation;ServerID;CurrentReading;
+          type: tableJoin
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;
+      mapping:
+        # ValueTable = Source(3)
+        # ServerID;FruType;PATROLStatus;StatusInformation;ServerID;CurrentReading;
+        source: $monitors.enclosure.collect.sources.source(3)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="enclosure"}: $column(3)
+          hw.enclosure.power: $column(6)
+          hw.enclosure.energy: fakeCounter($column(6))
+        legacyTextParameters:
+          StatusInformation: $column(4)
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Get a list of FRUs
+          # ID;FruName;FruType;FruDescription
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1
+          selectColumns: "ID,2,3,4"
+        source(2):
+          # Make a copy to find suitable FRUs
+          # ID;FruName;FruType;FruDescription
+          type: copy
+          from: $monitors.cpu.discovery.sources.source(1)$
+          computes:
+            # Keep only Processors (105)
+            # ID;FruName;FruType;FruDescription
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 105
+        source(3):
+          # Make a copy to find suitable FRUs from tyep Unknown
+          # ID;FruName;FruType;FruDescription
+          type: copy
+          from: $monitors.cpu.discovery.sources.source(1)$
+          computes:
+            # Keep only Processors (105)
+            # ID;FruName;FruType;FruDescription
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 1
+            # Keep only known Processors
+            # ID;FruName;FruType;FruDescription
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: "^/SYS/MB/CM[0-9]+$"
+        source(4):
+          # Union 2 + 3
+          # ID;FruName;FruType;FruDescription
+          type: tableUnion
+          tables:
+          - $monitors.cpu.discovery.sources.source(2)$
+          - $monitors.cpu.discovery.sources.source(3)$
+          computes:
+            # Remove (R)
+            # ID;FruName;FruType;FruDescription
+          - type: replace
+            column: 4
+            existingValue: (R)
+            newValue: ""
+      mapping:
+        # Instance Table
+        # ID;FruName;FruType;FruDescription
+        source: $monitors.cpu.discovery.sources.source(4)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          model: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
+    collect:
+      # Collect type is mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # FruStatus
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$cpu.id$
+          computes:
+            # Duplicate the Status
+            # FruStatus,FruStatus
+          - type: duplicateColumn
+            column: 1
+            # Translate the first Status code into a PATROLStatus
+            # PATROLStatus;FruStatus
+          - type: translate
+            column: 1
+            translationTable: FRUStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # PATROLStatus;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.cpu.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="cpu"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Get a list of FRUs
+          # ID;FruName;FruType;FruDescription;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Keep only Memory (24)
+            # ID;FruName;FruType;FruDescription;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 24
+            # Duplicate the Description
+            # ID;FruName;FruType;FruDescription;FruDescription;
+          - type: duplicateColumn
+            column: 4
+            # Remove MB from the second description to try and get the memory size
+            # ID;FruName;FruType;FruDescription;SizeMB;
+          - type: extract
+            column: 5
+            subColumn: 1
+            subSeparators: ' '
+            # Remove MB from the second description to try and get the memory size
+            # ID;FruName;FruType;FruDescription;SizeMB;
+          - type: replace
+            column: 5
+            existingValue: MB
+            newValue: ""
+      mapping:
+        # Instance Table
+        # ID;FruName;FruType;FruDescription;SizeMB;
+        source: $monitors.memory.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          model: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s MB)\", $column(2), $column(5))"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($column(5))
+    collect:
+      # Collect type is mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # FruStatus
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$memory.id$
+          computes:
+            # Duplicate the Status
+            # FruStatus,FruStatus
+          - type: duplicateColumn
+            column: 1
+            # Translate the first Status code into a PATROLStatus
+            # PATROLStatus;FruStatus
+          - type: translate
+            column: 1
+            translationTable: FRUStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # PATROLStatus;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.memory.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="memory"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the sunStorageControllerTable
+          # ID;Name;PartNumber;SerialNumber;Manufacturer;Firmware;Status;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.2.1.3.1
+          selectColumns: "ID,2,3,4,5,8,20"
+      mapping:
+        # The InstanceTable
+        # ID;Name;PartNumber;SerialNumber;Manufacturer;Firmware;Status;
+        source: $monitors.disk_controller.discovery.sources.source(1)$
+        attributes:
+          id: $column(2)
+          __display_id: $column(2)
+          controller_number: $column(1)
+          vendor: $column(5)
+          firmware_version: $column(6)
+          serial_number: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"Disk Controller: %s (%s)\", $column(2), $column(5))"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # FruStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.2.1.3.1
+          selectColumns: "2,20"
+          computes:
+            # Duplicate the Status
+            # DeviceID,FruStatus,FruStatus
+          - type: duplicateColumn
+            column: 2
+            # Translate the first Status code into a PATROLStatus
+            # DeviceID,PATROLStatus;FruStatus
+          - type: translate
+            column: 2
+            translationTable: FRUStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # DeviceID,PATROLStatus;StatusInformation;
+          - type: translate
+            column: 3
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.disk_controller.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.status{hw.type="disk_controller"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the sunStorageControllerTable
+          # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityUnits;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.2.1.4.1
+          selectColumns: "ID,2,3,6,7,8,12,13"
+          computes:
+            # Translate the Capacity Units to a multiplier
+            # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityMultiplier;
+          - type: translate
+            column: 8
+            translationTable: DiskCapacityUnitTranslationTable
+            # Convert Capacity to Bytes
+            # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityMultiplier;
+          - type: multiply
+            column: 7
+            value: Column(8)
+            # Translate the Disk Type
+            # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityMultiplier;
+          - type: translate
+            column: 6
+            translationTable: DiskTypeTranslationTable
+        source(2):
+          # Get a list of FRUs
+          # ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1
+          selectColumns: "ID,2,3,5,6,7"
+          computes:
+            # Keep only PhysicalDisk (47)
+            # ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 47
+        source(3):
+          # Join the Storage to the FRU
+          # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityUnits;ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
+          type: tableJoin
+          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
+          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;;;
+          computes:
+            # Add OS Name
+            # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityUnits;ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
+          - type: leftConcat
+            column: 3
+            value: "OS Name: "
+            # Add Slot Number
+            # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityUnits;ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
+          - type: leftConcat
+            column: 5
+            value: "Location: "
+          - type: leftConcat
+            column: 6
+            value: "Type: "
+      mapping:
+        # The InstanceTable
+        #  1   2    3         4        #      5        # 6        7        8        # 9   10       11      12        #     13        #     14
+        # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityUnits;ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
+        source: $monitors.physical_disk.discovery.sources.source(3)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          vendor: $column(14)
+          model: $column(12)
+          serial_number: $column(13)
+          info: "join($column(3), $column(5), $column(6), \" \")"
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
+          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(14), $column(7))"
+        metrics:
+          hw.physical_disk.size: $column(7)
+    collect:
+      # Collect type is mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # FruStatus
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.2.6.2.1.4.1.16.$physical_disk.id$
+          computes:
+            # Duplicate the Status
+            # FruStatus,FruStatus
+          - type: duplicateColumn
+            column: 1
+            # Translate the first Status code into a PATROLStatus
+            # PATROLStatus;FruStatus
+          - type: translate
+            column: 1
+            translationTable: FRUStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # PATROLStatus;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.physical_disk.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="physical_disk"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Get a list of FRUs
+          # ID;FruName;FruType;FruDescription;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Keep only PowerSupply (99)
+            # ID;FruName;FruType;FruDescription;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 99
+      mapping:
+        # Instance Table
+        # ID;FruName;FruType;FruDescription;
+        source: $monitors.power_supply.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          power_supply_type: $column(4)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
+    collect:
+      # Collect type is mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # FruStatus
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$power_supply.id$
+          computes:
+            # Duplicate the Status
+            # FruStatus,FruStatus
+          - type: duplicateColumn
+            column: 1
+            # Translate the first Status code into a PATROLStatus
+            # PATROLStatus;FruStatus
+          - type: translate
+            column: 1
+            translationTable: FRUStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # PATROLStatus;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.power_supply.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="power_supply"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Get a list of FRUs
+          # ID;FruName;FruType;FruDescription;FruStatus;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1
+          selectColumns: "ID,2,3,4,8"
+          computes:
+            # Translate the FruType
+            # ID;FruName;FruType;FruDescription;FruStatus;
+          - type: translate
+            column: 3
+            translationTable: OtherDeviceTypeTranslationTable
+            # Keep only Known/Translated"OtherDevices"
+            # ID;FruName;FruType;FruDescription;FruStatus;
+          - type: keepOnlyMatchingLines
+            column: 3
+            regExp: .
+            # Exclude components with Indeterminate Status
+            # ID;FruName;FruType;FruDescription;FruStatus;
+          - type: excludeMatchingLines
+            column: 5
+            valueList: 6
+      mapping:
+        # Instance Table
+        # ID;FruName;FruType;FruDescription;FruStatus;
+        source: $monitors.other_device.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          device_type: $column(3)
+          hw.parent.type: enclosure
+          name: "sprintf(\"%s: %s\", $column(3), $column(2))"
+    collect:
+      # Collect type is mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # FruStatus
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$other_device.id$
+          computes:
+            # Duplicate the Status
+            # FruStatus,FruStatus
+          - type: duplicateColumn
+            column: 1
+            # Translate the first Status code into a PATROLStatus
+            # PATROLStatus;FruStatus
+          - type: translate
+            column: 1
+            translationTable: FRUStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # PATROLStatus;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.other_device.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="other_device"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = voltageProbeTable SNMP Table
+          # ID;SensorName;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.7.2.1.1
+          selectColumns: "ID,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.voltage.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      # Collect type = mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the voltageProbeTable
+          # ID;Status;VoltageReading;Exponent;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.7.2.1.1
+          selectColumns: "ID,6,8,10"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status;VoltageReading;Exponent;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL Status
+            # ID;PATROLStatus;Status;VoltageReading;Exponent;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
+          - type: translate
+            column: 3
+            translationTable: FRUStatusInformationTranslationTable
+            # Translate the exponent
+            # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
+          - type: translate
+            column: 5
+            translationTable: VoltageUnitTranslationTable
+            # Convert Voltage to Millivolts
+            # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
+          - type: multiply
+            column: 4
+            value: Column(5)
+      mapping:
+        # ValueTable = source(1)
+        # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
+        source: $monitors.voltage.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = FanProbeTable SNMP Table
+          # ID;SensorName;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.7.5.1.1
+          selectColumns: "ID,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.fan.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      # Collect type = mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the FanProbeTable
+          # ID;Status;FanReading;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.7.5.1.1
+          selectColumns: "ID,6,8"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status;FanReading;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL Status
+            # ID;PATROLStatus;Status;FanReading;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;statusInformation;FanReading;
+          - type: translate
+            column: 3
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = source(1)
+        # ID;PATROLStatus;statusInformation;FanReading;
+        source: $monitors.fan.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.fan.speed: $column(4)
+          hw.status{hw.type="fan"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TemperatureProbeTable SNMP Table
+          # ID;SensorName;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.7.6.1.1
+          selectColumns: "ID,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: $monitors.temperature.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      # Collect type = mono-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the TemperatureProbeTable
+          # ID;Status;TemperatureReading;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.7.6.1.1
+          selectColumns: "ID,6,8"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status;TemperatureReading;
+          - type: duplicateColumn
+            column: 2
+            # Translate the first status column into a PATROL Status
+            # ID;PATROLStatus;Status;TemperatureReading;
+          - type: translate
+            column: 2
+            translationTable: FRUStatusTranslationTable
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;statusInformation;TemperatureReading;
+          - type: translate
+            column: 3
+            translationTable: FRUStatusInformationTranslationTable
+      mapping:
+        # ValueTable = source(1)
+        # ID;PATROLStatus;statusInformation;TemperatureReading;
+        source: $monitors.temperature.collect.sources.source(1)$
+        deviceId: $column(1)
+        metrics:
+          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TemperatureProbeTable SNMP Table
+          # ID;SensorName;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.8.3.1.1
+          selectColumns: "ID,2"
+        source(2):
+          # Duplicate the LED Table
+          # ID;SensorName;
+          type: copy
+          from: $monitors.led.discovery.sources.source(1)$
+          computes:
+            # Keep only sensors where ON is FAULTY
+            # ID;SensorName;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: \(FAULT\)\|\(SERVICE\)$
+            # Set On;Blinking;Off;
+            # ID;SensorName;On;Blinking;Off;
+          - type: rightConcat
+            column: 2
+            value: ;ALARM;ALARM;OK
+        source(3):
+          # Duplicate the LED Table
+          # ID;SensorName;
+          type: copy
+          from: $monitors.led.discovery.sources.source(1)$
+          computes:
+            # Keep only sensors where ON is OK
+            # ID;SensorName;
+          - type: keepOnlyMatchingLines
+            column: 2
+            regExp: OK$
+            # Set On;Blinking;Off;
+            # ID;SensorName;On;Blinking;Off;
+          - type: rightConcat
+            column: 2
+            value: ;OK;OK;ALARM
+        source(4):
+          # Duplicate the LED Table
+          # ID;SensorName;
+          type: copy
+          from: $monitors.led.discovery.sources.source(1)$
+          computes:
+            # Keep only indicator sensors (Exclude sensors from 2 and 3)
+            # ID;SensorName;
+          - type: excludeMatchingLines
+            column: 2
+            regExp: \(FAULT\)\|\(SERVICE\)\|\(OK\)$
+            # Set On;Blinking;Off;
+            # ID;SensorName;On;Blinking;Off;
+          - type: rightConcat
+            column: 2
+            value: ;OK;OK;OK
+        source(5):
+          # Union 2, 3 and 4
+          # ID;SensorName;On;Blinking;Off;
+          type: tableUnion
+          tables:
+          - $monitors.led.discovery.sources.source(2)$
+          - $monitors.led.discovery.sources.source(3)$
+          - $monitors.led.discovery.sources.source(4)$
+      mapping:
+        # InstanceTable = Source(5)
+        # ID;SensorName;On;Blinking;Off;
+        source: $monitors.led.discovery.sources.source(5)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          __on_status: $column(3)
+          __blinking_status: $column(4)
+          __off_status: $column(5)
+          hw.parent.type: enclosure
+          name: $column(2)
+    collect:
+      # Collect type is mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # LedState
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.2.6.1.1.8.3.1.1.4.$led.id$
+          computes:
+            # Duplicate the LedState
+            # LedState,LedState
+          - type: duplicateColumn
+            column: 1
+            # Translate the first LedState to Status
+            # Status;LedState;
+          - type: translate
+            column: 1
+            translationTable: LEDStateTranslationTable
+            # Translate the Second LedState to Status
+            # Status;SatusInformation;
+          - type: translate
+            column: 2
+            translationTable: LEDStateInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.led.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="led"}: legacyLedStatus($column(1))
+        legacyTextParameters:
+          StatusInformation: $column(2)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Get a list of Raid Volumes
+          # ID;Name;ControllerNumber;DiskCapacity;DiskUnits;RaidLevel;
+          type: snmpTable
+          oid: 1.3.6.1.4.1.42.2.2.6.2.1.5.1
+          selectColumns: "ID,2,7,10,11,12"
+          computes:
+            # Translate the DiskUnits to a Multiplier
+            # ID;Name;ControllerNumber;DiskCapacity;DiskUnits;RaidLevel;
+          - type: translate
+            column: 5
+            translationTable: DiskUnitsTranslationTable
+            # Multiply the Capacity by the Units Multiplier
+            # ID;Name;ControllerNumber;DiskCapacity;DiskUnits;RaidLevel;
+          - type: multiply
+            column: 4
+            value: Column(5)
+      mapping:
+        # Instance Table
+        # ID;Name;ControllerNumber;DiskCapacity;DiskUnits;RaidLevel;
+        source: $monitors.logical_disk.discovery.sources.source(1)$
+        attributes:
+          id: $column(1)
+          __display_id: $column(2)
+          raid_level: $column(6)
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(3))"
+          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(6), $column(4))"
+        metrics:
+          hw.logical_disk.limit: $column(4)
+    collect:
+      # Collect type is mono-instance
+      type: monoInstance
+      sources:
+        source(1):
+          # Do an SNMP get directly on the status
+          # RaidStatus
+          type: snmpGet
+          oid: 1.3.6.1.4.1.42.2.2.6.2.1.5.1.21.$logical_disk.id$
+          computes:
+            # Duplicate the Status
+            # RaidStatus,RaidStatus
+          - type: duplicateColumn
+            column: 1
+            # Translate the first Status code into a PATROLStatus
+            # PATROLStatus;RaidStatus
+          - type: translate
+            column: 1
+            translationTable: LogicalDiskStatusTranslationTable
+            # Translate the first Status code into a Status Information
+            # PATROLStatus;StatusInformation;
+          - type: translate
+            column: 2
+            translationTable: LogicalDiskStatusInformationTranslationTable
+      mapping:
+        # ValueTable = Source(1)
+        source: $monitors.logical_disk.collect.sources.source(1)$
+        metrics:
+          hw.status{hw.type="logical_disk"}: $column(1)
+        legacyTextParameters:
+          StatusInformation: $column(2)
+translations:
+  LEDStateInformationTranslationTable:
+    "1": Unknown
+    "2": Other
+    "3": "Off"
+    "4": "On"
+    "5": Standby
+    "6": Slow Blinking
+    "7": Fast Blinking
+  DiskTypeTranslationTable:
+    "1": HDD
+    "2": SDD
+    Default: ""
+  DiskUnitsTranslationTable:
+    "1": 1048576
+    "2": 1073741824
+    "3": 1099511627776
+  DiskCapacityUnitTranslationTable:
+    "1": 1048576
+    "2": 1073741824
+    "3": 1099511627776
+    Default: 1
+  VoltageUnitTranslationTable:
+    "0": 1000
+    "-1": 100
+    "-2": 10
+    "-3": 1
+    Default: 1000
+  OtherDeviceTypeTranslationTable:
+    "88": PciExpressInterface
+    "89": PciSwitch
+    "110": Ready
+    "111": RearFan
+    "112": RearFanBoard
+    "113": RearLEDBoard
+    "114": RiserBoard
+    "115": SasController
+    "116": SerialConnector
+    "90": PciTray
+    "117": ServiceProcessor
+    "91": PciXModule
+    "118": Slot
+    "92": PdbFan
+    "119": SlotId
+    "93": PhysicalSecurity
+    "94": PowerConditions
+    "95": PowerDistributionBoard
+    "97": PowerPCCPU
+    "98": PowerState
+    "15": CpuBoardMemoryBranch
+    "16": CpuBoardMemoryChannel
+    "17": CpuCMP
+    "19": CpuMemoryControllerChannel
+    "120": SpBoardModule
+    "122": StreamingProcessorUnit
+    "2": Other
+    "123": SystemFan
+    "124": Temperature
+    "125": ThermalConditions
+    "126": ToggleSwitch
+    "127": Tty
+    "7": Bios
+    "128": UsbBoard
+    "8": Blade
+    "129": UsbConnector
+    "20": CpuThread
+    "22": DataMMU
+    "23": DCache
+    "25": DiskBackplane
+    "26": Display
+    "27": DriveSlot
+    "29": Dvrm1V5Converter
+    "130": UsbPort
+    "131": Vibration
+    "132": Video
+    "133": Voltage
+    "134": XauiBoard
+    "30": Dvrm3V3Converter
+    "31": DvrmCoreConverter
+    "32": DvrmFBDIMMConverter
+    "33": DvrmPLXConverter
+    "34": DvrmZambeziConverter
+    "35": DvrmZambeziPLXConverter
+    "37": ExpressModule
+    "38": FabricExpansionModule
+    "39": Fan
+    Default: ""
+    "40": FanModule
+    "41": FanTray
+    "43": FloatingPointUnit
+    "44": FrontFan
+    "45": FrontFanBoard
+    "46": FrontLEDBoard
+    "48": HddFan
+    "50": HotswapController
+    "52": iCache
+    "55": InfrastructureManager
+    "57": instructionMMU
+    "58": IoBoard
+    "59": IoBoat
+    "60": IoExpansionUnit
+    "61": L2bank
+    "62": L3bank
+    "63": LinkCard
+    "64": Memory
+    "65": MemoryBoard
+    "66": MemoryBoardMemoryBranch
+    "67": MemoryBoardMemoryChannel
+    "68": MemoryBranch
+    "69": MemoryBranchOnMemoryRiser
+    "70": MemoryChannelOnMemoryRiser
+    "71": MemoryCMP
+    "72": MemoryController
+    "73": MemoryRank
+    "74": MemoryRiser
+    "75": MicroCore
+    "76": MotherBoard
+    "77": NemState
+    "78": NetworkConfiguration
+    "79": NetworkExpressModule
+    "100": PowerSupplyExternalConditions
+    "101": PowerSupplyInternalSide
+    "102": PowerSupplyStatus
+    "103": PowerUnit
+    "104": Presence
+    "106": ProcessorBoard
+    "107": Prom
+    "108": PushButton
+    "109": RaidExpansionModule
+    "85": Nvram
+    "86": Output
+    "87": PciExpansionBoard
+  FRUStatusTranslationTable:
+    "1": ok
+    "2": failed
+    "3": failed
+    "4": degraded
+    "5": degraded
+    "6": degraded
+    "7": ok
+    "8": degraded
+    Default: UNKNOWN
+  LogicalDiskStatusInformationTranslationTable:
+    "1": ""
+    "2": Degraded
+    "3": Failed
+    "4": Missing
+    "5": Offline
+    "6": Init
+    "7": Spare
+    Default: Unknown Status
+  FRUStatusInformationTranslationTable:
+    "1": ""
+    "2": Critical
+    "3": Major Fault
+    "4": Minor Fault
+    "5": Warning
+    "6": Indeterminate Status
+    "7": Informational Status
+    "8": Status Pending
+    Default: Unknown Status
+  LogicalDiskStatusTranslationTable:
+    "1": ok
+    "2": degraded
+    "3": failed
+    "4": failed
+    "5": failed
+    "6": failed
+    "7": ok
+    Default: UNKNOWN
+  LEDStateTranslationTable:
+    "1": UNKNOWN
+    "2": UNKNOWN
+    "3": "Off"
+    "4": "On"
+    "5": UNKNOWN
+    "6": Blinking
+    "7": Blinking
