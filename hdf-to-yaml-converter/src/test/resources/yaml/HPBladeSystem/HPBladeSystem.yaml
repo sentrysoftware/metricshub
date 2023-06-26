@@ -82,7 +82,7 @@ monitors:
           model: $column(3)
           type: $column(4)
           serial_number: $column(5)
-          info: "join($column(6), $column(7), \" \")"
+          info: "join(\" \", $column(6), $column(7))"
           name: "sprintf(\"Enclosure: (%s %s)\", \"HP\", $column(3))"
     collect:
       type: multiInstance

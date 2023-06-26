@@ -104,7 +104,7 @@ monitors:
           serial_number: $column(5)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(3), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), bytes2HumanFormatBase10($column(4)))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:

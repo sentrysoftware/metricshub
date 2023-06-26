@@ -59,7 +59,7 @@ monitors:
           id: $column(4)
           __display_id: $column(2)
           array_name: $column(3)
-          info: "join($column(5), $column(7), \" \")"
+          info: "join(\" \", $column(5), $column(7))"
           hw.parent.type: enclosure
           name: $column(3)
     collect:

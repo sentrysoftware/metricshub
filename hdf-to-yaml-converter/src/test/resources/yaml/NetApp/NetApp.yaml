@@ -187,7 +187,7 @@ monitors:
           info: $column(2)
           hw.parent.type: $column(15)
           hw.parent.id: $column(13)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(7), $column(5))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(7), bytes2HumanFormatBase10($column(5)))"
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
@@ -446,7 +446,7 @@ monitors:
           __use_for_capacity_report: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: NetApp
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(2), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), bytes2HumanFormatBase2($column(4)))"
         metrics:
           hw.logical_disk.limit: $column(4)
     collect:
@@ -744,7 +744,7 @@ monitors:
         source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
           id: $column(1)
-          info: "join($column(3), $column(4), $column(2), \" \")"
+          info: "join(\" \", $column(3), $column(4), $column(2))"
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
           name: $column(1)
@@ -1276,7 +1276,7 @@ monitors:
         attributes:
           id: $column(1)
           device_type: Service Electronics
-          info: "join($column(3), $column(4), $column(2), \" \")"
+          info: "join(\" \", $column(3), $column(4), $column(2))"
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
           name: "sprintf(\"%s: %s\", \"Service Electronics\", $column(1))"

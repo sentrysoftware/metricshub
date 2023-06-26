@@ -32,7 +32,7 @@
               physical_address: $column(10)
               physical_address_type: MAC
               serial_number: $column(11)
-              info: join($column(1), $column(2), $column(3), " ")
+              info: join(" ", $column(1), $column(2), $column(3))
               hw.parent.type: $column(5)
               hw.parent.id: $column(4)
               vendor: $column(12)
@@ -70,7 +70,7 @@
               physical_address: $column(10)
               physical_address_type: MAC
               serial_number: $column(11)
-              info: join($column(1), $column(2), $column(3), " ")
+              info: join(" ", $column(1), $column(2), $column(3))
               hw.parent.type: $column(5)
               hw.parent.id: $column(4)
               name: sprintf("%s (%s - %s)", $column(6), $column(7), $column(9))
@@ -105,7 +105,7 @@
               physical_address: $column(10)
               physical_address_type: MAC
               serial_number: $column(11)
-              info: join($column(1), $column(2), $column(3), " ")
+              info: join(" ", $column(1), $column(2), $column(3))
               hw.parent.type: $column(5)
               hw.parent.id: $column(4)
               name: sprintf("%s (%s)", $column(6), $column(7))
@@ -138,7 +138,7 @@
               physical_address: $column(10)
               physical_address_type: MAC
               serial_number: $column(11)
-              info: join($column(1), $column(2), $column(3), " ")
+              info: join(" ", $column(1), $column(2), $column(3))
               hw.parent.type: $column(5)
               hw.parent.id: $column(4)
               name: $column(6)

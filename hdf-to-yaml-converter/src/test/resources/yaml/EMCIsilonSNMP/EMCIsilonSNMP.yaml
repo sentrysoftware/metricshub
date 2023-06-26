@@ -135,7 +135,7 @@ monitors:
           serial_number: $column(5)
           firmware_version: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%by10hf.s)\", $column(2), $column(7))"
+          name: "sprintf(\"%s (%s)\", $column(2), bytes2HumanFormatBase10($column(7)))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:

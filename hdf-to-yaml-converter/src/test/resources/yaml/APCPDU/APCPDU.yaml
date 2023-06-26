@@ -40,7 +40,7 @@ monitors:
           model: $column(5)
           serial_number: $column(6)
           type: PDU
-          info: "join($column(2), $column(3), $column(4), \" \")"
+          info: "join(\" \", $column(2), $column(3), $column(4))"
           name: "sprintf(\"Enclosure: (%s %s)\", \"APC\", $column(5))"
     collect:
       sources:

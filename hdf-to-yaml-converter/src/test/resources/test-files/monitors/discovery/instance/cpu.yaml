@@ -30,7 +30,7 @@
               vendor: $column(5)
               model: $column(3)
               info: $column(9)
-              name: sprintf("%s (%s - %s - %mhhf.s)", $column(2), $column(5), $column(3), $column(4))
+              name: sprintf("%s (%s - %s - %s)", $column(2), $column(5), $column(3), megaHertz2HumanFormat($column(4)))
             metrics:
               hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
               hw.power.limit{hw.type="cpu"}: $column(8)
@@ -66,7 +66,7 @@
               vendor: $column(5)
               model: $column(3)
               info: $column(9)
-              name: sprintf("%s (%s - %s - %mhhf.s)", $column(1), $column(5), $column(3), $column(4))
+              name: sprintf("%s (%s - %s - %s)", $column(1), $column(5), $column(3), megaHertz2HumanFormat($column(4)))
             metrics:
               hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
               hw.power.limit{hw.type="cpu"}: $column(8)
@@ -102,7 +102,7 @@
               hw.parent.type: enclosure
               model: $column(3)
               info: $column(9)
-              name: sprintf("%s (%s - %mhhf.s)", $column(2), $column(3), $column(4))
+              name: sprintf("%s (%s - %s)", $column(2), $column(3), megaHertz2HumanFormat($column(4)))
             metrics:
               hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
               hw.power.limit{hw.type="cpu"}: $column(8)
@@ -136,7 +136,7 @@
               hw.parent.id: $column(7)
               hw.parent.type: enclosure
               info: $column(9)
-              name: sprintf("%s (%mhhf.s)", $column(2), $column(4))
+              name: sprintf("%s (%s)", $column(2), megaHertz2HumanFormat($column(4)))
             metrics:
               hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
               hw.power.limit{hw.type="cpu"}: $column(8)

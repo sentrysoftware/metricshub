@@ -244,7 +244,7 @@ monitors:
           serial_number: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(6), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), bytes2HumanFormatBase10($column(4)))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
@@ -384,7 +384,7 @@ monitors:
           physical_address: $column(5)
           physical_address_type: $column(10)
           device_type: $column(9)
-          info: "join($column(7), $column(8), \" \")"
+          info: "join(\" \", $column(7), $column(8))"
           hw.parent.type: enclosure
           hw.parent.id: $column(13)
           name: "sprintf(\"%s (%s)\", $column(2), $column(9))"
@@ -856,7 +856,7 @@ monitors:
           raid_level: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(6), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), bytes2HumanFormatBase2($column(4)))"
         metrics:
           hw.logical_disk.limit: $column(4)
     collect:

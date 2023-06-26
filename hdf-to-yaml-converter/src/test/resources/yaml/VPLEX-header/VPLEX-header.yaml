@@ -183,7 +183,7 @@ monitors:
         attributes:
           __display_id: $column(3)
           id: $column(3)
-          info: "join($column(6), $column(8), \" \")"
+          info: "join(\" \", $column(6), $column(8))"
           hw.parent.type: enclosure
           hw.parent.id: $column(10)
           name: $column(3)

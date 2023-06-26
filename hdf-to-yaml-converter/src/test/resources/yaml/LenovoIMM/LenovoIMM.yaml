@@ -500,9 +500,9 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           model: $column(3)
-          info: "join($column(4), $column(5), \" \")"
+          info: "join(\" \", $column(4), $column(5))"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(3), $column(2))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), megaHertz2HumanFormat($column(2)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
     collect:
@@ -637,7 +637,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          info: "join($column(2), $column(3), $column(4), \" \")"
+          info: "join(\" \", $column(2), $column(3), $column(4))"
           hw.parent.type: enclosure
           name: $column(1)
     collect:
@@ -763,7 +763,7 @@ monitors:
           id: $column(1)
           hw.parent.type: disk_controller
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%by2hf.s)\", $column(1), $column(3))"
+          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase2($column(3)))"
         metrics:
           hw.logical_disk.limit: $column(3)
     collect:
@@ -886,9 +886,9 @@ monitors:
           model: $column(2)
           serial_number: $column(10)
           firmware_version: $column(16)
-          info: "join($column(4), $column(11), \" \")"
+          info: "join(\" \", $column(4), $column(11))"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(8), $column(13))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(8), bytes2HumanFormatBase10($column(13)))"
         metrics:
           hw.physical_disk.size: $column(13)
     collect:
@@ -952,7 +952,7 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           vendor: $column(3)
-          info: "join($column(2), $column(5), \" \")"
+          info: "join(\" \", $column(2), $column(5))"
           hw.parent.type: disk_controller
           hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"

@@ -400,11 +400,6 @@ public class ConverterConstants {
 	public static final String MEBI_BYTE_2_BYTE_FORMAT = "mebiByte2Byte(%s)";
 	public static final String BOOLEAN_FORMAT = "boolean(%s)";
 	public static final String FAKE_COUNTER_FORMAT = "fakeCounter(%s)";
-	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
-	public static final String BYTES_TO_HUMAN_FORMAT_BASE_2 = "%by2hf.s";
-	public static final String BYTES_TO_HUMAN_FORMAT_BASE_10 = "%by10hf.s";
-	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
-	public static final String MEBI_BYTES_TO_HUMAN_FORMAT = "%mibyhf.s";
 	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
 	public static final String LEGACY_PREDICTED_FAILURE_FORMAT = "legacyPredictedFailure(%s)";

@@ -343,7 +343,7 @@ monitors:
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(2)
-          info: "join($column(9), $column(6), $column(5), \" \")"
+          info: "join(\" \", $column(9), $column(6), $column(5))"
           hw.parent.type: enclosure
           hw.parent.id: IPMI
           name: $column(2)
@@ -397,7 +397,7 @@ monitors:
           id: $column(2)
           vendor: $column(4)
           model: $column(5)
-          info: "join($column(9), $column(6), \" \")"
+          info: "join(\" \", $column(9), $column(6))"
           hw.parent.type: enclosure
           hw.parent.id: IPMI
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(5))"
@@ -626,7 +626,7 @@ monitors:
           id: $column(2)
           __display_id: $column(3)
           additional_label: $column(4)
-          info: "join($column(9), $column(6), \" \")"
+          info: "join(\" \", $column(9), $column(6))"
           hw.parent.type: enclosure
           hw.parent.id: IPMI
           name: "sprintf(\"%s: %s (%s)\", $column(1), $column(3), $column(4))"
@@ -731,7 +731,7 @@ monitors:
           id: $column(2)
           __display_id: $column(3)
           model: $column(5)
-          info: "join($column(9), $column(6), \" \")"
+          info: "join(\" \", $column(9), $column(6))"
           hw.parent.type: enclosure
           hw.parent.id: IPMI
           name: "sprintf(\"%s (%s)\", $column(3), $column(5))"

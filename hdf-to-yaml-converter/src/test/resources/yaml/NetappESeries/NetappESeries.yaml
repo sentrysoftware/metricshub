@@ -94,7 +94,7 @@ monitors:
           serial_number: $column(6)
           type: Storage
           vendor: NetApp
-          info: "join($column(9), $column(11), $column(5), \" \")"
+          info: "join(\" \", $column(9), $column(11), $column(5))"
           name: "sprintf(\"Storage: %s (%s %s)\", $column(4), \"NetApp\", $column(10))"
     collect:
       # Collection Type
@@ -190,10 +190,10 @@ monitors:
           serial_number: $column(4)
           __display_id: $column(5)
           firmware_version: $column(6)
-          info: "join($column(8), $column(9), \" \")"
+          info: "join(\" \", $column(8), $column(9))"
           hw.parent.type: enclosure
           hw.parent.id: $column(10)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(5), $column(2), $column(7))"
+          name: "sprintf(\"%s (%s - %s)\", $column(5), $column(2), bytes2HumanFormatBase10($column(7)))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
@@ -258,7 +258,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
-          info: "join($column(3), $column(5), $column(4), \" \")"
+          info: "join(\" \", $column(3), $column(5), $column(4))"
           hw.parent.type: enclosure
           hw.parent.id: $column(6)
           name: $column(2)
@@ -430,7 +430,7 @@ monitors:
           vendor: $column(3)
           model: $column(4)
           serial_number: $column(5)
-          info: "join($column(7), $column(6), \" \")"
+          info: "join(\" \", $column(7), $column(6))"
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
           name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(3), $column(4))"
@@ -702,7 +702,7 @@ monitors:
           __display_id: $column(3)
           physical_address: $column(4)
           physical_address_type: $column(5)
-          info: "join($column(6), $column(7), \" \")"
+          info: "join(\" \", $column(6), $column(7))"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: $column(3)
@@ -805,7 +805,7 @@ monitors:
           id: $column(1)
           __display_id: $column(2)
           device_type: $column(6)
-          info: "join($column(4), $column(3), $column(5), \" \")"
+          info: "join(\" \", $column(4), $column(3), $column(5))"
           hw.parent.type: enclosure
           hw.parent.id: $column(7)
           name: "sprintf(\"%s: %s\", $column(6), $column(2))"
@@ -889,7 +889,7 @@ monitors:
           raid_level: $column(4)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(4), $column(5))"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), bytes2HumanFormatBase2($column(5)))"
         metrics:
           hw.logical_disk.limit: $column(5)
     collect:

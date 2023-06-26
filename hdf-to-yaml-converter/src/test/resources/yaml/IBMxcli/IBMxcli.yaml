@@ -201,7 +201,7 @@ monitors:
           serial_number: $column(6)
           bios_version: $column(8)
           type: Storage
-          info: "join($column(9), $column(10), $column(11), \" \")"
+          info: "join(\" \", $column(9), $column(10), $column(11))"
           name: "sprintf(\"Storage: %s (%s %s)\", $column(5), \"IBM\", $column(7))"
     collect:
       # Collect type is multi-instance
@@ -300,7 +300,7 @@ monitors:
           firmware_version: $column(9)
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(7), $column(6))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(7), bytes2HumanFormatBase10($column(6)))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
@@ -343,7 +343,7 @@ monitors:
           __display_id: $column(1)
           vendor: $column(7)
           serial_number: $column(6)
-          info: "join($column(8), $column(9), $column(10), \" \")"
+          info: "join(\" \", $column(8), $column(9), $column(10))"
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
           name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(7), $column(11))"
@@ -428,7 +428,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          info: "join($column(6), $column(7), $column(8), \" \")"
+          info: "join(\" \", $column(6), $column(7), $column(8))"
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
           name: $column(1)
@@ -512,7 +512,7 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           device_type: $column(6)
-          info: "join($column(7), $column(8), $column(9), \" \")"
+          info: "join(\" \", $column(7), $column(8), $column(9))"
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
           name: "sprintf(\"%s: %s\", $column(6), $column(1))"

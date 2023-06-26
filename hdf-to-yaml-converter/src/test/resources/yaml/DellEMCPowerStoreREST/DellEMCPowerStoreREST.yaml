@@ -302,7 +302,7 @@ monitors:
           model: $column(8)
           hw.parent.type: $column(2)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%by10hf.s)\", $column(7), $column(11))"
+          name: "sprintf(\"%s (%s)\", $column(7), bytes2HumanFormatBase10($column(11)))"
         metrics:
           hw.physical_disk.size: $column(11)
     collect:

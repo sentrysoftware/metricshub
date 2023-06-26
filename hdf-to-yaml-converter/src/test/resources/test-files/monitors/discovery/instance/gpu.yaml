@@ -27,11 +27,11 @@
               __display_id: $column(2)
               model: $column(14)
               serial_number: $column(15)
-              info: join($column(16), $column(18), " ")
+              info: join(" ", $column(16), $column(18))
               driver_version: $column(17)
               firmware_version: $column(19)
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s - %mibyhf.s)", $column(2), "NVIDIA", $column(14), $column(20))
+              name: sprintf("%s (%s - %s - %s)", $column(2), "NVIDIA", $column(14), mebiBytes2HumanFormat($column(20)))
             metrics:
               hw.gpu.memory.limit: mebiByte2Byte($column(20))
               hw.gpu.utilization.limit{limit_type="degraded"}: percent2Ratio("1")

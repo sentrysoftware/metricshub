@@ -194,7 +194,7 @@ monitors:
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%by10hf.s)\", $column(2), $column(9))"
+          name: "sprintf(\"%s (%s)\", $column(2), bytes2HumanFormatBase10($column(9)))"
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
@@ -414,7 +414,7 @@ monitors:
           type: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(6)
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(5), $column(1))"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(5), bytes2HumanFormatBase2($column(1)))"
         metrics:
           hw.logical_disk.limit: $column(1)
     collect:

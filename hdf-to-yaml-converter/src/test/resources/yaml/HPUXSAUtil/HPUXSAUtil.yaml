@@ -121,7 +121,7 @@ monitors:
           info: $column(2)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(4))"
+          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase10($column(4)))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
@@ -200,7 +200,7 @@ monitors:
           info: $column(5)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(3), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), bytes2HumanFormatBase2($column(4)))"
         metrics:
           hw.logical_disk.limit: $column(4)
     collect:

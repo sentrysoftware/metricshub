@@ -151,7 +151,7 @@ monitors:
           raid_level: $column(3)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(3), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), bytes2HumanFormatBase2($column(4)))"
         metrics:
           hw.logical_disk.limit: $column(4)
     collect:

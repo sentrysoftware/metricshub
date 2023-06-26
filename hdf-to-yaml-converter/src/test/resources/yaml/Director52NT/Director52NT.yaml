@@ -99,7 +99,7 @@ monitors:
           model: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(2), $column(3), $column(4), $column(1))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), $column(3), $column(4), megaHertz2HumanFormat($column(1)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
     collect:

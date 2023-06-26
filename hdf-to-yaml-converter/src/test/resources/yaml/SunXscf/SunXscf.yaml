@@ -129,10 +129,10 @@ monitors:
         attributes:
           id: $column(1)
           model: $column(2)
-          info: "join($column(5), $column(4), \" \")"
+          info: "join(\" \", $column(5), $column(4))"
           hw.parent.type: enclosure
           hw.parent.id: Main
-          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), megaHertz2HumanFormat($column(3)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
@@ -256,7 +256,7 @@ monitors:
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          info: "join($column(4), $column(3), \" \")"
+          info: "join(\" \", $column(4), $column(3))"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: $column(1)
@@ -498,7 +498,7 @@ monitors:
           device_type: $column(1)
           id: $column(2)
           additional_label: $column(4)
-          info: "join($column(6), $column(5), \" \")"
+          info: "join(\" \", $column(6), $column(5))"
           hw.parent.type: enclosure
           hw.parent.id: $column(3)
           name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(4))"

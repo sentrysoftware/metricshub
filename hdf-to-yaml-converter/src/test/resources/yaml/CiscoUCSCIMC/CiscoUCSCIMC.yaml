@@ -333,7 +333,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(1)
-          info: "join($column(2), $column(3), $column(4), \" \")"
+          info: "join(\" \", $column(2), $column(3), $column(4))"
           hw.parent.type: enclosure
           name: $column(1)
     collect:
@@ -418,7 +418,7 @@ monitors:
           vendor: $column(4)
           model: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(1), $column(4), $column(3))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), bytes2HumanFormatBase10($column(3)))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
@@ -497,7 +497,7 @@ monitors:
           vendor: $column(4)
           model: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(4), $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(4), $column(2), megaHertz2HumanFormat($column(3)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
@@ -590,7 +590,7 @@ monitors:
           __display_id: $column(1)
           serial_number: $column(5)
           type: $column(7)
-          info: "join($column(2), $column(6), \" \")"
+          info: "join(\" \", $column(2), $column(6))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(7), $column(4))"
         metrics:

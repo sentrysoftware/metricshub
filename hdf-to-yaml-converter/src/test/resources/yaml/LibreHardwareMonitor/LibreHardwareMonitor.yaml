@@ -497,7 +497,7 @@ monitors:
           vendor: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: "sprintf(\"%s (%s - %mibyhf.s)\", $column(2), $column(3), $column(6))"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), mebiBytes2HumanFormat($column(6)))"
         metrics:
           hw.gpu.memory.limit: mebiByte2Byte($column(6))
     collect:

@@ -778,10 +778,10 @@ monitors:
           __display_id: $column(3)
           model: $column(10)
           serial_number: $column(11)
-          info: "join($column(14), $column(15), \" \")"
+          info: "join(\" \", $column(14), $column(15))"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(12))"
+          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase10($column(12)))"
         metrics:
           hw.physical_disk.size: $column(12)
     collect:

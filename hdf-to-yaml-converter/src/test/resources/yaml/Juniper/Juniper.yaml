@@ -206,7 +206,7 @@ monitors:
           __display_id: $column(10)
           model: $column(12)
           serial_number: $column(14)
-          info: "join($column(3), $column(15), $column(16), \" \")"
+          info: "join(\" \", $column(3), $column(15), $column(16))"
           hw.parent.type: $column(9)
           hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s)\", $column(10), $column(12))"
@@ -280,7 +280,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(10)
-          info: "join($column(13), $column(12), $column(15), \" \")"
+          info: "join(\" \", $column(13), $column(12), $column(15))"
           hw.parent.type: $column(9)
           hw.parent.id: $column(8)
           name: $column(10)
@@ -345,7 +345,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(10)
-          info: "join($column(13), $column(12), $column(15), \" \")"
+          info: "join(\" \", $column(13), $column(12), $column(15))"
           hw.parent.type: $column(9)
           hw.parent.id: $column(8)
           name: $column(10)
@@ -415,7 +415,7 @@ monitors:
           id: $column(2)
           __display_id: $column(10)
           device_type: $column(4)
-          info: "join($column(13), $column(12), $column(15), \" \")"
+          info: "join(\" \", $column(13), $column(12), $column(15))"
           hw.parent.type: $column(9)
           hw.parent.id: $column(8)
           name: "sprintf(\"%s: %s\", $column(4), $column(10))"

@@ -208,7 +208,7 @@ monitors:
         attributes:
           id: $column(3)
           __display_id: $column(4)
-          info: "join($column(7), $column(8), $column(9), \" \")"
+          info: "join(\" \", $column(7), $column(8), $column(9))"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: $column(4)
@@ -277,7 +277,7 @@ monitors:
           __display_id: $column(4)
           additional_label: $column(8)
           device_type: Slot
-          info: "join($column(7), $column(9), \" \")"
+          info: "join(\" \", $column(7), $column(9))"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s: %s (%s)\", \"Slot\", $column(4), $column(8))"
@@ -473,7 +473,7 @@ monitors:
           info: $column(10)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(7), $column(11))"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(7), bytes2HumanFormatBase10($column(11)))"
         metrics:
           hw.physical_disk.size: $column(11)
     collect:
@@ -574,7 +574,7 @@ monitors:
           raid_level: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(1), $column(4), $column(2))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), bytes2HumanFormatBase2($column(2)))"
         metrics:
           hw.logical_disk.limit: $column(2)
     collect:

@@ -528,7 +528,7 @@ monitors:
           serial_number: $column(5)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(6))"
+          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase10($column(6)))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
@@ -792,7 +792,7 @@ monitors:
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: Cluster
-          name: "sprintf(\"%s (%by2hf.s)\", $column(2), $column(3))"
+          name: "sprintf(\"%s (%s)\", $column(2), bytes2HumanFormatBase2($column(3)))"
         metrics:
           hw.logical_disk.limit: $column(3)
     collect:

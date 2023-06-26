@@ -55,7 +55,7 @@ monitors:
           vendor: $column(4)
           model: $column(1)
           type: Chassis
-          info: "join($column(5), $column(6), \" \")"
+          info: "join(\" \", $column(5), $column(6))"
           name: "sprintf(\"Enclosure: (%s %s)\", $column(4), $column(1))"
     collect:
       # Collect
@@ -1098,7 +1098,7 @@ monitors:
           blade_name: $column(3)
           model: $column(5)
           serial_number: $column(7)
-          info: "join($column(8), $column(9), \" \")"
+          info: "join(\" \", $column(8), $column(9))"
           hw.parent.type: enclosure
           hw.parent.id: BladeCenter
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(5))"
@@ -1319,7 +1319,7 @@ monitors:
         attributes:
           id: $column(1)
           device_type: $column(2)
-          info: "join($column(3), $column(4), $column(5), \" \")"
+          info: "join(\" \", $column(3), $column(4), $column(5))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(2), $column(1))"
     collect:

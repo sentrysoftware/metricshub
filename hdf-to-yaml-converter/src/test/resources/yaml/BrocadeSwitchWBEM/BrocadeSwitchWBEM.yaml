@@ -201,7 +201,7 @@ monitors:
           __display_id: $column(2)
           model: $column(3)
           serial_number: $column(5)
-          info: "join($column(4), $column(8), \" \")"
+          info: "join(\" \", $column(4), $column(8))"
           hw.parent.type: enclosure
           hw.parent.id: $column(7)
           name: "sprintf(\"%s (%s)\", $column(2), $column(3))"

@@ -126,7 +126,7 @@ monitors:
           model: $column(3)
           vendor: $column(2)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(6), $column(2), $column(3), $column(5))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(6), $column(2), $column(3), megaHertz2HumanFormat($column(5)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(5))
     collect:
@@ -190,7 +190,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(5)
-          info: "join($column(2), $column(3), \" \")"
+          info: "join(\" \", $column(2), $column(3))"
           hw.parent.type: enclosure
           name: $column(5)
     collect:

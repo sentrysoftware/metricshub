@@ -25,7 +25,7 @@
               __display_id: $column(3)
               hw.parent.type: enclosure
               hw.parent.id: $column(4)
-              info: join($column(7), $column(8), $column(6), " ")
+              info: join(" ", $column(7), $column(8), $column(6))
               name: sprintf("%s (%s - %s W)", $column(3), $column(2), $column(5))
             metrics:
               hw.power_supply.limit: $column(5)

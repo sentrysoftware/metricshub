@@ -71,7 +71,7 @@ monitors:
           vendor: Dell
           model: $column(2)
           type: Computer
-          info: "join($column(3), $column(4), \" \")"
+          info: "join(\" \", $column(3), $column(4))"
           name: "sprintf(\"Computer: (%s %s)\", \"Dell\", $column(2))"
     collect:
       # Collect
@@ -479,7 +479,7 @@ monitors:
           type: $column(2)
           vendor: $column(5)
           serial_number: $column(7)
-          info: "join($column(3), $column(6), $column(8), \" \")"
+          info: "join(\" \", $column(3), $column(6), $column(8))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s - %s MB)\", $column(1), $column(5), $column(2), $column(4))"
         metrics:
@@ -604,7 +604,7 @@ monitors:
           model: $column(5)
           info: $column(7)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(2), $column(5), $column(4))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(2), $column(5), megaHertz2HumanFormat($column(4)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
     collect:

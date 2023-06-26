@@ -28,7 +28,7 @@
               hw.parent.type: disk_controller
               hw.parent.id: lookup("disk_controller", "id", "controller_number", $column(2))
               __display_id: testname
-              info: join($column(5), $column(6), $column(7), " ")
+              info: join(" ", $column(5), $column(6), $column(7))
               name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS")
 - name: test2AttachedToDeviceIdAndType
   input: |
@@ -60,7 +60,7 @@
               hw.parent.type: $column(4)
               hw.parent.id: $column(3)
               __display_id: testname
-              info: join($column(5), $column(6), " ")
+              info: join(" ", $column(5), $column(6))
               name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS")
 - name: test3AttachedToDeviceIdOnly
   input: |

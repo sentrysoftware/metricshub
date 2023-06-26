@@ -136,10 +136,10 @@ monitors:
           __display_id: $column(2)
           vendor: $column(4)
           serial_number: $column(6)
-          info: "join($column(5), $column(10), $column(3), \" \")"
+          info: "join(\" \", $column(5), $column(10), $column(3))"
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(12))"
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(4), $column(7))"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), bytes2HumanFormatBase10($column(7)))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
@@ -259,7 +259,7 @@ monitors:
           __display_id: $column(3)
           hw.parent.type: disk_controller
           hw.parent.id: $column(10)
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(3), $column(6), $column(5))"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), bytes2HumanFormatBase2($column(5)))"
         metrics:
           hw.logical_disk.limit: $column(5)
     collect:
@@ -398,7 +398,7 @@ monitors:
           type: External Storage
           model: $column(3)
           serial_number: $column(8)
-          info: "join($column(4), $column(5), $column(7), \" \")"
+          info: "join(\" \", $column(4), $column(5), $column(7))"
           name: "sprintf(\"Enclosure: (%s %s)\", \"Dell\", $column(3))"
     collect:
       # Collect type is multi-instance

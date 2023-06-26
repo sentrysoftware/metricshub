@@ -91,7 +91,7 @@ monitors:
           model: $column(3)
           vendor: $column(4)
           serial_number: $column(5)
-          info: "join($column(2), $column(7), $column(6), \" \")"
+          info: "join(\" \", $column(2), $column(7), $column(6))"
           hw.parent.type: enclosure
           hw.parent.id: STKStreamLine
           name: "sprintf(\"%s (%s %s)\", $column(1), $column(4), $column(3))"
@@ -168,7 +168,7 @@ monitors:
         attributes:
           id: $column(1)
           serial_number: $column(3)
-          info: "join($column(2), $column(4), \" \")"
+          info: "join(\" \", $column(2), $column(4))"
           hw.parent.type: enclosure
           hw.parent.id: STKStreamLine
           name: $column(1)

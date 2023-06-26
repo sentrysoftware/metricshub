@@ -386,7 +386,7 @@ monitors:
           __display_id: $column(2)
           model: $column(7)
           serial_number: $column(4)
-          info: "join($column(3), $column(9), $column(6), \" \")"
+          info: "join(\" \", $column(3), $column(9), $column(6))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), $column(7))"
     collect:
@@ -922,7 +922,7 @@ monitors:
           id: $column(1)
           __display_id: $column(2)
           device_type: $column(3)
-          info: "join($column(4), $column(5), $column(6), \" \")"
+          info: "join(\" \", $column(4), $column(5), $column(6))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(3), $column(2))"
     collect:

@@ -63,7 +63,7 @@ monitors:
           id: $column(3)
           __display_id: $column(5)
           model: $column(6)
-          info: "join($column(4), $column(7), \" \")"
+          info: "join(\" \", $column(4), $column(7))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(5), $column(6))"
     collect:

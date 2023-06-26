@@ -32,7 +32,7 @@
               firmware_version: $column(6)
               driver_version: $column(7)
               bios_version: testbios
-              info: join($column(4), $column(5), " ")
+              info: join(" ", $column(4), $column(5))
               hw.parent.type: enclosure
               hw.parent.id: $column(8)
               name: "sprintf(\"Disk Controller: %s (%s)\", $column(9), $column(2))"
@@ -68,7 +68,7 @@
               firmware_version: $column(6)
               driver_version: $column(7)
               bios_version: testbios
-              info: join($column(4), $column(5), " ")
+              info: join(" ", $column(4), $column(5))
               hw.parent.type: enclosure
               hw.parent.id: $column(8)
               name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
@@ -104,7 +104,7 @@
               firmware_version: $column(6)
               driver_version: $column(7)
               bios_version: testbios
-              info: join($column(4), $column(5), " ")
+              info: join(" ", $column(4), $column(5))
               hw.parent.type: enclosure
               hw.parent.id: $column(8)
               name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
@@ -138,7 +138,7 @@
               firmware_version: $column(6)
               driver_version: $column(7)
               bios_version: testbios
-              info: join($column(4), $column(5), " ")
+              info: join(" ", $column(4), $column(5))
               hw.parent.type: enclosure
               hw.parent.id: $column(8)
               name: "sprintf(\"Disk Controller: %s\", $column(1))"
@@ -174,7 +174,7 @@
               firmware_version: $column(6)
               driver_version: $column(7)
               bios_version: testbios
-              info: join($column(4), $column(5), " ")
+              info: join(" ", $column(4), $column(5))
               hw.parent.type: enclosure
               hw.parent.id: $column(8)
               model: $column(2)

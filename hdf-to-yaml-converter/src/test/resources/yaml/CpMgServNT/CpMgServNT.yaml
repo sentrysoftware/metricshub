@@ -139,7 +139,7 @@ monitors:
           model: $column(2)
           type: Computer
           serial_number: $column(6)
-          info: "join($column(5), $column(4), \" \")"
+          info: "join(\" \", $column(5), $column(4))"
           name: "sprintf(\"Computer: (%s %s)\", \"HP\", $column(2))"
     collect:
       # Collect type is mono-instance
@@ -260,7 +260,7 @@ monitors:
           vendor: $column(4)
           info: $column(5)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(4), $column(2), $column(3))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(4), $column(2), megaHertz2HumanFormat($column(3)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
@@ -621,7 +621,7 @@ monitors:
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
-          info: "join($column(5), $column(7), $column(6), \" \")"
+          info: "join(\" \", $column(5), $column(7), $column(6))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s W)\", $column(1), $column(4))"
         metrics:

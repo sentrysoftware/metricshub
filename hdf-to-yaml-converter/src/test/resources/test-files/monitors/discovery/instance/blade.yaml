@@ -28,7 +28,7 @@
               hw.parent.type: enclosure
               model: $column(3)
               blade_name: testbladename
-              info: join($column(4), $column(8), " ")
+              info: join(" ", $column(4), $column(8))
               serial_number: $column(5)
               name: sprintf("%s (%s - %s)", $column(2), "testbladename", $column(3))
 - name: test2NoModel
@@ -58,7 +58,7 @@
               hw.parent.id: $column(7)
               hw.parent.type: enclosure
               blade_name: testbladename
-              info: join($column(4), $column(8), " ")
+              info: join(" ", $column(4), $column(8))
               serial_number: $column(5)
               name: sprintf("%s (%s)", $column(2), "testbladename")
 - name: testNoBladeName
@@ -88,7 +88,7 @@
               hw.parent.id: $column(7)
               hw.parent.type: enclosure
               model: $column(3)
-              info: join($column(4), $column(8), " ")
+              info: join(" ", $column(4), $column(8))
               serial_number: $column(5)
               name: sprintf("%s (%s)", $column(2), $column(3))
 - name: testNoBladeNameNoBladeModel
@@ -116,7 +116,7 @@
               __display_id: $column(2)
               hw.parent.id: $column(7)
               hw.parent.type: enclosure
-              info: join($column(4), $column(8), " ")
+              info: join(" ", $column(4), $column(8))
               serial_number: $column(5)
               name: $column(2)
 - name: testNoBladeNameNoBladeModelNoDisplayId
@@ -142,6 +142,6 @@
               id: $column(1)
               hw.parent.id: $column(7)
               hw.parent.type: enclosure
-              info: join($column(4), $column(8), " ")
+              info: join(" ", $column(4), $column(8))
               serial_number: $column(5)
               name: $column(1)
