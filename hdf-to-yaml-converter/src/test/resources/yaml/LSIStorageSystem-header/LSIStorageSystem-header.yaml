@@ -386,7 +386,7 @@ monitors:
           info: $column(9)
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(13), $column(10))"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(13), bytes2HumanFormatBase10($column(10)))"
         metrics:
           hw.physical_disk.size: $column(10)
     collect:
@@ -440,7 +440,7 @@ monitors:
           info: $column(9)
           hw.parent.type: $column(6)
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(10))"
+          name: "sprintf(\"%s (%s)\", $column(4), bytes2HumanFormatBase2($column(10)))"
         metrics:
           hw.logical_disk.limit: $column(10)
     collect:

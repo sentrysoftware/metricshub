@@ -125,8 +125,8 @@ public class PhysicalDiskConverter extends AbstractMappingConverter {
 						.stream(),
 					Optional.ofNullable(size)
 						.map(v -> {
-							sprintfArgs.add(v.asText());
-							return BYTES_TO_HUMAN_FORMAT_BASE_10; // Bytes to human format using base 10 conversion
+							sprintfArgs.add(String.format("bytes2HumanFormatBase10(%s)", v.asText()));
+							return "%s"; // Bytes to human format using base 10 conversion
 						})
 						.stream()
 				)
@@ -139,9 +139,9 @@ public class PhysicalDiskConverter extends AbstractMappingConverter {
 
 		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %by10hf.s)", $column(1), $column(2), $column(3))
+		// sprintf("%s (%s - %s)", $column(1), $column(2), bytes2HumanFormatBase10($column(3)))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %by10hf.s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %s)", 
 			.append(
 				sprintfArgs
 					.stream()
@@ -160,6 +160,15 @@ public class PhysicalDiskConverter extends AbstractMappingConverter {
 	@Override
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
 		convertOneToOneMetrics(key, value, (ObjectNode) node);
+	}
+
+	@Override
+	protected String getFunctionArgument(String value) {
+		// It is not required to concatenated the value with the opening and closing quotation marks 
+		if (value.indexOf("bytes2HumanFormatBase10") != -1) {
+			return value;
+		}
+		return super.getFunctionArgument(value);
 	}
 
 }

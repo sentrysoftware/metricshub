@@ -112,9 +112,9 @@ monitors:
           vendor: $column(3)
           model: $column(6)
           firmware_version: $column(7)
-          info: "join($column(8), $column(9), \" \")"
+          info: "join(\" \", $column(8), $column(9))"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(3), $column(10))"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), bytes2HumanFormatBase10($column(10)))"
         metrics:
           hw.physical_disk.size: $column(10)
     collect:
@@ -175,7 +175,7 @@ monitors:
           id: $column(3)
           __display_id: $column(3)
           power_supply_type: $column(8)
-          info: "join($column(5), $column(6), $column(7), \" \")"
+          info: "join(\" \", $column(5), $column(6), $column(7))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(8))"
     collect:
@@ -248,7 +248,7 @@ monitors:
           serial_number: $column(6)
           model: $column(8)
           type: $column(10)
-          info: "join($column(5), $column(7), \" \")"
+          info: "join(\" \", $column(5), $column(7))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(10), $column(9))"
         metrics:
@@ -318,7 +318,7 @@ monitors:
           id: $column(3)
           __display_id: $column(3)
           model: $column(8)
-          info: "join($column(5), $column(7), $column(6), \" \")"
+          info: "join(\" \", $column(5), $column(7), $column(6))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(8))"
     collect:
@@ -389,7 +389,7 @@ monitors:
           id: $column(3)
           __display_id: $column(3)
           device_type: $column(8)
-          info: "join($column(5), $column(6), $column(7), \" \")"
+          info: "join(\" \", $column(5), $column(6), $column(7))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(8), $column(3))"
     collect:
@@ -559,7 +559,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(2)
-          info: "join($column(8), $column(10), $column(9), \" \")"
+          info: "join(\" \", $column(8), $column(10), $column(9))"
           hw.parent.type: enclosure
           name: $column(2)
     collect:

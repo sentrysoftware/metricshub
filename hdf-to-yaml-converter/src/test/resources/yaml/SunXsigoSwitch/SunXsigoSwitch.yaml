@@ -285,7 +285,7 @@ monitors:
           __display_id: $column(1)
           device_type: Slot
           additional_label: $column(2)
-          info: "join($column(3), $column(4), \" \")"
+          info: "join(\" \", $column(3), $column(4))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", \"Slot\", $column(1), $column(2))"
     collect:

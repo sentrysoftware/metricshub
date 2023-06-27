@@ -459,10 +459,10 @@ monitors:
           vendor: $column(6)
           serial_number: $column(7)
           firmware_version: $column(10)
-          info: "join($column(9), $column(8), \" \")"
+          info: "join(\" \", $column(9), $column(8))"
           hw.parent.type: enclosure
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(6), $column(11))"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(6), bytes2HumanFormatBase10($column(11)))"
         metrics:
           hw.physical_disk.size: $column(11)
     collect:
@@ -749,7 +749,7 @@ monitors:
           __display_id: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: Global
-          name: "sprintf(\"%s (%by2hf.s)\", $column(3), $column(4))"
+          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase2($column(4)))"
         metrics:
           hw.logical_disk.limit: $column(4)
     collect:

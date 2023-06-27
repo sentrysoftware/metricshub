@@ -522,7 +522,7 @@ monitors:
           vendor: $column(8)
           serial_number: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(8), $column(12))"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(8), bytes2HumanFormatBase10($column(12)))"
         metrics:
           hw.physical_disk.size: $column(12)
     collect:
@@ -592,7 +592,7 @@ monitors:
           __use_for_capacity_report: $column(3)
           type: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(4), bytes2HumanFormatBase2($column(2)))"
         metrics:
           hw.logical_disk.limit: $column(2)
     collect:

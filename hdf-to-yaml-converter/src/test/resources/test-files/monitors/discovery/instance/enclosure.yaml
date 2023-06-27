@@ -25,7 +25,7 @@
               serial_number: $column(6)
               type: Computer
               __display_id: testname
-              info: join($column(2), $column(3), $column(4), " ")
+              info: join(" ", $column(2), $column(3), $column(4))
               device_hostname: testdevicehostname
               bios_version: testbiosversion
               name: "sprintf(\"Computer: %s (%s %s)\", \"testname\", \"APC\", $column(5))"
@@ -54,7 +54,7 @@
               model: $column(5)
               serial_number: $column(6)
               type: Computer
-              info: join($column(2), $column(3), $column(4), " ")
+              info: join(" ", $column(2), $column(3), $column(4))
               device_hostname: testdevicehostname
               bios_version: testbiosversion
               name: "sprintf(\"Computer: (%s %s)\", \"APC\", $column(5))"
@@ -83,7 +83,7 @@
               serial_number: $column(6)
               type: switch
               __display_id: testname
-              info: join($column(2), $column(3), $column(4), " ")
+              info: join(" ", $column(2), $column(3), $column(4))
               device_hostname: testdevicehostname
               bios_version: testbiosversion
               name: "sprintf(\"Switch: %s (%s)\", \"testname\", $column(5))"
@@ -110,7 +110,7 @@
               serial_number: $column(6)
               type: blade
               __display_id: testname
-              info: join($column(2), $column(3), $column(4), " ")
+              info: join(" ", $column(2), $column(3), $column(4))
               device_hostname: testdevicehostname
               bios_version: testbiosversion
               name: "sprintf(\"Blade Enclosure: %s\", \"testname\")"
@@ -135,7 +135,7 @@
               id: $column(1)
               serial_number: $column(6)
               type: storage
-              info: join($column(2), $column(3), $column(4), " ")
+              info: join(" ", $column(2), $column(3), $column(4))
               device_hostname: testdevicehostname
               bios_version: testbiosversion
               name: 'sprintf("Storage: %s", $column(1))'

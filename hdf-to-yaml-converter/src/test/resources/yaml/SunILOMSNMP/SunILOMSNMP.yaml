@@ -136,7 +136,7 @@ monitors:
           vendor: $column(6)
           model: $column(7)
           serial_number: $column(5)
-          info: "join($column(10), $column(4), \" \")"
+          info: "join(\" \", $column(10), $column(4))"
           name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), $column(6), $column(7))"
     collect:
       # Collect type is mono-instance
@@ -415,7 +415,7 @@ monitors:
         attributes:
           id: $column(2)
           __display_id: $column(3)
-          info: "join($column(4), $column(6), $column(9), \" \")"
+          info: "join(\" \", $column(4), $column(6), $column(9))"
           hw.parent.type: enclosure
           name: $column(3)
     collect:

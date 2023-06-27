@@ -230,10 +230,10 @@ monitors:
           __display_id: $column(1)
           model: $column(5)
           serial_number: $column(6)
-          info: "join($column(7), $column(3), \" \")"
+          info: "join(\" \", $column(7), $column(3))"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%by10hf.s)\", $column(1), $column(4))"
+          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase10($column(4)))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
@@ -719,7 +719,7 @@ monitors:
           __display_id: $column(3)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%by2hf.s)\", $column(3), $column(4))"
+          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase2($column(4)))"
         metrics:
           hw.logical_disk.limit: $column(4)
     collect:

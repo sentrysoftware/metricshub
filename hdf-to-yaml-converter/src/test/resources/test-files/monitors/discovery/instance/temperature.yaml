@@ -20,7 +20,7 @@
             _comment: InstanceTable = Source(18)
             source: $monitors.temperature.discovery.sources.source(18)$
             attributes:
-              info: join($column(1), $column(2), $column(3), " ")
+              info: join(" ", $column(1), $column(2), $column(3))
               hw.parent.id: $column(5)
               hw.parent.type: $column(7)
               id: $column(8)
@@ -51,7 +51,7 @@
             _comment: InstanceTable = Source(18)
             source: $monitors.temperature.discovery.sources.source(18)$
             attributes:
-              info: join($column(1), $column(2), $column(3), " ")
+              info: join(" ", $column(1), $column(2), $column(3))
               hw.parent.id: $column(5)
               hw.parent.type: $column(7)
               id: $column(8)
@@ -80,7 +80,7 @@
             _comment: InstanceTable = Source(18)
             source: $monitors.temperature.discovery.sources.source(18)$
             attributes:
-              info: join($column(1), $column(2), $column(3), " ")
+              info: join(" ", $column(1), $column(2), $column(3))
               hw.parent.id: $column(5)
               hw.parent.type: $column(7)
               id: $column(8)

@@ -346,10 +346,10 @@ monitors:
           firmware_version: $column(11)
           model: $column(9)
           vendor: $column(8)
-          info: "join($column(1), $column(2), $column(4), \" \")"
+          info: "join(\" \", $column(1), $column(2), $column(4))"
           hw.parent.type: enclosure
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(6), $column(8), $column(3))"
+          name: "sprintf(\"%s (%s - %s)\", $column(6), $column(8), bytes2HumanFormatBase10($column(3)))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:

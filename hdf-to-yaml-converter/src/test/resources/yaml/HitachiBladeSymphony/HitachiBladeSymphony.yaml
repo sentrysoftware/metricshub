@@ -160,7 +160,7 @@ monitors:
           id: $column(1)
           model: $column(4)
           serial_number: $column(7)
-          info: "join($column(5), $column(8), \" \")"
+          info: "join(\" \", $column(5), $column(8))"
           hw.parent.type: enclosure
           hw.parent.id: Hitachi Blade Chassis
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
@@ -427,7 +427,7 @@ monitors:
         attributes:
           id: $column(1)
           power_supply_type: $column(5)
-          info: "join($column(6), $column(4), \" \")"
+          info: "join(\" \", $column(6), $column(4))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
     collect:
@@ -955,7 +955,7 @@ monitors:
           id: $column(2)
           device_type: $column(1)
           additional_label: $column(3)
-          info: "join($column(4), $column(5), $column(6), \" \")"
+          info: "join(\" \", $column(4), $column(5), $column(6))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(3))"
     collect:

@@ -164,10 +164,10 @@ monitors:
           id: $column(1)
           __display_id: $column(1)
           serial_number: $column(5)
-          info: "join($column(2), $column(4), \"Type: Fusion ioDrive\", \" \")"
+          info: "join(\" \", $column(2), $column(4), \"Type: Fusion ioDrive\")"
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(8))"
-          name: "sprintf(\"%s (%by10hf.s)\", $column(1), $column(6))"
+          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase10($column(6)))"
         metrics:
           hw.physical_disk.size: $column(6)
     collect:

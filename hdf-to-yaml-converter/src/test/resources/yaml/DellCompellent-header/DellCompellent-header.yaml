@@ -228,7 +228,7 @@ monitors:
           model: $column(10)
           hw.parent.type: enclosure
           hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(3), $column(9), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(9), bytes2HumanFormatBase10($column(4)))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:

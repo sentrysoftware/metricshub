@@ -337,7 +337,7 @@ monitors:
           __display_id: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%mhhf.s)\", $column(4), $column(5))"
+          name: "sprintf(\"%s (%s)\", $column(4), megaHertz2HumanFormat($column(5)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(5))
     collect:
@@ -1280,7 +1280,7 @@ monitors:
           serial_number: $column(8)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(9), $column(7), $column(10))"
+          name: "sprintf(\"%s (%s - %s)\", $column(9), $column(7), bytes2HumanFormatBase10($column(10)))"
         metrics:
           hw.physical_disk.size: $column(10)
     collect:
@@ -1400,7 +1400,7 @@ monitors:
           type: Volume
           hw.parent.type: disk_controller
           hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%by2hf.s)\", $column(4), $column(6))"
+          name: "sprintf(\"%s (%s)\", $column(4), bytes2HumanFormatBase2($column(6)))"
         metrics:
           hw.logical_disk.limit: $column(6)
     collect:

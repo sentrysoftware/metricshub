@@ -262,7 +262,7 @@ monitors:
           id: $column(2)
           __display_id: $column(3)
           device_type: Controller
-          info: "join($column(6), $column(5), \" \")"
+          info: "join(\" \", $column(6), $column(5))"
           hw.parent.type: enclosure
           hw.parent.id: $column(8)
           name: "sprintf(\"%s: %s\", \"Controller\", $column(3))"
@@ -950,7 +950,7 @@ monitors:
           info: $column(4)
           hw.parent.type: enclosure
           hw.parent.id: $column(13)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(7), $column(10), $column(3))"
+          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(10), bytes2HumanFormatBase10($column(3)))"
         metrics:
           hw.physical_disk.size: $column(3)
     collect:

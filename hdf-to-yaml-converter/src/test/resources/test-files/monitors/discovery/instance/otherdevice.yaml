@@ -28,7 +28,7 @@
             source: $monitors.other_device.discovery.sources.source(14)$
             attributes:
               id: $column(2)
-              info: join($column(4), $column(5), $column(6), " ")
+              info: join(" ", $column(4), $column(5), $column(6))
               device_type: $column(1)
               hw.parent.id: DIR5
               hw.parent.type: enclosure
@@ -67,7 +67,7 @@
             source: $monitors.other_device.discovery.sources.source(14)$
             attributes:
               id: $column(2)
-              info: join($column(4), $column(5), $column(6), " ")
+              info: join(" ", $column(4), $column(5), $column(6))
               hw.parent.id: DIR5
               hw.parent.type: enclosure
               name: $column(2)
@@ -105,7 +105,7 @@
             source: $monitors.other_device.discovery.sources.source(14)$
             attributes:
               id: $column(2)
-              info: join($column(4), $column(5), $column(6), " ")
+              info: join(" ", $column(4), $column(5), $column(6))
               device_type: $column(1)
               hw.parent.id: DIR5
               hw.parent.type: enclosure
@@ -145,7 +145,7 @@
             source: $monitors.other_device.discovery.sources.source(14)$
             attributes:
               id: $column(2)
-              info: join($column(4), $column(5), $column(6), " ")
+              info: join(" ", $column(4), $column(5), $column(6))
               hw.parent.id: DIR5
               hw.parent.type: enclosure
               name: sprintf("%s (%s)", $column(2), $column(3))

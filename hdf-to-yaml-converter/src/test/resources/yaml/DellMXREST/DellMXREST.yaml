@@ -209,7 +209,7 @@ monitors:
           id: $column(3)
           __display_id: $column(4)
           device_type: $column(7)
-          info: "join($column(5), $column(6), \" \")"
+          info: "join(\" \", $column(5), $column(6))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(7), $column(4))"
     collect:
@@ -310,7 +310,7 @@ monitors:
           vendor: $column(5)
           model: $column(6)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(4), $column(5), $column(6), $column(7))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(4), $column(5), $column(6), megaHertz2HumanFormat($column(7)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(7))
     collect:
@@ -605,9 +605,9 @@ monitors:
           vendor: $column(5)
           serial_number: $column(6)
           model: $column(7)
-          info: "join($column(10), $column(9), \" \")"
+          info: "join(\" \", $column(10), $column(9))"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(4), $column(5), $column(8))"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), bytes2HumanFormatBase10($column(8)))"
         metrics:
           hw.physical_disk.size: $column(8)
     collect:
@@ -678,7 +678,7 @@ monitors:
           type: $column(6)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(4), $column(5), $column(7))"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), bytes2HumanFormatBase2($column(7)))"
         metrics:
           hw.logical_disk.limit: $column(7)
     collect:

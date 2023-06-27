@@ -72,7 +72,7 @@ monitors:
           model: $column(2)
           serial_number: $column(6)
           type: UPS
-          info: "join($column(4), $column(5), \" \")"
+          info: "join(\" \", $column(4), $column(5))"
           name: "sprintf(\"Enclosure: (%s %s)\", \"APC\", $column(2))"
     collect:
       # Collect

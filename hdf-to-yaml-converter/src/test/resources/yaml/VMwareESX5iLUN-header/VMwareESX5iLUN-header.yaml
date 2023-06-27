@@ -90,7 +90,7 @@ monitors:
           id: $column(2)
           __display_id: $column(2)
           device_type: $column(1)
-          info: "join($column(3), $column(4), \" \")"
+          info: "join(\" \", $column(3), $column(4))"
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(1), $column(2))"
     collect:

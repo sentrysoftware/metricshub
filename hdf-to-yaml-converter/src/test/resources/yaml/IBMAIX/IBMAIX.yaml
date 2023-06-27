@@ -116,7 +116,7 @@ monitors:
           type: Computer
           serial_number: $column(7)
           bios_version: $column(8)
-          info: "join($column(1), $column(5), $column(4), \" \")"
+          info: "join(\" \", $column(1), $column(5), $column(4))"
           name: "sprintf(\"Computer: %s (%s %s)\", $column(7), \"IBM\", $column(3))"
     collect:
       # Collect type is mono-instance (as there is only one instance anyway)
@@ -173,7 +173,7 @@ monitors:
           id: $column(1)
           model: $column(3)
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(3), $column(2))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), megaHertz2HumanFormat($column(2)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
     collect:

@@ -16,7 +16,6 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.MEGA_HERTZ_TO_HUMAN_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_ENERGY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_ERRORS;
@@ -155,8 +154,8 @@ public class CpuConverter extends AbstractMappingConverter {
 						Stream.of(maximumSpeed)
 							.filter(Objects::nonNull)
 							.map(v -> {
-								sprintfArgs.add(v.asText());
-								return MEGA_HERTZ_TO_HUMAN_FORMAT; // Hertz to human format
+								sprintfArgs.add(String.format("megaHertz2HumanFormat(%s)", v.asText()));
+								return "%s"; // Mega Hertz to human format
 							})
 					)
 					.collect(Collectors.joining(" - "," (",")"))
@@ -168,9 +167,9 @@ public class CpuConverter extends AbstractMappingConverter {
 
 		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s - %mhhf.s)", $column(1), $column(2), $column(3), $column(4))
+		// sprint("%s (%s - %s - %s)", $column(1), $column(2), $column(3), megaHertz2HumanFormat($column(4)))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %mhhf.s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %s)", 
 			.append(
 				sprintfArgs
 					.stream()
@@ -211,4 +210,12 @@ public class CpuConverter extends AbstractMappingConverter {
 		}
 	}
 
+	@Override
+	protected String getFunctionArgument(String value) {
+		// It is not required to concatenated the value with the opening and closing quotation marks 
+		if (value.indexOf("megaHertz2HumanFormat") != -1) {
+			return value;
+		}
+		return super.getFunctionArgument(value);
+	}
 }

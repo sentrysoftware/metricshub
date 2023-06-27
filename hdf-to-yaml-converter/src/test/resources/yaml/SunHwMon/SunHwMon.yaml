@@ -94,7 +94,7 @@ monitors:
           type: Computer
           serial_number: $column(4)
           bios_version: $column(7)
-          info: "join($column(3), $column(6), \" \")"
+          info: "join(\" \", $column(3), $column(6))"
           name: "sprintf(\"Computer: (%s %s)\", $column(5), $column(2))"
     collect:
       # Collect type is mono-instance
@@ -460,10 +460,10 @@ monitors:
           vendor: $column(14)
           model: $column(12)
           serial_number: $column(13)
-          info: "join($column(3), $column(5), $column(6), \" \")"
+          info: "join(\" \", $column(3), $column(5), $column(6))"
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(2), $column(14), $column(7))"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(14), bytes2HumanFormatBase10($column(7)))"
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
@@ -923,7 +923,7 @@ monitors:
           raid_level: $column(6)
           hw.parent.type: disk_controller
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(3))"
-          name: "sprintf(\"%s (%s - %by2hf.s)\", $column(2), $column(6), $column(4))"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), bytes2HumanFormatBase2($column(4)))"
         metrics:
           hw.logical_disk.limit: $column(4)
     collect:

@@ -503,7 +503,7 @@ monitors:
           id: $column(1)
           vendor: $column(7)
           serial_number: $column(9)
-          info: "join($column(4), $column(3), $column(8), \" \")"
+          info: "join(\" \", $column(4), $column(3), $column(8))"
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(7), $column(5))"

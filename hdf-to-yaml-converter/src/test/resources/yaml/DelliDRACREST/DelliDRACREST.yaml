@@ -203,7 +203,7 @@ monitors:
           __display_id: $column(6)
           hw.parent.type: enclosure
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(6), $column(4), $column(5), $column(7))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(6), $column(4), $column(5), megaHertz2HumanFormat($column(7)))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(7))
     collect:
@@ -533,7 +533,7 @@ monitors:
           __display_id: $column(7)
           hw.parent.type: disk_controller
           hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(7), $column(4), $column(8))"
+          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(4), bytes2HumanFormatBase10($column(8)))"
         metrics:
           hw.physical_disk.size: $column(8)
     collect:

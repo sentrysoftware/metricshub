@@ -316,7 +316,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(3)
-          info: "join($column(4), $column(5), \" \")"
+          info: "join(\" \", $column(4), $column(5))"
           hw.parent.type: $column(7)
           hw.parent.id: $column(2)
           name: $column(3)
@@ -471,7 +471,7 @@ monitors:
           info: $column(5)
           hw.parent.type: $column(8)
           hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%by10hf.s)\", $column(3), $column(4))"
+          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase10($column(4)))"
         metrics:
           hw.physical_disk.size: $column(4)
     collect:

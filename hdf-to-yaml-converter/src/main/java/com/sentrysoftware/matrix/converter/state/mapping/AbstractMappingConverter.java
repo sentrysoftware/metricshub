@@ -157,8 +157,8 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	/**
 	 * Convert additional information to the info attribute based on the given specification
 	 * <ol>
-	 *    <li>If all additional information are provided, build value: <em>join(AdditionalInformation1, AdditionalInformation2, AdditionalInformation3, " ")</em></li>
-	 *    <li>If only additional information 1 and 2 are provided, build value: <em>join(AdditionalInformation1, AdditionalInformation2, " ")</em></li>
+	 *    <li>If all additional information are provided, build value: <em>join(" ", AdditionalInformation1, AdditionalInformation2, AdditionalInformation3)</em></li>
+	 *    <li>If only additional information 1 and 2 are provided, build value: <em>join(" ", AdditionalInformation1, AdditionalInformation2)</em></li>
 	 *    <li>If only the first additional information is provided, set the additional information value as is.</li>
 	 * </ol>
 	 * 
@@ -193,7 +193,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 				.stream()
 				.map(JsonNode::asText)
 				.map(this::getFunctionArgument)
-				.collect(Collectors.joining(", ", "join(", ", \" \")"));
+				.collect(Collectors.joining(", ", "join(\" \", ", ")"));
 
 			info = new TextNode(function); 
 		} else {

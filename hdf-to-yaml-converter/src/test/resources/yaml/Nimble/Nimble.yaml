@@ -139,7 +139,7 @@ monitors:
           model: $column(6)
           serial_number: $column(4)
           type: $column(5)
-          info: "join($column(9), $column(10), $column(8), \" \")"
+          info: "join(\" \", $column(9), $column(10), $column(8))"
           name: "sprintf(\"Enclosure: %s (%s %s)\", $column(12), \"Nimble\", $column(6))"
     collect:
       type: multiInstance
@@ -567,7 +567,7 @@ monitors:
           info: "Type: Storage"
           hw.parent.type: enclosure
           hw.parent.id: $column(4)
-          name: "sprintf(\"%s (%s - %by10hf.s)\", $column(7), $column(8), $column(10))"
+          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(8), bytes2HumanFormatBase10($column(10)))"
         metrics:
           hw.physical_disk.size: $column(10)
     collect:

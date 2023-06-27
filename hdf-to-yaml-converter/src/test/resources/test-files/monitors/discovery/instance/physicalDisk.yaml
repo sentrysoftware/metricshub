@@ -29,9 +29,9 @@
               model: $column(6)
               vendor: $column(13)
               serial_number: $column(8)
-              info: join($column(9), "Blabla", "OtherBlabla", " ")
+              info: join(" ", $column(9), "Blabla", "OtherBlabla")
               hw.parent.id: lookup("disk_controller", "id", "controller_number", $column(12))
               hw.parent.type: disk_controller
-              name: sprintf("%s (%s - %by10hf.s)", $column(4), $column(13), $column(11))
+              name: sprintf("%s (%s - %s)", $column(4), $column(13), bytes2HumanFormatBase10($column(11)))
             metrics:
               hw.physical_disk.size: $column(11)

@@ -211,7 +211,7 @@ monitors:
         attributes:
           id: $column(1)
           __display_id: $column(2)
-          info: "join($column(7), $column(8), $column(9), \" \")"
+          info: "join(\" \", $column(7), $column(8), $column(9))"
           hw.parent.type: enclosure
           hw.parent.id: _DEVICE_ID
           name: $column(2)

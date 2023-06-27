@@ -82,7 +82,7 @@ public class EmbeddedFileExternalizer {
 	private String transform(String value) {
 		final Matcher matcher = EMBEDDED_FILE_PATTERN.matcher(value);
 
-		while(matcher.find()) {
+		while (matcher.find()) {
 			value = doReplacement(value, matcher);
 		}
 		return value;
