@@ -33,7 +33,7 @@ monitors:
           computes:
           # '"MSHW;"Manufacturer";"Type";"SN";"'
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
         source(2):
@@ -42,28 +42,28 @@ monitors:
           computes:
           # '"MSHW;"Bios Info"'
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
         source(3):
           # '"MSHW;"Manufacturer";"Type";"SN";"'
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # Enclosure Instance Table
         # "MSHW;"Name";"Type";"SN";""MSHW;"Bios Info"
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
           id: Computer
-          __display_id: $column(3)
-          vendor: $column(2)
+          __display_id: $3
+          vendor: $2
           type: Computer
-          serial_number: $column(4)
-          bios_version: $column(6)
-          name: "sprintf(\"Computer: %s (%s)\", $column(3), $column(2))"
+          serial_number: $4
+          bios_version: $6
+          name: "${awk::sprintf(\"Computer: %s (%s)\", $3, $2)}"
   temperature:
     discovery:
       sources:
@@ -73,22 +73,22 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # Temperature Instance Table
         # "MSHW;"Name";"Type";"Value";"Max";"Critical";"
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
+          id: $2
+          __display_id: $2
           hw.parent.type: enclosure
           hw.parent.id: Computer
-          name: $column(2)
+          name: $2
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(5)
-          hw.temperature.limit{limit_type="high.critical"}: $column(6)
+          hw.temperature.limit{limit_type="high.degraded"}: $5
+          hw.temperature.limit{limit_type="high.critical"}: $6
     collect:
       # Collection Type
       type: multiInstance
@@ -98,16 +98,16 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # Temperature Value Table
         # "MSHW;"Name";"Type";"Value";"Max";"Critical";"
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(4)
+          hw.temperature: $4
   voltage:
     discovery:
       sources:
@@ -117,23 +117,23 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -A"
           computes:
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # Voltage Instance Table
         # "MSHW;"Name";"Type";"Value";Lower";"Upper";"
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
+          id: $2
+          __display_id: $2
           sensor_location: Planar
           hw.parent.type: enclosure
           hw.parent.id: Computer
-          name: "sprintf(\"%s (%s)\", $column(2), \"Planar\")"
+          name: "${awk::sprintf(\"%s (%s)\", $2, \"Planar\")}"
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(5)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+          hw.voltage.limit{limit_type="low.critical"}: $5
+          hw.voltage.limit{limit_type="high.degraded"}: $6
     collect:
       # Collection Type
       type: multiInstance
@@ -143,16 +143,16 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -A"
           computes:
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # Voltage Value Table
         # "MSHW;"Name";"Type";"Value";
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.voltage: $column(4)
+          hw.voltage: $4
   fan:
     discovery:
       sources:
@@ -162,23 +162,23 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # FAN Instance Table
         # ""MSHW;"DName"-"FName";"Value";"Min";"Max";"Alarm";"
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
+          id: $2
+          __display_id: $2
           sensor_location: Planar
           hw.parent.type: enclosure
           hw.parent.id: Computer
-          name: "sprintf(\"%s (%s)\", $column(2), \"Planar\")"
+          name: "${awk::sprintf(\"%s (%s)\", $2, \"Planar\")}"
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(5)
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(6)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $5
+          hw.fan.speed.limit{limit_type="low.critical"}: $6
     collect:
       # Collection Type
       type: multiInstance
@@ -188,13 +188,13 @@ monitors:
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # Voltage Value Table
         # "MSHW;"Name";"Type";"Value";
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.fan.speed: $column(3)
+          hw.fan.speed: $3

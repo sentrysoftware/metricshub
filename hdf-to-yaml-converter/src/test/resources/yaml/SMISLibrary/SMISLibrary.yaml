@@ -41,23 +41,23 @@ monitors:
           # Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
           # TapeID;MountCount;NeedsCleaning;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
           type: tableJoin
-          leftTable: $monitors.tape_drive.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(18)$
+          leftTable: "${source::monitors.tape_drive.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(18)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
           defaultRightLine: ;;;;;
       mapping:
         # InstanceTable = Source(2)
-        source: $monitors.tape_drive.discovery.sources.source(2)$
+        source: "${source::monitors.tape_drive.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          vendor: $column(6)
-          model: $column(7)
-          serial_number: $column(8)
+          id: $1
+          vendor: $6
+          model: $7
+          serial_number: $8
           hw.parent.type: enclosure
-          hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s %s)\", $column(1), $column(6), $column(7))"
+          hw.parent.id: $5
+          name: "${awk::sprintf(\"%s (%s %s)\", $1, $6, $7)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -77,12 +77,12 @@ monitors:
             # DeviceID;PATROLStatusArray;Status;MountCount;NeedsCleaning;
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID;PATROLStatusArray;StatusInformation;MountCount;NeedsCleaning;
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID;PATROLStatus;StatusInformation;MountCount;NeedsCleaning;
@@ -93,17 +93,17 @@ monitors:
             # DeviceID;PATROLStatus;StatusInformation;MountCount;NeedsCleaning;
           - type: translate
             column: 5
-            translationTable: TapeDriveNeedsCleaningTranslationTable
+            translationTable: "${translation::TapeDriveNeedsCleaningTranslationTable}"
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: $monitors.tape_drive.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.tape_drive.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="tape_drive"}: $column(2)
-          hw.tape_drive.operations{type="mount"}: $column(4)
-          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($column(5))
+          hw.status{hw.type="tape_drive"}: $2
+          hw.tape_drive.operations{type="mount"}: $4
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($5)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   robotics:
     discovery:
       sources:
@@ -118,24 +118,24 @@ monitors:
           # Source(2) = Table joint of Source(5) and Enclosure.Discovery.Source(18)
           # ChangerDeviceID;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
           type: tableJoin
-          leftTable: $monitors.robotics.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(18)$
+          leftTable: "${source::monitors.robotics.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(18)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
           defaultRightLine: ;;;;;
       mapping:
         # InstanceTable = Source(2)
-        source: $monitors.robotics.discovery.sources.source(2)$
+        source: "${source::monitors.robotics.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          vendor: $column(4)
-          model: $column(5)
-          serial_number: $column(6)
+          id: $1
+          vendor: $4
+          model: $5
+          serial_number: $6
           robotics_type: Media Transfer
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(4), $column(5), \"Media Transfer\")"
+          hw.parent.id: $3
+          name: "${awk::sprintf(\"%s (%s %s - %s)\", $1, $4, $5, \"Media Transfer\")}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -155,12 +155,12 @@ monitors:
             # DeviceID;PATROLStatusArray;Status
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID;PATROLStatusArray;StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID;PATROLStatus;StatusInformation
@@ -169,12 +169,12 @@ monitors:
             conversion: array2SimpleStatus
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: $monitors.robotics.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.robotics.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="robotics"}: $column(2)
+          hw.status{hw.type="robotics"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   TapeDriveNeedsCleaningTranslationTable:
     "true": 1

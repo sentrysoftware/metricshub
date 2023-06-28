@@ -20,17 +20,17 @@
             _comment: |-
               Instance Table
               SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
-            source: $monitors.blade.discovery.sources.source(1)$
+            source: ${source::monitors.blade.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              model: $column(3)
+              model: $3
               blade_name: testbladename
-              info: join(" ", $column(4), $column(8))
-              serial_number: $column(5)
-              name: sprintf("%s (%s - %s)", $column(2), "testbladename", $column(3))
+              info: ${awk::join(" ", $4, $8)}
+              serial_number: $5
+              name: ${awk::sprintf("%s (%s - %s)", $2, "testbladename", $3)}
 - name: test2NoModel
   input: |
     // Instance Table
@@ -51,16 +51,16 @@
             _comment: |-
               Instance Table
               SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
-            source: $monitors.blade.discovery.sources.source(1)$
+            source: ${source::monitors.blade.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
               blade_name: testbladename
-              info: join(" ", $column(4), $column(8))
-              serial_number: $column(5)
-              name: sprintf("%s (%s)", $column(2), "testbladename")
+              info: ${awk::join(" ", $4, $8)}
+              serial_number: $5
+              name: ${awk::sprintf("%s (%s)", $2, "testbladename")}
 - name: testNoBladeName
   input: |
     // Instance Table
@@ -81,16 +81,16 @@
             _comment: |-
               Instance Table
               SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
-            source: $monitors.blade.discovery.sources.source(1)$
+            source: ${source::monitors.blade.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              model: $column(3)
-              info: join(" ", $column(4), $column(8))
-              serial_number: $column(5)
-              name: sprintf("%s (%s)", $column(2), $column(3))
+              model: $3
+              info: ${awk::join(" ", $4, $8)}
+              serial_number: $5
+              name: ${awk::sprintf("%s (%s)", $2, $3)}
 - name: testNoBladeNameNoBladeModel
   input: |
     // Instance Table
@@ -110,15 +110,15 @@
             _comment: |-
               Instance Table
               SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
-            source: $monitors.blade.discovery.sources.source(1)$
+            source: ${source::monitors.blade.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              info: join(" ", $column(4), $column(8))
-              serial_number: $column(5)
-              name: $column(2)
+              info: ${awk::join(" ", $4, $8)}
+              serial_number: $5
+              name: $2
 - name: testNoBladeNameNoBladeModelNoDisplayId
   input: |
     // Instance Table
@@ -137,11 +137,11 @@
             _comment: |-
               Instance Table
               SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
-            source: $monitors.blade.discovery.sources.source(1)$
+            source: ${source::monitors.blade.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              hw.parent.id: $column(7)
+              id: $1
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              info: join(" ", $column(4), $column(8))
-              serial_number: $column(5)
-              name: $column(1)
+              info: ${awk::join(" ", $4, $8)}
+              serial_number: $5
+              name: $1

@@ -52,8 +52,8 @@ monitors:
           # Join the tables
           # MSHW;Name;ModelNumber;SerialNumber;ChassisID;MSHW;FirmwareVersion;EquipmentVersion;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;
@@ -61,16 +61,16 @@ monitors:
         # The InstanceTable
         #   1    2       3        #  4        #  5       6        # 7        #   8
         # MSHW;Name;ModelNumber;SerialNumber;ChassisID;MSHW;FirmwareVersion;EquipmentVersion;
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
-          id: $column(5)
-          vendor: $column(2)
-          model: $column(3)
+          id: $5
+          vendor: $2
+          model: $3
           type: Blade Chassis
-          serial_number: $column(4)
-          bios_version: $column(7)
-          info: $column(8)
-          name: "sprintf(\"Enclosure: (%s %s)\", $column(2), $column(3))"
+          serial_number: $4
+          bios_version: $7
+          info: $8
+          name: "${awk::sprintf(\"Enclosure: (%s %s)\", $2, $3)}"
     collect:
       type: multiInstance
       sources:
@@ -89,8 +89,8 @@ monitors:
           # Join with the discovery table to get the ID
           # MSHW;Name;ModelNumber;SerialNumber;ChassisID;MSHW;PowerConsumptionKW;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -98,11 +98,11 @@ monitors:
         # ValueTable = Source(1)
         #   1    2     3        #    4        # 5        6        7
         # MSHW;Name;ModelNumber;SerialNumber;ChassisID;MSHW;PowerConsumptionKW;
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(5)
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
+        deviceId: $5
         metrics:
-          hw.enclosure.power: $column(7)
-          hw.enclosure.energy: fakeCounter($column(7))
+          hw.enclosure.power: $7
+          hw.enclosure.energy: fakeCounter($7)
   blade:
     discovery:
       sources:
@@ -207,18 +207,18 @@ monitors:
           # ID;Model;SerialNumber;Version;Manufacturer;Model;
           type: tableUnion
           tables:
-          - $monitors.blade.discovery.sources.source(1)$
-          - $monitors.blade.discovery.sources.source(2)$
-          - $monitors.blade.discovery.sources.source(3)$
-          - $monitors.blade.discovery.sources.source(4)$
-          - $monitors.blade.discovery.sources.source(5)$
+          - "${source::monitors.blade.discovery.sources.source(1)}"
+          - "${source::monitors.blade.discovery.sources.source(2)}"
+          - "${source::monitors.blade.discovery.sources.source(3)}"
+          - "${source::monitors.blade.discovery.sources.source(4)}"
+          - "${source::monitors.blade.discovery.sources.source(5)}"
         source(10):
           type: tableUnion
           tables:
-          - $monitors.blade.discovery.sources.source(9)$
-          - $monitors.blade.discovery.sources.source(6)$
-          - $monitors.blade.discovery.sources.source(7)$
-          - $monitors.blade.discovery.sources.source(8)$
+          - "${source::monitors.blade.discovery.sources.source(9)}"
+          - "${source::monitors.blade.discovery.sources.source(6)}"
+          - "${source::monitors.blade.discovery.sources.source(7)}"
+          - "${source::monitors.blade.discovery.sources.source(8)}"
           computes:
             # Exclude blades with a model of "Not Install"
             # ID;Model;SerialNumber;Version;Manufacturer;Model;
@@ -242,7 +242,7 @@ monitors:
           # Join Part Number and version because we ran out of AdditionalInformation slots
           - type: rightConcat
             column: 2
-            value: Column(4)
+            value: $4
         source(11):
           # Source 11 = Blade 1 Slot
           # Slot
@@ -337,24 +337,24 @@ monitors:
           # ID;Slot;
           type: tableUnion
           tables:
-          - $monitors.blade.discovery.sources.source(11)$
-          - $monitors.blade.discovery.sources.source(12)$
-          - $monitors.blade.discovery.sources.source(13)$
-          - $monitors.blade.discovery.sources.source(14)$
-          - $monitors.blade.discovery.sources.source(15)$
+          - "${source::monitors.blade.discovery.sources.source(11)}"
+          - "${source::monitors.blade.discovery.sources.source(12)}"
+          - "${source::monitors.blade.discovery.sources.source(13)}"
+          - "${source::monitors.blade.discovery.sources.source(14)}"
+          - "${source::monitors.blade.discovery.sources.source(15)}"
         source(20):
           type: tableUnion
           tables:
-          - $monitors.blade.discovery.sources.source(19)$
-          - $monitors.blade.discovery.sources.source(16)$
-          - $monitors.blade.discovery.sources.source(17)$
-          - $monitors.blade.discovery.sources.source(18)$
+          - "${source::monitors.blade.discovery.sources.source(19)}"
+          - "${source::monitors.blade.discovery.sources.source(16)}"
+          - "${source::monitors.blade.discovery.sources.source(17)}"
+          - "${source::monitors.blade.discovery.sources.source(18)}"
         source(21):
           # Now let's join the main discovery table with the slot table
           # ID;ModelNumber;SerialNumber;Version;Manufacturer;Model;ID;Slot;
           type: tableJoin
-          leftTable: $monitors.blade.discovery.sources.source(10)$
-          rightTable: $monitors.blade.discovery.sources.source(20)$
+          leftTable: "${source::monitors.blade.discovery.sources.source(10)}"
+          rightTable: "${source::monitors.blade.discovery.sources.source(20)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -380,15 +380,15 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;DisplayID;PartNumber - Version;SerialNumber;Version;Manufacturer;Model;ID;Slot;
-        source: $monitors.blade.discovery.sources.source(21)$
+        source: "${source::monitors.blade.discovery.sources.source(21)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(7)
-          serial_number: $column(4)
-          info: "join(\" \", $column(3), $column(9), $column(6))"
+          id: $1
+          __display_id: $2
+          model: $7
+          serial_number: $4
+          info: "${awk::join(\" \", $3, $9, $6)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(7))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $7)}"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -494,37 +494,37 @@ monitors:
           # ID;PowerState;HealthState;
           type: tableUnion
           tables:
-          - $monitors.blade.collect.sources.source(1)$
-          - $monitors.blade.collect.sources.source(2)$
-          - $monitors.blade.collect.sources.source(3)$
-          - $monitors.blade.collect.sources.source(4)$
-          - $monitors.blade.collect.sources.source(5)$
+          - "${source::monitors.blade.collect.sources.source(1)}"
+          - "${source::monitors.blade.collect.sources.source(2)}"
+          - "${source::monitors.blade.collect.sources.source(3)}"
+          - "${source::monitors.blade.collect.sources.source(4)}"
+          - "${source::monitors.blade.collect.sources.source(5)}"
         source(10):
           type: tableUnion
           tables:
-          - $monitors.blade.collect.sources.source(9)$
-          - $monitors.blade.collect.sources.source(6)$
-          - $monitors.blade.collect.sources.source(7)$
-          - $monitors.blade.collect.sources.source(8)$
+          - "${source::monitors.blade.collect.sources.source(9)}"
+          - "${source::monitors.blade.collect.sources.source(6)}"
+          - "${source::monitors.blade.collect.sources.source(7)}"
+          - "${source::monitors.blade.collect.sources.source(8)}"
           computes:
             # Translate the State
             # ID;PowerState;HealthState;
           - type: translate
             column: 3
-            translationTable: bladeStatusTranslationTable
+            translationTable: "${translation::bladeStatusTranslationTable}"
             # Translate the Power State
             # ID;PowerState;HealthState;
           - type: translate
             column: 2
-            translationTable: PowerStateTranslationTable
+            translationTable: "${translation::PowerStateTranslationTable}"
       mapping:
         # ValueTable = Source(10)
         # ID;PowerState;HealthState;
-        source: $monitors.blade.collect.sources.source(10)$
-        deviceId: $column(1)
+        source: "${source::monitors.blade.collect.sources.source(10)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="blade"}: $column(3)
-          hw.blade.power_state: $column(2)
+          hw.status{hw.type="blade"}: $3
+          hw.blade.power_state: $2
   other_device:
     discovery:
       sources:
@@ -797,24 +797,24 @@ monitors:
           # PartitionID;SlotNum;
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(15)$
-          - $monitors.other_device.discovery.sources.source(16)$
-          - $monitors.other_device.discovery.sources.source(17)$
-          - $monitors.other_device.discovery.sources.source(18)$
-          - $monitors.other_device.discovery.sources.source(19)$
+          - "${source::monitors.other_device.discovery.sources.source(15)}"
+          - "${source::monitors.other_device.discovery.sources.source(16)}"
+          - "${source::monitors.other_device.discovery.sources.source(17)}"
+          - "${source::monitors.other_device.discovery.sources.source(18)}"
+          - "${source::monitors.other_device.discovery.sources.source(19)}"
         source(24):
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(23)$
-          - $monitors.other_device.discovery.sources.source(20)$
-          - $monitors.other_device.discovery.sources.source(21)$
-          - $monitors.other_device.discovery.sources.source(22)$
+          - "${source::monitors.other_device.discovery.sources.source(23)}"
+          - "${source::monitors.other_device.discovery.sources.source(20)}"
+          - "${source::monitors.other_device.discovery.sources.source(21)}"
+          - "${source::monitors.other_device.discovery.sources.source(22)}"
         source(25):
           # Match the SlotNum with the BladeName (from Blade Discovery 20)
           # PartitionID;SlotNum;BladeID;SlotNum;
           type: tableJoin
-          leftTable: $monitors.other_device.discovery.sources.source(24)$
-          rightTable: $monitors.blade.discovery.sources.source(20)$
+          leftTable: "${source::monitors.other_device.discovery.sources.source(24)}"
+          rightTable: "${source::monitors.blade.discovery.sources.source(20)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
           defaultRightLine: ;;
@@ -822,7 +822,7 @@ monitors:
             # Push this through an awk script to get one line per partition
             # PartitionID;Members;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -831,24 +831,24 @@ monitors:
           # DeviceID;DisplayID;Type;Valid;
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(7)$
-          - $monitors.other_device.discovery.sources.source(8)$
-          - $monitors.other_device.discovery.sources.source(9)$
-          - $monitors.other_device.discovery.sources.source(10)$
-          - $monitors.other_device.discovery.sources.source(11)$
+          - "${source::monitors.other_device.discovery.sources.source(7)}"
+          - "${source::monitors.other_device.discovery.sources.source(8)}"
+          - "${source::monitors.other_device.discovery.sources.source(9)}"
+          - "${source::monitors.other_device.discovery.sources.source(10)}"
+          - "${source::monitors.other_device.discovery.sources.source(11)}"
         source(27):
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(26)$
-          - $monitors.other_device.discovery.sources.source(12)$
-          - $monitors.other_device.discovery.sources.source(13)$
-          - $monitors.other_device.discovery.sources.source(14)$
+          - "${source::monitors.other_device.discovery.sources.source(26)}"
+          - "${source::monitors.other_device.discovery.sources.source(12)}"
+          - "${source::monitors.other_device.discovery.sources.source(13)}"
+          - "${source::monitors.other_device.discovery.sources.source(14)}"
         source(28):
           # Join the Partition Table with the Partition Membership Table
           # DeviceID;DisplayID;Type;Valid;PartitionID;Members;
           type: tableJoin
-          leftTable: $monitors.other_device.discovery.sources.source(27)$
-          rightTable: $monitors.other_device.discovery.sources.source(25)$
+          leftTable: "${source::monitors.other_device.discovery.sources.source(27)}"
+          rightTable: "${source::monitors.other_device.discovery.sources.source(25)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -862,19 +862,19 @@ monitors:
             # DeviceID;DisplayID;Type;;;Members;
           - type: replace
             column: 4
-            existingValue: Column(4)
+            existingValue: $4
             newValue: ""
           - type: replace
             column: 5
-            existingValue: Column(5)
+            existingValue: $5
             newValue: ""
         source(29):
           # Merge all Management Modules
           # DeviceID;DisplayID;Type;ModelNumber;SerialNumber;Manufacturer;
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(1)$
-          - $monitors.other_device.discovery.sources.source(2)$
+          - "${source::monitors.other_device.discovery.sources.source(1)}"
+          - "${source::monitors.other_device.discovery.sources.source(2)}"
           computes:
             # Exclude Management Modules with a model of "Not Install"
             # DeviceID;DisplayID;Type;ModelNumber;SerialNumber;Manufacturer;
@@ -886,10 +886,10 @@ monitors:
           # DeviceID;DisplayID;Type;ModelNumber;SerialNumber;Manufacturer;
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(3)$
-          - $monitors.other_device.discovery.sources.source(4)$
-          - $monitors.other_device.discovery.sources.source(5)$
-          - $monitors.other_device.discovery.sources.source(6)$
+          - "${source::monitors.other_device.discovery.sources.source(3)}"
+          - "${source::monitors.other_device.discovery.sources.source(4)}"
+          - "${source::monitors.other_device.discovery.sources.source(5)}"
+          - "${source::monitors.other_device.discovery.sources.source(6)}"
           computes:
             # Exclude Switch Modules with a model of "Not Install"
             # DeviceID;DisplayID;Type;ModelNumber;SerialNumber;Manufacturer;
@@ -901,9 +901,9 @@ monitors:
           # DeviceID;DisplayID;Type;ModelNumber;SerialNumber;Manufacturer;
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(28)$
-          - $monitors.other_device.discovery.sources.source(29)$
-          - $monitors.other_device.discovery.sources.source(30)$
+          - "${source::monitors.other_device.discovery.sources.source(28)}"
+          - "${source::monitors.other_device.discovery.sources.source(29)}"
+          - "${source::monitors.other_device.discovery.sources.source(30)}"
           computes:
           - type: leftConcat
             column: 4
@@ -917,14 +917,14 @@ monitors:
       mapping:
         # The Instance Table
         # DeviceID;DisplayID;Type;ModelNumber;SerialNumber;Manufacturer;
-        source: $monitors.other_device.discovery.sources.source(31)$
+        source: "${source::monitors.other_device.discovery.sources.source(31)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          device_type: $column(3)
-          info: "join(\" \", $column(4), $column(5), $column(6))"
+          id: $1
+          __display_id: $2
+          device_type: $3
+          info: "${awk::join(\" \", $4, $5, $6)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", $column(3), $column(2))"
+          name: "${awk::sprintf(\"%s: %s\", $3, $2)}"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -1088,55 +1088,55 @@ monitors:
           # DeviceID;Health
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(2)}"
         source(16):
           # Merge all Switch Modules
           # DeviceID;Health
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(3)$
-          - $monitors.other_device.collect.sources.source(4)$
-          - $monitors.other_device.collect.sources.source(5)$
-          - $monitors.other_device.collect.sources.source(6)$
+          - "${source::monitors.other_device.collect.sources.source(3)}"
+          - "${source::monitors.other_device.collect.sources.source(4)}"
+          - "${source::monitors.other_device.collect.sources.source(5)}"
+          - "${source::monitors.other_device.collect.sources.source(6)}"
         source(17):
           # Merge all Partitions
           # DeviceID;Health
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(7)$
-          - $monitors.other_device.collect.sources.source(8)$
-          - $monitors.other_device.collect.sources.source(9)$
-          - $monitors.other_device.collect.sources.source(10)$
-          - $monitors.other_device.collect.sources.source(11)$
+          - "${source::monitors.other_device.collect.sources.source(7)}"
+          - "${source::monitors.other_device.collect.sources.source(8)}"
+          - "${source::monitors.other_device.collect.sources.source(9)}"
+          - "${source::monitors.other_device.collect.sources.source(10)}"
+          - "${source::monitors.other_device.collect.sources.source(11)}"
         source(18):
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(17)$
-          - $monitors.other_device.collect.sources.source(12)$
-          - $monitors.other_device.collect.sources.source(13)$
-          - $monitors.other_device.collect.sources.source(14)$
+          - "${source::monitors.other_device.collect.sources.source(17)}"
+          - "${source::monitors.other_device.collect.sources.source(12)}"
+          - "${source::monitors.other_device.collect.sources.source(13)}"
+          - "${source::monitors.other_device.collect.sources.source(14)}"
         source(19):
           # Merge all Other Devices
           # DeviceID;Health;
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(15)$
-          - $monitors.other_device.collect.sources.source(16)$
-          - $monitors.other_device.collect.sources.source(18)$
+          - "${source::monitors.other_device.collect.sources.source(15)}"
+          - "${source::monitors.other_device.collect.sources.source(16)}"
+          - "${source::monitors.other_device.collect.sources.source(18)}"
           computes:
             # Translate the State
             # DeviceID;HealthState;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
       mapping:
         # The ValueTable
         # DeviceID;HealthState;
-        source: $monitors.other_device.collect.sources.source(19)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(19)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
   fan:
     discovery:
       sources:
@@ -1211,16 +1211,16 @@ monitors:
           # ID;Power;
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(1)$
-          - $monitors.fan.discovery.sources.source(2)$
-          - $monitors.fan.discovery.sources.source(3)$
-          - $monitors.fan.discovery.sources.source(4)$
-          - $monitors.fan.discovery.sources.source(5)$
+          - "${source::monitors.fan.discovery.sources.source(1)}"
+          - "${source::monitors.fan.discovery.sources.source(2)}"
+          - "${source::monitors.fan.discovery.sources.source(3)}"
+          - "${source::monitors.fan.discovery.sources.source(4)}"
+          - "${source::monitors.fan.discovery.sources.source(5)}"
         source(8):
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(7)$
-          - $monitors.fan.discovery.sources.source(6)$
+          - "${source::monitors.fan.discovery.sources.source(7)}"
+          - "${source::monitors.fan.discovery.sources.source(6)}"
           computes:
             # Keep only Powered On Fans
             # ID;Power;
@@ -1309,16 +1309,16 @@ monitors:
           # ID;Status;
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(9)$
-          - $monitors.fan.discovery.sources.source(10)$
-          - $monitors.fan.discovery.sources.source(11)$
-          - $monitors.fan.discovery.sources.source(12)$
-          - $monitors.fan.discovery.sources.source(13)$
+          - "${source::monitors.fan.discovery.sources.source(9)}"
+          - "${source::monitors.fan.discovery.sources.source(10)}"
+          - "${source::monitors.fan.discovery.sources.source(11)}"
+          - "${source::monitors.fan.discovery.sources.source(12)}"
+          - "${source::monitors.fan.discovery.sources.source(13)}"
         source(16):
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(15)$
-          - $monitors.fan.discovery.sources.source(14)$
+          - "${source::monitors.fan.discovery.sources.source(15)}"
+          - "${source::monitors.fan.discovery.sources.source(14)}"
           computes:
             # Keep only Fans that are valid or invalid (not unknown)
             # ID;Status;
@@ -1335,17 +1335,17 @@ monitors:
           # Type;ID;Power/Status;
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(8)$
-          - $monitors.fan.discovery.sources.source(16)$
+          - "${source::monitors.fan.discovery.sources.source(8)}"
+          - "${source::monitors.fan.discovery.sources.source(16)}"
       mapping:
         # InstanceTable = Source(17)
         # Type;ID;Power;
-        source: $monitors.fan.discovery.sources.source(17)$
+        source: "${source::monitors.fan.discovery.sources.source(17)}"
         attributes:
-          id: $column(2)
-          sensor_location: $column(1)
+          id: $2
+          sensor_location: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $1)}"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -1421,22 +1421,22 @@ monitors:
           # ID;Health;
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(1)$
-          - $monitors.fan.collect.sources.source(2)$
-          - $monitors.fan.collect.sources.source(3)$
-          - $monitors.fan.collect.sources.source(4)$
-          - $monitors.fan.collect.sources.source(5)$
+          - "${source::monitors.fan.collect.sources.source(1)}"
+          - "${source::monitors.fan.collect.sources.source(2)}"
+          - "${source::monitors.fan.collect.sources.source(3)}"
+          - "${source::monitors.fan.collect.sources.source(4)}"
+          - "${source::monitors.fan.collect.sources.source(5)}"
         source(8):
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(7)$
-          - $monitors.fan.collect.sources.source(6)$
+          - "${source::monitors.fan.collect.sources.source(7)}"
+          - "${source::monitors.fan.collect.sources.source(6)}"
           computes:
             # Translate the State
             # ID;HealthState;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
         source(9):
           # Fan Module 1 Fans
           # ID;Status;
@@ -1514,36 +1514,36 @@ monitors:
           # ID;Status;
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(9)$
-          - $monitors.fan.collect.sources.source(10)$
-          - $monitors.fan.collect.sources.source(11)$
-          - $monitors.fan.collect.sources.source(12)$
-          - $monitors.fan.collect.sources.source(13)$
+          - "${source::monitors.fan.collect.sources.source(9)}"
+          - "${source::monitors.fan.collect.sources.source(10)}"
+          - "${source::monitors.fan.collect.sources.source(11)}"
+          - "${source::monitors.fan.collect.sources.source(12)}"
+          - "${source::monitors.fan.collect.sources.source(13)}"
         source(16):
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(15)$
-          - $monitors.fan.collect.sources.source(14)$
+          - "${source::monitors.fan.collect.sources.source(15)}"
+          - "${source::monitors.fan.collect.sources.source(14)}"
           computes:
             # Translate the State
             # ID;Status;
           - type: translate
             column: 2
-            translationTable: validStatusTranslationTable
+            translationTable: "${translation::validStatusTranslationTable}"
         source(17):
           # Unite the Fan Modules and Fan Individual
           # ID;Status;
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(8)$
-          - $monitors.fan.collect.sources.source(16)$
+          - "${source::monitors.fan.collect.sources.source(8)}"
+          - "${source::monitors.fan.collect.sources.source(16)}"
       mapping:
         # ValueTable = Source(17)
         # ID;PatrolStatus;
-        source: $monitors.fan.collect.sources.source(17)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(17)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
   power_supply:
     discovery:
       sources:
@@ -1596,10 +1596,10 @@ monitors:
           # ID;Power;
           type: tableUnion
           tables:
-          - $monitors.power_supply.discovery.sources.source(1)$
-          - $monitors.power_supply.discovery.sources.source(2)$
-          - $monitors.power_supply.discovery.sources.source(3)$
-          - $monitors.power_supply.discovery.sources.source(4)$
+          - "${source::monitors.power_supply.discovery.sources.source(1)}"
+          - "${source::monitors.power_supply.discovery.sources.source(2)}"
+          - "${source::monitors.power_supply.discovery.sources.source(3)}"
+          - "${source::monitors.power_supply.discovery.sources.source(4)}"
           computes:
             # Keep only Powered On Fans
             # ID;Power;
@@ -1609,11 +1609,11 @@ monitors:
       mapping:
         # InstanceTable = Source(8)
         # ID;Power;
-        source: $monitors.power_supply.discovery.sources.source(5)$
+        source: "${source::monitors.power_supply.discovery.sources.source(5)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -1667,23 +1667,23 @@ monitors:
           # ID;Health;
           type: tableUnion
           tables:
-          - $monitors.power_supply.collect.sources.source(1)$
-          - $monitors.power_supply.collect.sources.source(2)$
-          - $monitors.power_supply.collect.sources.source(3)$
-          - $monitors.power_supply.collect.sources.source(4)$
+          - "${source::monitors.power_supply.collect.sources.source(1)}"
+          - "${source::monitors.power_supply.collect.sources.source(2)}"
+          - "${source::monitors.power_supply.collect.sources.source(3)}"
+          - "${source::monitors.power_supply.collect.sources.source(4)}"
           computes:
             # Translate the State
             # ID;HealthState;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
       mapping:
         # ValueTable = Source(4)
         # ID;PatrolStatus;
-        source: $monitors.power_supply.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
   voltage:
     discovery:
       sources:
@@ -1860,32 +1860,32 @@ monitors:
           # ID;Status;Value;
           type: tableUnion
           tables:
-          - $monitors.voltage.discovery.sources.source(1)$
-          - $monitors.voltage.discovery.sources.source(2)$
-          - $monitors.voltage.discovery.sources.source(3)$
-          - $monitors.voltage.discovery.sources.source(4)$
-          - $monitors.voltage.discovery.sources.source(5)$
+          - "${source::monitors.voltage.discovery.sources.source(1)}"
+          - "${source::monitors.voltage.discovery.sources.source(2)}"
+          - "${source::monitors.voltage.discovery.sources.source(3)}"
+          - "${source::monitors.voltage.discovery.sources.source(4)}"
+          - "${source::monitors.voltage.discovery.sources.source(5)}"
         source(16):
           type: tableUnion
           tables:
-          - $monitors.voltage.discovery.sources.source(6)$
-          - $monitors.voltage.discovery.sources.source(7)$
-          - $monitors.voltage.discovery.sources.source(8)$
-          - $monitors.voltage.discovery.sources.source(9)$
-          - $monitors.voltage.discovery.sources.source(10)$
+          - "${source::monitors.voltage.discovery.sources.source(6)}"
+          - "${source::monitors.voltage.discovery.sources.source(7)}"
+          - "${source::monitors.voltage.discovery.sources.source(8)}"
+          - "${source::monitors.voltage.discovery.sources.source(9)}"
+          - "${source::monitors.voltage.discovery.sources.source(10)}"
         source(17):
           type: tableUnion
           tables:
-          - $monitors.voltage.discovery.sources.source(11)$
-          - $monitors.voltage.discovery.sources.source(12)$
-          - $monitors.voltage.discovery.sources.source(13)$
-          - $monitors.voltage.discovery.sources.source(14)$
+          - "${source::monitors.voltage.discovery.sources.source(11)}"
+          - "${source::monitors.voltage.discovery.sources.source(12)}"
+          - "${source::monitors.voltage.discovery.sources.source(13)}"
+          - "${source::monitors.voltage.discovery.sources.source(14)}"
         source(18):
           type: tableUnion
           tables:
-          - $monitors.voltage.discovery.sources.source(15)$
-          - $monitors.voltage.discovery.sources.source(16)$
-          - $monitors.voltage.discovery.sources.source(17)$
+          - "${source::monitors.voltage.discovery.sources.source(15)}"
+          - "${source::monitors.voltage.discovery.sources.source(16)}"
+          - "${source::monitors.voltage.discovery.sources.source(17)}"
           computes:
             # Keep only Voltage that are valid or invalid (not unknown)
             # ID;Status;Value;
@@ -1910,12 +1910,12 @@ monitors:
       mapping:
         # InstanceTable = Source(18)
         # ID;Status;Value;
-        source: $monitors.voltage.discovery.sources.source(18)$
+        source: "${source::monitors.voltage.discovery.sources.source(18)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -2093,38 +2093,38 @@ monitors:
           # ID;Status;
           type: tableUnion
           tables:
-          - $monitors.voltage.collect.sources.source(1)$
-          - $monitors.voltage.collect.sources.source(2)$
-          - $monitors.voltage.collect.sources.source(3)$
-          - $monitors.voltage.collect.sources.source(4)$
-          - $monitors.voltage.collect.sources.source(5)$
+          - "${source::monitors.voltage.collect.sources.source(1)}"
+          - "${source::monitors.voltage.collect.sources.source(2)}"
+          - "${source::monitors.voltage.collect.sources.source(3)}"
+          - "${source::monitors.voltage.collect.sources.source(4)}"
+          - "${source::monitors.voltage.collect.sources.source(5)}"
         source(16):
           type: tableUnion
           tables:
-          - $monitors.voltage.collect.sources.source(6)$
-          - $monitors.voltage.collect.sources.source(7)$
-          - $monitors.voltage.collect.sources.source(8)$
-          - $monitors.voltage.collect.sources.source(9)$
-          - $monitors.voltage.collect.sources.source(10)$
+          - "${source::monitors.voltage.collect.sources.source(6)}"
+          - "${source::monitors.voltage.collect.sources.source(7)}"
+          - "${source::monitors.voltage.collect.sources.source(8)}"
+          - "${source::monitors.voltage.collect.sources.source(9)}"
+          - "${source::monitors.voltage.collect.sources.source(10)}"
         source(17):
           type: tableUnion
           tables:
-          - $monitors.voltage.collect.sources.source(11)$
-          - $monitors.voltage.collect.sources.source(12)$
-          - $monitors.voltage.collect.sources.source(13)$
-          - $monitors.voltage.collect.sources.source(14)$
+          - "${source::monitors.voltage.collect.sources.source(11)}"
+          - "${source::monitors.voltage.collect.sources.source(12)}"
+          - "${source::monitors.voltage.collect.sources.source(13)}"
+          - "${source::monitors.voltage.collect.sources.source(14)}"
         source(18):
           type: tableUnion
           tables:
-          - $monitors.voltage.collect.sources.source(15)$
-          - $monitors.voltage.collect.sources.source(16)$
-          - $monitors.voltage.collect.sources.source(17)$
+          - "${source::monitors.voltage.collect.sources.source(15)}"
+          - "${source::monitors.voltage.collect.sources.source(16)}"
+          - "${source::monitors.voltage.collect.sources.source(17)}"
           computes:
             # Translate the State
             # ID;Status;Value;
           - type: translate
             column: 2
-            translationTable: validStatusTranslationTable
+            translationTable: "${translation::validStatusTranslationTable}"
           # Multiply Voltage By 100
           - type: multiply
             column: 3
@@ -2132,11 +2132,11 @@ monitors:
       mapping:
         # ValueTable = Source(18)
         # ID;PatrolStatus;
-        source: $monitors.voltage.collect.sources.source(18)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(18)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="voltage"}: $column(2)
-          hw.voltage: $column(3)
+          hw.status{hw.type="voltage"}: $2
+          hw.voltage: $3
   temperature:
     discovery:
       sources:
@@ -2313,32 +2313,32 @@ monitors:
           # ID;Status;Value;
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(1)$
-          - $monitors.temperature.discovery.sources.source(2)$
-          - $monitors.temperature.discovery.sources.source(3)$
-          - $monitors.temperature.discovery.sources.source(4)$
-          - $monitors.temperature.discovery.sources.source(5)$
+          - "${source::monitors.temperature.discovery.sources.source(1)}"
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
+          - "${source::monitors.temperature.discovery.sources.source(3)}"
+          - "${source::monitors.temperature.discovery.sources.source(4)}"
+          - "${source::monitors.temperature.discovery.sources.source(5)}"
         source(16):
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(6)$
-          - $monitors.temperature.discovery.sources.source(7)$
-          - $monitors.temperature.discovery.sources.source(8)$
-          - $monitors.temperature.discovery.sources.source(9)$
-          - $monitors.temperature.discovery.sources.source(10)$
+          - "${source::monitors.temperature.discovery.sources.source(6)}"
+          - "${source::monitors.temperature.discovery.sources.source(7)}"
+          - "${source::monitors.temperature.discovery.sources.source(8)}"
+          - "${source::monitors.temperature.discovery.sources.source(9)}"
+          - "${source::monitors.temperature.discovery.sources.source(10)}"
         source(17):
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(11)$
-          - $monitors.temperature.discovery.sources.source(12)$
-          - $monitors.temperature.discovery.sources.source(13)$
-          - $monitors.temperature.discovery.sources.source(14)$
+          - "${source::monitors.temperature.discovery.sources.source(11)}"
+          - "${source::monitors.temperature.discovery.sources.source(12)}"
+          - "${source::monitors.temperature.discovery.sources.source(13)}"
+          - "${source::monitors.temperature.discovery.sources.source(14)}"
         source(18):
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(15)$
-          - $monitors.temperature.discovery.sources.source(16)$
-          - $monitors.temperature.discovery.sources.source(17)$
+          - "${source::monitors.temperature.discovery.sources.source(15)}"
+          - "${source::monitors.temperature.discovery.sources.source(16)}"
+          - "${source::monitors.temperature.discovery.sources.source(17)}"
           computes:
             # Keep only Temperature that are valid or invalid (not unknown)
             # ID;Status;Value;
@@ -2363,12 +2363,12 @@ monitors:
       mapping:
         # InstanceTable = Source(18)
         # ID;Status;Value;
-        source: $monitors.temperature.discovery.sources.source(18)$
+        source: "${source::monitors.temperature.discovery.sources.source(18)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -2546,38 +2546,38 @@ monitors:
           # ID;Status;
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(1)$
-          - $monitors.temperature.collect.sources.source(2)$
-          - $monitors.temperature.collect.sources.source(3)$
-          - $monitors.temperature.collect.sources.source(4)$
-          - $monitors.temperature.collect.sources.source(5)$
+          - "${source::monitors.temperature.collect.sources.source(1)}"
+          - "${source::monitors.temperature.collect.sources.source(2)}"
+          - "${source::monitors.temperature.collect.sources.source(3)}"
+          - "${source::monitors.temperature.collect.sources.source(4)}"
+          - "${source::monitors.temperature.collect.sources.source(5)}"
         source(16):
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(6)$
-          - $monitors.temperature.collect.sources.source(7)$
-          - $monitors.temperature.collect.sources.source(8)$
-          - $monitors.temperature.collect.sources.source(9)$
-          - $monitors.temperature.collect.sources.source(10)$
+          - "${source::monitors.temperature.collect.sources.source(6)}"
+          - "${source::monitors.temperature.collect.sources.source(7)}"
+          - "${source::monitors.temperature.collect.sources.source(8)}"
+          - "${source::monitors.temperature.collect.sources.source(9)}"
+          - "${source::monitors.temperature.collect.sources.source(10)}"
         source(17):
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(11)$
-          - $monitors.temperature.collect.sources.source(12)$
-          - $monitors.temperature.collect.sources.source(13)$
-          - $monitors.temperature.collect.sources.source(14)$
+          - "${source::monitors.temperature.collect.sources.source(11)}"
+          - "${source::monitors.temperature.collect.sources.source(12)}"
+          - "${source::monitors.temperature.collect.sources.source(13)}"
+          - "${source::monitors.temperature.collect.sources.source(14)}"
         source(18):
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(15)$
-          - $monitors.temperature.collect.sources.source(16)$
-          - $monitors.temperature.collect.sources.source(17)$
+          - "${source::monitors.temperature.collect.sources.source(15)}"
+          - "${source::monitors.temperature.collect.sources.source(16)}"
+          - "${source::monitors.temperature.collect.sources.source(17)}"
           computes:
             # Translate the State
             # ID;Status;Value;
           - type: translate
             column: 2
-            translationTable: validStatusTranslationTable
+            translationTable: "${translation::validStatusTranslationTable}"
           # Divide Temp By 10
           - type: divide
             column: 3
@@ -2585,11 +2585,11 @@ monitors:
       mapping:
         # ValueTable = Source(18)
         # ID;PatrolStatus;
-        source: $monitors.temperature.collect.sources.source(18)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(18)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(2)
-          hw.temperature: $column(3)
+          hw.status{hw.type="temperature"}: $2
+          hw.temperature: $3
 translations:
   bladeStatusTranslationTable:
     "1": ok

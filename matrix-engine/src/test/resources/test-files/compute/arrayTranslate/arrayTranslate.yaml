@@ -10,6 +10,6 @@ pre:
     computes:
       - type: arrayTranslate
         column: 1
-        translationTable: translationTableTest
+        translationTable: ${translation::translationTableTest}
         arraySeparator: arraySeparatorTest
         resultSeparator: resultSeparatorTest

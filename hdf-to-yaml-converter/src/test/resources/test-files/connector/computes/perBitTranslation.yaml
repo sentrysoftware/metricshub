@@ -14,7 +14,7 @@
               - type: perBitTranslation
                 column: 5
                 bitList: 1,2,3,4,5,6,7,8,9,10,11,12,13
-                translationTable: MemoryBitTranslationTable
+                translationTable: ${translation::MemoryBitTranslationTable}
 
 - name: collect
   input: |
@@ -37,4 +37,4 @@
                 type: perBitTranslation
                 column: 2
                 bitList: 0,1,5,7,8,9,10
-                translationTable: ProcessorStatusInformationTranslationTable
+                translationTable: ${translation::ProcessorStatusInformationTranslationTable}

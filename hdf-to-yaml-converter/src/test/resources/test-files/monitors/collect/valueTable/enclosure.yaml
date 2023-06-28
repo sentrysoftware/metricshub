@@ -15,14 +15,14 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage;PowerConsumption
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.enclosure.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.enclosure.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="enclosure"}: $column(2)
-              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
-              hw.enclosure.energy: $column(5)
-              hw.enclosure.power: $column(6)
+              hw.status{hw.type="enclosure"}: $2
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($4)
+              hw.enclosure.energy: $5
+              hw.enclosure.power: $6
 - name: enclosureEnergyValueTable
   input: |
     // DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
@@ -39,14 +39,14 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.enclosure.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.enclosure.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="enclosure"}: $column(2)
-              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
-              hw.enclosure.energy: $column(5)
-              hw.enclosure.power: rate($column(5))
+              hw.status{hw.type="enclosure"}: $2
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($4)
+              hw.enclosure.energy: $5
+              hw.enclosure.power: rate($5)
 - name: enclosurePowerConsumptionValueTable
   input: |
     // DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
@@ -63,11 +63,11 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.enclosure.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.enclosure.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="enclosure"}: $column(2)
-              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
-              hw.enclosure.energy: fakeCounter($column(5))
-              hw.enclosure.power: $column(5)
+              hw.status{hw.type="enclosure"}: $2
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($4)
+              hw.enclosure.energy: fakeCounter($5)
+              hw.enclosure.power: $5

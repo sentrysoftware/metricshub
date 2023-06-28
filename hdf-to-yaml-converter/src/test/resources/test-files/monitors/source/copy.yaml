@@ -14,11 +14,11 @@
             source(4):
               _comment: Source(4) = Copy of (1)
               type: copy
-              from: $monitors.other_device.discovery.sources.source(1)$
+              from: ${source::monitors.other_device.discovery.sources.source(1)}
             source(5):
               _comment: Source(5) = Copy of (4)
               type: copy
-              from: $monitors.other_device.discovery.sources.source(4)$
+              from: ${source::monitors.other_device.discovery.sources.source(4)}
 - name: collect
   input: |
     // Source(4) = Copy of (1)
@@ -34,11 +34,11 @@
             source(4):
               _comment: Source(4) = Copy of (1)
               type: copy
-              from: $monitors.other_device.collect.sources.source(1)$
+              from: ${source::monitors.other_device.collect.sources.source(1)}
             source(5):
               _comment: Source(5) = Copy of (4)
               type: copy
-              from: $monitors.other_device.collect.sources.source(4)$
+              from: ${source::monitors.other_device.collect.sources.source(4)}
 - name: discoveryFromCollect
   input: |
     // Source(4) = Copy of (1)
@@ -54,8 +54,8 @@
             source(4):
               _comment: Source(4) = Copy of (1)
               type: copy
-              from: $monitors.other_device.discovery.sources.source(1)$
+              from: ${source::monitors.other_device.discovery.sources.source(1)}
             source(5):
               _comment: Source(5) = Copy of (4)
               type: copy
-              from: $monitors.other_device.collect.sources.source(4)$
+              from: ${source::monitors.other_device.collect.sources.source(4)}

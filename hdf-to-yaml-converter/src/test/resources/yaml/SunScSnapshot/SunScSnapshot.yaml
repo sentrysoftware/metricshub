@@ -45,12 +45,12 @@ monitors:
           # wasn't installed, or root credentials were not provided)
           type: osCommand
           forceSerialization: true
-          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c $file(\"embeddedFile-1\")$|/bin/dos2unix -ascii -437;/bin/uname -i"
+          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c ${file::embeddedFile-1}|/bin/dos2unix -ascii -437;/bin/uname -i"
           computes:
             # Reformat snapshot and uname's output through awk (see EmbeddedFile(3))
             # Model;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
@@ -64,7 +64,7 @@ monitors:
           # Source(2) = Output of the showenvironment command
           type: osCommand
           forceSerialization: true
-          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c $file(\"embeddedFile-2\")$|/bin/dos2unix -ascii -437"
+          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c ${file::embeddedFile-2}|/bin/dos2unix -ascii -437"
           separators: " \t"
           selectColumns: 1-
           computes:
@@ -77,11 +77,11 @@ monitors:
             newValue: /
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: sun4v
-          model: $column(1)
-          name: "sprintf(\"Enclosure: (%s)\", $column(1))"
+          model: $1
+          name: "${awk::sprintf(\"Enclosure: (%s)\", $1)}"
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -90,7 +90,7 @@ monitors:
           # Source(1) = Output of the showenvironment command
           type: osCommand
           forceSerialization: true
-          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c $file(\"embeddedFile-2\")$|/bin/dos2unix -ascii -437"
+          commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c ${file::embeddedFile-2}|/bin/dos2unix -ascii -437"
           separators: " \t"
           selectColumns: 1-
           computes:
@@ -104,14 +104,14 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: sun4v
-        deviceId: $column(1)
+        deviceId: $1
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep only lines where the first column (the supposed fan ID) matches with ^FT[0-9] or /F[0-9]/ or ^F[0-9]/
             # FanID;status;speed;warning;alarm
@@ -135,15 +135,15 @@ monitors:
             newValue: ""
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(1)
+          id: $1
+          sensor_location: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $4
+          hw.fan.speed.limit{limit_type="low.critical"}: $5
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -153,7 +153,7 @@ monitors:
           # Yeah that's kind of weird. Fan collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Keep only lines where the first column (the supposed fan ID) matches with ^FT[0-9] or /F[0-9]/ or ^F[0-9]/
             # FanID;status;speed;warning;alarm
@@ -173,23 +173,23 @@ monitors:
             # FanID;PATROLStatus;status;speed;warning;alarm
           - type: translate
             column: 2
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
-          hw.fan.speed: $column(4)
+          hw.status{hw.type="fan"}: $2
+          hw.fan.speed: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep only lines where the first column (the supposed temperature ID) matches with /T_ or /TCORE
             # TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
@@ -208,15 +208,15 @@ monitors:
             newValue: ""
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(1)
+          id: $1
+          sensor_location: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(7)
-          hw.temperature.limit{limit_type="high.critical"}: $column(8)
+          hw.temperature.limit{limit_type="high.degraded"}: $7
+          hw.temperature.limit{limit_type="high.critical"}: $8
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -226,7 +226,7 @@ monitors:
           # Yeah that's kind of weird. Temperature collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Keep only lines where the first column (the supposed fan ID) matches with /T_ or /TCORE
             # TemperatureID;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
@@ -241,23 +241,23 @@ monitors:
             # TemperatureID;PATROLStatus;Status;Temperature;LowHard;LowSoft;LowWarn;HighWarn;HighSoft;HighHard
           - type: translate
             column: 2
-            translationTable: TemperatureStatusTranslationTable
+            translationTable: "${translation::TemperatureStatusTranslationTable}"
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(2)
-          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $2
+          hw.temperature: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   voltage:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep only lines where the first column (the supposed Voltage ID) matches with /V_
             # VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
@@ -280,15 +280,15 @@ monitors:
             value: 1000
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(1)
+          id: $1
+          sensor_location: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(5)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+          hw.voltage.limit{limit_type="low.critical"}: $5
+          hw.voltage.limit{limit_type="high.degraded"}: $6
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -298,7 +298,7 @@ monitors:
           # Yeah that's kind of weird. Voltage collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded telnet sessions.
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Keep only lines where the first column (the supposed Voltage ID) matches with /V_
             # VoltageID;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
@@ -313,7 +313,7 @@ monitors:
             # VoltageID;Status;Status;Voltage;LowSoft;LowWarn;HighWarn;HighSoft
           - type: translate
             column: 2
-            translationTable: VoltageStatusTranslationTable
+            translationTable: "${translation::VoltageStatusTranslationTable}"
             # Convert volts into millivolts
             # VoltageID;Status;Status;VoltageMilli;LowSoft;LowWarn;HighWarn;HighSoft
           - type: multiply
@@ -321,20 +321,20 @@ monitors:
             value: 1000
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="voltage"}: $column(2)
-          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $2
+          hw.voltage: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 5th column contains either "ON" or "OFF"
@@ -348,7 +348,7 @@ monitors:
         source(2):
           # Source(2) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 2nd column is "PRESENT"
@@ -364,15 +364,15 @@ monitors:
           # PowerSupplyID
           type: tableUnion
           tables:
-          - $monitors.power_supply.discovery.sources.source(1)$
-          - $monitors.power_supply.discovery.sources.source(2)$
+          - "${source::monitors.power_supply.discovery.sources.source(1)}"
+          - "${source::monitors.power_supply.discovery.sources.source(2)}"
       mapping:
         # Instance Table = Source(3)
-        source: $monitors.power_supply.discovery.sources.source(3)$
+        source: "${source::monitors.power_supply.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -382,7 +382,7 @@ monitors:
           # Yeah that's kind of weird. PowerSupply collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 5th column contains either "ON" or "OFF"
@@ -400,7 +400,7 @@ monitors:
         source(2):
           # Source(2) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Keep only lines where the first column (the supposed PowerSupply ID) matches with ^PS[0-9] or /PS[0-9]$
             # and whose 2nd column is "PRESENT"
@@ -420,8 +420,8 @@ monitors:
           # PowerSupplyID;Status;
           type: tableUnion
           tables:
-          - $monitors.power_supply.collect.sources.source(1)$
-          - $monitors.power_supply.collect.sources.source(2)$
+          - "${source::monitors.power_supply.collect.sources.source(1)}"
+          - "${source::monitors.power_supply.collect.sources.source(2)}"
           computes:
             # Duplicate the status column
             # PowerSupplyID;Status;Status;
@@ -431,7 +431,7 @@ monitors:
             # PowerSupplyID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second status into a more readable string
             # PowerSupplyID;PATROLStatus;StatusInformation;
           - type: replace
@@ -440,19 +440,19 @@ monitors:
             newValue: No input source
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep only lines where the first column (the supposed OtherDevice ID) matches with \(/I_\)\|\(/FF_\)
             # OtherDeviceID;Status
@@ -461,13 +461,13 @@ monitors:
             regExp: \(/I_\)\|\(/FF_\)
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           device_type: Current
-          additional_label: $column(1)
+          additional_label: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s (%s)\", \"Current\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s: %s (%s)\", \"Current\", $1, $1)}"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -477,7 +477,7 @@ monitors:
           # Yeah that's kind of weird. OtherDevice collect values will be refreshed only when/whether
           # enclosure collect values are refreshed. This is to spare some unneeded snapshot executions.
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Keep only lines where the first column (the supposed OtherDevice ID) matches with \(/I_\)\|\(/FF_\)
             # OtherDeviceID;Status;
@@ -492,15 +492,15 @@ monitors:
             # OtherDeviceID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: OtherDeviceStatusTranslationTable
+            translationTable: "${translation::OtherDeviceStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   TemperatureStatusTranslationTable:
     faulty: degraded

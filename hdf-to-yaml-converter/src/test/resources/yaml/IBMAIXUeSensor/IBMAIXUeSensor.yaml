@@ -37,12 +37,12 @@ monitors:
           selectColumns: "2,5"
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: 55
           hw.temperature.limit{limit_type="high.critical"}: 65
@@ -59,10 +59,10 @@ monitors:
           selectColumns: "2,4"
       mapping:
         # ValueTable = Source(1) (easy enough)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   fan:
     discovery:
       sources:
@@ -75,12 +75,12 @@ monitors:
           selectColumns: "2,5"
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: 1000
           hw.fan.speed.limit{limit_type="low.critical"}: 100
@@ -97,10 +97,10 @@ monitors:
           selectColumns: "2,4"
       mapping:
         # ValueTable = Source(1) (easy enough)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(2)
+          hw.fan.speed: $2
   voltage:
     discovery:
       sources:
@@ -113,12 +113,12 @@ monitors:
           selectColumns: "2,5"
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type = multi-instance (one pass for all voltages)
       type: multiInstance
@@ -140,21 +140,21 @@ monitors:
             # DeviceID;PATROLStatus;StatusNumber;Voltage
           - type: translate
             column: 2
-            translationTable: VoltageStatusTranslationTable
+            translationTable: "${translation::VoltageStatusTranslationTable}"
             # Translate the second StatusNumber column into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;Voltage
           - type: translate
             column: 3
-            translationTable: VoltageStatusInformationTranslationTable
+            translationTable: "${translation::VoltageStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1) (easy enough)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="voltage"}: $column(2)
-          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $2
+          hw.voltage: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -167,12 +167,12 @@ monitors:
           selectColumns: "2,5"
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          power_supply_type: $column(2)
+          id: $1
+          power_supply_type: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type = multi-instance (one pass for all power supplies)
       type: multiInstance
@@ -194,20 +194,20 @@ monitors:
             # DeviceID;PATROLStatus;StatusNumber
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second StatusNumber column into a more readable string
             # DeviceID;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1) (easy enough)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   VoltageStatusTranslationTable:
     "11": ok

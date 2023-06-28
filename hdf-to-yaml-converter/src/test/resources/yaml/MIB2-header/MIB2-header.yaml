@@ -36,7 +36,7 @@ monitors:
             # PortID;Description;PortType;MacAddress;AdminStatus;
           - type: translate
             column: 3
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
         source(2):
           # Get information from the ifXtable
           # ID;Name;Alias;
@@ -47,8 +47,8 @@ monitors:
           # Join the 32bit MIB2 table with the 64 bit IfXTable
           # PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;
@@ -73,17 +73,17 @@ monitors:
             # PortID;Description;Speed;PATROLStatus;OperationalStatus;OperationalStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
           - type: translate
             column: 4
-            translationTable: PortStatusTranslationTable
+            translationTable: "${translation::PortStatusTranslationTable}"
             # Translate the second column status into a more readable string
             # PortID;Description;Speed;PATROLStatus;StatusInformation;OperationalStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
           - type: translate
             column: 5
-            translationTable: PortStatusInformationTranslationTable
+            translationTable: "${translation::PortStatusInformationTranslationTable}"
             # Translate the third column status into a LinkStatus value
             # PortID;Description;Speed;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
           - type: translate
             column: 6
-            translationTable: PortLinkStatusInformationTranslationTable
+            translationTable: "${translation::PortLinkStatusInformationTranslationTable}"
             # Convert bits/sec into Mbps
             # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
           - type: divide
@@ -93,17 +93,17 @@ monitors:
             # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
           - type: add
             column: 8
-            value: Column(9)
+            value: $9
             # Add up TransmittedUnicastPackets and TransmittedNonUnicastPackets
             # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;
           - type: add
             column: 12
-            value: Column(13)
+            value: $13
             # Add up ReceivedErrors and TransmittedErrors
             # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;
           - type: add
             column: 10
-            value: Column(14)
+            value: $14
         source(2):
           # Source(2) = ifMIBObjects SNMP Table
           # PortID;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
@@ -115,16 +115,16 @@ monitors:
             # PortID;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
           - type: add
             column: 4
-            value: Column(5)
+            value: $5
           - type: add
             column: 4
-            value: Column(6)
+            value: $6
           - type: add
             column: 8
-            value: Column(9)
+            value: $9
           - type: add
             column: 8
-            value: Column(10)
+            value: $10
             # Keep only useful columns
             # PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
           - type: keepColumns
@@ -133,8 +133,8 @@ monitors:
           # Source(3) = Table Joint of (1) and (2)
           # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
@@ -153,7 +153,7 @@ monitors:
           - type: replace
             column: 16
             existingValue: MSHWMSHW
-            newValue: Column(3)
+            newValue: $3
             # Now get rid of any remaining MSHWs
             # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;
           - type: replace
@@ -163,7 +163,7 @@ monitors:
         source(4):
           # Make a copy of Source(3)
           type: copy
-          from: $monitors.network.collect.sources.source(3)$
+          from: "${source::monitors.network.collect.sources.source(3)}"
           computes:
             # Keep only interfaces with 64bit counters
             #   1        2           3           4            # 5            # 6          7            # 8            # 9            #              10        11             12            #    13            #             # 14            #  15   16         17            #  18            #     19            #    20
@@ -176,27 +176,27 @@ monitors:
             # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
           - type: replace
             column: 7
-            existingValue: Column(7)
-            newValue: Column(17)
+            existingValue: $7
+            newValue: $17
           # ReceivedPackets
           - type: replace
             column: 8
-            existingValue: Column(8)
-            newValue: Column(18)
+            existingValue: $8
+            newValue: $18
           # TransmittedBytes
           - type: replace
             column: 11
-            existingValue: Column(11)
-            newValue: Column(19)
+            existingValue: $11
+            newValue: $19
           # TransmittedPackets
           - type: replace
             column: 12
-            existingValue: Column(12)
-            newValue: Column(20)
+            existingValue: $12
+            newValue: $20
         source(5):
           # Make a copy of Source(3)
           type: copy
-          from: $monitors.network.collect.sources.source(3)$
+          from: "${source::monitors.network.collect.sources.source(3)}"
           computes:
             # Exclude interfaces with 64bit counters
             #   1        2           3           4            # 5            # 6          7            # 8            # 9            #              10        11             12            #    13            #             # 14            #  15   16         17            #  18            #     19            #    20
@@ -209,23 +209,23 @@ monitors:
           # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(4)$
-          - $monitors.network.collect.sources.source(5)$
+          - "${source::monitors.network.collect.sources.source(4)}"
+          - "${source::monitors.network.collect.sources.source(5)}"
       mapping:
         # ValueTable = Source(6)
-        source: $monitors.network.collect.sources.source(6)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(6)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(4)
-          hw.network.up: legacyLinkStatus($column(6))
-          hw.network.bandwidth.limit: megaBit2Bit($column(16))
-          hw.errors{hw.type="network"}: $column(10)
-          hw.network.packets{direction="receive"}: $column(8)
-          hw.network.packets{direction="transmit"}: $column(12)
-          hw.network.io{direction="receive"}: $column(7)
-          hw.network.io{direction="transmit"}: $column(11)
+          hw.status{hw.type="network"}: $4
+          hw.network.up: legacyLinkStatus($6)
+          hw.network.bandwidth.limit: megaBit2Bit($16)
+          hw.errors{hw.type="network"}: $10
+          hw.network.packets{direction="receive"}: $8
+          hw.network.packets{direction="transmit"}: $12
+          hw.network.io{direction="receive"}: $7
+          hw.network.io{direction="transmit"}: $11
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   PortLinkStatusInformationTranslationTable:
     "2": degraded

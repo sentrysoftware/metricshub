@@ -21,17 +21,17 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.tape_drive.discovery.sources.source(1)$
+            source: ${source::monitors.tape_drive.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(1)
-              model: $column(3)
-              vendor: $column(4)
-              serial_number: $column(5)
-              info: join(" ", $column(2), $column(7), $column(6))
+              id: $1
+              __display_id: $1
+              model: $3
+              vendor: $4
+              serial_number: $5
+              info: ${awk::join(" ", $2, $7, $6)}
               hw.parent.id: lookup("disk_controller", "id", "controller_number", "1")
               hw.parent.type: disk_controller
-              name: sprintf("%s (%s %s)", $column(1), $column(4), $column(3))
+              name: ${awk::sprintf("%s (%s %s)", $1, $4, $3)}
             metrics:
               hw.errors.limit{hw.type="tape_drive", limit_type="degraded"}: test1
               hw.errors.limit{hw.type="tape_drive", limit_type="critical"}: test2

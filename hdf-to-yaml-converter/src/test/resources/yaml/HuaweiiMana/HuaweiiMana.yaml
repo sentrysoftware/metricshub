@@ -29,15 +29,15 @@ monitors:
           selectColumns: "6,7,15"
       mapping:
         # InstanceTable = Source(5)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
+          id: $3
+          __display_id: $3
           vendor: Huawei
-          model: $column(1)
+          model: $1
           type: Computer
-          serial_number: $column(2)
-          name: "sprintf(\"Computer: %s (%s %s)\", $column(3), \"Huawei\", $column(1))"
+          serial_number: $2
+          name: "${awk::sprintf(\"Computer: %s (%s %s)\", $3, \"Huawei\", $1)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -57,23 +57,23 @@ monitors:
             # PatrolStatus;State;PowerConsumption;DeviceSlotID;
           - type: translate
             column: 1
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # PatrolStatus;StatusInformation;PowerConsumption;DeviceSlotID;
           - type: translate
             column: 2
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # PatrolStatus;StatusInformation;PowerConsumption;DeviceSlotID;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(4)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $4
         metrics:
-          hw.enclosure.power: $column(3)
-          hw.enclosure.energy: fakeCounter($column(3))
-          hw.status{hw.type="enclosure"}: $column(1)
+          hw.enclosure.power: $3
+          hw.enclosure.energy: fakeCounter($3)
+          hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   cpu:
     discovery:
       sources:
@@ -110,7 +110,7 @@ monitors:
             value: ' '
           - type: rightConcat
             column: 3
-            value: Column(4)
+            value: $4
             # Keep Only  CPUs with a Manufacturer
             # ID;Manufacturer;Family;Type;ClockRate;DeviceName;
           - type: keepOnlyMatchingLines
@@ -119,16 +119,16 @@ monitors:
       mapping:
         # Instance Table
         # ID;Manufacturer;Family;Type;ClockRate;DeviceName;
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(6)
-          model: $column(3)
-          vendor: $column(2)
+          id: $1
+          __display_id: $6
+          model: $3
+          vendor: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(6), $column(2), $column(3), megaHertz2HumanFormat($column(5)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $6, $2, $3, megaHertz2HumanFormat($5))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(5))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($5)
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -148,21 +148,21 @@ monitors:
             # ID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="cpu"}: $column(2)
+          hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -186,13 +186,13 @@ monitors:
       mapping:
         # Instance Table
         # ID;Manufacturer;Model;Present;DeviceName;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(5)
-          info: "join(\" \", $column(2), $column(3))"
+          id: $1
+          __display_id: $5
+          info: "${awk::join(\" \", $2, $3)}"
           hw.parent.type: enclosure
-          name: $column(5)
+          name: $5
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -212,21 +212,21 @@ monitors:
             # ID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -244,12 +244,12 @@ monitors:
       mapping:
         # Instance Table
         # ID;Present;DeviceName;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -269,22 +269,22 @@ monitors:
             # ID;Speed;PatrolStatus;State;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;Speed;PatrolStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;Speed;PatrolStatus;StatusInformation;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(2)
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $2
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   memory:
     discovery:
       sources:
@@ -310,16 +310,16 @@ monitors:
       mapping:
         # Instance Table
         # ID;Manufacturer;Size;Clock;Status;DeviceName;
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(6)
-          vendor: $column(2)
-          info: $column(4)
+          id: $1
+          __display_id: $6
+          vendor: $2
+          info: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(6), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $6, $2, $3)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(3))
+          hw.memory.limit: mebiByte2Byte($3)
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -339,21 +339,21 @@ monitors:
             # ID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -390,7 +390,7 @@ monitors:
             # ObjectID;Reading;UpperNR;UpperC;BothThresholds;
           - type: rightConcat
             column: 5
-            value: Column(3)
+            value: $3
             # Keep only sensors with a valid tbreshold
             # ObjectID;Reading;UpperNR;UpperC;BothThresholds;
           - type: keepOnlyMatchingLines
@@ -422,13 +422,13 @@ monitors:
             # ObjectID;Reading;UpperNR;UpperC;UpperC;
           - type: replace
             column: 5
-            existingValue: Column(5)
-            newValue: Column(4)
+            existingValue: $5
+            newValue: $4
             # Concat UpperNR to the Second UpperC
             # ObjectID;Reading;UpperNR;UpperC;BothThresholds;
           - type: rightConcat
             column: 5
-            value: Column(3)
+            value: $3
             # Keep only sensors with a valid tbreshold
             # ObjectID;Reading;UpperNR;UpperC;BothThresholds;
           - type: keepOnlyMatchingLines
@@ -443,20 +443,20 @@ monitors:
           # ObjectID;Reading;UpperNR;UpperC;BothThresholds;
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(1)$
-          - $monitors.temperature.discovery.sources.source(2)$
+          - "${source::monitors.temperature.discovery.sources.source(1)}"
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
       mapping:
         # Instance Table
         # ObjectID;Reading;UpperNR;UpperC;BothThresholds;
-        source: $monitors.temperature.discovery.sources.source(3)$
+        source: "${source::monitors.temperature.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
-          hw.temperature.limit{limit_type="high.critical"}: $column(3)
+          hw.temperature.limit{limit_type="high.degraded"}: $4
+          hw.temperature.limit{limit_type="high.critical"}: $3
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -484,15 +484,15 @@ monitors:
           # ObjectID;Reading;
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(1)$
-          - $monitors.temperature.collect.sources.source(2)$
+          - "${source::monitors.temperature.collect.sources.source(1)}"
+          - "${source::monitors.temperature.collect.sources.source(2)}"
       mapping:
         # ValueTable = Source(1)
         # ObjectID;Reading;
-        source: $monitors.temperature.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   physical_disk:
     discovery:
       sources:
@@ -510,12 +510,12 @@ monitors:
       mapping:
         # Instance Table
         # ID;Present;DeviceName;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -535,21 +535,21 @@ monitors:
             # ID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -571,13 +571,13 @@ monitors:
       mapping:
         # Instance Table
         # ID;Manufacturer;Model;Present;DeviceName;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
+          id: $1
+          __display_id: $4
           device_type: PCI-E Card
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", \"PCI-E Card\", $column(4))"
+          name: "${awk::sprintf(\"%s: %s\", \"PCI-E Card\", $4)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -597,21 +597,21 @@ monitors:
             # ID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   StatusInformationTranslationTable:
     "1": ""

@@ -7,13 +7,13 @@ monitors:
           computes:
           # Process the naviseccli command through an AWK script
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW
             separators: ;
         source(4):
           # Enclosure Source 2 = Copy of Source 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only Enclosures
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;SystemFaultLED;
@@ -23,15 +23,15 @@ monitors:
       mapping:
         # The discovery table
         # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;SystemFaultLED;
-        source: $monitors.enclosure.discovery.sources.source(4)$
+        source: "${source::monitors.enclosure.discovery.sources.source(4)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          serial_number: $column(3)
-          model: $column(2)
+          id: $3
+          __display_id: $3
+          serial_number: $3
+          model: $2
           vendor: EMC
           type: Storage
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(3), \"EMC\", $column(2))"
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $3, \"EMC\", $2)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -40,13 +40,13 @@ monitors:
           computes:
           # Process the naviseccli command through an AWK script
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW
             separators: ;
         source(4):
           # Enclosure Source 2 = Copy of Source 1
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only Enclosures
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;SystemFaultLED;
@@ -61,31 +61,31 @@ monitors:
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;PATROLStatus;SystemFaultLED;
           - type: translate
             column: 5
-            translationTable: systemStatusTranslationTable
+            translationTable: "${translation::systemStatusTranslationTable}"
             # Translate second Status into more readable string
             # MS_HW_Enclosure;SystemModel;SerialNumber;SystemFirmware;PATROLStatus;StatusInformation;
           - type: translate
             column: 6
-            translationTable: systemStatusInformationTranslationTable
+            translationTable: "${translation::systemStatusInformationTranslationTable}"
         source(5):
           # Take a copy of the last discovery for the next discovery to use
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
       mapping:
         # ValueTable = Source(2)
-        source: $monitors.enclosure.collect.sources.source(4)$
-        deviceId: $column(3)
+        source: "${source::monitors.enclosure.collect.sources.source(4)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="enclosure"}: $column(5)
+          hw.status{hw.type="enclosure"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = Enclosure Discovery 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only PhysicalDisk
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
@@ -105,25 +105,25 @@ monitors:
       mapping:
         # The discovery table
         # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStateInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          vendor: $column(3)
-          model: $column(6)
-          firmware_version: $column(7)
-          info: "join(\" \", $column(8), $column(9))"
+          id: $2
+          __display_id: $2
+          vendor: $3
+          model: $6
+          firmware_version: $7
+          info: "${awk::join(\" \", $8, $9)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), bytes2HumanFormatBase10($column(10)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $3, bytes2HumanFormatBase10($10))}"
         metrics:
-          hw.physical_disk.size: $column(10)
+          hw.physical_disk.size: $10
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only Physical Disks
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
@@ -134,23 +134,23 @@ monitors:
             # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
           - type: translate
             column: 4
-            translationTable: StatusTT
+            translationTable: "${translation::StatusTT}"
       mapping:
         # Value Table
         # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(4)
+          hw.status{hw.type="physical_disk"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = Enclosure Discovery 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
@@ -170,21 +170,21 @@ monitors:
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          power_supply_type: $column(8)
-          info: "join(\" \", $column(5), $column(6), $column(7))"
+          id: $3
+          __display_id: $3
+          power_supply_type: $8
+          info: "${awk::join(\" \", $5, $6, $7)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(8))"
+          name: "${awk::sprintf(\"%s (%s)\", $3, $8)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only PowerSupply
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
@@ -199,23 +199,23 @@ monitors:
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
           - type: translate
             column: 4
-            translationTable: StatusTT
+            translationTable: "${translation::StatusTT}"
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="power_supply"}: $column(4)
+          hw.status{hw.type="power_supply"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   memory:
     discovery:
       sources:
         source(1):
           # Source(1) = Enclosure Discovery 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;Size;Type;
@@ -241,25 +241,25 @@ monitors:
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;Size;Type;
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          serial_number: $column(6)
-          model: $column(8)
-          type: $column(10)
-          info: "join(\" \", $column(5), $column(7))"
+          id: $3
+          __display_id: $3
+          serial_number: $6
+          model: $8
+          type: $10
+          info: "${awk::join(\" \", $5, $7)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(10), $column(9))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $3, $10, $9)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(9))
+          hw.memory.limit: mebiByte2Byte($9)
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only Memory
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
@@ -274,23 +274,23 @@ monitors:
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
           - type: translate
             column: 4
-            translationTable: StatusTT
+            translationTable: "${translation::StatusTT}"
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="memory"}: $column(4)
+          hw.status{hw.type="memory"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   cpu:
     discovery:
       sources:
         source(1):
           # Source(1) = Enclosure Discovery 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
@@ -313,21 +313,21 @@ monitors:
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          model: $column(8)
-          info: "join(\" \", $column(5), $column(7), $column(6))"
+          id: $3
+          __display_id: $3
+          model: $8
+          info: "${awk::join(\" \", $5, $7, $6)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(8))"
+          name: "${awk::sprintf(\"%s (%s)\", $3, $8)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only CPU
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
@@ -342,23 +342,23 @@ monitors:
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
           - type: translate
             column: 4
-            translationTable: StatusTT
+            translationTable: "${translation::StatusTT}"
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="cpu"}: $column(4)
+          hw.status{hw.type="cpu"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = Enclosure Discovery 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only "OTHER"
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
@@ -384,21 +384,21 @@ monitors:
       mapping:
         # The discovery table
         # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          device_type: $column(8)
-          info: "join(\" \", $column(5), $column(6), $column(7))"
+          id: $3
+          __display_id: $3
+          device_type: $8
+          info: "${awk::join(\" \", $5, $6, $7)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", $column(8), $column(3))"
+          name: "${awk::sprintf(\"%s: %s\", $8, $3)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only OtherDevice
             # MSHW_OTHER;Type;ComponentID;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
@@ -413,23 +413,23 @@ monitors:
             # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
           - type: translate
             column: 4
-            translationTable: StatusTT
+            translationTable: "${translation::StatusTT}"
       mapping:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="other_device"}: $column(4)
+          hw.status{hw.type="other_device"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = Enclosure Discovery 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only LogicalDisk
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
@@ -438,13 +438,13 @@ monitors:
             regExp: ^MSHW_LOGICALDISK$
       mapping:
         # Discovery Table
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(6)
-          raid_level: $column(5)
+          id: $2
+          __display_id: $6
+          raid_level: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(6), $column(5))"
+          name: "${awk::sprintf(\"%s (%s)\", $6, $5)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -452,7 +452,7 @@ monitors:
         source(1):
           # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
           # Keep only NaviSphereCLI Warnings.  These are pre-translated
           - type: keepOnlyMatchingLines
@@ -461,7 +461,7 @@ monitors:
         source(2):
           # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only RAIDGroups
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
@@ -472,12 +472,12 @@ monitors:
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
           - type: arrayTranslate
             column: 3
-            translationTable: RaidGroupStatusTranslationTable
+            translationTable: "${translation::RaidGroupStatusTranslationTable}"
             # Translate the second status array into a status information array
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
           - type: arrayTranslate
             column: 4
-            translationTable: RaidGroupStatusInformationTranslationTable
+            translationTable: "${translation::RaidGroupStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
@@ -487,7 +487,7 @@ monitors:
         source(3):
           # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep Only Logical Disks
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
@@ -508,30 +508,30 @@ monitors:
             # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
           - type: translate
             column: 3
-            translationTable: StatusTT
+            translationTable: "${translation::StatusTT}"
         source(4):
           # Union 1 and 2 and 3
           type: tableUnion
           tables:
-          - $monitors.logical_disk.collect.sources.source(1)$
-          - $monitors.logical_disk.collect.sources.source(2)$
-          - $monitors.logical_disk.collect.sources.source(3)$
+          - "${source::monitors.logical_disk.collect.sources.source(1)}"
+          - "${source::monitors.logical_disk.collect.sources.source(2)}"
+          - "${source::monitors.logical_disk.collect.sources.source(3)}"
       mapping:
         # Value Table
         # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
-        source: $monitors.logical_disk.collect.sources.source(4)$
-        deviceId: $column(2)
+        source: "${source::monitors.logical_disk.collect.sources.source(4)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(3)
+          hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       sources:
         source(1):
           # Source(1) = Enclosure Discovery 1
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only NetworkCards
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
@@ -555,13 +555,13 @@ monitors:
       mapping:
         # The discovery table
         # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          info: "join(\" \", $column(8), $column(10), $column(9))"
+          id: $2
+          __display_id: $2
+          info: "${awk::join(\" \", $8, $10, $9)}"
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -569,7 +569,7 @@ monitors:
         source(1):
           # Source(1) = Enclosure Collect 1
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
             # Keep only DiskControllers
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
@@ -580,16 +580,16 @@ monitors:
             # MSHW_PORT;PortID;PATROLSPLinkStatus;SPPortStatus;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
           - type: translate
             column: 3
-            translationTable: SPLinkStatusTT
+            translationTable: "${translation::SPLinkStatusTT}"
           # Add SPPortStatus to Status Information
           - type: leftConcat
             column: 5
-            value: Column(4)
+            value: $4
             # Translate the Port Status
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
           - type: translate
             column: 4
-            translationTable: SPPortStatusTT
+            translationTable: "${translation::SPPortStatusTT}"
           # Add Port Status to Status Information
           - type: leftConcat
             column: 5
@@ -601,12 +601,12 @@ monitors:
           # Add SFState value to the Status Information
           - type: rightConcat
             column: 5
-            value: Column(6)
+            value: $6
             # Translate the Port Status
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
           - type: translate
             column: 6
-            translationTable: SFPPortStatusTT
+            translationTable: "${translation::SFPPortStatusTT}"
             # Add the SFState to the SPPortStatus and Convert to SimpleStatus
             # MSHW_PORT;PortID;SPLinkStatus;SPPortStatus;StatusInformation;SFState;SPPortSpeed;Location;SPUID[PortID];FRU;
           - type: leftConcat
@@ -614,20 +614,20 @@ monitors:
             value: '|'
           - type: leftConcat
             column: 4
-            value: Column(6)
+            value: $6
           - type: convert
             column: 4
             conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.network.up: legacyLinkStatus($column(3))
-          hw.network.bandwidth.limit: megaBit2Bit($column(7))
-          hw.status{hw.type="network"}: $column(4)
+          hw.network.up: legacyLinkStatus($3)
+          hw.network.bandwidth.limit: megaBit2Bit($7)
+          hw.status{hw.type="network"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   SFPPortStatusTT:
     online: ok

@@ -13,9 +13,9 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;Voltage
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.voltage.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.voltage.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="voltage"}: $column(2)
-              hw.voltage: $column(4)
+              hw.status{hw.type="voltage"}: $2
+              hw.voltage: $4

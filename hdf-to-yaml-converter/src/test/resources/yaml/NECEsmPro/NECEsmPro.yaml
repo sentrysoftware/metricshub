@@ -25,13 +25,13 @@ monitors:
           oid: 1.3.6.1.4.1.119.2.2.4.4.1.2
           selectColumns: "1,3"
       mapping:
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: Computer01
-          vendor: $column(2)
-          model: $column(1)
+          vendor: $2
+          model: $1
           type: Computer
-          name: "sprintf(\"Computer: (%s %s)\", $column(2), $column(1))"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", $2, $1)}"
   cpu:
     discovery:
       sources:
@@ -44,41 +44,41 @@ monitors:
           # Translate memory vendor
           - type: translate
             column: 2
-            translationTable: cpuVendorTranslationTable
+            translationTable: "${translation::cpuVendorTranslationTable}"
       mapping:
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
-          model: $column(3)
+          id: $1
+          vendor: $2
+          model: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(2), $column(3), megaHertz2HumanFormat($column(4)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $1, $2, $3, megaHertz2HumanFormat($4))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($4)
     collect:
       # CPU collect
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
-          oid: 1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1.12.$cpu.id$
+          oid: "1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1.12.${cpu::id}"
           computes:
           # Duplicate this status, because we will translate it two times
           - type: duplicateColumn
             column: 1
           - type: translate
             column: 1
-            translationTable: GenericStatusTranslationTable
+            translationTable: "${translation::GenericStatusTranslationTable}"
           - type: translate
             column: 2
-            translationTable: GenericStatusInformationTranslationTable
+            translationTable: "${translation::GenericStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.cpu.collect.sources.source(1)$
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="cpu"}: $column(1)
+          hw.status{hw.type="cpu"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   memory:
     discovery:
       sources:
@@ -99,38 +99,38 @@ monitors:
           # Translate memory type
           - type: translate
             column: 2
-            translationTable: memoryTypeTranslationTable
+            translationTable: "${translation::memoryTypeTranslationTable}"
       mapping:
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          type: $column(2)
+          id: $1
+          type: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $1, $2, $3)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(3))
+          hw.memory.limit: mebiByte2Byte($3)
     collect:
       # Memory collect
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
-          oid: 1.3.6.1.4.1.119.2.2.4.4.4.2.1.9.1.5.$memory.id$
+          oid: "1.3.6.1.4.1.119.2.2.4.4.4.2.1.9.1.5.${memory::id}"
           computes:
           - type: duplicateColumn
             column: 1
           - type: translate
             column: 1
-            translationTable: GenericStatusTranslationTable
+            translationTable: "${translation::GenericStatusTranslationTable}"
           - type: translate
             column: 2
-            translationTable: GenericStatusInformationTranslationTable
+            translationTable: "${translation::GenericStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.memory.collect.sources.source(1)$
+        source: "${source::monitors.memory.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="memory"}: $column(1)
+          hw.status{hw.type="memory"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   temperature:
     discovery:
       sources:
@@ -153,26 +153,26 @@ monitors:
             existingValue: -1
             newValue: ""
       mapping:
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
-          hw.temperature.limit{limit_type="high.critical"}: $column(5)
+          hw.temperature.limit{limit_type="high.degraded"}: $4
+          hw.temperature.limit{limit_type="high.critical"}: $5
     collect:
       # Temperature collect
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
-          oid: 1.3.6.1.4.1.119.2.2.4.4.10.2.1.2.1.3.$temperature.id$
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.1.2.1.3.${temperature::id}"
       mapping:
-        source: $monitors.temperature.collect.sources.source(1)$
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
         metrics:
-          hw.temperature: $column(1)
+          hw.temperature: $1
   fan:
     discovery:
       sources:
@@ -186,19 +186,19 @@ monitors:
             column: 3
             valueList: 3
       mapping:
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Fan collect
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
-          oid: 1.3.6.1.4.1.119.2.2.4.4.10.2.3.2.1.3.$fan.id$
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.3.2.1.3.${fan::id}"
           computes:
           - type: duplicateColumn
             column: 1
@@ -206,16 +206,16 @@ monitors:
             column: 1
           - type: translate
             column: 2
-            translationTable: GenericStatusTranslationTable
+            translationTable: "${translation::GenericStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: GenericStatusInformationTranslationTable
+            translationTable: "${translation::GenericStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.fan.collect.sources.source(1)$
+        source: "${source::monitors.fan.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   voltage:
     discovery:
       sources:
@@ -252,26 +252,26 @@ monitors:
             existingValue: A
             newValue: ""
       mapping:
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
-          hw.voltage.limit{limit_type="low.critical"}: $column(5)
+          hw.voltage.limit{limit_type="high.degraded"}: $4
+          hw.voltage.limit{limit_type="low.critical"}: $5
     collect:
       # Voltage collect
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
-          oid: 1.3.6.1.4.1.119.2.2.4.4.10.2.2.2.1.3.$voltage.id$
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.2.2.1.3.${voltage::id}"
       mapping:
-        source: $monitors.voltage.collect.sources.source(1)$
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
         metrics:
-          hw.voltage: $column(1)
+          hw.voltage: $1
   power_supply:
     discovery:
       sources:
@@ -281,18 +281,18 @@ monitors:
           oid: 1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1
           selectColumns: 1
       mapping:
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Power supply collect
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
-          oid: 1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1.2.$power_supply.id$
+          oid: "1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1.2.${power_supply::id}"
           computes:
           - type: duplicateColumn
             column: 1
@@ -300,16 +300,16 @@ monitors:
             column: 1
           - type: translate
             column: 2
-            translationTable: GenericStatusTranslationTable
+            translationTable: "${translation::GenericStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: GenericStatusInformationTranslationTable
+            translationTable: "${translation::GenericStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.power_supply.collect.sources.source(1)$
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   memoryTypeTranslationTable:
     "1": ""

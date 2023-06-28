@@ -29,12 +29,12 @@ monitors:
           selectColumns: "ID,2,9"
       mapping:
         # The Instance table
-        source: $monitors.vm.discovery.sources.source(1)$
+        source: "${source::monitors.vm.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -49,14 +49,14 @@ monitors:
             # / ID, Vcpu (for powershare),Power state
           - type: translate
             column: 3
-            translationTable: PowerStateTranslationTable
+            translationTable: "${translation::PowerStateTranslationTable}"
       mapping:
         # / ID, Vcpu (for powershare),Power state
-        source: $monitors.vm.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.vm.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.vm.power_ratio: computePowerShareRatio($column(2))
-          hw.vm.power_state: $column(3)
+          hw.vm.power_ratio: computePowerShareRatio($2)
+          hw.vm.power_state: $3
 translations:
   PowerStateTranslationTable:
     powered off: "OFF"

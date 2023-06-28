@@ -25,14 +25,14 @@
                     SystemName,DeviceID,PATROLStatusArray,OperationalStatus
                   type: arrayTranslate
                   column: 2
-                  translationTable: DMTFOperationStatusTranslationTable
+                  translationTable: ${translation::DMTFOperationStatusTranslationTable}
                   arraySeparator: ","
                 - _comment: |-
                     And finally, we translate DMTF's OperationalStatus code into a more readable status string
                     SystemName,DeviceID,PATROLStatusArray,StatusInformation
                   type: arrayTranslate
                   column: 3
-                  translationTable: DMTFOperationStatusInformationTranslationTable
+                  translationTable: ${translation::DMTFOperationStatusInformationTranslationTable}
                   resultSeparator: " - "
 - name: collect
   input: |
@@ -61,12 +61,12 @@
                     SystemName,DeviceID,PATROLStatusArray,OperationalStatus
                   type: arrayTranslate
                   column: 2
-                  translationTable: DMTFOperationStatusTranslationTable
+                  translationTable: ${translation::DMTFOperationStatusTranslationTable}
                   arraySeparator: ","
                 - _comment: |-
                     And finally, we translate DMTF's OperationalStatus code into a more readable status string
                     SystemName,DeviceID,PATROLStatusArray,StatusInformation
                   type: arrayTranslate
                   column: 3
-                  translationTable: DMTFOperationStatusInformationTranslationTable
+                  translationTable: ${translation::DMTFOperationStatusInformationTranslationTable}
                   resultSeparator: " - "

@@ -35,14 +35,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # DeviceID,Speed,Description,PermanentAddress,OperationalStatus
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          physical_address: $column(4)
+          id: $1
+          physical_address: $4
           physical_address_type: MAC
-          model: $column(3)
+          model: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -66,12 +66,12 @@ monitors:
             # DeviceID,Speed,PATROLStatusArray,OperationalStatus,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID,Speed,PATROLStatusArray,StatusInformation,OperationalStatus
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID,Speed,PATROLStatus,StatusInformation,OperationalStatus
@@ -87,17 +87,17 @@ monitors:
             # DeviceID,Speed,PATROLStatus,StatusInformation,LinkStatus
           - type: arrayTranslate
             column: 5
-            translationTable: OperationsStatusToLinkStatusTranslationTable
+            translationTable: "${translation::OperationsStatusToLinkStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($5)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   DMTFOperationStatusTranslationTable:
     "11": degraded

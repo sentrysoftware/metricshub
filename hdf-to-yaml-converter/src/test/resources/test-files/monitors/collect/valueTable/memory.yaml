@@ -14,10 +14,10 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;PredictedFailure;ErrorCount
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.memory.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.memory.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="memory"}: $column(2)
-              hw.status{hw.type="memory", state="predicted_failure"}: boolean($column(4))
-              hw.errors{hw.type="memory"}: $column(5)
+              hw.status{hw.type="memory"}: $2
+              hw.status{hw.type="memory", state="predicted_failure"}: boolean($4)
+              hw.errors{hw.type="memory"}: $5

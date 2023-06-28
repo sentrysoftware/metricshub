@@ -50,8 +50,8 @@ monitors:
           # Link FUJITSU_StorageComputerSystem to FUJITSU_ControllerEnclosure
           # FUJITSU_StorageComputerSystem;DeviceID;SystemName;FUJITSU_ControllerEnclosure;FUJITSU_StorageComputerSystem;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -59,8 +59,8 @@ monitors:
           # Link FUJITSU_StorageProduct to FUJITSU_ControllerEnclosure
           # FUJITSU_StorageComputerSystem;DeviceID;SystemName;FUJITSU_ControllerEnclosure;FUJITSU_StorageComputerSystem;FUJITSU_StorageProduct;FUJITSU_ControllerEnclosure;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(5)$
-          rightTable: $monitors.enclosure.discovery.sources.source(3)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(3)}"
           leftKeyColumn: 4
           rightKeyColumn: 2
           keyType: Wbem
@@ -69,8 +69,8 @@ monitors:
           #          1          #           # 2        3          #          4          #            5          #           #  6          #          7          #           #       8          #    9     10      11        12
           # FUJITSU_StorageComputerSystem;DeviceID;SystemName;FUJITSU_ControllerEnclosure;FUJITSU_StorageComputerSystem;FUJITSU_StorageProduct;FUJITSU_ControllerEnclosure;FUJITSU_StorageProduct;Model;Vendor;Firmware;SerialNumber;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(6)$
-          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(4)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
           keyType: Wbem
@@ -103,8 +103,8 @@ monitors:
           # Attach The Enclosures to the FUJITSU_StorageComputerSystem
           # ENCLOSURES;FUJITSU_StorageComputerSystem;FUJITSU_StorageComputerSystem;DeviceID;SystemName;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(8)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -112,8 +112,8 @@ monitors:
           # Attach The Components to the Enclosures
           # ENCLOSURES;COMPONENT;ENCLOSURES;FUJITSU_StorageComputerSystem;FUJITSU_StorageComputerSystem;SystemID;SystemName;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(9)$
-          rightTable: $monitors.enclosure.discovery.sources.source(10)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(9)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(10)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -134,8 +134,8 @@ monitors:
           # Attach each SUBCOMPONENT to the COMPONENT/System Table
           # SUBCOMPONENT;COMPONENT;COMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(12)$
-          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(12)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(11)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -147,16 +147,16 @@ monitors:
       mapping:
         # The Instance Table
         # DeviceID;SystemName;Model;Vendor;Firmware;SerialNumber;
-        source: $monitors.enclosure.discovery.sources.source(7)$
+        source: "${source::monitors.enclosure.discovery.sources.source(7)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(4)
-          model: $column(3)
-          serial_number: $column(6)
+          id: $1
+          __display_id: $2
+          vendor: $4
+          model: $3
+          serial_number: $6
           type: Storage
-          info: $column(5)
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(2), $column(4), $column(3))"
+          info: $5
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $2, $4, $3)}"
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -177,12 +177,12 @@ monitors:
             # ComputerID;PATROLStatusArray;Status
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # ComputerID;PATROLStatusArray;StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # ComputerID;PATROLStatus;StatusInformation
@@ -191,12 +191,12 @@ monitors:
             conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -225,7 +225,7 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(3)
+            value: $3
         source(2):
           # Source(2) = FUJITSU_PhysicalDisk
           # FUJITSU_PhysicalDisk;Manufacturer;Model;SerialNumber;DriveType;FirmwareVersion;
@@ -242,8 +242,8 @@ monitors:
           # Attach FUJITSU_DiskDrive to CIM_Realizes
           # DeviceID;Name;SystemName;SizeKB;FUJITSU_DiskDrive;FUJITSU_PhysicalDisk;FUJITSU_DiskDrive;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(3)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(3)}"
           leftKeyColumn: 5
           rightKeyColumn: 2
           keyType: Wbem
@@ -251,8 +251,8 @@ monitors:
           # Attach Source (4) to FUJITSU_PhysicalDisk
           # DeviceID;Name;SystemName;SizeKB;FUJITSU_DiskDrive;FUJITSU_PhysicalDisk;FUJITSU_DiskDrive;FUJITSU_PhysicalDisk;Manufacturer;Model;SerialNumber;DriveType;FirmwareVersion;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(4)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
           keyType: Wbem
@@ -270,20 +270,20 @@ monitors:
         # Instance Table
         #    1      2        3       4         5        6       7        #     8        # 9
         # DeviceID;Name;SystemName;SizeKB;Manufacturer;Model;SerialNumber;DriveType;FirmwareVersion;
-        source: $monitors.physical_disk.discovery.sources.source(5)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(5)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(5)
-          model: $column(6)
-          serial_number: $column(7)
-          firmware_version: $column(9)
-          info: $column(8)
+          id: $1
+          __display_id: $2
+          vendor: $5
+          model: $6
+          serial_number: $7
+          firmware_version: $9
+          info: $8
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), bytes2HumanFormatBase10($column(4)))"
+          hw.parent.id: $3
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $5, bytes2HumanFormatBase10($4))}"
         metrics:
-          hw.physical_disk.size: $column(4)
+          hw.physical_disk.size: $4
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -302,7 +302,7 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
             # Duplicate the "OperationalStatus" column
             # SystemName,DeviceID,OperationalStatus
           - type: duplicateColumn
@@ -311,12 +311,12 @@ monitors:
             # SystemName,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # SystemName,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # SystemName,DeviceID,PATROLStatus,StatusInformation
@@ -326,12 +326,12 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # SystemName,DeviceID,PATROLStatus,StatusDescriptions
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
+          hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       sources:
@@ -351,12 +351,12 @@ monitors:
             # DeviceID,SystemName,SpeedMBps,PermanentAddress,UsageRestriction,PortType
           - type: translate
             column: 6
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Translate the Port Direction
             # DeviceID,SystemName,SpeedMBps,PermanentAddress,UsageRestriction,PortType
           - type: translate
             column: 5
-            translationTable: UsageRestrictionTranslationTable
+            translationTable: "${translation::UsageRestrictionTranslationTable}"
             # Duplicate the DeviceID to allow a DisplayID
             # DisplayID,DeviceID,SystemName,SpeedMBps,PermanentAddress,UsageRestriction,PortType
           - type: duplicateColumn
@@ -368,24 +368,24 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 2
-            value: Column(3)
+            value: $3
           - type: leftConcat
             column: 6
             value: "Usage Restriction: "
       mapping:
         # Instance Table
         # DisplayID,DeviceID,SystemName,SpeedMBps,PermanentAddress,UsageRestriction,PortType
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(1)
-          physical_address: $column(5)
+          id: $2
+          __display_id: $1
+          physical_address: $5
           physical_address_type: WWN
-          device_type: $column(7)
-          info: $column(6)
+          device_type: $7
+          info: $6
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s)\", $column(1), $column(7))"
+          hw.parent.id: $3
+          name: "${awk::sprintf(\"%s (%s)\", $1, $7)}"
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -410,12 +410,12 @@ monitors:
             # DeviceID,Speed,PATROLStatusArray,OperationalStatus,SystemName
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID,Speed,PATROLStatusArray,StatusInformation,SystemName
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID,Speed,PATROLStatus,StatusInformation,SystemName
@@ -429,17 +429,17 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(5)
+            value: $5
       mapping:
         # ValueTable = Source(1)
         # DeviceID,Speed,PATROLStatus,StatusInformation,SystemName
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
-          hw.status{hw.type="network"}: $column(3)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
+          hw.status{hw.type="network"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
@@ -464,8 +464,8 @@ monitors:
           # Let's associate the FUJITSU_FAN with the enclosure using the SubComponent to System table
           # FUJITSU_FAN,DeviceID,DisplayID,SUBCOMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.fan.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.fan.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -481,17 +481,17 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(3)
+            value: $3
       mapping:
         # Instance Table
         # DeviceID,DisplayID,SystemName
-        source: $monitors.fan.discovery.sources.source(2)$
+        source: "${source::monitors.fan.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: $column(2)
+          hw.parent.id: $3
+          name: $2
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -517,12 +517,12 @@ monitors:
             # FUJITSU_FAN,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # FUJITSU_FAN,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # FUJITSU_FAN,DeviceID,PATROLStatus,StatusInformation
@@ -533,8 +533,8 @@ monitors:
           # Let's associate the FUJITSU_FAN with the enclosure using the SubComponent to System table
           # FUJITSU_FAN,DeviceID,PATROLStatus,StatusInformation,SUBCOMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.fan.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.fan.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -550,16 +550,16 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(4)
+            value: $4
       mapping:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
-        source: $monitors.fan.collect.sources.source(2)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(2)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   battery:
     discovery:
       sources:
@@ -584,8 +584,8 @@ monitors:
           # Let's associate the FUJITSU_BTU with the enclosure using the SubComponent to System table
           # FUJITSU_BTU,DeviceID,DisplayID,SUBCOMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.battery.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.battery.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -601,7 +601,7 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(3)
+            value: $3
         source(3):
           # Source(3) = FUJITSU_BCU (Battery Control Units)
           # FUJITSU_BCU,DeviceID
@@ -623,8 +623,8 @@ monitors:
           # Let's associate the FUJITSU_BCU with the enclosure using the Component to System table
           # FUJITSU_BCU,DeviceID,DisplayID,COMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.battery.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftTable: "${source::monitors.battery.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(11)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -640,24 +640,24 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(3)
+            value: $3
         source(5):
           # Union BTU and BCU
           # DeviceID,DisplayID,SystemName
           type: tableUnion
           tables:
-          - $monitors.battery.discovery.sources.source(2)$
-          - $monitors.battery.discovery.sources.source(4)$
+          - "${source::monitors.battery.discovery.sources.source(2)}"
+          - "${source::monitors.battery.discovery.sources.source(4)}"
       mapping:
         # Instance Table
         # DeviceID,DisplayID,SystemName
-        source: $monitors.battery.discovery.sources.source(5)$
+        source: "${source::monitors.battery.discovery.sources.source(5)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: $column(2)
+          hw.parent.id: $3
+          name: $2
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -683,12 +683,12 @@ monitors:
             # FUJITSU_BTU,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # FUJITSU_BTU,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # FUJITSU_BTU,DeviceID,PATROLStatus,StatusInformation
@@ -699,8 +699,8 @@ monitors:
           # Let's associate the FUJITSU_BTU with the enclosure using the SubComponent to System table
           # FUJITSU_BTU,DeviceID,PATROLStatus,StatusInformation,SUBCOMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.battery.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.battery.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -716,7 +716,7 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(4)
+            value: $4
         source(3):
           # Source(3) = FUJITSU_BCU
           # FUJITSU_BCU;DeviceID;OperationalStatus;
@@ -738,12 +738,12 @@ monitors:
             # FUJITSU_BCU,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # FUJITSU_BCU,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # FUJITSU_BCU,DeviceID,PATROLStatus,StatusInformation
@@ -754,8 +754,8 @@ monitors:
           # Let's associate the FUJITSU_BCU with the enclosure using the Component to System table
           # FUJITSU_BCU,DeviceID,PATROLStatus,StatusInformation,COMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.battery.collect.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftTable: "${source::monitors.battery.collect.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(11)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -771,23 +771,23 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(4)
+            value: $4
         source(5):
           # Union BTU and BCU
           # DeviceID,PATROLStatus,StatusInformation,SystemName;
           type: tableUnion
           tables:
-          - $monitors.battery.collect.sources.source(2)$
-          - $monitors.battery.collect.sources.source(4)$
+          - "${source::monitors.battery.collect.sources.source(2)}"
+          - "${source::monitors.battery.collect.sources.source(4)}"
       mapping:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
-        source: $monitors.battery.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(2)
+          hw.status{hw.type="battery"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   memory:
     discovery:
       sources:
@@ -817,8 +817,8 @@ monitors:
           # Let's associate the FUJITSU_PhysicalMemory with the Contoller using the Component to SubComponent table
           # FUJITSU_PhysicalMemory,DeviceID,DisplayID,Capacity,PartNumber;CONTROLLER;FUJITSU_PhysicalMemory;
           type: tableJoin
-          leftTable: $monitors.memory.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(12)$
+          leftTable: "${source::monitors.memory.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(12)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -826,8 +826,8 @@ monitors:
           # Let's associate the Contoller with the SYSTEM using the Component to SubComponent table
           # FUJITSU_PhysicalMemory,DeviceID,DisplayID,Capacity,PartNumber;CONTROLLER;FUJITSU_PhysicalMemory;SYSTEM;CONTROLLER;
           type: tableJoin
-          leftTable: $monitors.memory.discovery.sources.source(2)$
-          rightTable: $monitors.enclosure.discovery.sources.source(12)$
+          leftTable: "${source::monitors.memory.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(12)}"
           leftKeyColumn: 6
           rightKeyColumn: 2
           keyType: Wbem
@@ -835,8 +835,8 @@ monitors:
           # Let's associate the FUJITSU_PhysicalMemory with the enclosure using the SYSTEM to System table
           # FUJITSU_PhysicalMemory,DeviceID,DisplayID,Capacity,PartNumber;CONTROLLER;FUJITSU_PhysicalMemory;SYSTEM;CONTROLLER;SYSTEM;SystemName;
           type: tableJoin
-          leftTable: $monitors.memory.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.memory.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 8
           rightKeyColumn: 1
           keyType: Wbem
@@ -852,20 +852,20 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(5)
+            value: $5
       mapping:
         # Instance Table
         # DeviceID,DisplayID,Capacity,PartNumber,SystemName
-        source: $monitors.memory.discovery.sources.source(4)$
+        source: "${source::monitors.memory.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          model: $column(4)
-          __display_id: $column(2)
+          id: $1
+          model: $4
+          __display_id: $2
           hw.parent.type: enclosure
-          hw.parent.id: $column(5)
-          name: "sprintf(\"%s (%s MB)\", $column(2), $column(3))"
+          hw.parent.id: $5
+          name: "${awk::sprintf(\"%s (%s MB)\", $2, $3)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(3))
+          hw.memory.limit: mebiByte2Byte($3)
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -891,12 +891,12 @@ monitors:
             # FUJITSU_PhysicalMemory,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # FUJITSU_PhysicalMemory,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # FUJITSU_PhysicalMemory,DeviceID,PATROLStatus,StatusInformation
@@ -907,8 +907,8 @@ monitors:
           # Let's associate the FUJITSU_PhysicalMemory with the Contoller using the Component to SubComponent table
           # FUJITSU_PhysicalMemory,DeviceID,PATROLStatus,StatusInformation;CONTROLLER;FUJITSU_PhysicalMemory;
           type: tableJoin
-          leftTable: $monitors.memory.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(12)$
+          leftTable: "${source::monitors.memory.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(12)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -916,8 +916,8 @@ monitors:
           # Let's associate the Contoller with the SYSTEM using the Component to SubComponent table
           # FUJITSU_PhysicalMemory,DeviceID,PATROLStatus,StatusInformation;CONTROLLER;FUJITSU_PhysicalMemory;SYSTEM;CONTROLLER;
           type: tableJoin
-          leftTable: $monitors.memory.collect.sources.source(2)$
-          rightTable: $monitors.enclosure.discovery.sources.source(12)$
+          leftTable: "${source::monitors.memory.collect.sources.source(2)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(12)}"
           leftKeyColumn: 5
           rightKeyColumn: 2
           keyType: Wbem
@@ -925,8 +925,8 @@ monitors:
           # Let's associate the FUJITSU_PhysicalMemory with the enclosure using the SYSTEM to System table
           # FUJITSU_PhysicalMemory,DeviceID,PATROLStatus,StatusInformation;CONTROLLER;FUJITSU_PhysicalMemory;SYSTEM;CONTROLLER;SYSTEM;SystemName;
           type: tableJoin
-          leftTable: $monitors.memory.collect.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.memory.collect.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 7
           rightKeyColumn: 1
           keyType: Wbem
@@ -942,16 +942,16 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(4)
+            value: $4
       mapping:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
-        source: $monitors.memory.collect.sources.source(4)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(4)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -1014,9 +1014,9 @@ monitors:
           # Type;COMPONENT,DeviceID
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(1)$
-          - $monitors.other_device.discovery.sources.source(2)$
-          - $monitors.other_device.discovery.sources.source(3)$
+          - "${source::monitors.other_device.discovery.sources.source(1)}"
+          - "${source::monitors.other_device.discovery.sources.source(2)}"
+          - "${source::monitors.other_device.discovery.sources.source(3)}"
           computes:
             # Duplicate the DeviceID to get DisplayID
             # Type;COMPONENT;DeviceID;DisplayID;
@@ -1026,8 +1026,8 @@ monitors:
           # Let's associate the FUJITSU_FAN with the enclosure using the SubComponent to System table
           # Type;COMPONENT,DeviceID,DisplayID,COMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.other_device.discovery.sources.source(4)$
-          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftTable: "${source::monitors.other_device.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(11)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -1043,7 +1043,7 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 2
-            value: Column(4)
+            value: $4
         source(6):
           # Source(1) = FUJITSU_ChannelAdapterCard
           # FUJITSU_ChannelAdapterCard,DeviceID
@@ -1070,8 +1070,8 @@ monitors:
           # Let's associate the FUJITSU_ChannelAdapterCard with the enclosure using the SubComponent to System table
           # Type;FUJITSU_ChannelAdapterCard,DeviceID,DisplayID,SUBCOMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.other_device.discovery.sources.source(6)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.other_device.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -1087,24 +1087,24 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 2
-            value: Column(4)
+            value: $4
         source(8):
           # Join the Components and SubComponents together
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(5)$
-          - $monitors.other_device.discovery.sources.source(7)$
+          - "${source::monitors.other_device.discovery.sources.source(5)}"
+          - "${source::monitors.other_device.discovery.sources.source(7)}"
       mapping:
         # Instance Table
         # Type;DeviceID,DisplayID,SystemName
-        source: $monitors.other_device.discovery.sources.source(8)$
+        source: "${source::monitors.other_device.discovery.sources.source(8)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          device_type: $column(1)
+          id: $2
+          __display_id: $3
+          device_type: $1
           hw.parent.type: enclosure
-          hw.parent.id: $column(4)
-          name: "sprintf(\"%s: %s\", $column(1), $column(3))"
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s: %s\", $1, $3)}"
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -1168,9 +1168,9 @@ monitors:
           # Type;COMPONENT,DeviceID,OperationalStatus
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
-          - $monitors.other_device.collect.sources.source(3)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(2)}"
+          - "${source::monitors.other_device.collect.sources.source(3)}"
           computes:
             # Duplicate the DeviceID to get DisplayID
             # Type;COMPONENT;DeviceID;DisplayID;OperationalStatus
@@ -1180,8 +1180,8 @@ monitors:
           # Let's associate the FUJITSU_FAN with the enclosure using the SubComponent to System table
           # Type;COMPONENT,DeviceID,DisplayID,OperationalStatus,COMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.other_device.collect.sources.source(4)$
-          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftTable: "${source::monitors.other_device.collect.sources.source(4)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(11)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -1197,7 +1197,7 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
         source(6):
           # Source(1) = FUJITSU_ChannelAdapterCard
           # FUJITSU_ChannelAdapterCard,DeviceID,OperationalStatus
@@ -1224,8 +1224,8 @@ monitors:
           # Let's associate the FUJITSU_FAN with the enclosure using the SubComponent to System table
           # Type;FUJITSU_ChannelAdapterCard,DeviceID,DisplayID,OperationalStatus,SUBCOMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.other_device.collect.sources.source(6)$
-          rightTable: $monitors.enclosure.discovery.sources.source(13)$
+          leftTable: "${source::monitors.other_device.collect.sources.source(6)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(13)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -1241,14 +1241,14 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 2
-            value: Column(4)
+            value: $4
         source(8):
           # Join the Components and SubComponents together
           # Type;DeviceID,DisplayID,OperationalStatus,SystemName
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(5)$
-          - $monitors.other_device.collect.sources.source(7)$
+          - "${source::monitors.other_device.collect.sources.source(5)}"
+          - "${source::monitors.other_device.collect.sources.source(7)}"
           computes:
             # Duplicate the "OperationalStatus" column
             # Type;DeviceID,DisplayID,OperationalStatus,OperationalStatus,SystemName
@@ -1258,12 +1258,12 @@ monitors:
             # Type;DeviceID,DisplayID,PATROLStatusArray,OperationalStatus,SystemName
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # Type;DeviceID,DisplayID,PATROLStatusArray,StatusInformation,SystemName
           - type: arrayTranslate
             column: 5
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # Type;DeviceID,DisplayID,PATROLStatus,StatusInformation,SystemName
@@ -1273,12 +1273,12 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # Type;DeviceID,DisplayID,PATROLStatus,StatusInformation,SystemName
-        source: $monitors.other_device.collect.sources.source(8)$
-        deviceId: $column(2)
+        source: "${source::monitors.other_device.collect.sources.source(8)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="other_device"}: $column(4)
+          hw.status{hw.type="other_device"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   power_supply:
     discovery:
       sources:
@@ -1303,8 +1303,8 @@ monitors:
           # Let's associate the FUJITSU_PSU with the enclosure using the Component to System table
           # FUJITSU_PSU,DeviceID,DisplayID,COMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.power_supply.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftTable: "${source::monitors.power_supply.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(11)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -1320,17 +1320,17 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(3)
+            value: $3
       mapping:
         # Instance Table
         # DeviceID,DisplayID,SystemName
-        source: $monitors.power_supply.discovery.sources.source(2)$
+        source: "${source::monitors.power_supply.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: $column(2)
+          hw.parent.id: $3
+          name: $2
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -1356,12 +1356,12 @@ monitors:
             # FUJITSU_PSU,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # FUJITSU_PSU,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # FUJITSU_PSU,DeviceID,PATROLStatus,StatusInformation
@@ -1372,8 +1372,8 @@ monitors:
           # Let's associate the FUJITSU_FAN with the enclosure using the Component to System table
           # FUJITSU_PSU,DeviceID,PATROLStatus,StatusInformation,COMPONENT;SystemName;
           type: tableJoin
-          leftTable: $monitors.power_supply.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(11)$
+          leftTable: "${source::monitors.power_supply.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(11)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -1389,16 +1389,16 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(4)
+            value: $4
       mapping:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
-        source: $monitors.power_supply.collect.sources.source(2)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(2)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -1413,7 +1413,7 @@ monitors:
             # ElementName,SizeBytes,BlockSize,SystemID,RaidLevel
           - type: multiply
             column: 2
-            value: Column(3)
+            value: $3
             # Get rid of BlockSize
             # ElementName,SizeBytes,SystemID,RaidLevel
           - type: keepColumns
@@ -1440,7 +1440,7 @@ monitors:
             # CIM_StoragePool,ElementName,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type
           - type: translate
             column: 5
-            translationTable: CreationClassNameStoragePoolTranslationTable
+            translationTable: "${translation::CreationClassNameStoragePoolTranslationTable}"
         source(3):
           # Association Pool to Storage System
           # CIM_StoragePool,FUJITSU_StorageComputerSystem
@@ -1451,8 +1451,8 @@ monitors:
           # Attach the Pool to the Association Table
           # CIM_StoragePool,ElementName,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,CIM_StoragePool,FUJITSU_StorageComputerSystem
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(2)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(3)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -1461,8 +1461,8 @@ monitors:
           #         1           2           3          #  4          #      5          #         6           7           8          #           #        9          #           #  10       11
           # CIM_StoragePool,ElementName,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,CIM_StoragePool,FUJITSU_StorageComputerSystem;FUJITSU_StorageComputerSystem;SystemID;SystemName;
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(4)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 8
           rightKeyColumn: 1
           keyType: Wbem
@@ -1470,7 +1470,7 @@ monitors:
           # Make a copy of Discovery Source  for use in Collect
           # CIM_StoragePool,ElementName,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,CIM_StoragePool,FUJITSU_StorageComputerSystem;FUJITSU_StorageComputerSystem;SystemID;SystemName;
           type: copy
-          from: $monitors.logical_disk.discovery.sources.source(5)$
+          from: "${source::monitors.logical_disk.discovery.sources.source(5)}"
           computes:
             # Get CIM_Storagepool to System ID for use in Collect
             # CIM_StoragePool,SystemID
@@ -1480,7 +1480,7 @@ monitors:
           # Now Another Copy for use by Discovery
           # CIM_StoragePool,ElementName,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,CIM_StoragePool,FUJITSU_StorageComputerSystem;FUJITSU_StorageComputerSystem;SystemID;SystemName;
           type: copy
-          from: $monitors.logical_disk.discovery.sources.source(5)$
+          from: "${source::monitors.logical_disk.discovery.sources.source(5)}"
           computes:
             # Get rid of the Paths
             # ElementName,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID
@@ -1496,8 +1496,8 @@ monitors:
           # ElementName,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
           type: tableUnion
           tables:
-          - $monitors.logical_disk.discovery.sources.source(1)$
-          - $monitors.logical_disk.discovery.sources.source(7)$
+          - "${source::monitors.logical_disk.discovery.sources.source(1)}"
+          - "${source::monitors.logical_disk.discovery.sources.source(7)}"
           computes:
             # Duplicate the DeviceID to allow a DisplayID
             # DeviceID,DisplayID,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
@@ -1510,22 +1510,22 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(7)
+            value: $7
       mapping:
         # Instance Table
         # DeviceID,DisplayID,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
-        source: $monitors.logical_disk.discovery.sources.source(8)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(8)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          raid_level: $column(8)
-          __use_for_capacity_report: $column(5)
-          type: $column(6)
+          id: $1
+          __display_id: $2
+          raid_level: $8
+          __use_for_capacity_report: $5
+          type: $6
           hw.parent.type: enclosure
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(8), bytes2HumanFormatBase2($column(3)))"
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $8, bytes2HumanFormatBase2($3))}"
         metrics:
-          hw.logical_disk.limit: $column(3)
+          hw.logical_disk.limit: $3
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -1552,8 +1552,8 @@ monitors:
           # Attach the Pool to the Association Table
           # ElementName,OperationalStatus,RemainingManagedSpace,CIM_StoragePool,CIM_StoragePool,SystemID
           type: tableJoin
-          leftTable: $monitors.logical_disk.collect.sources.source(2)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(6)$
+          leftTable: "${source::monitors.logical_disk.collect.sources.source(2)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(6)}"
           leftKeyColumn: 4
           rightKeyColumn: 1
           keyType: Wbem
@@ -1567,8 +1567,8 @@ monitors:
           # ElementName,OperationalStatus,RemainingManagedSpace,SystemID
           type: tableUnion
           tables:
-          - $monitors.logical_disk.collect.sources.source(1)$
-          - $monitors.logical_disk.collect.sources.source(3)$
+          - "${source::monitors.logical_disk.collect.sources.source(1)}"
+          - "${source::monitors.logical_disk.collect.sources.source(3)}"
           computes:
             # Add ":" And SystemaName to Caption to make DeviceID unique
             # ElementName,OperationalStatus,RemainingManagedSpace,SystemID
@@ -1577,7 +1577,7 @@ monitors:
             value: ':'
           - type: leftConcat
             column: 1
-            value: Column(4)
+            value: $4
             # Duplicate the "OperationalStatusArray" column
             # ElementName,OperationalStatus,OperationalStatus,RemainingManagedSpace,SystemID
           - type: duplicateColumn
@@ -1586,12 +1586,12 @@ monitors:
             # ElementName,PATROLStatusArray,OperationalStatus,RemainingManagedSpace,SystemID
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # ElementName,PATROLStatusArray,StatusInformation,RemainingManagedSpace,SystemID
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # ElementName,PATROLStatusArray,StatusInformation,RemainingManagedSpace,SystemID
@@ -1601,14 +1601,14 @@ monitors:
       mapping:
         # Value Table
         # ElementName,PATROLStatusArray,StatusInformation,RemainingManagedSpace,SystemID
-        source: $monitors.logical_disk.collect.sources.source(4)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(4)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
-          hw.logical_disk.usage{state="free"}: $column(4)
+          hw.status{hw.type="logical_disk"}: $2
+          hw.logical_disk.usage{state="free"}: $4
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   DMTFOperationStatusTranslationTable:
     "11": degraded

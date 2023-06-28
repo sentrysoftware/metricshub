@@ -74,8 +74,8 @@ monitors:
           # Source(3) = Table joint between Source(1) and Source(2)
           # ServerID;Model;PartNumber;SerialNumber;Manufacturer;SlotNumber;BiosVersion;ServerID;CurrentReading;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -86,16 +86,16 @@ monitors:
       mapping:
         # InstanceTable
         # ServerID;Model;PartNumber;SerialNumber;Manufacturer;SlotNumber;BiosVersion;ServerID;CurrentReading;
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          vendor: $column(5)
-          model: $column(2)
+          id: $1
+          vendor: $5
+          model: $2
           type: Computer
-          serial_number: $column(4)
-          bios_version: $column(7)
-          info: "join(\" \", $column(3), $column(6))"
-          name: "sprintf(\"Computer: (%s %s)\", $column(5), $column(2))"
+          serial_number: $4
+          bios_version: $7
+          info: "${awk::join(\" \", $3, $6)}"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", $5, $2)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -125,12 +125,12 @@ monitors:
             # ServerID;FruType;PATROLStatus;FruStatus
           - type: translate
             column: 3
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # ServerID;FruType;PATROLStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
         source(2):
           # Source(2) = sunHwMonTotalPowerConsumption SNMP Table
           # CurrentReading;
@@ -153,22 +153,22 @@ monitors:
           # This is because the PowerMeter Table does not exist in early versions of the HP agent, so we collect a list of IDs from the main table to avoid "no collect value errors"
           # ServerID;FruType;PATROLStatus;StatusInformation;ServerID;CurrentReading;
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # ValueTable = Source(3)
         # ServerID;FruType;PATROLStatus;StatusInformation;ServerID;CurrentReading;
-        source: $monitors.enclosure.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(3)
-          hw.enclosure.power: $column(6)
-          hw.enclosure.energy: fakeCounter($column(6))
+          hw.status{hw.type="enclosure"}: $3
+          hw.enclosure.power: $6
+          hw.enclosure.energy: fakeCounter($6)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   cpu:
     discovery:
       sources:
@@ -182,7 +182,7 @@ monitors:
           # Make a copy to find suitable FRUs
           # ID;FruName;FruType;FruDescription
           type: copy
-          from: $monitors.cpu.discovery.sources.source(1)$
+          from: "${source::monitors.cpu.discovery.sources.source(1)}"
           computes:
             # Keep only Processors (105)
             # ID;FruName;FruType;FruDescription
@@ -193,7 +193,7 @@ monitors:
           # Make a copy to find suitable FRUs from tyep Unknown
           # ID;FruName;FruType;FruDescription
           type: copy
-          from: $monitors.cpu.discovery.sources.source(1)$
+          from: "${source::monitors.cpu.discovery.sources.source(1)}"
           computes:
             # Keep only Processors (105)
             # ID;FruName;FruType;FruDescription
@@ -210,8 +210,8 @@ monitors:
           # ID;FruName;FruType;FruDescription
           type: tableUnion
           tables:
-          - $monitors.cpu.discovery.sources.source(2)$
-          - $monitors.cpu.discovery.sources.source(3)$
+          - "${source::monitors.cpu.discovery.sources.source(2)}"
+          - "${source::monitors.cpu.discovery.sources.source(3)}"
           computes:
             # Remove (R)
             # ID;FruName;FruType;FruDescription
@@ -222,13 +222,13 @@ monitors:
       mapping:
         # Instance Table
         # ID;FruName;FruType;FruDescription
-        source: $monitors.cpu.discovery.sources.source(4)$
+        source: "${source::monitors.cpu.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(4)
+          id: $1
+          __display_id: $2
+          model: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $4)}"
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -237,7 +237,7 @@ monitors:
           # Do an SNMP get directly on the status
           # FruStatus
           type: snmpGet
-          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$cpu.id$
+          oid: "1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.${cpu::id}"
           computes:
             # Duplicate the Status
             # FruStatus,FruStatus
@@ -247,19 +247,19 @@ monitors:
             # PATROLStatus;FruStatus
           - type: translate
             column: 1
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.cpu.collect.sources.source(1)$
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="cpu"}: $column(1)
+          hw.status{hw.type="cpu"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   memory:
     discovery:
       sources:
@@ -294,15 +294,15 @@ monitors:
       mapping:
         # Instance Table
         # ID;FruName;FruType;FruDescription;SizeMB;
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(4)
+          id: $1
+          __display_id: $2
+          model: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s MB)\", $column(2), $column(5))"
+          name: "${awk::sprintf(\"%s (%s MB)\", $2, $5)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(5))
+          hw.memory.limit: mebiByte2Byte($5)
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -311,7 +311,7 @@ monitors:
           # Do an SNMP get directly on the status
           # FruStatus
           type: snmpGet
-          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$memory.id$
+          oid: "1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.${memory::id}"
           computes:
             # Duplicate the Status
             # FruStatus,FruStatus
@@ -321,19 +321,19 @@ monitors:
             # PATROLStatus;FruStatus
           - type: translate
             column: 1
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.memory.collect.sources.source(1)$
+        source: "${source::monitors.memory.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="memory"}: $column(1)
+          hw.status{hw.type="memory"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   disk_controller:
     discovery:
       sources:
@@ -346,16 +346,16 @@ monitors:
       mapping:
         # The InstanceTable
         # ID;Name;PartNumber;SerialNumber;Manufacturer;Firmware;Status;
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          controller_number: $column(1)
-          vendor: $column(5)
-          firmware_version: $column(6)
-          serial_number: $column(4)
+          id: $2
+          __display_id: $2
+          controller_number: $1
+          vendor: $5
+          firmware_version: $6
+          serial_number: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(2), $column(5))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $5)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -375,20 +375,20 @@ monitors:
             # DeviceID,PATROLStatus;FruStatus
           - type: translate
             column: 2
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # DeviceID,PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -403,17 +403,17 @@ monitors:
             # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityMultiplier;
           - type: translate
             column: 8
-            translationTable: DiskCapacityUnitTranslationTable
+            translationTable: "${translation::DiskCapacityUnitTranslationTable}"
             # Convert Capacity to Bytes
             # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityMultiplier;
           - type: multiply
             column: 7
-            value: Column(8)
+            value: $8
             # Translate the Disk Type
             # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityMultiplier;
           - type: translate
             column: 6
-            translationTable: DiskTypeTranslationTable
+            translationTable: "${translation::DiskTypeTranslationTable}"
         source(2):
           # Get a list of FRUs
           # ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
@@ -430,8 +430,8 @@ monitors:
           # Join the Storage to the FRU
           # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityUnits;ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
@@ -453,19 +453,19 @@ monitors:
         # The InstanceTable
         #  1   2    3         4        #      5        # 6        7        8        # 9   10       11      12        #     13        #     14
         # ID;Name;OSname;ControllerNumber;SlotNumber;DiskType;Capacity;CapacityUnits;ID;FruName;FruType;FruPartNumber;FruSerialNumber;FruManufacturer;
-        source: $monitors.physical_disk.discovery.sources.source(3)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(14)
-          model: $column(12)
-          serial_number: $column(13)
-          info: "join(\" \", $column(3), $column(5), $column(6))"
+          id: $1
+          __display_id: $2
+          vendor: $14
+          model: $12
+          serial_number: $13
+          info: "${awk::join(\" \", $3, $5, $6)}"
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(14), bytes2HumanFormatBase10($column(7)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $4)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $14, bytes2HumanFormatBase10($7))}"
         metrics:
-          hw.physical_disk.size: $column(7)
+          hw.physical_disk.size: $7
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -474,7 +474,7 @@ monitors:
           # Do an SNMP get directly on the status
           # FruStatus
           type: snmpGet
-          oid: 1.3.6.1.4.1.42.2.2.6.2.1.4.1.16.$physical_disk.id$
+          oid: "1.3.6.1.4.1.42.2.2.6.2.1.4.1.16.${physical_disk::id}"
           computes:
             # Duplicate the Status
             # FruStatus,FruStatus
@@ -484,19 +484,19 @@ monitors:
             # PATROLStatus;FruStatus
           - type: translate
             column: 1
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(1)
+          hw.status{hw.type="physical_disk"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   power_supply:
     discovery:
       sources:
@@ -515,13 +515,13 @@ monitors:
       mapping:
         # Instance Table
         # ID;FruName;FruType;FruDescription;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          power_supply_type: $column(4)
+          id: $1
+          __display_id: $2
+          power_supply_type: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $4)}"
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -530,7 +530,7 @@ monitors:
           # Do an SNMP get directly on the status
           # FruStatus
           type: snmpGet
-          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$power_supply.id$
+          oid: "1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.${power_supply::id}"
           computes:
             # Duplicate the Status
             # FruStatus,FruStatus
@@ -540,19 +540,19 @@ monitors:
             # PATROLStatus;FruStatus
           - type: translate
             column: 1
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="power_supply"}: $column(1)
+          hw.status{hw.type="power_supply"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   other_device:
     discovery:
       sources:
@@ -567,7 +567,7 @@ monitors:
             # ID;FruName;FruType;FruDescription;FruStatus;
           - type: translate
             column: 3
-            translationTable: OtherDeviceTypeTranslationTable
+            translationTable: "${translation::OtherDeviceTypeTranslationTable}"
             # Keep only Known/Translated"OtherDevices"
             # ID;FruName;FruType;FruDescription;FruStatus;
           - type: keepOnlyMatchingLines
@@ -581,13 +581,13 @@ monitors:
       mapping:
         # Instance Table
         # ID;FruName;FruType;FruDescription;FruStatus;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          device_type: $column(3)
+          id: $1
+          __display_id: $2
+          device_type: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", $column(3), $column(2))"
+          name: "${awk::sprintf(\"%s: %s\", $3, $2)}"
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -596,7 +596,7 @@ monitors:
           # Do an SNMP get directly on the status
           # FruStatus
           type: snmpGet
-          oid: 1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.$other_device.id$
+          oid: "1.3.6.1.4.1.42.2.2.6.1.1.6.1.1.8.${other_device::id}"
           computes:
             # Duplicate the Status
             # FruStatus,FruStatus
@@ -606,19 +606,19 @@ monitors:
             # PATROLStatus;FruStatus
           - type: translate
             column: 1
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(1)$
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="other_device"}: $column(1)
+          hw.status{hw.type="other_device"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   voltage:
     discovery:
       sources:
@@ -630,12 +630,12 @@ monitors:
           selectColumns: "ID,3"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type = mono-instance
       type: multiInstance
@@ -655,32 +655,32 @@ monitors:
             # ID;PATROLStatus;Status;VoltageReading;Exponent;
           - type: translate
             column: 2
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
           - type: translate
             column: 3
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
             # Translate the exponent
             # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
           - type: translate
             column: 5
-            translationTable: VoltageUnitTranslationTable
+            translationTable: "${translation::VoltageUnitTranslationTable}"
             # Convert Voltage to Millivolts
             # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
           - type: multiply
             column: 4
-            value: Column(5)
+            value: $5
       mapping:
         # ValueTable = source(1)
         # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.voltage: $column(4)
-          hw.status{hw.type="voltage"}: $column(2)
+          hw.voltage: $4
+          hw.status{hw.type="voltage"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -692,12 +692,12 @@ monitors:
           selectColumns: "ID,3"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type = mono-instance
       type: multiInstance
@@ -717,22 +717,22 @@ monitors:
             # ID;PATROLStatus;Status;FanReading;
           - type: translate
             column: 2
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # ID;PATROLStatus;statusInformation;FanReading;
           - type: translate
             column: 3
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = source(1)
         # ID;PATROLStatus;statusInformation;FanReading;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(4)
-          hw.status{hw.type="fan"}: $column(2)
+          hw.fan.speed: $4
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -744,12 +744,12 @@ monitors:
           selectColumns: "ID,3"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type = mono-instance
       type: multiInstance
@@ -769,22 +769,22 @@ monitors:
             # ID;PATROLStatus;Status;TemperatureReading;
           - type: translate
             column: 2
-            translationTable: FRUStatusTranslationTable
+            translationTable: "${translation::FRUStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # ID;PATROLStatus;statusInformation;TemperatureReading;
           - type: translate
             column: 3
-            translationTable: FRUStatusInformationTranslationTable
+            translationTable: "${translation::FRUStatusInformationTranslationTable}"
       mapping:
         # ValueTable = source(1)
         # ID;PATROLStatus;statusInformation;TemperatureReading;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(4)
-          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $4
+          hw.status{hw.type="temperature"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   led:
     discovery:
       sources:
@@ -798,7 +798,7 @@ monitors:
           # Duplicate the LED Table
           # ID;SensorName;
           type: copy
-          from: $monitors.led.discovery.sources.source(1)$
+          from: "${source::monitors.led.discovery.sources.source(1)}"
           computes:
             # Keep only sensors where ON is FAULTY
             # ID;SensorName;
@@ -814,7 +814,7 @@ monitors:
           # Duplicate the LED Table
           # ID;SensorName;
           type: copy
-          from: $monitors.led.discovery.sources.source(1)$
+          from: "${source::monitors.led.discovery.sources.source(1)}"
           computes:
             # Keep only sensors where ON is OK
             # ID;SensorName;
@@ -830,7 +830,7 @@ monitors:
           # Duplicate the LED Table
           # ID;SensorName;
           type: copy
-          from: $monitors.led.discovery.sources.source(1)$
+          from: "${source::monitors.led.discovery.sources.source(1)}"
           computes:
             # Keep only indicator sensors (Exclude sensors from 2 and 3)
             # ID;SensorName;
@@ -847,21 +847,21 @@ monitors:
           # ID;SensorName;On;Blinking;Off;
           type: tableUnion
           tables:
-          - $monitors.led.discovery.sources.source(2)$
-          - $monitors.led.discovery.sources.source(3)$
-          - $monitors.led.discovery.sources.source(4)$
+          - "${source::monitors.led.discovery.sources.source(2)}"
+          - "${source::monitors.led.discovery.sources.source(3)}"
+          - "${source::monitors.led.discovery.sources.source(4)}"
       mapping:
         # InstanceTable = Source(5)
         # ID;SensorName;On;Blinking;Off;
-        source: $monitors.led.discovery.sources.source(5)$
+        source: "${source::monitors.led.discovery.sources.source(5)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          __on_status: $column(3)
-          __blinking_status: $column(4)
-          __off_status: $column(5)
+          id: $1
+          __display_id: $2
+          __on_status: $3
+          __blinking_status: $4
+          __off_status: $5
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -870,7 +870,7 @@ monitors:
           # Do an SNMP get directly on the status
           # LedState
           type: snmpGet
-          oid: 1.3.6.1.4.1.42.2.2.6.1.1.8.3.1.1.4.$led.id$
+          oid: "1.3.6.1.4.1.42.2.2.6.1.1.8.3.1.1.4.${led::id}"
           computes:
             # Duplicate the LedState
             # LedState,LedState
@@ -880,19 +880,19 @@ monitors:
             # Status;LedState;
           - type: translate
             column: 1
-            translationTable: LEDStateTranslationTable
+            translationTable: "${translation::LEDStateTranslationTable}"
             # Translate the Second LedState to Status
             # Status;SatusInformation;
           - type: translate
             column: 2
-            translationTable: LEDStateInformationTranslationTable
+            translationTable: "${translation::LEDStateInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.led.collect.sources.source(1)$
+        source: "${source::monitors.led.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="led"}: legacyLedStatus($column(1))
+          hw.status{hw.type="led"}: legacyLedStatus($1)
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   logical_disk:
     discovery:
       sources:
@@ -907,25 +907,25 @@ monitors:
             # ID;Name;ControllerNumber;DiskCapacity;DiskUnits;RaidLevel;
           - type: translate
             column: 5
-            translationTable: DiskUnitsTranslationTable
+            translationTable: "${translation::DiskUnitsTranslationTable}"
             # Multiply the Capacity by the Units Multiplier
             # ID;Name;ControllerNumber;DiskCapacity;DiskUnits;RaidLevel;
           - type: multiply
             column: 4
-            value: Column(5)
+            value: $5
       mapping:
         # Instance Table
         # ID;Name;ControllerNumber;DiskCapacity;DiskUnits;RaidLevel;
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          raid_level: $column(6)
+          id: $1
+          __display_id: $2
+          raid_level: $6
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(3))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), bytes2HumanFormatBase2($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $3)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $6, bytes2HumanFormatBase2($4))}"
         metrics:
-          hw.logical_disk.limit: $column(4)
+          hw.logical_disk.limit: $4
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -934,7 +934,7 @@ monitors:
           # Do an SNMP get directly on the status
           # RaidStatus
           type: snmpGet
-          oid: 1.3.6.1.4.1.42.2.2.6.2.1.5.1.21.$logical_disk.id$
+          oid: "1.3.6.1.4.1.42.2.2.6.2.1.5.1.21.${logical_disk::id}"
           computes:
             # Duplicate the Status
             # RaidStatus,RaidStatus
@@ -944,19 +944,19 @@ monitors:
             # PATROLStatus;RaidStatus
           - type: translate
             column: 1
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
             # Translate the first Status code into a Status Information
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(1)
+          hw.status{hw.type="logical_disk"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
 translations:
   LEDStateInformationTranslationTable:
     "1": Unknown

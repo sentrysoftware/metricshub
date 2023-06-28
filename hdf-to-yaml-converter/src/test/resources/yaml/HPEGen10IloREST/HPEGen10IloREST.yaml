@@ -38,7 +38,7 @@ monitors:
         source(1):
           # Query /Systems/?/
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/Oem/Hpe/SmartStorageBattery
@@ -52,21 +52,21 @@ monitors:
       mapping:
         # Battery Instance Table
         # JSONid;ChassisID;SerialNumber;ElementName;Id;
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(5)
-          model: $column(6)
-          info: "join(\" \", $column(4), $column(7))"
+          id: $3
+          __display_id: $5
+          model: $6
+          info: "${awk::join(\" \", $4, $7)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(5), $column(6))"
+          name: "${awk::sprintf(\"%s (%s)\", $5, $6)}"
     collect:
       type: multiInstance
       sources:
         source(1):
           # Query /Chassis/?/
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract Data
             # JSONId;SerialNumber;Health;health;
@@ -75,20 +75,20 @@ monitors:
             properties: /Index;/Status/Health;/Status/Health;/ChargeLevelPercent;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Battery Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="battery"}: $column(3)
-          hw.battery.charge: percent2Ratio($column(5))
+          hw.status{hw.type="battery"}: $3
+          hw.battery.charge: percent2Ratio($5)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       sources:
@@ -98,9 +98,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$EthernetInterfaces/
+          url: $3EthernetInterfaces/
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -117,9 +117,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(1)$
+            source: "${source::monitors.network.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -130,7 +130,7 @@ monitors:
             properties: ../Column(2);/@odata.id;/null;/null;/null;/SpeedMbps;/MACAddress;/Name;
           - type: translate
             column: 7
-            translationTable: EthernetInterfacesLinkSpeedDeactivationTable
+            translationTable: "${translation::EthernetInterfacesLinkSpeedDeactivationTable}"
           # JSONID;ChassisID;EthernetID;Name;blank;blank;Speed;MAC;MACAddress;Name;
           - type: leftConcat
             column: 8
@@ -140,9 +140,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$NetworkAdapters/
+          url: $2NetworkAdapters/
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -160,9 +160,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(3)$
+            source: "${source::monitors.network.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -176,9 +176,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(4)$
+            source: "${source::monitors.network.discovery.sources.source(4)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -195,9 +195,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(5)$
+            source: "${source::monitors.network.discovery.sources.source(5)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -209,15 +209,15 @@ monitors:
             separator: ;
           - type: translate
             column: 7
-            translationTable: LinkSpeedDeactivationTranslationTable
+            translationTable: "${translation::LinkSpeedDeactivationTranslationTable}"
         source(7):
           # iLO 5
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$BaseNetworkAdapters/
+          url: $3BaseNetworkAdapters/
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -234,9 +234,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(7)$
+            source: "${source::monitors.network.discovery.sources.source(7)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -259,13 +259,13 @@ monitors:
             value: ' '
           - type: rightConcat
             column: 10
-            value: Column(3)
+            value: $3
         source(9):
           # Left   // JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;Type;WWPN;Name
           # Right  // JsonID;ChassisID;ID;Model;SerialNumber;Manufacturer;LinkSpeed;(FC/Eth);Address;Name;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(8)$
-          rightTable: $monitors.network.discovery.sources.source(6)$
+          leftTable: "${source::monitors.network.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(6)}"
           leftKeyColumn: 9
           rightKeyColumn: 9
           defaultRightLine: Something to eliminate duplicates
@@ -278,29 +278,29 @@ monitors:
             column: 5
           - type: replace
             column: 6
-            existingValue: Column(6)
-            newValue: Column(11)
+            existingValue: $6
+            newValue: $11
         source(10):
           # JSONID;ChassisID;ID;blank;blank;       blank;       Speed;          #    MAC;     Address;Name;
           # JsonID;ChassisID;ID;Model;SerialNumber;Manufacturer;CapableLinkSpeedMbps;(FC/Eth);Address;Name
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(9)$
-          - $monitors.network.discovery.sources.source(2)$
+          - "${source::monitors.network.discovery.sources.source(9)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
       mapping:
         # NetworkCard Instance Table
         # JsondId;<System>;Id;Manufacturer;Model;SerialNumber;LinkSpeed;Ethernet/FC;MACAddress/WWPN;
-        source: $monitors.network.discovery.sources.source(10)$
+        source: "${source::monitors.network.discovery.sources.source(10)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(10)
-          model: $column(4)
-          serial_number: $column(5)
-          vendor: $column(6)
-          physical_address_type: $column(8)
-          physical_address: $column(9)
+          id: $3
+          __display_id: $10
+          model: $4
+          serial_number: $5
+          vendor: $6
+          physical_address_type: $8
+          physical_address: $9
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(10), $column(6), $column(4))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $10, $6, $4)}"
     collect:
       # Collect
       # EthernetInterfaces
@@ -310,9 +310,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(1)$
+            source: "${source::monitors.network.discovery.sources.source(1)}"
             concatMethod: json_array
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -325,9 +325,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(5)$
+            source: "${source::monitors.network.discovery.sources.source(5)}"
             concatMethod: json_array
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -340,9 +340,9 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(7)$
+            source: "${source::monitors.network.discovery.sources.source(7)}"
             concatMethod: json_array
-          url: $entry.column(3)$
+          url: $3
           header: $embedded.EmbeddedFile(1)$
           resultContent: body
           computes:
@@ -353,30 +353,30 @@ monitors:
         source(4):
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(2)$
-          - $monitors.network.collect.sources.source(3)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(2)}"
+          - "${source::monitors.network.collect.sources.source(3)}"
           computes:
           - type: translate
             column: 3
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
           - type: translate
             column: 5
-            translationTable: NetworkCardStatusInformationTranslationTable
+            translationTable: "${translation::NetworkCardStatusInformationTranslationTable}"
       mapping:
         # NetworkCard Value Table
         # JSON/ID/NetworkCardStatus/LinkStatus/StatusInformation;Speed;
-        source: $monitors.network.collect.sources.source(4)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(4)}"
+        deviceId: $2
         metrics:
-          hw.network.up: legacyLinkStatus($column(3))
-          hw.status{hw.type="network"}: $column(4)
-          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.network.up: legacyLinkStatus($3)
+          hw.status{hw.type="network"}: $4
+          hw.network.bandwidth.limit: megaBit2Bit($6)
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   EthernetInterfacesLinkSpeedDeactivationTable:
     StandbyOffline: ""

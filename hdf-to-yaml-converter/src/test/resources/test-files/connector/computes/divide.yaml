@@ -17,7 +17,7 @@
                     DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
                   type: divide
                   column: 3
-                  value: "Column(2)"
+                  value: "$2"
 - name: collect
   input: |
     // Convert the 100th_s into minutes

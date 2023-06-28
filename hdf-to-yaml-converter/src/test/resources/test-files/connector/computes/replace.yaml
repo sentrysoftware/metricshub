@@ -41,7 +41,7 @@
                   type: replace
                   column: 3
                   existingValue: "_MSHW__MSHW_"
-                  newValue: Column(5)
+                  newValue: $5
 - name: collect
   input: |
     // Remove Status Information of "ok"

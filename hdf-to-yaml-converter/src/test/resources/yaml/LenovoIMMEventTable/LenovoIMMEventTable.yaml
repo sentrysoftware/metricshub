@@ -45,20 +45,20 @@ monitors:
           # Union 1 and 2
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(1)$
-          - $monitors.other_device.discovery.sources.source(2)$
+          - "${source::monitors.other_device.discovery.sources.source(1)}"
+          - "${source::monitors.other_device.discovery.sources.source(2)}"
           computes:
             # Process the log file through an awk script
             # MSHW;ID;Status;StatusInformation;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # The Instance Table
-        source: $monitors.other_device.discovery.sources.source(3)$
+        source: "${source::monitors.other_device.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
+          id: $2
           __display_id: EventLog (Hourly Collect)
           hw.parent.type: enclosure
           name: EventLog (Hourly Collect)
@@ -67,13 +67,13 @@ monitors:
         source(1):
           # Copy the Discovery
           type: copy
-          from: $monitors.other_device.discovery.sources.source(3)$
+          from: "${source::monitors.other_device.discovery.sources.source(3)}"
       mapping:
         # ValueTable = Source(1)
         # MSHW;ID;Status;StatusInformation;
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="other_device"}: $column(3)
+          hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4

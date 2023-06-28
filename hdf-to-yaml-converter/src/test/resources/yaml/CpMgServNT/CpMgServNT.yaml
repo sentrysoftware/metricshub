@@ -70,8 +70,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;
@@ -104,7 +104,7 @@ monitors:
             # Awk the results to get an overall consumed
             # ServerID;Supported;Status;CurrentReading;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -118,29 +118,29 @@ monitors:
           # ServerID;Supported;Status;CurrentReading;
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(4)$
-          - $monitors.enclosure.discovery.sources.source(5)$
+          - "${source::monitors.enclosure.discovery.sources.source(4)}"
+          - "${source::monitors.enclosure.discovery.sources.source(5)}"
         source(7):
           # Source(5) = Table joint between Source(3) and Source(6)
           # ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;ServerID;Supported;Status;CurrentReading;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(6)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(6)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;
       mapping:
         # InstanceTable = Source(5)
         # ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;ServerID;Supported;Status;CurrentReading;
-        source: $monitors.enclosure.discovery.sources.source(7)$
+        source: "${source::monitors.enclosure.discovery.sources.source(7)}"
         attributes:
-          id: $column(1)
+          id: $1
           vendor: HP
-          model: $column(2)
+          model: $2
           type: Computer
-          serial_number: $column(6)
-          info: "join(\" \", $column(5), $column(4))"
-          name: "sprintf(\"Computer: (%s %s)\", \"HP\", $column(2))"
+          serial_number: $6
+          info: "${awk::join(\" \", $5, $4)}"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", \"HP\", $2)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -168,7 +168,7 @@ monitors:
             # Awk the results to get an overall consumed
             # ServerID;CurrentReading;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5"
@@ -177,26 +177,26 @@ monitors:
           # ID;CurrentReading;
           type: tableUnion
           tables:
-          - $monitors.enclosure.collect.sources.source(2)$
-          - $monitors.enclosure.collect.sources.source(3)$
+          - "${source::monitors.enclosure.collect.sources.source(2)}"
+          - "${source::monitors.enclosure.collect.sources.source(3)}"
         source(5):
           # Source(3) = Table joint between Source(1) and Source(4)
           # This is because the PowerMeter Table does not exist in early versions of the HP agent, so we collect a list of IDs from the main table to avoid "no collect value errors"
           # ID;ID;CurrentReading;
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # ValueTable = Source(1)
         # ID;ID;CurrentReading;
-        source: $monitors.enclosure.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.enclosure.power: $column(3)
-          hw.enclosure.energy: fakeCounter($column(3))
+          hw.enclosure.power: $3
+          hw.enclosure.energy: fakeCounter($3)
   cpu:
     discovery:
       sources:
@@ -217,7 +217,7 @@ monitors:
             # ID;Name;Speed;VendorName;SocketNumber;
           - type: translate
             column: 4
-            translationTable: vendorTranslationTable
+            translationTable: "${translation::vendorTranslationTable}"
             # Replace "IPF" by "Itanium" in the model string
             # ID;Name;Speed;VendorName;SocketNumber;
           - type: replace
@@ -253,16 +253,16 @@ monitors:
             newValue: ""
       mapping:
         # Instance Table
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(2)
-          vendor: $column(4)
-          info: $column(5)
+          id: $1
+          model: $2
+          vendor: $4
+          info: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(4), $column(2), megaHertz2HumanFormat($column(3)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $1, $4, $2, megaHertz2HumanFormat($3))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($3)
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -282,27 +282,27 @@ monitors:
             # ID;Speed;PATROLStatus;Status;PredictsFailure
           - type: translate
             column: 3
-            translationTable: cpuStatusTranslationTable
+            translationTable: "${translation::cpuStatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;Speed;PATROLStatus;StatusInformation;PredictsFailure
           - type: translate
             column: 4
-            translationTable: cpuStatusInformationTranslationTable
+            translationTable: "${translation::cpuStatusInformationTranslationTable}"
             # Translate the PredictsFailure code into 0 = OK or 1 = bad
             # ID;Speed;PATROLStatus;StatusInformation;PredictsFailure
           - type: translate
             column: 5
-            translationTable: cpuPredictedFailureTranslationTable
+            translationTable: "${translation::cpuPredictedFailureTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.cpu.speed: megaHertz2Hertz($column(2))
-          hw.status{hw.type="cpu"}: $column(3)
-          hw.status{hw.type="cpu", state="predicted_failure"}: boolean($column(5))
+          hw.cpu.speed: megaHertz2Hertz($2)
+          hw.status{hw.type="cpu"}: $3
+          hw.status{hw.type="cpu", state="predicted_failure"}: boolean($5)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   temperature:
     discovery:
       sources:
@@ -333,7 +333,7 @@ monitors:
             # Translate the SensorLocationCode to a more human-readable string
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
           - type: translate
-            translationTable: TemperatureTypeTranslationTable
+            translationTable: "${translation::TemperatureTypeTranslationTable}"
             column: 2
             # Adding MSHW to catch invalid thresholds..
             # Using a trick method to only remove leading zeros
@@ -349,7 +349,7 @@ monitors:
           # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           # Copy the table
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
             # Keep only caution's threshold's type
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
@@ -380,7 +380,7 @@ monitors:
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
           - type: replace
             column: 7
-            existingValue: Column(7)
+            existingValue: $7
             newValue: ""
         source(3):
           # ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -389,7 +389,7 @@ monitors:
           # ////////////////////////////////////////////////////////////////////////////////////////////////////
           # Copy the table
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
             # Keep only alarms thresholdtype
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
@@ -420,7 +420,7 @@ monitors:
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
           - type: replace
             column: 7
-            existingValue: Column(7)
+            existingValue: $7
             newValue: ""
         source(4):
           # ////////////////////////////////////////////////////////////////////////////////////
@@ -428,7 +428,7 @@ monitors:
           # ///////////////////////////////////////////////////////////////////////////////////
           # Copy the table
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
             # Exclude caution/critical threshold's type
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
@@ -439,7 +439,7 @@ monitors:
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
           - type: replace
             column: 4
-            existingValue: column(4)
+            existingValue: $4
             newValue: ""
             # Adding another threshold column to make the difference between warnthreshold and alarm threhsold
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
@@ -451,7 +451,7 @@ monitors:
           # ///////////////////////////////////////////////////////////////////////////////////////
           # Copy the table
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
             # Exclude caution/critical threshold's type
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
@@ -467,7 +467,7 @@ monitors:
             # ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
           - type: replace
             column: 4
-            existingValue: column(4)
+            existingValue: $4
             newValue: ""
             # Adding another threshold column to make the difference between warnthreshold and alarm threhsold
             # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
@@ -477,22 +477,22 @@ monitors:
           # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(2)$
-          - $monitors.temperature.discovery.sources.source(3)$
-          - $monitors.temperature.discovery.sources.source(4)$
-          - $monitors.temperature.discovery.sources.source(5)$
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
+          - "${source::monitors.temperature.discovery.sources.source(3)}"
+          - "${source::monitors.temperature.discovery.sources.source(4)}"
+          - "${source::monitors.temperature.discovery.sources.source(5)}"
       mapping:
         # InstanceTable = Source(6)
         # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
-        source: $monitors.temperature.discovery.sources.source(6)$
+        source: "${source::monitors.temperature.discovery.sources.source(6)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
-          hw.temperature.limit{limit_type="high.critical"}: $column(5)
+          hw.temperature.limit{limit_type="high.degraded"}: $4
+          hw.temperature.limit{limit_type="high.critical"}: $5
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -512,21 +512,21 @@ monitors:
             # ID;Temperature;PATROLStatus;Condition;
           - type: translate
             column: 3
-            translationTable: TemperatureStatusTranslationTable
+            translationTable: "${translation::TemperatureStatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;Temperature;PATROLStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: TemperatureStatusInformationTranslationTable
+            translationTable: "${translation::TemperatureStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
-          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $2
+          hw.status{hw.type="temperature"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
@@ -546,15 +546,15 @@ monitors:
             # ID;Location;Present
           - type: translate
             column: 2
-            translationTable: FanTypeTranslationTable
+            translationTable: "${translation::FanTypeTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -563,7 +563,7 @@ monitors:
           # Do an SNMP get directly on the status
           # StatusCode
           type: snmpGet
-          oid: 1.3.6.1.4.1.232.6.2.6.7.1.9.$fan.id$
+          oid: "1.3.6.1.4.1.232.6.2.6.7.1.9.${fan::id}"
           computes:
             # Duplicate the StatusCode column
             # StatusCode;StatusCode;
@@ -573,19 +573,19 @@ monitors:
             # PATROLStatus;StatusCode;
           - type: translate
             column: 1
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
             # Translate second STatusCode into a more readable string
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: FanStatusInformationTranslationTable
+            translationTable: "${translation::FanStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
+        source: "${source::monitors.fan.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="fan"}: $column(1)
+          hw.status{hw.type="fan"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   power_supply:
     discovery:
       sources:
@@ -618,14 +618,14 @@ monitors:
             value: "SerialNumber: "
       mapping:
         # InstanceTable...
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          info: "join(\" \", $column(5), $column(7), $column(6))"
+          id: $1
+          info: "${awk::join(\" \", $5, $7, $6)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s W)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s W)\", $1, $4)}"
         metrics:
-          hw.power_supply.limit: $column(4)
+          hw.power_supply.limit: $4
     collect:
       # Source(1) = cpqHeFltTolPowerSupplyTable SNMP table
       # DeviceID;Status;CapacityUsed;condition
@@ -644,29 +644,29 @@ monitors:
             # DeviceID;PATROLStatus;Status;CapacityUsed;condition
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate Status into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
           - type: translate
             column: 3
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
             # Translate Status into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
           - type: translate
             column: 5
-            translationTable: PowerSupplyConditionTranslationTable
+            translationTable: "${translation::PowerSupplyConditionTranslationTable}"
             # now take the worst case between condition and status
             # DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
       mapping:
         # ValueTable
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   TemperatureStatusTranslationTable:
     "2": ok

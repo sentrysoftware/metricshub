@@ -25,14 +25,14 @@ monitors:
           selectColumns: "1,2"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: STKStreamLine
           vendor: StorageTek
-          model: $column(1)
-          serial_number: $column(2)
+          model: $1
+          serial_number: $2
           type: Storage
-          name: "sprintf(\"Storage: (%s %s)\", \"StorageTek\", $column(1))"
+          name: "${awk::sprintf(\"Storage: (%s %s)\", \"StorageTek\", $1)}"
     collect:
       # Collect
       type: monoInstance
@@ -51,19 +51,19 @@ monitors:
             # PATROLStatus;slTapeLibraryTopLevelCondition
           - type: translate
             column: 1
-            translationTable: LibraryStatusTranslationTable
+            translationTable: "${translation::LibraryStatusTranslationTable}"
             # Translate the second slTapeLibraryTopLevelCondition into a PATROL status
             # PATROLStatus;statusInformation
           - type: translate
             column: 2
-            translationTable: LibraryStatusInformationTranslationTable
+            translationTable: "${translation::LibraryStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="enclosure"}: $column(1)
+          hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   tape_drive:
     discovery:
       sources:
@@ -85,16 +85,16 @@ monitors:
             value: "Fibre Node: "
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.tape_drive.discovery.sources.source(1)$
+        source: "${source::monitors.tape_drive.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(3)
-          vendor: $column(4)
-          serial_number: $column(5)
-          info: "join(\" \", $column(2), $column(7), $column(6))"
+          id: $1
+          model: $3
+          vendor: $4
+          serial_number: $5
+          info: "${awk::join(\" \", $2, $7, $6)}"
           hw.parent.type: enclosure
           hw.parent.id: STKStreamLine
-          name: "sprintf(\"%s (%s %s)\", $column(1), $column(4), $column(3))"
+          name: "${awk::sprintf(\"%s (%s %s)\", $1, $4, $3)}"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -114,21 +114,21 @@ monitors:
             # ID;PATROLStatus;slDriveStateEnum;MountCount
           - type: translate
             column: 2
-            translationTable: DriveStatusTranslationTable
+            translationTable: "${translation::DriveStatusTranslationTable}"
             # Translate the second slDriveStateEnum into a StatusInformation
             # ID;PATROLStatus;StatusInformation;MountCount
           - type: translate
             column: 3
-            translationTable: DriveStatusInformationTranslationTable
+            translationTable: "${translation::DriveStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.tape_drive.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.tape_drive.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="tape_drive"}: $column(2)
-          hw.tape_drive.operations{type="mount"}: $column(4)
+          hw.status{hw.type="tape_drive"}: $2
+          hw.tape_drive.operations{type="mount"}: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   robotics:
     discovery:
       sources:
@@ -164,14 +164,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ElementID;Position;SerialNumber;FirmwareVersion;
-        source: $monitors.robotics.discovery.sources.source(1)$
+        source: "${source::monitors.robotics.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          serial_number: $column(3)
-          info: "join(\" \", $column(2), $column(4))"
+          id: $1
+          serial_number: $3
+          info: "${awk::join(\" \", $2, $4)}"
           hw.parent.type: enclosure
           hw.parent.id: STKStreamLine
-          name: $column(1)
+          name: $1
     collect:
       # Collect
       # Collect-type = mono-instance
@@ -192,21 +192,21 @@ monitors:
             # ElementID;PatrolStatus;Status;
           - type: translate
             column: 2
-            translationTable: RoboticStatusTranslationTable
+            translationTable: "${translation::RoboticStatusTranslationTable}"
             # Translate the second slTapeLibraryTopLevelCondition into a PATROL status
             # ElementID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: RoboticStatusInformationTranslationTable
+            translationTable: "${translation::RoboticStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ElementID;PatrolStatus;StatusInformation;
-        source: $monitors.robotics.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.robotics.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="robotics"}: $column(2)
+          hw.status{hw.type="robotics"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   DriveStatusInformationTranslationTable:
     "0": Unknown

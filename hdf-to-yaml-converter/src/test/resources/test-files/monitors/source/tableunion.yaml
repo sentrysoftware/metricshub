@@ -19,10 +19,10 @@
                 ID;Location;TempUpper;
               type: tableUnion
               tables:
-              - $monitors.temperature.discovery.sources.source(3)$
-              - $monitors.temperature.discovery.sources.source(4)$
-              - $monitors.temperature.discovery.sources.source(5)$
-              - $monitors.temperature.discovery.sources.source(6)$
+              - ${source::monitors.temperature.discovery.sources.source(3)}
+              - ${source::monitors.temperature.discovery.sources.source(4)}
+              - ${source::monitors.temperature.discovery.sources.source(5)}
+              - ${source::monitors.temperature.discovery.sources.source(6)}
 
 - name: collect
   input: |
@@ -43,6 +43,6 @@
                 ID;Percent;Speed;Units;State;
               type: tableUnion
               tables:
-              - $monitors.fan.collect.sources.source(2)$
-              - $monitors.fan.collect.sources.source(3)$
+              - ${source::monitors.fan.collect.sources.source(2)}
+              - ${source::monitors.fan.collect.sources.source(3)}
               forceSerialization: true

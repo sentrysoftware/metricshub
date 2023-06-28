@@ -25,26 +25,26 @@ monitors:
         source(1):
           # Get the list of Ports and attributes from EF1
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           computes:
             # AWK it
             # LUNID;ArrayName;NAAID;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
       mapping:
         # InstanceTable = Source(1)
         # LUNID;ArrayName;NAAID;
-        source: $monitors.lun.discovery.sources.source(1)$
+        source: "${source::monitors.lun.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          array_name: $column(2)
-          local_device_name: $column(1)
+          id: $3
+          __display_id: $3
+          array_name: $2
+          local_device_name: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $1)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -57,7 +57,7 @@ monitors:
             # AWK it
             # LUNID;OperationalPathCount;PathCountInformation;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -65,16 +65,16 @@ monitors:
           # Join the collect with the discovery to get the NAAID
           # LUNID;OperationalPathCount;PathCountInformation;
           type: tableJoin
-          leftTable: $monitors.lun.collect.sources.source(1)$
-          rightTable: $monitors.lun.discovery.sources.source(1)$
+          leftTable: "${source::monitors.lun.collect.sources.source(1)}"
+          rightTable: "${source::monitors.lun.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # ValueTable = Source(2)
         # LUNID;OperationalPathCount;PathCountInformation;LUNID;ArrayName;NAAID;
-        source: $monitors.lun.collect.sources.source(2)$
-        deviceId: $column(6)
+        source: "${source::monitors.lun.collect.sources.source(2)}"
+        deviceId: $6
         metrics:
-          hw.lun.paths: $column(2)
+          hw.lun.paths: $2
         legacyTextParameters:
-          AvailablePathInformation: $column(3)
+          AvailablePathInformation: $3

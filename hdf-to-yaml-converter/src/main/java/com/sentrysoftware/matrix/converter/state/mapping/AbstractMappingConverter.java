@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public abstract class AbstractMappingConverter implements IMappingConverter {
 
-	protected static final Pattern COLUMN_PATTERN = Pattern.compile("^\\$column\\(\\d+\\)$");
+	protected static final Pattern COLUMN_PATTERN = Pattern.compile("^\\$\\d+$");
 
 	/**
 	 * Get one to one attributes mapping
@@ -193,7 +193,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 				.stream()
 				.map(JsonNode::asText)
 				.map(this::getFunctionArgument)
-				.collect(Collectors.joining(", ", "join(\" \", ", ")"));
+				.collect(Collectors.joining(", ", "${awk::join(\" \", ", ")}"));
 
 			info = new TextNode(function); 
 		} else {
@@ -205,7 +205,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * The value is concatenated with the opening and closing quotation marks in
-	 * case it doesn't match $column(\d+) pattern
+	 * case it doesn't match $\d+ pattern
 	 * 
 	 * @param value to update
 	 * @return String value
@@ -213,7 +213,6 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	protected String getFunctionArgument(final String value) {
 		return COLUMN_PATTERN.matcher(value).matches() ? value : String.format("\"%s\"", value);
 	}
-
 
 	/**
 	 * Get or create the sub node under the given mapping node

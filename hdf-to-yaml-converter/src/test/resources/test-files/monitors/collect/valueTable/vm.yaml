@@ -12,10 +12,10 @@
         collect:
           mapping:
             _comment: DeviceID;Status;PowerShare;Power
-            deviceId: $column(1)
-            source: $monitors.vm.collect.sources.source(1)$
+            deviceId: $1
+            source: ${source::monitors.vm.collect.sources.source(1)}
             metrics:
-              hw.vm.power_state: $column(2)
-              hw.vm.power_ratio: computePowerShareRatio($column(3))
-              hw.power{hw.type="vm"}: $column(4)
-              hw.energy{hw.type="vm"}: fakeCounter($column(4))
+              hw.vm.power_state: $2
+              hw.vm.power_ratio: computePowerShareRatio($3)
+              hw.power{hw.type="vm"}: $4
+              hw.energy{hw.type="vm"}: fakeCounter($4)

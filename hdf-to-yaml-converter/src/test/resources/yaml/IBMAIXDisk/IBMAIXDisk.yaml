@@ -66,20 +66,20 @@ monitors:
           # with disks attached to them
           # adapterDevicePath;DeviceID;HardwareLocationCode;displayName;controllerDevicePath
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(2)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(1)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # InstanceTable = Source(5)
-        source: $monitors.disk_controller.discovery.sources.source(3)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          controller_number: $column(5)
-          model: $column(4)
-          info: $column(3)
+          id: $2
+          controller_number: $5
+          model: $4
+          info: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(5), $column(4))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $5, $4)}"
     collect:
       # Collect type is "mono-instance
       type: monoInstance
@@ -88,7 +88,7 @@ monitors:
           # Source(1) = output of the pvdisplay command
           # ErrorCount;LastError;
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-4")$ $disk_controller.id$
+          commandLine: "/bin/sh ${file::embeddedFile-4} ${disk_controller::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"
@@ -97,14 +97,14 @@ monitors:
             # ErrorCount;LastError;
           - type: translate
             column: 1
-            translationTable: ErrorcounttoStatusTranslationTable
+            translationTable: "${translation::ErrorcounttoStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.disk_controller.collect.sources.source(1)$
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(1)
+          hw.status{hw.type="disk_controller"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   physical_disk:
     discovery:
       sources:
@@ -132,7 +132,7 @@ monitors:
           # Source(2) = output of EmbeddedFile(1)
           # DeviceID;Manufacturer;SerialNumber
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4"
@@ -141,8 +141,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;controllerID;HardwareLocationCode;DeviceID;Manufacturer;SerialNumber
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;
@@ -150,7 +150,7 @@ monitors:
           # Source(4) = output of EmbeddedFile(2)
           # DeviceID;SizeMB
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-2")$
+          commandLine: "/bin/sh ${file::embeddedFile-2}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3"
@@ -165,8 +165,8 @@ monitors:
           # Source(5) = Table joint of Source(3) and Source(4)
           # DeviceID;controllerID;HardwareLocationCode;DeviceID;Manufacturer;SerialNumber;DeviceID;Size
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(3)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(4)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -175,25 +175,25 @@ monitors:
           # To keep only disks that have an existing disk controller
           # DeviceID;controllerID;HardwareLocationCode;DeviceID;Manufacturer;SerialNumber;DeviceID;Size;controllerDevicePath;adapterDevicePath;DeviceID;ControllerHardwareLocationCode;displayName
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(5)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(3)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
         # Now we are ready to go
         # InstanceTable = Source(5)
-        source: $monitors.physical_disk.discovery.sources.source(6)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(6)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          vendor: $column(5)
-          serial_number: $column(6)
-          info: $column(3)
+          id: $1
+          __display_id: $1
+          vendor: $5
+          serial_number: $6
+          info: $3
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), bytes2HumanFormatBase10($column(8)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $5, bytes2HumanFormatBase10($8))}"
         metrics:
-          hw.physical_disk.size: $column(8)
+          hw.physical_disk.size: $8
     collect:
       # Collect type is "mono-instance
       type: monoInstance
@@ -202,17 +202,17 @@ monitors:
           # Source(1) = output of the pvdisplay command
           # Status;StatusInformation;ErrorCount;LastError
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-3")$ $physical_disk.id$
+          commandLine: "/bin/sh ${file::embeddedFile-3} ${physical_disk::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(1)
+          hw.status{hw.type="physical_disk"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
 translations:
   ErrorcounttoStatusTranslationTable:
     "0": ok

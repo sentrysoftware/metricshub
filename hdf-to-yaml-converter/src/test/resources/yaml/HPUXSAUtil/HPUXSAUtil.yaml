@@ -23,7 +23,7 @@ connector:
       errorMessage: The Smart Array RAID Controller Utility is not present on this system.
     # We should find disks attached to one controller
     - type: osCommand
-      commandLine: /bin/sh $file("embeddedFile-1")$
+      commandLine: "/bin/sh ${file::embeddedFile-1}"
       expectedResult: "[GgTtMm][Bb]"
       forceSerialization: true
       errorMessage: "There are not enough rights to execute the sautil utility, or no disks are listed."
@@ -38,18 +38,18 @@ monitors:
           # /opt/raidsa/bin/sautil /dev/cissx -s output
           # DeviceFile;
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           forceSerialization: true
         source(2):
           # Source(2) = Copy of source(1)
           # DeviceFile;
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
             # Run Source(1) through an AWK script
             # MSHW;Controller;Model;SerialNumber;DeviceID;Firmware
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6"
@@ -57,12 +57,12 @@ monitors:
           # Source(3) = Copy of source(1)
           # DeviceFile;
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
             # Reformat Source(2) output to create a dependency table to link controllers to disks to arrays
             # MSHW;Controller;Location;DeviceID;Size;Status;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -72,21 +72,21 @@ monitors:
           # (3) Controller;Location;DeviceID;Size;Status;
           # (4) Controller;Model;SerialNumber;DeviceID;Firmware;Controller;Location;DeviceID;Size;Status;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(2)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(3)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # InstanceTable = Source(4)
         # Controller;Model;SerialNumber;DeviceID;Firmware;Controller;Location;DeviceID;Size;Status;
-        source: $monitors.disk_controller.discovery.sources.source(4)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(4)}"
         attributes:
-          id: $column(4)
-          controller_number: $column(1)
-          model: $column(2)
-          firmware_version: $column(5)
+          id: $4
+          controller_number: $1
+          model: $2
+          firmware_version: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
   physical_disk:
     discovery:
       sources:
@@ -94,13 +94,13 @@ monitors:
           # Source(1) %DiskController.Discovery.Source(1)
           # DeviceFile;
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
             # Reformat Source(1) output via EmbeddedFile(3)
             # Contains the list of all External and Internal Physical Disks in the system
             # MSHW;Controller;Location;DeviceID;Size;Status;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -115,15 +115,15 @@ monitors:
       mapping:
         # The InstanceTable
         # Controller;Location;DeviceID;SizeBytes
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          info: $column(2)
+          id: $3
+          info: $2
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase10($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s)\", $3, bytes2HumanFormatBase10($4))}"
         metrics:
-          hw.physical_disk.size: $column(4)
+          hw.physical_disk.size: $4
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -132,14 +132,14 @@ monitors:
           # Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
           # DeviceFile;
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           forceSerialization: true
           computes:
             # Reformat Source(1) = List all Internal Physical Disks in the system and their status
             # The status can be either OK, FAILED, SPARE or UNASSIGNED.
             # MSHW;Controller;Location;DeviceID;Size;Status;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "4,6"
@@ -151,34 +151,34 @@ monitors:
             # DeviceID;PatrolStatus;Status;
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
             # Translate the second status column into a Status Information
             # DeviceID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = source(1)
         #  DeviceID;PatrolStatus;StatusInformation;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
         source(1):
-          # Source(1) = $monitors.disk_controller.discovery.sources.source(1)$
+          # Source(1) = ${source::monitors.disk_controller.discovery.sources.source(1)}
           # DeviceFile;
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
             # Reformat Source(1) = Builds logical drives Table
             # MSHW;controller;deviceID;raidlevel;size;status;location;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,7"
@@ -193,16 +193,16 @@ monitors:
       mapping:
         # The InstanceTable
         # controller;deviceID;raidlevel;sizebytes;location;
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          raid_level: $column(3)
-          info: $column(5)
+          id: $2
+          raid_level: $3
+          info: $5
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), bytes2HumanFormatBase2($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $3, bytes2HumanFormatBase2($4))}"
         metrics:
-          hw.logical_disk.limit: $column(4)
+          hw.logical_disk.limit: $4
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -210,14 +210,14 @@ monitors:
         source(1):
           # Collect type = Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           forceSerialization: true
           computes:
             # Reformat Source(1) = List all logical drives and their status
             # The status can be either OK, FAILED, SPARE or UNASSIGNED.
             # MSHW;controller;deviceID;raidlevel;size;status;location;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,6"
@@ -229,31 +229,31 @@ monitors:
             # deviceID;Patrolstatus;status
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
             # Translate the first status column into a PATROL status
             # deviceID;Patrolstatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = source(1)
         # deviceID;Patrolstatus;StatusInformation
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   battery:
     discovery:
       sources:
         source(1):
           # Source(1) = Disk Controller Source (1)
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -263,13 +263,13 @@ monitors:
       mapping:
         # The discovery table
         # controllerdeviceID;deviceID;location;
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          info: $column(3)
+          id: $2
+          info: $3
           hw.parent.type: disk_controller
-          hw.parent.id: $column(1)
-          name: $column(2)
+          hw.parent.id: $1
+          name: $2
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -278,13 +278,13 @@ monitors:
           # Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
           # DeviceFile;
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           forceSerialization: true
           computes:
             # Process sautil output through awk embeddedfile(5)
             # MSHW;controllerdeviceID;deviceID;location;status;
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,5"
@@ -296,21 +296,21 @@ monitors:
             # DeviceID;PatrolStatus;Status;
           - type: translate
             column: 2
-            translationTable: BatteryStatusTranslationTable
+            translationTable: "${translation::BatteryStatusTranslationTable}"
             # Translate the second status column into a Status Information
             # DeviceID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: BatteryStatusInformationTranslationTable
+            translationTable: "${translation::BatteryStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = source(1)
         #  DeviceID;PatrolStatus;StatusInformation;
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(2)
+          hw.status{hw.type="battery"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   BatteryStatusInformationTranslationTable:
     FAILED: Failed

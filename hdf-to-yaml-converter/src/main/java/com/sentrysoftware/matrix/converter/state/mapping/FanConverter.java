@@ -26,6 +26,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SENSOR_LOCATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,9 +86,11 @@ public class FanConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(
-					displayId != null ? displayId : deviceId,
-					existingAttributes.get(HDF_FAN_TYPE)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(
+						displayId != null ? displayId : deviceId,
+						existingAttributes.get(HDF_FAN_TYPE)
+					)
 				)
 			)
 		);

@@ -75,7 +75,7 @@ monitors:
             # ID;CurrentReading
           - type: replace
             column: 1
-            existingValue: Column(1)
+            existingValue: $1
             newValue: HPWBEM
             # Exclude sensors with currentreading of 0
             # ID;CurrentReading
@@ -99,7 +99,7 @@ monitors:
             # ID;CurrentReading
           - type: replace
             column: 1
-            existingValue: Column(1)
+            existingValue: $1
             newValue: HPWBEM
             # Exclude sensors with currentreading of 0
             # ID;CurrentReading
@@ -112,14 +112,14 @@ monitors:
           # ID;CurrentReading
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(3)$
-          - $monitors.enclosure.discovery.sources.source(2)$
+          - "${source::monitors.enclosure.discovery.sources.source(3)}"
+          - "${source::monitors.enclosure.discovery.sources.source(2)}"
         source(5):
           # Join the computer system instance with the first power consumption available (if any)
           # ID;Model;SerialNumber;ID;CurrentReading;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -127,15 +127,15 @@ monitors:
         # InstanceTable = Source(1)
         # Note: InstanceTable must contain only one line! so DeviceID is hard coded
         # ID;Model;SerialNumber;ID;CurrentReading;
-        source: $monitors.enclosure.discovery.sources.source(5)$
+        source: "${source::monitors.enclosure.discovery.sources.source(5)}"
         attributes:
           id: HPWBEM
           __display_id: HPWBEM
           vendor: HP
-          model: $column(2)
-          serial_number: $column(3)
+          model: $2
+          serial_number: $3
           type: Computer
-          name: "sprintf(\"Computer: %s (%s %s)\", \"HPWBEM\", \"HP\", $column(2))"
+          name: "${awk::sprintf(\"Computer: %s (%s %s)\", \"HPWBEM\", \"HP\", $2)}"
     collect:
       type: multiInstance
       sources:
@@ -167,7 +167,7 @@ monitors:
             # ID;CurrentReading
           - type: replace
             column: 1
-            existingValue: Column(1)
+            existingValue: $1
             newValue: HPWBEM
             # Exclude sensors with currentreading of 0
             # ID;CurrentReading
@@ -191,7 +191,7 @@ monitors:
             # ID;CurrentReading
           - type: replace
             column: 1
-            existingValue: Column(1)
+            existingValue: $1
             newValue: HPWBEM
             # Exclude sensors with currentreading of 0
             # ID;CurrentReading
@@ -204,25 +204,25 @@ monitors:
           # ID;CurrentReading
           type: tableUnion
           tables:
-          - $monitors.enclosure.collect.sources.source(3)$
-          - $monitors.enclosure.collect.sources.source(2)$
+          - "${source::monitors.enclosure.collect.sources.source(3)}"
+          - "${source::monitors.enclosure.collect.sources.source(2)}"
         source(5):
           # Join the computer system instance with the first power consumption available (if any)
           # ID;Model;SerialNumber;ID;CurrentReading;
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # Instance Table
         # ID;Model;SerialNumber;ID;CurrentReading;
-        source: $monitors.enclosure.collect.sources.source(5)$
+        source: "${source::monitors.enclosure.collect.sources.source(5)}"
         deviceId: HPWBEM
         metrics:
-          hw.enclosure.power: $column(5)
-          hw.enclosure.energy: fakeCounter($column(5))
+          hw.enclosure.power: $5
+          hw.enclosure.energy: fakeCounter($5)
   cpu:
     discovery:
       sources:
@@ -239,24 +239,24 @@ monitors:
           # Translate the Family number into a vendor
           - type: translate
             column: 3
-            translationTable: cpuVendorTranslationTable
+            translationTable: "${translation::cpuVendorTranslationTable}"
           # Translate the Family number into a model name
           - type: translate
             column: 4
-            translationTable: cpuFamilyTranslationTable
+            translationTable: "${translation::cpuFamilyTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          model: $column(4)
-          vendor: $column(3)
+          id: $2
+          __display_id: $2
+          model: $4
+          vendor: $3
           hw.parent.type: enclosure
           hw.parent.id: HPWBEM
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), $column(3), $column(4), megaHertz2HumanFormat($column(1)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $2, $3, $4, megaHertz2HumanFormat($1))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($1)
     collect:
       type: multiInstance
       sources:
@@ -270,18 +270,18 @@ monitors:
             column: 3
           - type: translate
             column: 3
-            translationTable: genStatusTranslationTable
+            translationTable: "${translation::genStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: genStatusInformationTranslationTable
+            translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.cpu.speed: megaHertz2Hertz($column(1))
-          hw.status{hw.type="cpu"}: $column(3)
+          hw.cpu.speed: megaHertz2Hertz($1)
+          hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   memory:
     discovery:
       sources:
@@ -298,20 +298,20 @@ monitors:
           # Translate memory type
           - type: translate
             column: 2
-            translationTable: memoryTypeTranslationTable
+            translationTable: "${translation::memoryTypeTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          serial_number: $column(4)
-          type: $column(2)
+          id: $3
+          __display_id: $3
+          serial_number: $4
+          type: $2
           hw.parent.type: enclosure
           hw.parent.id: HPWBEM
-          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(2), $column(1))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $3, $2, $1)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(1))
+          hw.memory.limit: mebiByte2Byte($1)
     collect:
       type: multiInstance
       sources:
@@ -325,17 +325,17 @@ monitors:
             column: 1
           - type: translate
             column: 1
-            translationTable: genStatusTranslationTable
+            translationTable: "${translation::genStatusTranslationTable}"
           - type: translate
             column: 2
-            translationTable: genStatusInformationTranslationTable
+            translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="memory"}: $column(1)
+          hw.status{hw.type="memory"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   fan:
     discovery:
       sources:
@@ -348,7 +348,7 @@ monitors:
           # Translate fan type
           - type: translate
             column: 2
-            translationTable: fanTypeTranslationTable
+            translationTable: "${translation::fanTypeTranslationTable}"
             # Duplicate the Caption
             # DeviceID,FanType,Caption,Caption
           - type: duplicateColumn
@@ -366,17 +366,17 @@ monitors:
           # Remove part 1 from the main caption
           - type: replace
             column: 3
-            existingValue: Column(4)
+            existingValue: $4
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          sensor_location: $column(2)
+          id: $1
+          __display_id: $3
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $3, $2)}"
     collect:
       type: multiInstance
       sources:
@@ -390,17 +390,17 @@ monitors:
             column: 2
           - type: translate
             column: 2
-            translationTable: genStatusTranslationTable
+            translationTable: "${translation::genStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: genStatusInformationTranslationTable
+            translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -413,7 +413,7 @@ monitors:
           # Translate power supply type
           - type: translate
             column: 2
-            translationTable: psuTypeTranslationTable
+            translationTable: "${translation::psuTypeTranslationTable}"
             # When TotalOutputPower is an information unavailable on the server, the agent returns 0.
             # Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
           - type: leftConcat
@@ -446,19 +446,19 @@ monitors:
           # Remove part 1 from the main caption
           - type: replace
             column: 4
-            existingValue: Column(5)
+            existingValue: $5
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
-          power_supply_type: $column(2)
+          id: $1
+          __display_id: $4
+          power_supply_type: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s - %s W)\", $4, $2, $3)}"
         metrics:
-          hw.power_supply.limit: $column(3)
+          hw.power_supply.limit: $3
     collect:
       # Collect
       type: multiInstance
@@ -473,17 +473,17 @@ monitors:
             column: 2
           - type: translate
             column: 2
-            translationTable: genStatusTranslationTable
+            translationTable: "${translation::genStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: genStatusInformationTranslationTable
+            translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -500,7 +500,7 @@ monitors:
           # Translate type
           - type: translate
             column: 2
-            translationTable: sensorTypeTranslationTable
+            translationTable: "${translation::sensorTypeTranslationTable}"
             # Treat the Warning Threshold
             # Remove Thresholds of "0"
             # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal,Caption
@@ -522,7 +522,7 @@ monitors:
             # DeviceID,NumericSensorType,SensorType,UpperThresholdNonCritical,UpperThresholdCritical,UpperThresholdFatal,Caption
           - type: replace
             column: 5
-            existingValue: Column(4)
+            existingValue: $4
             newValue: ""
           - type: leftConcat
             column: 5
@@ -534,7 +534,7 @@ monitors:
           - type: replace
             column: 5
             existingValue: MSHWMSHW
-            newValue: Column(6)
+            newValue: $6
           # Otherwise remove unwanted thresholds.
           - type: replace
             column: 5
@@ -557,20 +557,20 @@ monitors:
           # Remove part 1 from the main caption
           - type: replace
             column: 7
-            existingValue: Column(8)
+            existingValue: $8
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(7)
-          sensor_location: $column(2)
+          id: $1
+          __display_id: $7
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(7), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $7, $2)}"
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: $column(5)
-          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
+          hw.temperature.limit{limit_type="high.critical"}: $5
+          hw.temperature.limit{limit_type="high.degraded"}: $4
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
@@ -589,19 +589,19 @@ monitors:
             column: 3
           - type: translate
             column: 3
-            translationTable: genStatusTranslationTable
+            translationTable: "${translation::genStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: genStatusInformationTranslationTable
+            translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(1)
-          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $1
+          hw.status{hw.type="temperature"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   other_device:
     discovery:
       sources:
@@ -613,14 +613,14 @@ monitors:
           namespace: root/hpq
       mapping:
         # Instance Table
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           device_type: Management Card
-          additional_label: $column(1)
+          additional_label: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s (%s)\", \"Management Card\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s: %s (%s)\", \"Management Card\", $1, $1)}"
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -635,18 +635,18 @@ monitors:
             column: 2
           - type: translate
             column: 2
-            translationTable: genStatusTranslationTable
+            translationTable: "${translation::genStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: genStatusInformationTranslationTable
+            translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -670,7 +670,7 @@ monitors:
             # NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;InterfaceName;
           - type: rightConcat
             column: 7
-            value: Column(1)
+            value: $1
         source(2):
           # Source(2) =  HP_EthernetPort
           # __PATH;NIDid;Location;Speed;MAC;Model
@@ -698,8 +698,8 @@ monitors:
           # Source (4) = Table Joint of (2) and (3).  Any network cards without statistics (i.e. Linux System) will be discarded.
           # __PATH;NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(2)$
-          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftTable: "${source::monitors.network.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(3)}"
           leftKeyColumn: 5
           rightKeyColumn: 1
           defaultRightLine: ;
@@ -719,8 +719,8 @@ monitors:
           # Source(7) = Table Joint of Source(4) with Source(6)
           # __PATH;NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;Port__PATH;LANEndpoint__PATH;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(4)$
-          rightTable: $monitors.network.discovery.sources.source(6)$
+          leftTable: "${source::monitors.network.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(6)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -728,8 +728,8 @@ monitors:
           # Source(8) = Table Joint of Source(7) with Source(5)
           # __PATH;NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;Port__PATH;LANEndpoint__PATH;LANEndpoint__PATH;InterfaceName;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(7)$
-          rightTable: $monitors.network.discovery.sources.source(5)$
+          leftTable: "${source::monitors.network.discovery.sources.source(7)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(5)}"
           leftKeyColumn: 11
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -743,8 +743,8 @@ monitors:
           # NIDid;IP;Status;Location;Speed;MAC;Model;Statistics;InterfaceName;
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(8)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(8)}"
           computes:
           - type: leftConcat
             column: 4
@@ -752,18 +752,18 @@ monitors:
       mapping:
         # InstanceTable = Source(9)
         # NIDid;IP;Status;Location;Speed;MAC;
-        source: $monitors.network.discovery.sources.source(9)$
+        source: "${source::monitors.network.discovery.sources.source(9)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(9)
-          model: $column(7)
-          logical_address: $column(2)
+          id: $1
+          __display_id: $9
+          model: $7
+          logical_address: $2
           logical_address_type: IP
-          physical_address: $column(6)
+          physical_address: $6
           physical_address_type: MAC
-          info: $column(4)
+          info: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(9), $column(7))"
+          name: "${awk::sprintf(\"%s (%s)\", $9, $7)}"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -787,18 +787,18 @@ monitors:
             # ID;PATROLStatusArray;Condition;Condition;
           - type: arrayTranslate
             column: 2
-            translationTable: iLONetworkCardStatusTranslationTable
+            translationTable: "${translation::iLONetworkCardStatusTranslationTable}"
             # Translate second Condition into a more readable string
             # ID;PATROLStatusArray;statusInformation;Condition;
           - type: arrayTranslate
             column: 3
-            translationTable: iLONetworkCardStatusInfoTranslationTable
+            translationTable: "${translation::iLONetworkCardStatusInfoTranslationTable}"
             resultSeparator: ' - '
             # Translate second Condition into a more LinkStatus (OK|WARN)
             # ID;PATROLStatusArray;statusInformation;LinkStatusArray;
           - type: translate
             column: 4
-            translationTable: iLOLinkStatusTranslationTable
+            translationTable: "${translation::iLOLinkStatusTranslationTable}"
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # ID;PATROLStatus;statusInformation;LinkStatusArray;
           - type: convert
@@ -829,28 +829,28 @@ monitors:
           # Combine all the errors into one errorcount
           - type: add
             column: 6
-            value: Column(7)
+            value: $7
           - type: add
             column: 6
-            value: Column(8)
+            value: $8
           - type: add
             column: 6
-            value: Column(9)
+            value: $9
           - type: add
             column: 6
-            value: Column(10)
+            value: $10
           - type: add
             column: 6
-            value: Column(11)
+            value: $11
           - type: add
             column: 6
-            value: Column(12)
+            value: $12
           - type: add
             column: 6
-            value: Column(13)
+            value: $13
           - type: add
             column: 6
-            value: Column(14)
+            value: $14
             # Remove all the unwanted error columns
             #  1     2            # 3            #   4            #        5            6
             # Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
@@ -872,12 +872,12 @@ monitors:
             # NIDid;Location;Speed;PatrolStatus;OperationalStatus;OperationalStatus;
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # NIDid;Location;Speed;PatrolStatus;StatusInformation;OperationalStatus;
           - type: arrayTranslate
             column: 5
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # NIDid;Location;Speed;PatrolStatus;StatusInformation;OperationalStatus;
@@ -888,7 +888,7 @@ monitors:
             # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatusArray;
           - type: arrayTranslate
             column: 6
-            translationTable: DMTFOperationToLinkStatusTranslationTable
+            translationTable: "${translation::DMTFOperationToLinkStatusTranslationTable}"
             # Convert LinkStatusArray to a simple (unique) LinkStatus
             # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;
           - type: convert
@@ -903,8 +903,8 @@ monitors:
           # Source(4) = Source (3) and Source(2)
           # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(3)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(3)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
@@ -913,24 +913,24 @@ monitors:
           # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(4)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(4)}"
       mapping:
         # ValueTable = Source(5)
         # NIDid;Location;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,ErrorCount
-        source: $monitors.network.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(4)
-          hw.network.up: legacyLinkStatus($column(6))
-          hw.network.bandwidth.limit: megaBit2Bit($column(3))
-          hw.network.packets{direction="receive"}: $column(10)
-          hw.network.packets{direction="transmit"}: $column(11)
-          hw.errors{hw.type="network"}: $column(12)
-          hw.network.io{direction="receive"}: $column(8)
-          hw.network.io{direction="transmit"}: $column(9)
+          hw.status{hw.type="network"}: $4
+          hw.network.up: legacyLinkStatus($6)
+          hw.network.bandwidth.limit: megaBit2Bit($3)
+          hw.network.packets{direction="receive"}: $10
+          hw.network.packets{direction="transmit"}: $11
+          hw.errors{hw.type="network"}: $12
+          hw.network.io{direction="receive"}: $8
+          hw.network.io{direction="transmit"}: $9
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   fanTypeTranslationTable:
     "22": Processor Fan

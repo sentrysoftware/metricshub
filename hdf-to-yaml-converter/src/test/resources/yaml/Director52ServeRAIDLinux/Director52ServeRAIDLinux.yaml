@@ -100,7 +100,7 @@ monitors:
           # Source(7) = Copy of Source(6) [CIM_SoftwareIdentity], but with only where Classifications == 11, i.e. BIOS
           # SoftwareID;Classifications;BIOSVersion;
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(6)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(6)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 2
@@ -109,7 +109,7 @@ monitors:
           # Source(8) = Copy of Source(6) [CIM_SoftwareIdentity], but with only where Classifications == 10, i.e. Firmware
           # SoftwareID;Classifications;FirmwareVersion
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(6)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(6)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 2
@@ -118,7 +118,7 @@ monitors:
           # Source(9) = Copy of Source(6) [CIM_SoftwareIdentity], but with only where Classifications == 2, i.e. Driver
           # SoftwareID;Classifications;DriverVersion
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(6)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(6)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 2
@@ -127,8 +127,8 @@ monitors:
           # Source(10) = Table joint between Source(1) and Source(2)
           # ComputerSystemID;Dedicated;Name;SameElement;SystemElement;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -137,8 +137,8 @@ monitors:
           # Source(11) = Table joint between Source(3) and Source(4)
           # PhysicalPackageID;LogicalElementID;CardTag;Manufacturer;Model;SerialNumber;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(4)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -147,8 +147,8 @@ monitors:
           # Source(12) = Table joint between Source(10) and Source(11)
           # ComputerSystemID;Dedicated;Name;SameElement;SystemElement;PhysicalPackageID;LogicalElementID;CardTag;Manufacturer;Model;SerialNumber;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(10)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(11)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(10)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(11)}"
           leftKeyColumn: 4
           rightKeyColumn: 2
           keyType: Wbem
@@ -162,8 +162,8 @@ monitors:
           # Source(13) = Table joint between Source(5) and Source(7)
           # SoftwareID;ComputerSystemID;SoftwareID;Classifications;BIOSVersion;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(7)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(7)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -171,8 +171,8 @@ monitors:
           # Source(14) = Table joint between Source(5) and Source(8)
           # SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(8)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(8)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -180,8 +180,8 @@ monitors:
           # Source(15) = Table joint between Source(5) and Source(9)
           # SoftwareID;ComputerSystemID;SoftwareID;Classifications;DriverVersion;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(9)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(9)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -189,8 +189,8 @@ monitors:
           # Source(16) = Table joint between Source(12) and Source(13)
           # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;SoftwareID;ComputerSystemID;SoftwareID;Classifications;BIOSVersion;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(12)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(13)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(12)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(13)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -199,8 +199,8 @@ monitors:
           # Source(17) = Table joint between Source(14) and Source(15)
           # SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;SoftwareID;ComputerSystemID;SoftwareID;Classifications;DriverVersion;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(14)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(15)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(14)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(15)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
           keyType: Wbem
@@ -209,8 +209,8 @@ monitors:
           # Source(18) = Table joint between Source(16) and Source(17)
           # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;SoftwareID;ComputerSystemID;SoftwareID;Classifications;BIOSVersion;SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;SoftwareID;ComputerSystemID;SoftwareID;Classifications;DriverVersion;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(16)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(17)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(16)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(17)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -237,8 +237,8 @@ monitors:
           # This is just to keep only cim_systemdevice instances that correspond to the RAID controller, and not to other painfully useless other objects
           # GroupComponent;PartComponent;ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(19)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(18)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(19)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(18)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -262,8 +262,8 @@ monitors:
           # Join the original discovery with the batteries (linking the system to the controller)
           # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;Name;BatteryStatus;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(18)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(21)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(18)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(21)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -277,8 +277,8 @@ monitors:
           # Match these disks with the PartComponent to GroupComponent table we built
           # CIM_DiskDrive;PartComponent;DiskControllerID;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(23)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(20)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(23)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(20)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -287,27 +287,27 @@ monitors:
           # Take Disk Controller instance table and make sure that each controller matches one of the discovered physical disks (all controllers must have and associated physical disk)
           # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;Name;BatteryStatus;CIM_DiskDrive;PartComponent;DiskControllerID;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(22)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(24)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(22)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(24)}"
           leftKeyColumn: 1
           rightKeyColumn: 3
           keyType: Wbem
       mapping:
         # The Instance table
         # ComputerSystemID;Name;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;Name;BatteryStatus;CIM_DiskDrive;PartComponent;DiskControllerID;
-        source: $monitors.disk_controller.discovery.sources.source(25)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(25)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          controller_number: $column(1)
-          vendor: $column(3)
-          model: $column(4)
-          serial_number: $column(5)
-          bios_version: $column(6)
-          firmware_version: $column(7)
-          driver_version: $column(8)
+          id: $2
+          __display_id: $2
+          controller_number: $1
+          vendor: $3
+          model: $4
+          serial_number: $5
+          bios_version: $6
+          firmware_version: $7
+          driver_version: $8
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(3), $column(4))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, $3, $4)}"
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers
@@ -329,12 +329,12 @@ monitors:
             # ComputerID;PATROLStatusArray;Status
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # ComputerID;PATROLStatusArray;StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # ComputerID;PATROLStatus;StatusInformation
@@ -357,24 +357,24 @@ monitors:
             # Name,BatteryStatus
           - type: translate
             column: 2
-            translationTable: BatteryStatusTranslationTable
+            translationTable: "${translation::BatteryStatusTranslationTable}"
         source(3):
           # Join the original discovery with the batteries (linking the system to the controller)
           # ComputerID;PATROLStatus;StatusInformation;Name;BatteryStatus;
           type: tableJoin
-          leftTable: $monitors.disk_controller.collect.sources.source(1)$
-          rightTable: $monitors.disk_controller.collect.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.collect.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.disk_controller.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -403,7 +403,7 @@ monitors:
           - type: replace
             column: 4
             existingValue: _MSHW__MSHW_
-            newValue: Column(3)
+            newValue: $3
             # Remove the unwanted _MSHW_
             # CIM_DiskDrive;Size;DeviceID;ElementName;
           - type: replace
@@ -420,8 +420,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and DiskController.Discovery.Source(3)
           # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(3)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -430,8 +430,8 @@ monitors:
           # Source(4) = Table joint of Source(3) and Source(2)
           # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;CIM_PhysicalPackage;Model;SerialNumber;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(3)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 5
           rightKeyColumn: 1
           keyType: Wbem
@@ -440,8 +440,8 @@ monitors:
           # Source(5) = Table joint of Source(4) and DiskController.Discovery.Source(20)
           # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;CIM_PhysicalPackage;Model;SerialNumber;PartComponent;DiskControllerID;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(4)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(20)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(20)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -463,7 +463,7 @@ monitors:
             # CIM_StorageExtent,Size,NumberofBlocks
           - type: multiply
             column: 2
-            value: Column(3)
+            value: $3
             # Select Columns
             # CIM_StorageExtent,Size
           - type: keepColumns
@@ -478,8 +478,8 @@ monitors:
           # Link Disk Drive to Storage Extent
           # CIM_DiskDrive,CIM_StorageExtent,CIM_StorageExtent,Size
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(7)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(6)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(7)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(6)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -492,8 +492,8 @@ monitors:
           # Link Main Table with Size from Storage Extent
           # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;CIM_PhysicalPackage;Model;SerialNumber;PartComponent;DiskControllerID;CIM_DiskDrive;Size;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(5)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(8)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(8)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -511,12 +511,12 @@ monitors:
           - type: replace
             column: 2
             existingValue: _MSHW__MSHW_
-            newValue: Column(14)
+            newValue: $14
           # Replace the zero Value with Column 13
           - type: replace
             column: 2
             existingValue: _MSHW_0_MSHW_
-            newValue: Column(14)
+            newValue: $14
           # Remove the unwanted _MSHW_
           - type: replace
             column: 2
@@ -525,17 +525,17 @@ monitors:
       mapping:
         # Finally here is the instance table...
         # CIM_DiskDrive;Size;DeviceID;ElementName;PhysicalPackageID;LogicalElementID;Tag;Model;SerialNumber;PartComponent;DiskControllerID;DiskControllerName;CIM_DiskDrive;Size;
-        source: $monitors.physical_disk.discovery.sources.source(9)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(9)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          vendor: $column(8)
-          serial_number: $column(9)
+          id: $3
+          __display_id: $4
+          vendor: $8
+          serial_number: $9
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(11))"
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(8), bytes2HumanFormatBase10($column(2)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $11)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $4, $8, bytes2HumanFormatBase10($2))}"
         metrics:
-          hw.physical_disk.size: $column(2)
+          hw.physical_disk.size: $2
     collect:
       # The physical disk collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all physical disks
@@ -557,12 +557,12 @@ monitors:
             # ComputerID;PATROLStatusArray;Status
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # ComputerID;PATROLStatusArray;StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # ComputerID;PATROLStatus;StatusInformation
@@ -571,12 +571,12 @@ monitors:
             conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -591,7 +591,7 @@ monitors:
             # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;SystemName;
           - type: multiply
             column: 3
-            value: Column(2)
+            value: $2
             # Add an Underscore to the System Name
             # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;SystemName;
           - type: rightConcat
@@ -601,7 +601,7 @@ monitors:
             # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;SystemName;
           - type: replace
             column: 4
-            existingValue: Column(6)
+            existingValue: $6
             newValue: ""
             # Remove the System Name Column
             # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;
@@ -620,7 +620,7 @@ monitors:
           - type: replace
             column: 5
             existingValue: _MSHW__MSHW_
-            newValue: Column(4)
+            newValue: $4
             # Remove the unwanted _MSHW_
             # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;
           - type: replace
@@ -644,8 +644,8 @@ monitors:
           # Source(4) = Table joint of  Source(1) and Source(3)
           # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(3)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -654,8 +654,8 @@ monitors:
           # Source(5) = Table joint of Source(4) and Source(2)
           # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;StorageSettingInstanceID;Description;
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(4)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 7
           rightKeyColumn: 1
           keyType: Wbem
@@ -664,8 +664,8 @@ monitors:
           # Source(6) = Table joint of Source(5) and DiskController.Discovery.Source(20)
           # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;StorageSettingInstanceID;Description;PartComponent;DiskControllerID;
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(5)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(20)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(20)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -679,16 +679,16 @@ monitors:
       mapping:
         # Here is the instance table
         # CIM_StorageVolume;BlockSize;SizeBytes;DeviceID;ElementName;ManagedElement;SettingData;StorageSettingInstanceID;Description;PartComponent;DiskControllerID;
-        source: $monitors.logical_disk.discovery.sources.source(6)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(6)}"
         attributes:
-          id: $column(4)
-          __display_id: $column(5)
-          raid_level: $column(9)
+          id: $4
+          __display_id: $5
+          raid_level: $9
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(11))"
-          name: "sprintf(\"%s (%s - %s)\", $column(5), $column(9), bytes2HumanFormatBase2($column(3)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $11)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $5, $9, bytes2HumanFormatBase2($3))}"
         metrics:
-          hw.logical_disk.limit: $column(3)
+          hw.logical_disk.limit: $3
     collect:
       # The physical disk collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all physical disks
@@ -711,7 +711,7 @@ monitors:
             # DeviceID;OperationalStatusArray;SystemName;
           - type: replace
             column: 1
-            existingValue: Column(3)
+            existingValue: $3
             newValue: ""
             # Remove the System Name Column
             # DeviceID;OperationalStatusArray;
@@ -725,12 +725,12 @@ monitors:
             # ComputerID;PATROLStatusArray;Status
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # ComputerID;PATROLStatusArray;StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # ComputerID;PATROLStatus;StatusInformation
@@ -739,12 +739,12 @@ monitors:
             conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   battery:
     discovery:
       sources:
@@ -770,8 +770,8 @@ monitors:
           # Associate the Disk Controller with the Association Table to ensure that we have the Group Component we associate the Battery to is in fact the Disk Controller.
           # Cim_ComputerSystem;CIM_Battery;ComputerSystemID;Manufacturer;Model;SerialNumber;BIOSVersion;FirmwareVersion;DriverVersion;Cim_ComputerSystem;CIM_Battery;
           type: tableJoin
-          leftTable: $monitors.battery.discovery.sources.source(2)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(18)$
+          leftTable: "${source::monitors.battery.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(18)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -784,8 +784,8 @@ monitors:
           # Attach the discovered batteries to the assocation table
           # CIM_Battery;DeviceID;OperationalStatus;Cim_ComputerSystem;CIM_Battery
           type: tableJoin
-          leftTable: $monitors.battery.discovery.sources.source(1)$
-          rightTable: $monitors.battery.discovery.sources.source(3)$
+          leftTable: "${source::monitors.battery.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.battery.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -793,8 +793,8 @@ monitors:
           # As we've modified the Disk Controller's device id from its path to its name, we need to table join the controllers name
           # CIM_Battery;DeviceID;OperationalStatus;Cim_ComputerSystem;CIM_Battery;ComputerSystemID;Dedicated;Name;
           type: tableJoin
-          leftTable: $monitors.battery.discovery.sources.source(4)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(1)$
+          leftTable: "${source::monitors.battery.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           leftKeyColumn: 4
           rightKeyColumn: 1
           keyType: Wbem
@@ -808,12 +808,12 @@ monitors:
       mapping:
         # The Instance table
         # CIM_Battery;DeviceID;ComputerSystemName;
-        source: $monitors.battery.discovery.sources.source(5)$
+        source: "${source::monitors.battery.discovery.sources.source(5)}"
         attributes:
-          id: $column(2)
+          id: $2
           hw.parent.type: disk_controller
-          hw.parent.id: $column(3)
-          name: $column(2)
+          hw.parent.id: $3
+          name: $2
     collect:
       # The physical disk collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all physical disks
@@ -836,12 +836,12 @@ monitors:
             # DeviceID;PATROLStatusArray;Status
           - type: arrayTranslate
             column: 2
-            translationTable: BatteryDMTFOperationStatusTranslationTable
+            translationTable: "${translation::BatteryDMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID;PATROLStatusArray;StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID;PATROLStatus;StatusInformation
@@ -850,12 +850,12 @@ monitors:
             conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(2)
+          hw.status{hw.type="battery"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   DMTFOperationStatusTranslationTable:
     "11": degraded

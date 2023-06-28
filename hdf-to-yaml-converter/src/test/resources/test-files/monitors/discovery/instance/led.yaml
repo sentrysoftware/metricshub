@@ -19,15 +19,15 @@
       led:
         discovery:
           mapping:
-            source: $monitors.led.discovery.sources.source(1)$
+            source: ${source::monitors.led.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(1)
-              color: $column(2)
-              __on_status: $column(3)
-              __blinking_status: $column(4)
-              __off_status: $column(5)
+              id: $1
+              __display_id: $1
+              color: $2
+              __on_status: $3
+              __blinking_status: $4
+              __off_status: $5
               __name: System Attention
-              info: join(" ", $column(8), $column(9), $column(10))
+              info: ${awk::join(" ", $8, $9, $10)}
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s)", $column(1), $column(2), "System Attention")
+              name: ${awk::sprintf("%s (%s - %s)", $1, $2, "System Attention")}

@@ -38,7 +38,7 @@ monitors:
             # AWK it
             # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
@@ -55,17 +55,17 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # PortID;Model;WWPN;ActualDataRate;PortType;SerialNumber;Status;
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           vendor: QLogic
-          model: $column(2)
-          serial_number: $column(6)
-          physical_address: $column(3)
+          model: $2
+          serial_number: $6
+          physical_address: $3
           physical_address_type: WWN
-          device_type: $column(5)
+          device_type: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), \"QLogic\", $column(2))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $1, $5, \"QLogic\", $2)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -78,7 +78,7 @@ monitors:
             # AWK it
             # PortID;Speed;Status;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,8"
@@ -92,17 +92,17 @@ monitors:
             # PortID;Speed;PatrolStatus;Status;Status;
           - type: translate
             column: 3
-            translationTable: NetworkStatusTranslationTable
+            translationTable: "${translation::NetworkStatusTranslationTable}"
             # Translate Network Status Information
             # PortID;Speed;PatrolStatus;StatusInformation;Status;
           - type: translate
             column: 4
-            translationTable: NetworkStatusInfoTranslationTable
+            translationTable: "${translation::NetworkStatusInfoTranslationTable}"
             # Translate Network Status Information
             # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
           - type: translate
             column: 5
-            translationTable: NetworkLinkStatusTranslationTable
+            translationTable: "${translation::NetworkLinkStatusTranslationTable}"
             # Convert Speed from Gbps to Mbps (multiply by 1000)
             # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
           - type: multiply
@@ -111,14 +111,14 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(5))
+          hw.network.bandwidth.limit: megaBit2Bit($2)
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($5)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   NetworkStatusInfoTranslationTable:
     Link Up: Link Up

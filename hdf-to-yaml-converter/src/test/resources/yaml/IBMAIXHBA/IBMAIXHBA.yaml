@@ -34,7 +34,7 @@ monitors:
           # Source(2) = output of embedded script 1
           # DeviceID;Model;WWN;SerialNumber;PortType;Speed;
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5,6,7"
@@ -48,16 +48,16 @@ monitors:
             value: )
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(2)
-          physical_address: $column(3)
+          id: $1
+          model: $2
+          physical_address: $3
           physical_address_type: WWN
-          serial_number: $column(4)
-          device_type: $column(5)
+          serial_number: $4
+          device_type: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $5, $2)}"
     collect:
       # Collect type is multi-instance
       type: monoInstance
@@ -65,20 +65,20 @@ monitors:
         source(1):
           # Source(1) = output of fcstat %hbaID%
           # Moved to Embedded file (3)
-          # NetworkCard.Collect.Source(1).CommandLine="/usr/sbin/fcstat $network.id$"
+          # NetworkCard.Collect.Source(1).CommandLine="/usr/sbin/fcstat ${network::id}"
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-2")$ $network.id$
+          commandLine: "/bin/sh ${file::embeddedFile-2} ${network::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5,6,7,8,9"
       mapping:
         # Value table = Source(1)
-        source: $monitors.network.collect.sources.source(1)$
+        source: "${source::monitors.network.collect.sources.source(1)}"
         metrics:
-          hw.network.up: legacyLinkStatus($column(1))
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
-          hw.errors{hw.type="network"}: $column(3)
-          hw.network.packets{direction="receive"}: $column(4)
-          hw.network.packets{direction="transmit"}: $column(5)
-          hw.network.io{direction="receive"}: $column(6)
-          hw.network.io{direction="transmit"}: $column(7)
+          hw.network.up: legacyLinkStatus($1)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
+          hw.errors{hw.type="network"}: $3
+          hw.network.packets{direction="receive"}: $4
+          hw.network.packets{direction="transmit"}: $5
+          hw.network.io{direction="receive"}: $6
+          hw.network.io{direction="transmit"}: $7

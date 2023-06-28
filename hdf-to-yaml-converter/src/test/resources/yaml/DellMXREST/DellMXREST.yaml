@@ -16,7 +16,7 @@ connector:
     - type: http
       method: GET
       url: /api/DeviceService/Devices
-      header: $file("embeddedFile-1")$
+      header: "${file::embeddedFile-1}"
       expectedResult: api
       errorMessage: Invalid credentials / not an MX7000
 monitors:
@@ -29,7 +29,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: $file("embeddedFile-1")$
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -39,25 +39,25 @@ monitors:
         source(2):
           # keep only chassis and blades
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 6
             regExp: 2000
           - type: translate
             column: 6
-            translationTable: TypeTranslationTable
+            translationTable: "${translation::TypeTranslationTable}"
       mapping:
         # Enclosure Instance Table
-        source: $monitors.enclosure.discovery.sources.source(2)$
+        source: "${source::monitors.enclosure.discovery.sources.source(2)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          model: $column(5)
-          serial_number: $column(4)
+          id: $3
+          __display_id: $3
+          model: $5
+          serial_number: $4
           vendor: Dell
-          type: $column(6)
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), \"Dell\", $column(5))"
+          type: $6
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $3, \"Dell\", $5)}"
     collect:
       # Collection
       type: multiInstance
@@ -66,7 +66,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: $file("embeddedFile-1")$
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -75,18 +75,18 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Enclosure Value Table
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="enclosure"}: $column(3)
+          hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   blade:
     discovery:
       sources:
@@ -94,7 +94,7 @@ monitors:
           # Discovery
           # now create a container blade with global status
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 6
@@ -106,31 +106,31 @@ monitors:
             newValue: blade
       mapping:
         # Enclosure Instance Table
-        source: $monitors.blade.discovery.sources.source(1)$
+        source: "${source::monitors.blade.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          blade_name: $column(3)
-          model: $column(5)
-          serial_number: $column(4)
+          id: $3
+          __display_id: $3
+          blade_name: $3
+          model: $5
+          serial_number: $4
           info: "Vendor: Dell"
           hw.parent.type: enclosure
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(3), $column(5))"
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $3, $5)}"
     collect:
       sources:
         source(1):
           # collect the blades
           # "JSONID;/DeviceName;/Status;/Status;/SlotConfiguration/SlotNumber;"
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
       mapping:
-        source: $monitors.blade.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.blade.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="blade"}: $column(3)
+          hw.status{hw.type="blade"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   other_device:
     discovery:
       sources:
@@ -140,7 +140,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: $file("embeddedFile-1")$
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -149,17 +149,17 @@ monitors:
             separator: ;
         source(2):
           type: copy
-          from: $monitors.other_device.discovery.sources.source(1)$
+          from: "${source::monitors.other_device.discovery.sources.source(1)}"
           computes:
           - type: excludeMatchingLines
             column: 7
             regExp: \(1000\)\|\(2000\)
           - type: translate
             column: 7
-            translationTable: TypeTranslationTable
+            translationTable: "${translation::TypeTranslationTable}"
         source(3):
           type: copy
-          from: $monitors.other_device.discovery.sources.source(1)$
+          from: "${source::monitors.other_device.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 7
@@ -167,24 +167,24 @@ monitors:
         source(4):
           # now attach the other device to the chassis
           type: tableJoin
-          leftTable: $monitors.other_device.discovery.sources.source(2)$
-          rightTable: $monitors.other_device.discovery.sources.source(3)$
+          leftTable: "${source::monitors.other_device.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.other_device.discovery.sources.source(3)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
           computes:
           - type: replace
             column: 2
-            existingValue: Column(2)
-            newValue: Column(10)
+            existingValue: $2
+            newValue: $10
         source(5):
           # add the chassis controllers (CMC)
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('chassisControllerList')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisControllerList')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -197,21 +197,21 @@ monitors:
         source(6):
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(4)$
-          - $monitors.other_device.discovery.sources.source(5)$
+          - "${source::monitors.other_device.discovery.sources.source(4)}"
+          - "${source::monitors.other_device.discovery.sources.source(5)}"
           computes:
           - type: leftConcat
             column: 5
             value: "SerialNumber: "
       mapping:
-        source: $monitors.other_device.discovery.sources.source(6)$
+        source: "${source::monitors.other_device.discovery.sources.source(6)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          device_type: $column(7)
-          info: "join(\" \", $column(5), $column(6))"
+          id: $3
+          __display_id: $4
+          device_type: $7
+          info: "${awk::join(\" \", $5, $6)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", $column(7), $column(4))"
+          name: "${awk::sprintf(\"%s: %s\", $7, $4)}"
     collect:
       sources:
         source(1):
@@ -219,7 +219,7 @@ monitors:
           type: http
           method: GET
           url: /api/DeviceService/Devices
-          header: $file("embeddedFile-1")$
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -228,18 +228,18 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
         source(2):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('chassisControllerList')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisControllerList')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -248,23 +248,23 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
         source(3):
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(2)}"
       mapping:
         # Blade Value Table
-        source: $monitors.other_device.collect.sources.source(3)$
-        deviceId: $column(2)
+        source: "${source::monitors.other_device.collect.sources.source(3)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="other_device"}: $column(3)
+          hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   cpu:
     discovery:
       sources:
@@ -273,10 +273,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverProcessors')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverProcessors')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -297,22 +297,22 @@ monitors:
           # compute now the disk ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           - type: rightConcat
             column: 3
-            value: Column(4)
+            value: $4
       mapping:
         # CPU Instance Table
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          vendor: $column(5)
-          model: $column(6)
+          id: $3
+          __display_id: $4
+          vendor: $5
+          model: $6
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(4), $column(5), $column(6), megaHertz2HumanFormat($column(7)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $4, $5, $6, megaHertz2HumanFormat($7))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(7))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($7)
     collect:
       # Collect
       type: multiInstance
@@ -321,10 +321,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/InventoryDetails('serverProcessors')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverProcessors')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -333,21 +333,21 @@ monitors:
             separator: ;
           - type: translate
             column: 4
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 5
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
           - type: rightConcat
             column: 2
-            value: Column(3)
+            value: $3
       mapping:
         # CPU Value Table
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="cpu"}: $column(4)
+          hw.status{hw.type="cpu"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   memory:
     discovery:
       sources:
@@ -356,10 +356,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverMemoryDevices')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverMemoryDevices')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -376,17 +376,17 @@ monitors:
             regExp: .
       mapping:
         # Memory Instance Table
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(8)
-          __display_id: $column(4)
-          vendor: $column(6)
-          model: $column(7)
-          serial_number: $column(8)
+          id: $8
+          __display_id: $4
+          vendor: $6
+          model: $7
+          serial_number: $8
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(4), $column(6), $column(5))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $4, $6, $5)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(5))
+          hw.memory.limit: mebiByte2Byte($5)
     collect:
       # Collect
       type: multiInstance
@@ -395,10 +395,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverMemoryDevices')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverMemoryDevices')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -407,18 +407,18 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Memory Value Table
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(5)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $5
         metrics:
-          hw.status{hw.type="memory"}: $column(3)
+          hw.status{hw.type="memory"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
@@ -427,10 +427,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('chassisFansList')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisFansList')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -442,7 +442,7 @@ monitors:
             regExp: .
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # remove /entry/value from jsonid to use it in the above tablejoint
           - type: replace
             column: 1
@@ -450,13 +450,13 @@ monitors:
             newValue: ""
       mapping:
         # Fan Instance Table
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: Chassis
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       # Collection
       type: multiInstance
@@ -465,10 +465,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/InventoryDetails('chassisFansList')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisFansList')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -477,30 +477,30 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 6
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
         source(2):
           type: tableJoin
-          leftTable: $monitors.fan.collect.sources.source(1)$
-          rightTable: $monitors.fan.discovery.sources.source(1)$
+          leftTable: "${source::monitors.fan.collect.sources.source(1)}"
+          rightTable: "${source::monitors.fan.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
           - type: leftConcat
             column: 2
-            value: Column(8)
+            value: $8
       mapping:
         # Fan Value Table
-        source: $monitors.fan.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(4)
-          hw.fan.speed_ratio: percent2Ratio($column(5))
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $4
+          hw.fan.speed_ratio: percent2Ratio($5)
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   disk_controller:
     discovery:
       sources:
@@ -508,10 +508,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverRaidControllers')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -522,21 +522,21 @@ monitors:
             column: 2
           - type: rightConcat
             column: 3
-            value: Column(4)
+            value: $4
           - type: keepOnlyMatchingLines
             column: 5
             regExp: .
       mapping:
         # DiskController Instance Table
         # JsonID;<System>;<System+Fqdd/name>(unique);Fqdd;FirmwareVersion;ServerVirtualDisks;
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          controller_number: $column(3)
-          firmware_version: $column(5)
+          id: $3
+          __display_id: $4
+          controller_number: $3
+          firmware_version: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s\", $column(4))"
+          name: "${awk::sprintf(\"Disk Controller: %s\", $4)}"
     collect:
       # Collection
       type: multiInstance
@@ -545,10 +545,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverRaidControllers')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -557,23 +557,23 @@ monitors:
             separator: ;
           - type: translate
             column: 4
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 5
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
           - type: duplicateColumn
             column: 2
           - type: rightConcat
             column: 3
-            value: Column(4)
+            value: $4
       mapping:
         # DiskController Value Table
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(5)
+          hw.status{hw.type="disk_controller"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   physical_disk:
     discovery:
       sources:
@@ -581,10 +581,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverArrayDisks')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverArrayDisks')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -598,18 +598,18 @@ monitors:
         # PhysicalDisk Instance Table
         # 1        #  2       3   4        #  5        #    6        #  7        #    8     9         10
         # EntryKey;BladeId;/Id;/DiskNumber;/VendorName;/SerialNumber;/ModelNumber;/Size;/MediaType;/BusType;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(6)
-          __display_id: $column(4)
-          vendor: $column(5)
-          serial_number: $column(6)
-          model: $column(7)
-          info: "join(\" \", $column(10), $column(9))"
+          id: $6
+          __display_id: $4
+          vendor: $5
+          serial_number: $6
+          model: $7
+          info: "${awk::join(\" \", $10, $9)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), bytes2HumanFormatBase10($column(8)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $4, $5, bytes2HumanFormatBase10($8))}"
         metrics:
-          hw.physical_disk.size: $column(8)
+          hw.physical_disk.size: $8
     collect:
       # Collection
       type: multiInstance
@@ -618,10 +618,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/InventoryDetails('serverArrayDisks')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverArrayDisks')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -630,23 +630,23 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
           - type: replace
             column: 5
             existingValue: 255
             newValue: ""
       mapping:
         # PhysicalDisk Value Table
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
-          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(5))
+          hw.status{hw.type="physical_disk"}: $3
+          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($5)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   logical_disk:
     discovery:
       sources:
@@ -655,10 +655,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverRaidControllers')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -667,20 +667,20 @@ monitors:
             separator: ;
           - type: rightConcat
             column: 2
-            value: Column(8)
+            value: $8
       mapping:
         # LogicalDisk Instance Table
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          raid_level: $column(5)
-          type: $column(6)
+          id: $3
+          __display_id: $4
+          raid_level: $5
+          type: $6
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), bytes2HumanFormatBase2($column(7)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $4, $5, bytes2HumanFormatBase2($7))}"
         metrics:
-          hw.logical_disk.limit: $column(7)
+          hw.logical_disk.limit: $7
     collect:
       # Collect
       type: multiInstance
@@ -689,10 +689,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/InventoryDetails('serverRaidControllers')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverRaidControllers')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -701,18 +701,18 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # LogicalDisk Value Table
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(3)
+          hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   power_supply:
     discovery:
       sources:
@@ -721,10 +721,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('chassisPowerSupplies')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisPowerSupplies')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -739,23 +739,23 @@ monitors:
             regExp: .
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           - type: replace
             column: 1
             existingValue: /Entry/Value
             newValue: ""
       mapping:
         # PowerSupply Instance Table
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          power_supply_type: $column(6)
+          id: $3
+          __display_id: $4
+          power_supply_type: $6
           hw.parent.type: Chassis
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(6), $column(5))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s W)\", $4, $6, $5)}"
         metrics:
-          hw.power_supply.limit: $column(5)
+          hw.power_supply.limit: $5
     collect:
       # Collection
       type: multiInstance
@@ -764,10 +764,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/InventoryDetails('chassisPowerSupplies')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisPowerSupplies')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -776,29 +776,29 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
         source(2):
           type: tableJoin
-          leftTable: $monitors.power_supply.collect.sources.source(1)$
-          rightTable: $monitors.power_supply.discovery.sources.source(1)$
+          leftTable: "${source::monitors.power_supply.collect.sources.source(1)}"
+          rightTable: "${source::monitors.power_supply.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
           # jsonid;/MemberId;/HealthState;/HealthState;jsonid;../../Column(3);/MemberId;/Name;/CapacityWatts;/PowerSupplyType;/EnableState;/MemberId
           - type: leftConcat
             column: 2
-            value: Column(6)
+            value: $6
       mapping:
         # PowerSupply Value Table
-        source: $monitors.power_supply.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.power_supply.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="power_supply"}: $column(3)
+          hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   battery:
     discovery:
       sources:
@@ -807,10 +807,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('subsystemRollupStatus')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('subsystemRollupStatus')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -822,12 +822,12 @@ monitors:
             regExp: batteryRollupStatus
           - type: rightConcat
             column: 3
-            value: Column(4)
+            value: $4
       mapping:
         # Battery Instance Table
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
+          id: $3
           __display_id: battery
           hw.parent.type: enclosure
           name: battery
@@ -839,10 +839,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/InventoryDetails('subsystemRollupStatus')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('subsystemRollupStatus')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -851,21 +851,21 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
           - type: rightConcat
             column: 2
-            value: Column(5)
+            value: $5
       mapping:
         # Battery Value Table
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="battery"}: $column(3)
+          hw.status{hw.type="battery"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   temperature:
     discovery:
       sources:
@@ -874,10 +874,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('chassisTemperatureList')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisTemperatureList')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -892,7 +892,7 @@ monitors:
             regExp: .
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # remove /entry/value from jsonid to use it in the above tablejoint
           - type: replace
             column: 1
@@ -901,13 +901,13 @@ monitors:
       mapping:
         # Temperature Instance Table
         # JsonId;<System>;MemberId;SensorName;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: Chassis
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       # Collection
       type: multiInstance
@@ -916,10 +916,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/InventoryDetails('chassisTemperatureList')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('chassisTemperatureList')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -928,31 +928,31 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 5
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
         source(2):
           # as fan and psu joint with temp discovery to compute id with enclosure id
           # jsonid;/MemberId;/Status;/ReadingCelsius;/Status;jsonid;../../Column(3);/MemberId;/SensorName;/UpperThresholdNoncritical;/UpperThresholdCritical;/ReadingCelsius;Memberid
           type: tableJoin
-          leftTable: $monitors.temperature.collect.sources.source(1)$
-          rightTable: $monitors.temperature.discovery.sources.source(1)$
+          leftTable: "${source::monitors.temperature.collect.sources.source(1)}"
+          rightTable: "${source::monitors.temperature.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
           - type: leftConcat
             column: 2
-            value: Column(7)
+            value: $7
       mapping:
         # Temperature Value Table
-        source: $monitors.temperature.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="temperature"}: $column(3)
-          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $3
+          hw.temperature: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   network:
     discovery:
       sources:
@@ -961,10 +961,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverNetworkInterfaces')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverNetworkInterfaces')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -973,18 +973,18 @@ monitors:
             separator: ;
           - type: translate
             column: 7
-            translationTable: TypeTranslationTable
+            translationTable: "${translation::TypeTranslationTable}"
           - type: translate
             column: 9
-            translationTable: LinkSpeedDeactivationTranslationTable
+            translationTable: "${translation::LinkSpeedDeactivationTranslationTable}"
         source(2):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverFcCards')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverFcCards')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -1000,29 +1000,29 @@ monitors:
             newValue: '000'
           - type: translate
             column: 9
-            translationTable: LinkSpeedDeactivationTranslationTable
+            translationTable: "${translation::LinkSpeedDeactivationTranslationTable}"
         source(3):
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(2)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 3
             regExp: .
       mapping:
         # NetworkCard Instance Table
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(4)
-          __display_id: $column(3)
-          physical_address: $column(4)
-          model: $column(5)
-          vendor: $column(6)
-          device_type: $column(7)
-          physical_address_type: $column(8)
+          id: $4
+          __display_id: $3
+          physical_address: $4
+          model: $5
+          vendor: $6
+          device_type: $7
+          physical_address_type: $8
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(3), $column(7), $column(6), $column(5))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $3, $7, $6, $5)}"
     collect:
       # Collection
       type: multiInstance
@@ -1031,10 +1031,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverNetworkInterfaces')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverNetworkInterfaces')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -1045,15 +1045,15 @@ monitors:
             column: 4
           - type: translate
             column: 4
-            translationTable: FCLinkStatusTranslationTable
+            translationTable: "${translation::FCLinkStatusTranslationTable}"
         source(2):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/InventoryDetails('serverFcCards')
-          header: $file("embeddedFile-1")$
+          url: $2/InventoryDetails('serverFcCards')
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
@@ -1068,7 +1068,7 @@ monitors:
             newValue: '000'
           - type: translate
             column: 4
-            translationTable: FcLinkStatusTranslationTable
+            translationTable: "${translation::FcLinkStatusTranslationTable}"
           - type: replace
             column: 3
             existingValue: No Link
@@ -1076,17 +1076,17 @@ monitors:
         source(3):
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(2)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(2)}"
       mapping:
         # NetworkCard Value Table
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $2
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
         metrics:
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.bandwidth.limit: megaBit2Bit($column(3))
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.bandwidth.limit: megaBit2Bit($3)
 translations:
   TypeTranslationTable:
     "8000": Storage IOM

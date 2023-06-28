@@ -33,14 +33,14 @@ monitors:
             newValue: IBM
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: SNIA Library
-          vendor: $column(1)
-          model: $column(2)
-          serial_number: $column(3)
+          vendor: $1
+          model: $2
+          serial_number: $3
           type: Storage
-          name: "sprintf(\"Storage: (%s %s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"Storage: (%s %s)\", $1, $2)}"
     collect:
       type: monoInstance
       sources:
@@ -56,19 +56,19 @@ monitors:
             # PATROLStatus;Status;
           - type: translate
             column: 1
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         deviceId: SNIA Library
         metrics:
-          hw.status{hw.type="enclosure"}: $column(1)
+          hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   tape_drive:
     discovery:
       sources:
@@ -86,15 +86,15 @@ monitors:
             newValue: IBM
       mapping:
         # Media Access Device Table ID;Manufacturer;Model;Serial Number;
-        source: $monitors.tape_drive.discovery.sources.source(1)$
+        source: "${source::monitors.tape_drive.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
+          id: $1
+          vendor: $2
+          model: $3
+          serial_number: $4
           hw.parent.type: enclosure
           hw.parent.id: SNIA Library
-          name: "sprintf(\"%s (%s %s)\", $column(1), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s %s)\", $1, $2, $3)}"
     collect:
       type: multiInstance
       sources:
@@ -112,27 +112,27 @@ monitors:
             # ID;CleaningStatus;MountCount;PatrolStatus;Status;
           - type: translate
             column: 4
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;CleaningStatus;MountCount;PatrolStatus;StatusInformation;
           - type: translate
             column: 5
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
             # Translate Status into PATROLStatus
             # ID;PatrolCleaningStatus;MountCount;PatrolStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: CleaningStatusTranslationTable
+            translationTable: "${translation::CleaningStatusTranslationTable}"
       mapping:
         # Value Table
         # ID;PatrolCleaningStatus;MountCount;PatrolStatus;StatusInformation;
-        source: $monitors.tape_drive.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.tape_drive.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="tape_drive"}: $column(4)
-          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($column(2))
+          hw.status{hw.type="tape_drive"}: $4
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($2)
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   robotics:
     discovery:
       sources:
@@ -143,13 +143,13 @@ monitors:
           selectColumns: 4
       mapping:
         # Instance table
-        source: $monitors.robotics.discovery.sources.source(1)$
+        source: "${source::monitors.robotics.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           robotics_type: Cassette Robot
           hw.parent.type: enclosure
           hw.parent.id: SNIA Library
-          name: "sprintf(\"%s (%s)\", $column(1), \"Cassette Robot\")"
+          name: "${awk::sprintf(\"%s (%s)\", $1, \"Cassette Robot\")}"
     collect:
       type: multiInstance
       sources:
@@ -167,21 +167,21 @@ monitors:
             # ID;PatrolStatus;Status;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Value Table
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.robotics.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.robotics.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="robotics"}: $column(2)
+          hw.status{hw.type="robotics"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   CleaningStatusTranslationTable:
     "1": 1

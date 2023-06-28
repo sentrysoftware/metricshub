@@ -57,15 +57,15 @@ monitors:
       mapping:
         # Enclosure Instance Table
         # JSON;Name;UUID
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: Cluster
-          __display_id: $column(2)
+          __display_id: $2
           vendor: NetApp
           model: Solid Fire
           type: enclosure
-          serial_number: $column(3)
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"NetApp\", \"Solid Fire\")"
+          serial_number: $3
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $2, \"NetApp\", \"Solid Fire\")}"
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
@@ -93,7 +93,7 @@ monitors:
           body: "{ \"method\": \"GetIpmiInfo\", \"params\" : { \"force\" : true } }"
         source(4):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
           # JSON;nodeID;sensorID;sensorName;sensorReading
           - type: json2csv
@@ -106,7 +106,7 @@ monitors:
           # JSON;nodeID;nodeID-sensorID;sensorName;sensorReading
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
             # Extract value from sensorReading;
             # JSON;nodeID;nodeID-sensorID;sensorName;sensorReading
           - type: extract
@@ -116,20 +116,20 @@ monitors:
             # Sum sensorReadings from all nodes
             # "Cluster";PowerConsumption;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
       mapping:
-        source: $monitors.enclosure.collect.sources.source(4)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(4)}"
+        deviceId: $1
         metrics:
-          hw.enclosure.power: $column(2)
-          hw.enclosure.energy: fakeCounter($column(2))
+          hw.enclosure.power: $2
+          hw.enclosure.energy: fakeCounter($2)
   disk_controller:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
           - type: json2csv
@@ -142,7 +142,7 @@ monitors:
             regExp: master
         source(2):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(4)$
+          from: "${source::monitors.enclosure.discovery.sources.source(4)}"
           computes:
           # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
           - type: json2csv
@@ -150,30 +150,30 @@ monitors:
             properties: /nodeId;/result/hardwareInfo/boardSerial;
         source(3):
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
       mapping:
         # DiskController Instance Table
         # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
-        source: $monitors.disk_controller.discovery.sources.source(3)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(4)
-          firmware_version: $column(5)
-          model: $column(6)
-          serial_number: $column(9)
+          id: $2
+          __display_id: $4
+          firmware_version: $5
+          model: $6
+          serial_number: $9
           hw.parent.type: enclosure
           hw.parent.id: Cluster
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(4), $column(6))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $4, $6)}"
     collect:
       # Collect
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
           # JSON;nodeid;servicetype;status;status;
           - type: json2csv
@@ -188,22 +188,22 @@ monitors:
             # JSON;nodeid;servicetype;PatrolStatus;status;
           - type: translate
             column: 4
-            translationTable: DiskControllerTranslationTable
+            translationTable: "${translation::DiskControllerTranslationTable}"
       mapping:
         # DiskController Instance Table
         # JSON;nodeid;servicetype;PatrolStatus;status;
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(4)
+          hw.status{hw.type="disk_controller"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   memory:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # JSON;nodeid;servicetype;MEMORY_GB
           - type: json2csv
@@ -222,21 +222,21 @@ monitors:
       mapping:
         # Memory InstanceTable
         # JSON;nodeid;servicetype;MEMORY_MB
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
+          id: $2
           __display_id: memory
           hw.parent.type: disk_controller
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s MB)\", \"memory\", $column(4))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s MB)\", \"memory\", $4)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(4))
+          hw.memory.limit: mebiByte2Byte($4)
     collect:
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
           # JSON;DeviceID;Status;StatusInformation;
           - type: json2csv
@@ -245,22 +245,22 @@ monitors:
           # JSON;DeviceID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: HardwareConfigTranslationTable
+            translationTable: "${translation::HardwareConfigTranslationTable}"
       mapping:
         # Memory Value table
         # JSON;DeviceID;PatrolStatus;StatusInformation;
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="memory"}: $column(3)
+          hw.status{hw.type="memory"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   cpu:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(4)$
+          from: "${source::monitors.enclosure.discovery.sources.source(4)}"
           computes:
             # "actual": "Intel(R) Xeon(R) CPU E5-2620 v4 @ 2.10GHz",
             # JSON;nodeid;nodeID;actual;actual;actual;actual;
@@ -277,7 +277,7 @@ monitors:
             value: ';CPU1 '
         source(2):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(4)$
+          from: "${source::monitors.enclosure.discovery.sources.source(4)}"
           computes:
             # "actual": "Intel(R) Xeon(R) CPU E5-2620 v4 @ 2.10GHz",
             # JSON;nodeid;actual;actual;actual;actual;
@@ -294,8 +294,8 @@ monitors:
         source(3):
           type: tableUnion
           tables:
-          - $monitors.cpu.discovery.sources.source(1)$
-          - $monitors.cpu.discovery.sources.source(2)$
+          - "${source::monitors.cpu.discovery.sources.source(1)}"
+          - "${source::monitors.cpu.discovery.sources.source(2)}"
           computes:
             # Extract Vendor
             # JSON;nodeid;CPU-nodeID;CPU;Vendor;actual;actual;actual;
@@ -324,7 +324,7 @@ monitors:
           # JSON;nodeid;CPU-nodeID;DisplayName;Vendor;Model;Name;Speed;
           - type: rightConcat
             column: 4
-            value: Column(7)
+            value: $7
           - type: replace
             column: 8
             existingValue: GHz
@@ -339,24 +339,24 @@ monitors:
       mapping:
         # CPU Instance Table
         # JSON;nodeid;CPU-nodeID;DisplayName;Vendor;Model;Name;Speed;
-        source: $monitors.cpu.discovery.sources.source(3)$
+        source: "${source::monitors.cpu.discovery.sources.source(3)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          vendor: $column(5)
-          model: $column(6)
+          id: $3
+          __display_id: $4
+          vendor: $5
+          model: $6
           hw.parent.type: disk_controller
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(4), $column(5), $column(6), megaHertz2HumanFormat($column(8)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $4, $5, $6, megaHertz2HumanFormat($8))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(8))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($8)
     collect:
       # Collect
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
           # JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
           - type: json2csv
@@ -367,7 +367,7 @@ monitors:
             value: CPU1-
         source(2):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
           # JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
           - type: json2csv
@@ -379,22 +379,22 @@ monitors:
         source(3):
           type: tableUnion
           tables:
-          - $monitors.cpu.collect.sources.source(1)$
-          - $monitors.cpu.collect.sources.source(2)$
+          - "${source::monitors.cpu.collect.sources.source(1)}"
+          - "${source::monitors.cpu.collect.sources.source(2)}"
           computes:
           # JSON;NodeID;PatrolStatus;
           - type: translate
             column: 3
-            translationTable: HardwareConfigTranslationTable
+            translationTable: "${translation::HardwareConfigTranslationTable}"
       mapping:
         # CPU ValueTable
         # JSON;NodeID;PatrolStatus;StatusInformation
-        source: $monitors.cpu.collect.sources.source(3)$
-        deviceId: $column(2)
+        source: "${source::monitors.cpu.collect.sources.source(3)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="cpu"}: $column(3)
+          hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   physical_disk:
     discovery:
       sources:
@@ -414,9 +414,9 @@ monitors:
           method: POST
           url: /json-rpc/9.0
           header: Content-Type:text/plain
-          body: "{ \"method\": \"GetDriveHardwareInfo\", \"params\": { \"driveID\": \"$entry.column(3)$\" } }"
+          body: "{ \"method\": \"GetDriveHardwareInfo\", \"params\": { \"driveID\": \"$3\" } }"
           executeForEachEntryOf:
-            source: $monitors.physical_disk.discovery.sources.source(1)$
+            source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
             concatMethod: json_array_extended
           computes:
           # JSON;NodeID;UUID;logicalName;product;product;serial;size;description;
@@ -447,19 +447,19 @@ monitors:
       mapping:
         # PhysicalDisk Instance
         # JSON;NodeID;UUID;logicalName;Vendor;Model;serial;size;type;
-        source: $monitors.physical_disk.discovery.sources.source(2)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(2)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          vendor: $column(4)
-          model: $column(5)
-          serial_number: $column(6)
-          info: $column(8)
+          id: $3
+          __display_id: $3
+          vendor: $4
+          model: $5
+          serial_number: $6
+          info: $8
           hw.parent.type: disk_controller
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), bytes2HumanFormatBase10($column(7)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $4, bytes2HumanFormatBase10($7))}"
         metrics:
-          hw.physical_disk.size: $column(7)
+          hw.physical_disk.size: $7
     collect:
       # Collect
       # Collect type: MultiInstance
@@ -467,7 +467,7 @@ monitors:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
           # JSON;driveId;driveStatus;driveStatus;
           - type: json2csv
@@ -477,16 +477,16 @@ monitors:
             # JSON;driveId;PatrolStatus;driveStatus;
           - type: translate
             column: 3
-            translationTable: PhysicalDiskTranslationTable
+            translationTable: "${translation::PhysicalDiskTranslationTable}"
       mapping:
         # PhysicalDisk Value Table
         # MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
+          hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   logical_disk:
     discovery:
       sources:
@@ -505,15 +505,15 @@ monitors:
       mapping:
         # LogicalDisk Instance Table
         # JSON;SystemID;UUID;Name;Size
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), bytes2HumanFormatBase2($column(5)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, bytes2HumanFormatBase2($5))}"
         metrics:
-          hw.logical_disk.limit: $column(5)
+          hw.logical_disk.limit: $5
     collect:
       # CollectionType (Multi-instance)
       type: multiInstance
@@ -533,23 +533,23 @@ monitors:
             # JSON;volumeUUID;PatrolStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
       mapping:
         # LogicalDisk Value Table
         # JSON;volumeUUID;PatrolStatus;StatusInformation
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(3)
+          hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   power_supply:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
           # JSON;NodeID;SensorID;SensorName;SensorType;statesAsserted
           - type: json2csv
@@ -563,24 +563,24 @@ monitors:
           # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;statesAsserted
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # Powersupply Instance Table
         # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;statesAsserted
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: disk_controller
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
           # JSON;sensorID;statesAsserted;statesAsserted;nodeID
           - type: json2csv
@@ -589,26 +589,26 @@ monitors:
           # JSON;sensorID;PatrolStatus;statesAsserted;nodeID
           - type: translate
             column: 3
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
           # JSON;NodeID-sensorID;PatrolStatus;statesAsserted;nodeID
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
       mapping:
         # PowerSupply Value Table
         # JSON;NodeID-sensorID;PatrolStatus;statesAsserted;nodeID
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="power_supply"}: $column(3)
+          hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
           # JSON;NodeID;sensorID;sensorName;sensorType;status;
           - type: json2csv
@@ -625,27 +625,27 @@ monitors:
           # JSON;NodeID;nodeID-sensorID;sensorName;sensorType;status;
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # Fan Instance Table
         # JSON;NodeID;nodeID-sensorID;sensorName;sensorType;status;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: disk_controller
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(9)
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $9
+          hw.fan.speed.limit{limit_type="low.critical"}: $7
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
           # JSON;SensorID;status;status;nodeID;
           - type: json2csv
@@ -654,11 +654,11 @@ monitors:
           # JSON;SensorID;PatrolStatus;status;nodeID;
           - type: translate
             column: 3
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
           # JSON;nodeID-SensorID;PatrolStatus;status;nodeID;
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
           - type: replace
             column: 6
             existingValue: ' (+/- 0) RPM'
@@ -666,19 +666,19 @@ monitors:
       mapping:
         # Fan Value Table
         # JSON;nodeID-SensorID;PatrolStatus;status;nodeID;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(6)
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $6
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   temperature:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
           # JSON;nodeID;sensorID;sensorName;sensorType;status;
           - type: json2csv
@@ -695,7 +695,7 @@ monitors:
           # JSON;nodeID;nodeID-sensorID;sensorName;sensorType;status;
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # normalMaximum and normalMinimum tempertures are negative for unknown reason.
           - type: replace
             column: 9
@@ -708,23 +708,23 @@ monitors:
       mapping:
         # Temperature Instance Table
         # JSON;nodeID;nodeID-sensorID;sensorName;sensorType;status;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: disk_controller
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(10)
-          hw.temperature.limit{limit_type="high.critical"}: $column(8)
+          hw.temperature.limit{limit_type="high.degraded"}: $10
+          hw.temperature.limit{limit_type="high.critical"}: $8
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
           # JSON;sensorID;status;status;nodeID
           - type: json2csv
@@ -733,11 +733,11 @@ monitors:
           # JSON;sensorID;PatrolStatus;status;nodeID
           - type: translate
             column: 3
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
           # JSON;NodeID-sensorID;PatrolStatus;status;nodeID
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
           - type: replace
             column: 6
             existingValue: ' (+/- 0) degrees C'
@@ -745,19 +745,19 @@ monitors:
       mapping:
         # Temperature Value Table
         # JSON;NodeID-sensorID;PatrolStatus;StatusInformation;nodeID
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="temperature"}: $column(3)
-          hw.temperature: $column(6)
+          hw.status{hw.type="temperature"}: $3
+          hw.temperature: $6
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   voltage:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
           # JSON;NodeID;SensorID;SensorName;SensorType;Status;
           - type: json2csv
@@ -774,7 +774,7 @@ monitors:
           # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;Status;
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           - type: multiply
             column: 9
             value: 1000
@@ -784,23 +784,23 @@ monitors:
       mapping:
         # Voltage Instance Table
         # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;Status;
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: disk_controller
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(9)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(10)
+          hw.voltage.limit{limit_type="low.critical"}: $9
+          hw.voltage.limit{limit_type="high.degraded"}: $10
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
           # JSON;SystemID;UUID;Name;Size
           - type: json2csv
@@ -808,10 +808,10 @@ monitors:
             properties: /sensorID;/status;/status;../../../nodeID;/sensorReading;
           - type: translate
             column: 3
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
           - type: replace
             column: 6
             existingValue: ' (+/- 0) Volts'
@@ -822,13 +822,13 @@ monitors:
       mapping:
         # Voltage Value Table
         # MSHW;unique-id;PatrolStatus;StatusInformation
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="voltage"}: $column(3)
-          hw.voltage: $column(6)
+          hw.status{hw.type="voltage"}: $3
+          hw.voltage: $6
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       sources:
@@ -842,22 +842,22 @@ monitors:
           computes:
           # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
       mapping:
         # NetworkCard Instance Table
         # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          model: $column(4)
-          physical_address: $column(6)
+          id: $2
+          __display_id: $3
+          model: $4
+          physical_address: $6
           physical_address_type: MAC
-          logical_address: $column(8)
+          logical_address: $8
           logical_address_type: IPv4
           hw.parent.type: disk_controller
-          hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+          hw.parent.id: $1
+          name: "${awk::sprintf(\"%s (%s)\", $3, $4)}"
     collect:
       # Collection type (Multi-instance)
       type: multiInstance
@@ -871,7 +871,7 @@ monitors:
           computes:
           # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ;
           - type: duplicateColumn
             column: 7
@@ -882,23 +882,23 @@ monitors:
             # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; PatrolStatus ; Status ; Status ; StatusInformation
           - type: translate
             column: 7
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
             # Translate link-status status into LinkStatus
             # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; PatrolStatus ; LinkStatus ; StatusInformation
           - type: translate
             column: 8
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
       mapping:
         # NetworkCard Value Table
         # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; PatrolStatus ; LinkStatus ; StatusInformation
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(5))
-          hw.status{hw.type="network"}: $column(7)
-          hw.network.up: legacyLinkStatus($column(8))
+          hw.network.bandwidth.limit: megaBit2Bit($5)
+          hw.status{hw.type="network"}: $7
+          hw.network.up: legacyLinkStatus($8)
         legacyTextParameters:
-          StatusInformation: $column(9)
+          StatusInformation: $9
 translations:
   PhysicalDiskTranslationTable:
     available: ok

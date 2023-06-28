@@ -13,9 +13,9 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.led.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.led.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="led"}: legacyLedStatus($column(2))
-              hw.led.indicator: $column(4)
+              hw.status{hw.type="led"}: legacyLedStatus($2)
+              hw.led.indicator: $4

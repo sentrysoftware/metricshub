@@ -20,20 +20,20 @@
       gpu:
         discovery:
           mapping:
-            source: $monitors.gpu.discovery.sources.source(1)$
+            source: ${source::monitors.gpu.discovery.sources.source(1)}
             attributes:
               vendor: NVIDIA
-              id: $column(2)
-              __display_id: $column(2)
-              model: $column(14)
-              serial_number: $column(15)
-              info: join(" ", $column(16), $column(18))
-              driver_version: $column(17)
-              firmware_version: $column(19)
+              id: $2
+              __display_id: $2
+              model: $14
+              serial_number: $15
+              info: ${awk::join(" ", $16, $18)}
+              driver_version: $17
+              firmware_version: $19
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s - %s)", $column(2), "NVIDIA", $column(14), mebiBytes2HumanFormat($column(20)))
+              name: ${awk::sprintf("%s (%s - %s - %s)", $2, "NVIDIA", $14, mebiBytes2HumanFormat($20))}
             metrics:
-              hw.gpu.memory.limit: mebiByte2Byte($column(20))
+              hw.gpu.memory.limit: mebiByte2Byte($20)
               hw.gpu.utilization.limit{limit_type="degraded"}: percent2Ratio("1")
               hw.gpu.utilization.limit{limit_type="critical"}: percent2Ratio("2")
               hw.gpu.memory.utilization.limit{limit_type="degraded"}: percent2Ratio("3")

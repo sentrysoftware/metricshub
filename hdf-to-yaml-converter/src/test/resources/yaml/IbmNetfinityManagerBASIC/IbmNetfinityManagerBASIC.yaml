@@ -37,12 +37,12 @@ monitors:
             newValue: ""
       mapping:
         # Instance table = source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -62,20 +62,20 @@ monitors:
             # PATROLStatus;textual status
           - type: translate
             column: 2
-            translationTable: TemperatureStatusTranslationTable
+            translationTable: "${translation::TemperatureStatusTranslationTable}"
             # Translate the first status into a PATROL status
             # PATROLStatus;Status information
           - type: translate
             column: 3
-            translationTable: TemperatureStatusInformationTranslationTable
+            translationTable: "${translation::TemperatureStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(2)
+          hw.status{hw.type="temperature"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -97,12 +97,12 @@ monitors:
             newValue: ""
       mapping:
         # Instance table = source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -122,20 +122,20 @@ monitors:
             # ID;PATROLStatus;textual status
           - type: translate
             column: 2
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
             # Translate the first status into a PATROL status
             # ID;PATROLStatus;Status information
           - type: translate
             column: 3
-            translationTable: FanStatusInformationTranslationTable
+            translationTable: "${translation::FanStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   voltage:
     discovery:
       sources:
@@ -158,12 +158,12 @@ monitors:
             newValue: ""
       mapping:
         # The instance table is Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -183,20 +183,20 @@ monitors:
             # AttributeID;PATROLStatus;AttributeTextualValue
           - type: translate
             column: 2
-            translationTable: VoltageStatusTranslationTable
+            translationTable: "${translation::VoltageStatusTranslationTable}"
             # Translate the second textual value into a more readable string
             # AttributeID;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: VoltageStatusInformationTranslationTable
+            translationTable: "${translation::VoltageStatusInformationTranslationTable}"
       mapping:
         # The ValueTable is Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="voltage"}: $column(2)
+          hw.status{hw.type="voltage"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   TemperatureStatusTranslationTable:
     High: degraded

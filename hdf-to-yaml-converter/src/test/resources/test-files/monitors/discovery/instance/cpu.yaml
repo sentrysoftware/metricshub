@@ -21,21 +21,21 @@
             _comment: |-
               InstanceTable = Source(1)
               DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
-            source: $monitors.cpu.discovery.sources.source(4)$
+            source: ${source::monitors.cpu.discovery.sources.source(4)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              vendor: $column(5)
-              model: $column(3)
-              info: $column(9)
-              name: sprintf("%s (%s - %s - %s)", $column(2), $column(5), $column(3), megaHertz2HumanFormat($column(4)))
+              vendor: $5
+              model: $3
+              info: $9
+              name: ${awk::sprintf("%s (%s - %s - %s)", $2, $5, $3, megaHertz2HumanFormat($4))}
             metrics:
-              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
-              hw.power.limit{hw.type="cpu"}: $column(8)
-              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
-              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($4)
+              hw.power.limit{hw.type="cpu"}: $8
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $10
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $11
 - name: testNameNoDisplayId
   input: |
     // InstanceTable = Source(1)
@@ -58,20 +58,20 @@
             _comment: |-
               InstanceTable = Source(1)
               DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
-            source: $monitors.cpu.discovery.sources.source(4)$
+            source: ${source::monitors.cpu.discovery.sources.source(4)}
             attributes:
-              id: $column(1)
-              hw.parent.id: $column(7)
+              id: $1
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              vendor: $column(5)
-              model: $column(3)
-              info: $column(9)
-              name: sprintf("%s (%s - %s - %s)", $column(1), $column(5), $column(3), megaHertz2HumanFormat($column(4)))
+              vendor: $5
+              model: $3
+              info: $9
+              name: ${awk::sprintf("%s (%s - %s - %s)", $1, $5, $3, megaHertz2HumanFormat($4))}
             metrics:
-              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
-              hw.power.limit{hw.type="cpu"}: $column(8)
-              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
-              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($4)
+              hw.power.limit{hw.type="cpu"}: $8
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $10
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $11
 - name: testNameNoVendor
   input: |
     // InstanceTable = Source(1)
@@ -94,20 +94,20 @@
             _comment: |-
               InstanceTable = Source(1)
               DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
-            source: $monitors.cpu.discovery.sources.source(4)$
+            source: ${source::monitors.cpu.discovery.sources.source(4)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              model: $column(3)
-              info: $column(9)
-              name: sprintf("%s (%s - %s)", $column(2), $column(3), megaHertz2HumanFormat($column(4)))
+              model: $3
+              info: $9
+              name: ${awk::sprintf("%s (%s - %s)", $2, $3, megaHertz2HumanFormat($4))}
             metrics:
-              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
-              hw.power.limit{hw.type="cpu"}: $column(8)
-              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
-              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($4)
+              hw.power.limit{hw.type="cpu"}: $8
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $10
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $11
 - name: testNameNoVendorNoModel
   input: |
     // InstanceTable = Source(1)
@@ -129,19 +129,19 @@
             _comment: |-
               InstanceTable = Source(1)
               DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
-            source: $monitors.cpu.discovery.sources.source(4)$
+            source: ${source::monitors.cpu.discovery.sources.source(4)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              info: $column(9)
-              name: sprintf("%s (%s)", $column(2), megaHertz2HumanFormat($column(4)))
+              info: $9
+              name: ${awk::sprintf("%s (%s)", $2, megaHertz2HumanFormat($4))}
             metrics:
-              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
-              hw.power.limit{hw.type="cpu"}: $column(8)
-              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
-              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($4)
+              hw.power.limit{hw.type="cpu"}: $8
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $10
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $11
 - name: testNameNoVendorNoModelNoMaxSpeed
   input: |
     // InstanceTable = Source(1)
@@ -162,15 +162,15 @@
             _comment: |-
               InstanceTable = Source(1)
               DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
-            source: $monitors.cpu.discovery.sources.source(4)$
+            source: ${source::monitors.cpu.discovery.sources.source(4)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              hw.parent.id: $7
               hw.parent.type: enclosure
-              info: $column(9)
-              name: $column(2)
+              info: $9
+              name: $2
             metrics:
-              hw.power.limit{hw.type="cpu"}: $column(8)
-              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
-              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+              hw.power.limit{hw.type="cpu"}: $8
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $10
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $11

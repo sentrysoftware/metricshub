@@ -49,8 +49,8 @@ monitors:
           # Join the Chassis to Node information
           # MSHW;ChassisNumber;SerialNumber;Model;MSHW;NodeName;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -58,15 +58,15 @@ monitors:
         # Instance Table
         # Note, it's still not clear if multichassis per node is possible, we're going to assume not for now
         # MSHW;ChassisNumber;SerialNumber;Model;MSHW;NodeName;
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(6)
+          id: $2
+          __display_id: $6
           vendor: EMC
-          model: $column(4)
+          model: $4
           type: Storage
-          serial_number: $column(3)
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(6), \"EMC\", $column(4))"
+          serial_number: $3
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $6, \"EMC\", $4)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -87,23 +87,23 @@ monitors:
             # MSHW;PatrolStatus;
           - type: translate
             column: 2
-            translationTable: enclosureStatusTranslationTable
+            translationTable: "${translation::enclosureStatusTranslationTable}"
         source(2):
           # Attach the NodeHealth to all node chassis instances
           # We don't deal with multichassis for the moment (if this even exists)
           # MSHW;ChassisNumber;SerialNumber;Model;MSHW;PatrolStatus;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # ValueTable = Source(1)
         # MSHW;ChassisNumber;SerialNumber;Model;MSHW;PatrolStatus;
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="enclosure"}: $column(6)
+          hw.status{hw.type="enclosure"}: $6
   physical_disk:
     discovery:
       sources:
@@ -127,17 +127,17 @@ monitors:
         # The instance table = Source(1)
         # Chassis number seems to be incorrect, so we're going to have to wait until we see a multichassis node debug (if such a system exists)
         # ID;DisplayID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(4)
-          serial_number: $column(5)
-          firmware_version: $column(6)
+          id: $1
+          __display_id: $2
+          model: $4
+          serial_number: $5
+          firmware_version: $6
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), bytes2HumanFormatBase10($column(7)))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, bytes2HumanFormatBase10($7))}"
         metrics:
-          hw.physical_disk.size: $column(7)
+          hw.physical_disk.size: $7
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -157,16 +157,16 @@ monitors:
             # ID;PATROLstatus;status;
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
       mapping:
         # The ValueTable = source(1)
         # ID;PATROLstatus;status;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -195,25 +195,25 @@ monitors:
             # ID;Name;Description;Description[1];Speed;
           - type: replace
             column: 3
-            existingValue: Column(4)
+            existingValue: $4
             newValue: ""
             # Translate second name column to Warning and Alarm Thresholds
             # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Speed;
           - type: translate
             column: 2
-            translationTable: FanThresholdTranslationTable
+            translationTable: "${translation::FanThresholdTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
         # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Speed;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
+          id: $1
+          __display_id: $4
           hw.parent.type: enclosure
-          name: $column(4)
+          name: $4
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(2)
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $2
+          hw.fan.speed.limit{limit_type="low.critical"}: $3
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -226,10 +226,10 @@ monitors:
           selectColumns: "ID,4"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(2)
+          hw.fan.speed: $2
   temperature:
     discovery:
       sources:
@@ -258,13 +258,13 @@ monitors:
             # ID;Name;Description;Description[1];Temperature;
           - type: replace
             column: 3
-            existingValue: Column(4)
+            existingValue: $4
             newValue: ""
             # Translate second name column to Warning and Alarm Thresholds
             # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
           - type: translate
             column: 2
-            translationTable: TemperatureThresholdTranslationTable
+            translationTable: "${translation::TemperatureThresholdTranslationTable}"
             # Remote Temp from DisplayID
             # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
           - type: replace
@@ -274,15 +274,15 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
+          id: $1
+          __display_id: $4
           hw.parent.type: enclosure
-          name: $column(4)
+          name: $4
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
-          hw.temperature.limit{limit_type="high.critical"}: $column(3)
+          hw.temperature.limit{limit_type="high.degraded"}: $2
+          hw.temperature.limit{limit_type="high.critical"}: $3
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -295,10 +295,10 @@ monitors:
           selectColumns: "ID,4"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   voltage:
     discovery:
       sources:
@@ -327,25 +327,25 @@ monitors:
             # ID;Name;Description;Description[1];Voltage;
           - type: replace
             column: 3
-            existingValue: Column(4)
+            existingValue: $4
             newValue: ""
             # Translate second name column to Warning and Alarm Thresholds
             # ID;LowerThreshold;UpperThreshold;Description;Description[1];Voltage;
           - type: translate
             column: 2
-            translationTable: VoltageThresholdTranslationTable
+            translationTable: "${translation::VoltageThresholdTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
         # ID;LowerThreshold;UpperThreshold;Description;Description[1];Voltage;
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
+          id: $1
+          __display_id: $4
           hw.parent.type: enclosure
-          name: $column(4)
+          name: $4
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(2)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(3)
+          hw.voltage.limit{limit_type="low.critical"}: $2
+          hw.voltage.limit{limit_type="high.degraded"}: $3
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -363,10 +363,10 @@ monitors:
             value: 1000
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.voltage: $column(2)
+          hw.voltage: $2
 translations:
   VoltageThresholdTranslationTable:
     V3.3_CMD: 3030;3560

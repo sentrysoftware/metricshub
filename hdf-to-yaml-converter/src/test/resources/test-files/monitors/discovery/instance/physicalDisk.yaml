@@ -21,17 +21,17 @@
         discovery:
           mapping:
             _comment: PhysicalDisk Instance Table
-            source: $monitors.physical_disk.discovery.sources.source(3)$
+            source: ${source::monitors.physical_disk.discovery.sources.source(3)}
             attributes:
-              id: $column(2)
-              __display_id: $column(4)
-              firmware_version: $column(5)
-              model: $column(6)
-              vendor: $column(13)
-              serial_number: $column(8)
-              info: join(" ", $column(9), "Blabla", "OtherBlabla")
-              hw.parent.id: lookup("disk_controller", "id", "controller_number", $column(12))
+              id: $2
+              __display_id: $4
+              firmware_version: $5
+              model: $6
+              vendor: $13
+              serial_number: $8
+              info: ${awk::join(" ", $9, "Blabla", "OtherBlabla")}
+              hw.parent.id: lookup("disk_controller", "id", "controller_number", $12)
               hw.parent.type: disk_controller
-              name: sprintf("%s (%s - %s)", $column(4), $column(13), bytes2HumanFormatBase10($column(11)))
+              name: ${awk::sprintf("%s (%s - %s)", $4, $13, bytes2HumanFormatBase10($11))}
             metrics:
-              hw.physical_disk.size: $column(11)
+              hw.physical_disk.size: $11

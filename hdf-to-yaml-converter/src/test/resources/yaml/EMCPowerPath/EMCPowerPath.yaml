@@ -40,7 +40,7 @@ monitors:
             # AWK it
             # MSHW;pseudoName;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             # Add some text to each additional information
@@ -54,14 +54,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW;pseudoName;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;
-        source: $monitors.lun.discovery.sources.source(1)$
+        source: "${source::monitors.lun.discovery.sources.source(1)}"
         attributes:
-          id: $column(4)
-          __display_id: $column(2)
-          array_name: $column(3)
-          info: "join(\" \", $column(5), $column(7))"
+          id: $4
+          __display_id: $2
+          array_name: $3
+          info: "${awk::join(\" \", $5, $7)}"
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -74,7 +74,7 @@ monitors:
             # AWK it
             # logicalDeviceID;state;alivePathCount;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "4,6,8"
@@ -86,22 +86,22 @@ monitors:
             # logicalDeviceID;PatrolStatus;state;alivePathCount;
           - type: translate
             column: 2
-            translationTable: LUNStatusTranslationTable
+            translationTable: "${translation::LUNStatusTranslationTable}"
             # The LUNStatusTranslationTable --> PatrolStatus
             # logicalDeviceID;PatrolStatus;StatusInformation;alivePathCount;
           - type: translate
             column: 3
-            translationTable: LUNStatusInformationTranslationTable
+            translationTable: "${translation::LUNStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # logicalDeviceID;PatrolStatus;StatusInformation;alivePathCount;
-        source: $monitors.lun.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.lun.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.lun.paths: $column(4)
-          hw.status{hw.type="lun"}: $column(2)
+          hw.lun.paths: $4
+          hw.status{hw.type="lun"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   LUNStatusTranslationTable:
     alive: ok

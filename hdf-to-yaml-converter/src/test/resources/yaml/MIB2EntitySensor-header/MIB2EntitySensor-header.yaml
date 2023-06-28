@@ -24,8 +24,8 @@ monitors:
         source(3):
           # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;value;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;
@@ -37,7 +37,7 @@ monitors:
         source(4):
           # Keep Source 3 clean for other classes
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only units of type 3 (chassis)
             # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
@@ -46,16 +46,16 @@ monitors:
             valueList: 3
       mapping:
         # Instance Table
-        source: $monitors.enclosure.discovery.sources.source(4)$
+        source: "${source::monitors.enclosure.discovery.sources.source(4)}"
         attributes:
           id: _DEVICE_ID
-          __display_id: $column(2)
-          vendor: $column(8)
-          model: $column(9)
-          serial_number: $column(7)
-          bios_version: $column(5)
+          __display_id: $2
+          vendor: $8
+          model: $9
+          serial_number: $7
+          bios_version: $5
           type: _ENCLOSURE_TYPE
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), $column(8), $column(9))"
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $2, $8, $9)}"
     collect:
       sources:
         source(1):
@@ -67,31 +67,31 @@ monitors:
           computes:
           - type: translate
             column: 3
-            translationTable: entPhySensorPrecisionTranslationTable
+            translationTable: "${translation::entPhySensorPrecisionTranslationTable}"
           - type: divide
             column: 4
-            value: Column(3)
+            value: $3
           - type: duplicateColumn
             column: 5
         source(2):
           # For use in all other classes
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Translate state status into a Status
             # ID;type;precision;Value;PATROLStatus;StatusInformation;
           - type: translate
             column: 5
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
             # Translate the second state status into a StatusInformation
             # ID;type;precision;Value;PATROLStatus;StatusInformation;
           - type: translate
             column: 6
-            translationTable: SensorStatusInformationTranslationTable
+            translationTable: "${translation::SensorStatusInformationTranslationTable}"
       mapping:
         # No status for chassis is available therefore it is not collected.
         # ValueTable = Source(2)
-        source: $monitors.enclosure.collect.sources.source(2)$
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
         deviceId: _DEVICE_ID
   temperature:
     discovery:
@@ -99,7 +99,7 @@ monitors:
         source(1):
           # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only celcius(8) (temperature sensors)
             # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
@@ -108,31 +108,31 @@ monitors:
             valueList: 8
       mapping:
         # Instance Table
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(11)
-          __display_id: $column(2)
+          id: $11
+          __display_id: $2
           hw.parent.type: enclosure
           hw.parent.id: _DEVICE_ID
-          name: $column(2)
+          name: $2
     collect:
       # Collect type = multi-instance
       type: multiInstance
       mapping:
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(4)
-          hw.status{hw.type="temperature"}: $column(5)
+          hw.temperature: $4
+          hw.status{hw.type="temperature"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   voltage:
     discovery:
       sources:
         source(1):
           # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
           # Keep Voltages (voltsAC, voltsDC)
           - type: keepOnlyMatchingLines
@@ -140,21 +140,21 @@ monitors:
             valueList: "3,4"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(11)
-          __display_id: $column(2)
-          sensor_location: $column(2)
+          id: $11
+          __display_id: $2
+          sensor_location: $2
           hw.parent.type: enclosure
           hw.parent.id: _DEVICE_ID
-          name: "sprintf(\"%s (%s)\", $column(2), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $2)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
           # Volts into mV
           - type: multiply
@@ -162,20 +162,20 @@ monitors:
             value: 1000
       mapping:
         # Value Table
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.voltage: $column(4)
-          hw.status{hw.type="voltage"}: $column(5)
+          hw.voltage: $4
+          hw.status{hw.type="voltage"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   fan:
     discovery:
       sources:
         source(1):
           # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
             # Keep only Fan sensors
             # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
@@ -185,12 +185,12 @@ monitors:
             # Substract 11 from ID to get FRU Parent
             # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
         source(2):
           # ID;PhysicalDescription;Parent;Class;HardwareRev;FirmwareRev;SerialNumber;Manufacturer;Model;FRU;SensorID;type;value;
           type: tableJoin
-          leftTable: $monitors.fan.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(3)$
+          leftTable: "${source::monitors.fan.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -207,34 +207,34 @@ monitors:
             value: "Serial Number: "
       mapping:
         # Instance Table
-        source: $monitors.fan.discovery.sources.source(2)$
+        source: "${source::monitors.fan.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          info: "join(\" \", $column(7), $column(8), $column(9))"
+          id: $1
+          __display_id: $2
+          info: "${awk::join(\" \", $7, $8, $9)}"
           hw.parent.type: enclosure
           hw.parent.id: _DEVICE_ID
-          name: $column(2)
+          name: $2
     collect:
       # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
           # Substract 11 from ID to get FRU Parent
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
       mapping:
         # ValueTable = Enclosure.Collect.Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(4)
-          hw.status{hw.type="fan"}: $column(5)
+          hw.fan.speed: $4
+          hw.status{hw.type="fan"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
 translations:
   SensorStatusTranslationTable:
     "1": ok

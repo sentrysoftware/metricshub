@@ -52,20 +52,20 @@ monitors:
             value: ' ('
           - type: rightConcat
             column: 3
-            value: Column(2)
+            value: $2
           - type: rightConcat
             column: 3
             value: )
       mapping:
         # InstanceTable = Source(1)
         # Note: InstanceTable must contain only one line!
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: DIR5
           vendor: IBM
-          model: $column(3)
+          model: $3
           type: Computer
-          name: "sprintf(\"Computer: (%s %s)\", \"IBM\", $column(3))"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", \"IBM\", $3)}"
     collect:
       type: monoInstance
       sources:
@@ -80,11 +80,11 @@ monitors:
             regExp: 0$
           - type: translate
             column: 1
-            translationTable: enclosureIntrusionStatusTranslationTable
+            translationTable: "${translation::enclosureIntrusionStatusTranslationTable}"
       mapping:
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(1))
+          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($1)
   cpu:
     discovery:
       sources:
@@ -94,16 +94,16 @@ monitors:
           namespace: root\ibmsd
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          vendor: $column(3)
-          model: $column(4)
+          id: $2
+          vendor: $3
+          model: $4
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), $column(3), $column(4), megaHertz2HumanFormat($column(1)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $2, $3, $4, megaHertz2HumanFormat($1))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($1)
     collect:
       type: multiInstance
       sources:
@@ -117,17 +117,17 @@ monitors:
             column: 1
           - type: translate
             column: 1
-            translationTable: cpuStatusTranslationTable
+            translationTable: "${translation::cpuStatusTranslationTable}"
           - type: translate
             column: 2
-            translationTable: cpuStatusInformationTranslationTable
+            translationTable: "${translation::cpuStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="cpu"}: $column(1)
+          hw.status{hw.type="cpu"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   memory:
     discovery:
       sources:
@@ -145,20 +145,20 @@ monitors:
           - type: perBitTranslation
             column: 5
             bitList: "1,2,3,4,5,6,7,8,9,10,11,12,13"
-            translationTable: MemoryBitTranslationTable
+            translationTable: "${translation::MemoryBitTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(4)
-          vendor: $column(2)
-          serial_number: $column(3)
-          type: $column(5)
+          id: $4
+          vendor: $2
+          serial_number: $3
+          type: $5
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(4), $column(2), $column(5), $column(1))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s MB)\", $4, $2, $5, $1)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(1))
+          hw.memory.limit: mebiByte2Byte($1)
     collect:
       type: multiInstance
       sources:
@@ -170,12 +170,12 @@ monitors:
           computes:
           - type: translate
             column: 1
-            translationTable: memoryStatusTranslationTable
+            translationTable: "${translation::memoryStatusTranslationTable}"
       mapping:
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="memory"}: $column(1)
+          hw.status{hw.type="memory"}: $1
   fan:
     discovery:
       sources:
@@ -187,18 +187,18 @@ monitors:
           computes:
           - type: translate
             column: 2
-            translationTable: FanTypeTranslationTable
+            translationTable: "${translation::FanTypeTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $3
           hw.fan.speed.limit{limit_type="low.critical"}: 0
     collect:
       # The collect (as all WBEM-based collects) is "MultiInstance
@@ -211,10 +211,10 @@ monitors:
           namespace: root\ibmsd
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.fan.speed: $column(1)
+          hw.fan.speed: $1
   temperature:
     discovery:
       sources:
@@ -226,19 +226,19 @@ monitors:
           computes:
           - type: translate
             column: 4
-            translationTable: TemperatureTypeTranslationTable
+            translationTable: "${translation::TemperatureTypeTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(4)
+          id: $1
+          sensor_location: $4
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
-          hw.temperature.limit{limit_type="high.critical"}: $column(2)
+          hw.temperature.limit{limit_type="high.degraded"}: $3
+          hw.temperature.limit{limit_type="high.critical"}: $2
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
@@ -250,10 +250,10 @@ monitors:
           namespace: root\ibmsd
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(1)
+          hw.temperature: $1
   voltage:
     discovery:
       sources:
@@ -266,19 +266,19 @@ monitors:
           # Translate the voltage type into a more readable string
           - type: translate
             column: 4
-            translationTable: VoltageTypeTranslationTable
+            translationTable: "${translation::VoltageTypeTranslationTable}"
       mapping:
         # Here is the instance table = source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(4)
+          id: $1
+          sensor_location: $4
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: $column(3)
-          hw.voltage.limit{limit_type="low.critical"}: $column(2)
+          hw.voltage.limit{limit_type="high.degraded"}: $3
+          hw.voltage.limit{limit_type="low.critical"}: $2
     collect:
       # It's a "MultiInstance" collect
       type: multiInstance
@@ -290,10 +290,10 @@ monitors:
           namespace: root\ibmsd
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.voltage: $column(1)
+          hw.voltage: $1
   power_supply:
     discovery:
       sources:
@@ -304,12 +304,12 @@ monitors:
           namespace: root\ibmsd
       mapping:
         # 'The instance table:'
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: $column(1)
+          name: $1
     collect:
       # Collect type : multi instance (one source for several instances)
       type: multiInstance
@@ -329,20 +329,20 @@ monitors:
             # DeviceID;PatrolStatus;WBEMStatus
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second WBEM status column into a PATROL status
             # DeviceID;PatrolStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   disk_controller:
     discovery:
       sources:
@@ -371,7 +371,7 @@ monitors:
           # Union of everything, and we're good to go...
           # Still, damn crappy IBM Director Agent v5...
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
           - type: extract
             column: 2
@@ -379,7 +379,7 @@ monitors:
             subSeparators: ' '
         source(3):
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
           - type: extract
             column: 2
@@ -387,7 +387,7 @@ monitors:
             subSeparators: ' '
         source(4):
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           computes:
           - type: extract
             column: 2
@@ -396,26 +396,26 @@ monitors:
         source(5):
           type: tableUnion
           tables:
-          - $monitors.disk_controller.discovery.sources.source(2)$
-          - $monitors.disk_controller.discovery.sources.source(3)$
-          - $monitors.disk_controller.discovery.sources.source(4)$
+          - "${source::monitors.disk_controller.discovery.sources.source(2)}"
+          - "${source::monitors.disk_controller.discovery.sources.source(3)}"
+          - "${source::monitors.disk_controller.discovery.sources.source(4)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 2
             regExp: "^[0-9]+$"
       mapping:
         # The Instance table
-        source: $monitors.disk_controller.discovery.sources.source(5)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(5)}"
         attributes:
-          vendor: $column(5)
-          model: $column(6)
-          id: $column(2)
-          bios_version: $column(1)
-          driver_version: $column(3)
-          controller_number: $column(2)
+          vendor: $5
+          model: $6
+          id: $2
+          bios_version: $1
+          driver_version: $3
+          controller_number: $2
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(5), $column(6))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, $5, $6)}"
   physical_disk:
     discovery:
       sources:
@@ -447,8 +447,8 @@ monitors:
           # Source(3) = The jointure
           # ControllerID;DeviceID;Size;Manufacturer;Model;SerialNumber;Tag
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 5
           computes:
@@ -462,17 +462,17 @@ monitors:
       mapping:
         # Finally here is the instance table...
         # ControllerNumber;DeviceID;Capacity;Manufacturer;Model;SerialNumber;Tag
-        source: $monitors.physical_disk.discovery.sources.source(3)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          vendor: $column(4)
-          model: $column(5)
-          serial_number: $column(6)
+          id: $2
+          vendor: $4
+          model: $5
+          serial_number: $6
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), bytes2HumanFormatBase10($column(3)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $4, bytes2HumanFormatBase10($3))}"
         metrics:
-          hw.physical_disk.size: $column(3)
+          hw.physical_disk.size: $3
     collect:
       # The physical disk collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all physical disks
@@ -491,19 +491,19 @@ monitors:
           # Then we translate the IBMPSG status code into OK/WARN/ALARM (for the Status parameter)
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
           # And finally, we translate the IBMPSG status code into a more readable status string
           - type: translate
             column: 3
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -535,15 +535,15 @@ monitors:
             subSeparators: ' '
       mapping:
         # Here is the instance table
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          raid_level: $column(4)
+          id: $3
+          raid_level: $4
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), bytes2HumanFormatBase2($column(2)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $4, bytes2HumanFormatBase2($2))}"
         metrics:
-          hw.logical_disk.limit: $column(2)
+          hw.logical_disk.limit: $2
     collect:
       # It's a "MultiInstance" collect
       # One WBEM query will be executed in order to get the info for all the logical drives
@@ -562,19 +562,19 @@ monitors:
           # Translate the IBMPSG State column (the first one) into OK/WARN/ALARM
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
           # Translate the IBMPSG State column (the second one) into a more readable status information string
           - type: translate
             column: 3
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   VoltageTypeTranslationTable:
     "22": Remote +18 V

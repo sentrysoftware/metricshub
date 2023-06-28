@@ -26,16 +26,16 @@ monitors:
           commandLine: "virsh list | awk '{print $1}' | grep -oIE \"[0-9]*\" | while read word; do virsh dominfo ${word} ; done"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
       mapping:
-        source: $monitors.vm.discovery.sources.source(1)$
+        source: "${source::monitors.vm.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          vm.host.name: $column(1)
-          info: $column(4)
+          id: $1
+          __display_id: $1
+          vm.host.name: $1
+          info: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
     collect:
       type: multiInstance
       sources:
@@ -44,16 +44,16 @@ monitors:
           commandLine: "virsh list | awk '{print $1}' | grep -oIE \"[0-9]*\" | while read word; do virsh dominfo ${word} ; done"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: translate
             column: 2
-            translationTable: stateTranslationTable
+            translationTable: "${translation::stateTranslationTable}"
       mapping:
-        source: $monitors.vm.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.vm.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.vm.power_state: $column(2)
-          hw.vm.power_ratio: computePowerShareRatio($column(3))
+          hw.vm.power_state: $2
+          hw.vm.power_ratio: computePowerShareRatio($3)
 translations:
   stateTranslationTable:
     running: "ON"

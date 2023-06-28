@@ -24,15 +24,15 @@ monitors:
             value: "IP: "
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           vendor: IBM
-          model: $column(2)
-          serial_number: $column(3)
-          info: $column(4)
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(1), \"IBM\", $column(2))"
+          model: $2
+          serial_number: $3
+          info: $4
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $1, \"IBM\", $2)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -64,32 +64,32 @@ monitors:
             value: " - RefCode: "
           - type: rightConcat
             column: 3
-            value: Column(4)
+            value: $4
           - type: rightConcat
             column: 3
             value: " - EventTime: "
           - type: rightConcat
             column: 3
-            value: Column(5)
+            value: $5
         source(2):
           # Source(2) = Table joint of Enclosure.Discovery.Source(1) and Collect.Source(1)
           # The idea is to get one error per system, and show "OK" if nothing is found
           # v7 // Name;ModelType;SerialNumber;IPAddress;SystemName;Status;Description;RefCode;EventTime;
           # v8 // Name;ModelType;SerialNumber;IPAddress;SystemName;Status;Description;RefCode;EventTime;FRUDetails;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: SystemName;OK;No error reported by lssvcevents as of today;;
       mapping:
         # ValueTable = Source(2)
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(6)
+          hw.status{hw.type="enclosure"}: $6
         legacyTextParameters:
-          StatusInformation: $column(7)
+          StatusInformation: $7
   led:
     discovery:
       sources:
@@ -97,20 +97,20 @@ monitors:
           # Source(1) = Enclosure(1).Discovery.Source(1), because there is statically one System Attention LED for each system
           # Name;ModelType;SerialNumber;IPAddress;
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
       mapping:
         # The discovery table
-        source: $monitors.led.discovery.sources.source(1)$
+        source: "${source::monitors.led.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           __display_id: System Attention
           color: Amber
           __on_status: ALARM
           __blinking_status: ALARM
           __off_status: OK
           hw.parent.type: enclosure
-          hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s)\", \"System Attention\", \"Amber\")"
+          hw.parent.id: $1
+          name: "${awk::sprintf(\"%s (%s)\", \"System Attention\", \"Amber\")}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -128,13 +128,13 @@ monitors:
             # LEDID;ledStatus
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
       mapping:
         # CollectTable = Source(1)
-        source: $monitors.led.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.led.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="led"}: legacyLedStatus($column(2))
+          hw.status{hw.type="led"}: legacyLedStatus($2)
 translations:
   LEDStatusTranslationTable:
     Default: "Off"

@@ -36,16 +36,16 @@ monitors:
             value: 'MegaRaid '
       mapping:
         # The Instance table...
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(2)
+          id: $1
+          controller_number: $2
           vendor: LSI
-          model: $column(3)
-          firmware_version: $column(4)
-          driver_version: $column(5)
+          model: $3
+          firmware_version: $4
+          driver_version: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), \"LSI\", $column(3))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, \"LSI\", $3)}"
   physical_disk:
     discovery:
       sources:
@@ -68,15 +68,15 @@ monitors:
             value: 1048576
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(5)
+          id: $1
+          vendor: $5
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), bytes2HumanFormatBase10($column(3)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $4)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $5, bytes2HumanFormatBase10($3))}"
         metrics:
-          hw.physical_disk.size: $column(3)
+          hw.physical_disk.size: $3
     collect:
       # This is a multi-instance collect (execute the collect for each disk)
       type: multiInstance
@@ -96,28 +96,28 @@ monitors:
             # ID;mediaErrors;otherErrors;PredictedFailureErrors;PATROLStatus;state
           - type: translate
             column: 5
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
             # translate the snmp state into a more readable string
             # ID;mediaErrors;otherErrors;PredictedFailureErrors;PATROLStatus;statusInformation
           - type: translate
             column: 6
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
             # Add up errors
             # ID;totalErrorCount;otherErrors;PredictedFailureErrors;PATROLStatus;statusInformation
           - type: add
             column: 2
-            value: Column(3)
+            value: $3
           - type: add
             column: 2
-            value: Column(4)
+            value: $4
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(5)
+          hw.status{hw.type="physical_disk"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   logical_disk:
     discovery:
       sources:
@@ -135,15 +135,15 @@ monitors:
             value: 1048576
       mapping:
         # The instance table
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          raid_level: $column(3)
+          id: $1
+          raid_level: $3
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), bytes2HumanFormatBase2($column(2)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $4)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $3, bytes2HumanFormatBase2($2))}"
         metrics:
-          hw.logical_disk.limit: $column(2)
+          hw.logical_disk.limit: $2
     collect:
       # Type = MultiInstance
       type: multiInstance
@@ -163,20 +163,20 @@ monitors:
             # DeviceID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
             # translate the snmp status into a more readable string
             # DeviceID;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     "0": Unconfigured

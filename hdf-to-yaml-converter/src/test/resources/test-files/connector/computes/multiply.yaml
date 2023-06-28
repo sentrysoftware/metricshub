@@ -29,7 +29,7 @@
                     ID;devAdapterIndex;devType;devVendor;devProduct;devSizeInBytes;devBytesPerBlock
                   type: multiply
                   column: 6
-                  value: Column(7)
+                  value: $7
 - name: collect
   input: |
     // Watts for if we find total watt capacity
@@ -52,7 +52,7 @@
                     Watts for if we find total watt capacity
                   type: multiply
                   column: 8
-                  value: Column(7)
+                  value: $7
       voltage:
         collect:
           sources:

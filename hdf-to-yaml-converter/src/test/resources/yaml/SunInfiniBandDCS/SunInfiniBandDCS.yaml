@@ -30,7 +30,7 @@ monitors:
             # PortID;WidthActive;PhysState;Speed;
           - type: translate
             column: 2
-            translationTable: WidthActiveTranslationTable
+            translationTable: "${translation::WidthActiveTranslationTable}"
             # Exclude disabled ports
             # PortID;WidthActive;PhysState;Speed;
           - type: excludeMatchingLines
@@ -40,17 +40,17 @@ monitors:
             # PortID;WidthActive;PhysState;Speed;
           - type: translate
             column: 4
-            translationTable: SpeedTranslationTable
+            translationTable: "${translation::SpeedTranslationTable}"
       mapping:
         # Instance Table
         # PortID;WidthActive;PhysState;Speed;
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          device_type: $column(2)
+          id: $1
+          __display_id: $1
+          device_type: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -67,20 +67,20 @@ monitors:
             # PortID;WidthActive;LinkState;Speed;
           - type: translate
             column: 4
-            translationTable: SpeedTranslationTable
+            translationTable: "${translation::SpeedTranslationTable}"
             # Translate LinkState
             # PortID;WidthActive;LinkState;Speed;
           - type: translate
             column: 3
-            translationTable: LinkStateTranslationTable
+            translationTable: "${translation::LinkStateTranslationTable}"
       mapping:
         # ValueTable
         # PortID;WidthActive;LinkState;Speed;
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.network.up: legacyLinkStatus($column(3))
-          hw.network.bandwidth.limit: megaBit2Bit($column(4))
+          hw.network.up: legacyLinkStatus($3)
+          hw.network.bandwidth.limit: megaBit2Bit($4)
 translations:
   LinkStateTranslationTable:
     "1": degraded

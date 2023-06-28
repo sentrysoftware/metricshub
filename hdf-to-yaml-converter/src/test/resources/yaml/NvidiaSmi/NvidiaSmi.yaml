@@ -26,34 +26,34 @@ monitors:
           timeout: 90
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
       mapping:
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
   gpu:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_GPU
       mapping:
-        source: $monitors.gpu.discovery.sources.source(1)$
+        source: "${source::monitors.gpu.discovery.sources.source(1)}"
         attributes:
           vendor: NVIDIA
-          id: $column(2)
-          __display_id: $column(2)
-          model: $column(14)
-          serial_number: $column(15)
-          driver_version: $column(17)
-          firmware_version: $column(19)
-          info: "join(\" \", $column(16), $column(18))"
+          id: $2
+          __display_id: $2
+          model: $14
+          serial_number: $15
+          driver_version: $17
+          firmware_version: $19
+          info: "${awk::join(\" \", $16, $18)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), \"NVIDIA\", $column(14), mebiBytes2HumanFormat($column(20)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $2, \"NVIDIA\", $14, mebiBytes2HumanFormat($20))}"
         metrics:
-          hw.gpu.memory.limit: mebiByte2Byte($column(20))
+          hw.gpu.memory.limit: mebiByte2Byte($20)
     collect:
       type: multiInstance
       sources:
@@ -63,42 +63,42 @@ monitors:
           timeout: 90
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_GPU
       mapping:
-        source: $monitors.gpu.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.gpu.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.gpu.utilization{task="general"}: percent2Ratio($column(5))
-          hw.gpu.memory.utilization: percent2Ratio($column(6))
-          hw.gpu.utilization{task="encoder"}: percent2Ratio($column(7))
-          hw.gpu.utilization{task="decoder"}: percent2Ratio($column(8))
-          hw.gpu.io{direction="receive"}: fakeCounter($column(4))
-          hw.power{hw.type="gpu"}: $column(9)
-          hw.energy{hw.type="gpu"}: fakeCounter($column(9))
+          hw.gpu.utilization{task="general"}: percent2Ratio($5)
+          hw.gpu.memory.utilization: percent2Ratio($6)
+          hw.gpu.utilization{task="encoder"}: percent2Ratio($7)
+          hw.gpu.utilization{task="decoder"}: percent2Ratio($8)
+          hw.gpu.io{direction="receive"}: fakeCounter($4)
+          hw.power{hw.type="gpu"}: $9
+          hw.energy{hw.type="gpu"}: fakeCounter($9)
   temperature:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_TEMP
       mapping:
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
+          id: $2
+          __display_id: $2
           sensor_location: gpu
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
+          name: "${awk::sprintf(\"%s (%s)\", $2, \"gpu\")}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(4)
-          hw.temperature.limit{limit_type="high.critical"}: $column(5)
+          hw.temperature.limit{limit_type="high.degraded"}: $4
+          hw.temperature.limit{limit_type="high.critical"}: $5
     collect:
       type: multiInstance
       sources:
@@ -108,33 +108,33 @@ monitors:
           timeout: 90
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_TEMP
       mapping:
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(3)
+          hw.temperature: $3
   voltage:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 3
             regExp: .
       mapping:
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
+          id: $2
+          __display_id: $2
           sensor_location: gpu
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
+          name: "${awk::sprintf(\"%s (%s)\", $2, \"gpu\")}"
     collect:
       type: multiInstance
       sources:
@@ -144,33 +144,33 @@ monitors:
           timeout: 90
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_VOLTAGE
       mapping:
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.voltage: $column(3)
+          hw.voltage: $3
   fan:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_FAN
       mapping:
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
+          id: $2
+          __display_id: $2
           sensor_location: gpu
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), \"gpu\")"
+          name: "${awk::sprintf(\"%s (%s)\", $2, \"gpu\")}"
         metrics:
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
           hw.fan.speed_ratio.limit{limit_type="low.critical"}: percent2Ratio("0")
@@ -183,12 +183,12 @@ monitors:
           timeout: 90
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_FAN
       mapping:
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.fan.speed_ratio: percent2Ratio($column(3))
+          hw.fan.speed_ratio: percent2Ratio($3)

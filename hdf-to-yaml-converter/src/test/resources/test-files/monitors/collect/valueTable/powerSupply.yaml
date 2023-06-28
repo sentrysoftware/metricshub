@@ -13,12 +13,12 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;Utilization
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.power_supply.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.power_supply.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="power_supply"}: $column(2)
-              hw.power_supply.utilization: percent2Ratio($column(4))
+              hw.status{hw.type="power_supply"}: $2
+              hw.power_supply.utilization: percent2Ratio($4)
 - name: powerSupplyUsedWattsValueTable
   input: |
     // DeviceID;Status;StatusInformation;UsedWatts
@@ -34,10 +34,10 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;UsedWatts
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.power_supply.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.power_supply.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="power_supply"}: $column(2)
-              hw.power_supply.power: $column(4)
-              hw.power_supply.utilization: legacyPowerSupplyUtilization($column(4))
+              hw.status{hw.type="power_supply"}: $2
+              hw.power_supply.power: $4
+              hw.power_supply.utilization: legacyPowerSupplyUtilization($4)

@@ -13,9 +13,9 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;PowerState
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.blade.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.blade.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="blade"}: $column(2)
-              hw.blade.power_state: $column(4)
+              hw.status{hw.type="blade"}: $2
+              hw.blade.power_state: $4

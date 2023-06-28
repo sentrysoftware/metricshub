@@ -28,7 +28,7 @@ monitors:
           type: http
           method: POST
           url: /api2/json/access/ticket
-          body: $file("embeddedFile-2")$
+          body: "${file::embeddedFile-2}"
           header: "Content-Type: application/json"
           computes:
           - type: json2csv
@@ -41,8 +41,8 @@ monitors:
           method: GET
           url: "/api2/json/nodes/%{HOSTNAME}/qemu/"
           resultContent: body
-          authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: $file("embeddedFile-1")$
+          authenticationToken: "${source::monitors.vm.discovery.sources.source(1)}"
+          header: "${file::embeddedFile-1}"
           computes:
           - type: json2csv
             entryKey: /data
@@ -55,8 +55,8 @@ monitors:
           method: GET
           url: "/api2/json/nodes/%{HOSTNAME}/lxc/"
           resultContent: body
-          authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: $file("embeddedFile-1")$
+          authenticationToken: "${source::monitors.vm.discovery.sources.source(1)}"
+          header: "${file::embeddedFile-1}"
           computes:
           - type: json2csv
             entryKey: /data
@@ -67,16 +67,16 @@ monitors:
         source(4):
           type: tableUnion
           tables:
-          - $monitors.vm.discovery.sources.source(2)$
-          - $monitors.vm.discovery.sources.source(3)$
+          - "${source::monitors.vm.discovery.sources.source(2)}"
+          - "${source::monitors.vm.discovery.sources.source(3)}"
       mapping:
-        source: $monitors.vm.discovery.sources.source(4)$
+        source: "${source::monitors.vm.discovery.sources.source(4)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          vm.host.name: $column(2)
+          id: $2
+          __display_id: $2
+          vm.host.name: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $2)}"
     collect:
       type: multiInstance
       sources:
@@ -85,8 +85,8 @@ monitors:
           method: GET
           url: "/api2/json/nodes/%{HOSTNAME}/qemu/"
           resultContent: body
-          authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: $file("embeddedFile-1")$
+          authenticationToken: "${source::monitors.vm.discovery.sources.source(1)}"
+          header: "${file::embeddedFile-1}"
           computes:
           - type: json2csv
             entryKey: /data
@@ -96,8 +96,8 @@ monitors:
           method: GET
           url: "/api2/json/nodes/%{HOSTNAME}/lxc/"
           resultContent: body
-          authenticationToken: $monitors.vm.discovery.sources.source(1)$
-          header: $file("embeddedFile-1")$
+          authenticationToken: "${source::monitors.vm.discovery.sources.source(1)}"
+          header: "${file::embeddedFile-1}"
           computes:
           - type: json2csv
             entryKey: /data
@@ -105,18 +105,18 @@ monitors:
         source(3):
           type: tableUnion
           tables:
-          - $monitors.vm.collect.sources.source(1)$
-          - $monitors.vm.collect.sources.source(2)$
+          - "${source::monitors.vm.collect.sources.source(1)}"
+          - "${source::monitors.vm.collect.sources.source(2)}"
           computes:
           - type: translate
             column: 4
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
-        source: $monitors.vm.collect.sources.source(3)$
-        deviceId: $column(2)
+        source: "${source::monitors.vm.collect.sources.source(3)}"
+        deviceId: $2
         metrics:
-          hw.vm.power_ratio: computePowerShareRatio($column(3))
-          hw.vm.power_state: $column(4)
+          hw.vm.power_ratio: computePowerShareRatio($3)
+          hw.vm.power_state: $4
 translations:
   StatusTranslationTable:
     running: "ON"

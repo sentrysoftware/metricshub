@@ -38,7 +38,7 @@ monitors:
             # Take the list of volumes and associated them to the MPIO disk.
             # MPIOID;LunPathCount;NAAID;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -82,7 +82,7 @@ monitors:
             # To upper the PnPAddress
             # LunId(WithDevice);PnPAddress;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -90,8 +90,8 @@ monitors:
           # Source 7 = 2 Joined to 3 with Win32_LogicalDisk
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;
           type: tableJoin
-          leftTable: $monitors.lun.discovery.sources.source(2)$
-          rightTable: $monitors.lun.discovery.sources.source(3)$
+          leftTable: "${source::monitors.lun.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.lun.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -100,8 +100,8 @@ monitors:
           #          1          #     2          # 3          #           4          #   5          #     6          #   7
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;Win32_DiskDrive;Win32_DiskPartition;
           type: tableJoin
-          leftTable: $monitors.lun.discovery.sources.source(7)$
-          rightTable: $monitors.lun.discovery.sources.source(4)$
+          leftTable: "${source::monitors.lun.discovery.sources.source(7)}"
+          rightTable: "${source::monitors.lun.discovery.sources.source(4)}"
           leftKeyColumn: 4
           rightKeyColumn: 2
           keyType: Wbem
@@ -110,8 +110,8 @@ monitors:
           #          1          #     2          # 3          #           4          #   5          #     6          #   7          #         8          #      9          10
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;Win32_DiskDrive;Win32_DiskPartition;Win32_DiskDrive;PhysicalDiskName;PnPAddress;
           type: tableJoin
-          leftTable: $monitors.lun.discovery.sources.source(8)$
-          rightTable: $monitors.lun.discovery.sources.source(5)$
+          leftTable: "${source::monitors.lun.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.lun.discovery.sources.source(5)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
           keyType: Wbem
@@ -120,8 +120,8 @@ monitors:
           #          1          #     2          # 3          #           4          #   5          #     6          #   7          #         8          #      9          10           11          #  12
           # Win32_LogicalDisk;PartitionLetter;PartitionName;Win32_DiskPartition;Win32_LogicalDisk;Win32_DiskDrive;Win32_DiskPartition;Win32_DiskDrive;PhysicalDiskName;PnPAddress;LunId(WithDevice);PnPAddress;
           type: tableJoin
-          leftTable: $monitors.lun.discovery.sources.source(9)$
-          rightTable: $monitors.lun.discovery.sources.source(6)$
+          leftTable: "${source::monitors.lun.discovery.sources.source(9)}"
+          rightTable: "${source::monitors.lun.discovery.sources.source(6)}"
           leftKeyColumn: 10
           rightKeyColumn: 2
           computes:
@@ -135,7 +135,7 @@ monitors:
             # Take the list of volumes and associated them to the MPIO disk.
             # MPIOID;VolumeList;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -143,8 +143,8 @@ monitors:
           # Join the MPIO Discovered list with the Volume List
           # MPIOID;LunPathCount;NAAID;MPIOID;VolumeList;
           type: tableJoin
-          leftTable: $monitors.lun.discovery.sources.source(1)$
-          rightTable: $monitors.lun.discovery.sources.source(10)$
+          leftTable: "${source::monitors.lun.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.lun.discovery.sources.source(10)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;No Volumes;
@@ -158,17 +158,17 @@ monitors:
             # MPIOID-VolumeList;LunPathCount;NAAID;MPIOID;VolumeList;
           - type: rightConcat
             column: 1
-            value: Column(5)
+            value: $5
       mapping:
         # InstanceTable = Source(1)
         # MPIOID-VolumeList;LunPathCount;NAAID;MPIOID;VolumeList;
-        source: $monitors.lun.discovery.sources.source(11)$
+        source: "${source::monitors.lun.discovery.sources.source(11)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          local_device_name: $column(1)
+          id: $3
+          __display_id: $3
+          local_device_name: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $3, $1)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -183,14 +183,14 @@ monitors:
             # Take the list of volumes and associated them to the MPIO disk.
             # MPIOID;LunPathCount;NAAID;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
       mapping:
         # ValueTable = Source(1)
         # LUNID;NumberPaths
-        source: $monitors.lun.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.lun.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.lun.paths: $column(2)
+          hw.lun.paths: $2

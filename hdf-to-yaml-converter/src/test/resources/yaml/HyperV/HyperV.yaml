@@ -38,14 +38,14 @@ monitors:
             column: 2
             value: "GUID: "
       mapping:
-        source: $monitors.vm.discovery.sources.source(1)$
+        source: "${source::monitors.vm.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          vm.host.name: $column(1)
-          info: $column(2)
+          id: $1
+          __display_id: $1
+          vm.host.name: $1
+          info: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
     collect:
       type: multiInstance
       sources:
@@ -68,13 +68,13 @@ monitors:
             newValue: ""
           - type: translate
             column: 3
-            translationTable: stateTranslationTable
+            translationTable: "${translation::stateTranslationTable}"
       mapping:
-        source: $monitors.vm.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.vm.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.vm.power_ratio: computePowerShareRatio($column(2))
-          hw.vm.power_state: $column(3)
+          hw.vm.power_ratio: computePowerShareRatio($2)
+          hw.vm.power_state: $3
 translations:
   stateTranslationTable:
     default: "OFF"

@@ -15,7 +15,7 @@ connector:
     - type: http
       method: GET
       url: /ConfigurationManager/v1/objects/storages
-      header: $file("embeddedFile-1")$
+      header: "${file::embeddedFile-1}"
       expectedResult: storageDeviceId
       errorMessage: No storage devices detected. Host may not have the Hitachi Configuration Manager configured.
 monitors:
@@ -27,7 +27,7 @@ monitors:
           type: http
           method: GET
           url: /ConfigurationManager/v1/objects/storages
-          header: $file("embeddedFile-1")$
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
             # Extract enclosure(s) information
@@ -40,23 +40,23 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/components/instance
-          header: $file("embeddedFile-1")$
+          url: /ConfigurationManager/v1/objects/storages/$2/components/instance
+          header: "${file::embeddedFile-1}"
           resultContent: body
       mapping:
         # Enclosure Instance Table - Source(2)
         # JSON_ID; ID; Model; Serial Number
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          device_hostname: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
+          id: $2
+          __display_id: $2
+          device_hostname: $2
+          model: $3
+          serial_number: $4
           vendor: Hitachi
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"Hitachi\", $column(3))"
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $2, \"Hitachi\", $3)}"
     collect:
       # Collect
       type: multiInstance
@@ -66,15 +66,15 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/components/instance
-          header: $file("embeddedFile-1")$
+          url: /ConfigurationManager/v1/objects/storages/$2/components/instance
+          header: "${file::embeddedFile-1}"
           resultContent: body
         source(2):
           # Source (2) = Source (1)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract status
             # JSON_ID; ID; status
@@ -84,11 +84,11 @@ monitors:
       mapping:
         # Enclosure Instance Table - Source(2)
         # JSON_ID; ID; status
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.enclosure.power: $column(3)
-          hw.enclosure.energy: fakeCounter($column(3))
+          hw.enclosure.power: $3
+          hw.enclosure.energy: fakeCounter($3)
   battery:
     discovery:
       sources:
@@ -96,7 +96,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract battery(s) information
             # JSON_ID; enclosureID; DeviceID; DisplayID; AttachedToDeviceID
@@ -106,7 +106,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
             # Add battery type
             # JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
           - type: rightConcat
@@ -115,7 +115,7 @@ monitors:
         source(2):
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract battery(s) information
             # JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
@@ -125,11 +125,11 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Add enclosure name to device ID for attaching to disk controller
           - type: leftConcat
             column: 5
-            value: Column(2)
+            value: $2
             # Add enclosure name to device ID for attaching to disk controller
             # JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
           - type: leftConcat
@@ -140,19 +140,19 @@ monitors:
           # JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
           type: tableUnion
           tables:
-          - $monitors.battery.discovery.sources.source(1)$
-          - $monitors.battery.discovery.sources.source(2)$
+          - "${source::monitors.battery.discovery.sources.source(1)}"
+          - "${source::monitors.battery.discovery.sources.source(2)}"
       mapping:
         # Battery instance table - Source(3)
         # JSON_ID; enclosureID; DeviceID; DisplayID; type; AttachedToDeviceType; AttachedToDeviceID
-        source: $monitors.battery.discovery.sources.source(3)$
+        source: "${source::monitors.battery.discovery.sources.source(3)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          type: $column(5)
-          hw.parent.type: $column(6)
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          id: $3
+          __display_id: $4
+          type: $5
+          hw.parent.type: $6
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s)\", $4, $5)}"
     collect:
       # Collect
       type: multiInstance
@@ -160,7 +160,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract battery(s) information
             # JSON_ID; enclosureID; DeviceID; status; status information
@@ -170,15 +170,15 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
         source(2):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract battery(s) information
             # JSON_ID; enclosureID; DeviceID; DisplayID;
@@ -188,7 +188,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Add empty fields to prepare for table union
           - type: leftConcat
             column: 4
@@ -198,18 +198,18 @@ monitors:
           # JSON_ID; enclosureID; DeviceID; status; status information; charge
           type: tableUnion
           tables:
-          - $monitors.battery.collect.sources.source(1)$
-          - $monitors.battery.collect.sources.source(2)$
+          - "${source::monitors.battery.collect.sources.source(1)}"
+          - "${source::monitors.battery.collect.sources.source(2)}"
       mapping:
         # Battery value table - Source(3)
         # JSON_ID; enclosureID; DeviceID; status; status information; charge
-        source: $monitors.battery.collect.sources.source(3)$
-        deviceId: $column(3)
+        source: "${source::monitors.battery.collect.sources.source(3)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="battery"}: $column(4)
-          hw.battery.charge: percent2Ratio($column(6))
+          hw.status{hw.type="battery"}: $4
+          hw.battery.charge: percent2Ratio($6)
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   disk_controller:
     discovery:
       sources:
@@ -217,7 +217,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract disk controller(s) information
             # JSON_ID; enclosureID; deviceID; displayID
@@ -227,17 +227,17 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # Disk controller instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; displayID
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"Disk Controller: %s\", $column(4))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"Disk Controller: %s\", $4)}"
     collect:
       # Collect
       type: multiInstance
@@ -245,7 +245,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract disk controller(s) information
             # JSON_ID; enclosureID; deviceID; status; status information
@@ -255,20 +255,20 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
       mapping:
         # Disk controller instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(4)
+          hw.status{hw.type="disk_controller"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   fan:
     discovery:
       sources:
@@ -276,7 +276,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract fan(s) information
             # JSON_ID; enclosureID; deviceID; displayID
@@ -286,17 +286,17 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # Fan instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; displayID
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       # Collect
       type: multiInstance
@@ -304,7 +304,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract fan(s) information
             # JSON_ID; enclosureID; deviceID; status; status information
@@ -314,20 +314,20 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
       mapping:
         # Fan instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="fan"}: $column(4)
+          hw.status{hw.type="fan"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   led:
     discovery:
       sources:
@@ -335,7 +335,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract led(s) information
             # JSON_ID; enclosureID; DeviceID; DisplayID;
@@ -345,19 +345,19 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # Led instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; DisplayID;
-        source: $monitors.led.discovery.sources.source(1)$
+        source: "${source::monitors.led.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           __name: Drive Box
           __on_status: ALARM
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), \"Drive Box\")"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, \"Drive Box\")}"
     collect:
       # Collect
       type: multiInstance
@@ -365,7 +365,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract led(s) information
             # JSON_ID; enclosureID; DeviceID; status
@@ -375,14 +375,14 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # Led instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; status
-        source: $monitors.led.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.led.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="led"}: legacyLedStatus($column(4))
+          hw.status{hw.type="led"}: legacyLedStatus($4)
   memory:
     discovery:
       sources:
@@ -390,7 +390,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract memory(s) information
             # JSON_ID; enclosureID; deviceID; displayID; cache size
@@ -400,7 +400,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
             # Add memory type and model
             # JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
           - type: leftConcat
@@ -409,7 +409,7 @@ monitors:
         source(2):
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract memory(s) information
             # JSON_ID; enclosureID; deviceID; displayID; model
@@ -419,7 +419,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
             # Add memory type and model
             # JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
           - type: leftConcat
@@ -429,22 +429,22 @@ monitors:
           # JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
           type: tableUnion
           tables:
-          - $monitors.memory.discovery.sources.source(1)$
-          - $monitors.memory.discovery.sources.source(2)$
+          - "${source::monitors.memory.discovery.sources.source(1)}"
+          - "${source::monitors.memory.discovery.sources.source(2)}"
       mapping:
         # Memory instance table - Source(3)
         # JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
-        source: $monitors.memory.discovery.sources.source(3)$
+        source: "${source::monitors.memory.discovery.sources.source(3)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          type: $column(5)
-          model: $column(6)
+          id: $3
+          __display_id: $4
+          type: $5
+          model: $6
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s MB)\", $column(4), $column(5), $column(7))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $4, $5, $7)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(7))
+          hw.memory.limit: mebiByte2Byte($7)
     collect:
       # Collect
       type: multiInstance
@@ -452,7 +452,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract memory(s) information
             # JSON_ID; enclosureID; deviceID; status; status information
@@ -462,15 +462,15 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
         source(2):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract memory(s) information
             # JSON_ID; enclosureID; deviceID; status; status information
@@ -480,27 +480,27 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           # JSON_ID; enclosureID; DeviceID; status; status information
           type: tableUnion
           tables:
-          - $monitors.memory.collect.sources.source(1)$
-          - $monitors.memory.collect.sources.source(2)$
+          - "${source::monitors.memory.collect.sources.source(1)}"
+          - "${source::monitors.memory.collect.sources.source(2)}"
       mapping:
         # Memory instance table - Source(3)
         # JSON_ID; enclosureID; deviceID; status; status information
-        source: $monitors.memory.collect.sources.source(3)$
-        deviceId: $column(3)
+        source: "${source::monitors.memory.collect.sources.source(3)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="memory"}: $column(4)
+          hw.status{hw.type="memory"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   network:
     discovery:
       sources:
@@ -509,10 +509,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/ports
-          header: $file("embeddedFile-1")$
+          url: /ConfigurationManager/v1/objects/storages/$2/ports
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
             # Extract network card(s) information
@@ -523,18 +523,18 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # NetworkCard instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; displayID; type
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          device_type: $column(5)
+          id: $3
+          __display_id: $4
+          device_type: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, $5)}"
     collect:
       # Collect
       type: multiInstance
@@ -543,10 +543,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/ports
-          header: $file("embeddedFile-1")$
+          url: /ConfigurationManager/v1/objects/storages/$2/ports
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
             # Extract network card(s) information
@@ -557,7 +557,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Remove the "G" from the link speed
           - type: replace
             column: 4
@@ -575,10 +575,10 @@ monitors:
       mapping:
         # NetworkCard instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(4))
+          hw.network.bandwidth.limit: megaBit2Bit($4)
   other_device:
     discovery:
       sources:
@@ -586,7 +586,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract other device(s) information
             # JSON_ID; enclosureID; DeviceID; DisplayID
@@ -600,7 +600,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
             # Add enclosure name to device ID
             # JSON_ID; enclosureID; DeviceID; DisplayID; type
           - type: rightConcat
@@ -609,14 +609,14 @@ monitors:
       mapping:
         # OtherDevice instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; DisplayID; type
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          device_type: $column(5)
+          id: $3
+          __display_id: $4
+          device_type: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s: %s\", $column(5), $column(4))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s: %s\", $5, $4)}"
     collect:
       # Collect
       type: multiInstance
@@ -624,7 +624,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract other device(s) information
             # JSON_ID; enclosureID; DeviceID; status; status information
@@ -638,20 +638,20 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
       mapping:
         # OtherDevice instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; status; status information
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="other_device"}: $column(4)
+          hw.status{hw.type="other_device"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   physical_disk:
     discovery:
       sources:
@@ -660,10 +660,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/drives
-          header: $file("embeddedFile-1")$
+          url: /ConfigurationManager/v1/objects/storages/$2/drives
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
             # Extract physical disk(s) information
@@ -674,7 +674,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Covert size from GB to B
           - type: multiply
             column: 6
@@ -682,16 +682,16 @@ monitors:
       mapping:
         # PhysicalDisk instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; DisplayID; model; size
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          model: $column(5)
+          id: $3
+          __display_id: $4
+          model: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), bytes2HumanFormatBase10($column(6)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, bytes2HumanFormatBase10($6))}"
         metrics:
-          hw.physical_disk.size: $column(6)
+          hw.physical_disk.size: $6
     collect:
       # Collect
       type: multiInstance
@@ -700,10 +700,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: /ConfigurationManager/v1/objects/storages/$entry.column(2)$/drives
-          header: $file("embeddedFile-1")$
+          url: /ConfigurationManager/v1/objects/storages/$2/drives
+          header: "${file::embeddedFile-1}"
           resultContent: body
           computes:
             # Extract physical disk(s) information
@@ -714,24 +714,24 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: hddStatusTranslationTable
+            translationTable: "${translation::hddStatusTranslationTable}"
           # Translate device status to readable status value
           - type: translate
             column: 5
-            translationTable: hddStatusInformationTranslationTable
+            translationTable: "${translation::hddStatusInformationTranslationTable}"
       mapping:
         # PhysicalDisk instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; status; status information
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(4)
+          hw.status{hw.type="physical_disk"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   power_supply:
     discovery:
       sources:
@@ -739,7 +739,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract power supply(s) information
             # JSON_ID; enclosureID; deviceID; displayID; type
@@ -749,7 +749,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Add power supply type
           - type: rightConcat
             column: 4
@@ -757,7 +757,7 @@ monitors:
         source(2):
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract power supply(s) information
             # JSON_ID; enclosureID; deviceID; displayID; type
@@ -767,7 +767,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
             # Add power supply type
             # JSON_ID; enclosureID; deviceID; displayID; type
           - type: rightConcat
@@ -776,7 +776,7 @@ monitors:
         source(3):
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract power supply(s) information
             # JSON_ID; enclosureID; deviceID; displayID; type
@@ -790,7 +790,7 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
             # Add power supply type
             # JSON_ID; enclosureID; deviceID; displayID; type
           - type: rightConcat
@@ -801,20 +801,20 @@ monitors:
           # JSON_ID; enclosureID; deviceID; displayID; type
           type: tableUnion
           tables:
-          - $monitors.power_supply.discovery.sources.source(1)$
-          - $monitors.power_supply.discovery.sources.source(2)$
-          - $monitors.power_supply.discovery.sources.source(3)$
+          - "${source::monitors.power_supply.discovery.sources.source(1)}"
+          - "${source::monitors.power_supply.discovery.sources.source(2)}"
+          - "${source::monitors.power_supply.discovery.sources.source(3)}"
       mapping:
         # PowerSupply instance table - Source(4)
         # JSON_ID; enclosureID; deviceID; displayID; type
-        source: $monitors.power_supply.discovery.sources.source(4)$
+        source: "${source::monitors.power_supply.discovery.sources.source(4)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          power_supply_type: $column(5)
+          id: $3
+          __display_id: $4
+          power_supply_type: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, $5)}"
     collect:
       # Collect
       type: multiInstance
@@ -822,7 +822,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract network card(s) information
             # JSON_ID; enclosureID; deviceID; status; status information
@@ -832,15 +832,15 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
         source(2):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract network card(s) information
             # JSON_ID; enclosureID; deviceID; status; status information
@@ -850,15 +850,15 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
         source(3):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
           # JSON_ID; enclosureID; deviceID; status; status information
           - type: json2csv
@@ -871,28 +871,28 @@ monitors:
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
         source(4):
           # Source(4) = Union of Source(1), Source(2) and Source(3)
           # JSON_ID; enclosureID; DeviceID; status; status information
           type: tableUnion
           tables:
-          - $monitors.power_supply.collect.sources.source(1)$
-          - $monitors.power_supply.collect.sources.source(2)$
-          - $monitors.power_supply.collect.sources.source(3)$
+          - "${source::monitors.power_supply.collect.sources.source(1)}"
+          - "${source::monitors.power_supply.collect.sources.source(2)}"
+          - "${source::monitors.power_supply.collect.sources.source(3)}"
       mapping:
         # PowerSupply instance table - Source(4)
         # JSON_ID; enclosureID; deviceID; status; status information
-        source: $monitors.power_supply.collect.sources.source(4)$
-        deviceId: $column(3)
+        source: "${source::monitors.power_supply.collect.sources.source(4)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="power_supply"}: $column(4)
+          hw.status{hw.type="power_supply"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   temperature:
     discovery:
       sources:
@@ -900,7 +900,7 @@ monitors:
           # Discovery
           # Copy the enclosure component discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Extract temperature(s) information
             # JSON_ID; enclosureID; deviceID; displayID
@@ -910,18 +910,18 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # Temperature instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; displayID
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           sensor_location: Disk Controller
           hw.parent.type: disk_controller
-          hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s)\", $column(4), \"Disk Controller\")"
+          hw.parent.id: $3
+          name: "${awk::sprintf(\"%s (%s)\", $4, \"Disk Controller\")}"
     collect:
       # Collect
       type: multiInstance
@@ -929,7 +929,7 @@ monitors:
         source(1):
           # Copy the enclosure component collect
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
             # Extract temperature(s) information
             # JSON_ID; enclosureID; deviceID; status; status information; temperature
@@ -939,21 +939,21 @@ monitors:
           # Add enclosure name to device ID
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           # Translate status information to status value
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
       mapping:
         # Temperature instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information; temperature
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="temperature"}: $column(4)
-          hw.temperature: $column(6)
+          hw.status{hw.type="temperature"}: $4
+          hw.temperature: $6
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   statusTranslationTable:
     Warning: degraded

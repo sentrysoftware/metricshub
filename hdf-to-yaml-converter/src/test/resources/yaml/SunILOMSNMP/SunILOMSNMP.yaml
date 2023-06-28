@@ -47,7 +47,7 @@ monitors:
             # SensorID;LEDState;
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
             # Add Columns to match Sensor table (5)
             # SensorID;SensorType;SensorClass;SensorID;LEDState;
           - type: rightConcat
@@ -64,8 +64,8 @@ monitors:
           # Let's build up tables 2,3 and 4 into a single sensor table
           # SensorID;SensorType;SensorClass;SensorID;Status;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -74,13 +74,13 @@ monitors:
           # SensorID;SensorType;SensorClass;SensorID;Status;
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(3)$
-          - $monitors.enclosure.discovery.sources.source(5)$
+          - "${source::monitors.enclosure.discovery.sources.source(3)}"
+          - "${source::monitors.enclosure.discovery.sources.source(5)}"
         source(7):
           # SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(6)$
-          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;
@@ -101,8 +101,8 @@ monitors:
           # Now Attach Each Sensor to the FRU info
           # SensorID;PhysDesc;ParentID;Class;Name;Firmware;SerialNumber;Manufacturer;Model;SensorID;SensorType;SensorClass;Status;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(8)$
-          rightTable: $monitors.enclosure.discovery.sources.source(7)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(7)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;;;
@@ -110,13 +110,13 @@ monitors:
             # Awk the table to process the Sensors
             # MSHW_CLASS;.....
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW
         source(10):
           # Make a copy for Enclosure Discovery
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;ChassisConsumedPower;
@@ -129,15 +129,15 @@ monitors:
       mapping:
         # Instance Table
         # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;ChassisConsumedPower;
-        source: $monitors.enclosure.discovery.sources.source(10)$
+        source: "${source::monitors.enclosure.discovery.sources.source(10)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          vendor: $column(6)
-          model: $column(7)
-          serial_number: $column(5)
-          info: "join(\" \", $column(10), $column(4))"
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), $column(6), $column(7))"
+          id: $2
+          __display_id: $3
+          vendor: $6
+          model: $7
+          serial_number: $5
+          info: "${awk::join(\" \", $10, $4)}"
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $3, $6, $7)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -168,7 +168,7 @@ monitors:
             # SensorID;State;
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
             # Add Columns to match Sensor table (5)
             # SensorID;SensorType;SensorClass;SensorID;State;
           - type: rightConcat
@@ -185,8 +185,8 @@ monitors:
           # Let's build up tables 2,3 and 4 into a single sensor table
           # SensorID;SensorType;SensorClass;SensorID;Status;
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -195,13 +195,13 @@ monitors:
           # SensorID;SensorType;SensorClass;SensorID;Status;
           type: tableUnion
           tables:
-          - $monitors.enclosure.collect.sources.source(3)$
-          - $monitors.enclosure.collect.sources.source(5)$
+          - "${source::monitors.enclosure.collect.sources.source(3)}"
+          - "${source::monitors.enclosure.collect.sources.source(5)}"
         source(7):
           # SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(6)$
-          rightTable: $monitors.enclosure.collect.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(6)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;
@@ -222,8 +222,8 @@ monitors:
           # Now Attach Each Sensor to the FRU info
           # SensorID;PhysDesc;ParentID;Class;Name;Firmware;SerialNumber;Manufacturer;Model;SensorID;SensorType;SensorClass;Status;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(8)$
-          rightTable: $monitors.enclosure.collect.sources.source(7)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(8)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(7)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;;;
@@ -231,13 +231,13 @@ monitors:
             # Awk the table to process the Sensors
             # MSHW_CLASS;.....
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW
         source(10):
           # Make a copy for Enclosure Discovery
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
@@ -248,7 +248,7 @@ monitors:
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;PatrolStatus;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
           - type: arrayTranslate
             column: 8
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;PatrolStatus;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
           - type: convert
@@ -257,21 +257,21 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;PatrolStatus;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
-        source: $monitors.enclosure.collect.sources.source(10)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(10)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="enclosure"}: $column(8)
-          hw.enclosure.power: $column(12)
-          hw.enclosure.energy: fakeCounter($column(12))
+          hw.status{hw.type="enclosure"}: $8
+          hw.enclosure.power: $12
+          hw.enclosure.energy: fakeCounter($12)
         legacyTextParameters:
-          StatusInformation: $column(9)
+          StatusInformation: $9
   temperature:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only Temperature Sensors
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
@@ -281,16 +281,16 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          info: $column(9)
+          id: $2
+          __display_id: $3
+          info: $9
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(5)
-          hw.temperature.limit{limit_type="high.critical"}: $column(6)
+          hw.temperature.limit{limit_type="high.degraded"}: $5
+          hw.temperature.limit{limit_type="high.critical"}: $6
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -299,7 +299,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
@@ -310,7 +310,7 @@ monitors:
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
           - type: arrayTranslate
             column: 7
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
           - type: convert
@@ -319,20 +319,20 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(4)
-          hw.status{hw.type="temperature"}: $column(7)
+          hw.temperature: $4
+          hw.status{hw.type="temperature"}: $7
         legacyTextParameters:
-          StatusInformation: $column(8)
+          StatusInformation: $8
   fan:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only Fan Sensors
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
@@ -342,16 +342,16 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          info: $column(6)
+          id: $2
+          __display_id: $3
+          info: $6
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(8)
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(9)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $8
+          hw.fan.speed.limit{limit_type="low.critical"}: $9
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -360,7 +360,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
@@ -371,7 +371,7 @@ monitors:
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
           - type: arrayTranslate
             column: 4
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
           - type: convert
@@ -380,20 +380,20 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.fan.speed: $column(7)
-          hw.status{hw.type="fan"}: $column(4)
+          hw.fan.speed: $7
+          hw.status{hw.type="fan"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   power_supply:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only PowerSupply Sensors
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
@@ -411,13 +411,13 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model: <Model>;Status;StatusInformation;Sensor List: <SensorList>;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          info: "join(\" \", $column(4), $column(6), $column(9))"
+          id: $2
+          __display_id: $3
+          info: "${awk::join(\" \", $4, $6, $9)}"
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -426,7 +426,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
@@ -437,7 +437,7 @@ monitors:
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
           - type: arrayTranslate
             column: 7
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
           - type: convert
@@ -446,19 +446,19 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="power_supply"}: $column(7)
+          hw.status{hw.type="power_supply"}: $7
         legacyTextParameters:
-          StatusInformation: $column(8)
+          StatusInformation: $8
   voltage:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only Voltage Sensors
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
@@ -468,16 +468,16 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          info: $column(9)
+          id: $2
+          __display_id: $3
+          info: $9
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
-          hw.voltage.limit{limit_type="low.critical"}: $column(5)
+          hw.voltage.limit{limit_type="high.degraded"}: $6
+          hw.voltage.limit{limit_type="low.critical"}: $5
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -486,7 +486,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
@@ -497,7 +497,7 @@ monitors:
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
           - type: arrayTranslate
             column: 7
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
           - type: convert
@@ -506,20 +506,20 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.voltage: $column(4)
-          hw.status{hw.type="voltage"}: $column(7)
+          hw.voltage: $4
+          hw.status{hw.type="voltage"}: $7
         legacyTextParameters:
-          StatusInformation: $column(8)
+          StatusInformation: $8
   memory:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only Memory Sensors
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
@@ -529,18 +529,18 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          vendor: $column(6)
-          serial_number: $column(5)
-          model: $column(7)
-          info: $column(10)
+          id: $2
+          __display_id: $3
+          vendor: $6
+          serial_number: $5
+          model: $7
+          info: $10
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(3), $column(6), $column(4))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $3, $6, $4)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(4))
+          hw.memory.limit: mebiByte2Byte($4)
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -549,7 +549,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
@@ -560,7 +560,7 @@ monitors:
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
           - type: arrayTranslate
             column: 8
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
           - type: convert
@@ -569,19 +569,19 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="memory"}: $column(8)
+          hw.status{hw.type="memory"}: $8
         legacyTextParameters:
-          StatusInformation: $column(9)
+          StatusInformation: $9
   cpu:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only CPU Sensors
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
@@ -591,13 +591,13 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          info: $column(6)
+          id: $2
+          __display_id: $3
+          info: $6
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -606,7 +606,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
@@ -617,7 +617,7 @@ monitors:
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
           - type: arrayTranslate
             column: 4
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
           - type: convert
@@ -626,19 +626,19 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="cpu"}: $column(4)
+          hw.status{hw.type="cpu"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   other_device:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only OtherDevice Sensors
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
@@ -648,14 +648,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          device_type: $column(2)
-          info: $column(7)
+          id: $3
+          __display_id: $4
+          device_type: $2
+          info: $7
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", $column(2), $column(4))"
+          name: "${awk::sprintf(\"%s: %s\", $2, $4)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -664,7 +664,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
@@ -675,7 +675,7 @@ monitors:
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
           - type: arrayTranslate
             column: 5
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
           - type: convert
@@ -684,19 +684,19 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="other_device"}: $column(5)
+          hw.status{hw.type="other_device"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   physical_disk:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
             # Keep Only PhysicalDisk Sensors
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
@@ -706,15 +706,15 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          vendor: $column(5)
-          model: $column(6)
-          info: $column(9)
+          id: $2
+          __display_id: $3
+          vendor: $5
+          model: $6
+          info: $9
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
+          name: "${awk::sprintf(\"%s (%s)\", $3, $5)}"
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -723,7 +723,7 @@ monitors:
           # Make a copy for Enclosure Collect
           # MSHW_CLASS;.....
           type: copy
-          from: $monitors.enclosure.collect.sources.source(9)$
+          from: "${source::monitors.enclosure.collect.sources.source(9)}"
           computes:
             # Keep Only Enclosure
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
@@ -734,7 +734,7 @@ monitors:
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
           - type: arrayTranslate
             column: 7
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Then we consolodate the Status Codes into a Single Status
             # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
           - type: convert
@@ -743,12 +743,12 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(7)
+          hw.status{hw.type="physical_disk"}: $7
         legacyTextParameters:
-          StatusInformation: $column(8)
+          StatusInformation: $8
 translations:
   StatusTranslationTable:
     "1": failed

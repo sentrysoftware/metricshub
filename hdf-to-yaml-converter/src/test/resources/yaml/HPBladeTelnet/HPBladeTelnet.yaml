@@ -26,7 +26,7 @@ monitors:
           commandLine: show enclosure info
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -48,20 +48,20 @@ monitors:
         source(7):
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(2)$
-          - $monitors.enclosure.discovery.sources.source(3)$
-          - $monitors.enclosure.discovery.sources.source(4)$
-          - $monitors.enclosure.discovery.sources.source(5)$
-          - $monitors.enclosure.discovery.sources.source(6)$
+          - "${source::monitors.enclosure.discovery.sources.source(2)}"
+          - "${source::monitors.enclosure.discovery.sources.source(3)}"
+          - "${source::monitors.enclosure.discovery.sources.source(4)}"
+          - "${source::monitors.enclosure.discovery.sources.source(5)}"
+          - "${source::monitors.enclosure.discovery.sources.source(6)}"
       mapping:
         # The discovery table = source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: HPBladeChassis
-          model: $column(1)
-          serial_number: $column(2)
+          model: $1
+          serial_number: $2
           type: blade
-          name: "sprintf(\"Blade Enclosure: (%s)\", $column(1))"
+          name: "${awk::sprintf(\"Blade Enclosure: (%s)\", $1)}"
     collect:
       type: monoInstance
       sources:
@@ -70,7 +70,7 @@ monitors:
           commandLine: show enclosure status
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -78,7 +78,7 @@ monitors:
             # status;powerState;
           - type: translate
             column: 1
-            translationTable: OKDegradedFailedTranslationTable
+            translationTable: "${translation::OKDegradedFailedTranslationTable}"
         source(2):
           type: osCommand
           commandLine: show interconnect status all
@@ -97,41 +97,41 @@ monitors:
         source(7):
           type: tableUnion
           tables:
-          - $monitors.enclosure.collect.sources.source(2)$
-          - $monitors.enclosure.collect.sources.source(3)$
-          - $monitors.enclosure.collect.sources.source(4)$
-          - $monitors.enclosure.collect.sources.source(5)$
-          - $monitors.enclosure.collect.sources.source(6)$
+          - "${source::monitors.enclosure.collect.sources.source(2)}"
+          - "${source::monitors.enclosure.collect.sources.source(3)}"
+          - "${source::monitors.enclosure.collect.sources.source(4)}"
+          - "${source::monitors.enclosure.collect.sources.source(5)}"
+          - "${source::monitors.enclosure.collect.sources.source(6)}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="enclosure"}: $column(1)
-          hw.enclosure.power: $column(2)
-          hw.enclosure.energy: fakeCounter($column(2))
+          hw.status{hw.type="enclosure"}: $1
+          hw.enclosure.power: $2
+          hw.enclosure.energy: fakeCounter($2)
   power_supply:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(7)$
+          from: "${source::monitors.enclosure.discovery.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,4"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: HPBladeChassis
-          name: "sprintf(\"%s (%s W)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s W)\", $1, $2)}"
         metrics:
-          hw.power_supply.limit: $column(2)
+          hw.power_supply.limit: $2
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -139,10 +139,10 @@ monitors:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(7)$
+          from: "${source::monitors.enclosure.collect.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,5"
@@ -154,57 +154,57 @@ monitors:
             # powerSupplyID;PATROLStatus;status;  (using table in Enclosure Section)
           - type: translate
             column: 2
-            translationTable: OKDegradedFailedTranslationTable
+            translationTable: "${translation::OKDegradedFailedTranslationTable}"
             # Translate the second status column into a more readable String
             # powerSupplyID;PATROLStatus;statusInformation;
           - type: translate
             column: 3
-            translationTable: OKDegradedFailedStatusInformationTranslationTable
+            translationTable: "${translation::OKDegradedFailedStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
-          hw.power_supply.power: $column(4)
-          hw.power_supply.utilization: legacyPowerSupplyUtilization($column(4))
+          hw.status{hw.type="power_supply"}: $2
+          hw.power_supply.power: $4
+          hw.power_supply.utilization: legacyPowerSupplyUtilization($4)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(7)$
+          from: "${source::monitors.enclosure.discovery.sources.source(7)}"
           computes:
             # Now, extract the power supplies thanks to a smart AWK script
             #  RETURNS MSHW;FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
             #  SELECTS FanID
             # FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             separators: ;
             keep: ^MSHW;
             selectColumns: 2
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(7)$
+        source: "${source::monitors.fan.discovery.sources.source(7)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: HPBladeChassis
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(7)$
+          from: "${source::monitors.enclosure.collect.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -212,41 +212,41 @@ monitors:
             # status;fanState;  (using table in Enclosure Section)
           - type: translate
             column: 2
-            translationTable: OKDegradedFailedTranslationTable
+            translationTable: "${translation::OKDegradedFailedTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
-          hw.fan.speed_ratio: percent2Ratio($column(3))
+          hw.status{hw.type="fan"}: $2
+          hw.fan.speed_ratio: percent2Ratio($3)
   temperature:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(7)$
+          from: "${source::monitors.enclosure.discovery.sources.source(7)}"
           computes:
             # Now, extract the power supplies thanks to a smart AWK script
             #  RETURNS MSHW; ID, status, temperature, high caution value, high critical value, statusActivate, temperatureActivate
             #  SELECTS id, high caution value, high critical value, statusActivate, temperatureActivate
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,5,6,7,8"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: HPBladeChassis
-          name: $column(1)
+          name: $1
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
-          hw.temperature.limit{limit_type="high.critical"}: $column(3)
+          hw.temperature.limit{limit_type="high.degraded"}: $2
+          hw.temperature.limit{limit_type="high.critical"}: $3
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -254,10 +254,10 @@ monitors:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(2)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(7)$
+          from: "${source::monitors.enclosure.collect.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -265,38 +265,38 @@ monitors:
             # status;powerState;  (using table in Enclosure Section)
           - type: translate
             column: 2
-            translationTable: OKDegradedFailedTranslationTable
+            translationTable: "${translation::OKDegradedFailedTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(2)
-          hw.temperature: $column(3)
+          hw.status{hw.type="temperature"}: $2
+          hw.temperature: $3
   blade:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(7)$
+          from: "${source::monitors.enclosure.discovery.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
       mapping:
         # InstanceTable = Source(3)
-        source: $monitors.blade.discovery.sources.source(1)$
+        source: "${source::monitors.blade.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          blade_name: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
+          id: $1
+          blade_name: $2
+          model: $3
+          serial_number: $4
           hw.parent.type: enclosure
           hw.parent.id: HPBladeChassis
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $2, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -304,10 +304,10 @@ monitors:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(2)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(7)$
+          from: "${source::monitors.enclosure.collect.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-7")$
+            script: "${file::embeddedFile-7}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
@@ -315,39 +315,39 @@ monitors:
             # status
           - type: translate
             column: 2
-            translationTable: OKDegradedFailedTranslationTable
+            translationTable: "${translation::OKDegradedFailedTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.blade.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.blade.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="blade"}: $column(2)
-          hw.blade.power_state: $column(4)
+          hw.status{hw.type="blade"}: $2
+          hw.blade.power_state: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(7)$
+          from: "${source::monitors.enclosure.discovery.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-8")$
+            script: "${file::embeddedFile-8}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          device_type: $column(2)
-          additional_label: $column(3)
+          id: $1
+          device_type: $2
+          additional_label: $3
           hw.parent.type: enclosure
           hw.parent.id: HPBladeChassis
-          name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s: %s (%s)\", $2, $1, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -355,10 +355,10 @@ monitors:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(7)$
+          from: "${source::monitors.enclosure.collect.sources.source(7)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-9")$
+            script: "${file::embeddedFile-9}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -366,15 +366,15 @@ monitors:
             # status;powerState;  (using table in Enclosure Section)
           - type: translate
             column: 2
-            translationTable: OKDegradedFailedTranslationTable
+            translationTable: "${translation::OKDegradedFailedTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   OKDegradedFailedStatusInformationTranslationTable:
     N/A: ""

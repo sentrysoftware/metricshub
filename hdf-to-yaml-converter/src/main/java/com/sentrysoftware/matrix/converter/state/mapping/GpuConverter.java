@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 public class GpuConverter extends AbstractMappingConverter {
 
@@ -102,7 +103,9 @@ public class GpuConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, size)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, size)
+				)
 			)
 		);
 	}

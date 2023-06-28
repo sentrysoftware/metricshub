@@ -13,9 +13,9 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;Temperature
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.temperature.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.temperature.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="temperature"}: $column(2)
-              hw.temperature: $column(4)
+              hw.status{hw.type="temperature"}: $2
+              hw.temperature: $4

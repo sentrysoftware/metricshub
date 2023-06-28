@@ -37,13 +37,13 @@ monitors:
             valueList: 7
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(3)
+          id: $1
+          sensor_location: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -59,15 +59,15 @@ monitors:
             # SensorID;PATROLStatus;Message
           - type: translate
             column: 2
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -80,7 +80,7 @@ monitors:
         source(2):
           # Source(2) = Source(1)  - Source 2 will be for sensors of Characteristic \"Power\", i.e. Brocade and Cisco Switches.
           type: copy
-          from: $monitors.power_supply.discovery.sources.source(1)$
+          from: "${source::monitors.power_supply.discovery.sources.source(1)}"
           computes:
             # Keep only power supply (Characteristics)
             # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
@@ -90,7 +90,7 @@ monitors:
         source(3):
           # Source(2) = Source(1)  - Source 2 will be for sensors of Type \"Power-Supply\" but of Characteristic \"Other\", i.e. McData
           type: copy
-          from: $monitors.power_supply.discovery.sources.source(1)$
+          from: "${source::monitors.power_supply.discovery.sources.source(1)}"
           computes:
             # Keep only power supply (SensorType)
             # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
@@ -107,17 +107,17 @@ monitors:
           # SensorID;ComputerID;SensorName;SensorCharacteristic;SensorType
           type: tableUnion
           tables:
-          - $monitors.power_supply.discovery.sources.source(2)$
-          - $monitors.power_supply.discovery.sources.source(3)$
+          - "${source::monitors.power_supply.discovery.sources.source(2)}"
+          - "${source::monitors.power_supply.discovery.sources.source(3)}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(4)$
+        source: "${source::monitors.power_supply.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          power_supply_type: $column(3)
+          id: $1
+          power_supply_type: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -133,12 +133,12 @@ monitors:
             # SensorID;PATROLStatus;Message
           - type: translate
             column: 2
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3

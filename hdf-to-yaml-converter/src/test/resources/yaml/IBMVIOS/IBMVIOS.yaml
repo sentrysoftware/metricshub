@@ -71,20 +71,20 @@ monitors:
             # MachineIDNumber;MachineIDNumber;ModelCode;ModelName;LPARSystemID;SystemID;
           - type: translate
             column: 4
-            translationTable: ModelTranslationTable
+            translationTable: "${translation::ModelTranslationTable}"
       mapping:
         # The discovery table
         # MachineIDNumber;MachineIDNumber;ModelCode;ModelName;LPARSystemID;SystemID;
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
+          id: $3
+          __display_id: $3
           vendor: IBM
-          model: $column(4)
+          model: $4
           type: Computer
-          serial_number: $column(1)
-          info: "join(\" \", $column(2), $column(6), $column(5))"
-          name: "sprintf(\"Computer: %s (%s %s)\", $column(3), \"IBM\", $column(4))"
+          serial_number: $1
+          info: "${awk::join(\" \", $2, $6, $5)}"
+          name: "${awk::sprintf(\"Computer: %s (%s %s)\", $3, \"IBM\", $4)}"
   cpu:
     discovery:
       sources:
@@ -97,11 +97,11 @@ monitors:
           keep: ^proc
       mapping:
         # Instance table = source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -121,20 +121,20 @@ monitors:
             # cpuID;PATROLStatus;cpuStatus
           - type: translate
             column: 2
-            translationTable: cpuStatusTranslationTable
+            translationTable: "${translation::cpuStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # cpuID;PATROLStatus;statusInformation
           - type: translate
             column: 3
-            translationTable: cpuStatusInformationTranslationTable
+            translationTable: "${translation::cpuStatusInformationTranslationTable}"
       mapping:
         # ' "ValueTable = source(1)'
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="cpu"}: $column(2)
+          hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   memory:
     discovery:
       sources:
@@ -146,7 +146,7 @@ monitors:
             # Reformat lscfg's output through awk (see EmbeddedFile(6))
             # DeviceID;Size;SerialNumber
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -164,8 +164,8 @@ monitors:
           # DeviceID;StatusActivation;ErrorCountActivation;Size;SerialNumber
           type: tableUnion
           tables:
-          - $monitors.memory.discovery.sources.source(1)$
-          - $monitors.memory.discovery.sources.source(2)$
+          - "${source::monitors.memory.discovery.sources.source(1)}"
+          - "${source::monitors.memory.discovery.sources.source(2)}"
         source(4):
           # Source (4) = Date + Complete Errorlog
           # Not used in Discovery, it is used in the collect.  But as it can be a large file and we don't want to collect it
@@ -180,14 +180,14 @@ monitors:
             value: Memory Controller;;;
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.memory.discovery.sources.source(3)$
+        source: "${source::monitors.memory.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          serial_number: $column(5)
+          id: $1
+          serial_number: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s MB)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s MB)\", $1, $4)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(4))
+          hw.memory.limit: mebiByte2Byte($4)
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -200,7 +200,7 @@ monitors:
             # Reformat lsdev's output through awk (see EmbeddedFile(6))
             # DeviceID;Status;StatusInformation;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6"
@@ -214,22 +214,22 @@ monitors:
           # this is done in discovery
           # DeviceID;Status;StatusInformation;ErrorCount
           type: copy
-          from: $monitors.memory.discovery.sources.source(4)$
+          from: "${source::monitors.memory.discovery.sources.source(4)}"
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           type: tableUnion
           tables:
-          - $monitors.memory.collect.sources.source(1)$
-          - $monitors.memory.collect.sources.source(2)$
+          - "${source::monitors.memory.collect.sources.source(1)}"
+          - "${source::monitors.memory.collect.sources.source(2)}"
       mapping:
         # Value table = Source(1)
-        source: $monitors.memory.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
-          hw.errors{hw.type="memory"}: $column(4)
+          hw.status{hw.type="memory"}: $2
+          hw.errors{hw.type="memory"}: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   disk_controller:
     discovery:
       sources:
@@ -270,8 +270,8 @@ monitors:
           # with disks attached to them
           # adapterDevicePath;DeviceID;displayName;controllerDevicePath
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(2)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(1)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(4):
@@ -284,19 +284,19 @@ monitors:
             # Parsing this through an awk script
             # DeviceID;ErrorCount;
           - type: awk
-            script: $file("embeddedFile-7")$
+            script: "${file::embeddedFile-7}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
       mapping:
         # InstanceTable = Source(5)
-        source: $monitors.disk_controller.discovery.sources.source(3)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          controller_number: $column(4)
-          model: $column(3)
+          id: $2
+          controller_number: $4
+          model: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(4), $column(3))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $4, $3)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -305,8 +305,8 @@ monitors:
           # Table Join Discovery Source (3) - Instance Table, with Discovery Table (4) - Errorcounts
           # adapterDevicePath;DeviceID;displayName;controllerDevicePath;DeviceID;ErrorCount;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(4)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(4)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;0;
@@ -319,21 +319,21 @@ monitors:
             # adapterDevicePath;DeviceID;displayName;controllerDevicePath;DeviceID;PatrolStatus;ErrorCount;
           - type: translate
             column: 6
-            translationTable: ErrorcounttoStatusTranslationTable
+            translationTable: "${translation::ErrorcounttoStatusTranslationTable}"
             # Translate the errorcount into a status (as errorcount does not exist for Disk Controllers)
             # adapterDevicePath;DeviceID;displayName;controllerDevicePath;DeviceID;PatrolStatus;PatrolStatusInfo;
           - type: translate
             column: 7
-            translationTable: ErrorcounttoStatusInformationTranslationTable
+            translationTable: "${translation::ErrorcounttoStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # adapterDevicePath;DeviceID;displayName;controllerDevicePath;DeviceID;PatrolStatus;PatrolStatusInfo;
-        source: $monitors.disk_controller.collect.sources.source(1)$
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(6)
+          hw.status{hw.type="disk_controller"}: $6
         legacyTextParameters:
-          StatusInformation: $column(7)
-        deviceId: $column(2)
+          StatusInformation: $7
+        deviceId: $2
   physical_disk:
     discovery:
       sources:
@@ -360,7 +360,7 @@ monitors:
             # Reformat lsdev's output through awk (see EmbeddedFile(3))
             # DeviceID;size;make-model-FRU;Serial;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -368,8 +368,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;controllerID;DeviceID;size;make-model-FRU;Serial;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -382,16 +382,16 @@ monitors:
         # Now we are ready to go
         # InstanceTable = Source(4)
         # DeviceID;controllerID;DeviceID;size;make-model-FRU;Serial;
-        source: $monitors.physical_disk.discovery.sources.source(3)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          vendor: $column(5)
-          serial_number: $column(6)
+          id: $1
+          vendor: $5
+          serial_number: $6
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), bytes2HumanFormatBase10($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $5, bytes2HumanFormatBase10($4))}"
         metrics:
-          hw.physical_disk.size: $column(4)
+          hw.physical_disk.size: $4
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -411,28 +411,28 @@ monitors:
             # PhysicalDiskID;PATROLStatus;PhysicalDiskStatus
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # PhysicalDiskID;PATROLStatus;statusInformation
           - type: translate
             column: 3
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
         source(2):
           # Table Join Discovery Source (3) - Instance Table, with Discovery Table (4) - Errorcounts
           # PhysicalDiskID;PATROLStatus;statusInformation;DeviceID;ErrorCount;
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(4)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;0;
       mapping:
         #  "ValueTable = source(1)
         # PhysicalDiskID;PATROLStatus;statusInformation;DeviceID;ErrorCount;
-        source: $monitors.physical_disk.collect.sources.source(2)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(2)}"
+        deviceId: $1
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -444,7 +444,7 @@ monitors:
             # AWK it
             # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;AddressType;SerialNumber;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
         source(2):
@@ -455,7 +455,7 @@ monitors:
             # AWK it
             # MSHW;portID;Status;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             # Add MAC and blank serial number - This is done so that Embedded File 5 matched the one in IBM AIX Embedded file 3
@@ -468,21 +468,21 @@ monitors:
           # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;MAC;AddressType;SerialNumber;
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(2)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
       mapping:
         # InstanceTable = Source(1)
         # 1     2     3        # 4        #    5        #    6       7        # 8      9       10   11    12      13    14         15
         # MSHW;portID;Status;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;MAC;AddressType;SerialNumber;
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          physical_address: $column(13)
-          physical_address_type: $column(14)
-          device_type: $column(12)
-          serial_number: $column(15)
+          id: $2
+          physical_address: $13
+          physical_address_type: $14
+          device_type: $12
+          serial_number: $15
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(12))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $12)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -495,7 +495,7 @@ monitors:
             # AWK it
             # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;AddressType;SerialNumber;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
         source(2):
@@ -506,7 +506,7 @@ monitors:
             # AWK it
             # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
         source(3):
@@ -514,22 +514,22 @@ monitors:
           # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;AddressType;SerialNumber;
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(2)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(2)}"
       mapping:
         # ValueTable = Source(1)
         # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;AddressType;SerialNumber;
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $2
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(10))
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.packets{direction="receive"}: $column(7)
-          hw.network.packets{direction="transmit"}: $column(6)
-          hw.errors{hw.type="network"}: $column(5)
-          hw.network.io{direction="receive"}: $column(9)
-          hw.network.io{direction="transmit"}: $column(8)
-          hw.network.full_duplex: legacyFullDuplex($column(11))
+          hw.network.bandwidth.limit: megaBit2Bit($10)
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.packets{direction="receive"}: $7
+          hw.network.packets{direction="transmit"}: $6
+          hw.errors{hw.type="network"}: $5
+          hw.network.io{direction="receive"}: $9
+          hw.network.io{direction="transmit"}: $8
+          hw.network.full_duplex: legacyFullDuplex($11)
   lun:
     discovery:
       sources:
@@ -541,18 +541,18 @@ monitors:
             # AWK it
             # LunName;LunInfo;LunStatus;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
       mapping:
         # InstanceTable = Source(1)
         # LunName;LunInfo;LunStatus;
-        source: $monitors.lun.discovery.sources.source(1)$
+        source: "${source::monitors.lun.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -565,17 +565,17 @@ monitors:
             # AWK it
             # LunName;NumberPaths;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
       mapping:
         # ValueTable = Source(1)
         # LunName;NumberPaths;LunStatus;LunStatusInfo;AvailablePathInformation;
-        source: $monitors.lun.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.lun.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.lun.paths: $column(2)
+          hw.lun.paths: $2
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     Stopped: Stopped

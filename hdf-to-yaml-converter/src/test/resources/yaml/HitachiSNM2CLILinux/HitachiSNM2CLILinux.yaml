@@ -3,7 +3,7 @@ extends:
 - ../HitachiSNM2CLI-header/HitachiSNM2CLI-header
 constants:
   _EF1_COMMAND_PART2: ;
-  _EF1_COMMAND_PART1: "/bin/sh $file(\"embeddedFile-1\")$ %{USERNAME} %{PASSWORD}"
+  _EF1_COMMAND_PART1: "/bin/sh ${file::embeddedFile-1} %{USERNAME} %{PASSWORD}"
 connector:
   displayName: Hitachi HDS AMS/HUS (SNM2 CLI on Linux)
   platforms: "Hitachi AMS,Hitachi HUS"

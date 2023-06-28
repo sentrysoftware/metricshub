@@ -27,6 +27,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,7 +103,9 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(deviceId, vendor, model)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(deviceId, vendor, model)
+				)
 			)
 		);
 	}

@@ -29,15 +29,15 @@ monitors:
           selectColumns: "ID,1,2,8,41"
       mapping:
         # The InstanceTable
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(1)
-          model: $column(2)
-          firmware_version: $column(3)
-          driver_version: $column(4)
+          id: $1
+          controller_number: $1
+          model: $2
+          firmware_version: $3
+          driver_version: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -57,20 +57,20 @@ monitors:
             # ID;PATROLStatus;controllerComponentStatus
           - type: translate
             column: 2
-            translationTable: GenericStatusTranslationTable
+            translationTable: "${translation::GenericStatusTranslationTable}"
             # Translate the second controllerComponentStatus into a more readable string
             # ID;PATROLStatus;statusInformation
           - type: translate
             column: 3
-            translationTable: GenericStatusInformationTranslationTable
+            translationTable: "${translation::GenericStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -97,14 +97,14 @@ monitors:
           # DiskNumber;ControllerNumber
           type: tableUnion
           tables:
-          - $monitors.physical_disk.discovery.sources.source(2)$
-          - $monitors.physical_disk.discovery.sources.source(3)$
+          - "${source::monitors.physical_disk.discovery.sources.source(2)}"
+          - "${source::monitors.physical_disk.discovery.sources.source(3)}"
         source(5):
           # Source(5) = table joint between Source(1) and Source(4)
           # ID;DiskNumber;DiskName;Vendor;Model;Serial;SizeMB;BusTypeCode;NexusID;PartNumber;PredictedFailure;DiskNumber;ControllerNumber
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(4)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(4)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;1;
@@ -112,7 +112,7 @@ monitors:
             # Clean up in an awk script and extract enclosure
             # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6,7,8,9,10,11,12,13"
@@ -125,23 +125,23 @@ monitors:
             # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
           - type: translate
             column: 8
-            translationTable: PhysicalDiskBusTypeTranslationTable
+            translationTable: "${translation::PhysicalDiskBusTypeTranslationTable}"
       mapping:
         # The instance table = Source(5)
         # The Nexus ID will now be used as it is the reference used in the GUI / on the Case
         # EnclosureID;DisplayID;DiskName;Vendor;Model;Serial;Size;BusType;NexusID;PartNumber;PredictedFailure;ControllerNumber;
-        source: $monitors.physical_disk.discovery.sources.source(5)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(5)}"
         attributes:
-          id: $column(9)
-          __display_id: $column(2)
-          vendor: $column(4)
-          serial_number: $column(6)
-          info: "join(\" \", $column(5), $column(10), $column(3))"
+          id: $9
+          __display_id: $2
+          vendor: $4
+          serial_number: $6
+          info: "${awk::join(\" \", $5, $10, $3)}"
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(12))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), bytes2HumanFormatBase10($column(7)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $12)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $4, bytes2HumanFormatBase10($7))}"
         metrics:
-          hw.physical_disk.size: $column(7)
+          hw.physical_disk.size: $7
     collect:
       # Collect type = mono-instance
       type: multiInstance
@@ -161,17 +161,17 @@ monitors:
             # ID;patrolStatus;arrayDiskState;NexusID;smartIndication
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
             # Translate the second arrayDiskState into a PATROL information
             # ID;patrolStatus;statusInformation;NexusID;smartIndication
           - type: translate
             column: 3
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
             # Translate the smartIndication into an TRUE/FALSE value for PredictedFailure
             # ID;patrolStatus;statusInformation;NexusID;PredictedFailure
           - type: translate
             column: 5
-            translationTable: PhysicalDiskPredictedFailureTranslationTable
+            translationTable: "${translation::PhysicalDiskPredictedFailureTranslationTable}"
             # Replace double slashes with single.  I'm not sure if this is an emulation issue or if the server really returns these
             # ID;patrolStatus;statusInformation;NexusID;PredictedFailure
           - type: replace
@@ -181,13 +181,13 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;patrolStatus;statusInformation;NexusID;PredictedFailure
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(4)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $4
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(5))
+          hw.status{hw.type="physical_disk"}: $2
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($5)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -207,7 +207,7 @@ monitors:
             # ID;virtualDiskNumber;diskName;deviceName;Size;RaidLevel
           - type: translate
             column: 6
-            translationTable: RAIDLevelTranslationTable
+            translationTable: "${translation::RAIDLevelTranslationTable}"
         source(2):
           # Source(2) = the arrayDiskLogicalConnectionTable snmp table
           # physicalDiskNumber;VirtualDiskNumber
@@ -218,8 +218,8 @@ monitors:
           # Source(3) = table joint between source(1) and source(2)
           # ID;virtualDiskNumber;diskName;deviceName;Size;RaidLevel;physicalDiskNumber;VirtualDiskNumber
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
         source(4):
@@ -239,29 +239,29 @@ monitors:
           # arrayDiskNumber;controllerNumber
           type: tableUnion
           tables:
-          - $monitors.logical_disk.discovery.sources.source(4)$
-          - $monitors.logical_disk.discovery.sources.source(5)$
+          - "${source::monitors.logical_disk.discovery.sources.source(4)}"
+          - "${source::monitors.logical_disk.discovery.sources.source(5)}"
         source(7):
           # Source(5) = table joint between source(3) and source(6)
           # ID;virtualDiskNumber;diskName;deviceName;Size;RaidLevel;physicalDiskNumber;VirtualDiskNumber;arrayDiskNumber;controllerNumber;
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(3)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(6)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(6)}"
           leftKeyColumn: 7
           rightKeyColumn: 1
           defaultRightLine: ;1;
       mapping:
         # The InstanceTable
-        source: $monitors.logical_disk.discovery.sources.source(7)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(7)}"
         attributes:
-          id: $column(1)
-          raid_level: $column(6)
-          __display_id: $column(3)
+          id: $1
+          raid_level: $6
+          __display_id: $3
           hw.parent.type: disk_controller
-          hw.parent.id: $column(10)
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), bytes2HumanFormatBase2($column(5)))"
+          hw.parent.id: $10
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $6, bytes2HumanFormatBase2($5))}"
         metrics:
-          hw.logical_disk.limit: $column(5)
+          hw.logical_disk.limit: $5
     collect:
       # Collect type = mono-instance
       type: monoInstance
@@ -270,7 +270,7 @@ monitors:
           # Source(1) = SNMP Get on the virtualDiskState value of the virtualDiskTable SNMP table
           # virtualDiskState
           type: snmpGet
-          oid: 1.3.6.1.4.1.674.10893.1.20.140.1.1.4.$logical_disk.id$
+          oid: "1.3.6.1.4.1.674.10893.1.20.140.1.1.4.${logical_disk::id}"
           computes:
             # Duplicate this status, because we will translate it two times
             # virtualDiskState;virtualDiskState
@@ -280,19 +280,19 @@ monitors:
             # patrolDiskStatus;virtualDiskState
           - type: translate
             column: 1
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
             # Translate the virtualDiskState into a more readable string
             # patrolDiskStatus;arrayDiskStatusInformation
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(1)
+          hw.status{hw.type="logical_disk"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   battery:
     discovery:
       sources:
@@ -312,21 +312,21 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;BatteryNumber;Name;Vendor;BatteryNumber;ControllerNumber;
           type: tableJoin
-          leftTable: $monitors.battery.discovery.sources.source(1)$
-          rightTable: $monitors.battery.discovery.sources.source(2)$
+          leftTable: "${source::monitors.battery.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.battery.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;1;
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.battery.discovery.sources.source(3)$
+        source: "${source::monitors.battery.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          model: $column(3)
-          vendor: $column(4)
+          id: $1
+          model: $3
+          vendor: $4
           hw.parent.type: disk_controller
-          hw.parent.id: $column(6)
-          name: "sprintf(\"%s (%s %s)\", $column(1), $column(4), $column(3))"
+          hw.parent.id: $6
+          name: "${awk::sprintf(\"%s (%s %s)\", $1, $4, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -342,20 +342,20 @@ monitors:
             # DeviceID;StatusInformation;Status;
           - type: translate
             column: 2
-            translationTable: BatteryStatusInformationTranslationTable
+            translationTable: "${translation::BatteryStatusInformationTranslationTable}"
             # Translate the Status into a PATROL Status
             # DeviceID;StatusInformation;PATROLStatus;
           - type: translate
             column: 3
-            translationTable: GenericStatusTranslationTable
+            translationTable: "${translation::GenericStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(3)
+          hw.status{hw.type="battery"}: $3
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   enclosure:
     discovery:
       sources:
@@ -391,15 +391,15 @@ monitors:
       mapping:
         # Instance Table
         # EnclosureID;EnclosureType;EnclosureName;ServiceTag;AssetTag;NexusID;PartNumber;SerialNumber;
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(6)
+          id: $6
           vendor: Dell
           type: External Storage
-          model: $column(3)
-          serial_number: $column(8)
-          info: "join(\" \", $column(4), $column(5), $column(7))"
-          name: "sprintf(\"Enclosure: (%s %s)\", \"Dell\", $column(3))"
+          model: $3
+          serial_number: $8
+          info: "${awk::join(\" \", $4, $5, $7)}"
+          name: "${awk::sprintf(\"Enclosure: (%s %s)\", \"Dell\", $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -419,12 +419,12 @@ monitors:
             # ID;PatrolStatus;Status;
           - type: translate
             column: 2
-            translationTable: EnclosureStatusTranslationTable
+            translationTable: "${translation::EnclosureStatusTranslationTable}"
             # Translate second Status into a statusInformation
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: EnclosureStatusInformationTranslationTable
+            translationTable: "${translation::EnclosureStatusInformationTranslationTable}"
             # Replace double slashes with single.
             # ID;PatrolStatus;StatusInformation;
           - type: replace
@@ -433,12 +433,12 @@ monitors:
             newValue: \
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -452,7 +452,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;PartNumber;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
@@ -470,14 +470,14 @@ monitors:
       mapping:
         # Instance Table
         # EnclosureID;NexusID;Name;PartNumber;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          info: $column(4)
+          id: $2
+          __display_id: $3
+          info: $4
           hw.parent.type: External Storage
-          hw.parent.id: $column(1)
-          name: $column(3)
+          hw.parent.id: $1
+          name: $3
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -497,12 +497,12 @@ monitors:
             # NexusID;PatrolStatus;Status;Value;
           - type: translate
             column: 2
-            translationTable: ComponentStatusTranslationTable
+            translationTable: "${translation::ComponentStatusTranslationTable}"
             # Translate second Status into a statusInformation
             # NexusID;PatrolStatus;StatusInformation;Value;
           - type: translate
             column: 3
-            translationTable: ComponentStatusInformationTranslationTable
+            translationTable: "${translation::ComponentStatusInformationTranslationTable}"
             # Replace double slashes with single.
             # NexusID;PatrolStatus;StatusInformation;Value;
           - type: replace
@@ -511,13 +511,13 @@ monitors:
             newValue: \
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
-          hw.fan.speed: $column(4)
+          hw.status{hw.type="fan"}: $2
+          hw.fan.speed: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -531,7 +531,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;PartNumber;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
@@ -549,14 +549,14 @@ monitors:
       mapping:
         # Instance Table
         # EnclosureID;NexusID;Name;PartNumber;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          info: $column(4)
+          id: $2
+          __display_id: $3
+          info: $4
           hw.parent.type: External Storage
-          hw.parent.id: $column(1)
-          name: $column(3)
+          hw.parent.id: $1
+          name: $3
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -576,12 +576,12 @@ monitors:
             # NexusID;PatrolStatus;Status;
           - type: translate
             column: 2
-            translationTable: ComponentStatusTranslationTable
+            translationTable: "${translation::ComponentStatusTranslationTable}"
             # Translate second Status into a statusInformation
             # NexusID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: ComponentStatusInformationTranslationTable
+            translationTable: "${translation::ComponentStatusInformationTranslationTable}"
             # Replace double slashes with single.
             # NexusID;PatrolStatus;StatusInformation;
           - type: replace
@@ -590,12 +590,12 @@ monitors:
             newValue: \
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -609,7 +609,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
@@ -622,13 +622,13 @@ monitors:
       mapping:
         # Instance Table
         # EnclosureID;NexusID;Name;PartNumber;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
+          id: $2
+          __display_id: $3
           hw.parent.type: External Storage
-          hw.parent.id: $column(1)
-          name: $column(3)
+          hw.parent.id: $1
+          name: $3
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -648,12 +648,12 @@ monitors:
             # NexusID;PatrolStatus;Status;Value;
           - type: translate
             column: 2
-            translationTable: ComponentStatusTranslationTable
+            translationTable: "${translation::ComponentStatusTranslationTable}"
             # Translate second Status into a statusInformation
             # NexusID;PatrolStatus;StatusInformation;Value;
           - type: translate
             column: 3
-            translationTable: ComponentStatusInformationTranslationTable
+            translationTable: "${translation::ComponentStatusInformationTranslationTable}"
             # Replace double slashes with single.
             # NexusID;PatrolStatus;StatusInformation;Value;
           - type: replace
@@ -662,13 +662,13 @@ monitors:
             newValue: \
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(2)
-          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $2
+          hw.temperature: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -682,7 +682,7 @@ monitors:
             # Extract the EnclosureID;
             # EnclosureID;NexusID;Name;PartNumber;Type;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6"
@@ -701,19 +701,19 @@ monitors:
             # EnclosureID;NexusID;Name;PartNumber;Type;
           - type: translate
             column: 5
-            translationTable: TypeTranslationTable
+            translationTable: "${translation::TypeTranslationTable}"
       mapping:
         # Instance Table
         # EnclosureID;NexusID;Name;PartNumber;Type;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          device_type: $column(5)
-          info: $column(4)
+          id: $2
+          __display_id: $3
+          device_type: $5
+          info: $4
           hw.parent.type: External Storage
-          hw.parent.id: $column(1)
-          name: "sprintf(\"%s: %s\", $column(5), $column(3))"
+          hw.parent.id: $1
+          name: "${awk::sprintf(\"%s: %s\", $5, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -733,12 +733,12 @@ monitors:
             # NexusID;PatrolStatus;Status;
           - type: translate
             column: 2
-            translationTable: ComponentStatusTranslationTable
+            translationTable: "${translation::ComponentStatusTranslationTable}"
             # Translate second Status into a statusInformation
             # NexusID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: ComponentStatusInformationTranslationTable
+            translationTable: "${translation::ComponentStatusInformationTranslationTable}"
             # Replace double slashes with single.
             # NexusID;PatrolStatus;StatusInformation;
           - type: replace
@@ -747,12 +747,12 @@ monitors:
             newValue: \
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   BatteryStatusInformationTranslationTable:
     "1": Ready

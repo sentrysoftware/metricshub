@@ -27,12 +27,12 @@ monitors:
           oid: 1.3.6.1.4.1.343.2.19.1.2.10.1.0
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: IntelChassis
-          vendor: $column(1)
+          vendor: $1
           type: Computer
-          name: "sprintf(\"Computer: (%s)\", $column(1))"
+          name: "${awk::sprintf(\"Computer: (%s)\", $1)}"
   blade:
     discovery:
       sources:
@@ -50,7 +50,7 @@ monitors:
           # Translating the LED Fault Status (as in collect)
           - type: translate
             column: 3
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
           # Now replace UNKNOWN LED status (Not applicable etc..) with blank so that the parameter does not appear.
           - type: replace
             column: 3
@@ -58,12 +58,12 @@ monitors:
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.blade.discovery.sources.source(1)$
+        source: "${source::monitors.blade.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -79,14 +79,14 @@ monitors:
             # ID;StatusLED
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;StatusLED
-        source: $monitors.blade.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.blade.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="blade"}: $column(2)
+          hw.status{hw.type="blade"}: $2
   disk_controller:
     discovery:
       sources:
@@ -106,7 +106,7 @@ monitors:
             # ID;Presence;Vendor;Model;StatusLED
           - type: translate
             column: 5
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
             # Now replace UNKNOWN LED status (Not applicable etc..) with blank so that the parameter does not appear.
             # ID;Presence;Vendor;Model;StatusLED
           - type: replace
@@ -116,14 +116,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Presence;Vendor;Model;StatusLED
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(1)
-          model: $column(4)
+          id: $1
+          controller_number: $1
+          model: $4
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $4)}"
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -139,14 +139,14 @@ monitors:
             # ID;StatusLED
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;StatusLED
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
   physical_disk:
     discovery:
       sources:
@@ -168,18 +168,18 @@ monitors:
       mapping:
         # The instance table = Source(1)
         # ID;Presence;Model;Serial;Firmware;Size;ArrayLocation
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(3)
-          firmware_version: $column(5)
-          serial_number: $column(4)
-          info: $column(7)
+          id: $1
+          vendor: $3
+          firmware_version: $5
+          serial_number: $4
+          info: $7
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), bytes2HumanFormatBase10($column(6)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $3, bytes2HumanFormatBase10($6))}"
         metrics:
-          hw.physical_disk.size: $column(6)
+          hw.physical_disk.size: $6
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -195,20 +195,20 @@ monitors:
             # ID;PatrolOperationalStatus;PFA;
           - type: translate
             column: 2
-            translationTable: DiskStatusTranslationTable
+            translationTable: "${translation::DiskStatusTranslationTable}"
             # Translating the LED Fault Status (as in collect)
             # ID;PatrolOperationalStatus;PatrolPFA;
           - type: translate
             column: 3
-            translationTable: DiskPFATranslationTable
+            translationTable: "${translation::DiskPFATranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolOperationalStatus;PatrolPFA;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(3))
+          hw.status{hw.type="physical_disk"}: $2
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($3)
   fan:
     discovery:
       sources:
@@ -228,7 +228,7 @@ monitors:
             # ID;Presence;FaultLED;
           - type: translate
             column: 3
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
             # Exclude Fan Modules that have no status
             # ID;Presence;FaultLED;
           - type: excludeMatchingLines
@@ -273,21 +273,21 @@ monitors:
           # ID;Presence;FaultLED;Type;MinThreshold;
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(1)$
-          - $monitors.fan.discovery.sources.source(2)$
-          - $monitors.fan.discovery.sources.source(3)$
+          - "${source::monitors.fan.discovery.sources.source(1)}"
+          - "${source::monitors.fan.discovery.sources.source(2)}"
+          - "${source::monitors.fan.discovery.sources.source(3)}"
       mapping:
         # InstanceTable = Source(4)
         # ID;Presence;FaultLED;Type;MinThreshold;
-        source: $monitors.fan.discovery.sources.source(4)$
+        source: "${source::monitors.fan.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(4)
+          id: $1
+          sensor_location: $4
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
         metrics:
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
+          hw.fan.speed.limit{limit_type="low.critical"}: $5
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -303,7 +303,7 @@ monitors:
             # ID;FaultLED;
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
             # Add columns
             # ID;FaultLED;(Speed);
           - type: rightConcat
@@ -343,17 +343,17 @@ monitors:
           # ID;FaultLEDStatus;Speed;
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(1)$
-          - $monitors.fan.collect.sources.source(2)$
-          - $monitors.fan.collect.sources.source(3)$
+          - "${source::monitors.fan.collect.sources.source(1)}"
+          - "${source::monitors.fan.collect.sources.source(2)}"
+          - "${source::monitors.fan.collect.sources.source(3)}"
       mapping:
         # ValueTable = Source(4)
         # ID;FaultLEDStatus;Speed;
-        source: $monitors.fan.collect.sources.source(4)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(4)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
-          hw.fan.speed: $column(3)
+          hw.status{hw.type="fan"}: $2
+          hw.fan.speed: $3
   power_supply:
     discovery:
       sources:
@@ -373,7 +373,7 @@ monitors:
             # ID;Presence;FaultLED;
           - type: translate
             column: 3
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
             # Exclude PowerSupply Modules that have no status
             # ID;Presence;FaultLED;
           - type: excludeMatchingLines
@@ -382,12 +382,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Presence;FaultLED;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -403,14 +403,14 @@ monitors:
             # ID;FaultLED;
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;FaultLEDStatus;Speed;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
   other_device:
     discovery:
       sources:
@@ -443,8 +443,8 @@ monitors:
           # Type;ID;Presence;FaultLED;
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(1)$
-          - $monitors.other_device.discovery.sources.source(2)$
+          - "${source::monitors.other_device.discovery.sources.source(1)}"
+          - "${source::monitors.other_device.discovery.sources.source(2)}"
           computes:
             # Keep only present OtherDevices (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
             # Type;ID;Presence;FaultLED;
@@ -455,7 +455,7 @@ monitors:
             # Type;ID;Presence;FaultLED;
           - type: translate
             column: 4
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
             # Exclude OtherDevice Modules that have no status
             # Type;ID;Presence;FaultLED;
           - type: excludeMatchingLines
@@ -464,13 +464,13 @@ monitors:
       mapping:
         # InstanceTable = Source(3)
         # Type;ID;Presence;FaultLED;
-        source: $monitors.other_device.discovery.sources.source(3)$
+        source: "${source::monitors.other_device.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          device_type: $column(1)
+          id: $2
+          device_type: $1
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
-          name: "sprintf(\"%s: %s\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s: %s\", $1, $2)}"
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -504,21 +504,21 @@ monitors:
           # / ID;FaultLED;
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(2)}"
           computes:
             # Translating the LED Fault Status
             # ID;FaultLED;
           - type: translate
             column: 2
-            translationTable: LEDStatusTranslationTable
+            translationTable: "${translation::LEDStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;FaultLED;
-        source: $monitors.other_device.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
   network:
     discovery:
       sources:
@@ -538,8 +538,8 @@ monitors:
           # Source(3) = Source(1) + Source(2)
           # ID;PortName;ID;MAC;OpStatus
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -552,14 +552,14 @@ monitors:
       mapping:
         # InstanceTable = Source(3)
         # ID;PortName;ID;MAC;OpStatus
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          physical_address: $column(4)
+          id: $1
+          physical_address: $4
           physical_address_type: MAC
-          __display_id: $column(2)
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -575,7 +575,7 @@ monitors:
             # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
           - type: add
             column: 6
-            value: Column(7)
+            value: $7
           # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
           - type: duplicateColumn
             column: 5
@@ -583,12 +583,12 @@ monitors:
             # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
           - type: translate
             column: 6
-            translationTable: GenericLinkStatusTranslationTable
+            translationTable: "${translation::GenericLinkStatusTranslationTable}"
             # Translate the Status
             # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
           - type: translate
             column: 5
-            translationTable: networkStatusTranslationTable
+            translationTable: "${translation::networkStatusTranslationTable}"
             # Convert LinkSpeed into Mbp/s
             # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
           - type: divide
@@ -597,15 +597,15 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(5)
-          hw.network.up: legacyLinkStatus($column(6))
-          hw.errors{hw.type="network"}: $column(7)
-          hw.network.io{direction="receive"}: $column(3)
-          hw.network.io{direction="transmit"}: $column(4)
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $5
+          hw.network.up: legacyLinkStatus($6)
+          hw.errors{hw.type="network"}: $7
+          hw.network.io{direction="receive"}: $3
+          hw.network.io{direction="transmit"}: $4
+          hw.network.bandwidth.limit: megaBit2Bit($2)
 translations:
   DiskStatusTranslationTable:
     OK: ok

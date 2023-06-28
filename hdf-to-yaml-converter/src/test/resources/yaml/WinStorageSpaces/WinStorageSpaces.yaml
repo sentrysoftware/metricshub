@@ -53,11 +53,11 @@ monitors:
             # __PATH;BusType;DeviceId;FirmwareVersion;MediaType;Model;SerialNumber;Size;SpindleSpeed;
           - type: translate
             column: 2
-            translationTable: BustypeTranslationTable
+            translationTable: "${translation::BustypeTranslationTable}"
             # Merge all info into a proper label for the "Model" field
             # __PATH;DeviceID;Model;FirmwareVersion;SerialNumber;Size
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -79,8 +79,8 @@ monitors:
           # have the PnPDeviceID of the disk instances from MSFT_PhysicalDisk
           # __PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;__PATH_Win32_DiskDrive;SerialNumber;PnPDeviceID;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 5
           rightKeyColumn: 2
         source(4):
@@ -93,8 +93,8 @@ monitors:
           # Source(5) = Join Source(3) and Source(4)
           # __PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;__PATH_Win32_DiskDrive;SerialNumber;PnPDeviceID;__PATH_Win32_DiskDrive;__PATH_PnP;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(4)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(4)}"
           leftKeyColumn: 7
           rightKeyColumn: 1
           keyType: Wbem
@@ -108,8 +108,8 @@ monitors:
           # Source(7) = jointure of PnPDeviceID  source(3) with Dependant source(4)
           # __PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;__PATH_Win32_DiskDrive;SerialNumber;PnPDeviceID;__PATH_Win32_DiskDrive;__PATH_PnP;__PATH_Controller;__PATH_DiskPnPDeviceID;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(6)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(6)}"
           leftKeyColumn: 11
           rightKeyColumn: 2
           keyType: Wbem
@@ -129,8 +129,8 @@ monitors:
           # This filters out controllers that don't have disks attached to them)
           # __PATH_Controller;ControllerName;__PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;PnPDeviceID;__PATH_Controller;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(8)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(7)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(7)}"
           leftKeyColumn: 1
           rightKeyColumn: 8
           keyType: Wbem
@@ -139,19 +139,19 @@ monitors:
           # DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
           type: wmi
           executeForEachEntryOf:
-            source: $monitors.disk_controller.discovery.sources.source(7)$
+            source: "${source::monitors.disk_controller.discovery.sources.source(7)}"
             concatMethod: list
           namespace: root\Microsoft\Windows\Storage
-          query: "SELECT DeviceId,ReadErrorsTotal,Wear,WriteErrorsTotal,Temperature,TemperatureMax FROM ASSOCIATORS OF {$entry.column(1)$} WHERE ResultClass = MSFT_StorageReliabilityCounter"
+          query: "SELECT DeviceId,ReadErrorsTotal,Wear,WriteErrorsTotal,Temperature,TemperatureMax FROM ASSOCIATORS OF {$1} WHERE ResultClass = MSFT_StorageReliabilityCounter"
       mapping:
         # InstanceTable: Source(9) (not Source(10)!)
         # __PATH_Controller;ControllerName;__PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;PnPDeviceID;__PATH_Controller;
-        source: $monitors.disk_controller.discovery.sources.source(9)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(9)}"
         attributes:
-          id: $column(1)
-          model: $column(2)
+          id: $1
+          model: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
   physical_disk:
     discovery:
       sources:
@@ -159,8 +159,8 @@ monitors:
           # Source(1) = jointure of DiskController.Discovery.Source(7) and DiskController.Discovery.Source(8)
           # __PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;PnPDeviceID;__PATH_Controller;__PATH_Controller;ControllerName;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(7)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(8)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(7)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(8)}"
           leftKeyColumn: 8
           rightKeyColumn: 1
           keyType: Wbem
@@ -173,25 +173,25 @@ monitors:
           # Source(2) = Table joint of Source(1) with DiskController.Discovery.Source(10)
           # __PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;__PATH_Controller;DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(10)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(10)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
       mapping:
         # The instance table = Source(2)
         # __PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;__PATH_Controller;DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
-        source: $monitors.physical_disk.discovery.sources.source(2)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(2)}"
         attributes:
-          id: $column(2)
-          vendor: $column(3)
-          firmware_version: $column(4)
-          serial_number: $column(5)
+          id: $2
+          vendor: $3
+          firmware_version: $4
+          serial_number: $5
           hw.parent.type: disk_controller
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), bytes2HumanFormatBase10($column(6)))"
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $3, bytes2HumanFormatBase10($6))}"
         metrics:
-          hw.physical_disk.size: $column(6)
+          hw.physical_disk.size: $6
     collect:
       # Collect
       type: multiInstance
@@ -213,7 +213,7 @@ monitors:
             # __PATH;DeviceId;StatusArray;OperationalStatus;OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: OperationalStatusTranslationTable
+            translationTable: "${translation::OperationalStatusTranslationTable}"
           # Convert the array of status to a simple status (keep the worse one)
           - type: convert
             column: 3
@@ -222,13 +222,13 @@ monitors:
             # __PATH;DeviceId;Status;StatusInformation;OperationalStatus
           - type: arrayTranslate
             column: 4
-            translationTable: OperationalStatusInformationTranslationTable
+            translationTable: "${translation::OperationalStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Translate the 3rd OperationalStatus field into the PredictiveFailure parameter
             # __PATH;DeviceId;Status;StatusInformation;PredictedFailure
           - type: translate
             column: 5
-            translationTable: PredictedFailureTranslationTable
+            translationTable: "${translation::PredictedFailureTranslationTable}"
         source(2):
           # Source(2) = ASSOCIATORS of each MSFT_PhysicalDisk, from the MSFT_StorageReliabilityCounter table
           # Use DiskController.Discovery.Source(7) for the list of instances instead of PhysicalDisk.Collect.Source(1)
@@ -236,16 +236,16 @@ monitors:
           # DeviceId;ReadErrors;Wear;WriteErrors;
           type: wmi
           executeForEachEntryOf:
-            source: $monitors.disk_controller.discovery.sources.source(7)$
+            source: "${source::monitors.disk_controller.discovery.sources.source(7)}"
             concatMethod: list
           namespace: root\Microsoft\Windows\Storage
-          query: "SELECT DeviceId,ReadErrorsTotal,Wear,WriteErrorsTotal FROM ASSOCIATORS OF {$entry.column(1)$} WHERE ResultClass = MSFT_StorageReliabilityCounter"
+          query: "SELECT DeviceId,ReadErrorsTotal,Wear,WriteErrorsTotal FROM ASSOCIATORS OF {$1} WHERE ResultClass = MSFT_StorageReliabilityCounter"
           computes:
             # TotalErrors = Read + Write
             # DeviceId;TotalErrors;Wear;WriteErrors;
           - type: add
             column: 2
-            value: Column(4)
+            value: $4
             # Convert Wear into EnduranceRemaing (Endurance Remaining = 100 - Wear)
             # DeviceId;TotalErrors;EnduranceRemaing;WriteErrors;
           - type: multiply
@@ -258,22 +258,22 @@ monitors:
           # Source(3) = Table join of Source(1) and Source(2)
           # __PATH;DeviceId;Status;StatusInformation;OperationalStatus;DeviceId;TotalErrors;EnduranceRemaing;WriteErrors;
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.physical_disk.collect.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.collect.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;;;;
       mapping:
         # ValueTable = Source(3)
         # __PATH;DeviceId;Status;StatusInformation;OperationalStatus;DeviceId;TotalErrors;EnduranceRemaing;WriteErrors;
-        source: $monitors.physical_disk.collect.sources.source(3)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(3)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(5))
-          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(8))
+          hw.status{hw.type="physical_disk"}: $3
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($5)
+          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($8)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   logical_disk:
     discovery:
       sources:
@@ -292,22 +292,22 @@ monitors:
             # Transform DriveLetterNumber into a letter, and change ObjectId for DriveLetter is possible
             # DeviceID;Label;Filesystem;Size;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           type: Volume
-          info: $column(3)
+          info: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), bytes2HumanFormatBase2($column(4)))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, bytes2HumanFormatBase2($4))}"
         metrics:
-          hw.logical_disk.limit: $column(4)
+          hw.logical_disk.limit: $4
     collect:
       # Collect
       type: multiInstance
@@ -327,29 +327,29 @@ monitors:
             # ObjectId;DriveLetter;Status;OperationalStatus;SizeRemaning;
           - type: translate
             column: 3
-            translationTable: LogicalDiskHealthStatusTranslationTable
+            translationTable: "${translation::LogicalDiskHealthStatusTranslationTable}"
             # Translate the OperationalStatus field into detailed status information
             # ObjectId;DriveLetter;Status;StatusInformation;SizeRemaning;
           - type: translate
             column: 4
-            translationTable: LogicalDiskHealthStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskHealthStatusInformationTranslationTable}"
             # Convert ObjectId and DriveLetterNumber into a DeviceId
             # DeviceID;Status;StatusInformation;SizeRemaning;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
-          hw.logical_disk.usage{state="free"}: $column(4)
+          hw.status{hw.type="logical_disk"}: $2
+          hw.logical_disk.usage{state="free"}: $4
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -357,7 +357,7 @@ monitors:
           # Source(1) = ASSOCIATORS of each MSFT_PhysicalDisk, from the MSFT_StorageReliabilityCounter table
           # DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(10)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(10)}"
           computes:
             # Remove lines where temperature = 0
             # DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
@@ -368,8 +368,8 @@ monitors:
           # Source(2) = Table join of Source(1) with PhysicalDisk.Discovery.Source(1)
           # DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;__PATH_MSFT_DiskDrive;DeviceID;Model;FirmwareVersion;SerialNumber;Size;PnPDeviceID;__PATH_Controller;__PATH_Controller;ControllerName;
           type: tableJoin
-          leftTable: $monitors.temperature.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(1)$
+          leftTable: "${source::monitors.temperature.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           computes:
@@ -381,21 +381,21 @@ monitors:
             # (which is often 0, in which case we set thresholds based on the type of the disk)
             # DeviceId;TemperatureType;WarningThreshold;AlarmThreshold;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # InstanceTable = Source(2)
-        source: $monitors.temperature.discovery.sources.source(2)$
+        source: "${source::monitors.temperature.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
-          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+          hw.temperature.limit{limit_type="high.degraded"}: $3
+          hw.temperature.limit{limit_type="high.critical"}: $4
     collect:
       # Collect
       type: multiInstance
@@ -405,16 +405,16 @@ monitors:
           # DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
           type: wmi
           executeForEachEntryOf:
-            source: $monitors.physical_disk.discovery.sources.source(1)$
+            source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
             concatMethod: list
           namespace: root\Microsoft\Windows\Storage
-          query: "SELECT DeviceId,Temperature FROM ASSOCIATORS OF {$entry.column(1)$} WHERE ResultClass = MSFT_StorageReliabilityCounter"
+          query: "SELECT DeviceId,Temperature FROM ASSOCIATORS OF {$1} WHERE ResultClass = MSFT_StorageReliabilityCounter"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
 translations:
   PredictedFailureTranslationTable:
     "53285": "True"

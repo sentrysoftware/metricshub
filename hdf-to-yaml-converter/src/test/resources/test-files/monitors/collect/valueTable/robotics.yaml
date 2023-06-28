@@ -14,10 +14,10 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;Moves;Errors
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.robotics.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.robotics.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="robotics"}: $column(2)
-              hw.robotics.moves: $column(4)
-              hw.errors{hw.type="robotics"}: $column(5)
+              hw.status{hw.type="robotics"}: $2
+              hw.robotics.moves: $4
+              hw.errors{hw.type="robotics"}: $5

@@ -50,25 +50,25 @@ monitors:
             value: ", CPU "
           - type: rightConcat
             column: 2
-            value: Column(3)
+            value: $3
           - type: rightConcat
             column: 2
             value: ", Riser "
           - type: rightConcat
             column: 2
-            value: Column(4)
+            value: $4
           - type: rightConcat
             column: 2
             value: ", Module "
           - type: rightConcat
             column: 2
-            value: Column(5)
+            value: $5
             # Translate the Memoyr Type
             # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
             #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
           - type: translate
             column: 7
-            translationTable: memoryTypeTranslationTable
+            translationTable: "${translation::memoryTypeTranslationTable}"
             # Convert size to MB
             # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
             #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
@@ -94,18 +94,18 @@ monitors:
         # The Instance Table
         # ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
         #  1,    2   ,   3     ,     4     ,    5       , 6  , 7  ,  8   , 9   ,  10  , 11      , 12
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          type: $column(7)
-          vendor: $column(8)
-          model: $column(9)
-          serial_number: $column(10)
-          info: "join(\" \", $column(2), $column(11))"
+          id: $1
+          type: $7
+          vendor: $8
+          model: $9
+          serial_number: $10
+          info: "${awk::join(\" \", $2, $11)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(1), $column(8), $column(7), $column(6))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s MB)\", $1, $8, $7, $6)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(6))
+          hw.memory.limit: mebiByte2Byte($6)
     collect:
       type: multiInstance
       sources:
@@ -124,21 +124,21 @@ monitors:
             # DeviceID;PATROLStatus;Status;ErrorCountCondition
           - type: translate
             column: 2
-            translationTable: memoryStatusTranslationTable
+            translationTable: "${translation::memoryStatusTranslationTable}"
             # Translate second Status into a more readable string
             # DeviceID;PATROLStatus;statusInformation;ErrorCountCondition
           - type: translate
             column: 3
-            translationTable: memoryStatusInformationTranslationTable
+            translationTable: "${translation::memoryStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;statusInformation
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   errorCountConditionTranslationTable:
     "2": ok

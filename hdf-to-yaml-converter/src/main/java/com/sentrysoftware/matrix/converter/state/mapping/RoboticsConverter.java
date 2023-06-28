@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
 import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +75,9 @@ public class RoboticsConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, roboticType)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, model }, roboticType)
+				)
 			)
 		);
 	}

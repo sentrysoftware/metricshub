@@ -45,9 +45,9 @@ monitors:
         source(3):
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(1)$
-          - $monitors.enclosure.discovery.sources.source(2)$
-          - $monitors.enclosure.collect.sources.source(5)$
+          - "${source::monitors.enclosure.discovery.sources.source(1)}"
+          - "${source::monitors.enclosure.discovery.sources.source(2)}"
+          - "${source::monitors.enclosure.collect.sources.source(5)}"
     collect:
       sources:
         source(1):
@@ -63,5 +63,5 @@ monitors:
         source(3):
           type: tableUnion
           tables:
-          - $monitors.enclosure.collect.sources.source(1)$
-          - $monitors.enclosure.collect.sources.source(2)$
+          - "${source::monitors.enclosure.collect.sources.source(1)}"
+          - "${source::monitors.enclosure.collect.sources.source(2)}"

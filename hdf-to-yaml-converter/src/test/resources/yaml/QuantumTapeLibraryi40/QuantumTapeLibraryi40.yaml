@@ -25,15 +25,15 @@ monitors:
           selectColumns: "4,5,7,11"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: Quantum Library
-          vendor: $column(1)
-          model: $column(3)
-          serial_number: $column(2)
-          bios_version: $column(4)
+          vendor: $1
+          model: $3
+          serial_number: $2
+          bios_version: $4
           type: Storage
-          name: "sprintf(\"Storage: (%s %s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"Storage: (%s %s)\", $1, $3)}"
     collect:
       type: multiInstance
       sources:
@@ -49,19 +49,19 @@ monitors:
             # PATROLStatus;Status;
           - type: translate
             column: 1
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         deviceId: Quantum Library
         metrics:
-          hw.status{hw.type="enclosure"}: $column(1)
+          hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   fan:
     discovery:
       sources:
@@ -82,13 +82,13 @@ monitors:
       mapping:
         # InstanceTable = Discovery.Source(1)
         # ID;Status
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
           sensor_location: Overall Cooling Status
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
-          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Cooling Status\")"
+          name: "${awk::sprintf(\"%s (%s)\", $1, \"Overall Cooling Status\")}"
     collect:
       type: multiInstance
       sources:
@@ -104,19 +104,19 @@ monitors:
             # PATROLStatus;Status;
           - type: translate
             column: 1
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
-        source: $monitors.fan.collect.sources.source(1)$
+        source: "${source::monitors.fan.collect.sources.source(1)}"
         deviceId: Overall Cooling Status
         metrics:
-          hw.status{hw.type="fan"}: $column(1)
+          hw.status{hw.type="fan"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   power_supply:
     discovery:
       sources:
@@ -135,13 +135,13 @@ monitors:
             column: 2
             valueList: "1,2,3,4,5"
       mapping:
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
           power_supply_type: Overall Power Status
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
-          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Power Status\")"
+          name: "${awk::sprintf(\"%s (%s)\", $1, \"Overall Power Status\")}"
     collect:
       type: multiInstance
       sources:
@@ -157,19 +157,19 @@ monitors:
             # PATROLStatus;Status;
           - type: translate
             column: 1
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
-        source: $monitors.power_supply.collect.sources.source(1)$
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
         deviceId: Overall Power Status
         metrics:
-          hw.status{hw.type="power_supply"}: $column(1)
+          hw.status{hw.type="power_supply"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   robotics:
     discovery:
       sources:
@@ -190,13 +190,13 @@ monitors:
       mapping:
         # Instance Table
         # ID;Status
-        source: $monitors.robotics.discovery.sources.source(1)$
+        source: "${source::monitors.robotics.discovery.sources.source(1)}"
         attributes:
           robotics_type: Overall Robotics Status
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
-          name: "sprintf(\"%s (%s)\", $column(1), \"Overall Robotics Status\")"
+          name: "${awk::sprintf(\"%s (%s)\", $1, \"Overall Robotics Status\")}"
     collect:
       type: multiInstance
       sources:
@@ -213,20 +213,20 @@ monitors:
             # deviceID;PATROLStatus;Status;
           - type: translate
             column: 1
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # deviceID;PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Value Table
-        source: $monitors.robotics.collect.sources.source(1)$
+        source: "${source::monitors.robotics.collect.sources.source(1)}"
         deviceId: Overall Cassette Robotics Status
         metrics:
-          hw.status{hw.type="robotics"}: $column(1)
+          hw.status{hw.type="robotics"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   tape_drive:
     discovery:
       sources:
@@ -237,15 +237,15 @@ monitors:
           selectColumns: "9,3,4,2"
       mapping:
         # phDriveSerialNumber;phDriveModel;phDriveVendor;phDriveLocation;
-        source: $monitors.tape_drive.discovery.sources.source(1)$
+        source: "${source::monitors.tape_drive.discovery.sources.source(1)}"
         attributes:
-          id: $column(4)
-          vendor: $column(3)
-          model: $column(2)
-          serial_number: $column(1)
+          id: $4
+          vendor: $3
+          model: $2
+          serial_number: $1
           hw.parent.type: enclosure
           hw.parent.id: Quantum Library
-          name: "sprintf(\"%s (%s %s)\", $column(4), $column(3), $column(2))"
+          name: "${awk::sprintf(\"%s (%s %s)\", $4, $3, $2)}"
     collect:
       type: multiInstance
       sources:
@@ -263,12 +263,12 @@ monitors:
             # phDriveLocation;Patrol Status;RAS Status;Cleaning Status;Loads
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status;Loads
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
             # Duplicate Cleaning status, because we will translate it two times
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status;Cleaning Status;Loads
           - type: duplicateColumn
@@ -277,28 +277,28 @@ monitors:
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status (0,1,2);Cleaning Status;Loads
           - type: translate
             column: 4
-            translationTable: CleaningStatusTranslationTable
+            translationTable: "${translation::CleaningStatusTranslationTable}"
             # Translate second Status into more readable string
             # deviceID;PATROLStatus;StatusInformation;Cleaning Status (0,1,2);Cleaning Status Information;Loads
           - type: translate
             column: 5
-            translationTable: CleaningStatusInformationTranslationTable
+            translationTable: "${translation::CleaningStatusInformationTranslationTable}"
             # Merge Drive Status Information and Cleaning Status Information
             # deviceID;PATROLStatus;StatusInformation (incl cleaning);Cleaning Status (0,1,2);Cleaning Status Information;Loads
           - type: rightConcat
             column: 3
-            value: Column(5)
+            value: $5
       mapping:
         # Value Table
         # deviceID;PATROLStatus;Status Information (incl cleaning);Cleaning Status (0,1,2);Cleaning Status Information;Loads
-        source: $monitors.tape_drive.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.tape_drive.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="tape_drive"}: $column(2)
-          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($column(4))
-          hw.tape_drive.operations{type="mount"}: $column(6)
+          hw.status{hw.type="tape_drive"}: $2
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($4)
+          hw.tape_drive.operations{type="mount"}: $6
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   CleaningStatusTranslationTable:
     "1": 1

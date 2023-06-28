@@ -106,7 +106,16 @@ public class ConversionHelper {
 	 * We attempt to match input like %Entry.Column(2)%
 	 */
 	private static final Pattern SOURCE_ENTRY_PATTERN = Pattern.compile(
-		"%\\s*(entry)\\.(column\\(\\d+\\))\\s*%",
+		"%\\s*entry\\.column\\((\\d+)\\)\\s*%",
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE 
+	);
+
+	/**
+	 * A compiled representation of the HDF column reference regular expression.
+	 * We attempt to match input like Column(2)
+	 */
+	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile(
+		"^column\\((\\d+)\\)$",
 		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE 
 	);
 
@@ -115,7 +124,7 @@ public class ConversionHelper {
 	 * We attempt to match input like "InstanceTable.Column(2)" or "ValueTable.Column(2)"
 	 */
 	private static final Pattern INSTANCE_REF_PATTERN = Pattern.compile(
-		"(instancetable|valuetable)\\.(column\\(\\d+\\))",
+		"(instancetable|valuetable)\\.column\\((\\d+)\\)",
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -151,8 +160,9 @@ public class ConversionHelper {
 	 */
 	private static final List<PatternFunctionConverter> PATTERN_FUNCTION_CONVERTERS = List.of(
 		new PatternFunctionConverter(SOURCE_REF_PATTERN, ConversionHelper::convertSourceReference),
-		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, ConversionHelper::convertEntryReference),
-		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference),
+		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, (matcher, input) -> convertColumnReference(matcher, input, 1)),
+		new PatternFunctionConverter(INSTANCE_REF_PATTERN, (matcher, input) -> convertColumnReference(matcher, input, 2)),
+		new PatternFunctionConverter(COLUMN_REF_PATTERN, (matcher, input) -> convertColumnReference(matcher, input, 1)),
 		new PatternFunctionConverter(EMBEDDED_FILE_PATTERN, ConversionHelper::convertEmbeddedFileReference),
 		new PatternFunctionConverter(EMBEDDED_FILE_NO_PERCENT_PATTERN, ConversionHelper::convertEmbeddedFileReference),
 		new PatternFunctionConverter(MONO_INSTANCE_ID_PATTERN, ConversionHelper::convertMonoInstanceReference)
@@ -199,7 +209,7 @@ public class ConversionHelper {
 	/**
 	 * Convert source reference. E.g.
 	 * <b><u>%Enclosure.Discovery.Source(2)%</u></b> becomes
-	 * <b><u>$monitors.enclosure.discovery.sources.source(2)$</u></b>
+	 * <b><u>${source::monitors.enclosure.discovery.sources.source(2)}</u></b>
 	 * 
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
@@ -212,31 +222,28 @@ public class ConversionHelper {
 
 		return input.replace(
 			matcher.group(),
-			String.format("$monitors.%s.%s.sources.%s$", monitor, job, source)
+			String.format("${source::monitors.%s.%s.sources.%s}", monitor, job, source)
 		);
 	}
 
 	/**
-	 * Convert entry reference. E.g.
+	 * Convert column reference. E.g.<br>
 	 * <b><u>%Entry.Column(2)%</u></b> becomes
-	 * <b><u>$entry.column(2)$</u></b>
-	 * 
+	 * <b><u>$2</u></b><br>
+	 * <b><u>%InstanceTable.Column(2)%</u></b> becomes
+	 * <b><u>$2</u></b><br>
+	 * <b><u>%Column(2)%</u></b> becomes
+	 * <b><u>$2</u></b><br>
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
 	 * @return updated string value
 	 */
-	private static String convertEntryReference(final Matcher matcher, final String input) {
-		final String entry = matcher.group(1).toLowerCase();
-		final String column = matcher.group(2).toLowerCase();
+	private static String convertColumnReference(final Matcher matcher, final String input, final int group) {
+		final String column = matcher.group(group).toLowerCase();
 		return input.replace(
 			matcher.group(),
-			String.format("$%s.%s$", entry, column)
+			String.format("$%s", column)
 		);
-	}
-
-	private static String convertInstanceReference(final Matcher matcher, final String input) {
-		final String column = matcher.group(2).toLowerCase();
-		return String.format("$%s", column);
 	}
 
 	/**
@@ -259,7 +266,7 @@ public class ConversionHelper {
 	/**
 	 * Convert mono instance reference. E.g.
 	 * <b><u>%NetworkCard.Collect.DeviceID%</u></b> becomes
-	 * <b><u>$network.id$</u></b>
+	 * <b><u>${network::id}</u></b>
 	 * 
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
@@ -269,7 +276,7 @@ public class ConversionHelper {
 		final String monitorName = getYamlMonitorName(matcher.group(1));
 		return input.replace(
 			matcher.group(),
-			String.format("$%s.id$", monitorName)
+			String.format("${%s::id}", monitorName)
 		);
 	}
 
@@ -330,6 +337,20 @@ public class ConversionHelper {
 	 */
 	private static Optional<String> getYamlMonitorNameOptional(final String value) {
 		return Optional.ofNullable(HDF_TO_YAML_MONITOR_NAME.get(value.toLowerCase().trim()));
+	}
+
+	/**
+	 * Wrap this value in AWK reference ${awk::value} if the awk function is
+	 * detected
+	 * 
+	 * @param value to wrap
+	 * @return String value
+	 */
+	public static String wrapInAwkRefIfFunctionDetected(final String value) {
+		if (value.startsWith("sprintf(")) {
+			return String.format("${awk::%s}", value);
+		}
+		return value;
 	}
 
 	@AllArgsConstructor

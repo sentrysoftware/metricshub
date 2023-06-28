@@ -22,16 +22,16 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # Model;LibraryType;Manufacturer;AgentVersion;
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: _LIBRARY_ID
           __display_id: _LIBRARY_ID
-          vendor: $column(3)
-          model: $column(2)
-          bios_version: $column(4)
+          vendor: $3
+          model: $2
+          bios_version: $4
           type: Storage
-          info: $column(1)
-          name: "sprintf(\"Storage: %s (%s %s)\", \"_LIBRARY_ID\", $column(3), $column(2))"
+          info: $1
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", \"_LIBRARY_ID\", $3, $2)}"
     collect:
       type: multiInstance
       sources:
@@ -48,19 +48,19 @@ monitors:
             # PATROLStatus;Status;
           - type: translate
             column: 1
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         deviceId: _LIBRARY_ID
         metrics:
-          hw.status{hw.type="enclosure"}: $column(1)
+          hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   robotics:
     discovery:
       sources:
@@ -77,16 +77,16 @@ monitors:
       mapping:
         # Instance Table
         # ID;Vendor;Model;FirwareVersion;SerialNumber
-        source: $monitors.robotics.discovery.sources.source(1)$
+        source: "${source::monitors.robotics.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
-          model: $column(3)
-          serial_number: $column(5)
+          id: $1
+          vendor: $2
+          model: $3
+          serial_number: $5
           robotics_type: Media Transfer
-          info: $column(4)
+          info: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(2), $column(3), \"Media Transfer\")"
+          name: "${awk::sprintf(\"%s (%s %s - %s)\", $1, $2, $3, \"Media Transfer\")}"
     collect:
       type: multiInstance
       sources:
@@ -101,15 +101,15 @@ monitors:
             # deviceID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: RoboticStatusTranslationTable
+            translationTable: "${translation::RoboticStatusTranslationTable}"
       mapping:
         # Value Table
-        source: $monitors.robotics.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.robotics.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="robotics"}: $column(2)
+          hw.status{hw.type="robotics"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   tape_drive:
     discovery:
       sources:
@@ -125,15 +125,15 @@ monitors:
       mapping:
         # Instance Table
         # ID;Vendor;Model;Firmware;SerialNumber;
-        source: $monitors.tape_drive.discovery.sources.source(1)$
+        source: "${source::monitors.tape_drive.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
-          model: $column(3)
-          serial_number: $column(5)
-          info: $column(4)
+          id: $1
+          vendor: $2
+          model: $3
+          serial_number: $5
+          info: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s %s)\", $column(1), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s %s)\", $1, $2, $3)}"
     collect:
       type: multiInstance
       sources:
@@ -147,15 +147,15 @@ monitors:
             # ID;Loads;HardErrorCount;HardReadErrorCount;
           - type: add
             column: 3
-            value: Column(4)
+            value: $4
       mapping:
         # Value Table
         # ID;Loads;HardErrorCount;HardReadErrorCount;
-        source: $monitors.tape_drive.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.tape_drive.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.errors{hw.type="tape_drive"}: $column(3)
-          hw.tape_drive.operations{type="mount"}: $column(2)
+          hw.errors{hw.type="tape_drive"}: $3
+          hw.tape_drive.operations{type="mount"}: $2
 translations:
   RoboticStatusTranslationTable:
     "0": ok

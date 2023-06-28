@@ -28,22 +28,22 @@
               DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
               EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.gpu.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.gpu.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="gpu"}: $column(2)
-              hw.status{hw.type="gpu", state="predicted_failure"}: legacyPredictedFailure($column(4))
-              hw.errors{hw.type="gpu", hw.error.type="corrected"}: $column(5)
-              hw.errors{hw.type="gpu"}: $column(6)
-              hw.gpu.utilization{task="general"}: percent2Ratio($column(8))
-              hw.gpu.utilization{task="decoder"}: percent2Ratio($column(10))
-              hw.gpu.utilization{task="encoder"}: percent2Ratio($column(12))
-              hw.gpu.memory.utilization: percent2Ratio($column(13))
-              hw.gpu.io{direction="receive"}: $column(14)
-              hw.gpu.io{direction="transmit"}: $column(16)
-              hw.power{hw.type="gpu"}: $column(18)
-              hw.energy{hw.type="gpu"}: fakeCounter($column(18))
+              hw.status{hw.type="gpu"}: $2
+              hw.status{hw.type="gpu", state="predicted_failure"}: legacyPredictedFailure($4)
+              hw.errors{hw.type="gpu", hw.error.type="corrected"}: $5
+              hw.errors{hw.type="gpu"}: $6
+              hw.gpu.utilization{task="general"}: percent2Ratio($8)
+              hw.gpu.utilization{task="decoder"}: percent2Ratio($10)
+              hw.gpu.utilization{task="encoder"}: percent2Ratio($12)
+              hw.gpu.memory.utilization: percent2Ratio($13)
+              hw.gpu.io{direction="receive"}: $14
+              hw.gpu.io{direction="transmit"}: $16
+              hw.power{hw.type="gpu"}: $18
+              hw.energy{hw.type="gpu"}: fakeCounter($18)
 - name: gpuAlternateIOValueTable
   input: |
     // DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
@@ -74,19 +74,19 @@
               DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
               EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.gpu.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.gpu.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="gpu"}: $column(2)
-              hw.status{hw.type="gpu", state="predicted_failure"}: legacyPredictedFailure($column(4))
-              hw.errors{hw.type="gpu", hw.error.type="corrected"}: $column(5)
-              hw.errors{hw.type="gpu"}: $column(6)
-              hw.gpu.utilization{task="general"}: percent2Ratio($column(8))
-              hw.gpu.utilization{task="decoder"}: percent2Ratio($column(10))
-              hw.gpu.utilization{task="encoder"}: percent2Ratio($column(12))
-              hw.gpu.memory.utilization: percent2Ratio($column(13))
-              hw.gpu.io{direction="receive"}: fakeCounter($column(15))
-              hw.gpu.io{direction="transmit"}: fakeCounter($column(17))
-              hw.power{hw.type="gpu"}: $column(18)
-              hw.energy{hw.type="gpu"}: fakeCounter($column(18))
+              hw.status{hw.type="gpu"}: $2
+              hw.status{hw.type="gpu", state="predicted_failure"}: legacyPredictedFailure($4)
+              hw.errors{hw.type="gpu", hw.error.type="corrected"}: $5
+              hw.errors{hw.type="gpu"}: $6
+              hw.gpu.utilization{task="general"}: percent2Ratio($8)
+              hw.gpu.utilization{task="decoder"}: percent2Ratio($10)
+              hw.gpu.utilization{task="encoder"}: percent2Ratio($12)
+              hw.gpu.memory.utilization: percent2Ratio($13)
+              hw.gpu.io{direction="receive"}: fakeCounter($15)
+              hw.gpu.io{direction="transmit"}: fakeCounter($17)
+              hw.power{hw.type="gpu"}: $18
+              hw.energy{hw.type="gpu"}: fakeCounter($18)

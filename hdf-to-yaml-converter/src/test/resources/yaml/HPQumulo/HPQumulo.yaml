@@ -34,18 +34,18 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;displayId;model;serial;uuid;status;status
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
       mapping:
         # ID;displayId;model;serial;uuid;status;status
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
+          id: $1
+          __display_id: $2
+          model: $3
+          serial_number: $4
           vendor: HP
-          info: $column(5)
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"HP\", $column(3))"
+          info: $5
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $2, \"HP\", $3)}"
     collect:
       sources:
         source(1):
@@ -59,20 +59,20 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;displayId;model;serial;uuid;status;status
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             # Translate status
             # ID;displayId;model;serial;uuid;status;statusInformation
           - type: translate
             column: 6
-            translationTable: EnclosureStatusTranslationTable
+            translationTable: "${translation::EnclosureStatusTranslationTable}"
       mapping:
         # ID;displayId;model;serial;uuid;status;statusInformation
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(6)
+          hw.status{hw.type="enclosure"}: $6
         legacyTextParameters:
-          StatusInformation: $column(7)
+          StatusInformation: $7
   physical_disk:
     discovery:
       sources:
@@ -87,21 +87,21 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;model;serial;slot;slotType;size;status;status
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
       mapping:
         # ID;nodeId;model;serial;slot;slotType;size;status;status
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(5)
-          model: $column(3)
-          serial_number: $column(4)
-          info: $column(6)
+          id: $1
+          __display_id: $5
+          model: $3
+          serial_number: $4
+          info: $6
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(5), bytes2HumanFormatBase10($column(7)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $5, bytes2HumanFormatBase10($7))}"
         metrics:
-          hw.physical_disk.size: $column(7)
+          hw.physical_disk.size: $7
     collect:
       sources:
         source(1):
@@ -115,20 +115,20 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;model;serial;slot;slotType;size;status;status
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             # Translate status
             # ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
           - type: translate
             column: 8
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
       mapping:
         # ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(8)
+          hw.status{hw.type="physical_disk"}: $8
         legacyTextParameters:
-          StatusInformation: $column(9)
+          StatusInformation: $9
   network:
     discovery:
       sources:
@@ -143,21 +143,21 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
       mapping:
         # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          logical_address: $column(3)
-          physical_address: $column(4)
+          id: $1
+          __display_id: $1
+          logical_address: $3
+          physical_address: $4
           device_type: Ethernet
           logical_address_type: IP
           physical_address_type: MAC
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(1), \"Ethernet\")"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $1, \"Ethernet\")}"
     collect:
       sources:
         source(1):
@@ -171,27 +171,27 @@ monitors:
             # Parse the output of the command with an AWK script
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             # Translate status
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
           - type: translate
             column: 9
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
             # Translate linkStatus
             # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
           - type: translate
             column: 8
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
       mapping:
         # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.network.io{direction="transmit"}: $column(6)
-          hw.network.io{direction="receive"}: $column(7)
-          hw.status{hw.type="network"}: $column(8)
+          hw.network.io{direction="transmit"}: $6
+          hw.network.io{direction="receive"}: $7
+          hw.status{hw.type="network"}: $8
         legacyTextParameters:
-          StatusInformation: $column(9)
+          StatusInformation: $9
 translations:
   LinkStatusTranslationTable:
     CONNECTED: ok

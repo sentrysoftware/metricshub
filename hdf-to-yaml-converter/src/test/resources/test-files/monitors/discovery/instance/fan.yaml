@@ -17,16 +17,16 @@
             _comment: |-
               Fan
               tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold;statusactivation;controllerID;devicetype
-            source: $monitors.fan.discovery.sources.source(4)$
+            source: ${source::monitors.fan.discovery.sources.source(4)}
             attributes:
-              id: $column(2)
-              __display_id: $column(3)
-              hw.parent.type: $column(10)
-              hw.parent.id: $column(9)
-              name: $column(3)
+              id: $2
+              __display_id: $3
+              hw.parent.type: $10
+              hw.parent.id: $9
+              name: $3
             metrics:
-              hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
-              hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
+              hw.fan.speed.limit{limit_type="low.degraded"}: $6
+              hw.fan.speed.limit{limit_type="low.critical"}: $7
 - name: testFanTypePresent
   input: |
     // Fan
@@ -47,14 +47,14 @@
             _comment: |-
               Fan
               tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold;statusactivation;controllerID;devicetype
-            source: $monitors.fan.discovery.sources.source(4)$
+            source: ${source::monitors.fan.discovery.sources.source(4)}
             attributes:
-              id: $column(2)
-              __display_id: $column(3)
-              hw.parent.type: $column(10)
-              hw.parent.id: $column(9)
-              name: sprintf("%s (%s)", $column(3), $column(11))
-              sensor_location: $column(11)
+              id: $2
+              __display_id: $3
+              hw.parent.type: $10
+              hw.parent.id: $9
+              name: ${awk::sprintf("%s (%s)", $3, $11)}
+              sensor_location: $11
             metrics:
-              hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
-              hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
+              hw.fan.speed.limit{limit_type="low.degraded"}: $6
+              hw.fan.speed.limit{limit_type="low.critical"}: $7

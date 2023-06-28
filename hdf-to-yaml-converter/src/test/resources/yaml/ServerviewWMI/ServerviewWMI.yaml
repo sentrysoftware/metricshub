@@ -37,15 +37,15 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         #  Manufacturer,Model,SerialNumber
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: FujitsuServer
           __display_id: FujitsuServer
-          vendor: $column(1)
-          model: $column(2)
-          serial_number: $column(3)
+          vendor: $1
+          model: $2
+          serial_number: $3
           type: Computer
-          name: "sprintf(\"Computer: %s (%s %s)\", \"FujitsuServer\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"Computer: %s (%s %s)\", \"FujitsuServer\", $1, $2)}"
   cpu:
     discovery:
       sources:
@@ -64,26 +64,26 @@ monitors:
             # CurrentClockSpeed,DeviceID,Vendor,Family,Description
           - type: translate
             column: 3
-            translationTable: cpuVendorTranslationTable
+            translationTable: "${translation::cpuVendorTranslationTable}"
             # Translate the Family number into a model name
             # CurrentClockSpeed,DeviceID,Vendor,Model,Description
           - type: translate
             column: 4
-            translationTable: cpuFamilyTranslationTable
+            translationTable: "${translation::cpuFamilyTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
         # CurrentClockSpeed,DeviceID,Vendor,Model,Description
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
-          model: $column(4)
-          vendor: $column(3)
+          id: $2
+          __display_id: $2
+          model: $4
+          vendor: $3
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), $column(3), $column(4), megaHertz2HumanFormat($column(1)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $2, $3, $4, megaHertz2HumanFormat($1))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($1)
     collect:
       type: multiInstance
       sources:
@@ -102,12 +102,12 @@ monitors:
             # CurrentClockSpeed,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # CurrentClockSpeed,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
@@ -117,13 +117,13 @@ monitors:
       mapping:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.cpu.speed: megaHertz2Hertz($column(1))
-          hw.status{hw.type="cpu"}: $column(3)
+          hw.cpu.speed: megaHertz2Hertz($1)
+          hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   memory:
     discovery:
       sources:
@@ -142,23 +142,23 @@ monitors:
             # Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
           - type: translate
             column: 2
-            translationTable: memoryTypeTranslationTable
+            translationTable: "${translation::memoryTypeTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
         # Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          serial_number: $column(4)
-          vendor: $column(6)
-          model: $column(5)
-          type: $column(2)
+          id: $3
+          __display_id: $3
+          serial_number: $4
+          vendor: $6
+          model: $5
+          type: $2
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(3), $column(6), $column(2), $column(1))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s MB)\", $3, $6, $2, $1)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(1))
+          hw.memory.limit: mebiByte2Byte($1)
     collect:
       type: multiInstance
       sources:
@@ -177,12 +177,12 @@ monitors:
             # DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID,PATROLStatus,StatusInformation
@@ -192,12 +192,12 @@ monitors:
       mapping:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -208,13 +208,13 @@ monitors:
           namespace: root/svs
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: $column(1)
+          name: $1
     collect:
       type: multiInstance
       sources:
@@ -233,12 +233,12 @@ monitors:
             # DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID,PATROLStatus,StatusInformation
@@ -248,12 +248,12 @@ monitors:
       mapping:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -264,13 +264,13 @@ monitors:
           namespace: root/svs
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: $column(1)
+          name: $1
     collect:
       type: multiInstance
       sources:
@@ -289,12 +289,12 @@ monitors:
             # DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # DeviceID,PATROLStatus,StatusInformation
@@ -304,12 +304,12 @@ monitors:
       mapping:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -320,14 +320,14 @@ monitors:
           namespace: root/svs
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: $column(1)
+          name: $1
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: $column(2)
+          hw.temperature.limit{limit_type="high.critical"}: $2
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
@@ -339,10 +339,10 @@ monitors:
           namespace: root/svs
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(1)
+          hw.temperature: $1
   voltage:
     discovery:
       sources:
@@ -353,13 +353,13 @@ monitors:
           namespace: root/svs
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
           hw.parent.id: FujitsuServer
-          name: $column(1)
+          name: $1
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
@@ -378,12 +378,12 @@ monitors:
             # CurrentReading,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # CurrentReading,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # CurrentReading,DeviceID,PATROLStatus,StatusInformation
@@ -392,13 +392,13 @@ monitors:
             conversion: array2SimpleStatus
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.voltage: $column(1)
-          hw.status{hw.type="voltage"}: $column(1)
+          hw.voltage: $1
+          hw.status{hw.type="voltage"}: $1
         legacyTextParameters:
-          StatusInformation: $column(1)
+          StatusInformation: $1
 translations:
   DMTFOperationStatusTranslationTable:
     "11": degraded

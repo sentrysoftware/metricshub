@@ -35,5 +35,5 @@
      #define Collect_source %NetworkCard.Collect.Source(1)%
   expected:
     constants:
-     Collect_source: $monitors.network.collect.sources.source(1)$
-     Discovery_source: $monitors.network.discovery.sources.source(1)$
+     Collect_source: ${source::monitors.network.collect.sources.source(1)}
+     Discovery_source: ${source::monitors.network.discovery.sources.source(1)}

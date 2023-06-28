@@ -32,7 +32,7 @@ monitors:
           # Source(1) = output of iostat reformatted by the awk (see EmbeddedFile(1))
           # DeviceID
           type: osCommand
-          commandLine: /usr/bin/iostat -En|/usr/bin/awk -f $file("embeddedFile-1")$|/usr/bin/uniq
+          commandLine: "/usr/bin/iostat -En|/usr/bin/awk -f ${file::embeddedFile-1}|/usr/bin/uniq"
           keep: ^MSHW;
           separators: ;
           selectColumns: 2
@@ -44,7 +44,7 @@ monitors:
             # Reformat iostat's output through awk (see EmbeddedFile(2))
             # DeviceID;ControllerNumber;Size;VendorModel;SerialNumber
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -53,40 +53,40 @@ monitors:
           # this is to remove disk controllers which don't have physical disks attached to
           # DeviceID;DiskDeviceID;ControllerNumber;Size;VendorModel;SerialNumber
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
         # InstanceTable = Source(3)
-        source: $monitors.disk_controller.discovery.sources.source(3)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          controller_number: $column(1)
+          id: $1
+          __display_id: $1
+          controller_number: $1
           model: ""
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), \"\")"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, \"\")}"
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = copy of DiskController.Discovery.Source(2)
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(2)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(2)}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          vendor: $column(4)
-          serial_number: $column(5)
+          id: $1
+          __display_id: $1
+          vendor: $4
+          serial_number: $5
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), bytes2HumanFormatBase10($column(3)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase10($3))}"
         metrics:
-          hw.physical_disk.size: $column(3)
+          hw.physical_disk.size: $3
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -99,7 +99,7 @@ monitors:
             # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(3))
             # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -107,7 +107,7 @@ monitors:
           # Source(2) = output of the shell script based on the format command
           # DeviceID;Status;StatusInformation
           type: osCommand
-          commandLine: /usr/bin/sh $file("embeddedFile-4")$
+          commandLine: "/usr/bin/sh ${file::embeddedFile-4}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4"
@@ -115,23 +115,23 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure;DeviceID;Status;StatusInformation
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.physical_disk.collect.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.physical_disk.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $column(3)
-          hw.errors{hw.type="physical_disk", hw.error.type="media"}: $column(4)
-          hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $column(5)
-          hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $column(6)
-          hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $column(7)
-          hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $column(8)
-          hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $column(9)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(10))
-          hw.status{hw.type="physical_disk"}: $column(12)
+          hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $3
+          hw.errors{hw.type="physical_disk", hw.error.type="media"}: $4
+          hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $5
+          hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $6
+          hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $7
+          hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $8
+          hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $9
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($10)
+          hw.status{hw.type="physical_disk"}: $12
         legacyTextParameters:
-          StatusInformation: $column(13)
+          StatusInformation: $13

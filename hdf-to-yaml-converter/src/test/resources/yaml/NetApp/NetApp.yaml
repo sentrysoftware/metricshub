@@ -31,7 +31,7 @@ monitors:
             # DeviceID;productID;vendor;model;firmwareVersion;serialNumber
           - type: translate
             column: 3
-            translationTable: VendorTranslationTable
+            translationTable: "${translation::VendorTranslationTable}"
             # Concat serialNumber and productID
             # DeviceID;productID;vendor;model;firmwareVersion;serialNumber - ID
           - type: rightConcat
@@ -39,18 +39,18 @@ monitors:
             value: " - ID: "
           - type: rightConcat
             column: 6
-            value: Column(2)
+            value: $2
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: NetApp
-          vendor: $column(3)
-          model: $column(4)
-          bios_version: $column(5)
-          serial_number: $column(6)
+          vendor: $3
+          model: $4
+          bios_version: $5
+          serial_number: $6
           type: Storage
-          name: "sprintf(\"Storage: (%s %s)\", $column(3), $column(4))"
+          name: "${awk::sprintf(\"Storage: (%s %s)\", $3, $4)}"
   physical_disk:
     discovery:
       sources:
@@ -83,10 +83,10 @@ monitors:
           # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor;Model;DiskType;DiskName;DiskID;
           type: tableUnion
           tables:
-          - $monitors.physical_disk.discovery.sources.source(1)$
-          - $monitors.physical_disk.discovery.sources.source(2)$
-          - $monitors.physical_disk.discovery.sources.source(3)$
-          - $monitors.physical_disk.discovery.sources.source(4)$
+          - "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          - "${source::monitors.physical_disk.discovery.sources.source(2)}"
+          - "${source::monitors.physical_disk.discovery.sources.source(3)}"
+          - "${source::monitors.physical_disk.discovery.sources.source(4)}"
           computes:
             # Concat Vendor, Model and DiskType
             # AdapterID;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
@@ -95,13 +95,13 @@ monitors:
             value: ' '
           - type: rightConcat
             column: 6
-            value: Column(7)
+            value: $7
           - type: rightConcat
             column: 6
             value: ", "
           - type: rightConcat
             column: 6
-            value: Column(8)
+            value: $8
             # Concat AdapterID, ShelfID and BayNumber
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;SizeMB;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
           - type: rightConcat
@@ -109,13 +109,13 @@ monitors:
             value: /
           - type: rightConcat
             column: 1
-            value: Column(2)
+            value: $2
           - type: rightConcat
             column: 1
             value: /
           - type: rightConcat
             column: 1
-            value: Column(3)
+            value: $3
             # Convert SizeMB to bytes
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;
           - type: multiply
@@ -136,20 +136,20 @@ monitors:
             # this awk empty the first column and returns empty info to match other disks parameters.
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskID;PredictedFailureactivation;
           - type: awk
-            script: $file("embeddedFile-11")$
+            script: "${file::embeddedFile-11}"
         source(7):
           # now union source(5) and source (6)
           type: tableUnion
           tables:
-          - $monitors.physical_disk.discovery.sources.source(5)$
-          - $monitors.physical_disk.discovery.sources.source(6)$
+          - "${source::monitors.physical_disk.discovery.sources.source(5)}"
+          - "${source::monitors.physical_disk.discovery.sources.source(6)}"
           computes:
             # Replace the DiskID with the DiskName
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;DiskName;PredictedFailureactivation;
           - type: replace
             column: 10
-            existingValue: Column(10)
-            newValue: Column(9)
+            existingValue: $10
+            newValue: $9
             # Extract the ShelfID
             # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;
           - type: extract
@@ -160,8 +160,8 @@ monitors:
           # Table Join the Discovery to Blade Discovery 2
           # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;AttachID;SerialNumber;AttachToType;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(7)$
-          rightTable: $monitors.blade.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(7)}"
+          rightTable: "${source::monitors.blade.discovery.sources.source(2)}"
           leftKeyColumn: 10
           rightKeyColumn: 2
           defaultRightLine: NetApp;;Enclosure;
@@ -178,18 +178,18 @@ monitors:
         # InstanceTable = Source(6)
         # Use Diskname as DiskId because DiskID OID may be empty. Case HC-949
         # AdapterID/ShelfID/BayNumber;ShelfID;BayNumber;Size;SerialNumber;Vendor Model (DiskType);Model;DiskType;DiskName;ShelfID;PredictedFailureactivation;AttachID;SerialNumber;AttachToType;
-        source: $monitors.physical_disk.discovery.sources.source(8)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(8)}"
         attributes:
-          id: $column(10)
-          __display_id: $column(1)
-          serial_number: $column(6)
-          vendor: $column(7)
-          info: $column(2)
-          hw.parent.type: $column(15)
-          hw.parent.id: $column(13)
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(7), bytes2HumanFormatBase10($column(5)))"
+          id: $10
+          __display_id: $1
+          serial_number: $6
+          vendor: $7
+          info: $2
+          hw.parent.type: $15
+          hw.parent.id: $13
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $7, bytes2HumanFormatBase10($5))}"
         metrics:
-          hw.physical_disk.size: $column(5)
+          hw.physical_disk.size: $5
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -209,12 +209,12 @@ monitors:
             # DiskID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: raidPDiskStatusTranslationTable
+            translationTable: "${translation::raidPDiskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: raidPDiskStatusInformationTranslationTable
+            translationTable: "${translation::raidPDiskStatusInformationTranslationTable}"
         source(2):
           # Source(2) = spareDisk SNMP Table
           # DiskID;Status
@@ -230,12 +230,12 @@ monitors:
             # DiskID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: spareDiskStatusTranslationTable
+            translationTable: "${translation::spareDiskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: spareDiskStatusInformationTranslationTable
+            translationTable: "${translation::spareDiskStatusInformationTranslationTable}"
         source(3):
           # Source(3) = otherDisk SNMP Table
           # DiskID;Status;
@@ -251,12 +251,12 @@ monitors:
             # DiskID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: otherDiskStatusTranslationTable
+            translationTable: "${translation::otherDiskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: otherDiskStatusInformationTranslationTable
+            translationTable: "${translation::otherDiskStatusInformationTranslationTable}"
         source(4):
           # Fake disk collect
           # Now check if we have in the summary table some unassigned disks flagged as failure and collect the associated message.
@@ -270,12 +270,12 @@ monitors:
             # ID;PatrolStatus;DiskFailedMessage;diskPrefailedCount.
           - type: translate
             column: 2
-            translationTable: diskFailedCountTranslationTable
+            translationTable: "${translation::diskFailedCountTranslationTable}"
             # now translate the diskPrefailedCount by 0 ok and if greater than 0 alarm
             # ID;PatrolStatus;DiskFailedMessage;PredictedFailure.
           - type: translate
             column: 4
-            translationTable: diskPrefailedCountTranslationTable
+            translationTable: "${translation::diskPrefailedCountTranslationTable}"
             # Now let's add the fake disk ID
             # diskID;PatrolStatus;DiskFailedMessage;PredictedFailure.
           - type: leftConcat
@@ -292,32 +292,32 @@ monitors:
             # DiskID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: raidPDiskStatusTranslationTable
+            translationTable: "${translation::raidPDiskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: raidPDiskStatusInformationTranslationTable
+            translationTable: "${translation::raidPDiskStatusInformationTranslationTable}"
         source(6):
           # Source(6) = union of source(1), source(2)  source(3)  source(4) and source(5)
           # DiskID;PATROLStatus;StatusInformation;PredictedFailure.
           type: tableUnion
           tables:
-          - $monitors.physical_disk.collect.sources.source(1)$
-          - $monitors.physical_disk.collect.sources.source(2)$
-          - $monitors.physical_disk.collect.sources.source(3)$
-          - $monitors.physical_disk.collect.sources.source(4)$
-          - $monitors.physical_disk.collect.sources.source(5)$
+          - "${source::monitors.physical_disk.collect.sources.source(1)}"
+          - "${source::monitors.physical_disk.collect.sources.source(2)}"
+          - "${source::monitors.physical_disk.collect.sources.source(3)}"
+          - "${source::monitors.physical_disk.collect.sources.source(4)}"
+          - "${source::monitors.physical_disk.collect.sources.source(5)}"
       mapping:
         # ValueTable = Source(5)
         # DiskID;PATROLStatus;StatusInformation;PredictedFailure.
-        source: $monitors.physical_disk.collect.sources.source(6)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(6)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
+          hw.status{hw.type="physical_disk"}: $2
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -379,13 +379,13 @@ monitors:
             # if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
           - type: add
             column: 3
-            value: Column(4)
+            value: $4
             # Add High & Low to get real disk size
             # if Low >= 0   dfName;dfHighTotalKBytes;dfLowTotalKBytes;BlankColumn;
             # if Low < 0    dfName;dfHighTotalKBytes;2^32;dfLowTotalKBytes;BlankColumn;
           - type: add
             column: 2
-            value: Column(3)
+            value: $3
             # Keep only the ID & Size
             # dfName;size;
           - type: keepColumns
@@ -399,8 +399,8 @@ monitors:
           # Source(3) = Table joint of source(1) and source(2)
           # aggrName;RAIDLevel;dfName;size
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -421,7 +421,7 @@ monitors:
             # corresponding fo the primordial storage pool
             # aggrName;RAIDLevel;dfName;sizeMB;logicalDiskType;CountInCapacityReport;
           - type: awk
-            script: $file("embeddedFile-8")$
+            script: "${file::embeddedFile-8}"
             keep: MSHW;
             selectColumns: "2,3,4,5,6,7"
             separators: ;
@@ -434,21 +434,21 @@ monitors:
           # Source(5) = Source(3) + Source(4)
           type: tableUnion
           tables:
-          - $monitors.logical_disk.discovery.sources.source(3)$
-          - $monitors.logical_disk.discovery.sources.source(4)$
+          - "${source::monitors.logical_disk.discovery.sources.source(3)}"
+          - "${source::monitors.logical_disk.discovery.sources.source(4)}"
       mapping:
         # InstanceTable = source(3)
-        source: $monitors.logical_disk.discovery.sources.source(5)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(5)}"
         attributes:
-          id: $column(1)
-          raid_level: $column(2)
-          type: $column(5)
-          __use_for_capacity_report: $column(6)
+          id: $1
+          raid_level: $2
+          type: $5
+          __use_for_capacity_report: $6
           hw.parent.type: enclosure
           hw.parent.id: NetApp
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), bytes2HumanFormatBase2($column(4)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $2, bytes2HumanFormatBase2($4))}"
         metrics:
-          hw.logical_disk.limit: $column(4)
+          hw.logical_disk.limit: $4
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -476,7 +476,7 @@ monitors:
             column: 2
             arraySeparator: ","
             resultSeparator: '|'
-            translationTable: aggrStatusTranslationTable
+            translationTable: "${translation::aggrStatusTranslationTable}"
             # Keep only the worst status from the PATROLStatus array
             # aggrName;PATROLStatus;statusArray;
           - type: convert
@@ -488,7 +488,7 @@ monitors:
             column: 3
             arraySeparator: ","
             resultSeparator: ' - '
-            translationTable: aggrStatusInformationTranslationTable
+            translationTable: "${translation::aggrStatusInformationTranslationTable}"
         source(2):
           # Source(2) = dfTable SNMP Table
           # dfName;freeHighKb;freeLowKB;
@@ -518,13 +518,13 @@ monitors:
             # if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
           - type: add
             column: 3
-            value: Column(4)
+            value: $4
             # Add High & Low to get real disk size
             # if Low >= 0   dfName;freeHighKb;freeLowKB;BlankColumn;
             # if Low < 0    dfName;freeHighKb;2^32;freeLowKB;BlankColumn;
           - type: add
             column: 2
-            value: Column(3)
+            value: $3
             # Keep only the ID & Size
             # dfName;freeKB;
           - type: keepColumns
@@ -538,8 +538,8 @@ monitors:
           # Source(3) = Table joint of source(1) and source(2)
           # aggrName;PATROLStatus;statusInformation;dfName;free
           type: tableJoin
-          leftTable: $monitors.logical_disk.collect.sources.source(1)$
-          rightTable: $monitors.logical_disk.collect.sources.source(2)$
+          leftTable: "${source::monitors.logical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.logical_disk.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -554,7 +554,7 @@ monitors:
             # corresponding fo the primordial storage pool and its unallocated space
             # aggrName;PATROLStatus;statusInformation;dfName;freeMB
           - type: awk
-            script: $file("embeddedFile-7")$
+            script: "${file::embeddedFile-7}"
             keep: MSHW;
             selectColumns: "2,3,4,5,6"
             separators: ;
@@ -568,18 +568,18 @@ monitors:
           # aggrName;PATROLStatus;statusInformation;dfName;free
           type: tableUnion
           tables:
-          - $monitors.logical_disk.collect.sources.source(3)$
-          - $monitors.logical_disk.collect.sources.source(4)$
+          - "${source::monitors.logical_disk.collect.sources.source(3)}"
+          - "${source::monitors.logical_disk.collect.sources.source(4)}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
-          hw.logical_disk.usage{state="free"}: $column(5)
+          hw.status{hw.type="logical_disk"}: $2
+          hw.logical_disk.usage{state="free"}: $5
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -605,7 +605,7 @@ monitors:
             # ID;Name;WWNAddress;Speed;PortType
           - type: translate
             column: 5
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Add an address type column
             # ID;Name;Address;AddressType;Speed;PortType
           - type: rightConcat
@@ -618,16 +618,16 @@ monitors:
             value: FC
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(2)
-          physical_address: $column(3)
-          physical_address_type: $column(4)
-          device_type: $column(6)
+          id: $1
+          model: $2
+          physical_address: $3
+          physical_address_type: $4
+          device_type: $6
           hw.parent.type: enclosure
           hw.parent.id: NetApp
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(6), $column(2))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $6, $2)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -649,17 +649,17 @@ monitors:
             # ID;PATROLStatus;Status;Status
           - type: translate
             column: 2
-            translationTable: fcpStatusTranslationTable
+            translationTable: "${translation::fcpStatusTranslationTable}"
             # Translate the second status into a more readable string
             # ID;PATROLStatus;StatusInformation;Status
           - type: translate
             column: 3
-            translationTable: fcpStatusInformationTranslationTable
+            translationTable: "${translation::fcpStatusInformationTranslationTable}"
             # Translate the third status into a LinkStatus
             # ID;PATROLStatus;StatusInformation;LinkStatus
           - type: translate
             column: 4
-            translationTable: fcpLinkStatusTranslationTable
+            translationTable: "${translation::fcpLinkStatusTranslationTable}"
             # Add "FC" to the ID
             # ID;Name;Address;AddressType;Speed;PortType
           - type: leftConcat
@@ -667,13 +667,13 @@ monitors:
             value: FC
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(4))
+          hw.status{hw.type="network"}: $2
+          hw.network.up: legacyLinkStatus($4)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -703,7 +703,7 @@ monitors:
             # with a line per power supply instance
             # PowerSupplyID;SerialNumber;Location;PartNumber;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -723,13 +723,13 @@ monitors:
           # NumberOfFailedPSUs
           type: tableUnion
           tables:
-          - $monitors.power_supply.discovery.sources.source(1)$
-          - $monitors.power_supply.discovery.sources.source(2)$
+          - "${source::monitors.power_supply.discovery.sources.source(1)}"
+          - "${source::monitors.power_supply.discovery.sources.source(2)}"
           computes:
             # Process the union of Individual and General so that only one is returned.
             # PowerSupplyID;SerialNumber;Location;PartNumber;AttachID;AttachType;
           - type: awk
-            script: $file("embeddedFile-9")$
+            script: "${file::embeddedFile-9}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -741,13 +741,13 @@ monitors:
             value: "Serial Number: "
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(3)$
+        source: "${source::monitors.power_supply.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          info: "join(\" \", $column(3), $column(4), $column(2))"
-          hw.parent.type: $column(6)
-          hw.parent.id: $column(5)
-          name: $column(1)
+          id: $1
+          info: "${awk::join(\" \", $3, $4, $2)}"
+          hw.parent.type: $6
+          hw.parent.id: $5
+          name: $1
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -774,7 +774,7 @@ monitors:
             # with a line per power supply instance
             # PowerSupplyID;PATROLStatus;StatusInformation;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -793,7 +793,7 @@ monitors:
             # MSHW_TableID;PowerSupplyID;PatrolStatus;
           - type: translate
             column: 3
-            translationTable: generalStatusTranslationTable
+            translationTable: "${translation::generalStatusTranslationTable}"
         source(3):
           # Get the General Power Supply Information Value
           # StatusInformation
@@ -809,8 +809,8 @@ monitors:
           # Joint the tables to have a single General Status
           # MSHW_TableID;PowerSupplyID;PatrolStatus;MSHW_TableID;StatusInformation;
           type: tableJoin
-          leftTable: $monitors.power_supply.collect.sources.source(2)$
-          rightTable: $monitors.power_supply.collect.sources.source(3)$
+          leftTable: "${source::monitors.power_supply.collect.sources.source(2)}"
+          rightTable: "${source::monitors.power_supply.collect.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -823,16 +823,16 @@ monitors:
           # PowerSupplyID;PatrolStatus;StatusInformation;
           type: tableUnion
           tables:
-          - $monitors.power_supply.collect.sources.source(1)$
-          - $monitors.power_supply.collect.sources.source(4)$
+          - "${source::monitors.power_supply.collect.sources.source(1)}"
+          - "${source::monitors.power_supply.collect.sources.source(4)}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -854,7 +854,7 @@ monitors:
             # with a line per power supply instance
             # FanID;FanIDList;Location;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -869,13 +869,13 @@ monitors:
           # NumberOfFailedFANs
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(1)$
-          - $monitors.fan.discovery.sources.source(2)$
+          - "${source::monitors.fan.discovery.sources.source(1)}"
+          - "${source::monitors.fan.discovery.sources.source(2)}"
           computes:
             # Process the union of Individual and General so that only one is returned.
             # FanID;;FanLocation;AttachID;AttachType;
           - type: awk
-            script: $file("embeddedFile-9")$
+            script: "${file::embeddedFile-9}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,6,7"
@@ -884,13 +884,13 @@ monitors:
             value: "Location: "
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.fan.discovery.sources.source(3)$
+        source: "${source::monitors.fan.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          info: $column(3)
-          hw.parent.type: $column(5)
-          hw.parent.id: $column(4)
-          name: $column(1)
+          id: $1
+          info: $3
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: $1
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -917,7 +917,7 @@ monitors:
             # with a line per power supply instance
             # FanID;PATROLStatus;StatusInformation;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -936,7 +936,7 @@ monitors:
             # MSHW_TableID;FanID;PatrolStatus;
           - type: translate
             column: 3
-            translationTable: generalStatusTranslationTable
+            translationTable: "${translation::generalStatusTranslationTable}"
         source(3):
           # Get the General Power Supply Information Value
           # StatusInformation
@@ -952,8 +952,8 @@ monitors:
           # Joint the tables to have a single General Status
           # MSHW_TableID;PowerSupplyID;PatrolStatus;MSHW_TableID;StatusInformation;
           type: tableJoin
-          leftTable: $monitors.fan.collect.sources.source(2)$
-          rightTable: $monitors.fan.collect.sources.source(3)$
+          leftTable: "${source::monitors.fan.collect.sources.source(2)}"
+          rightTable: "${source::monitors.fan.collect.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -966,16 +966,16 @@ monitors:
           # PowerSupplyID;PatrolStatus;StatusInformation;
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(1)$
-          - $monitors.fan.collect.sources.source(4)$
+          - "${source::monitors.fan.collect.sources.source(1)}"
+          - "${source::monitors.fan.collect.sources.source(4)}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -1005,7 +1005,7 @@ monitors:
             # with a line per temperature instance
             # TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -1020,13 +1020,13 @@ monitors:
           # OverTemp
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(1)$
-          - $monitors.temperature.discovery.sources.source(2)$
+          - "${source::monitors.temperature.discovery.sources.source(1)}"
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
           computes:
             # Process the union of Individual and General so that only one is returned.
             # TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;
           - type: awk
-            script: $file("embeddedFile-10")$
+            script: "${file::embeddedFile-10}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9"
@@ -1036,16 +1036,16 @@ monitors:
       mapping:
         # Instance Table = Source(3)
         # TemperatureID;TempType;WarningThreshold;AlarmThreshold;TemperatureStatus;Location;BladeID;AttachementType;
-        source: $monitors.temperature.discovery.sources.source(3)$
+        source: "${source::monitors.temperature.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          info: $column(6)
-          hw.parent.type: $column(8)
-          hw.parent.id: $column(7)
-          name: $column(1)
+          id: $1
+          info: $6
+          hw.parent.type: $8
+          hw.parent.id: $7
+          name: $1
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
-          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+          hw.temperature.limit{limit_type="high.degraded"}: $3
+          hw.temperature.limit{limit_type="high.critical"}: $4
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -1072,7 +1072,7 @@ monitors:
             # with a line per power supply instance
             # TemperatureID;Temperature;Status;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -1091,21 +1091,21 @@ monitors:
             # TemperatureID;Temperature;PatrolStatus
           - type: translate
             column: 3
-            translationTable: tempStatusTranslationTable
+            translationTable: "${translation::tempStatusTranslationTable}"
         source(3):
           # Translate for Patrol Status
           # TemperatureID;Temperature;PatrolStatus
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(1)$
-          - $monitors.temperature.collect.sources.source(2)$
+          - "${source::monitors.temperature.collect.sources.source(1)}"
+          - "${source::monitors.temperature.collect.sources.source(2)}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
-          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $2
+          hw.status{hw.type="temperature"}: $3
   battery:
     discovery:
       sources:
@@ -1123,7 +1123,7 @@ monitors:
       mapping:
         # The discovery table
         # Status
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
           id: NVRam Battery
           __display_id: NVRam Battery
@@ -1147,21 +1147,21 @@ monitors:
             # PATROLStatus;Status;
           - type: translate
             column: 1
-            translationTable: BatteryStatusTranslationTable
+            translationTable: "${translation::BatteryStatusTranslationTable}"
             # Translate second Status into more readable string
             # PATROLStatus;StatusInformation;
           - type: translate
             column: 2
-            translationTable: BatteryStatusInformationTranslationTable
+            translationTable: "${translation::BatteryStatusInformationTranslationTable}"
       mapping:
         # The value table
         # ID;Status;StatusInformation;
-        source: $monitors.battery.collect.sources.source(1)$
+        source: "${source::monitors.battery.collect.sources.source(1)}"
         deviceId: NVRam Battery
         metrics:
-          hw.status{hw.type="battery"}: $column(1)
+          hw.status{hw.type="battery"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   blade:
     discovery:
       sources:
@@ -1180,7 +1180,7 @@ monitors:
           # Make a copy for attaching disks
           # ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
           type: copy
-          from: $monitors.blade.discovery.sources.source(1)$
+          from: "${source::monitors.blade.discovery.sources.source(1)}"
           computes:
             # Keep only the ID
             # ShelfAddress;SerialNumber;
@@ -1199,17 +1199,17 @@ monitors:
       mapping:
         # The discovery table
         # ID;ShelfAddress;Vendor;ProductID;Revision;SerialNumber;
-        source: $monitors.blade.discovery.sources.source(1)$
+        source: "${source::monitors.blade.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(1)
-          id: $column(2)
-          blade_name: $column(2)
-          model: $column(4)
-          serial_number: $column(6)
-          info: $column(5)
+          __display_id: $1
+          id: $2
+          blade_name: $2
+          model: $4
+          serial_number: $6
+          info: $5
           hw.parent.type: enclosure
           hw.parent.id: NetApp
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(4))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $2, $4)}"
   other_device:
     discovery:
       sources:
@@ -1239,7 +1239,7 @@ monitors:
             # with a line per power supply instance
             # OtherDeviceID;SerialNumber;Location;PartNumber;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -1256,8 +1256,8 @@ monitors:
           # Replace Column 5 with the DeviceID
           - type: replace
             column: 5
-            existingValue: Column(5)
-            newValue: Column(1)
+            existingValue: $5
+            newValue: $1
             # Extract the ShelfID from the OtherDeviceID
             # OtherDeviceID;SerialNumber;Location;PartNumber;ShelfID;AttachType;
           - type: extract
@@ -1272,14 +1272,14 @@ monitors:
             value: "Serial Number: "
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           device_type: Service Electronics
-          info: "join(\" \", $column(3), $column(4), $column(2))"
-          hw.parent.type: $column(6)
-          hw.parent.id: $column(5)
-          name: "sprintf(\"%s: %s\", \"Service Electronics\", $column(1))"
+          info: "${awk::join(\" \", $3, $4, $2)}"
+          hw.parent.type: $6
+          hw.parent.id: $5
+          name: "${awk::sprintf(\"%s: %s\", \"Service Electronics\", $1)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -1306,7 +1306,7 @@ monitors:
             # with a line per power supply instance
             # OtherDeviceID;PATROLStatus;StatusInformation;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -1325,7 +1325,7 @@ monitors:
             # MSHW_TableID;OtherDeviceID;PatrolStatus;
           - type: translate
             column: 3
-            translationTable: generalStatusTranslationTable
+            translationTable: "${translation::generalStatusTranslationTable}"
         source(3):
           # Get the General Power Supply Information Value
           # StatusInformation
@@ -1341,8 +1341,8 @@ monitors:
           # Joint the tables to have a single General Status
           # MSHW_TableID;OtherDeviceID;PatrolStatus;MSHW_TableID;StatusInformation;
           type: tableJoin
-          leftTable: $monitors.other_device.collect.sources.source(2)$
-          rightTable: $monitors.other_device.collect.sources.source(3)$
+          leftTable: "${source::monitors.other_device.collect.sources.source(2)}"
+          rightTable: "${source::monitors.other_device.collect.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -1355,16 +1355,16 @@ monitors:
           # OtherDeviceID;PatrolStatus;StatusInformation;
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(4)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(4)}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   BatteryStatusInformationTranslationTable:
     "1": ""

@@ -13,11 +13,11 @@
         collect:
           mapping:
             _comment: DeviceID;Status;StatusInformation;Speed;SpeedPercent
-            source: $monitors.fan.collect.sources.source(1)$
-            deviceId: $column(1)
+            source: ${source::monitors.fan.collect.sources.source(1)}
+            deviceId: $1
             legacyTextParameters:
-              StatusInformation: $column(3)
+              StatusInformation: $3
             metrics:
-              hw.status{hw.type="fan"}: $column(2)
-              hw.fan.speed: $column(4)
-              hw.fan.speed_ratio: percent2Ratio($column(5))
+              hw.status{hw.type="fan"}: $2
+              hw.fan.speed: $4
+              hw.fan.speed_ratio: percent2Ratio($5)

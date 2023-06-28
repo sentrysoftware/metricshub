@@ -39,13 +39,13 @@ monitors:
       mapping:
         # InstanceTable
         # Manufacturer, Model
-        source: $monitors.enclosure.discovery.sources.source(2)$
+        source: "${source::monitors.enclosure.discovery.sources.source(2)}"
         attributes:
           id: PC
           type: Computer
-          vendor: $column(1)
-          model: $column(2)
-          name: "sprintf(\"Computer: (%s %s)\", $column(1), $column(2))"
+          vendor: $1
+          model: $2
+          name: "${awk::sprintf(\"Computer: (%s %s)\", $1, $2)}"
   voltage:
     discovery:
       sources:
@@ -60,21 +60,21 @@ monitors:
           # Source 2 = Merge source 1 (voltage) and enclosure Hardware source
           # SensorIdentifier, SensorName,SensorParent, HardwareIdentifier, HardwareName, HardwareType
           type: tableJoin
-          leftTable: $monitors.voltage.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.voltage.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 3
           rightKeyColumn: 1
       mapping:
         # Instance table
         # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
-        source: $monitors.voltage.discovery.sources.source(2)$
+        source: "${source::monitors.voltage.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(5)
-          sensor_location: $column(2)
+          id: $1
+          __display_id: $5
+          sensor_location: $2
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: "sprintf(\"%s (%s)\", $column(5), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $5, $2)}"
     collect:
       type: multiInstance
       sources:
@@ -93,10 +93,10 @@ monitors:
       mapping:
         # Value Table
         # Identifier, Value
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.voltage: $column(2)
+          hw.voltage: $2
   temperature:
     discovery:
       sources:
@@ -111,32 +111,32 @@ monitors:
           # Source 3 = Merge Source 1 and 2 Together
           # SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
           type: tableJoin
-          leftTable: $monitors.temperature.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.temperature.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 3
           rightKeyColumn: 1
           computes:
             # Perform some computation to exclude non-real sensors, and calculate alarm thresholds when possible
             # SensorId;Name;WarningThreshold;AlarmThreshold;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # Instance table
         # SensorId;Name;WarningThreshold;AlarmThreshold;
-        source: $monitors.temperature.discovery.sources.source(2)$
+        source: "${source::monitors.temperature.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          __display_id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
-          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+          hw.temperature.limit{limit_type="high.degraded"}: $3
+          hw.temperature.limit{limit_type="high.critical"}: $4
     collect:
       type: multiInstance
       sources:
@@ -149,10 +149,10 @@ monitors:
       mapping:
         # Value Table
         # Identifier, Value
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   physical_disk:
     discovery:
       sources:
@@ -160,7 +160,7 @@ monitors:
           # Source 1 = Hardware Storage
           # Identifier, Name, HardwareType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Keep only Storage Type
             # Identifier, Name, HardwareType
@@ -177,21 +177,21 @@ monitors:
           # Source 3 = Table join to keep only disks that do have an Endurance Remaining sensor
           # Identifier, Name, HardwareType, Identifier
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # Instance table
         # Identifier, Name, HardwareType
-        source: $monitors.physical_disk.discovery.sources.source(3)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          vendor: $column(2)
+          id: $1
+          __display_id: $1
+          vendor: $2
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect
       type: multiInstance
@@ -208,17 +208,17 @@ monitors:
           # Match SensorParent with HardwareIdentifier
           # TableJoint = SensorIdentifier, SensorParent, SensorValue, SensorName, HardwareIdentifier,  HardwareName, HardwareType
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
         # Instance table
         # SensorIdentifier, SensorParent, SensorValue, SensorName, HardwareIdentifier,  HardwareName, HardwareType
-        source: $monitors.physical_disk.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(3))
+          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($3)
   fan:
     discovery:
       sources:
@@ -232,8 +232,8 @@ monitors:
           # Source 3 = Merge Source 1 and 2 Together
           # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
           type: tableJoin
-          leftTable: $monitors.fan.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.fan.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 3
           rightKeyColumn: 1
           computes:
@@ -245,17 +245,17 @@ monitors:
             # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
           - type: leftConcat
             column: 5
-            value: Column(2)
+            value: $2
       mapping:
         # Instance table
         # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
-        source: $monitors.fan.discovery.sources.source(2)$
+        source: "${source::monitors.fan.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(5)
+          id: $1
+          __display_id: $5
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: $column(5)
+          name: $5
     collect:
       type: multiInstance
       sources:
@@ -268,10 +268,10 @@ monitors:
       mapping:
         # Value Table
         # Identifier, Value
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(2)
+          hw.fan.speed: $2
   cpu:
     discovery:
       sources:
@@ -279,7 +279,7 @@ monitors:
           # Source 1 = Hardware CPU
           # Identifier, Name, HardwareType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Keep only Storage Type
             # HardwareIdentifier, HardwareName, HardwareType
@@ -297,8 +297,8 @@ monitors:
           # Source 2 : CPUPowerConsumption
           # HardwareIdentifier, HardwareName, HardwareType, Name, Parent, CPUPowerConsumption
           type: tableJoin
-          leftTable: $monitors.cpu.discovery.sources.source(1)$
-          rightTable: $monitors.cpu.discovery.sources.source(2)$
+          leftTable: "${source::monitors.cpu.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.cpu.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           defaultRightLine: ;;;;
@@ -316,14 +316,14 @@ monitors:
       mapping:
         # Instance table
         # HardwareIdentifier, HardwareName, HardwareType, Name, Parent, CPUPowerConsumption
-        source: $monitors.cpu.discovery.sources.source(3)$
+        source: "${source::monitors.cpu.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          model: $column(2)
+          id: $1
+          __display_id: $1
+          model: $2
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       type: multiInstance
       sources:
@@ -338,7 +338,7 @@ monitors:
             # (yes, we have the clock speed for each core, and they can be different)
             # CpuDeviceID;AverageClock
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -352,20 +352,20 @@ monitors:
           # Source 2 : CPUPowerConsumption
           # CpuDeviceID;AverageClock;SensorName;CpuDeviceID;CPUPowerConsumption
           type: tableJoin
-          leftTable: $monitors.cpu.collect.sources.source(1)$
-          rightTable: $monitors.cpu.collect.sources.source(2)$
+          leftTable: "${source::monitors.cpu.collect.sources.source(1)}"
+          rightTable: "${source::monitors.cpu.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           defaultRightLine: ;;;;
       mapping:
         # The Collect Table
         # CpuDeviceID;AverageClock;SensorName;CpuDeviceID;CPUPowerConsumption
-        source: $monitors.cpu.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.cpu.speed: megaHertz2Hertz($column(2))
-          hw.power{hw.type="cpu"}: $column(5)
-          hw.energy{hw.type="cpu"}: fakeCounter($column(5))
+          hw.cpu.speed: megaHertz2Hertz($2)
+          hw.power{hw.type="cpu"}: $5
+          hw.energy{hw.type="cpu"}: fakeCounter($5)
   memory:
     discovery:
       sources:
@@ -373,7 +373,7 @@ monitors:
           # Source 1 = Hardware Memory
           # Identifier, Name, HardwareType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Keep only Storage Type
             # Identifier, Name, HardwareType
@@ -390,7 +390,7 @@ monitors:
           # Keep only Memory Available
           # Name, Parent, MemoryAvailable
           type: copy
-          from: $monitors.memory.discovery.sources.source(2)$
+          from: "${source::monitors.memory.discovery.sources.source(2)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 1
@@ -399,7 +399,7 @@ monitors:
           # Keep only ram
           # Name, Parent, MemoryUsed
           type: copy
-          from: $monitors.memory.discovery.sources.source(2)$
+          from: "${source::monitors.memory.discovery.sources.source(2)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 1
@@ -409,8 +409,8 @@ monitors:
           # Source 3 : MemoryUsed
           # Name, Parent, MemoryAvailable, Name, Parent, MemoryUsed
           type: tableJoin
-          leftTable: $monitors.memory.discovery.sources.source(3)$
-          rightTable: $monitors.memory.discovery.sources.source(4)$
+          leftTable: "${source::monitors.memory.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.memory.discovery.sources.source(4)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
           computes:
@@ -422,7 +422,7 @@ monitors:
             # Parent, MemorySize; MemoryUsed
           - type: add
             column: 2
-            value: Column(3)
+            value: $3
             # Convert to GB
             # Parent, MemorySize; MemoryUsed
           - type: multiply
@@ -433,22 +433,22 @@ monitors:
           # Source 6 : MemorySize
           # Identifier, Name, HardwareType, Parent, MemorySize; MemoryUsed
           type: tableJoin
-          leftTable: $monitors.memory.discovery.sources.source(1)$
-          rightTable: $monitors.memory.discovery.sources.source(5)$
+          leftTable: "${source::monitors.memory.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.memory.discovery.sources.source(5)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # Instance table
         # Identifier, Name, HardwareType, Parent, MemorySize; MemoryUsed
-        source: $monitors.memory.discovery.sources.source(6)$
+        source: "${source::monitors.memory.discovery.sources.source(6)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: "sprintf(\"%s (%s MB)\", $column(2), $column(5))"
+          name: "${awk::sprintf(\"%s (%s MB)\", $2, $5)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(5))
+          hw.memory.limit: mebiByte2Byte($5)
   gpu:
     discovery:
       sources:
@@ -457,7 +457,7 @@ monitors:
           # Source 1 = Hardware GPU
           # Identifier, Name, HardwareType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Keep only GPU
             # Identifier, Name, HardwareType
@@ -482,24 +482,24 @@ monitors:
           # Source 2 : Get the Memory Size
           # Identifier, Name, HardwareType, ParentSensor, SensorName, MemorySize
           type: tableJoin
-          leftTable: $monitors.gpu.discovery.sources.source(1)$
-          rightTable: $monitors.gpu.discovery.sources.source(2)$
+          leftTable: "${source::monitors.gpu.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.gpu.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;
       mapping:
         # Instance table
         # Identifier, Name, HardwareType, ParentSensor, SensorName, MemorySize
-        source: $monitors.gpu.discovery.sources.source(3)$
+        source: "${source::monitors.gpu.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(3)
+          id: $1
+          __display_id: $2
+          vendor: $3
           hw.parent.type: enclosure
           hw.parent.id: PC
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), mebiBytes2HumanFormat($column(6)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $3, mebiBytes2HumanFormat($6))}"
         metrics:
-          hw.gpu.memory.limit: mebiByte2Byte($column(6))
+          hw.gpu.memory.limit: mebiByte2Byte($6)
     collect:
       type: multiInstance
       sources:
@@ -512,20 +512,20 @@ monitors:
           computes:
           # Name, gpuId, Value, SensorType
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9"
       mapping:
         # Value Table
         # gpuID, VideoDecode, VideoEncode, Memory, PowerConsumption, ReveivedBytes, TransmittedBytes, UsedTimePercent
-        source: $monitors.gpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.gpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.gpu.utilization{task="decoder"}: percent2Ratio($column(2))
-          hw.gpu.utilization{task="encoder"}: percent2Ratio($column(3))
-          hw.gpu.memory.utilization: percent2Ratio($column(4))
-          hw.power{hw.type="gpu"}: $column(5)
-          hw.energy{hw.type="gpu"}: fakeCounter($column(5))
-          hw.gpu.io{direction="receive"}: fakeCounter($column(6))
-          hw.gpu.utilization{task="general"}: percent2Ratio($column(8))
+          hw.gpu.utilization{task="decoder"}: percent2Ratio($2)
+          hw.gpu.utilization{task="encoder"}: percent2Ratio($3)
+          hw.gpu.memory.utilization: percent2Ratio($4)
+          hw.power{hw.type="gpu"}: $5
+          hw.energy{hw.type="gpu"}: fakeCounter($5)
+          hw.gpu.io{direction="receive"}: fakeCounter($6)
+          hw.gpu.utilization{task="general"}: percent2Ratio($8)

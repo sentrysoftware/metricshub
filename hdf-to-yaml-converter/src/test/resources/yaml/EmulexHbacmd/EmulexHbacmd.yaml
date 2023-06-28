@@ -36,7 +36,7 @@ monitors:
             # AWK it
             # Model;WWN;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -49,7 +49,7 @@ monitors:
             # AWK it
             # Speed;Status;WWN;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -62,23 +62,23 @@ monitors:
           # Source (3) = TJ of 1 & 2
           # Model;WWN;Speed;Status;WWN;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 3
       mapping:
         # InstanceTable = Source(3)
         # Model;WWN;Speed;Status;WWN;
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
+          id: $2
           vendor: Emulex
-          model: $column(1)
-          physical_address: $column(2)
+          model: $1
+          physical_address: $2
           physical_address_type: WWN
           device_type: HBA FC Port
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), \"HBA FC Port\", \"Emulex\", $column(1))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $2, \"HBA FC Port\", \"Emulex\", $1)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -92,7 +92,7 @@ monitors:
             # AWK it
             # Speed;Status;WWN;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -106,17 +106,17 @@ monitors:
             # Speed;PatrolStatus;Status;Status;WWN;
           - type: translate
             column: 2
-            translationTable: NetworkStatusTranslationTable
+            translationTable: "${translation::NetworkStatusTranslationTable}"
             # Translate Network Status Information
             # Speed;PatrolStatus;StatusInformation;Status;WWN;
           - type: translate
             column: 3
-            translationTable: NetworkStatusInfoTranslationTable
+            translationTable: "${translation::NetworkStatusInfoTranslationTable}"
             # Translate Network Status Information
             # Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;
           - type: translate
             column: 4
-            translationTable: NetworkLinkStatusTranslationTable
+            translationTable: "${translation::NetworkLinkStatusTranslationTable}"
             # Convert Speed from Gbps to Mbps (multiply by 1000)
             # Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;
           - type: multiply
@@ -131,7 +131,7 @@ monitors:
             # AWK it
             # TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -139,26 +139,26 @@ monitors:
           # Source (3) = TJ of 1 & 2
           # Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 5
           rightKeyColumn: 6
       mapping:
         # ValueTable = Source(1)
         # Speed;PatrolStatus;StatusInformation;LinkStatus;WWN;TxFrame;RxFrame;TxB;RxB;ErrorCount;WWN;
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(5)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $5
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(1))
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.packets{direction="receive"}: $column(7)
-          hw.network.packets{direction="transmit"}: $column(6)
-          hw.errors{hw.type="network"}: $column(10)
-          hw.network.io{direction="receive"}: $column(9)
-          hw.network.io{direction="transmit"}: $column(8)
+          hw.network.bandwidth.limit: megaBit2Bit($1)
+          hw.status{hw.type="network"}: $2
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.packets{direction="receive"}: $7
+          hw.network.packets{direction="transmit"}: $6
+          hw.errors{hw.type="network"}: $10
+          hw.network.io{direction="receive"}: $9
+          hw.network.io{direction="transmit"}: $8
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   NetworkStatusInfoTranslationTable:
     Link Down. Need Adapter Port Reset: Link Down. Need Adapter Port Reset.

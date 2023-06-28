@@ -46,7 +46,7 @@ monitors:
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Decimal;PortType;
           - type: translate
             column: 7
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # and Remove the array pipes from the port WWN
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Decimal;PortType;
           - type: replace
@@ -62,7 +62,7 @@ monitors:
             #    NOTE - This script is column specific (See Column Variable), so watchout if you change the queries or duplicate columns.
             # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
@@ -83,8 +83,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;AdapterID;Manufacturer;Model;Serial
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
         source(4):
@@ -112,24 +112,24 @@ monitors:
           # Source(5) = Table joint of Source(3) and Source(4)
           # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;AdapterID;Manufacturer;Model;Serial;InstanceName;TxFrames;RxFrames;ErrorCount;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(3)$
-          rightTable: $monitors.network.discovery.sources.source(4)$
+          leftTable: "${source::monitors.network.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(4)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
         # Changed from UniquePortID to PortWWN as device ID as it seems this UniqueID is not fixed.
         # InstanceTable = Source(3)
         # Active;AdapterID;UniquePortId;PortSpeed;PortWWN-Decimal;PortWWN-Hex;PortType;AdapterID;Manufacturer;Model;Serial;InstanceName;TxFrames;RxFrames;ErrorCount;
-        source: $monitors.network.discovery.sources.source(5)$
+        source: "${source::monitors.network.discovery.sources.source(5)}"
         attributes:
-          id: $column(5)
-          vendor: $column(9)
-          model: $column(10)
-          physical_address: $column(6)
+          id: $5
+          vendor: $9
+          model: $10
+          physical_address: $6
           physical_address_type: WWN
-          device_type: $column(7)
+          device_type: $7
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(5), $column(7), $column(9), $column(10))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $5, $7, $9, $10)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -151,17 +151,17 @@ monitors:
             # AdapterID;Status;PortState;PortState;PortSpeed;PortWWN-Decimal;
           - type: translate
             column: 2
-            translationTable: PortStateToStatusTranslationTable
+            translationTable: "${translation::PortStateToStatusTranslationTable}"
             # Translate PortState to Patrol Status
             # AdapterID;Status;StatusInformation;PortState;PortSpeed;PortWWN-Decimal;
           - type: translate
             column: 3
-            translationTable: PortStateToStatusInformationTranslationTable
+            translationTable: "${translation::PortStateToStatusInformationTranslationTable}"
             # Translate PortState to Link Status
             # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;
           - type: translate
             column: 4
-            translationTable: PortStateToLinkStatusTranslationTable
+            translationTable: "${translation::PortStateToLinkStatusTranslationTable}"
             # Convert Speed from Gbps to Mbps (multiply by 1000)
             # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;
           - type: multiply
@@ -184,24 +184,24 @@ monitors:
           # Source (3) = Table Joint of 1 & 2
           # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;InstanceName;TxFrames;RxFrames;ErrorCount;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # INSTANCE TABLE
         # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;InstanceName;TxFrames;RxFrames;ErrorCount;
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(6)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $6
         metrics:
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.bandwidth.limit: megaBit2Bit($column(5))
-          hw.errors{hw.type="network"}: $column(10)
-          hw.network.packets{direction="transmit"}: $column(8)
-          hw.network.packets{direction="receive"}: $column(9)
+          hw.status{hw.type="network"}: $2
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.bandwidth.limit: megaBit2Bit($5)
+          hw.errors{hw.type="network"}: $10
+          hw.network.packets{direction="transmit"}: $8
+          hw.network.packets{direction="receive"}: $9
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   PortStateToLinkStatusTranslationTable:
     "2": ok

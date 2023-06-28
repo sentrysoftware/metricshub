@@ -22,22 +22,22 @@ monitors:
             # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
             # 1   ,2            #  ,3        , 4           ,5        , 6            #   ,7           ,  8       ,  9 , 10            #  , 11            , 12          ,13            #   ,14
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # Enclosure
         # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
         # 1   ,2        #      ,3        , 4        #  ,5        , 6        #       ,7        #  ,  8       ,  9 , 10        #      , 11        #   , 12        # ,13        #       ,14
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(9)
-          __display_id: $column(9)
+          id: $9
+          __display_id: $9
           vendor: EMC
-          model: $column(4)
-          serial_number: $column(12)
+          model: $4
+          serial_number: $12
           type: Storage
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(9), \"EMC\", $column(4))"
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $9, \"EMC\", $4)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -60,23 +60,23 @@ monitors:
             # MSHW, cluster-ip-seed,engine-id,engine-family,engine-id,health-indications,health-state,marker-led,name,operational-status,revision-number,serial-number,top-level-assembly,wwn-seed
             # 1   ,2            #  ,3        , 4           ,5        , 6            #   ,7           ,  8       ,  9 , 10            #  , 11            , 12          ,13            #   ,14
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
             column: 10
           - type: translate
             column: 10
-            translationTable: EnclosureTranslateTable
+            translationTable: "${translation::EnclosureTranslateTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(9)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $9
         metrics:
-          hw.status{hw.type="enclosure"}: $column(10)
+          hw.status{hw.type="enclosure"}: $10
         legacyTextParameters:
-          StatusInformation: $column(11)
+          StatusInformation: $11
   fan:
     discovery:
       sources:
@@ -98,18 +98,18 @@ monitors:
             # MSHW, NAME , STATUS, SPEED_THRESHOLD,parenttoCS
             #  1 ,   2,    3,      4,            #    5
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # The discovery table
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(2)
-          id: $column(2)
+          __display_id: $2
+          id: $2
           hw.parent.type: enclosure
-          hw.parent.id: $column(5)
-          name: $column(2)
+          hw.parent.id: $5
+          name: $2
     collect:
       # FANS
       # Collect
@@ -131,22 +131,22 @@ monitors:
             # MSHW, NAME , STATUS, SPEED_THRESHOLD, ParentID
             #  1  ,     2,      3,            #  4,    5
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
             column: 3
           - type: translate
             column: 4
-            translationTable: FansTranslateTable
+            translationTable: "${translation::FansTranslateTable}"
       mapping:
         # The Collect table
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="fan"}: $column(4)
+          hw.status{hw.type="fan"}: $4
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -168,7 +168,7 @@ monitors:
             # MSHW, Marker-LED, Name, OnDC, operational-status, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #    , 6          , 7            # , 8           , 9            #             #  , 10
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
           - type: leftConcat
@@ -179,14 +179,14 @@ monitors:
             value: "Serial Number: "
       mapping:
         # The discovery table
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(3)
-          id: $column(3)
-          info: "join(\" \", $column(6), $column(8))"
+          __display_id: $3
+          id: $3
+          info: "${awk::join(\" \", $6, $8)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(10)
-          name: $column(3)
+          hw.parent.id: $10
+          name: $3
     collect:
       type: multiInstance
       sources:
@@ -206,7 +206,7 @@ monitors:
             # MSHW, Marker-LED, Name, OnDC, operational-status, Part-number, Revision-number, Serial-Number, Temperature-threshold-exceeded,parent
             #  1   , 2         , 3    ,4    ,5            #    , 6          , 7            # , 8           , 9            #             #  , 10
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             # Duplicate Column
@@ -218,15 +218,15 @@ monitors:
             #  1   , 2         , 3    ,4    ,5            #   , 6            #  , 7          , 8            # , 9            , 10            #             # , 11
           - type: translate
             column: 5
-            translationTable: PowerSupplyTranslationTable
+            translationTable: "${translation::PowerSupplyTranslationTable}"
       mapping:
         # The Collect table
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="power_supply"}: $column(5)
+          hw.status{hw.type="power_supply"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   other_device:
     discovery:
       sources:
@@ -248,7 +248,7 @@ monitors:
             # MSHW, health-state, name, serial-number,sp-id,parent
             #  1   , 2          , 3   ,4             ,5    , 6
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
           # 'AdditionalInformation adding Serial Number:'
@@ -257,14 +257,14 @@ monitors:
             value: "Serial Number: "
       mapping:
         # The discovery table
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(3)
-          id: $column(3)
-          info: $column(4)
+          __display_id: $3
+          id: $3
+          info: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(6)
-          name: $column(3)
+          hw.parent.id: $6
+          name: $3
     collect:
       # OtherDevice
       # Collect
@@ -286,7 +286,7 @@ monitors:
             # MSHW, health-state, name, serial-number,sp-id,parent
             #  1   , 2          , 3   ,4             ,5    , 6
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
@@ -295,15 +295,15 @@ monitors:
             #  1   , 2          , 3          ,4    ,5             , 6   , 7
           - type: translate
             column: 2
-            translationTable: OtherStatusTranslationTable
+            translationTable: "${translation::OtherStatusTranslationTable}"
       mapping:
         # The Collect table
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(4)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $4
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   memory:
     discovery:
       sources:
@@ -325,19 +325,19 @@ monitors:
             # MSHW, name, operationnal-status, part-number, serial-number, parent
             #  1   , 2         , 3             ,4          ,5            ,  6
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # The discovery table
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(2)
-          id: $column(2)
-          serial_number: $column(5)
+          __display_id: $2
+          id: $2
+          serial_number: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(6)
-          name: $column(2)
+          hw.parent.id: $6
+          name: $2
     collect:
       # Memory
       # Collect
@@ -360,7 +360,7 @@ monitors:
             # MSHW; NAME, Operational-status; Part-number, serial-number , parent
             # 1   ,    2,         3          , 4         , 5             , 6
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             # MSHW; NAME, Operational-status, Operational-status, Part-number   , serial-number , parent
@@ -369,15 +369,15 @@ monitors:
             column: 3
           - type: translate
             column: 3
-            translationTable: MemoryTranslationTable
+            translationTable: "${translation::MemoryTranslationTable}"
       mapping:
         # The Collect table
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="memory"}: $column(3)
+          hw.status{hw.type="memory"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       sources:
@@ -398,7 +398,7 @@ monitors:
             # MSHW, address,enabled,name,operational-status,linkstatus,port-wwn,role,parent
             #  1  ,  2     , 3     ,4   ,5            #    ,6         ,7        ,  8, 9
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
           # keep only enabled fc's
@@ -411,16 +411,16 @@ monitors:
       mapping:
         # The discovery table
         # Network
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(4)
-          id: $column(4)
+          __display_id: $4
+          id: $4
           physical_address_type: WWN
-          physical_address: $column(7)
-          info: $column(8)
+          physical_address: $7
+          info: $8
           hw.parent.type: enclosure
-          hw.parent.id: $column(9)
-          name: $column(4)
+          hw.parent.id: $9
+          name: $4
     collect:
       # Memory
       # Collect
@@ -439,7 +439,7 @@ monitors:
             properties: /name;/value
             separator: ;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
             # MSHW, address,enabled,name,operational-status,operational-status,linkstatus,port-wwn,role,parent
@@ -448,20 +448,20 @@ monitors:
             column: 5
           - type: translate
             column: 5
-            translationTable: NetworkCardTranslationTable
+            translationTable: "${translation::NetworkCardTranslationTable}"
           # Translate the Link Status
           - type: translate
             column: 7
-            translationTable: LinkTranslationTable
+            translationTable: "${translation::LinkTranslationTable}"
       mapping:
         # The Collect table
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(4)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $4
         metrics:
-          hw.status{hw.type="network"}: $column(5)
-          hw.network.up: legacyLinkStatus($column(7))
+          hw.status{hw.type="network"}: $5
+          hw.network.up: legacyLinkStatus($7)
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   physical_disk:
     discovery:
       sources:
@@ -483,19 +483,19 @@ monitors:
             # MSHW, name, operational-status, part-number, serial-number, parentid
             # 1    ,  2 ,       3            ,  4         ,   5         ,    6
           - type: awk
-            script: $file("embeddedFile-7")$
+            script: "${file::embeddedFile-7}"
             keep: ^MSHW;
             separators: ;
       mapping:
         # The discovery table
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(2)
-          id: $column(2)
-          serial_number: $column(5)
+          __display_id: $2
+          id: $2
+          serial_number: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(6)
-          name: $column(2)
+          hw.parent.id: $6
+          name: $2
     collect:
       # PhysicalDisk
       # Collect
@@ -518,7 +518,7 @@ monitors:
             # MSHW, name, operational-status, part-number, serial-number, parentid
             # 1    ,  2 ,       3            ,  4         ,   5         ,    6
           - type: awk
-            script: $file("embeddedFile-7")$
+            script: "${file::embeddedFile-7}"
             keep: ^MSHW;
             separators: ;
           - type: duplicateColumn
@@ -527,15 +527,15 @@ monitors:
             # Value,StatusInfo,Status
           - type: translate
             column: 3
-            translationTable: PhysicalDiskTranslationTable
+            translationTable: "${translation::PhysicalDiskTranslationTable}"
       mapping:
         # The Collect table
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
+          hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   PhysicalDiskTranslationTable:
     offline: failed

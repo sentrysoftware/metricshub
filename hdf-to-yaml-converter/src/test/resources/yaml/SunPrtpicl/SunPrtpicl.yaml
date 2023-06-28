@@ -71,18 +71,18 @@ monitors:
             # Parse the output of prtpicl with an AWK script to get the path of each devices
             # DeviceID;Class;DevicePath;DisplayID;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # The discovery table
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: SUN
-          model: $column(1)
+          model: $1
           type: Computer
-          name: "sprintf(\"Computer: (%s)\", $column(1))"
+          name: "${awk::sprintf(\"Computer: (%s)\", $1)}"
   fan:
     discovery:
       sources:
@@ -95,7 +95,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of fans
             # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10"
@@ -108,19 +108,19 @@ monitors:
             # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;
           - type: leftConcat
             column: 3
-            value: Column(9)
+            value: $9
           - type: leftConcat
             column: 4
-            value: Column(7)
+            value: $7
           - type: leftConcat
             column: 5
-            value: Column(8)
+            value: $8
         source(2):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;DeviceID;Class;DevicePath;DisplayID;
           type: tableJoin
-          leftTable: $monitors.fan.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.fan.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -132,15 +132,15 @@ monitors:
       mapping:
         # The instance table
         # DeviceID;Description;WarningThreshold;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;WarningThresholdHex;DeviceID;Class;DevicePath;DisplayID;
-        source: $monitors.fan.discovery.sources.source(2)$
+        source: "${source::monitors.fan.discovery.sources.source(2)}"
         attributes:
-          id: $column(12)
-          __display_id: $column(14)
-          info: $column(13)
+          id: $12
+          __display_id: $14
+          info: $13
           hw.parent.type: enclosure
-          name: $column(14)
+          name: $14
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $3
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
     collect:
       # Collect type is "all instances in one shot
@@ -155,7 +155,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of fans
             # DeviceID;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6,7,8,9"
@@ -173,10 +173,10 @@ monitors:
             # DeviceID;Speed;SpeedPercent;Status;SpeedHex;SpeedPercentHex;
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
           - type: leftConcat
             column: 3
-            value: Column(6)
+            value: $6
             # Duplicate the status column
             # DeviceID;Speed;SpeedPercent;Status;StatusInformation;SpeedHex;SpeedPercentHex;
           - type: duplicateColumn
@@ -185,26 +185,26 @@ monitors:
             # DeviceID;Speed;SpeedPercent;PATROLStatus;StatusInformation;SpeedHex;SpeedPercentHex;
           - type: translate
             column: 4
-            translationTable: PrtDiagStatusTranslationTable
+            translationTable: "${translation::PrtDiagStatusTranslationTable}"
         source(2):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;Speed;SpeedPercent;PATROLStatus;StatusInformation;SpeedHex;SpeedPercentHex;DeviceID;Class;DevicePath;
           type: tableJoin
-          leftTable: $monitors.fan.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.fan.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # CollectTable = Source(1)
         # DeviceID;Speed;SpeedPercent;PATROLStatus;StatusInformation;SpeedHex;SpeedPercentHex;DeviceID;Class;DevicePath;
-        source: $monitors.fan.collect.sources.source(2)$
-        deviceId: $column(10)
+        source: "${source::monitors.fan.collect.sources.source(2)}"
+        deviceId: $10
         metrics:
-          hw.fan.speed: $column(2)
-          hw.fan.speed_ratio: percent2Ratio($column(3))
-          hw.status{hw.type="fan"}: $column(4)
+          hw.fan.speed: $2
+          hw.fan.speed_ratio: percent2Ratio($3)
+          hw.status{hw.type="fan"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   temperature:
     discovery:
       sources:
@@ -217,7 +217,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -230,7 +230,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -239,14 +239,14 @@ monitors:
           # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(1)$
-          - $monitors.temperature.discovery.sources.source(2)$
+          - "${source::monitors.temperature.discovery.sources.source(1)}"
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
         source(4):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;DeviceID;Class;DevicePath;DisplayID;
           type: tableJoin
-          leftTable: $monitors.temperature.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.temperature.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -258,15 +258,15 @@ monitors:
       mapping:
         # InstanceTable = Source(4)
         # DeviceID;Location;WarningThreshold;Temperature;EmptyStatus;DeviceID;Class;DevicePath;DisplayID;
-        source: $monitors.temperature.discovery.sources.source(4)$
+        source: "${source::monitors.temperature.discovery.sources.source(4)}"
         attributes:
-          id: $column(8)
-          __display_id: $column(10)
-          info: $column(9)
+          id: $8
+          __display_id: $10
+          info: $9
           hw.parent.type: enclosure
-          name: $column(10)
+          name: $10
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.degraded"}: $3
     collect:
       # Collect type is all instances in one single shot
       type: multiInstance
@@ -280,7 +280,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;Temperature;EmptyStatus
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6"
@@ -293,7 +293,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;EmptyTemperature;Status
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5,6"
@@ -302,8 +302,8 @@ monitors:
           # DeviceID;Temperature;Status
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(1)$
-          - $monitors.temperature.collect.sources.source(2)$
+          - "${source::monitors.temperature.collect.sources.source(1)}"
+          - "${source::monitors.temperature.collect.sources.source(2)}"
           computes:
             # Duplicate the Status column
             # DeviceID;Temperature;Status;StatusInformation
@@ -313,24 +313,24 @@ monitors:
             # DeviceID;CurrentValue;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: PrtDiagStatusTranslationTable
+            translationTable: "${translation::PrtDiagStatusTranslationTable}"
         source(4):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;CurrentValue;PATROLStatus;StatusInformation;DeviceID;Class;DevicePath;
           type: tableJoin
-          leftTable: $monitors.temperature.collect.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.temperature.collect.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # Collect table = Source(1)
-        source: $monitors.temperature.collect.sources.source(4)$
-        deviceId: $column(7)
+        source: "${source::monitors.temperature.collect.sources.source(4)}"
+        deviceId: $7
         metrics:
-          hw.temperature: $column(2)
-          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $2
+          hw.status{hw.type="temperature"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   voltage:
     discovery:
       sources:
@@ -343,7 +343,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Voltages
             # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -366,7 +366,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Voltages
             # DeviceID;VoltageName;EmptyLowerThreshold;EmptyUpperThreshold;Voltage;Status;
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -375,14 +375,14 @@ monitors:
           # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;
           type: tableUnion
           tables:
-          - $monitors.voltage.discovery.sources.source(1)$
-          - $monitors.voltage.discovery.sources.source(2)$
+          - "${source::monitors.voltage.discovery.sources.source(1)}"
+          - "${source::monitors.voltage.discovery.sources.source(2)}"
         source(4):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;DeviceID;Class;DevicePath;DisplayID;
           type: tableJoin
-          leftTable: $monitors.voltage.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.voltage.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -394,16 +394,16 @@ monitors:
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;VoltageName;LowerThreshold;UpperThreshold;Voltage;Status;DeviceID;Class;DevicePath;DisplayID;
-        source: $monitors.voltage.discovery.sources.source(4)$
+        source: "${source::monitors.voltage.discovery.sources.source(4)}"
         attributes:
-          id: $column(9)
-          __display_id: $column(11)
-          info: $column(10)
+          id: $9
+          __display_id: $11
+          info: $10
           hw.parent.type: enclosure
-          name: $column(11)
+          name: $11
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(3)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(4)
+          hw.voltage.limit{limit_type="low.critical"}: $3
+          hw.voltage.limit{limit_type="high.degraded"}: $4
     collect:
       # Collect type is all instances in one single shot
       type: multiInstance
@@ -417,7 +417,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Voltages
             # DeviceID;Voltage;EmptyStatus
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6,7"
@@ -435,7 +435,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of Temperatures
             # DeviceID;EmptyVoltage;Status
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6,7"
@@ -444,8 +444,8 @@ monitors:
           # DeviceID;Voltage;Status
           type: tableUnion
           tables:
-          - $monitors.voltage.collect.sources.source(1)$
-          - $monitors.voltage.collect.sources.source(2)$
+          - "${source::monitors.voltage.collect.sources.source(1)}"
+          - "${source::monitors.voltage.collect.sources.source(2)}"
           computes:
             # Duplicate the Status column
             # DeviceID;Voltage;Status;StatusInformation
@@ -455,24 +455,24 @@ monitors:
             # DeviceID;Voltage;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: PrtDiagStatusTranslationTable
+            translationTable: "${translation::PrtDiagStatusTranslationTable}"
         source(4):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;Voltage;PATROLStatus;StatusInformation;DeviceID;Class;DevicePath;
           type: tableJoin
-          leftTable: $monitors.voltage.collect.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.voltage.collect.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # Collect table = Source(1)
-        source: $monitors.voltage.collect.sources.source(4)$
-        deviceId: $column(7)
+        source: "${source::monitors.voltage.collect.sources.source(4)}"
+        deviceId: $7
         metrics:
-          hw.voltage: $column(2)
-          hw.status{hw.type="voltage"}: $column(3)
+          hw.voltage: $2
+          hw.status{hw.type="voltage"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   led:
     discovery:
       sources:
@@ -485,7 +485,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of LEDs
             # DeviceID;Description;Color/Name;
           - type: awk
-            script: $file("embeddedFile-7")$
+            script: "${file::embeddedFile-7}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -501,23 +501,23 @@ monitors:
             # DeviceID;Description;Color/Name;OnStatus;Color/Name;Color/Name;
           - type: translate
             column: 4
-            translationTable: LEDColor2OnStatusTranslationTable
+            translationTable: "${translation::LEDColor2OnStatusTranslationTable}"
             # Translate the third Color column into a BlinkingStatus
             # DeviceID;Description;Color/Name;OnStatus;BlinkingStatus;Color/Name;
           - type: translate
             column: 5
-            translationTable: LEDColor2BlinkingStatusTranslationTable
+            translationTable: "${translation::LEDColor2BlinkingStatusTranslationTable}"
             # Translate the fourth Color column into a OffStatus
             # DeviceID;Description;Color/Name;OnStatus;BlinkingStatus;OffStatus;
           - type: translate
             column: 6
-            translationTable: LEDColor2OffStatusTranslationTable
+            translationTable: "${translation::LEDColor2OffStatusTranslationTable}"
         source(2):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;Description;Color;OnStatus;BlinkingStatus;OffStatus;DeviceID;Class;DevicePath;DisplayID;
           type: tableJoin
-          leftTable: $monitors.led.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.led.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -529,17 +529,17 @@ monitors:
       mapping:
         # The instance table
         # DeviceID;Description;Color;OnStatus;BlinkingStatus;OffStatus;DeviceID;Class;DevicePath;DisplayID;
-        source: $monitors.led.discovery.sources.source(2)$
+        source: "${source::monitors.led.discovery.sources.source(2)}"
         attributes:
-          id: $column(9)
-          __display_id: $column(11)
-          color: $column(3)
-          __on_status: $column(4)
-          __blinking_status: $column(5)
-          __off_status: $column(6)
-          info: $column(10)
+          id: $9
+          __display_id: $11
+          color: $3
+          __on_status: $4
+          __blinking_status: $5
+          __off_status: $6
+          info: $10
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(11), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $11, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -553,7 +553,7 @@ monitors:
             # Send prtpicl's output to awk and get a beautiful table of fans
             # DeviceID;State;
           - type: awk
-            script: $file("embeddedFile-7")$
+            script: "${file::embeddedFile-7}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5"
@@ -565,23 +565,23 @@ monitors:
             # DeviceID;Status;State;
           - type: translate
             column: 2
-            translationTable: LEDStateTranslationTable
+            translationTable: "${translation::LEDStateTranslationTable}"
         source(2):
           # Table joint with Enclosure.discovery.source(2)
           # DeviceID;Status;State;DeviceID;Class;DevicePath;
           type: tableJoin
-          leftTable: $monitors.led.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.led.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.led.collect.sources.source(2)$
-        deviceId: $column(6)
+        source: "${source::monitors.led.collect.sources.source(2)}"
+        deviceId: $6
         metrics:
-          hw.status{hw.type="led"}: legacyLedStatus($column(2))
+          hw.status{hw.type="led"}: legacyLedStatus($2)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   LEDColor2OffStatusTranslationTable:
     red: ok

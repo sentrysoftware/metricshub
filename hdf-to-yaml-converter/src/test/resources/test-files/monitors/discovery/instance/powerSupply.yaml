@@ -18,14 +18,14 @@
           mapping:
             _comment: |-
               InstanceTable = Source(1)
-            source: $monitors.power_supply.discovery.sources.source(1)$
+            source: ${source::monitors.power_supply.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              power_supply_type: $column(2)
-              __display_id: $column(3)
+              id: $1
+              power_supply_type: $2
+              __display_id: $3
               hw.parent.type: enclosure
-              hw.parent.id: $column(4)
-              info: join(" ", $column(7), $column(8), $column(6))
-              name: sprintf("%s (%s - %s W)", $column(3), $column(2), $column(5))
+              hw.parent.id: $4
+              info: ${awk::join(" ", $7, $8, $6)}
+              name: ${awk::sprintf("%s (%s - %s W)", $3, $2, $5)}
             metrics:
-              hw.power_supply.limit: $column(5)
+              hw.power_supply.limit: $5

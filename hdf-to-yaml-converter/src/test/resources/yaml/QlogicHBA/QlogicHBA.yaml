@@ -35,7 +35,7 @@ monitors:
             # InstanceID;PortType;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
           - type: translate
             column: 2
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Convert Speed from bps to Mbps (divide by 1062500)
             # InstanceID;PortType;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
           - type: divide
@@ -58,18 +58,18 @@ monitors:
       mapping:
         # InstanceTable = Source(10)
         # InstanceID;PortType;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
-          model: $column(7)
+          id: $1
+          __display_id: $4
+          model: $7
           vendor: QLogic
-          physical_address: $column(3)
+          physical_address: $3
           physical_address_type: WWN
-          device_type: $column(2)
-          info: $column(8)
+          device_type: $2
+          info: $8
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(4), $column(2), \"QLogic\", $column(7))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $4, $2, \"QLogic\", $7)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -85,7 +85,7 @@ monitors:
             # InstanceID;Speed;PatrolLinkStatus;
           - type: translate
             column: 3
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
             # Convert Speed from bps to Mbps (divide by 1062500)
             # InstanceID;Speed;PatrolLinkStatus;
           - type: divide
@@ -94,11 +94,11 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # InstanceID;Speed;PatrolLinkStatus;
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.network.up: legacyLinkStatus($column(3))
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.network.up: legacyLinkStatus($3)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
 translations:
   PortTypeTranslationTable:
     "11": HBA FC Port NL
