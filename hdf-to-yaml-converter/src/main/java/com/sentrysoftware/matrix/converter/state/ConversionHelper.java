@@ -236,6 +236,7 @@ public class ConversionHelper {
 	 * <b><u>$2</u></b><br>
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
+	 * @param group   index of a capturing group in the matcher's pattern
 	 * @return updated string value
 	 */
 	private static String convertColumnReference(final Matcher matcher, final String input, final int group) {
