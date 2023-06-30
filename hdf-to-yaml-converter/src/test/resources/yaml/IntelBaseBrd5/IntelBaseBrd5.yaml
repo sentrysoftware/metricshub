@@ -31,12 +31,12 @@ monitors:
           oid: 1.3.6.1.4.1.343.2.10.3.5.100.2.0
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: IntelMB
-          model: $column(1)
+          model: $1
           type: Computer
-          name: "sprintf(\"Computer: (%s)\", $column(1))"
+          name: "${awk::sprintf(\"Computer: (%s)\", $1)}"
   cpu:
     discovery:
       sources:
@@ -48,15 +48,15 @@ monitors:
           selectColumns: "ID,8,10,11"
       mapping:
         # Instance Table
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(3)
-          vendor: $column(2)
+          id: $1
+          model: $3
+          vendor: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(2), $column(3), megaHertz2HumanFormat($column(4)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $1, $2, $3, megaHertz2HumanFormat($4))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($4)
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -72,7 +72,7 @@ monitors:
             # ID;StatusInformation;PatrolStatus;CurrentSpeed
           - type: translate
             column: 3
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Remove Status Information of "ok"
             # ID;StatusInformation;PatrolStatus;CurrentSpeed
           - type: replace
@@ -82,12 +82,12 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;PatrolStatus;CurrentSpeed
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="cpu"}: $column(3)
+          hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   memory:
     discovery:
       sources:
@@ -124,8 +124,8 @@ monitors:
           # ID;Status;Size;Location;Bank;Speed;Type
           type: tableUnion
           tables:
-          - $monitors.memory.discovery.sources.source(1)$
-          - $monitors.memory.discovery.sources.source(2)$
+          - "${source::monitors.memory.discovery.sources.source(1)}"
+          - "${source::monitors.memory.discovery.sources.source(2)}"
           computes:
           - type: leftConcat
             column: 4
@@ -136,15 +136,15 @@ monitors:
       mapping:
         # Instance Table
         # ID;Status;Size;Location;Bank;Speed;Type
-        source: $monitors.memory.discovery.sources.source(3)$
+        source: "${source::monitors.memory.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          type: $column(7)
-          info: "join(\" \", $column(4), $column(5))"
+          id: $1
+          type: $7
+          info: "${awk::join(\" \", $4, $5)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(7), $column(3))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $1, $7, $3)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(3))
+          hw.memory.limit: mebiByte2Byte($3)
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -171,14 +171,14 @@ monitors:
           # ID;StatusInformation;Status
           type: tableUnion
           tables:
-          - $monitors.memory.collect.sources.source(1)$
-          - $monitors.memory.collect.sources.source(2)$
+          - "${source::monitors.memory.collect.sources.source(1)}"
+          - "${source::monitors.memory.collect.sources.source(2)}"
           computes:
             # Translate Status in Patrol Status
             # ID;StatusInformation;PatrolStatus;
           - type: translate
             column: 3
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Remove Status Information of "ok"
             # ID;StatusInformation;PatrolStatus;
           - type: replace
@@ -188,12 +188,12 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;PatrolStatus;CurrentSpeed
-        source: $monitors.memory.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(3)
+          hw.status{hw.type="memory"}: $3
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   temperature:
     discovery:
       sources:
@@ -235,7 +235,7 @@ monitors:
           # Take a copy of source 1
           # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
             # Exclude any Sensors with Negative Temperature values
             # (these are usually degrees below threshold values, but too hard to deal with, so we will only rely on the Status for monitoring
@@ -247,7 +247,7 @@ monitors:
           # Take another copy of source 1
           # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
             # Include only those Sensors with Negative Temperature values
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
@@ -258,27 +258,27 @@ monitors:
             # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
           - type: replace
             column: 4
-            existingValue: Column(4)
+            existingValue: $4
             newValue: ""
         source(4):
           # Join the sensors with negative values and those with positive current temperatures back into one table.
           # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(2)$
-          - $monitors.temperature.discovery.sources.source(3)$
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
+          - "${source::monitors.temperature.discovery.sources.source(3)}"
       mapping:
         # Instance Table
         # ID;Description;Status;CurrentReading;UpperCritical;UpperNonCritical;
-        source: $monitors.temperature.discovery.sources.source(4)$
+        source: "${source::monitors.temperature.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: $column(5)
-          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
+          hw.temperature.limit{limit_type="high.critical"}: $5
+          hw.temperature.limit{limit_type="high.degraded"}: $6
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -299,7 +299,7 @@ monitors:
             # ID;StatusInformation;Status;CurrentReading
           - type: translate
             column: 3
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Remove Status Information of "ok"
             # ID;StatusInformation;Status;CurrentReading
           - type: replace
@@ -309,13 +309,13 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(3)
-          hw.temperature: $column(4)
+          hw.status{hw.type="temperature"}: $3
+          hw.temperature: $4
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   fan:
     discovery:
       sources:
@@ -335,15 +335,15 @@ monitors:
       mapping:
         # Instance Table
         # ID;Description;Status;CurrentReading;LowerCritical;LowerNonCritical;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
+          hw.fan.speed.limit{limit_type="low.critical"}: $5
+          hw.fan.speed.limit{limit_type="low.degraded"}: $6
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -359,7 +359,7 @@ monitors:
             # ID;StatusInformation;Status;CurrentReading
           - type: translate
             column: 3
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Remove Status Information of "ok"
             # ID;StatusInformation;Status;CurrentReading
           - type: replace
@@ -369,13 +369,13 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(4)
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $4
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   voltage:
     discovery:
       sources:
@@ -395,15 +395,15 @@ monitors:
       mapping:
         # Instance Table
         # ID;Description;Status;CurrentReading;UpperNonCritical;LowerNonCritical;
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: $column(5)
-          hw.voltage.limit{limit_type="low.critical"}: $column(6)
+          hw.voltage.limit{limit_type="high.degraded"}: $5
+          hw.voltage.limit{limit_type="low.critical"}: $6
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -419,7 +419,7 @@ monitors:
             # ID;StatusInformation;Status;CurrentReading
           - type: translate
             column: 3
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Remove Status Information of "ok"
             # ID;StatusInformation;Status;CurrentReading
           - type: replace
@@ -429,13 +429,13 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="voltage"}: $column(3)
-          hw.voltage: $column(4)
+          hw.status{hw.type="voltage"}: $3
+          hw.voltage: $4
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
 translations:
   statusTranslationTable:
     "1": UNKNOWN

@@ -35,24 +35,24 @@ monitors:
             # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
           - type: translate
             column: 2
-            translationTable: HostControllerModelTranslationTable
+            translationTable: "${translation::HostControllerModelTranslationTable}"
           # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
           - type: leftConcat
             column: 5
             value: "Location: "
       mapping:
         # InstanceTable
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(2)
+          id: $1
+          model: $2
           device_type: FC Port
-          physical_address: $column(3)
+          physical_address: $3
           physical_address_type: WWN
-          serial_number: $column(4)
-          info: $column(5)
+          serial_number: $4
+          info: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), \"FC Port\", $column(2))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, \"FC Port\", $2)}"
     collect:
       type: multiInstance
       sources:
@@ -73,26 +73,26 @@ monitors:
             # ID;PATROLStatus;Status;Status;
           - type: translate
             column: 2
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # ID;PATROLStatus;StatusInformation;Status;
           - type: translate
             column: 3
-            translationTable: NetworkCardStatusInformationTranslationTable
+            translationTable: "${translation::NetworkCardStatusInformationTranslationTable}"
             # Translate the third status column into LinkStatus
             # ID;PATROLStatus;StatusInformation;LinkStatus;
           - type: translate
             column: 4
-            translationTable: NetworkCardLinkStatusTranslationTable
+            translationTable: "${translation::NetworkCardLinkStatusTranslationTable}"
       mapping:
         # The ValueTable = source(1)
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(4))
+          hw.status{hw.type="network"}: $2
+          hw.network.up: legacyLinkStatus($4)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   NetworkCardLinkStatusTranslationTable:
     "2": ok

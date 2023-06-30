@@ -41,25 +41,25 @@ monitors:
           # Translate memory type
           - type: translate
             column: 3
-            translationTable: memoryTypeTranslationTable
+            translationTable: "${translation::memoryTypeTranslationTable}"
           # Translate memory technology
           - type: translate
             column: 4
-            translationTable: memoryTechnologyTranslationTable
+            translationTable: "${translation::memoryTechnologyTranslationTable}"
           # Concat type and technology
           - type: rightConcat
             column: 3
-            value: Column(4)
+            value: $4
       mapping:
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          type: $column(3)
-          serial_number: $column(5)
+          id: $1
+          type: $3
+          serial_number: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(1), $column(3), $column(2))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $1, $3, $2)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(2))
+          hw.memory.limit: mebiByte2Byte($2)
     collect:
       type: multiInstance
       sources:
@@ -78,21 +78,21 @@ monitors:
             # DeviceID;PATROLStatus;ECCStatus
           - type: translate
             column: 2
-            translationTable: memoryECCStatusTranslationTable
+            translationTable: "${translation::memoryECCStatusTranslationTable}"
             # Translate second ECCStatus into a more readable string
             # DeviceID;PATROLStatus;statusInformation
           - type: translate
             column: 3
-            translationTable: memoryECCStatusInformationTranslationTable
+            translationTable: "${translation::memoryECCStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;statusInformation
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   memoryECCStatusTranslationTable:
     "0": ok

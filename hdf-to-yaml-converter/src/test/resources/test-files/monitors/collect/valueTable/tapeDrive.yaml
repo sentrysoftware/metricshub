@@ -16,12 +16,12 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.tape_drive.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.tape_drive.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="tape_drive"}: $column(2)
-              hw.tape_drive.operations{type="mount"}: $column(4)
-              hw.tape_drive.operations{type="unmount"}: $column(5)
-              hw.errors{hw.type="tape_drive"}: $column(6)
-              hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($column(7))
+              hw.status{hw.type="tape_drive"}: $2
+              hw.tape_drive.operations{type="mount"}: $4
+              hw.tape_drive.operations{type="unmount"}: $5
+              hw.errors{hw.type="tape_drive"}: $6
+              hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($7)

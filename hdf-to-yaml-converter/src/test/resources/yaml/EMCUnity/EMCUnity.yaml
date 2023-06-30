@@ -44,8 +44,8 @@ monitors:
           # Source(4) = EMC_VNXe_ArrayChassisLeaf Source (1) joined to  EMC_VNXe_StorageSystem_ArrayChassis_SystemPackagingAssocLeaf (2)
           # EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -53,8 +53,8 @@ monitors:
         source(5):
           # Source(5) = Source (4) joined to EMC_StorageSystem Source (3)\nEMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_Storage\tSystem;EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(4)$
-          rightTable: $monitors.enclosure.discovery.sources.source(3)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(3)}"
           leftKeyColumn: 5
           rightKeyColumn: 1
           keyType: Wbem
@@ -62,15 +62,15 @@ monitors:
       mapping:
         # InstanceTable = Source()
         # EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
-        source: $monitors.enclosure.discovery.sources.source(5)$
+        source: "${source::monitors.enclosure.discovery.sources.source(5)}"
         attributes:
-          id: $column(6)
-          __display_id: $column(7)
+          id: $6
+          __display_id: $7
           vendor: EMC
-          model: $column(2)
-          serial_number: $column(3)
+          model: $2
+          serial_number: $3
           type: Storage
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(7), \"EMC\", $column(2))"
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $7, \"EMC\", $2)}"
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -90,20 +90,20 @@ monitors:
             # EMC_StorageSystem;PATROLStatusArray;Status
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # EMC_StorageSystem;PATROLStatusArray;StatusInformation
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -128,7 +128,7 @@ monitors:
             # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
           - type: translate
             column: 2
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Convert Speed from bps to Mbps (divide by 1000000)
             # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
           - type: divide
@@ -149,7 +149,7 @@ monitors:
             # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
           - type: translate
             column: 2
-            translationTable: EthernetPortTypeTranslationTable
+            translationTable: "${translation::EthernetPortTypeTranslationTable}"
             # Convert Speed from bps to Mbps (divide by 1000000)
             # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
           - type: divide
@@ -159,20 +159,20 @@ monitors:
           # Merging FC port and Ethernet port
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(2)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
       mapping:
         # InstanceTable = Source(5)
         # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          __display_id: $column(6)
-          id: $column(1)
-          physical_address: $column(4)
+          __display_id: $6
+          id: $1
+          physical_address: $4
           physical_address_type: WWN
-          device_type: $column(2)
+          device_type: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(6), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $6, $2)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -202,12 +202,12 @@ monitors:
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
           - type: translate
             column: 5
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
           - type: translate
             column: 6
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
             # duplicate the speed into in order to check the linkstatus
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
           - type: duplicateColumn
@@ -222,7 +222,7 @@ monitors:
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;PATROLStatusArray;Status
           - type: translate
             column: 5
-            translationTable: SpeedToLinkStatusTranslationTable
+            translationTable: "${translation::SpeedToLinkStatusTranslationTable}"
         source(2):
           # Source(2) = CIM_EthernetPort
           # PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
@@ -243,12 +243,12 @@ monitors:
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
           - type: translate
             column: 5
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
           - type: translate
             column: 6
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
             # duplicate the speed into in order to check the linkstatus
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
           - type: duplicateColumn
@@ -263,23 +263,23 @@ monitors:
             # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;PATROLStatusArray;Status
           - type: translate
             column: 5
-            translationTable: SpeedToLinkStatusTranslationTable
+            translationTable: "${translation::SpeedToLinkStatusTranslationTable}"
         source(3):
           # Merging FC port and Ethernet port
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(2)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(2)}"
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(5)
-          hw.network.bandwidth.limit: megaBit2Bit($column(4))
-          hw.network.up: legacyLinkStatus($column(5))
+          hw.status{hw.type="network"}: $5
+          hw.network.bandwidth.limit: megaBit2Bit($4)
+          hw.network.up: legacyLinkStatus($5)
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   fan:
     discovery:
       sources:
@@ -291,12 +291,12 @@ monitors:
           query: "SELECT __PATH, ElementName FROM CIM_Fan"
       mapping:
         # InstanceTable = Source(2)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # The Fan collect is a "MultiInstance" collect
       type: multiInstance
@@ -316,20 +316,20 @@ monitors:
             # FanID;PATROLStatusArray;Status
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # FanID;PATROLStatusArray;StatusInformation
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -341,12 +341,12 @@ monitors:
           query: "SELECT __PATH, ElementName FROM CIM_PowerSupply"
       mapping:
         # InstanceTable = Source(2)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # The PowerSupply collect is a "MultiInstance" collect
       type: multiInstance
@@ -366,20 +366,20 @@ monitors:
             # PowerSupplyID;PATROLStatusArray;Status
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # PowerSupplyID;PATROLStatusArray;StatusInformation
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -392,13 +392,13 @@ monitors:
       mapping:
         # InstanceTable = Source(2)
         # ComputerID;ElementName;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           device_type: Controller
-          __display_id: $column(2)
+          __display_id: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", \"Controller\", $column(2))"
+          name: "${awk::sprintf(\"%s: %s\", \"Controller\", $2)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -418,20 +418,20 @@ monitors:
             # ComputerID;PATROLStatusArray;Status
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # ComputerID;PATROLStatusArray;StatusInformation
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -458,7 +458,7 @@ monitors:
             # DiskExtentID;size;NumberOfBlocks
           - type: multiply
             column: 2
-            value: Column(3)
+            value: $3
         source(4):
           # //let's statrt the association between the 3 tables
           # / first between DiskdriveLeaf and DiskmoduleLeaf
@@ -475,8 +475,8 @@ monitors:
           # let's do the tablejoint between source(1) and source(2)
           # DiskID;DiskName;DiskmoduleID;DiskID;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(4)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -485,8 +485,8 @@ monitors:
           # let's do the tablejoint between source(6) and source(2)
           # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(6)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 3
           rightKeyColumn: 1
           keyType: Wbem
@@ -495,8 +495,8 @@ monitors:
           # let's do the tablejoint between source(7) and source(5)
           # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(7)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(5)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(7)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(5)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -505,8 +505,8 @@ monitors:
           # let's do the tablejoint between source(8) and source(3)
           # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(8)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(3)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(3)}"
           leftKeyColumn: 10
           rightKeyColumn: 1
           keyType: Wbem
@@ -514,17 +514,17 @@ monitors:
       mapping:
         # Finally here is the instance table...
         # DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks
-        source: $monitors.physical_disk.discovery.sources.source(9)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(9)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(7)
-          vendor: $column(8)
-          serial_number: $column(6)
+          id: $1
+          __display_id: $2
+          model: $7
+          vendor: $8
+          serial_number: $6
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(8), bytes2HumanFormatBase10($column(12)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $8, bytes2HumanFormatBase10($12))}"
         metrics:
-          hw.physical_disk.size: $column(12)
+          hw.physical_disk.size: $12
     collect:
       # The physical disk collect is a "MultiInstance" collect
       type: multiInstance
@@ -544,20 +544,20 @@ monitors:
             # DiskID;PATROLStatusArray;Status
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # And finally, we translate DMTF's HealthState code into a more readable status string
             # DiskID;PATROLStatusArray;StatusInformation
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -572,7 +572,7 @@ monitors:
             # PoolID;SizeBytes;Label;UnallocatedSpace;LogicalDiskType;
           - type: translate
             column: 5
-            translationTable: PrimordialStoragePoolTranslationTable
+            translationTable: "${translation::PrimordialStoragePoolTranslationTable}"
             # However, exclude storage pools whose size is zero
             # PoolID;SizeBytes;Label;UnallocatedSpaceActivation;LogicalDiskType;
           - type: excludeMatchingLines
@@ -585,16 +585,16 @@ monitors:
       mapping:
         # Here is the instance table
         # PoolID;SizeBytes;UseForCapacityReport;Label;UnallocatedSpace;LogicalDiskType;
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
-          __use_for_capacity_report: $column(3)
-          type: $column(6)
+          id: $1
+          __display_id: $4
+          __use_for_capacity_report: $3
+          type: $6
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(4), bytes2HumanFormatBase2($column(2)))"
+          name: "${awk::sprintf(\"%s (%s)\", $4, bytes2HumanFormatBase2($2))}"
         metrics:
-          hw.logical_disk.limit: $column(2)
+          hw.logical_disk.limit: $2
     collect:
       # The LogicalDisk  collect is a "MultiInstance" collect
       type: multiInstance
@@ -607,10 +607,10 @@ monitors:
           namespace: root/emc/smis
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.logical_disk.usage{state="free"}: $column(2)
+          hw.logical_disk.usage{state="free"}: $2
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
 translations:
   EthernetPortTypeTranslationTable:

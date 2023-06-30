@@ -67,8 +67,8 @@ monitors:
           # Source(6) = Table joint between Source(2) and source(5)
           # Switch__PATH;SwitchID;Hostname;Chassis__PATH;Switch_PATH;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(2)$
-          rightTable: $monitors.enclosure.discovery.sources.source(5)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(5)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -76,8 +76,8 @@ monitors:
           # Source(7) = Table joint between Source(3) and source(4)
           # Product__PATH;Model;Vendor;SerialNumber;FRUNumber;Product__PATH;Chassis__PATH;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -85,8 +85,8 @@ monitors:
           # Source(7) = Table joint between Source(5) and source(6)
           # Switch__PATH;SwitchID;Hostname;Chassis__PATH;Switch_PATH;Product__PATH;Model;Vendor;SerialNumber;FRUNumber;Product__PATH;Chassis__PATH;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(6)$
-          rightTable: $monitors.enclosure.discovery.sources.source(7)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(7)}"
           leftKeyColumn: 4
           rightKeyColumn: 7
           keyType: Wbem
@@ -101,8 +101,8 @@ monitors:
           # Source(9) = Table joint between Source(7) and source(8)
           # SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(8)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 7
           rightKeyColumn: 5
           keyType: Wbem
@@ -124,8 +124,8 @@ monitors:
           # ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(1)$
-          - $monitors.enclosure.discovery.sources.source(9)$
+          - "${source::monitors.enclosure.discovery.sources.source(1)}"
+          - "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
           # ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
           - type: rightConcat
@@ -134,7 +134,7 @@ monitors:
         source(11):
           # Let's make a copy of the results so that we can device a Enclosure ID to Enclosure PATH mapping for later use
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(10)$
+          from: "${source::monitors.enclosure.discovery.sources.source(10)}"
           computes:
             # Trim it down so that we can map component paths to Chassis ID
             # ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
@@ -144,16 +144,16 @@ monitors:
       mapping:
         # InstanceTable = Source(10)
         # ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
-        source: $monitors.enclosure.discovery.sources.source(10)$
+        source: "${source::monitors.enclosure.discovery.sources.source(10)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
+          id: $1
+          __display_id: $2
+          model: $3
+          serial_number: $4
           vendor: Brocade
-          type: $column(6)
-          device_hostname: $column(1)
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"Brocade\", $column(3))"
+          type: $6
+          device_hostname: $1
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $2, \"Brocade\", $3)}"
   blade:
     discovery:
       sources:
@@ -162,8 +162,8 @@ monitors:
           # So let's attach them to the chassis in (Enclosure 10)
           # SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;Chassis__PATH;ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(8)$
-          rightTable: $monitors.enclosure.discovery.sources.source(10)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(10)}"
           leftKeyColumn: 7
           rightKeyColumn: 5
           keyType: Wbem
@@ -181,8 +181,8 @@ monitors:
           # Let's create a BladeID,BladePATH to EnclosureID table for later use:
           # SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;Switch__PATH;SwitchID;Hostname;
           type: tableJoin
-          leftTable: $monitors.blade.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.blade.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -195,16 +195,16 @@ monitors:
       mapping:
         # Instance Table
         # SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
-        source: $monitors.blade.discovery.sources.source(1)$
+        source: "${source::monitors.blade.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(3)
-          serial_number: $column(5)
-          info: "join(\" \", $column(4), $column(8))"
+          id: $1
+          __display_id: $2
+          model: $3
+          serial_number: $5
+          info: "${awk::join(\" \", $4, $8)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s)\", $2, $3)}"
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
@@ -224,12 +224,12 @@ monitors:
             # SystemName,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 2
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # SystemName,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # SystemName,DeviceID,PATROLStatus,StatusInformation
@@ -239,12 +239,12 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation
-        source: $monitors.blade.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.blade.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="blade"}: $column(2)
+          hw.status{hw.type="blade"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -274,7 +274,7 @@ monitors:
             # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
           - type: translate
             column: 3
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Convert Speed from bps to Mbps (divide by 1062500)
             # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,AssociatedNodeInfo,DeviceID,PortName
           - type: divide
@@ -288,7 +288,7 @@ monitors:
             # Process the AssociatedNodeInfo through an Awk Script to extract the remote Node Info
             # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11,12"
@@ -326,8 +326,8 @@ monitors:
           # Port Info to Association Table
           # PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(2)$
-          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftTable: "${source::monitors.network.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(3)}"
           leftKeyColumn: 4
           rightKeyColumn: 2
           keyType: Wbem
@@ -335,8 +335,8 @@ monitors:
           # Port Info to Portmodule
           # PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort,ModuleID,Brocade_PortModule
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(7)$
-          rightTable: $monitors.network.discovery.sources.source(4)$
+          leftTable: "${source::monitors.network.discovery.sources.source(7)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(4)}"
           leftKeyColumn: 5
           rightKeyColumn: 2
           keyType: Wbem
@@ -344,8 +344,8 @@ monitors:
           # Port Info to Portmodule to Association Table
           # PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort,ModuleID,Brocade_PortModule,Brocade_Switch,Brocade_PortModule
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(8)$
-          rightTable: $monitors.network.discovery.sources.source(5)$
+          leftTable: "${source::monitors.network.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(5)}"
           leftKeyColumn: 8
           rightKeyColumn: 2
           keyType: Wbem
@@ -353,8 +353,8 @@ monitors:
           # Port Info to Portmodule to Association Table
           # PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_PortModule,Brocade_SwitchFCPort,ModuleID,Brocade_PortModule,Brocade_Switch,Brocade_PortModule,Brocade_Switch,SwitchID,Hostname
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(9)$
-          rightTable: $monitors.network.discovery.sources.source(6)$
+          leftTable: "${source::monitors.network.discovery.sources.source(9)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(6)}"
           leftKeyColumn: 9
           rightKeyColumn: 1
           keyType: Wbem
@@ -372,13 +372,13 @@ monitors:
             value: ' '
           - type: leftConcat
             column: 3
-            value: Column(2)
+            value: $2
           - type: leftConcat
             column: 3
             value: _
           - type: leftConcat
             column: 3
-            value: Column(4)
+            value: $4
             # Build the DeviceID (SwitchID_PortModuleID_PortNumber) from Left to Right
             # PermanentAddress,DeviceID,DisplayID,ModuleID,SwitchID,Hostname
           - type: leftConcat
@@ -386,13 +386,13 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(4)
+            value: $4
           - type: leftConcat
             column: 2
             value: _
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
             # Trim it again
             # PermanentAddress,DeviceID,DisplayID,ModuleID,SwitchID,Hostname
             # PermanentAddress,DeviceID,DisplayID,         SwitchID
@@ -412,8 +412,8 @@ monitors:
           # Join the tables
           # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,PermanentAddress,DeviceID,DisplayID,SwitchID
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(10)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(10)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
           defaultRightLine: ;;;MSHW_NOSWITCHFOUND;
@@ -422,7 +422,7 @@ monitors:
             # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,(EthernetSystemName),DeviceID,DisplayID,SwitchID
           - type: replace
             column: 12
-            existingValue: Column(12)
+            existingValue: $12
             newValue: ""
         source(12):
           # Source(12) = Brocade_FCOEEthernetPort
@@ -440,7 +440,7 @@ monitors:
             # EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID
           - type: translate
             column: 3
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Convert Speed from bps to Mbps (divide by 1062500)
             # EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID
           - type: divide
@@ -480,8 +480,8 @@ monitors:
           # Source(7) = Table joint between Source(3) and source(5)
           # EthernetSwitch__Path,EthernetSystemName,PCS__Path,EthernetSwitch__Path
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(13)$
-          rightTable: $monitors.network.discovery.sources.source(15)$
+          leftTable: "${source::monitors.network.discovery.sources.source(13)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(15)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -489,8 +489,8 @@ monitors:
           # Source(8) = Table joint between Source(7) and source(6)
           # EthernetSwitch__Path,EthernetSystemName,PCS__Path,EthernetSwitch__Path,PCS__Path,Switch_PATH
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(17)$
-          rightTable: $monitors.network.discovery.sources.source(16)$
+          leftTable: "${source::monitors.network.discovery.sources.source(17)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(16)}"
           leftKeyColumn: 3
           rightKeyColumn: 1
           keyType: Wbem
@@ -498,8 +498,8 @@ monitors:
           # Source(9) = Table joint between Source(8) and source(4)
           # EthernetSwitch__Path,EthernetSystemName,PCS__Path,EthernetSwitch__Path,PCS__Path,Switch_PATH,Switch_PATH,SwitchID
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(18)$
-          rightTable: $monitors.network.discovery.sources.source(14)$
+          leftTable: "${source::monitors.network.discovery.sources.source(18)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(14)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
           keyType: Wbem
@@ -514,8 +514,8 @@ monitors:
           # Source(10) = Table joint between Source(12) and source(19)
           # EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,DeviceID,EthernetSystemName,SwitchID
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(12)$
-          rightTable: $monitors.network.discovery.sources.source(19)$
+          leftTable: "${source::monitors.network.discovery.sources.source(12)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(19)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -544,8 +544,8 @@ monitors:
             # EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,(DisplayID),SwitchID
           - type: replace
             column: 13
-            existingValue: Column(13)
-            newValue: Column(2)
+            existingValue: $13
+            newValue: $2
             # Add an underscore and the switchname to the deviceID
             # EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,(DisplayID),SwitchID
           - type: leftConcat
@@ -553,13 +553,13 @@ monitors:
             value: _
           - type: leftConcat
             column: 13
-            value: Column(15)
+            value: $15
             # Copy the Port Number into DisplayID
             # EthernetSystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,DisplayID,SwitchID
           - type: replace
             column: 14
-            existingValue: Column(14)
-            newValue: Column(2)
+            existingValue: $14
+            newValue: $2
             # Add an Identifier to the EthernetSystemName
             # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,(RemoteNodeAddress),DeviceID,PermanentAddressType,(AssociatedNodeAddressType),(PortName),EthernetSystemName,DeviceID,DisplayID,SwitchID
           - type: leftConcat
@@ -575,16 +575,16 @@ monitors:
           # Make a Port to Switch Table
           # PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_Switch,Brocade_SwitchFCPort
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(2)$
-          rightTable: $monitors.network.discovery.sources.source(21)$
+          leftTable: "${source::monitors.network.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(21)}"
           leftKeyColumn: 4
           rightKeyColumn: 2
         source(23):
           # Make a Port to Switch Table (2nd association)
           # PermanentAddress,PortNumber,ElementName,Brocade_SwitchFCPort,Brocade_Switch,Brocade_SwitchFCPort,Brocade_Switch,SwitchID,Hostname
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(22)$
-          rightTable: $monitors.network.discovery.sources.source(6)$
+          leftTable: "${source::monitors.network.discovery.sources.source(22)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(6)}"
           leftKeyColumn: 5
           rightKeyColumn: 1
           computes:
@@ -601,7 +601,7 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(5)
+            value: $5
             # Trim it again
             # PermanentAddress,DeviceID,DisplayID,SwitchID,Hostname
             # PermanentAddress,DeviceID,DisplayID,SwitchID
@@ -611,7 +611,7 @@ monitors:
           # Make a copy of Source(11) The FC Discovery Table
           # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
           type: copy
-          from: $monitors.network.discovery.sources.source(11)$
+          from: "${source::monitors.network.discovery.sources.source(11)}"
           computes:
             # Keep only ports that we did not find a switch
             #       1        2         3          4          5            6             7            #  8         9            #   10            #           11       12            #      13      14         15
@@ -632,15 +632,15 @@ monitors:
           # Join the non-module switch port list, and its associated switch table
           # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,PermanentAddress,DeviceID,DisplayID,SwitchID
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(24)$
-          rightTable: $monitors.network.discovery.sources.source(23)$
+          leftTable: "${source::monitors.network.discovery.sources.source(24)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(23)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
         source(26):
           # Make a copy of Source(11) The FC Discovery Table
           # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
           type: copy
-          from: $monitors.network.discovery.sources.source(11)$
+          from: "${source::monitors.network.discovery.sources.source(11)}"
           computes:
             # Exclude non-module switch
             # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
@@ -652,21 +652,21 @@ monitors:
           # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(26)$
-          - $monitors.network.discovery.sources.source(20)$
-          - $monitors.network.discovery.sources.source(25)$
+          - "${source::monitors.network.discovery.sources.source(26)}"
+          - "${source::monitors.network.discovery.sources.source(20)}"
+          - "${source::monitors.network.discovery.sources.source(25)}"
         source(28):
           # Use the Blade Discovery Table to associate Switch ID to Chassis ID (for attaching to Chassis for the PM)
           # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID,SwitchID,Hostname,ChassisID
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(27)$
-          rightTable: $monitors.blade.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(27)}"
+          rightTable: "${source::monitors.blade.discovery.sources.source(2)}"
           leftKeyColumn: 15
           rightKeyColumn: 1
         source(29):
           # ' Trim it down to use in the Collect'
           type: copy
-          from: $monitors.network.discovery.sources.source(28)$
+          from: "${source::monitors.network.discovery.sources.source(28)}"
           computes:
             #    1           2         3          4          5             6            # 7            8          9            #       10            #       11           12             13        14      15         16       17       18
             # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID,SwitchID,Hostname,ChassisID
@@ -677,17 +677,17 @@ monitors:
         # Instance Table
         #    1        #  2         3        # 4        # 5        #    6        #     7        #   8        # 9        #         # 10        #         # 11        #  12        #    13        14      15         16       17       18
         # SystemName,PortNumber,PortType,EnabledState,Speed,PermanentAddress,RemoteNodeAddress,DeviceID,PermanentAddressType,AssociatedNodeAddressType,PortName,EthernetSystemName,DeviceID,DisplayID,SwitchID,SwitchID,Hostname,ChassisID
-        source: $monitors.network.discovery.sources.source(28)$
+        source: "${source::monitors.network.discovery.sources.source(28)}"
         attributes:
-          id: $column(13)
-          physical_address: $column(6)
-          physical_address_type: $column(9)
-          device_type: $column(3)
-          __display_id: $column(14)
-          info: $column(12)
+          id: $13
+          physical_address: $6
+          physical_address_type: $9
+          device_type: $3
+          __display_id: $14
+          info: $12
           hw.parent.type: blade
-          hw.parent.id: $column(15)
-          name: "sprintf(\"%s (%s)\", $column(14), $column(3))"
+          hw.parent.id: $15
+          name: "${awk::sprintf(\"%s (%s)\", $14, $3)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -722,31 +722,31 @@ monitors:
             #     1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8            #  ;      9  ;   10          ;    11            #    ;  12         ;  13            #           ;   14    ;   15
           - type: add
             column: 7
-            value: Column(7)
+            value: $7
           - type: add
             column: 7
-            value: Column(8)
+            value: $8
           - type: add
             column: 7
-            value: Column(9)
+            value: $9
           - type: add
             column: 7
-            value: Column(10)
+            value: $10
           - type: add
             column: 7
-            value: Column(11)
+            value: $11
           - type: add
             column: 7
-            value: Column(12)
+            value: $12
           - type: add
             column: 7
-            value: Column(13)
+            value: $13
           - type: add
             column: 7
-            value: Column(14)
+            value: $14
           - type: add
             column: 7
-            value: Column(15)
+            value: $15
             # Remove all the unwanted Network Columns
             # SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
           - type: keepColumns
@@ -755,8 +755,8 @@ monitors:
           # Source (4)  Joint of 2 and 3
           # FCPort__Path,SwitchFCPortStats__Path,SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(2)$
-          rightTable: $monitors.network.collect.sources.source(3)$
+          leftTable: "${source::monitors.network.collect.sources.source(2)}"
+          rightTable: "${source::monitors.network.collect.sources.source(3)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           keyType: Wbem
@@ -764,8 +764,8 @@ monitors:
           # Source (5)  Joint of 1 and 4
           #  SystemName,Speed,OperationalStatus,EnabledState,FCPort__Path,FCPort__Path,SwitchFCPortStats__Path,SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(4)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(4)}"
           leftKeyColumn: 5
           rightKeyColumn: 1
           keyType: Wbem
@@ -799,8 +799,8 @@ monitors:
           # PermanentAddress,Speed,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(5)$
-          - $monitors.network.collect.sources.source(6)$
+          - "${source::monitors.network.collect.sources.source(5)}"
+          - "${source::monitors.network.collect.sources.source(6)}"
           computes:
             # Duplicate the "OperationalStatusArray" column
             # PermanentAddress,Speed,OperationalStatus,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
@@ -810,12 +810,12 @@ monitors:
             # PermanentAddress,Speed,PATROLStatusArray,OperationalStatus,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # PermanentAddress,Speed,PATROLStatusArray,StatusInformation,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # PermanentAddress,Speed,PATROLStatus,StatusInformation,EnabledState,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
@@ -826,34 +826,34 @@ monitors:
             # PermanentAddress,Speed,PATROLStatus,StatusInformation,LinkStatus,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount
           - type: translate
             column: 5
-            translationTable: EnabledStateStatusTranslationTable
+            translationTable: "${translation::EnabledStateStatusTranslationTable}"
         source(8):
           # Match the collected information to the device ID using the permananent address
           # PermanentAddress,Speed,PATROLStatus,StatusInformation,LinkStatus,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount,PermanentAddress,DeviceID
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(7)$
-          rightTable: $monitors.network.discovery.sources.source(29)$
+          leftTable: "${source::monitors.network.collect.sources.source(7)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(29)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # Value Table
         #     1        #     2      3        #    4        #       5        # 6        #   7        #         # 8        #      9        #       10        # 11        # 12        #    13
         # PermanentAddress,Speed,PATROLStatus,StatusInformation,LinkStatus,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount,PermanentAddress,DeviceID
-        source: $monitors.network.collect.sources.source(8)$
-        deviceId: $column(13)
+        source: "${source::monitors.network.collect.sources.source(8)}"
+        deviceId: $13
         metrics:
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($5)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
           hw.network.full_duplex: legacyFullDuplex("full")
-          hw.errors{hw.type="network"}: $column(11)
-          hw.network.packets{direction="transmit"}: $column(9)
-          hw.network.packets{direction="receive"}: $column(8)
-          hw.network.io{direction="transmit"}: $column(7)
-          hw.network.io{direction="receive"}: $column(6)
-          hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $column(10)
+          hw.errors{hw.type="network"}: $11
+          hw.network.packets{direction="transmit"}: $9
+          hw.network.packets{direction="receive"}: $8
+          hw.network.io{direction="transmit"}: $7
+          hw.network.io{direction="receive"}: $6
+          hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $10
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   other_device:
     discovery:
       sources:
@@ -875,13 +875,13 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
         source(2):
           # Use the Blade Discovery Table to associate Switch ID to Chassis ID (for attaching to Chassis for the PM)
           # SwitchID,DeviceID,DisplayID,SwitchID,Hostname,ChassisID
           type: tableJoin
-          leftTable: $monitors.other_device.discovery.sources.source(1)$
-          rightTable: $monitors.blade.discovery.sources.source(2)$
+          leftTable: "${source::monitors.other_device.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.blade.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -912,7 +912,7 @@ monitors:
             value: _CP
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
             # Add CP to the DisplayID
             # ChassisID,DeviceID,DisplayID
           - type: leftConcat
@@ -927,26 +927,26 @@ monitors:
             # ChassisID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
           - type: replace
             column: 4
-            existingValue: Column(4)
-            newValue: Column(1)
+            existingValue: $4
+            newValue: $1
         source(4):
           # Union of Port Module and CP Module
           # ChassisID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(2)$
-          - $monitors.other_device.discovery.sources.source(3)$
+          - "${source::monitors.other_device.discovery.sources.source(2)}"
+          - "${source::monitors.other_device.discovery.sources.source(3)}"
       mapping:
         # InstanceTable
         # SwitchID,DeviceID,DisplayID,ChassisID,AttachToDeviceType,OtherDeviceType
-        source: $monitors.other_device.discovery.sources.source(4)$
+        source: "${source::monitors.other_device.discovery.sources.source(4)}"
         attributes:
-          id: $column(2)
-          device_type: $column(6)
-          __display_id: $column(3)
-          hw.parent.type: $column(5)
-          hw.parent.id: $column(1)
-          name: "sprintf(\"%s: %s\", $column(6), $column(3))"
+          id: $2
+          device_type: $6
+          __display_id: $3
+          hw.parent.type: $5
+          hw.parent.id: $1
+          name: "${awk::sprintf(\"%s: %s\", $6, $3)}"
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
@@ -965,7 +965,7 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
         source(2):
           # Source(2) = Brocade_CPModule
           # SystemName,DeviceID,OperationalStatus
@@ -980,14 +980,14 @@ monitors:
             value: _CP
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
         source(3):
           # Union of Port Module and CP Module
           # SystemName,DeviceID,OperationalStatus
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(2)}"
           computes:
             # Duplicate the "OperationalStatusArray" column
             # SystemName,DeviceID,OperationalStatus
@@ -997,12 +997,12 @@ monitors:
             # SystemName,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # SystemName,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # SystemName,DeviceID,PATROLStatus,StatusInformation
@@ -1012,12 +1012,12 @@ monitors:
       mapping:
         # ValueTable
         # SystemName,DeviceID,PATROLStatus,StatusInformation
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="other_device"}: $column(3)
+          hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
@@ -1039,17 +1039,17 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
       mapping:
         # InstanceTable = Source(1)
         # SystemName,DeviceID,DisplayID,Speed
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
+          id: $2
+          __display_id: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(1)
-          name: $column(3)
+          hw.parent.id: $1
+          name: $3
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
@@ -1069,12 +1069,12 @@ monitors:
             # SystemName,DeviceID,Speed,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # SystemName,DeviceID,Speed,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 5
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
@@ -1088,17 +1088,17 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
       mapping:
         # SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.fan.speed: $column(3)
-          hw.status{hw.type="fan"}: $column(4)
+          hw.fan.speed: $3
+          hw.status{hw.type="fan"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   power_supply:
     discovery:
       sources:
@@ -1120,17 +1120,17 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
       mapping:
         # InstanceTable = Source(1)
         # SystemName,DeviceID
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
+          id: $2
+          __display_id: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(1)
-          name: $column(3)
+          hw.parent.id: $1
+          name: $3
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
@@ -1150,12 +1150,12 @@ monitors:
             # SystemName,DeviceID,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 3
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # SystemName,DeviceID,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # SystemName,DeviceID,PATROLStatus,StatusInformation
@@ -1169,16 +1169,16 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
       mapping:
         # ValueTable = Source(1)
         # SystemName,DeviceID,PATROLStatus,StatusInformation
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="power_supply"}: $column(3)
+          hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   temperature:
     discovery:
       sources:
@@ -1200,17 +1200,17 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
       mapping:
         # InstanceTable = Source(1)
         # SystemName,DeviceID,DisplayID,Speed
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
+          id: $2
+          __display_id: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(1)
-          name: $column(3)
+          hw.parent.id: $1
+          name: $3
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
@@ -1230,12 +1230,12 @@ monitors:
             # SystemName,DeviceID,Speed,PATROLStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 4
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # SystemName,DeviceID,Speed,PATROLStatusArray,StatusInformation
           - type: arrayTranslate
             column: 5
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
@@ -1249,17 +1249,17 @@ monitors:
             value: _
           - type: leftConcat
             column: 2
-            value: Column(1)
+            value: $1
       mapping:
         # SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(3)
-          hw.status{hw.type="temperature"}: $column(4)
+          hw.temperature: $3
+          hw.status{hw.type="temperature"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   DMTFOperationStatusTranslationTable:
     "11": degraded

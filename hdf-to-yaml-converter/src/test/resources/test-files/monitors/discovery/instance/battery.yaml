@@ -18,18 +18,18 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               vendor: APC
               type: UPS
               id: bat
-              model: $column(1)
+              model: $1
               chemistry: LiFePO4
               hw.parent.type: disk_controller
-              hw.parent.id: lookup("disk_controller", "id", "controller_number", $column(2))
+              hw.parent.id: lookup("disk_controller", "id", "controller_number", $2)
               __display_id: testname
-              info: join(" ", $column(5), $column(6), $column(7))
-              name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS")
+              info: ${awk::join(" ", $5, $6, $7)}
+              name: ${awk::sprintf("%s (%s %s - %s)", "testname", "APC", $1, "UPS")}
 - name: test2AttachedToDeviceIdAndType
   input: |
     // InstanceTable = Source(1)
@@ -50,18 +50,18 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               vendor: APC
               type: UPS
               id: bat
-              model: $column(1)
+              model: $1
               chemistry: LiFePO4
-              hw.parent.type: $column(4)
-              hw.parent.id: $column(3)
+              hw.parent.type: $4
+              hw.parent.id: $3
               __display_id: testname
-              info: join(" ", $column(5), $column(6))
-              name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS")
+              info: ${awk::join(" ", $5, $6)}
+              name: ${awk::sprintf("%s (%s %s - %s)", "testname", "APC", $1, "UPS")}
 - name: test3AttachedToDeviceIdOnly
   input: |
     // InstanceTable = Source(1)
@@ -80,18 +80,18 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               vendor: APC
               type: UPS
               id: bat
-              model: $column(1)
+              model: $1
               chemistry: LiFePO4
               hw.parent.type: enclosure
-              hw.parent.id: $column(3)
+              hw.parent.id: $3
               __display_id: testname
-              info: $column(5)
-              name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS") # The name contains __display_id, vendor, model and type
+              info: $5
+              name: ${awk::sprintf("%s (%s %s - %s)", "testname", "APC", $1, "UPS")} # The name contains __display_id, vendor, model and type
 - name: test4NameNoDisplayId
   input: |
     // InstanceTable = Source(1)
@@ -109,17 +109,17 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               vendor: APC
               type: UPS
               id: bat
-              model: $column(1)
+              model: $1
               chemistry: LiFePO4
               hw.parent.type: enclosure
-              hw.parent.id: $column(3)
-              info: $column(5)
-              name: sprintf("%s (%s %s - %s)", "bat", "APC", $column(1), "UPS") # The name contains id, vendor, model and type
+              hw.parent.id: $3
+              info: $5
+              name: ${awk::sprintf("%s (%s %s - %s)", "bat", "APC", $1, "UPS")} # The name contains id, vendor, model and type
 - name: test4NameNoModel
   input: |
     // InstanceTable = Source(1)
@@ -137,17 +137,17 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               vendor: APC
               type: UPS
               id: bat
               chemistry: LiFePO4
               hw.parent.type: enclosure
-              hw.parent.id: $column(3)
+              hw.parent.id: $3
               __display_id: testname
-              info: $column(5)
-              name: sprintf("%s (%s - %s)", "testname", "APC", "UPS") # The name contains __display_id, vendor and type
+              info: $5
+              name: ${awk::sprintf("%s (%s - %s)", "testname", "APC", "UPS")} # The name contains __display_id, vendor and type
 - name: test5NameNoVendor
   input: |
     // InstanceTable = Source(1)
@@ -165,17 +165,17 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               type: UPS
               id: bat
-              model: $column(1)
+              model: $1
               chemistry: LiFePO4
               hw.parent.type: enclosure
-              hw.parent.id: $column(3)
+              hw.parent.id: $3
               __display_id: testname
-              info: $column(5)
-              name: sprintf("%s (%s - %s)", "testname", $column(1), "UPS") # The name contains __display_id, model and type
+              info: $5
+              name: ${awk::sprintf("%s (%s - %s)", "testname", $1, "UPS")} # The name contains __display_id, model and type
 - name: test5NameNoModelNoVendor
   input: |
     // InstanceTable = Source(1)
@@ -192,16 +192,16 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               type: UPS
               id: bat
               chemistry: LiFePO4
               hw.parent.type: enclosure
-              hw.parent.id: $column(3)
+              hw.parent.id: $3
               __display_id: testname
-              info: $column(5)
-              name: sprintf("%s (%s)", "testname", "UPS") # The name contains __display_id and type
+              info: $5
+              name: ${awk::sprintf("%s (%s)", "testname", "UPS")} # The name contains __display_id and type
 - name: test5NameNoModelNoVendorNoType
   input: |
     // InstanceTable = Source(1)
@@ -217,12 +217,12 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: ${source::monitors.battery.discovery.sources.source(1)}
             attributes:
               id: bat
               chemistry: LiFePO4
               hw.parent.type: enclosure
-              hw.parent.id: $column(3)
+              hw.parent.id: $3
               __display_id: testname
-              info: $column(5)
+              info: $5
               name: testname # The name is the __display_id

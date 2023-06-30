@@ -33,17 +33,17 @@ monitors:
           # Translate Chemistry
           - type: translate
             column: 1
-            translationTable: ChemistryTranslationTable
+            translationTable: "${translation::ChemistryTranslationTable}"
       mapping:
         # 
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          chemistry: $column(1)
+          id: $2
+          chemistry: $1
           vendor: ""
-          model: $column(3)
+          model: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s %s)\", $column(2), \"\", $column(3))"
+          name: "${awk::sprintf(\"%s (%s %s)\", $2, \"\", $3)}"
     collect:
       # COLLECT
       type: multiInstance
@@ -60,19 +60,19 @@ monitors:
           # Translate Status in an OK, WARN, ALARM status
           - type: translate
             column: 5
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           # Translate Status column 3 into a StatusInformation
           - type: translate
             column: 6
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
           # Translate BatteryStatus into a StatusInformation
           - type: translate
             column: 1
-            translationTable: BatteryStatusTranslationTable
+            translationTable: "${translation::BatteryStatusTranslationTable}"
           # Merge Status StatusInformation and BatteryStatus StatusInformation
           - type: rightConcat
             column: 6
-            value: Column(1)
+            value: $1
           # A time left of 71582788 indicates that it is charging. Ignore it.
           - type: replace
             column: 4
@@ -80,14 +80,14 @@ monitors:
             newValue: ""
       mapping:
         # Battery StatusInformation (not used anymore at this point), DeviceID, Charge, Time Left (mins), Status, StatusInformation
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="battery"}: $column(5)
-          hw.battery.charge: percent2Ratio($column(3))
-          hw.battery.time_left: $column(4)
+          hw.status{hw.type="battery"}: $5
+          hw.battery.charge: percent2Ratio($3)
+          hw.battery.time_left: $4
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
 translations:
   BatteryStatusTranslationTable:
     "11": Partially Charged

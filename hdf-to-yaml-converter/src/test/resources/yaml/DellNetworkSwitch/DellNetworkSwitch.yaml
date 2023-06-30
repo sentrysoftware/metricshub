@@ -55,8 +55,8 @@ monitors:
           # Join the EnclosureIDs with the FRUs
           # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(2)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -73,29 +73,29 @@ monitors:
             value: MSHW;
           # Sum up the power consumption values from all PSes
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
         source(5):
           # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(1)
         # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
-        source: $monitors.enclosure.discovery.sources.source(5)$
+        source: "${source::monitors.enclosure.discovery.sources.source(5)}"
         attributes:
-          __display_id: $column(6)
+          __display_id: $6
           id: DellSwitch
-          vendor: $column(7)
-          model: $column(6)
-          serial_number: $column(3)
-          bios_version: $column(8)
+          vendor: $7
+          model: $6
+          serial_number: $3
+          bios_version: $8
           type: Switch
-          info: $column(4)
-          name: "sprintf(\"Switch: %s (%s %s)\", $column(6), $column(7), $column(6))"
+          info: $4
+          name: "${awk::sprintf(\"Switch: %s (%s %s)\", $6, $7, $6)}"
     collect:
       type: multiInstance
       sources:
@@ -112,12 +112,12 @@ monitors:
             # EnclosureID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: EnclosureStatusTranslationTable
+            translationTable: "${translation::EnclosureStatusTranslationTable}"
             # Translate second Status into more readable string
             # EnclosureID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: EnclosureStatusInformationTranslationTable
+            translationTable: "${translation::EnclosureStatusInformationTranslationTable}"
           # MSHW;EnclosureID;PATROLStatus;StatusInformation;
           - type: leftConcat
             column: 1
@@ -133,26 +133,26 @@ monitors:
             column: 1
             value: MSHW;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
         source(3):
           # MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # Value Table
         # MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
-        source: $monitors.enclosure.collect.sources.source(3)$
+        source: "${source::monitors.enclosure.collect.sources.source(3)}"
         deviceId: DellSwitch
         metrics:
-          hw.status{hw.type="enclosure"}: $column(3)
-          hw.enclosure.power: $column(6)
-          hw.enclosure.energy: fakeCounter($column(6))
+          hw.status{hw.type="enclosure"}: $3
+          hw.enclosure.power: $6
+          hw.enclosure.energy: fakeCounter($6)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
@@ -170,12 +170,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;Speed;Status;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(2)
-          id: $column(1)
+          __display_id: $2
+          id: $1
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       type: multiInstance
       sources:
@@ -192,22 +192,22 @@ monitors:
             # ID;Speed;PATROLStatus;Status;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PATROLStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Value Table
         # EnclosureID;PATROLStatus;StatusInformation;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(2)
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -225,12 +225,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;Speed;Status;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(2)
-          id: $column(1)
+          __display_id: $2
+          id: $1
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       type: multiInstance
       sources:
@@ -247,21 +247,21 @@ monitors:
             # ID;Speed;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Value Table
         # EnclosureID;PATROLStatus;StatusInformation;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   EnclosureStatusTranslationTable:
     "3": ok

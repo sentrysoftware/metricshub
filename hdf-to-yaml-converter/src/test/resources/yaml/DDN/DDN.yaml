@@ -25,13 +25,13 @@ monitors:
           value: DDN;Data Direct Networks;Disk Array
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
-          model: $column(3)
+          id: $1
+          vendor: $2
+          model: $3
           type: Storage
-          name: "sprintf(\"Storage: (%s %s)\", $column(2), $column(3))"
+          name: "${awk::sprintf(\"Storage: (%s %s)\", $2, $3)}"
   physical_disk:
     discovery:
       sources:
@@ -45,7 +45,7 @@ monitors:
             # Process that crap through an AWK script that will generate one line per disk
             # DiskID;DiskType;Status;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -55,13 +55,13 @@ monitors:
             valueList: 3
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
+          id: $1
+          vendor: $2
           hw.parent.type: enclosure
           hw.parent.id: DDN
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -76,7 +76,7 @@ monitors:
             # Process that crap through an AWK script that will generate one line per disk
             # DiskID;Status;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -88,20 +88,20 @@ monitors:
             # DiskID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: diskStatusTranslationTable
+            translationTable: "${translation::diskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: diskStatusInformationTranslationTable
+            translationTable: "${translation::diskStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -113,12 +113,12 @@ monitors:
           selectColumns: 1
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: DDN
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -138,20 +138,20 @@ monitors:
             # powerSupplyID;PATROLStatus:Status;
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # powerSupplyID;PATROLStatus:StatusInformation;
           - type: translate
             column: 3
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -163,12 +163,12 @@ monitors:
           selectColumns: 1
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: DDN
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -188,20 +188,20 @@ monitors:
             # FanID;PATROLStatus:Status;
           - type: translate
             column: 2
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # FanID;PATROLStatus:StatusInformation;
           - type: translate
             column: 3
-            translationTable: FanStatusInformationTranslationTable
+            translationTable: "${translation::FanStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -212,13 +212,13 @@ monitors:
           value: General;General;
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
           hw.parent.id: DDN
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -237,19 +237,19 @@ monitors:
             # PATROLStatus:Status;
           - type: translate
             column: 1
-            translationTable: TemperatureStatusTranslationTable
+            translationTable: "${translation::TemperatureStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # PATROLStatus:StatusInformation;
           - type: translate
             column: 2
-            translationTable: TemperatureStatusInformationTranslationTable
+            translationTable: "${translation::TemperatureStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="temperature"}: $column(1)
+          hw.status{hw.type="temperature"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
 translations:
   TemperatureStatusTranslationTable:
     "1": ok

@@ -17,5 +17,5 @@ connector:
     - type: http
       method: POST
       url: /api/rest/ApiConnection/Login
-      header: $file("embeddedFile-1")$
+      header: "${file::embeddedFile-1}"
       expectedResult: StorageCenter

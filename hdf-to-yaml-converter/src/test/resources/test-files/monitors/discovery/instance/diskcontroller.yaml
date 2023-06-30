@@ -22,20 +22,20 @@
             _comment: |-
               The InstanceTable
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-            source: $monitors.disk_controller.discovery.sources.source(1)$
+            source: ${source::monitors.disk_controller.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(9)
-              controller_number: $column(10)
-              model: $column(2)
-              serial_number: $column(3)
-              firmware_version: $column(6)
-              driver_version: $column(7)
+              id: $1
+              __display_id: $9
+              controller_number: $10
+              model: $2
+              serial_number: $3
+              firmware_version: $6
+              driver_version: $7
               bios_version: testbios
-              info: join(" ", $column(4), $column(5))
+              info: ${awk::join(" ", $4, $5)}
               hw.parent.type: enclosure
-              hw.parent.id: $column(8)
-              name: "sprintf(\"Disk Controller: %s (%s)\", $column(9), $column(2))"
+              hw.parent.id: $8
+              name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $9, $2)}"
 - name: testModelOnly
   input: |
     // The InstanceTable
@@ -59,19 +59,19 @@
             _comment: |-
               The InstanceTable
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-            source: $monitors.disk_controller.discovery.sources.source(1)$
+            source: ${source::monitors.disk_controller.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              controller_number: $column(1)
-              model: $column(2)
-              serial_number: $column(3)
-              firmware_version: $column(6)
-              driver_version: $column(7)
+              id: $1
+              controller_number: $1
+              model: $2
+              serial_number: $3
+              firmware_version: $6
+              driver_version: $7
               bios_version: testbios
-              info: join(" ", $column(4), $column(5))
+              info: ${awk::join(" ", $4, $5)}
               hw.parent.type: enclosure
-              hw.parent.id: $column(8)
-              name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+              hw.parent.id: $8
+              name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
 - name: testVendorOnly
   input: |
     // The InstanceTable
@@ -95,19 +95,19 @@
             _comment: |-
               The InstanceTable
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-            source: $monitors.disk_controller.discovery.sources.source(1)$
+            source: ${source::monitors.disk_controller.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              controller_number: $column(1)
-              vendor: $column(2)
-              serial_number: $column(3)
-              firmware_version: $column(6)
-              driver_version: $column(7)
+              id: $1
+              controller_number: $1
+              vendor: $2
+              serial_number: $3
+              firmware_version: $6
+              driver_version: $7
               bios_version: testbios
-              info: join(" ", $column(4), $column(5))
+              info: ${awk::join(" ", $4, $5)}
               hw.parent.type: enclosure
-              hw.parent.id: $column(8)
-              name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+              hw.parent.id: $8
+              name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
 - name: testNoModelNoVendor
   input: |
     // The InstanceTable
@@ -130,18 +130,18 @@
             _comment: |-
               The InstanceTable
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-            source: $monitors.disk_controller.discovery.sources.source(1)$
+            source: ${source::monitors.disk_controller.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              controller_number: $column(1)
-              serial_number: $column(3)
-              firmware_version: $column(6)
-              driver_version: $column(7)
+              id: $1
+              controller_number: $1
+              serial_number: $3
+              firmware_version: $6
+              driver_version: $7
               bios_version: testbios
-              info: join(" ", $column(4), $column(5))
+              info: ${awk::join(" ", $4, $5)}
               hw.parent.type: enclosure
-              hw.parent.id: $column(8)
-              name: "sprintf(\"Disk Controller: %s\", $column(1))"
+              hw.parent.id: $8
+              name: "${awk::sprintf(\"Disk Controller: %s\", $1)}"
 - name: testVendorAndModelPresent
   input: |
     // The InstanceTable
@@ -166,17 +166,17 @@
             _comment: |-
               The InstanceTable
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-            source: $monitors.disk_controller.discovery.sources.source(1)$
+            source: ${source::monitors.disk_controller.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              controller_number: $column(1)
-              serial_number: $column(3)
-              firmware_version: $column(6)
-              driver_version: $column(7)
+              id: $1
+              controller_number: $1
+              serial_number: $3
+              firmware_version: $6
+              driver_version: $7
               bios_version: testbios
-              info: join(" ", $column(4), $column(5))
+              info: ${awk::join(" ", $4, $5)}
               hw.parent.type: enclosure
-              hw.parent.id: $column(8)
-              model: $column(2)
-              vendor: $column(9)
-              name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(9), $column(2))"
+              hw.parent.id: $8
+              model: $2
+              vendor: $9
+              name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $1, $9, $2)}"

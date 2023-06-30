@@ -39,16 +39,16 @@ monitors:
             separator: ;
         source(2):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
         source(3):
           # Enclosure.Discovery.Source(2).Column(2) = Systems
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$
+          url: $2
           resultContent: body
           computes:
           - type: json2csv
@@ -71,9 +71,9 @@ monitors:
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
-          url: $entry.column(2)$
+          url: $2
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(4)$
+            source: "${source::monitors.enclosure.discovery.sources.source(4)}"
             concatMethod: json_array_extended
           resultContent: body
           computes:
@@ -84,15 +84,15 @@ monitors:
       mapping:
         # Enclosure Instance Table
         # Json;odata.id;Name;SerialNumber;PartNumber;Manufacturer;Model
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          serial_number: $column(4)
-          vendor: $column(6)
-          model: $column(7)
+          id: $2
+          __display_id: $3
+          serial_number: $4
+          vendor: $6
+          model: $7
           type: enclosure
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(3), $column(6), $column(7))"
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $3, $6, $7)}"
     collect:
       # Collection Type
       type: multiInstance
@@ -110,15 +110,15 @@ monitors:
             separator: ;
         source(2):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
         source(3):
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(2)$
+            source: "${source::monitors.enclosure.collect.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$
+          url: $2
           resultContent: body
           computes:
           - type: json2csv
@@ -127,10 +127,10 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
         source(4):
           # For use in other Collects
           type: http
@@ -147,9 +147,9 @@ monitors:
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
-          url: $entry.column(2)$
+          url: $2
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(4)$
+            source: "${source::monitors.enclosure.collect.sources.source(4)}"
             concatMethod: json_array_extended
           resultContent: body
           computes:
@@ -160,12 +160,12 @@ monitors:
       mapping:
         # Enclosure Value Table
         # JsonID;odata.id;PatrolStatus;StatusInformation
-        source: $monitors.enclosure.collect.sources.source(3)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(3)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="enclosure"}: $column(3)
+          hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   cpu:
     discovery:
       sources:
@@ -175,9 +175,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/Processors
+          url: $2/Processors
           resultContent: body
           computes:
           - type: json2csv
@@ -190,9 +190,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.cpu.discovery.sources.source(1)$
+            source: "${source::monitors.cpu.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           resultContent: body
           computes:
           - type: json2csv
@@ -201,17 +201,17 @@ monitors:
             separator: ;
       mapping:
         # JSONID;<system>;Id;Socket;Manufacturer;Model;MaxSpeedMHz
-        source: $monitors.cpu.discovery.sources.source(2)$
+        source: "${source::monitors.cpu.discovery.sources.source(2)}"
         attributes:
-          id: $column(3)
-          vendor: $column(5)
-          model: $column(6)
-          __display_id: $column(4)
+          id: $3
+          vendor: $5
+          model: $6
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(4), $column(5), $column(6), megaHertz2HumanFormat($column(7)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $4, $5, $6, megaHertz2HumanFormat($7))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(7))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($7)
     collect:
       # COLLECTION
       type: multiInstance
@@ -221,9 +221,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(2)$
+            source: "${source::monitors.enclosure.collect.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/Processors
+          url: $2/Processors
           resultContent: body
           computes:
           - type: json2csv
@@ -235,9 +235,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.cpu.collect.sources.source(1)$
+            source: "${source::monitors.cpu.collect.sources.source(1)}"
             concatMethod: json_array
-          url: $entry.column(2)$
+          url: $2
           resultContent: body
           computes:
           - type: json2csv
@@ -246,19 +246,19 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # CPU value table
         # JSONID;ID;PatrolStatus;StatusInformation;
-        source: $monitors.cpu.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.cpu.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="cpu"}: $column(3)
+          hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   memory:
     discovery:
       sources:
@@ -267,9 +267,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/Memory
+          url: $2/Memory
           resultContent: body
           computes:
           - type: json2csv
@@ -281,9 +281,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: "${source::monitors.memory.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           resultContent: body
           computes:
           - type: json2csv
@@ -292,19 +292,19 @@ monitors:
             separator: ;
       mapping:
         # JSON;<System>;Id;DeviceLocator;CapacityMiB;Manufacturer;PartNumber;SerialNumber;MemoryDeviceType;
-        source: $monitors.memory.discovery.sources.source(2)$
+        source: "${source::monitors.memory.discovery.sources.source(2)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          vendor: $column(6)
-          model: $column(7)
-          serial_number: $column(8)
-          type: $column(9)
+          id: $3
+          __display_id: $4
+          vendor: $6
+          model: $7
+          serial_number: $8
+          type: $9
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(4), $column(6), $column(9), $column(5))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s - %s MB)\", $4, $6, $9, $5)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(5))
+          hw.memory.limit: mebiByte2Byte($5)
     collect:
       # COLLECTION
       type: multiInstance
@@ -314,9 +314,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(2)$
+            source: "${source::monitors.enclosure.collect.sources.source(2)}"
             concatMethod: json_array
-          url: $entry.column(2)$/Memory
+          url: $2/Memory
           resultContent: body
           computes:
           - type: json2csv
@@ -328,9 +328,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.memory.collect.sources.source(1)$
+            source: "${source::monitors.memory.collect.sources.source(1)}"
             concatMethod: json_array
-          url: $entry.column(2)$
+          url: $2
           resultContent: body
           computes:
           - type: json2csv
@@ -339,19 +339,19 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Memory Value Table
         # JSONID;ID;PatrolStatus;StatusInformation;
-        source: $monitors.memory.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.memory.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="memory"}: $column(3)
+          hw.status{hw.type="memory"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
@@ -360,9 +360,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(5)$
+            source: "${source::monitors.enclosure.discovery.sources.source(5)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/Thermal
+          url: $2/Thermal
           resultContent: body
           computes:
           - type: json2csv
@@ -376,16 +376,16 @@ monitors:
       mapping:
         # Fan Instance Table
         # JsonID;<System>;MemberId;FanName;Status/State;LowerThresholdNonCritical;LowerThresholdCritical;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $6
+          hw.fan.speed.limit{limit_type="low.critical"}: $7
     collect:
       # Collection
       type: multiInstance
@@ -395,9 +395,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(5)$
+            source: "${source::monitors.enclosure.collect.sources.source(5)}"
             concatMethod: json_array
-          url: $entry.column(2)$/Thermal
+          url: $2/Thermal
           resultContent: body
           computes:
           - type: json2csv
@@ -406,31 +406,31 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
           # Compute 4 - 5 (Get RPM range and convert to Speed Percentage)
           - type: subtract
             column: 8
-            value: Column(7)
+            value: $7
           - type: divide
             column: 6
-            value: Column(8)
+            value: $8
           - type: multiply
             column: 6
             value: 100
       mapping:
         # Fan Value Table
         # JSONID;MemberId;PatrolStatus;StatusInformation;Reading;MinReadingRange;MaxReadingRange;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(5)
-          hw.fan.speed_ratio: percent2Ratio($column(6))
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $5
+          hw.fan.speed_ratio: percent2Ratio($6)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   physical_disk:
     discovery:
       sources:
@@ -439,9 +439,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/SimpleStorage
+          url: $2/SimpleStorage
           resultContent: body
           computes:
           - type: json2csv
@@ -453,9 +453,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.physical_disk.discovery.sources.source(1)$
+            source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           resultContent: body
           computes:
           - type: json2csv
@@ -465,15 +465,15 @@ monitors:
       mapping:
         # PhysicalDisk Instance Table
         # JSONID;<System>;Name;Manufacturer;Model;
-        source: $monitors.physical_disk.discovery.sources.source(2)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(2)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          vendor: $column(4)
-          model: $column(5)
+          id: $3
+          __display_id: $3
+          vendor: $4
+          model: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $3, $4)}"
     collect:
       # Collection
       type: multiInstance
@@ -483,9 +483,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(1)$
+            source: "${source::monitors.enclosure.collect.sources.source(1)}"
             concatMethod: json_array
-          url: $entry.column(2)$/SimpleStorage
+          url: $2/SimpleStorage
           resultContent: body
           computes:
           - type: json2csv
@@ -497,9 +497,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.physical_disk.collect.sources.source(1)$
+            source: "${source::monitors.physical_disk.collect.sources.source(1)}"
             concatMethod: json_array
-          url: $entry.column(2)$
+          url: $2
           resultContent: body
           computes:
           - type: json2csv
@@ -508,19 +508,19 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # PhysicalDisk Value Table
         # JSONID;Name;PatrolStatus;StatusInformation;
-        source: $monitors.physical_disk.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
+          hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   power_supply:
     discovery:
       sources:
@@ -529,9 +529,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(5)$
+            source: "${source::monitors.enclosure.discovery.sources.source(5)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/Power
+          url: $2/Power
           resultContent: body
           computes:
           - type: json2csv
@@ -553,17 +553,17 @@ monitors:
             value: "Serial Number: "
       mapping:
         # PowerSupply Instance Table
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          power_supply_type: $column(6)
-          info: "join(\" \", $column(8), $column(9), $column(10))"
+          id: $3
+          __display_id: $4
+          power_supply_type: $6
+          info: "${awk::join(\" \", $8, $9, $10)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s W)\", $column(4), $column(6), $column(7))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s W)\", $4, $6, $7)}"
         metrics:
-          hw.power_supply.limit: $column(7)
+          hw.power_supply.limit: $7
     collect:
       # Collection
       type: multiInstance
@@ -573,9 +573,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(5)$
+            source: "${source::monitors.enclosure.collect.sources.source(5)}"
             concatMethod: json_array
-          url: $entry.column(2)$/Power
+          url: $2/Power
           resultContent: body
           computes:
           - type: json2csv
@@ -584,19 +584,19 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # PowerSupply Value Table
         # JSONID;MemberId;PatrolStatus;StatusInformation;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="power_supply"}: $column(3)
+          hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   temperature:
     discovery:
       sources:
@@ -605,9 +605,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(5)$
+            source: "${source::monitors.enclosure.discovery.sources.source(5)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/Thermal
+          url: $2/Thermal
           resultContent: body
           computes:
           - type: json2csv
@@ -621,13 +621,13 @@ monitors:
       mapping:
         # Temperature Instance Table
         # JSONID;<System>;MemberId;Name;State;UpperThresholdNoncritical;UpperThresholdCritical;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       # Collection Type
       type: multiInstance
@@ -637,9 +637,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(5)$
+            source: "${source::monitors.enclosure.collect.sources.source(5)}"
             concatMethod: json_array
-          url: $entry.column(2)$/Thermal
+          url: $2/Thermal
           resultContent: body
           computes:
           - type: json2csv
@@ -648,20 +648,20 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # Temperature Value Table
         # JSONID;MemberID;PatrolStatus;StatusInformation;ReadingCelsius;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="temperature"}: $column(3)
-          hw.temperature: $column(5)
+          hw.status{hw.type="temperature"}: $3
+          hw.temperature: $5
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   voltage:
     discovery:
       sources:
@@ -670,9 +670,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(5)$
+            source: "${source::monitors.enclosure.discovery.sources.source(5)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/Power
+          url: $2/Power
           resultContent: body
           computes:
           - type: json2csv
@@ -686,13 +686,13 @@ monitors:
       mapping:
         # Voltage Instance Table
         # JSONID;<System>;MemberId;Name;State;UpperThresholdNoncritical;UpperThresholdCritical;
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       # Collection Type
       type: multiInstance
@@ -702,9 +702,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(5)$
+            source: "${source::monitors.enclosure.collect.sources.source(5)}"
             concatMethod: json_array
-          url: $entry.column(2)$/Power
+          url: $2/Power
           resultContent: body
           computes:
           - type: json2csv
@@ -713,23 +713,23 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
           - type: multiply
             column: 5
             value: 1000
       mapping:
         # Voltage Value Table
         # JSONID;MemberID;PatrolStatus;StatusInformation;ReadingCelsius;
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="voltage"}: $column(3)
-          hw.voltage: $column(5)
+          hw.status{hw.type="voltage"}: $3
+          hw.voltage: $5
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       sources:
@@ -738,9 +738,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(2)$
+            source: "${source::monitors.enclosure.discovery.sources.source(2)}"
             concatMethod: json_array_extended
-          url: $entry.column(2)$/EthernetInterfaces
+          url: $2/EthernetInterfaces
           resultContent: body
           computes:
           - type: json2csv
@@ -752,9 +752,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.network.discovery.sources.source(1)$
+            source: "${source::monitors.network.discovery.sources.source(1)}"
             concatMethod: json_array_extended
-          url: $entry.column(3)$
+          url: $3
           resultContent: body
           computes:
           - type: json2csv
@@ -763,18 +763,18 @@ monitors:
             separator: ;
           - type: translate
             column: 6
-            translationTable: LinkSpeedDeactivationTranslationTable
+            translationTable: "${translation::LinkSpeedDeactivationTranslationTable}"
       mapping:
         # NetworkCard Instance Table
         # JsonID;System;Id;Name;MACAddress;State;
-        source: $monitors.network.discovery.sources.source(2)$
+        source: "${source::monitors.network.discovery.sources.source(2)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          physical_address: $column(5)
+          id: $3
+          __display_id: $4
+          physical_address: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       # Collection Type
       type: multiInstance
@@ -784,9 +784,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(1)$
+            source: "${source::monitors.enclosure.collect.sources.source(1)}"
             concatMethod: json_array
-          url: $entry.column(2)$/EthernetInterfaces
+          url: $2/EthernetInterfaces
           resultContent: body
           computes:
           - type: json2csv
@@ -798,9 +798,9 @@ monitors:
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
           executeForEachEntryOf:
-            source: $monitors.network.collect.sources.source(1)$
+            source: "${source::monitors.network.collect.sources.source(1)}"
             concatMethod: json_array
-          url: $entry.column(2)$
+          url: $2
           resultContent: body
           computes:
           - type: json2csv
@@ -809,24 +809,24 @@ monitors:
             separator: ;
           - type: translate
             column: 3
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
           - type: translate
             column: 5
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         # NetworkCard Value Table
         # JSONID;Id;NetworkCardStatus;LinkStatus;StatusInformation;SpeedMbps;
-        source: $monitors.network.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.bandwidth.limit: megaBit2Bit($6)
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   LinkStatusTranslationTable:
     Enabled: ok

@@ -20,15 +20,15 @@
             _comment: |-
               Instance Table
               DeviceID,DisplayID,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
-            source: $monitors.logical_disk.discovery.sources.source(8)$
+            source: ${source::monitors.logical_disk.discovery.sources.source(8)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              type: $column(6)
-              hw.parent.id: $column(7)
+              id: $1
+              __display_id: $2
+              type: $6
+              hw.parent.id: $7
               hw.parent.type: "enclosure"
-              raid_level: $column(8)
-              name: sprintf("%s (%s - %s)", $column(2), $column(8), bytes2HumanFormatBase2($column(3)))
-              __use_for_capacity_report: $column(5)
+              raid_level: $8
+              name: ${awk::sprintf("%s (%s - %s)", $2, $8, bytes2HumanFormatBase2($3))}
+              __use_for_capacity_report: $5
             metrics:
-              hw.logical_disk.limit: $column(3)
+              hw.logical_disk.limit: $3

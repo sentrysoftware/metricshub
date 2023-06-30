@@ -33,7 +33,7 @@ monitors:
           - type: replace
             column: 7
             existingValue: MSHWMSHW
-            newValue: Column(2)
+            newValue: $2
             # Now get rid of any remaining MSHWs
             # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
           - type: replace
@@ -43,12 +43,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(7)
-          physical_address: $column(4)
+          id: $1
+          __display_id: $7
+          physical_address: $4
           physical_address_type: MAC
-          device_type: $column(3)
+          device_type: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $7, $3)}"

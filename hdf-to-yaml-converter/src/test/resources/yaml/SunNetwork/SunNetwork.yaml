@@ -36,7 +36,7 @@ monitors:
             # Process the output of ifconfig through an AWK script
             # LogicalDeviceID;MacAddress;IPAddress;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -44,13 +44,13 @@ monitors:
           # Source(2) = output of prtconf -D or dladm show-dev
           # with only the network instances
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-5")$
+          commandLine: "/bin/sh ${file::embeddedFile-5}"
           keep: "\\(network, instance #[0-9]\\)\\|\\(link:.*speed:.*duplex:\\)\\|\\(: flags=\\)\\|\\(SUNW,qfe\\)\\|\\(FJSV,pgtb\\)\\|\\(LinkID:.*DeviceID:\\)"
           computes:
             # Process the output of prtconf through an AWK script to keep only the NIC ID
             # DeviceID;Driver;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -59,7 +59,7 @@ monitors:
           # This command will only work on Solaris 11.  A blank table is expected on other versions.
           # LogicalDeviceID;PhysicalID
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-6")$
+          commandLine: "/bin/sh ${file::embeddedFile-6}"
           keep: "[A-Za-z].*[0-9];[A-Za-z].*[0-9]"
           computes:
             # Add a "" to column2 to force the PSL/Java close out column 2
@@ -73,8 +73,8 @@ monitors:
           # For other versions, it will not match, so we put a marker in
           # DeviceID;Driver;LogicalDeviceID;PhysicalID;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(2)$
-          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftTable: "${source::monitors.network.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           defaultRightLine: NotSolaris11;;
@@ -84,13 +84,13 @@ monitors:
           - type: replace
             column: 3
             existingValue: NotSolaris11
-            newValue: Column(1)
+            newValue: $1
         source(5):
           # Source(3) = Table joint of Source(2) and Source(1)
           # DeviceID;Driver;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(4)$
-          rightTable: $monitors.network.discovery.sources.source(1)$
+          leftTable: "${source::monitors.network.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(1)}"
           leftKeyColumn: 3
           rightKeyColumn: 1
           defaultRightLine: ;;;
@@ -99,21 +99,21 @@ monitors:
             #  DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
           - type: translate
             column: 2
-            translationTable: DriverTranslationTable
+            translationTable: "${translation::DriverTranslationTable}"
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;Model;LogicalDeviceID;PhysicalID;LogicalDeviceID;MacAddress;IPAddress;
-        source: $monitors.network.discovery.sources.source(5)$
+        source: "${source::monitors.network.discovery.sources.source(5)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          model: $column(2)
-          physical_address: $column(6)
+          id: $3
+          __display_id: $3
+          model: $2
+          physical_address: $6
           physical_address_type: MAC
-          logical_address: $column(7)
+          logical_address: $7
           logical_address_type: IP
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $3, $2)}"
     collect:
       # Collect type is: mono-collect
       type: monoInstance
@@ -122,8 +122,8 @@ monitors:
           # Source(1) = output of the embedded script 2 (ifconfig output)
           # DeviceID;ifconfigFlags
           type: osCommand
-          commandLine: "if /usr/sbin/ifconfig $network.id$; then /usr/bin/echo; else /usr/bin/echo \"$network.id$: flags=00000000:UNPLUMBED\"; fi"
-          keep: "^$network.id$: flags="
+          commandLine: "if /usr/sbin/ifconfig ${network::id}; then /usr/bin/echo; else /usr/bin/echo \"${network::id}: flags=00000000:UNPLUMBED\"; fi"
+          keep: "^${network::id}: flags="
           separators: :<>
           selectColumns: "1,3"
           computes:
@@ -135,7 +135,7 @@ monitors:
             # DeviceID;StatusArray;ifconfigFlags;
           - type: arrayTranslate
             column: 2
-            translationTable: ifconfigFlagsTranslationTable
+            translationTable: "${translation::ifconfigFlagsTranslationTable}"
             arraySeparator: ","
             resultSeparator: '|'
             # Convert StatusArray into Status
@@ -146,12 +146,12 @@ monitors:
         source(2):
           # Source(2) = output of embedded script 4 (complicated shell script)
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-2")$ $network.id$
+          commandLine: "/bin/sh ${file::embeddedFile-2} ${network::id}"
           computes:
             # Process the output of this script through a smart AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10"
@@ -159,26 +159,26 @@ monitors:
           # Source(3) = table joint of Source(1) and Source(2)
           # DeviceID;Status;StatusInformation;DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;;;
       mapping:
         # And here is the ValueTable
-        source: $monitors.network.collect.sources.source(3)$
+        source: "${source::monitors.network.collect.sources.source(3)}"
         metrics:
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.bandwidth.limit: megaBit2Bit($column(6))
-          hw.network.full_duplex: legacyFullDuplex($column(7))
-          hw.network.packets{direction="receive"}: $column(8)
-          hw.network.packets{direction="transmit"}: $column(9)
-          hw.errors{hw.type="network"}: $column(10)
-          hw.network.io{direction="receive"}: $column(11)
-          hw.network.io{direction="transmit"}: $column(12)
+          hw.status{hw.type="network"}: $2
+          hw.network.up: legacyLinkStatus($5)
+          hw.network.bandwidth.limit: megaBit2Bit($6)
+          hw.network.full_duplex: legacyFullDuplex($7)
+          hw.network.packets{direction="receive"}: $8
+          hw.network.packets{direction="transmit"}: $9
+          hw.errors{hw.type="network"}: $10
+          hw.network.io{direction="receive"}: $11
+          hw.network.io{direction="transmit"}: $12
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   ifconfigFlagsTranslationTable:
     FAILED: failed

@@ -35,17 +35,17 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ChassisID;Vendor;Model;FirmwareVersion;ChassisName;SerialNumber;WWN;
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(5)
-          vendor: $column(2)
-          model: $column(3)
-          serial_number: $column(6)
-          bios_version: $column(4)
+          id: $1
+          __display_id: $5
+          vendor: $2
+          model: $3
+          serial_number: $6
+          bios_version: $4
           type: Chassis
-          info: $column(7)
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(5), $column(2), $column(3))"
+          info: $7
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $5, $2, $3)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -65,21 +65,21 @@ monitors:
             # ChassisID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: XsigoOperStateTranslationTable
+            translationTable: "${translation::XsigoOperStateTranslationTable}"
             # Translate the second state to a Status Information
             # ChassisID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: XsigoOperStateInformationTranslationTable
+            translationTable: "${translation::XsigoOperStateInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -105,18 +105,18 @@ monitors:
             # ID;Name;Location;Threshold;
           - type: rightConcat
             column: 3
-            value: Column(2)
+            value: $2
       mapping:
         # InstanceTable = Source(1)
         # ID;Name;Location;Threshold;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: $column(4)
+          hw.temperature.limit{limit_type="high.critical"}: $4
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -130,10 +130,10 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   fan:
     discovery:
       sources:
@@ -153,14 +153,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;ExpectedSpeed;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $3
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -180,22 +180,22 @@ monitors:
             # ID;Speed;PatrolStatus;State;
           - type: translate
             column: 3
-            translationTable: XsigoOperStateTranslationTable
+            translationTable: "${translation::XsigoOperStateTranslationTable}"
             # Translate the second state to a Status Information
             # ID;Speed;PatrolStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: XsigoOperStateInformationTranslationTable
+            translationTable: "${translation::XsigoOperStateInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;Speed;PatrolStatus;StatusInformation;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(2)
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $2
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   power_supply:
     discovery:
       sources:
@@ -215,12 +215,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;ExpectedSpeed;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -240,21 +240,21 @@ monitors:
             # ID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: XsigoOperStateTranslationTable
+            translationTable: "${translation::XsigoOperStateTranslationTable}"
             # Translate the second state to a Status Information
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: XsigoOperStateInformationTranslationTable
+            translationTable: "${translation::XsigoOperStateInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -279,15 +279,15 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Model;SerialNumber;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           device_type: Slot
-          additional_label: $column(2)
-          info: "join(\" \", $column(3), $column(4))"
+          additional_label: $2
+          info: "${awk::join(\" \", $3, $4)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s (%s)\", \"Slot\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s: %s (%s)\", \"Slot\", $1, $2)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -307,21 +307,21 @@ monitors:
             # ID;PatrolStatus;State;
           - type: translate
             column: 2
-            translationTable: XsigoOperStateTranslationTable
+            translationTable: "${translation::XsigoOperStateTranslationTable}"
             # Translate the second state to a Status Information
             # ID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: XsigoOperStateInformationTranslationTable
+            translationTable: "${translation::XsigoOperStateInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -336,7 +336,7 @@ monitors:
             # ID;Location;Type;WWPN;
           - type: translate
             column: 3
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
         source(2):
           # Source(2) = ifMIBObjects SNMP Table
           # See if there are 64 bit counters
@@ -348,23 +348,23 @@ monitors:
           # Join 1 and 2
           # ID;Location;Type;WWPN;Location;ReceivedBytes64;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(1)
         # ID;Location;Type;WWPN;Location;ReceivedBytes64;
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          device_type: $column(3)
-          physical_address: $column(4)
+          id: $1
+          __display_id: $2
+          device_type: $3
+          physical_address: $4
           physical_address_type: WWN
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, $3)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -386,17 +386,17 @@ monitors:
             # ID;Speed;PatrolStatus;State;State;Location;
           - type: translate
             column: 3
-            translationTable: XsigoOperStateTranslationTable
+            translationTable: "${translation::XsigoOperStateTranslationTable}"
             # Translate the second state to a Status Information
             # ID;Speed;PatrolStatus;StatusInformation;State;Location;
           - type: translate
             column: 4
-            translationTable: XsigoOperStateInformationTranslationTable
+            translationTable: "${translation::XsigoOperStateInformationTranslationTable}"
             # Translate the third state to a link status
             # ID;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;
           - type: translate
             column: 5
-            translationTable: PortLinkStatusInformationTranslationTable
+            translationTable: "${translation::PortLinkStatusInformationTranslationTable}"
         source(2):
           # Source(2) = ifMIBObjects SNMP Table
           # Location;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
@@ -408,16 +408,16 @@ monitors:
             # Location;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
           - type: add
             column: 4
-            value: Column(5)
+            value: $5
           - type: add
             column: 4
-            value: Column(6)
+            value: $6
           - type: add
             column: 8
-            value: Column(9)
+            value: $9
           - type: add
             column: 8
-            value: Column(10)
+            value: $10
             # Keep only useful columns
             # Location;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
           - type: keepColumns
@@ -426,8 +426,8 @@ monitors:
           # Join the Xsigo port information to the MIB2 statistics.
           # ID;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;Location;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
@@ -435,18 +435,18 @@ monitors:
         # ValueTable = Source(1)
         #  1   2        3        #     4        #      5        # 6         7     8        #  9        #     10        #        11        #         12
         # ID;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;Location;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.packets{direction="receive"}: $column(10)
-          hw.network.packets{direction="transmit"}: $column(12)
-          hw.network.io{direction="receive"}: $column(9)
-          hw.network.io{direction="transmit"}: $column(11)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($5)
+          hw.network.packets{direction="receive"}: $10
+          hw.network.packets{direction="transmit"}: $12
+          hw.network.io{direction="receive"}: $9
+          hw.network.io{direction="transmit"}: $11
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   XsigoOperStateTranslationTable:
     "22": degraded

@@ -71,14 +71,14 @@ monitors:
             valueList: 5
       mapping:
         # Identifier, display, Firmware, bios
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           type: Switch
-          bios_version: $column(4)
-          info: $column(3)
-          name: "sprintf(\"Switch: %s\", $column(2))"
+          bios_version: $4
+          info: $3
+          name: "${awk::sprintf(\"Switch: %s\", $2)}"
     collect:
       sources:
         source(1):
@@ -90,16 +90,16 @@ monitors:
           computes:
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
   power_supply:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # keep only power supplies
             # id, Status, description
@@ -108,34 +108,34 @@ monitors:
             regExp: Power Supply
       mapping:
         # Instance Table
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
     collect:
       # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
       mapping:
         # Instance Table
         # id,patrolstatus,statusinformation,
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # keep only power supplies
             # id, Status, description
@@ -144,28 +144,28 @@ monitors:
             regExp: fan
       mapping:
         # Instance Table
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          name: $column(3)
+          name: $3
     collect:
       # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
       mapping:
         # Instance Table
         # id,patrolstatus,statusinformation,
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -182,14 +182,14 @@ monitors:
             newValue: ""
       mapping:
         # Instance Table
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
         metrics:
-          hw.temperature.limit{limit_type="high.critical"}: $column(3)
+          hw.temperature.limit{limit_type="high.critical"}: $3
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -207,33 +207,33 @@ monitors:
             newValue: ""
           - type: translate
             column: 3
-            translationTable: TempStatusTranslationTable
+            translationTable: "${translation::TempStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: TempStatusInformationTranslationTable
+            translationTable: "${translation::TempStatusInformationTranslationTable}"
       mapping:
         # Instance Table
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
-          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $2
+          hw.status{hw.type="temperature"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       mapping:
         # add network card discovery present in mib2.hdf and not in mib2.hhdf
         # PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(7)
-          physical_address: $column(4)
+          id: $1
+          __display_id: $7
+          physical_address: $4
           physical_address_type: MAC
-          device_type: $column(3)
+          device_type: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(7), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $7, $3)}"
 translations:
   TempStatusInformationTranslationTable:
     "1": Over Heating

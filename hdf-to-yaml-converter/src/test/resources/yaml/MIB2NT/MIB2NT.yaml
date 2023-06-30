@@ -35,16 +35,16 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(8)
-          vendor: $column(2)
-          physical_address: $column(4)
+          id: $1
+          __display_id: $8
+          vendor: $2
+          physical_address: $4
           physical_address_type: MAC
-          device_type: $column(3)
+          device_type: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(8), $column(3), $column(2))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $8, $3, $2)}"
     collect:
       sources:
         source(1):

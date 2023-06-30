@@ -33,7 +33,7 @@ class TranslateComputeDeserializerTest extends DeserializerTest {
             Translate.builder()
 					.type("translate")
 					.column(1)
-					.translationTable("translationTableTest")
+					.translationTable("${translation::translationTableTest}")
 					.build()
         );
 

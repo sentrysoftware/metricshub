@@ -23,7 +23,7 @@ monitors:
           id: Data Domain Appliance
           vendor: Data Domain
           type: Storage
-          name: "sprintf(\"Storage: (%s)\", \"Data Domain\")"
+          name: "${awk::sprintf(\"Storage: (%s)\", \"Data Domain\")}"
   physical_disk:
     discovery:
       sources:
@@ -39,7 +39,7 @@ monitors:
             # Process smcli's output through awk EmbeddedFile(1)
             # DeviceID;Enclosure;Model;Firmware;Serial;Size(GB);
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -51,15 +51,15 @@ monitors:
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;Enclosure;Model;Firmware;Serial;SizeB;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(3)
-          serial_number: $column(5)
+          id: $1
+          model: $3
+          serial_number: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase10($column(6)))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, bytes2HumanFormatBase10($6))}"
         metrics:
-          hw.physical_disk.size: $column(6)
+          hw.physical_disk.size: $6
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -76,7 +76,7 @@ monitors:
             # Process smcli's output through awk EmbeddedFile(1)
             # DiskID;Status;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,8"
@@ -88,20 +88,20 @@ monitors:
             # DiskID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: diskStatusTranslationTable
+            translationTable: "${translation::diskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: diskStatusInformationTranslationTable
+            translationTable: "${translation::diskStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -117,7 +117,7 @@ monitors:
             # Process the SNMP Table through EF3
             # DeviceID;Size(GB);AvailableSpace(GB);
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -129,14 +129,14 @@ monitors:
       mapping:
         # InstanceTable = Source(3)
         # // DeviceID;Size(B);AvailableSpace(GB);
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          __display_id: $column(1)
-          id: $column(1)
+          __display_id: $1
+          id: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase2($column(2)))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, bytes2HumanFormatBase2($2))}"
         metrics:
-          hw.logical_disk.limit: $column(2)
+          hw.logical_disk.limit: $2
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -151,7 +151,7 @@ monitors:
             # Process the SNMP Table through EF3
             # DeviceID;Size(GB);AvailableSpace(GB);
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -162,10 +162,10 @@ monitors:
             value: 1073741824
       mapping:
         # The value table
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.logical_disk.usage{state="free"}: $column(3)
+          hw.logical_disk.usage{state="free"}: $3
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
   power_supply:
     discovery:
@@ -177,12 +177,12 @@ monitors:
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;Enclosure;Location;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          power_supply_type: $column(3)
+          id: $1
+          power_supply_type: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -198,13 +198,13 @@ monitors:
             # DiskID;PATROLStatus;
           - type: translate
             column: 2
-            translationTable: powerSupplyStatusTranslationTable
+            translationTable: "${translation::powerSupplyStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
   fan:
     discovery:
       sources:
@@ -220,19 +220,19 @@ monitors:
             # Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
             # DeviceID;Enclosure;Location;FanLevel;Status;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;Enclosure;Location;FanLevel;Status;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(3)
+          id: $1
+          sensor_location: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -249,7 +249,7 @@ monitors:
             # Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
             # DeviceID;Enclosure;Location;FanLevel;Status;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -257,20 +257,20 @@ monitors:
             # DeviceID;Enclosure;Location;FanLevel;Status;
           - type: translate
             column: 4
-            translationTable: FanLevelTranslationTable
+            translationTable: "${translation::FanLevelTranslationTable}"
             # Translate the first status column into a PATROLStatus
             # DeviceID;Enclosure;Location;FanLevel;PATROLStatus;
           - type: translate
             column: 5
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(5)
+          hw.status{hw.type="fan"}: $5
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   temperature:
     discovery:
       sources:
@@ -286,7 +286,7 @@ monitors:
             # Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
             # DeviceID;Enclosure;Location;Presence;Threshold;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,6,7"
@@ -298,14 +298,14 @@ monitors:
       mapping:
         # InstanceTable = Source(3)
         # DeviceID;Enclosure;Location;Presence;Threshold;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(3)
+          id: $1
+          sensor_location: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(5)
+          hw.temperature.limit{limit_type="high.degraded"}: $5
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -322,16 +322,16 @@ monitors:
             # Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
             # DeviceID;Temperature;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,5"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   battery:
     discovery:
       sources:
@@ -354,12 +354,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # DeviceID
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -375,7 +375,7 @@ monitors:
           computes:
           # Process the tabel through awk EmbeddedFile(5) due to a change in the location of information in the MIB
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -387,21 +387,21 @@ monitors:
             # DeviceID;PatrolStatus;Status;Percentage
           - type: translate
             column: 2
-            translationTable: BatteryStatusTranslationTable
+            translationTable: "${translation::BatteryStatusTranslationTable}"
             # Translate the Second Status to become Status Information
             # DeviceID;PatrolStatus;StatusInformation;Percentage
           - type: translate
             column: 3
-            translationTable: BatteryStatusInformationTranslationTable
+            translationTable: "${translation::BatteryStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(2)
-          hw.battery.charge: percent2Ratio($column(4))
+          hw.status{hw.type="battery"}: $2
+          hw.battery.charge: percent2Ratio($4)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   BatteryStatusInformationTranslationTable:
     "1": ""

@@ -26,6 +26,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,7 +98,9 @@ public class MemoryConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, type }, size)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, type }, size)
+				)
 			)
 		);
 	}

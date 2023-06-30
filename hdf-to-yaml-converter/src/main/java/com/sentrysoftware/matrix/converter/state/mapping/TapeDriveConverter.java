@@ -30,6 +30,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_D
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,7 +104,9 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, vendor, model)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(firstDisplayArgument, vendor, model)
+				)
 			)
 		);
 	}

@@ -46,7 +46,7 @@ monitors:
           resultContent: body
         source(3):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # Transform JSON to CSV to extract information
           - type: json2csv
@@ -58,8 +58,8 @@ monitors:
             value: MSHW;
         source(4):
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
@@ -86,16 +86,16 @@ monitors:
       mapping:
         # Enclosure Instance Table
         # JSONID;name;model;chassisSerialNumber
-        source: $monitors.enclosure.discovery.sources.source(4)$
+        source: "${source::monitors.enclosure.discovery.sources.source(4)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          model: $column(10)
-          serial_number: $column(6)
+          id: $3
+          __display_id: $4
+          model: $10
+          serial_number: $6
           type: Storage
           vendor: NetApp
-          info: "join(\" \", $column(9), $column(11), $column(5))"
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(4), \"NetApp\", $column(10))"
+          info: "${awk::join(\" \", $9, $11, $5)}"
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $4, \"NetApp\", $10)}"
     collect:
       # Collection Type
       type: multiInstance
@@ -116,7 +116,7 @@ monitors:
           # Translate API status to PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
           - type: leftConcat
             column: 1
             value: MSHW;
@@ -129,7 +129,7 @@ monitors:
           resultContent: body
         source(3):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
           # Transform JSON to CSV to extract information
           - type: json2csv
@@ -141,26 +141,26 @@ monitors:
             value: MSHW;
         source(4):
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(3)$
-          rightTable: $monitors.enclosure.collect.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # Enclosure Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.enclosure.collect.sources.source(4)$
-        deviceId: $column(3)
+        source: "${source::monitors.enclosure.collect.sources.source(4)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="enclosure"}: $column(6)
+          hw.status{hw.type="enclosure"}: $6
         legacyTextParameters:
-          StatusInformation: $column(7)
+          StatusInformation: $7
   physical_disk:
     discovery:
       sources:
         source(1):
           # PhysicalDisk Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JsonID;manufacturer;productID;serialNumber;label;firmwareVersion;rawCapacity;maxSpeed;phyDriveType;
@@ -182,20 +182,20 @@ monitors:
       mapping:
         # PhysicalDisk Instance Table
         # JsonID;manufacturer;productID;serialNumber;label;firmwareVersion;rawCapacity;maxSpeed;phyDriveType;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
-          __display_id: $column(5)
-          firmware_version: $column(6)
-          info: "join(\" \", $column(8), $column(9))"
+          id: $1
+          vendor: $2
+          model: $3
+          serial_number: $4
+          __display_id: $5
+          firmware_version: $6
+          info: "${awk::join(\" \", $8, $9)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(10)
-          name: "sprintf(\"%s (%s - %s)\", $column(5), $column(2), bytes2HumanFormatBase10($column(7)))"
+          hw.parent.id: $10
+          name: "${awk::sprintf(\"%s (%s - %s)\", $5, $2, bytes2HumanFormatBase10($7))}"
         metrics:
-          hw.physical_disk.size: $column(7)
+          hw.physical_disk.size: $7
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -203,7 +203,7 @@ monitors:
         source(1):
           # PhysicalDisk Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status;
@@ -214,24 +214,24 @@ monitors:
           # Translate API status to PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # PhysicalDisk Value Table
         # JsonID;PatrolStatus;StatusInformation;EnduranceRemaining
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
-          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(4))
+          hw.status{hw.type="physical_disk"}: $2
+          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($4)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
         source(1):
           # PowerSupply Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JsonID;location;model;serialnumber;vendor;
@@ -254,14 +254,14 @@ monitors:
       mapping:
         # PowerSupply Instance Table
         # JsonID;location;model;serialnumber;vendor;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          info: "join(\" \", $column(3), $column(5), $column(4))"
+          id: $1
+          __display_id: $2
+          info: "${awk::join(\" \", $3, $5, $4)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(6)
-          name: $column(2)
+          hw.parent.id: $6
+          name: $2
     collect:
       # Collection Type
       type: multiInstance
@@ -269,7 +269,7 @@ monitors:
         source(1):
           # PowerSupply Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status;
@@ -280,23 +280,23 @@ monitors:
           # Translate API Status into PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # PowerSupply Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
         source(1):
           # Fan Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JsonID;location
@@ -310,13 +310,13 @@ monitors:
       mapping:
         # Fan Instance Table
         # JsonID;location;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: $column(2)
+          hw.parent.id: $3
+          name: $2
     collect:
       # Collection type
       type: multiInstance
@@ -324,7 +324,7 @@ monitors:
         source(1):
           # Fan Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status
@@ -335,23 +335,23 @@ monitors:
           # Translate API Status into PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # Fan Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   battery:
     discovery:
       sources:
         source(1):
           # Battery Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JsonID;location;Model;SerialNumber;type
@@ -365,16 +365,16 @@ monitors:
       mapping:
         # Battery Instance Table
         # JsonID;location;Model;SerialNumber;type
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(3)
-          type: $column(5)
-          info: $column(4)
+          id: $1
+          __display_id: $2
+          model: $3
+          type: $5
+          info: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(6)
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), $column(5))"
+          hw.parent.id: $6
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $3, $5)}"
     collect:
       # Collection type
       type: multiInstance
@@ -382,7 +382,7 @@ monitors:
         source(1):
           # Battery Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status;
@@ -393,23 +393,23 @@ monitors:
           # Translate API status into PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # Battery Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(2)
+          hw.status{hw.type="battery"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   disk_controller:
     discovery:
       sources:
         source(1):
           # DiskController Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JsonID;location;Vendor;Model;SerialNumber;Type
@@ -423,17 +423,17 @@ monitors:
       mapping:
         # DiskController Instance Table
         # JsonID;location;Vendor;Model;SerialNumber;Type
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(3)
-          model: $column(4)
-          serial_number: $column(5)
-          info: "join(\" \", $column(7), $column(6))"
+          id: $1
+          __display_id: $2
+          vendor: $3
+          model: $4
+          serial_number: $5
+          info: "${awk::join(\" \", $7, $6)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(8)
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(3), $column(4))"
+          hw.parent.id: $8
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, $3, $4)}"
     collect:
       # Collection type
       type: multiInstance
@@ -441,7 +441,7 @@ monitors:
         source(1):
           # DiskController Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status;
@@ -452,22 +452,22 @@ monitors:
           # Translate API status into PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # DiskController Value Table
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
         source(1):
           # Temperature Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # Use Json2Csv to process HTTP Response
           - type: json2csv
@@ -480,12 +480,12 @@ monitors:
       mapping:
         # Temperature Instance Table
         # JsonID;location;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collection Type
       type: multiInstance
@@ -493,7 +493,7 @@ monitors:
         source(1):
           # Temperature Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status;
@@ -504,23 +504,23 @@ monitors:
           # Translate API status into PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # Temperature Value Table
         # JsonID;PatrolStatus;StatusInformation;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(2)
+          hw.status{hw.type="temperature"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   memory:
     discovery:
       sources:
         source(1):
           # Memory Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JsonID;location;serialNumber;Model;Vendor;Size;
@@ -532,18 +532,18 @@ monitors:
         # Memory Instance Table
         # Patrol appends MB twice to the size field!
         # JsonID;location;serialNumber;Model;Vendor;Size;
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          serial_number: $column(3)
-          model: $column(4)
-          vendor: $column(5)
+          id: $1
+          __display_id: $2
+          serial_number: $3
+          model: $4
+          vendor: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s - %s MB)\", $column(2), $column(5), $column(6))"
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $2, $5, $6)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(6))
+          hw.memory.limit: mebiByte2Byte($6)
     collect:
       # Collection type
       type: multiInstance
@@ -551,7 +551,7 @@ monitors:
         source(1):
           # Memory Source(1) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status;
@@ -562,23 +562,23 @@ monitors:
           # Translate API status into PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # Memory Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
         source(1):
           # Source(1) =  Ethernet (hardware-inventory) [Controller 0]
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JSONID;tray;label;MAC;LinkStatus
@@ -592,7 +592,7 @@ monitors:
         source(2):
           # Source(2) =  Ethernet (hardware-inventory) [Controller 1]
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JSONID;tray;label;mac;
@@ -608,8 +608,8 @@ monitors:
           # join tables
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(2)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
           computes:
             # Add physical type designation column
             # JSONID;controllerRef;tray;label;mac;LinkStatus
@@ -619,7 +619,7 @@ monitors:
         source(4):
           # Source(4) =  Fibre (hardware-inventory)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JSONID; ControllerRef; PortName; PortName; Channel; Slot; LinkStatus
@@ -639,7 +639,7 @@ monitors:
         source(5):
           # Source(5) = Controllers (hardware-inventory)
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JSON ID;controllerRef;trayRef
@@ -652,8 +652,8 @@ monitors:
           # RightTable = JSONID;controllerRef;trayRef
           # Result = JSONID;ControllerRef;PortName;PortName;Channel;Location;LinkStatus;JSONID;controllerRef;trayRef
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(4)$
-          rightTable: $monitors.network.discovery.sources.source(5)$
+          leftTable: "${source::monitors.network.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(5)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
           computes:
@@ -663,8 +663,8 @@ monitors:
           # jsonid;controllerID;controllerID;portname;portname;channel;Location;linkStatus;jsonid;controllerref;trayref;
           - type: replace
             column: 3
-            existingValue: Column(3)
-            newValue: Column(12)
+            existingValue: $3
+            newValue: $12
             # drop extra columns
             # jsonid;controllerID;tray;portname;portname;channel;Location;jsonid;controllerref;trayref;
           - type: keepColumns
@@ -685,27 +685,27 @@ monitors:
           # Table2 = JSONID;tray;portname;portname;WWN;channel;Location;jsonid;
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(3)$
-          - $monitors.network.discovery.sources.source(6)$
+          - "${source::monitors.network.discovery.sources.source(3)}"
+          - "${source::monitors.network.discovery.sources.source(6)}"
           computes:
           # JSONID;controller;tray;portname;WWN;portname;addresstype;linkStatus
           - type: translate
             column: 8
-            translationTable: LinkSpeedParameterTranslationTable
+            translationTable: "${translation::LinkSpeedParameterTranslationTable}"
       mapping:
         # NetworkCard Instance Table
         # JSONID;controller;tray;label;mac;addressType;
         # JSONID;tray;portname;portname;WWN;channel;Location;jsonid;
-        source: $monitors.network.discovery.sources.source(7)$
+        source: "${source::monitors.network.discovery.sources.source(7)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          physical_address: $column(4)
-          physical_address_type: $column(5)
-          info: "join(\" \", $column(6), $column(7))"
+          id: $1
+          __display_id: $3
+          physical_address: $4
+          physical_address_type: $5
+          info: "${awk::join(\" \", $6, $7)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(3)
+          hw.parent.id: $2
+          name: $3
     collect:
       # Collection type
       type: multiInstance
@@ -713,7 +713,7 @@ monitors:
         source(1):
           # Source(1) = Ethernet (hardware-inventory) [Controller[0]]
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JSONID;linkStatus;linkStatus;linkStatus
@@ -723,7 +723,7 @@ monitors:
         source(2):
           # Source(2) = Ethernet (hardware-inventory) [Controller[1]]
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JSONID;linkStatus;linkStatus;linkStatus
@@ -734,12 +734,12 @@ monitors:
           # Source(3) = Union of Controller A and Controller B Ethernet devices.
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(2)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(2)}"
         source(4):
           # Source(4) = fibrePorts (hardware-inventory)
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response
             # JSONID;linkStatus;linkStatus;linkStatus
@@ -750,34 +750,34 @@ monitors:
           # Source(5) = Join Ethernet and Fibre tables
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(3)$
-          - $monitors.network.collect.sources.source(4)$
+          - "${source::monitors.network.collect.sources.source(3)}"
+          - "${source::monitors.network.collect.sources.source(4)}"
           computes:
           # JSONID;PatrolStatus;linkStatus
           - type: translate
             column: 2
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
           # JSONID;PatrolStatus;linkStatus
           - type: translate
             column: 3
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
       mapping:
         # NetworkCard Value Table
         # JsonID;PatrolStatus;LinkStatus;StatusInformation
-        source: $monitors.network.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(2)
-          hw.network.up: legacyLinkStatus($column(3))
-          hw.network.bandwidth.limit: megaBit2Bit($column(5))
+          hw.status{hw.type="network"}: $2
+          hw.network.up: legacyLinkStatus($3)
+          hw.network.bandwidth.limit: megaBit2Bit($5)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   other_device:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # Use Json2Csv to process HTTP Response
           - type: json2csv
@@ -800,22 +800,22 @@ monitors:
       mapping:
         # OtherDevice Instance Table
         # JsonID;location;Vendor;Model;SerialNumber;type;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          device_type: $column(6)
-          info: "join(\" \", $column(4), $column(3), $column(5))"
+          id: $1
+          __display_id: $2
+          device_type: $6
+          info: "${awk::join(\" \", $4, $3, $5)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s: %s\", $column(6), $column(2))"
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s: %s\", $6, $2)}"
     collect:
       # Collection type
       type: multiInstance
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"
           computes:
             # Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
             # JsonID;status;status;
@@ -826,16 +826,16 @@ monitors:
           # Translate API status into PatrolStatus
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # OtherDevice Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -864,7 +864,7 @@ monitors:
         source(2):
           # Source(2) = HardwareInventory
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           - type: json2csv
             entryKey: /controllers
@@ -875,23 +875,23 @@ monitors:
             value: MSHW;
         source(3):
           type: tableJoin
-          leftTable: $monitors.logical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.logical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.logical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.logical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # LogicalDisk Instance Table
         # JsonID;name;raidlevel;capacity;currentControllerID;
-        source: $monitors.logical_disk.discovery.sources.source(3)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(3)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(3)
-          raid_level: $column(4)
+          id: $3
+          __display_id: $3
+          raid_level: $4
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), bytes2HumanFormatBase2($column(5)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $6)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $4, bytes2HumanFormatBase2($5))}"
         metrics:
-          hw.logical_disk.limit: $column(5)
+          hw.logical_disk.limit: $5
     collect:
       # Collection type
       type: multiInstance
@@ -912,16 +912,16 @@ monitors:
           # Translate API status into PatrolStatus
           - type: translate
             column: 3
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
       mapping:
         # LogicalDisk Value Table
         # JsonID;PatrolStatus;StatusInformation
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(3)
+          hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   LinkStatusTranslationTable:
     none: degraded

@@ -15,13 +15,13 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;Value;UsageCount;PowerConsumption
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.other_device.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.other_device.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="other_device"}: $column(2)
-              hw.other_device.value: $column(4)
-              hw.other_device.uses: $column(5)
-              hw.power{hw.type="other_device"}: $column(6)
-              hw.energy{hw.type="other_device"}: fakeCounter($column(6))
+              hw.status{hw.type="other_device"}: $2
+              hw.other_device.value: $4
+              hw.other_device.uses: $5
+              hw.power{hw.type="other_device"}: $6
+              hw.energy{hw.type="other_device"}: fakeCounter($6)
               

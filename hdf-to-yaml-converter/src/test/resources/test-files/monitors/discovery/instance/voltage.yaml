@@ -18,18 +18,18 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.voltage.discovery.sources.source(1)$
+            source: ${source::monitors.voltage.discovery.sources.source(1)}
             attributes:
-              id: $column(3)
-              __display_id: $column(3)
-              sensor_location: $column(10)
+              id: $3
+              __display_id: $3
+              sensor_location: $10
               hw.parent.id: MBM
               hw.parent.type: enclosure
-              info: join(" ", $column(7), $column(8), $column(9))
-              name: sprintf("%s (%s)", $column(3), $column(10))
+              info: ${awk::join(" ", $7, $8, $9)}
+              name: ${awk::sprintf("%s (%s)", $3, $10)}
             metrics:
-              hw.voltage.limit{limit_type="low.critical"}: $column(5)
-              hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+              hw.voltage.limit{limit_type="low.critical"}: $5
+              hw.voltage.limit{limit_type="high.degraded"}: $6
 - name: testDefault
   input: |
     // InstanceTable = Source(1)
@@ -49,14 +49,14 @@
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.voltage.discovery.sources.source(1)$
+            source: ${source::monitors.voltage.discovery.sources.source(1)}
             attributes:
-              id: $column(3)
-              __display_id: $column(3)
+              id: $3
+              __display_id: $3
               hw.parent.id: MBM
               hw.parent.type: enclosure
-              info: join(" ", $column(7), $column(8), $column(9))
-              name: $column(3)
+              info: ${awk::join(" ", $7, $8, $9)}
+              name: $3
             metrics:
-              hw.voltage.limit{limit_type="low.critical"}: $column(5)
-              hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+              hw.voltage.limit{limit_type="low.critical"}: $5
+              hw.voltage.limit{limit_type="high.degraded"}: $6

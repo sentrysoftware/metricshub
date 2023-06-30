@@ -45,38 +45,38 @@ monitors:
             # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;CreationClassName;DeviceID;SystemCreationClassName;SystemName;
           - type: replace
             column: 1
-            existingValue: Column(1)
+            existingValue: $1
             newValue: ""
             #  Rebuild the PATH
             #    1       2          3       4            #   5             6            #   7       8            #           9
             # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;CreationClassName;DeviceID;SystemCreationClassName;SystemName;
           - type: rightConcat
             column: 1
-            value: Column(6)
+            value: $6
           - type: rightConcat
             column: 1
             value: .CreationClassName="
           - type: rightConcat
             column: 1
-            value: Column(6)
+            value: $6
           - type: rightConcat
             column: 1
             value: "\",DeviceID=\""
           - type: rightConcat
             column: 1
-            value: Column(7)
+            value: $7
           - type: rightConcat
             column: 1
             value: "\",SystemCreationClassName=\""
           - type: rightConcat
             column: 1
-            value: Column(8)
+            value: $8
           - type: rightConcat
             column: 1
             value: "\",SystemName=\""
           - type: rightConcat
             column: 1
-            value: Column(9)
+            value: $9
           - type: rightConcat
             column: 1
             value: '"'
@@ -97,7 +97,7 @@ monitors:
             # PortID;PortType;Speed;PermanentAddress;EnabledState;CreationClassName;
           - type: translate
             column: 2
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Convert Speed from bps to Mbps (divide by 1000000)
             # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;
           - type: divide
@@ -132,8 +132,8 @@ monitors:
           # Source(5) = Table joint of Source(2) and Source(3)
           # PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(2)$
-          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftTable: "${source::monitors.network.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: Wbem
@@ -141,8 +141,8 @@ monitors:
           # Source(6) = Table joint of Source(1) and Source(4)
           # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(4)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           keyType: Wbem
@@ -152,8 +152,8 @@ monitors:
           # Source(7) = Table joint of Source(6) and Source(5) By Port Controller
           # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(6)$
-          rightTable: $monitors.network.discovery.sources.source(5)$
+          leftTable: "${source::monitors.network.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(5)}"
           leftKeyColumn: 7
           rightKeyColumn: 6
           keyType: Wbem
@@ -162,8 +162,8 @@ monitors:
           # Source(8) = Table joint of Source(6) and Source(5) by Port ID
           # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(6)$
-          rightTable: $monitors.network.discovery.sources.source(5)$
+          leftTable: "${source::monitors.network.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(5)}"
           leftKeyColumn: 8
           rightKeyColumn: 6
           keyType: Wbem
@@ -173,8 +173,8 @@ monitors:
           # Source(9) = Table joint of Source(8) and Source(5) by Port Controller
           # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(8)$
-          rightTable: $monitors.network.discovery.sources.source(5)$
+          leftTable: "${source::monitors.network.discovery.sources.source(8)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(5)}"
           leftKeyColumn: 7
           rightKeyColumn: 6
           keyType: Wbem
@@ -197,21 +197,21 @@ monitors:
           #    1  ;  2     ;   3     ;    4           ;     5      ;      6          ;      7         ;  8   ;   9     ;   10       ;  11 ;  12        ;  13     ;          #     14         ;
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(9)$
-          - $monitors.network.discovery.sources.source(7)$
+          - "${source::monitors.network.discovery.sources.source(9)}"
+          - "${source::monitors.network.discovery.sources.source(7)}"
       mapping:
         # InstanceTable = Source(10)
         # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID;
-        source: $monitors.network.discovery.sources.source(10)$
+        source: "${source::monitors.network.discovery.sources.source(10)}"
         attributes:
-          id: $column(1)
-          vendor: $column(10)
-          model: $column(11)
-          physical_address: $column(4)
+          id: $1
+          vendor: $10
+          model: $11
+          physical_address: $4
           physical_address_type: WWN
-          device_type: $column(2)
+          device_type: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(2), $column(10), $column(11))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $1, $2, $10, $11)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -227,38 +227,38 @@ monitors:
             # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;CreationClassName;DeviceID;SystemCreationClassName;SystemName;ElementID;
           - type: replace
             column: 1
-            existingValue: Column(1)
+            existingValue: $1
             newValue: ""
             #  Rebuild the PATH
             #    1       2          3           4            #   5             6            #   7       8            #           9          10
             # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;CreationClassName;DeviceID;SystemCreationClassName;SystemName;ElementID;
           - type: rightConcat
             column: 1
-            value: Column(6)
+            value: $6
           - type: rightConcat
             column: 1
             value: .CreationClassName="
           - type: rightConcat
             column: 1
-            value: Column(6)
+            value: $6
           - type: rightConcat
             column: 1
             value: "\",DeviceID=\""
           - type: rightConcat
             column: 1
-            value: Column(7)
+            value: $7
           - type: rightConcat
             column: 1
             value: "\",SystemCreationClassName=\""
           - type: rightConcat
             column: 1
-            value: Column(8)
+            value: $8
           - type: rightConcat
             column: 1
             value: "\",SystemName=\""
           - type: rightConcat
             column: 1
-            value: Column(9)
+            value: $9
           - type: rightConcat
             column: 1
             value: '"'
@@ -268,7 +268,7 @@ monitors:
           # Switch to Source (2) to avoid renumbering
           # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;ElementID;
           type: copy
-          from: $monitors.network.collect.sources.source(1)$
+          from: "${source::monitors.network.collect.sources.source(1)}"
           computes:
             # Keep only activated ports
             # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;ElementID;
@@ -285,12 +285,12 @@ monitors:
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status;OperationalStatusArray;ElementID;
           - type: arrayTranslate
             column: 5
-            translationTable: DMTFOperationStatusTranslationTable
+            translationTable: "${translation::DMTFOperationStatusTranslationTable}"
             # And finally, we translate DMTF's OperationalStatus code into a more readable status string
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation.OperationalStatusArray;ElementID;
           - type: arrayTranslate
             column: 6
-            translationTable: DMTFOperationStatusInformationTranslationTable
+            translationTable: "${translation::DMTFOperationStatusInformationTranslationTable}"
             resultSeparator: ' - '
             # Convert PATROLStatusArray to a simple (unique) PATROLStatus
             # PortID;PortTypeCode;EnabledState;Speed;PATROLStatus;StatusInformation.OperationalStatusArray;ElementID;
@@ -306,12 +306,12 @@ monitors:
             # PortID;PortTypeCode;EnabledState;LinkStatus;Speed;PATROLStatusArray;Status.OperationalStatusArray;ElementID;
           - type: translate
             column: 4
-            translationTable: SpeedToLinkStatusTranslationTable
+            translationTable: "${translation::SpeedToLinkStatusTranslationTable}"
             # Then we translate DMTF's OperationStatus code into OK/WARN (for the LINK Status)
             # PortID;PortTypeCode;EnabledState;LinkStatus;Speed;PATROLStatusArray;Status;OperationalLinkStatusArray;ElementID;
           - type: arrayTranslate
             column: 8
-            translationTable: DMTFOperationToLinkStatusTranslationTable
+            translationTable: "${translation::DMTFOperationToLinkStatusTranslationTable}"
             # Add the Speed State to the OperationalLinkStatus Array
             # PortID;PortTypeCode;EnabledState;LinkStatus;Speed;PATROLStatusArray;Status;OperationalLinkStatusArray|LinkStatus;ElementID;
           - type: rightConcat
@@ -319,7 +319,7 @@ monitors:
             value: '|'
           - type: rightConcat
             column: 8
-            value: Column(4)
+            value: $4
             # Convert bits/sec into Mbps
             # PortID;PortTypeCode;EnabledState;LinkStatus;SpeedMBps;PATROLStatusArray;Status;OperationalLinkStatusArray|LinkStatus;ElementID;
           - type: divide
@@ -328,7 +328,7 @@ monitors:
         source(3):
           # Switch to Source (3) for debugging purposes
           type: copy
-          from: $monitors.network.collect.sources.source(2)$
+          from: "${source::monitors.network.collect.sources.source(2)}"
           computes:
             # Convert OperationalLinkStatus|SpeedStatus to a simple (unique) LinKStatus
             # Thus if the Speed = 0 OR the OperationalLink Status indicates a link down, LinkStatus = WARN.
@@ -350,10 +350,10 @@ monitors:
             # ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;PrimitiveSeqProtocolErrCount;CRCErrors;InvalidTransmissionWords;
           - type: add
             column: 6
-            value: Column(7)
+            value: $7
           - type: add
             column: 6
-            value: Column(8)
+            value: $8
             # Remove unneeded columns
             # ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;ErrorCount;
           - type: keepColumns
@@ -364,8 +364,8 @@ monitors:
           #   1          2          # 3          # 4        5          #   6           7          8          #   9        10           11          # 12          #    13          #    14          #      15
           # PortID;PortTypeCode;EnabledState;LinkStatus;SpeedMBps;PATROLStatusArray;Status;OverallLinkStatus;ElementID;ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;Errorcount;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(3)$
-          rightTable: $monitors.network.collect.sources.source(4)$
+          leftTable: "${source::monitors.network.collect.sources.source(3)}"
+          rightTable: "${source::monitors.network.collect.sources.source(4)}"
           leftKeyColumn: 9
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
@@ -373,19 +373,19 @@ monitors:
         # ValueTable = Source(1)
         #   1        # 2        #   3        #   4        5        #     6        #  7        # 8        #     9        10        #  11        #   12        #      13        #      14        #        15
         # PortID;PortTypeCode;EnabledState;LinkStatus;SpeedMBps;PATROLStatusArray;Status;OverallLinkStatus;ElementID;ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;Errorcount;
-        source: $monitors.network.collect.sources.source(5)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(5)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(6)
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.bandwidth.limit: megaBit2Bit($column(5))
-          hw.errors{hw.type="network"}: $column(15)
-          hw.network.packets{direction="receive"}: $column(13)
-          hw.network.packets{direction="transmit"}: $column(14)
-          hw.network.io{direction="receive"}: $column(11)
-          hw.network.io{direction="transmit"}: $column(12)
+          hw.status{hw.type="network"}: $6
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.bandwidth.limit: megaBit2Bit($5)
+          hw.errors{hw.type="network"}: $15
+          hw.network.packets{direction="receive"}: $13
+          hw.network.packets{direction="transmit"}: $14
+          hw.network.io{direction="receive"}: $11
+          hw.network.io{direction="transmit"}: $12
         legacyTextParameters:
-          StatusInformation: $column(7)
+          StatusInformation: $7
 translations:
   DMTFOperationStatusTranslationTable:
     "11": degraded

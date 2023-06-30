@@ -33,15 +33,15 @@ monitors:
             column: 2
             value: "Hardware Revision: "
       mapping:
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           vendor: APC
-          model: $column(5)
-          serial_number: $column(6)
+          model: $5
+          serial_number: $6
           type: PDU
-          info: "join(\" \", $column(2), $column(3), $column(4))"
-          name: "sprintf(\"Enclosure: (%s %s)\", \"APC\", $column(5))"
+          info: "${awk::join(\" \", $2, $3, $4)}"
+          name: "${awk::sprintf(\"Enclosure: (%s %s)\", \"APC\", $5)}"
     collect:
       sources:
         source(1):
@@ -62,14 +62,14 @@ monitors:
             column: 2
           - type: translate
             column: 2
-            translationTable: enclosureStatusTranslationTable
+            translationTable: "${translation::enclosureStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: enclosureStatusInformationTranslationTable
+            translationTable: "${translation::enclosureStatusInformationTranslationTable}"
         source(3):
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(4):
@@ -84,19 +84,19 @@ monitors:
             value: 10
         source(5):
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(3)$
-          rightTable: $monitors.enclosure.collect.sources.source(4)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        source: $monitors.enclosure.collect.sources.source(5)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(5)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="enclosure"}: $column(4)
-          hw.enclosure.power: $column(7)
-          hw.enclosure.energy: fakeCounter($column(7))
+          hw.status{hw.type="enclosure"}: $4
+          hw.enclosure.power: $7
+          hw.enclosure.energy: fakeCounter($7)
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   power_supply:
     discovery:
       sources:
@@ -136,30 +136,30 @@ monitors:
             regExp: 3
         source(5):
           type: tableJoin
-          leftTable: $monitors.power_supply.discovery.sources.source(1)$
-          rightTable: $monitors.power_supply.discovery.sources.source(3)$
+          leftTable: "${source::monitors.power_supply.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.power_supply.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(6):
           type: tableJoin
-          leftTable: $monitors.power_supply.discovery.sources.source(2)$
-          rightTable: $monitors.power_supply.discovery.sources.source(4)$
+          leftTable: "${source::monitors.power_supply.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.power_supply.discovery.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(7):
           type: tableUnion
           tables:
-          - $monitors.power_supply.discovery.sources.source(5)$
-          - $monitors.power_supply.discovery.sources.source(6)$
+          - "${source::monitors.power_supply.discovery.sources.source(5)}"
+          - "${source::monitors.power_supply.discovery.sources.source(6)}"
       mapping:
-        source: $monitors.power_supply.discovery.sources.source(7)$
+        source: "${source::monitors.power_supply.discovery.sources.source(7)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(2)
+          id: $2
+          __display_id: $2
           power_supply_type: PDU
           hw.parent.type: enclosure
-          hw.parent.id: $column(3)
-          name: "sprintf(\"%s (%s)\", $column(2), \"PDU\")"
+          hw.parent.id: $3
+          name: "${awk::sprintf(\"%s (%s)\", $2, \"PDU\")}"
     collect:
       type: multiInstance
       sources:
@@ -181,10 +181,10 @@ monitors:
             column: 3
           - type: translate
             column: 3
-            translationTable: powerStatusTranslationTable
+            translationTable: "${translation::powerStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: powerStatusInformationTranslationTable
+            translationTable: "${translation::powerStatusInformationTranslationTable}"
         source(3):
           type: snmpGet
           oid: 1.3.6.1.4.1.318.1.1.26.4.3.1.14.1
@@ -196,34 +196,34 @@ monitors:
             column: 3
           - type: translate
             column: 3
-            translationTable: powerStatusTranslationTable
+            translationTable: "${translation::powerStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: powerStatusInformationTranslationTable
+            translationTable: "${translation::powerStatusInformationTranslationTable}"
         source(4):
           type: tableJoin
-          leftTable: $monitors.power_supply.collect.sources.source(1)$
-          rightTable: $monitors.power_supply.collect.sources.source(2)$
+          leftTable: "${source::monitors.power_supply.collect.sources.source(1)}"
+          rightTable: "${source::monitors.power_supply.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(5):
           type: tableJoin
-          leftTable: $monitors.power_supply.collect.sources.source(1)$
-          rightTable: $monitors.power_supply.collect.sources.source(3)$
+          leftTable: "${source::monitors.power_supply.collect.sources.source(1)}"
+          rightTable: "${source::monitors.power_supply.collect.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(6):
           type: tableUnion
           tables:
-          - $monitors.power_supply.collect.sources.source(4)$
-          - $monitors.power_supply.collect.sources.source(5)$
+          - "${source::monitors.power_supply.collect.sources.source(4)}"
+          - "${source::monitors.power_supply.collect.sources.source(5)}"
       mapping:
-        source: $monitors.power_supply.collect.sources.source(6)$
-        deviceId: $column(4)
+        source: "${source::monitors.power_supply.collect.sources.source(6)}"
+        deviceId: $4
         metrics:
-          hw.status{hw.type="power_supply"}: $column(5)
+          hw.status{hw.type="power_supply"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
   temperature:
     discovery:
       sources:
@@ -246,19 +246,19 @@ monitors:
             regExp: .
         source(3):
           type: tableJoin
-          leftTable: $monitors.temperature.discovery.sources.source(1)$
-          rightTable: $monitors.temperature.discovery.sources.source(2)$
+          leftTable: "${source::monitors.temperature.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.temperature.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        source: $monitors.temperature.discovery.sources.source(3)$
+        source: "${source::monitors.temperature.discovery.sources.source(3)}"
         attributes:
-          id: $column(4)
-          __display_id: $column(4)
+          id: $4
+          __display_id: $4
           sensor_location: enclosure
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), \"enclosure\")"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, \"enclosure\")}"
     collect:
       sources:
         source(1):
@@ -270,18 +270,18 @@ monitors:
             column: 3
           - type: translate
             column: 3
-            translationTable: tempStatusTranslationTable
+            translationTable: "${translation::tempStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: tempStatusInfoTranslationTable
+            translationTable: "${translation::tempStatusInfoTranslationTable}"
       mapping:
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
-          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $2
+          hw.status{hw.type="temperature"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   enclosureStatusInformationTranslationTable:
     "1": Low Load

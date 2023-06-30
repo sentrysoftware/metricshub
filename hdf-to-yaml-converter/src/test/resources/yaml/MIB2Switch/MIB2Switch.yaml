@@ -37,19 +37,19 @@ monitors:
         source(5):
           # PortID;OperationalStatus;PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(4)$
-          rightTable: $monitors.network.discovery.sources.source(3)$
+          leftTable: "${source::monitors.network.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(3)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # PortID;OperationalStatus;PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
-        source: $monitors.network.discovery.sources.source(5)$
+        source: "${source::monitors.network.discovery.sources.source(5)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(9)
-          physical_address: $column(6)
+          id: $1
+          __display_id: $9
+          physical_address: $6
           physical_address_type: MAC
-          device_type: $column(5)
+          device_type: $5
           hw.parent.type: enclosure
           hw.parent.id: _DEVICE_ID
-          name: "sprintf(\"%s (%s)\", $column(9), $column(5))"
+          name: "${awk::sprintf(\"%s (%s)\", $9, $5)}"

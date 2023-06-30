@@ -22,18 +22,18 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;PredictedFailure;Errors;Endurance
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.physical_disk.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.physical_disk.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="physical_disk"}: $column(2)
-              hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
-              hw.errors{hw.type="physical_disk"}: $column(5)
-              hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $column(6)
-              hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $column(7)
-              hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $column(8)
-              hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $column(9)
-              hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $column(10)
-              hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $column(11)
-              hw.errors{hw.type="physical_disk", hw.error.type="media"}: $column(12)
-              hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(13))
+              hw.status{hw.type="physical_disk"}: $2
+              hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)
+              hw.errors{hw.type="physical_disk"}: $5
+              hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $6
+              hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $7
+              hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $8
+              hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $9
+              hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $10
+              hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $11
+              hw.errors{hw.type="physical_disk", hw.error.type="media"}: $12
+              hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($13)

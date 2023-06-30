@@ -34,17 +34,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -59,178 +59,178 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(3)$
+          from: "${source::monitors.enclosure.discovery.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.enclosure.discovery.sources.source(2)$
-          - $monitors.enclosure.discovery.sources.source(4)$
+          - "${source::monitors.enclosure.discovery.sources.source(2)}"
+          - "${source::monitors.enclosure.discovery.sources.source(4)}"
         source(6):
           # System
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/system/
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/system/
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: ../../Column(2);/NAME;/PRODUCTMODE;/patchVersion;
           - type: translate
             column: 4
-            translationTable: EnclosureProductModeTranslationTable
+            translationTable: "${translation::EnclosureProductModeTranslationTable}"
         source(7):
           # Logical Disk
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/lun
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/lun
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(8):
           # physical_disk
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/disk
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/disk
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(9):
           # FC PORT
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/fc_port
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/fc_port
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(10):
           # SAS PORT
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/sas_port
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/sas_port
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(11):
           # ETH PORT
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/eth_port
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/eth_port
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(12):
           # disk_controller
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/controller
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/controller
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(13):
           # fan
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/fan
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/fan
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(14):
           # power
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/power
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/power
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(15):
           # backup_power
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/backup_power
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/backup_power
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(16):
           # cpu
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/cpu
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/cpu
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(17):
           # enclosure
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/enclosure
-          header: $monitors.enclosure.discovery.sources.source(5)$
+          url: /deviceManager/rest/$2/enclosure
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
           resultContent: body
         source(18):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.enclosure.discovery.sources.source(5)$
+            source: "${source::monitors.enclosure.discovery.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.enclosure.discovery.sources.source(5)}"
         source(19):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(17)$
+          from: "${source::monitors.enclosure.discovery.sources.source(17)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: ../Column(2);/MODEL;/SERIALNUM;
         source(20):
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(6)$
-          rightTable: $monitors.enclosure.discovery.sources.source(19)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(19)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
           defaultRightLine: ;;;
       mapping:
-        source: $monitors.enclosure.discovery.sources.source(20)$
+        source: "${source::monitors.enclosure.discovery.sources.source(20)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          model: $column(4)
-          bios_version: $column(5)
-          serial_number: $column(9)
+          id: $2
+          __display_id: $3
+          model: $4
+          bios_version: $5
+          serial_number: $9
           vendor: Huawei
           type: Storage
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(3), \"Huawei\", $column(4))"
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $3, \"Huawei\", $4)}"
     collect:
       type: multiInstance
       sources:
@@ -244,17 +244,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -269,60 +269,60 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.enclosure.collect.sources.source(3)$
+          from: "${source::monitors.enclosure.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.enclosure.collect.sources.source(2)$
-          - $monitors.enclosure.collect.sources.source(4)$
+          - "${source::monitors.enclosure.collect.sources.source(2)}"
+          - "${source::monitors.enclosure.collect.sources.source(4)}"
         source(6):
           # Query System
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(3)$
+            source: "${source::monitors.enclosure.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/system/
-          header: $monitors.enclosure.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/system/
+          header: "${source::monitors.enclosure.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: ../../Column(2);/HEALTHSTATUS;/HEALTHSTATUS;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
         source(7):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.enclosure.collect.sources.source(5)$
+            source: "${source::monitors.enclosure.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.enclosure.collect.sources.source(5)}"
       mapping:
-        source: $monitors.enclosure.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="enclosure"}: $column(3)
+          hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   cpu:
     discovery:
       sources:
         source(1):
           # HTTP: /cpu
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(16)$
+          from: "${source::monitors.enclosure.discovery.sources.source(16)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -331,15 +331,15 @@ monitors:
             column: 4
             value: "CPU: "
       mapping:
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), megaHertz2HumanFormat($column(5)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, megaHertz2HumanFormat($5))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(5))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($5)
     collect:
       # Collect
       type: multiInstance
@@ -354,17 +354,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.cpu.collect.sources.source(1)$
+          from: "${source::monitors.cpu.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.cpu.collect.sources.source(1)$
+          from: "${source::monitors.cpu.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -379,60 +379,60 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.cpu.collect.sources.source(3)$
+          from: "${source::monitors.cpu.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.cpu.collect.sources.source(2)$
-          - $monitors.cpu.collect.sources.source(4)$
+          - "${source::monitors.cpu.collect.sources.source(2)}"
+          - "${source::monitors.cpu.collect.sources.source(4)}"
         source(6):
           # Query System
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.cpu.collect.sources.source(3)$
+            source: "${source::monitors.cpu.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/cpu
-          header: $monitors.cpu.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/cpu
+          header: "${source::monitors.cpu.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /ID;/HEALTHSTATUS;/HEALTHSTATUS;/CURRENTFREQUENCY;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
         source(7):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.cpu.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.cpu.collect.sources.source(5)$
+            source: "${source::monitors.cpu.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.cpu.collect.sources.source(5)}"
       mapping:
-        source: $monitors.cpu.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.cpu.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="cpu"}: $column(3)
-          hw.cpu.speed: megaHertz2Hertz($column(5))
+          hw.status{hw.type="cpu"}: $3
+          hw.cpu.speed: megaHertz2Hertz($5)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   temperature:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(16)$
+          from: "${source::monitors.enclosure.discovery.sources.source(16)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -442,7 +442,7 @@ monitors:
             value: ;CPU Core
         source(2):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(8)$
+          from: "${source::monitors.enclosure.discovery.sources.source(8)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -452,7 +452,7 @@ monitors:
             value: ;Disk
         source(3):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(17)$
+          from: "${source::monitors.enclosure.discovery.sources.source(17)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -463,7 +463,7 @@ monitors:
             value: ;Enclosure
         source(4):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(14)$
+          from: "${source::monitors.enclosure.discovery.sources.source(14)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -474,7 +474,7 @@ monitors:
             value: ;Controller
         source(5):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(12)$
+          from: "${source::monitors.enclosure.discovery.sources.source(12)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -486,11 +486,11 @@ monitors:
         source(6):
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(1)$
-          - $monitors.temperature.discovery.sources.source(2)$
-          - $monitors.temperature.discovery.sources.source(3)$
-          - $monitors.temperature.discovery.sources.source(4)$
-          - $monitors.temperature.discovery.sources.source(5)$
+          - "${source::monitors.temperature.discovery.sources.source(1)}"
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
+          - "${source::monitors.temperature.discovery.sources.source(3)}"
+          - "${source::monitors.temperature.discovery.sources.source(4)}"
+          - "${source::monitors.temperature.discovery.sources.source(5)}"
           computes:
           - type: leftConcat
             column: 4
@@ -507,14 +507,14 @@ monitors:
             existingValue: -1
             newValue: ""
       mapping:
-        source: $monitors.temperature.discovery.sources.source(6)$
+        source: "${source::monitors.temperature.discovery.sources.source(6)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          sensor_location: $column(6)
+          id: $3
+          __display_id: $4
+          sensor_location: $6
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(6))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, $6)}"
     collect:
       type: multiInstance
       sources:
@@ -529,17 +529,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.temperature.collect.sources.source(1)$
+          from: "${source::monitors.temperature.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.temperature.collect.sources.source(1)$
+          from: "${source::monitors.temperature.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -554,27 +554,27 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.temperature.collect.sources.source(3)$
+          from: "${source::monitors.temperature.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.temperature.collect.sources.source(2)$
-          - $monitors.temperature.collect.sources.source(4)$
+          - "${source::monitors.temperature.collect.sources.source(2)}"
+          - "${source::monitors.temperature.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.temperature.collect.sources.source(3)$
+            source: "${source::monitors.temperature.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/cpu
-          header: $monitors.temperature.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/cpu
+          header: "${source::monitors.temperature.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -583,10 +583,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.temperature.collect.sources.source(3)$
+            source: "${source::monitors.temperature.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/disk
-          header: $monitors.temperature.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/disk
+          header: "${source::monitors.temperature.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -595,10 +595,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.temperature.collect.sources.source(3)$
+            source: "${source::monitors.temperature.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/enclosure
-          header: $monitors.temperature.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/enclosure
+          header: "${source::monitors.temperature.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -607,10 +607,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.temperature.collect.sources.source(3)$
+            source: "${source::monitors.temperature.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/power
-          header: $monitors.temperature.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/power
+          header: "${source::monitors.temperature.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -619,10 +619,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.temperature.collect.sources.source(3)$
+            source: "${source::monitors.temperature.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/controller
-          header: $monitors.temperature.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/controller
+          header: "${source::monitors.temperature.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -630,21 +630,21 @@ monitors:
         source(11):
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(6)$
-          - $monitors.temperature.collect.sources.source(7)$
-          - $monitors.temperature.collect.sources.source(8)$
-          - $monitors.temperature.collect.sources.source(9)$
-          - $monitors.temperature.collect.sources.source(10)$
+          - "${source::monitors.temperature.collect.sources.source(6)}"
+          - "${source::monitors.temperature.collect.sources.source(7)}"
+          - "${source::monitors.temperature.collect.sources.source(8)}"
+          - "${source::monitors.temperature.collect.sources.source(9)}"
+          - "${source::monitors.temperature.collect.sources.source(10)}"
           computes:
           - type: leftConcat
             column: 2
             value: 'TEMP:'
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
           - type: replace
             column: 5
             existingValue: 0
@@ -658,24 +658,24 @@ monitors:
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.temperature.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.temperature.collect.sources.source(5)$
+            source: "${source::monitors.temperature.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.temperature.collect.sources.source(5)}"
       mapping:
-        source: $monitors.temperature.collect.sources.source(11)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(11)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="temperature"}: $column(3)
-          hw.temperature: $column(5)
+          hw.status{hw.type="temperature"}: $3
+          hw.temperature: $5
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   voltage:
     discovery:
       sources:
         source(1):
           # cpu
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(16)$
+          from: "${source::monitors.enclosure.discovery.sources.source(16)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -686,7 +686,7 @@ monitors:
         source(2):
           # controller
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(12)$
+          from: "${source::monitors.enclosure.discovery.sources.source(12)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -697,8 +697,8 @@ monitors:
         source(3):
           type: tableUnion
           tables:
-          - $monitors.voltage.discovery.sources.source(1)$
-          - $monitors.voltage.discovery.sources.source(2)$
+          - "${source::monitors.voltage.discovery.sources.source(1)}"
+          - "${source::monitors.voltage.discovery.sources.source(2)}"
           computes:
           - type: leftConcat
             column: 4
@@ -707,14 +707,14 @@ monitors:
             column: 3
             value: 'VOLT:'
       mapping:
-        source: $monitors.voltage.discovery.sources.source(3)$
+        source: "${source::monitors.voltage.discovery.sources.source(3)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          sensor_location: $column(5)
-          hw.parent.type: $column(6)
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+          id: $3
+          __display_id: $4
+          sensor_location: $5
+          hw.parent.type: $6
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, $5)}"
     collect:
       type: multiInstance
       sources:
@@ -729,17 +729,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.voltage.collect.sources.source(1)$
+          from: "${source::monitors.voltage.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.voltage.collect.sources.source(1)$
+          from: "${source::monitors.voltage.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -754,27 +754,27 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.voltage.collect.sources.source(3)$
+          from: "${source::monitors.voltage.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.voltage.collect.sources.source(2)$
-          - $monitors.voltage.collect.sources.source(4)$
+          - "${source::monitors.voltage.collect.sources.source(2)}"
+          - "${source::monitors.voltage.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.voltage.collect.sources.source(3)$
+            source: "${source::monitors.voltage.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/cpu
-          header: $monitors.voltage.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/cpu
+          header: "${source::monitors.voltage.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -786,10 +786,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.voltage.collect.sources.source(3)$
+            source: "${source::monitors.voltage.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/controller
-          header: $monitors.voltage.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/controller
+          header: "${source::monitors.voltage.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -797,18 +797,18 @@ monitors:
         source(8):
           type: tableUnion
           tables:
-          - $monitors.voltage.collect.sources.source(6)$
-          - $monitors.voltage.collect.sources.source(7)$
+          - "${source::monitors.voltage.collect.sources.source(6)}"
+          - "${source::monitors.voltage.collect.sources.source(7)}"
           computes:
           - type: leftConcat
             column: 2
             value: 'VOLT:'
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
           - type: multiply
             column: 5
             value: 1000
@@ -817,37 +817,37 @@ monitors:
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.voltage.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.voltage.collect.sources.source(5)$
+            source: "${source::monitors.voltage.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.voltage.collect.sources.source(5)}"
       mapping:
-        source: $monitors.voltage.collect.sources.source(8)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(8)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="voltage"}: $column(3)
-          hw.voltage: $column(5)
+          hw.status{hw.type="voltage"}: $3
+          hw.voltage: $5
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   disk_controller:
     discovery:
       sources:
         source(1):
           # HTTP: /controller
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(12)$
+          from: "${source::monitors.enclosure.discovery.sources.source(12)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: ../../Column(2);/ID;/NAME;/SOFTVER;
       mapping:
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          firmware_version: $column(5)
+          id: $3
+          __display_id: $4
+          firmware_version: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"Disk Controller: %s\", $column(4))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"Disk Controller: %s\", $4)}"
     collect:
       type: multiInstance
       sources:
@@ -861,17 +861,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.disk_controller.collect.sources.source(1)$
+          from: "${source::monitors.disk_controller.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.disk_controller.collect.sources.source(1)$
+          from: "${source::monitors.disk_controller.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -886,70 +886,70 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.disk_controller.collect.sources.source(3)$
+          from: "${source::monitors.disk_controller.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.disk_controller.collect.sources.source(2)$
-          - $monitors.disk_controller.collect.sources.source(4)$
+          - "${source::monitors.disk_controller.collect.sources.source(2)}"
+          - "${source::monitors.disk_controller.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.disk_controller.collect.sources.source(3)$
+            source: "${source::monitors.disk_controller.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/controller
-          header: $monitors.disk_controller.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/controller
+          header: "${source::monitors.disk_controller.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /ID;/HEALTHSTATUS;/HEALTHSTATUS;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
         source(7):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.disk_controller.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.disk_controller.collect.sources.source(5)$
+            source: "${source::monitors.disk_controller.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.disk_controller.collect.sources.source(5)}"
       mapping:
-        source: $monitors.disk_controller.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.disk_controller.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(3)
+          hw.status{hw.type="disk_controller"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   power_supply:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(14)$
+          from: "${source::monitors.enclosure.discovery.sources.source(14)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /../../Column(2);/ID;/LOCATION;
       mapping:
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       type: multiInstance
       sources:
@@ -963,17 +963,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.power_supply.collect.sources.source(1)$
+          from: "${source::monitors.power_supply.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.power_supply.collect.sources.source(1)$
+          from: "${source::monitors.power_supply.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -988,58 +988,58 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.power_supply.collect.sources.source(3)$
+          from: "${source::monitors.power_supply.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.power_supply.collect.sources.source(2)$
-          - $monitors.power_supply.collect.sources.source(4)$
+          - "${source::monitors.power_supply.collect.sources.source(2)}"
+          - "${source::monitors.power_supply.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.power_supply.collect.sources.source(3)$
+            source: "${source::monitors.power_supply.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/power
-          header: $monitors.power_supply.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/power
+          header: "${source::monitors.power_supply.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /ID;/HEALTHSTATUS;/HEALTHSTATUS;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
         source(7):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.power_supply.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.power_supply.collect.sources.source(5)$
+            source: "${source::monitors.power_supply.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.power_supply.collect.sources.source(5)}"
       mapping:
-        source: $monitors.power_supply.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.power_supply.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="power_supply"}: $column(3)
+          hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   battery:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(15)$
+          from: "${source::monitors.enclosure.discovery.sources.source(15)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1048,13 +1048,13 @@ monitors:
             column: 4
             value: "BBU: "
       mapping:
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(4)
-          __display_id: $column(4)
+          id: $4
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
     collect:
       type: multiInstance
       sources:
@@ -1068,17 +1068,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.battery.collect.sources.source(1)$
+          from: "${source::monitors.battery.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.battery.collect.sources.source(1)$
+          from: "${source::monitors.battery.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1093,37 +1093,37 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.battery.collect.sources.source(3)$
+          from: "${source::monitors.battery.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.battery.collect.sources.source(2)$
-          - $monitors.battery.collect.sources.source(4)$
+          - "${source::monitors.battery.collect.sources.source(2)}"
+          - "${source::monitors.battery.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.battery.collect.sources.source(3)$
+            source: "${source::monitors.battery.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/backup_power
-          header: $monitors.battery.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/backup_power
+          header: "${source::monitors.battery.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /LOCATION;/HEALTHSTATUS;/HEALTHSTATUS;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
           - type: leftConcat
             column: 2
             value: "BBU: "
@@ -1132,41 +1132,41 @@ monitors:
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.battery.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.battery.collect.sources.source(5)$
+            source: "${source::monitors.battery.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.battery.collect.sources.source(5)}"
       mapping:
-        source: $monitors.battery.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.battery.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="battery"}: $column(3)
+          hw.status{hw.type="battery"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
         source(1):
           # HTTP: /fan
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(13)$
+          from: "${source::monitors.enclosure.discovery.sources.source(13)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /PARENTTYPE;../../Column(2);/ID;/LOCATION;
           - type: translate
             column: 2
-            translationTable: TypeTranslationTable
+            translationTable: "${translation::TypeTranslationTable}"
           - type: leftConcat
             column: 5
             value: "Fan: "
       mapping:
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(4)
-          __display_id: $column(5)
-          hw.parent.type: $column(2)
-          hw.parent.id: $column(3)
-          name: $column(5)
+          id: $4
+          __display_id: $5
+          hw.parent.type: $2
+          hw.parent.id: $3
+          name: $5
     collect:
       type: multiInstance
       sources:
@@ -1180,17 +1180,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.fan.collect.sources.source(1)$
+          from: "${source::monitors.fan.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.fan.collect.sources.source(1)$
+          from: "${source::monitors.fan.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1205,84 +1205,84 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.fan.collect.sources.source(3)$
+          from: "${source::monitors.fan.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.fan.collect.sources.source(2)$
-          - $monitors.fan.collect.sources.source(4)$
+          - "${source::monitors.fan.collect.sources.source(2)}"
+          - "${source::monitors.fan.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.fan.collect.sources.source(3)$
+            source: "${source::monitors.fan.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/fan
-          header: $monitors.fan.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/fan
+          header: "${source::monitors.fan.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /ID;/HEALTHSTATUS;/HEALTHSTATUS;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
         source(7):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.fan.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.fan.collect.sources.source(5)$
+            source: "${source::monitors.fan.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.fan.collect.sources.source(5)}"
       mapping:
-        source: $monitors.fan.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
+          hw.status{hw.type="fan"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   physical_disk:
     discovery:
       sources:
         source(1):
           # HTTP: /disk
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(8)$
+          from: "${source::monitors.enclosure.discovery.sources.source(8)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: ../../Column(2);/ID;DISKTYPE;/MODEL;/FIRMWAREVER;/MANUFACTURER;/SERIALNUMBER;/LOCATION;/SECTORS;/SECTORSIZE;
           - type: translate
             column: 4
-            translationTable: PhysicalDiskTypeTranslationTable
+            translationTable: "${translation::PhysicalDiskTypeTranslationTable}"
           # Get disk size (sectors * sector size)
           - type: multiply
             column: 10
-            value: Column(11)
+            value: $11
       mapping:
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(9)
-          model: $column(5)
-          firmware_version: $column(6)
-          vendor: $column(7)
-          serial_number: $column(8)
+          id: $3
+          __display_id: $9
+          model: $5
+          firmware_version: $6
+          vendor: $7
+          serial_number: $8
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s - %s)\", $column(9), $column(7), bytes2HumanFormatBase10($column(10)))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s - %s)\", $9, $7, bytes2HumanFormatBase10($10))}"
         metrics:
-          hw.physical_disk.size: $column(10)
+          hw.physical_disk.size: $10
     collect:
       type: multiInstance
       sources:
@@ -1296,17 +1296,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.physical_disk.collect.sources.source(1)$
+          from: "${source::monitors.physical_disk.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.physical_disk.collect.sources.source(1)$
+          from: "${source::monitors.physical_disk.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1321,66 +1321,66 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.physical_disk.collect.sources.source(3)$
+          from: "${source::monitors.physical_disk.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.physical_disk.collect.sources.source(2)$
-          - $monitors.physical_disk.collect.sources.source(4)$
+          - "${source::monitors.physical_disk.collect.sources.source(2)}"
+          - "${source::monitors.physical_disk.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.physical_disk.collect.sources.source(3)$
+            source: "${source::monitors.physical_disk.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/disk
-          header: $monitors.physical_disk.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/disk
+          header: "${source::monitors.physical_disk.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
             properties: /ID;/HEALTHSTATUS;/HEALTHSTATUS;/ABRASIONRATE;;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
           - type: replace
             column: 6
             existingValue: ""
             newValue: 100
           - type: subtract
             column: 6
-            value: Column(5)
+            value: $5
         source(7):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.physical_disk.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.physical_disk.collect.sources.source(5)$
+            source: "${source::monitors.physical_disk.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.physical_disk.collect.sources.source(5)}"
       mapping:
-        source: $monitors.physical_disk.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.physical_disk.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
-          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(6))
+          hw.status{hw.type="physical_disk"}: $3
+          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($6)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   logical_disk:
     discovery:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(7)$
+          from: "${source::monitors.enclosure.discovery.sources.source(7)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1388,21 +1388,21 @@ monitors:
           # Get disk size (sectors * capacity)
           - type: multiply
             column: 6
-            value: Column(7)
+            value: $7
           - type: translate
             column: 9
-            translationTable: LogicalDiskTypeTranslationTable
+            translationTable: "${translation::LogicalDiskTypeTranslationTable}"
       mapping:
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
+          id: $3
+          __display_id: $4
           type: Volume
           hw.parent.type: disk_controller
-          hw.parent.id: $column(8)
-          name: "sprintf(\"%s (%s)\", $column(4), bytes2HumanFormatBase2($column(6)))"
+          hw.parent.id: $8
+          name: "${awk::sprintf(\"%s (%s)\", $4, bytes2HumanFormatBase2($6))}"
         metrics:
-          hw.logical_disk.limit: $column(6)
+          hw.logical_disk.limit: $6
     collect:
       sources:
         source(1):
@@ -1415,17 +1415,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.logical_disk.collect.sources.source(1)$
+          from: "${source::monitors.logical_disk.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.logical_disk.collect.sources.source(1)$
+          from: "${source::monitors.logical_disk.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1440,59 +1440,59 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.logical_disk.collect.sources.source(3)$
+          from: "${source::monitors.logical_disk.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.logical_disk.collect.sources.source(2)$
-          - $monitors.logical_disk.collect.sources.source(4)$
+          - "${source::monitors.logical_disk.collect.sources.source(2)}"
+          - "${source::monitors.logical_disk.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.logical_disk.collect.sources.source(3)$
+            source: "${source::monitors.logical_disk.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/lun
-          header: $monitors.logical_disk.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/lun
+          header: "${source::monitors.logical_disk.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /data
             properties: ID;/HEALTHSTATUS;/HEALTHSTATUS;
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
         source(7):
           # End Session
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.logical_disk.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.logical_disk.collect.sources.source(5)$
+            source: "${source::monitors.logical_disk.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.logical_disk.collect.sources.source(5)}"
       mapping:
-        source: $monitors.logical_disk.collect.sources.source(6)$
-        deviceId: $column(2)
+        source: "${source::monitors.logical_disk.collect.sources.source(6)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(3)
+          hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   network:
     discovery:
       sources:
         source(1):
           # FC Port
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(9)$
+          from: "${source::monitors.enclosure.discovery.sources.source(9)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1503,7 +1503,7 @@ monitors:
         source(2):
           # SAS Port
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(10)$
+          from: "${source::monitors.enclosure.discovery.sources.source(10)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1514,7 +1514,7 @@ monitors:
         source(3):
           # ETH Port
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(11)$
+          from: "${source::monitors.enclosure.discovery.sources.source(11)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1526,31 +1526,31 @@ monitors:
           # UNION
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(2)$
-          - $monitors.network.discovery.sources.source(3)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
+          - "${source::monitors.network.discovery.sources.source(3)}"
           computes:
           - type: translate
             column: 6
-            translationTable: TypeTranslationTable
+            translationTable: "${translation::TypeTranslationTable}"
           - type: replace
             column: 2
             existingValue: .0
             newValue: ""
           - type: translate
             column: 7
-            translationTable: TypeTranslationTable
+            translationTable: "${translation::TypeTranslationTable}"
       mapping:
-        source: $monitors.network.discovery.sources.source(4)$
+        source: "${source::monitors.network.discovery.sources.source(4)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(4)
-          logical_address: $column(5)
-          logical_address_type: $column(8)
-          device_type: $column(6)
-          hw.parent.type: $column(7)
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(4), $column(6))"
+          id: $3
+          __display_id: $4
+          logical_address: $5
+          logical_address_type: $8
+          device_type: $6
+          hw.parent.type: $7
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $4, $6)}"
     collect:
       type: multiInstance
       sources:
@@ -1564,17 +1564,17 @@ monitors:
         source(2):
           # Get Cookies
           type: copy
-          from: $monitors.network.collect.sources.source(1)$
+          from: "${source::monitors.network.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(3):
           # Get body
           type: copy
-          from: $monitors.network.collect.sources.source(1)$
+          from: "${source::monitors.network.collect.sources.source(1)}"
           computes:
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
           - type: json2csv
             entryKey: /data
             properties: /deviceid;/iBaseToken;
@@ -1589,27 +1589,27 @@ monitors:
         source(4):
           # Keep iBaseToken as source 3
           type: copy
-          from: $monitors.network.collect.sources.source(3)$
+          from: "${source::monitors.network.collect.sources.source(3)}"
           computes:
           - type: keepColumns
             columnNumbers: 3
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
         source(5):
           # union iBaseToken, cookies and Acccept headers
           type: tableUnion
           tables:
           - Accept:Application/Json
-          - $monitors.network.collect.sources.source(2)$
-          - $monitors.network.collect.sources.source(4)$
+          - "${source::monitors.network.collect.sources.source(2)}"
+          - "${source::monitors.network.collect.sources.source(4)}"
         source(6):
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.collect.sources.source(3)$
+            source: "${source::monitors.network.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/fc_port
-          header: $monitors.network.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/fc_port
+          header: "${source::monitors.network.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1619,10 +1619,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.collect.sources.source(3)$
+            source: "${source::monitors.network.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/sas_port
-          header: $monitors.network.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/sas_port
+          header: "${source::monitors.network.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1632,10 +1632,10 @@ monitors:
           type: http
           method: GET
           executeForEachEntryOf:
-            source: $monitors.network.collect.sources.source(3)$
+            source: "${source::monitors.network.collect.sources.source(3)}"
             concatMethod: json_array_extended
-          url: /deviceManager/rest/$entry.column(2)$/eth_port
-          header: $monitors.network.collect.sources.source(5)$
+          url: /deviceManager/rest/$2/eth_port
+          header: "${source::monitors.network.collect.sources.source(5)}"
           computes:
           - type: json2csv
             entryKey: /Entry/Value/data
@@ -1643,19 +1643,19 @@ monitors:
         source(9):
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(6)$
-          - $monitors.network.collect.sources.source(7)$
-          - $monitors.network.collect.sources.source(8)$
+          - "${source::monitors.network.collect.sources.source(6)}"
+          - "${source::monitors.network.collect.sources.source(7)}"
+          - "${source::monitors.network.collect.sources.source(8)}"
           computes:
           - type: translate
             column: 3
-            translationTable: HealthStatusTranslationTable
+            translationTable: "${translation::HealthStatusTranslationTable}"
           - type: translate
             column: 4
-            translationTable: HealthStatusInformationTranslationTable
+            translationTable: "${translation::HealthStatusInformationTranslationTable}"
           - type: translate
             column: 5
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
           - type: replace
             column: 6
             existingValue: -1
@@ -1665,18 +1665,18 @@ monitors:
           type: http
           method: DELETE
           executeForEachEntryOf:
-            source: $monitors.network.collect.sources.source(3)$
-          url: /deviceManager/rest/$entry.column(2)$/sessions
-          header: $monitors.network.collect.sources.source(5)$
+            source: "${source::monitors.network.collect.sources.source(3)}"
+          url: /deviceManager/rest/$2/sessions
+          header: "${source::monitors.network.collect.sources.source(5)}"
       mapping:
-        source: $monitors.network.collect.sources.source(9)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(9)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.bandwidth.limit: megaBit2Bit($column(6))
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($5)
+          hw.network.bandwidth.limit: megaBit2Bit($6)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   PhysicalDiskTypeTranslationTable:
     "11": NL_SAS_SED
@@ -1726,7 +1726,7 @@ translations:
     "214": SAS
     "206": Enclosure
     "207": DiskController
-    "209": DiskController" // Interface Modules
+    "209": DiskController
   LinkStatusTranslationTable:
     "0": degraded
     "11": degraded

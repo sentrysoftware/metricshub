@@ -29,17 +29,17 @@ monitors:
             valueList: "1,2"
           - type: translate
             column: 5
-            translationTable: MylexControllerTranslationTable
+            translationTable: "${translation::MylexControllerTranslationTable}"
       mapping:
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(2)
+          id: $1
+          controller_number: $2
           vendor: Mylex
-          model: $column(5)
-          firmware_version: $column(4)
+          model: $5
+          firmware_version: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), \"Mylex\", $column(5))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, \"Mylex\", $5)}"
   physical_disk:
     discovery:
       sources:
@@ -55,21 +55,21 @@ monitors:
             column: 4
             value: 1048576
       mapping:
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(3)
+          id: $1
+          vendor: $3
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), bytes2HumanFormatBase10($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $3, bytes2HumanFormatBase10($4))}"
         metrics:
-          hw.physical_disk.size: $column(4)
+          hw.physical_disk.size: $4
     collect:
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
-          oid: 1.3.6.1.4.1.1608.1.1.1.4.1.5.$physical_disk.id$
+          oid: "1.3.6.1.4.1.1608.1.1.1.4.1.5.${physical_disk::id}"
           computes:
           - type: duplicateColumn
             column: 1
@@ -77,16 +77,16 @@ monitors:
             column: 1
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.physical_disk.collect.sources.source(1)$
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -104,15 +104,15 @@ monitors:
             value: 1048576
       mapping:
         # Instance Table
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          raid_level: $column(4)
+          id: $1
+          raid_level: $4
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), bytes2HumanFormatBase2($column(5)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase2($5))}"
         metrics:
-          hw.logical_disk.limit: $column(5)
+          hw.logical_disk.limit: $5
     collect:
       # Collect type: MonoInstance
       type: monoInstance
@@ -120,7 +120,7 @@ monitors:
         source(1):
           # Source(1) = the a3OperationalState column of the eLogicalDriveInformation SNMP table
           type: snmpGet
-          oid: 1.3.6.1.4.1.1608.1.1.1.3.1.3.$logical_disk.id$
+          oid: "1.3.6.1.4.1.1608.1.1.1.3.1.3.${logical_disk::id}"
           computes:
           - type: duplicateColumn
             column: 1
@@ -129,18 +129,18 @@ monitors:
           # translate the a3OperationalState into a PATROL status
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
           # translate the a3OperationalState into a more readable string
           - type: translate
             column: 3
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.logical_disk.collect.sources.source(1)$
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     "0": Dead

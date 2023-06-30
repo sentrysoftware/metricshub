@@ -22,7 +22,7 @@
                     Translate the Various Boolean Status
                   type: translate
                   column: 3
-                  translationTable: "SmartFailedTranslateTable"
+                  translationTable: ${translation::SmartFailedTranslateTable}
 - name: collect
   input: |
     // Translate the first Status code into a PATROLStatus
@@ -42,4 +42,4 @@
                     PATROLStatus;FruStatus
                   type: translate
                   column: 1
-                  translationTable: "FRUStatusTranslationTable"
+                  translationTable: ${translation::FRUStatusTranslationTable}

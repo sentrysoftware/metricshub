@@ -34,7 +34,7 @@ monitors:
           # Source(1) = output of EmbeddedFile(1)
           # diskNumber;controllerID;deviceID;Vendor Model;size
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           timeout: 60
           keep: ^MSHW;
           separators: ;
@@ -52,19 +52,19 @@ monitors:
           # This is to keep only disk controllers that actually have disks
           # ControllerDeviceID;Model;diskNumber;controllerID;deviceID;Vendor Model;size
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(2)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(1)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
         # InstanceTable = Source(3)
-        source: $monitors.disk_controller.discovery.sources.source(3)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(1)
-          model: $column(2)
+          id: $1
+          controller_number: $1
+          model: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
   physical_disk:
     discovery:
       sources:
@@ -72,18 +72,18 @@ monitors:
           # Source(1) = copy of the DiskController.Discovery.Source(1)
           # diskNumber;controllerID;deviceID;Vendor Model;size
           type: copy
-          from: $monitors.disk_controller.discovery.sources.source(1)$
+          from: "${source::monitors.disk_controller.discovery.sources.source(1)}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          vendor: $column(4)
+          id: $3
+          vendor: $4
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), bytes2HumanFormatBase10($column(5)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $4, bytes2HumanFormatBase10($5))}"
         metrics:
-          hw.physical_disk.size: $column(5)
+          hw.physical_disk.size: $5
     collect:
       # Collect type is "mono-instance
       type: monoInstance
@@ -91,7 +91,7 @@ monitors:
         source(1):
           # Source(1) = output of the pvdisplay command
           type: osCommand
-          commandLine: /usr/sbin/pvdisplay /dev/dsk/$physical_disk.id$
+          commandLine: "/usr/sbin/pvdisplay /dev/dsk/${physical_disk::id}"
           computes:
             # Process output of pvdisplay through a awk script
             # PV Status
@@ -108,19 +108,19 @@ monitors:
             # PATROLStatus;PV Status
           - type: translate
             column: 1
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
             # Translate the second PV Status into a more readable string
             # PATROLStatus;StatusInformation
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(1)
+          hw.status{hw.type="physical_disk"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     available/data-spared: Spared

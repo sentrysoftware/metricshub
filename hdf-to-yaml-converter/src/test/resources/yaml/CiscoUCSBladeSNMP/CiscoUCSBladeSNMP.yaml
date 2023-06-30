@@ -42,14 +42,14 @@ monitors:
       mapping:
         # The InstanceTable
         # DN;DisplayName;Model;Serial;OperState;
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
+          id: $1
+          __display_id: $2
+          model: $3
+          serial_number: $4
           vendor: Cisco
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(2), \"Cisco\", $column(3))"
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $2, \"Cisco\", $3)}"
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -69,21 +69,21 @@ monitors:
             # DN;PATROLStatus;OperState;
           - type: translate
             column: 2
-            translationTable: bladeStatusTranslationTable
+            translationTable: "${translation::bladeStatusTranslationTable}"
             # Translate second STatusCode into a more readable string
             # DN;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: bladeStatusInformationTranslationTable
+            translationTable: "${translation::bladeStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # DN;PATROLStatus;StatusInformation;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   disk_controller:
     discovery:
       sources:
@@ -107,38 +107,38 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to have the attached deviceID
           # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;attachedDeviceID;DN
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
         source(4):
           # Source(4) = jointure of source(3) and enclosure.source(2) in order to have controllers attached to a blade
           # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;attachedDeviceID;DN;enclosure
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 8
           rightKeyColumn: 1
       mapping:
         # InstanceTable = Source(1)
         # DN;RN;Model;SerialNumber;Vendor;Revision;OperState;attachedDeviceID;ID;enclosure
-        source: $monitors.disk_controller.discovery.sources.source(4)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(5)
-          model: $column(3)
-          serial_number: $column(4)
-          firmware_version: $column(6)
-          controller_number: $column(1)
+          id: $1
+          __display_id: $2
+          vendor: $5
+          model: $3
+          serial_number: $4
+          firmware_version: $6
+          controller_number: $1
           hw.parent.type: enclosure
-          hw.parent.id: $column(8)
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), $column(5), $column(3))"
+          hw.parent.id: $8
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, $5, $3)}"
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -162,20 +162,20 @@ monitors:
             # DN;PATROLStatus;OperState;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Translate second STatusCode into a more readable string
             # DN;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -203,7 +203,7 @@ monitors:
             # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;
           - type: replace
             column: 2
-            existingValue: Column(3)
+            existingValue: $3
             newValue: ""
             # Convert the size into bytes
             # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;
@@ -225,37 +225,37 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to have the attached deviceID
           # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;enclosureID;DN
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(1)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
         source(4):
           # Source(4) = jointure of source(3) and enclosure.source(2) in order to have controllers attached to a blade
           # DN;attachedDeviceID;RN;Model;Size;Vendor;OperState;enclosureID;DN;enclosure
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 8
           rightKeyColumn: 1
       mapping:
         # InstanceTable = Source(1)
         # DN;attachedDeviceID;RN;Model;Size;Vendor;enclosureID;DN;enclosure
-        source: $monitors.physical_disk.discovery.sources.source(4)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          vendor: $column(6)
-          model: $column(4)
+          id: $1
+          __display_id: $3
+          vendor: $6
+          model: $4
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), bytes2HumanFormatBase10($column(5)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $6, bytes2HumanFormatBase10($5))}"
         metrics:
-          hw.physical_disk.size: $column(5)
+          hw.physical_disk.size: $5
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -279,20 +279,20 @@ monitors:
             # DN;PATROLStatus;OperState;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Translate second STatusCode into a more readable string
             # DN;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   cpu:
     discovery:
       sources:
@@ -311,13 +311,13 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to attached deviceID
           # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
           type: tableJoin
-          leftTable: $monitors.cpu.discovery.sources.source(1)$
-          rightTable: $monitors.cpu.discovery.sources.source(2)$
+          leftTable: "${source::monitors.cpu.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.cpu.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
           computes:
@@ -334,24 +334,24 @@ monitors:
           # Source(4) = jointure of source(3) and enclosure.source(2) in order to have cpus attached to a blade
           # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN;enclosure
           type: tableJoin
-          leftTable: $monitors.cpu.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.cpu.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 7
           rightKeyColumn: 1
       mapping:
         # InstanceTable = Source(1)
         # DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
-        source: $monitors.cpu.discovery.sources.source(4)$
+        source: "${source::monitors.cpu.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(5)
-          model: $column(3)
+          id: $1
+          __display_id: $2
+          vendor: $5
+          model: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(7)
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), $column(5), $column(3), megaHertz2HumanFormat($column(4)))"
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $2, $5, $3, megaHertz2HumanFormat($4))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($4)
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -375,20 +375,20 @@ monitors:
             # DN;PATROLStatus;OperState;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Translate second STatusCode into a more readable string
             # DN;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="cpu"}: $column(2)
+          hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   memory:
     discovery:
       sources:
@@ -428,37 +428,37 @@ monitors:
             # Run this through awk EF1
             # attachedDeviceID;DN
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
         source(3):
           # Source(3) = jointure of source(1) and source(2) in order to attached deviceID
           # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;attachedDeviceID;DN
           type: tableJoin
-          leftTable: $monitors.memory.discovery.sources.source(1)$
-          rightTable: $monitors.memory.discovery.sources.source(2)$
+          leftTable: "${source::monitors.memory.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.memory.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
         source(4):
           # Source(4) = jointure of source(3) and enclosure.source(2) in order to have memories attached to a blade
           # DN;RN;Location;Presence;CapacityMB;Serial;Speed;OperState;attachedDeviceID;DN;enclosure
           type: tableJoin
-          leftTable: $monitors.memory.discovery.sources.source(3)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.memory.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 9
           rightKeyColumn: 1
       mapping:
         # InstanceTable = Source(1)
         # DN;RN;Location;Presence;CapacityMB;Serial;Speed;attachedDeviceID;DN
-        source: $monitors.memory.discovery.sources.source(3)$
+        source: "${source::monitors.memory.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          serial_number: $column(6)
-          info: "join(\" \", $column(3), $column(7))"
+          id: $1
+          __display_id: $2
+          serial_number: $6
+          info: "${awk::join(\" \", $3, $7)}"
           hw.parent.type: enclosure
-          hw.parent.id: $column(9)
-          name: "sprintf(\"%s (%s MB)\", $column(2), $column(5))"
+          hw.parent.id: $9
+          name: "${awk::sprintf(\"%s (%s MB)\", $2, $5)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(5))
+          hw.memory.limit: mebiByte2Byte($5)
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -482,20 +482,20 @@ monitors:
             # DN;PATROLStatus;OperState;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Translate second STatusCode into a more readable string
             # DN;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   bladeStatusTranslationTable:
     "29": degraded

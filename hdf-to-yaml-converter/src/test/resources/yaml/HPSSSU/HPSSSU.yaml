@@ -29,15 +29,15 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: "copy $file(\"embeddedFile-1\")$ $file(\"embeddedFile-1\")$.bat & $file(\"embeddedFile-1\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-1\")$.bat"
+          commandLine: "copy ${file::embeddedFile-1} ${file::embeddedFile-1}.bat & ${file::embeddedFile-1}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::embeddedFile-1}.bat"
           executeLocally: true
           timeout: 600
     collect:
       sources:
         source(1):
-          # Source(1) = the output of "$file("embeddedFile-1")$
+          # Source(1) = the output of \"${file::embeddedFile-1}
           type: osCommand
-          commandLine: "copy $file(\"embeddedFile-1\")$ $file(\"embeddedFile-1\")$.bat > NUL & $file(\"embeddedFile-1\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-1\")$.bat"
+          commandLine: "copy ${file::embeddedFile-1} ${file::embeddedFile-1}.bat > NUL & ${file::embeddedFile-1}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::embeddedFile-1}.bat"
           executeLocally: true
           timeout: 600
   logical_disk:
@@ -45,13 +45,13 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: "copy $file(\"embeddedFile-3\")$ $file(\"embeddedFile-3\")$.bat & $file(\"embeddedFile-3\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-3\")$.bat"
+          commandLine: "copy ${file::embeddedFile-3} ${file::embeddedFile-3}.bat & ${file::embeddedFile-3}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::embeddedFile-3}.bat"
           executeLocally: true
           timeout: 3600
     collect:
       sources:
         source(1):
           type: osCommand
-          commandLine: "copy $file(\"embeddedFile-3\")$ $file(\"embeddedFile-3\")$.bat & $file(\"embeddedFile-3\")$.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q $file(\"embeddedFile-3\")$.bat"
+          commandLine: "copy ${file::embeddedFile-3} ${file::embeddedFile-3}.bat & ${file::embeddedFile-3}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::embeddedFile-3}.bat"
           executeLocally: true
           timeout: 3600

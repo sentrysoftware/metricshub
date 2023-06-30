@@ -15,7 +15,7 @@ connector:
       - NT
     # Diskpart must be int he path and return something meaningful. Please note that we're using CHCP 437 to make sure the locale is English.
     - type: osCommand
-      commandLine: CHCP 437&&DISKPART.EXE /S $file("embeddedFile-3")$
+      commandLine: "CHCP 437&&DISKPART.EXE /S ${file::embeddedFile-3}"
       expectedResult: Leaving DiskPart
       timeout: 120
 monitors:
@@ -25,13 +25,13 @@ monitors:
         source(1):
           # Source(1) = DISKPART.EXE running "list volume" and "exit
           type: osCommand
-          commandLine: CHCP 437&&DISKPART.EXE /S $file("embeddedFile-1")$
+          commandLine: "CHCP 437&&DISKPART.EXE /S ${file::embeddedFile-1}"
           timeout: 120
           computes:
             # Run Source(1) through an AWK script
             # ID;Label;Letter;VolumeType;FileSystem;Size;Status;MoreInformation
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4,5,6,7,8,9"
@@ -48,16 +48,16 @@ monitors:
             value: "Volume Information: "
       mapping:
         # The InstanceTable
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          raid_level: $column(4)
-          info: "join(\" \", $column(5), $column(8))"
+          id: $1
+          __display_id: $2
+          raid_level: $4
+          info: "${awk::join(\" \", $5, $8)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), bytes2HumanFormatBase2($column(6)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $4, bytes2HumanFormatBase2($6))}"
         metrics:
-          hw.logical_disk.limit: $column(6)
+          hw.logical_disk.limit: $6
     collect:
       # Collection is multi-instance
       type: multiInstance
@@ -65,13 +65,13 @@ monitors:
         source(1):
           # Source(1) = DISKPART.EXE running "list volume" and "exit
           type: osCommand
-          commandLine: CHCP 437&&DISKPART.EXE /S $file("embeddedFile-1")$
+          commandLine: "CHCP 437&&DISKPART.EXE /S ${file::embeddedFile-1}"
           timeout: 120
           computes:
             # Run Source(1) through an AWK script
             # ID;Status;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,8"
@@ -83,15 +83,15 @@ monitors:
             # status
           - type: translate
             column: 2
-            translationTable: LogicalDiskTranslationTable
+            translationTable: "${translation::LogicalDiskTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   LogicalDiskTranslationTable:
     Resynching: degraded

@@ -39,7 +39,7 @@ monitors:
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
           - type: translate
             column: 5
-            translationTable: TeamNICSGroupTypeTranslationTable
+            translationTable: "${translation::TeamNICSGroupTypeTranslationTable}"
             # GroupType Column Label
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
           - type: leftConcat
@@ -49,7 +49,7 @@ monitors:
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
           - type: translate
             column: 6
-            translationTable: TeamNICSSwitchoverModeTranslationTable
+            translationTable: "${translation::TeamNICSSwitchoverModeTranslationTable}"
             # SwitchoverMode Column Label
             # ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
           - type: leftConcat
@@ -95,7 +95,7 @@ monitors:
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
           - type: translate
             column: 5
-            translationTable: PhysicalAdapterRoleTranslationTable
+            translationTable: "${translation::PhysicalAdapterRoleTranslationTable}"
             # Add the word Role
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
           - type: leftConcat
@@ -110,7 +110,7 @@ monitors:
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
           - type: rightConcat
             column: 2
-            value: Column(14)
+            value: $14
             # Add LinkStatus and active it for Physical NetWorkCard
             # ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
           - type: rightConcat
@@ -123,24 +123,24 @@ monitors:
           # Source(3) = Table union of Source(1) and Source(2)
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(2)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
       mapping:
         # source(1) ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;
         # source(2) ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
         source: Discovery_source
         attributes:
-          id: $column(1)
-          __display_id: $column(12)
-          device_type: $column(2)
-          model: $column(3)
-          logical_address: $column(7)
+          id: $1
+          __display_id: $12
+          device_type: $2
+          model: $3
+          logical_address: $7
           logical_address_type: IP
-          physical_address: $column(8)
+          physical_address: $8
           physical_address_type: MAC
-          info: "join(\" \", $column(5), $column(13), $column(14))"
+          info: "${awk::join(\" \", $5, $13, $14)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(12), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $12, $2, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -169,12 +169,12 @@ monitors:
             # ID;SpeedMbps;Status;PATROLStatus;
           - type: translate
             column: 4
-            translationTable: TeamNICStatusTranslationTable
+            translationTable: "${translation::TeamNICStatusTranslationTable}"
             # Translate the first Status column into a StatusInformation
             # ID;SpeedMbps;StatusInformation;PATROLStatus;
           - type: translate
             column: 3
-            translationTable: TeamNICStatusInformationTranslationTable
+            translationTable: "${translation::TeamNICStatusInformationTranslationTable}"
             # Translate the first Status column into a StatusInformation
             # ID;SpeedMbps;StatusInformation;PATROLStatus;RightConcat
           - type: duplicateColumn
@@ -190,7 +190,7 @@ monitors:
             # ID;SpeedMbps;Status;Condition;DuplexState;GoodTransmits;GoodReceives;BadTransmits;BadReceives;InOctets;OutOctets;
           - type: add
             column: 8
-            value: Column(9)
+            value: $9
             # ADD LinkStatus
             # ID;SpeedMbps;StatusInformation;Condition;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
           - type: duplicateColumn
@@ -199,22 +199,22 @@ monitors:
             # ID;SpeedMbps;StatusInformation;Condtion;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
           - type: translate
             column: 5
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
             # Translate the Condition column into a PATROLStatus
             # ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
           - type: translate
             column: 4
-            translationTable: PhysicalAdapterStatusTranslationTable
+            translationTable: "${translation::PhysicalAdapterStatusTranslationTable}"
             # Translate the first Status column into a StatusInformation
             # ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
           - type: translate
             column: 3
-            translationTable: PhysicalAdapterStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalAdapterStatusInformationTranslationTable}"
             # Translate duplexState to correctly duplexMode
             # ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
           - type: translate
             column: 6
-            translationTable: DuplexModeTranslationTable
+            translationTable: "${translation::DuplexModeTranslationTable}"
         source(3):
           # InstanceTable = constant source
           # source(1) ID;SpeedMbps;PATROLStatus;StatusInformation;
@@ -222,26 +222,26 @@ monitors:
           # Source(3) = Table union of Source(1) and Source(2)
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(2)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(2)}"
       mapping:
         # ValueTable = Source(&)
         # source(1) ID;SpeedMbps;StatusInformation;PATROLStatus;
         # source(2) ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
         source: Collect_source
-        deviceId: $column(1)
+        deviceId: $1
         metrics:
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
-          hw.status{hw.type="network"}: $column(4)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.full_duplex: legacyFullDuplex($column(6))
-          hw.network.packets{direction="transmit"}: $column(7)
-          hw.network.packets{direction="receive"}: $column(8)
-          hw.errors{hw.type="network"}: $column(9)
-          hw.network.io{direction="receive"}: $column(11)
-          hw.network.io{direction="transmit"}: $column(12)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
+          hw.status{hw.type="network"}: $4
+          hw.network.up: legacyLinkStatus($5)
+          hw.network.full_duplex: legacyFullDuplex($6)
+          hw.network.packets{direction="transmit"}: $7
+          hw.network.packets{direction="receive"}: $8
+          hw.errors{hw.type="network"}: $9
+          hw.network.io{direction="receive"}: $11
+          hw.network.io{direction="transmit"}: $12
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   PhysicalAdapterRoleTranslationTable:
     "1": Unknow

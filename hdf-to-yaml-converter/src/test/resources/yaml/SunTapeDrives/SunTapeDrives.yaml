@@ -31,20 +31,20 @@ monitors:
             # Reformat iostat's output through awk (see EmbeddedFile(1))
             # DeviceID;Vendor;Model;SerialNumber
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.tape_drive.discovery.sources.source(1)$
+        source: "${source::monitors.tape_drive.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(2)
-          model: $column(3)
-          serial_number: $column(4)
+          id: $1
+          vendor: $2
+          model: $3
+          serial_number: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s %s)\", $column(1), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s (%s %s)\", $1, $2, $3)}"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -57,13 +57,13 @@ monitors:
             # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(2))
             # DeviceID;ErrorCount;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.tape_drive.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.tape_drive.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.errors{hw.type="tape_drive"}: $column(2)
+          hw.errors{hw.type="tape_drive"}: $2

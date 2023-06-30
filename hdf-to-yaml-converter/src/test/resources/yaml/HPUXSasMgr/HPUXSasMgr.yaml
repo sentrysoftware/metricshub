@@ -22,7 +22,7 @@ connector:
       expectedResult: sasmgr$
     # The various following tools have to be present
     - type: osCommand
-      commandLine: /bin/sh $file("embeddedFile-1")$
+      commandLine: "/bin/sh ${file::embeddedFile-1}"
       expectedResult: Info for PHY ID
 sudoCommands:
 - /opt/sas/bin/sasmgr
@@ -33,38 +33,38 @@ monitors:
         source(1):
           # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-3")$
+          commandLine: "/bin/sh ${file::embeddedFile-3}"
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3,4"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(1)
-          firmware_version: $column(3)
-          model: $column(2)
-          vendor: $column(1)
+          id: $1
+          controller_number: $1
+          firmware_version: $3
+          model: $2
+          vendor: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(1), $column(2))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $1, $1, $2)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-3")$
+          commandLine: "/bin/sh ${file::embeddedFile-3}"
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,5"
@@ -72,48 +72,48 @@ monitors:
             # status
           - type: translate
             column: 2
-            translationTable: ControllerTranslationTable
+            translationTable: "${translation::ControllerTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
   physical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,4"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: $column(1)
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: $1
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3"
@@ -121,51 +121,51 @@ monitors:
             # status
           - type: translate
             column: 2
-            translationTable: PhysicalDiskTranslationTable
+            translationTable: "${translation::PhysicalDiskTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
   logical_disk:
     discovery:
       sources:
         source(1):
           # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-5")$
+          commandLine: "/bin/sh ${file::embeddedFile-5}"
           computes:
             # Run Source(1) through an AWK script
             # MSHW;ID;Status;Controller it is attached to; Raid Level; ; Size
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,4,5,6"
       mapping:
         # The InstanceTable
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          raid_level: $column(3)
+          id: $1
+          raid_level: $3
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), bytes2HumanFormatBase2($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $3, bytes2HumanFormatBase2($4))}"
         metrics:
-          hw.logical_disk.limit: $column(4)
+          hw.logical_disk.limit: $4
     collect:
       # Collect type: MultiInstance
       type: multiInstance
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-5")$
+          commandLine: "/bin/sh ${file::embeddedFile-5}"
           computes:
             # Run Source(1) through an AWK script
             # Output:  MSHW;ID;model;firmwareversion;status;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             separators: ;
             keep: ^MSHW;
             selectColumns: "2,3"
@@ -173,13 +173,13 @@ monitors:
             # status
           - type: translate
             column: 2
-            translationTable: LogicalDiskTranslationTable
+            translationTable: "${translation::LogicalDiskTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
 translations:
   PhysicalDiskTranslationTable:
     DOWN: failed

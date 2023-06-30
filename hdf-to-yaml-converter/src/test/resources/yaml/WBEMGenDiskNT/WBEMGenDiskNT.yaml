@@ -50,8 +50,8 @@ monitors:
           # of the disks that supports S.M.A.R.T.
           # InstanceName;PnPDeviceID;InstanceName
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
         source(4):
@@ -80,8 +80,8 @@ monitors:
           # Source(5) = jointure of source(4) with source(3)
           # ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(4)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(3)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(4)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(3)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
           computes:
@@ -105,20 +105,20 @@ monitors:
           # Source(7) = jointure of source(6) and source(5) (will contain only one line per disk controller)
           # ControllerName;ControllerPnPDeviceID;ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskInstanceName;DiskPnPDeviceID
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(6)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(5)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(6)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(5)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
         # Pfew... that's end, folks! here is the InstanceTable: Source(7)
-        source: $monitors.disk_controller.discovery.sources.source(7)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(7)}"
         attributes:
-          id: $column(2)
-          controller_number: $column(2)
+          id: $2
+          controller_number: $2
           vendor: ""
-          model: $column(1)
+          model: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), \"\", $column(1))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, \"\", $1)}"
   physical_disk:
     discovery:
       sources:
@@ -131,8 +131,8 @@ monitors:
           # Source(2) = jointure of DiskController.Discovery.Source(5) with Source(1)
           # ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName;DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(5)$
-          rightTable: $monitors.physical_disk.discovery.sources.source(1)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(5)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
           leftKeyColumn: 2
           rightKeyColumn: 4
         source(3):
@@ -140,22 +140,22 @@ monitors:
           # disks attached to actual disk controllers that are not HBAs
           # ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName;DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;ControllerName;ControllerPnPDeviceID;
           type: tableJoin
-          leftTable: $monitors.physical_disk.discovery.sources.source(2)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(6)$
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(6)}"
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
         # The instance table...
-        source: $monitors.physical_disk.discovery.sources.source(3)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(3)}"
         attributes:
-          id: $column(3)
-          __display_id: $column(6)
-          vendor: $column(8)
+          id: $3
+          __display_id: $6
+          vendor: $8
           hw.parent.type: disk_controller
-          hw.parent.id: $column(1)
-          name: "sprintf(\"%s (%s - %s)\", $column(6), $column(8), bytes2HumanFormatBase10($column(10)))"
+          hw.parent.id: $1
+          name: "${awk::sprintf(\"%s (%s - %s)\", $6, $8, bytes2HumanFormatBase10($10))}"
         metrics:
-          hw.physical_disk.size: $column(10)
+          hw.physical_disk.size: $10
     collect:
       # This a multi-instance collect (please minimize the number of wbem queries...)
       type: multiInstance
@@ -170,8 +170,8 @@ monitors:
           # in order to link PnPDeviceID with InstanceName in the WMI namespace
           # PnPDeviceID;Status;PnPDeviceID;InstanceName
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(3):
@@ -186,8 +186,8 @@ monitors:
           # in the same table
           # PnPDeviceID;Status;PnPDeviceID;InstanceName;InstanceName;PredictFailure
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(2)$
-          rightTable: $monitors.physical_disk.collect.sources.source(3)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(2)}"
+          rightTable: "${source::monitors.physical_disk.collect.sources.source(3)}"
           leftKeyColumn: 4
           rightKeyColumn: 1
           computes:
@@ -200,20 +200,20 @@ monitors:
           # Translate the WBEM Status field into PATROL status
           - type: translate
             column: 3
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
           # Translate the WBEM Status field into a more readable string
           - type: translate
             column: 4
-            translationTable: PhysicalDiskInformationStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskInformationStatusTranslationTable}"
       mapping:
         # And here is the ValueTable
-        source: $monitors.physical_disk.collect.sources.source(4)$
-        deviceId: $column(6)
+        source: "${source::monitors.physical_disk.collect.sources.source(4)}"
+        deviceId: $6
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(8))
+          hw.status{hw.type="physical_disk"}: $3
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($8)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   PhysicalDiskInformationStatusTranslationTable:
     Degraded: Degraded

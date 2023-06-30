@@ -30,27 +30,27 @@ monitors:
         source(1):
           # Get the outputs of ioscan and fcmsutil for all ports using EmbeddedFile 1
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           timeout: 90
           computes:
             # AWK the output to get the instance table
             # portID;device;description;path;speed;portWWN;remoteWWN;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
       mapping:
         # The Instance Table
         # portID;device;description;path;speed;portWWN;remoteWWN;
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(3)
-          physical_address: $column(6)
+          id: $1
+          model: $3
+          physical_address: $6
           physical_address_type: WWN
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # Collect type is multi-instance
       type: monoInstance
@@ -58,12 +58,12 @@ monitors:
         source(1):
           # Source(1) = output of fcmsutil %hbaID%
           type: osCommand
-          commandLine: "%{SUDO:/opt/fcms/bin/fcmsutil} /opt/fcms/bin/fcmsutil /dev/$network.id$"
+          commandLine: "%{SUDO:/opt/fcms/bin/fcmsutil} /opt/fcms/bin/fcmsutil /dev/${network::id}"
           computes:
             # AWK the output to get the speed and status table
             # speed;status;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -77,27 +77,27 @@ monitors:
             # Speed;PatrolStatus;Status;Status;
           - type: translate
             column: 2
-            translationTable: NetworkStatusTranslationTable
+            translationTable: "${translation::NetworkStatusTranslationTable}"
             # Translate Network Status Information
             # Speed;PatrolStatus;StatusInformation;Status;WWN;
           - type: translate
             column: 3
-            translationTable: NetworkStatusInfoTranslationTable
+            translationTable: "${translation::NetworkStatusInfoTranslationTable}"
             # Translate Network Status Information
             # Speed;PatrolStatus;StatusInformation;LinkStatus;
           - type: translate
             column: 4
-            translationTable: NetworkLinkStatusTranslationTable
+            translationTable: "${translation::NetworkLinkStatusTranslationTable}"
       mapping:
         # Value table = Source(1)
         # Speed;PatrolStatus;StatusInformation;LinkStatus;
-        source: $monitors.network.collect.sources.source(1)$
+        source: "${source::monitors.network.collect.sources.source(1)}"
         metrics:
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.bandwidth.limit: megaBit2Bit($column(1))
-          hw.status{hw.type="network"}: $column(2)
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.bandwidth.limit: megaBit2Bit($1)
+          hw.status{hw.type="network"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   NetworkStatusInfoTranslationTable:
     DISABLED: Disabled - The host bus adapter is not participating on the loop

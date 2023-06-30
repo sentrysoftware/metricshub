@@ -44,22 +44,22 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # SystemID;SystemName;Model;SerialNumber;HealthValue;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6"
       mapping:
         # The discovery table
         # SystemID;SystemName;Model;SerialNumber;HealthValue;
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           vendor: EMC
-          model: $column(3)
-          serial_number: $column(4)
+          model: $3
+          serial_number: $4
           type: Storage
-          name: "sprintf(\"Storage: %s (%s %s)\", $column(2), \"EMC\", $column(3))"
+          name: "${awk::sprintf(\"Storage: %s (%s %s)\", $2, \"EMC\", $3)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -75,7 +75,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # SystemID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,6"
@@ -85,20 +85,20 @@ monitors:
             # SystemID;PatrolStatus;HealthValue;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   battery:
     discovery:
       sources:
@@ -113,7 +113,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -126,12 +126,12 @@ monitors:
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -147,7 +147,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -157,20 +157,20 @@ monitors:
             # SystemID;PatrolStatus;HealthValue;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(2)
+          hw.status{hw.type="battery"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   memory:
     discovery:
       sources:
@@ -185,7 +185,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -198,12 +198,12 @@ monitors:
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -219,7 +219,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -229,20 +229,20 @@ monitors:
             # SystemID;PatrolStatus;HealthValue;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(2)
+          hw.status{hw.type="memory"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -257,7 +257,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -270,12 +270,12 @@ monitors:
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -291,7 +291,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -301,20 +301,20 @@ monitors:
             # SystemID;PatrolStatus;HealthValue;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -329,7 +329,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -355,7 +355,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -381,7 +381,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -407,7 +407,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -433,7 +433,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -459,7 +459,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -479,26 +479,26 @@ monitors:
           # DeviceID;DeviceName;HealthValue;
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(1)$
-          - $monitors.other_device.discovery.sources.source(2)$
-          - $monitors.other_device.discovery.sources.source(3)$
-          - $monitors.other_device.discovery.sources.source(4)$
+          - "${source::monitors.other_device.discovery.sources.source(1)}"
+          - "${source::monitors.other_device.discovery.sources.source(2)}"
+          - "${source::monitors.other_device.discovery.sources.source(3)}"
+          - "${source::monitors.other_device.discovery.sources.source(4)}"
         source(8):
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(7)$
-          - $monitors.other_device.discovery.sources.source(5)$
-          - $monitors.other_device.discovery.sources.source(6)$
+          - "${source::monitors.other_device.discovery.sources.source(7)}"
+          - "${source::monitors.other_device.discovery.sources.source(5)}"
+          - "${source::monitors.other_device.discovery.sources.source(6)}"
       mapping:
         # The discovery table
         # DeviceType;DeviceID;DeviceName;HealthValue;
-        source: $monitors.other_device.discovery.sources.source(8)$
+        source: "${source::monitors.other_device.discovery.sources.source(8)}"
         attributes:
-          device_type: $column(1)
-          id: $column(2)
-          __display_id: $column(3)
+          device_type: $1
+          id: $2
+          __display_id: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s: %s\", $1, $3)}"
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -514,7 +514,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -534,7 +534,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -554,7 +554,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -574,7 +574,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -594,7 +594,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -614,7 +614,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -628,16 +628,16 @@ monitors:
           # DeviceID;HealthValue;
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
-          - $monitors.other_device.collect.sources.source(3)$
-          - $monitors.other_device.collect.sources.source(4)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(2)}"
+          - "${source::monitors.other_device.collect.sources.source(3)}"
+          - "${source::monitors.other_device.collect.sources.source(4)}"
         source(8):
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(7)$
-          - $monitors.other_device.collect.sources.source(5)$
-          - $monitors.other_device.collect.sources.source(6)$
+          - "${source::monitors.other_device.collect.sources.source(7)}"
+          - "${source::monitors.other_device.collect.sources.source(5)}"
+          - "${source::monitors.other_device.collect.sources.source(6)}"
           computes:
           # Duplicate the Health Value
           - type: duplicateColumn
@@ -646,20 +646,20 @@ monitors:
             # SystemID;PatrolStatus;HealthValue;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.other_device.collect.sources.source(8)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(8)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -674,7 +674,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -687,12 +687,12 @@ monitors:
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: $column(2)
+          name: $2
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -708,7 +708,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -718,20 +718,20 @@ monitors:
             # SystemID;PatrolStatus;HealthValue;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -746,7 +746,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -766,7 +766,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             #  DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
@@ -785,24 +785,24 @@ monitors:
           # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
           type: tableUnion
           tables:
-          - $monitors.physical_disk.discovery.sources.source(1)$
-          - $monitors.physical_disk.discovery.sources.source(2)$
+          - "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          - "${source::monitors.physical_disk.discovery.sources.source(2)}"
       mapping:
         # The discovery table
         # DeviceID;DeviceName;HealthValue;Size;Pool;Manufacturer;Model;PartNumber;SerialNumber;Firmware;
-        source: $monitors.physical_disk.discovery.sources.source(3)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
-          vendor: $column(6)
-          model: $column(7)
-          serial_number: $column(9)
-          firmware_version: $column(10)
-          info: "join(\" \", $column(5), $column(8))"
+          id: $1
+          __display_id: $2
+          vendor: $6
+          model: $7
+          serial_number: $9
+          firmware_version: $10
+          info: "${awk::join(\" \", $5, $8)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), bytes2HumanFormatBase10($column(4)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $6, bytes2HumanFormatBase10($4))}"
         metrics:
-          hw.physical_disk.size: $column(4)
+          hw.physical_disk.size: $4
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -818,7 +818,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -833,7 +833,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;HealthValue;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4"
@@ -847,8 +847,8 @@ monitors:
           # DeviceID;HealthValue;
           type: tableUnion
           tables:
-          - $monitors.physical_disk.collect.sources.source(1)$
-          - $monitors.physical_disk.collect.sources.source(2)$
+          - "${source::monitors.physical_disk.collect.sources.source(1)}"
+          - "${source::monitors.physical_disk.collect.sources.source(2)}"
           computes:
           # Duplicate the Health Value
           - type: duplicateColumn
@@ -857,20 +857,20 @@ monitors:
             # SystemID;PatrolStatus;HealthValue;
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # SystemID;PatrolStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.physical_disk.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -885,7 +885,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -905,7 +905,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -925,7 +925,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -939,19 +939,19 @@ monitors:
           # DeviceType;DeviceID;DeviceName;HealthValue;Link;
           type: tableUnion
           tables:
-          - $monitors.network.discovery.sources.source(1)$
-          - $monitors.network.discovery.sources.source(2)$
-          - $monitors.network.discovery.sources.source(3)$
+          - "${source::monitors.network.discovery.sources.source(1)}"
+          - "${source::monitors.network.discovery.sources.source(2)}"
+          - "${source::monitors.network.discovery.sources.source(3)}"
       mapping:
         # InstanceTable = Source(7)
         # DeviceType;DeviceID;DeviceName;HealthValue;Link;
-        source: $monitors.network.discovery.sources.source(4)$
+        source: "${source::monitors.network.discovery.sources.source(4)}"
         attributes:
-          id: $column(2)
-          __display_id: $column(3)
-          device_type: $column(1)
+          id: $2
+          __display_id: $3
+          device_type: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(3), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $3, $1)}"
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
@@ -967,7 +967,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -987,7 +987,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -1007,7 +1007,7 @@ monitors:
             # Process uemcli's output through awk EmbeddedFile
             # DeviceID;DeviceName;HealthValue;Link;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -1021,9 +1021,9 @@ monitors:
           # DeviceType;DeviceID;DeviceName;HealthValue;Link;
           type: tableUnion
           tables:
-          - $monitors.network.collect.sources.source(1)$
-          - $monitors.network.collect.sources.source(2)$
-          - $monitors.network.collect.sources.source(3)$
+          - "${source::monitors.network.collect.sources.source(1)}"
+          - "${source::monitors.network.collect.sources.source(2)}"
+          - "${source::monitors.network.collect.sources.source(3)}"
           computes:
             # Duplicate the Health Value
             # DeviceType;DeviceID;DeviceName;HealthValue;HealthValue;Link;
@@ -1033,21 +1033,21 @@ monitors:
             # DeviceType;DeviceID;DeviceName;HealthValue;HealthValue;Link;
           - type: translate
             column: 4
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
             # Now translate Status information
             # DeviceType;DeviceID;DeviceName;HealthValue;HealthValue;Link;
           - type: translate
             column: 5
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # The value table
-        source: $monitors.network.collect.sources.source(4)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(4)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="network"}: $column(4)
-          hw.network.up: legacyLinkStatus($column(6))
+          hw.status{hw.type="network"}: $4
+          hw.network.up: legacyLinkStatus($6)
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   statusInformationTranslationTable:
     "0": Unknown

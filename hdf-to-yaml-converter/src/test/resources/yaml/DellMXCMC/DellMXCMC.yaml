@@ -2,9 +2,9 @@
 extends:
 - ../DellCMC-header/DellCMC-header
 constants:
-  ENCLO_SOURCE_DISCO: '"$monitors.enclosure.discovery.sources.source(11)$"'
+  ENCLO_SOURCE_DISCO: "\"${source::monitors.enclosure.discovery.sources.source(11)}\""
   _Command: racadm
-  ENCLO_SOURCE_COL: '"$monitors.enclosure.collect.sources.source(10)$"'
+  ENCLO_SOURCE_COL: "\"${source::monitors.enclosure.collect.sources.source(10)}\""
 connector:
   displayName: Dell MX7000 Chassis
   platforms: Dell MX7000 Chassis
@@ -69,14 +69,14 @@ monitors:
         source(11):
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(2)$
-          - $monitors.enclosure.discovery.sources.source(3)$
-          - $monitors.enclosure.discovery.sources.source(4)$
-          - $monitors.enclosure.discovery.sources.source(5)$
-          - $monitors.enclosure.discovery.sources.source(6)$
-          - $monitors.enclosure.discovery.sources.source(7)$
-          - $monitors.enclosure.discovery.sources.source(9)$
-          - $monitors.enclosure.discovery.sources.source(10)$
+          - "${source::monitors.enclosure.discovery.sources.source(2)}"
+          - "${source::monitors.enclosure.discovery.sources.source(3)}"
+          - "${source::monitors.enclosure.discovery.sources.source(4)}"
+          - "${source::monitors.enclosure.discovery.sources.source(5)}"
+          - "${source::monitors.enclosure.discovery.sources.source(6)}"
+          - "${source::monitors.enclosure.discovery.sources.source(7)}"
+          - "${source::monitors.enclosure.discovery.sources.source(9)}"
+          - "${source::monitors.enclosure.discovery.sources.source(10)}"
     collect:
       type: monoInstance
       sources:
@@ -111,15 +111,15 @@ monitors:
         source(10):
           type: tableUnion
           tables:
-          - $monitors.enclosure.collect.sources.source(1)$
-          - $monitors.enclosure.collect.sources.source(2)$
-          - $monitors.enclosure.collect.sources.source(3)$
-          - $monitors.enclosure.collect.sources.source(4)$
-          - $monitors.enclosure.collect.sources.source(5)$
-          - $monitors.enclosure.collect.sources.source(6)$
-          - $monitors.enclosure.collect.sources.source(7)$
-          - $monitors.enclosure.collect.sources.source(8)$
-          - $monitors.enclosure.collect.sources.source(9)$
+          - "${source::monitors.enclosure.collect.sources.source(1)}"
+          - "${source::monitors.enclosure.collect.sources.source(2)}"
+          - "${source::monitors.enclosure.collect.sources.source(3)}"
+          - "${source::monitors.enclosure.collect.sources.source(4)}"
+          - "${source::monitors.enclosure.collect.sources.source(5)}"
+          - "${source::monitors.enclosure.collect.sources.source(6)}"
+          - "${source::monitors.enclosure.collect.sources.source(7)}"
+          - "${source::monitors.enclosure.collect.sources.source(8)}"
+          - "${source::monitors.enclosure.collect.sources.source(9)}"
   blade:
     discovery:
       sources:

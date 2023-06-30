@@ -34,20 +34,20 @@ monitors:
             # Process the output of the command through an AWK script
             # DeviceID;MacAddress;Model;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,8"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          physical_address: $column(2)
+          id: $1
+          physical_address: $2
           physical_address_type: MAC
-          model: $column(3)
+          model: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -60,7 +60,7 @@ monitors:
             # Process the output of the command through an AWK script
             # DeviceID;MacAddress;Model;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,5,6,7,9,10,11"
@@ -82,34 +82,34 @@ monitors:
             # DeviceID;Speed; Patrol Status; Status; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
           - type: translate
             column: 3
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
             # Translate the second StatusNumber column into a more readable string
             # DeviceID;Speed; Patrol Status; Status Information ; Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
           - type: translate
             column: 4
-            translationTable: NetworkCardStatusInformationTranslationTable
+            translationTable: "${translation::NetworkCardStatusInformationTranslationTable}"
             # Translate the third StatusNumber column into LinkStatus
             # DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
           - type: translate
             column: 5
-            translationTable: NetworkCardLinkStatusTranslationTable
+            translationTable: "${translation::NetworkCardLinkStatusTranslationTable}"
       mapping:
         # Value table = Source(1)
         #     1      2        # 3        #     4        #          5        #  6        #   7        #         8        #      9        #    10
         # DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.errors{hw.type="network"}: $column(6)
-          hw.network.packets{direction="transmit"}: $column(8)
-          hw.network.packets{direction="receive"}: $column(7)
-          hw.network.io{direction="transmit"}: $column(10)
-          hw.network.io{direction="receive"}: $column(9)
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($5)
+          hw.errors{hw.type="network"}: $6
+          hw.network.packets{direction="transmit"}: $8
+          hw.network.packets{direction="receive"}: $7
+          hw.network.io{direction="transmit"}: $10
+          hw.network.io{direction="receive"}: $9
+          hw.network.bandwidth.limit: megaBit2Bit($2)
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   NetworkCardLinkStatusTranslationTable:
     "1": ok

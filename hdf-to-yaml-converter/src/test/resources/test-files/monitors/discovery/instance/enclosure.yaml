@@ -17,18 +17,18 @@
       enclosure:
         discovery:
           mapping:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: ${source::monitors.enclosure.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               vendor: APC
-              model: $column(5)
-              serial_number: $column(6)
+              model: $5
+              serial_number: $6
               type: Computer
               __display_id: testname
-              info: join(" ", $column(2), $column(3), $column(4))
+              info: ${awk::join(" ", $2, $3, $4)}
               device_hostname: testdevicehostname
               bios_version: testbiosversion
-              name: "sprintf(\"Computer: %s (%s %s)\", \"testname\", \"APC\", $column(5))"
+              name: "${awk::sprintf(\"Computer: %s (%s %s)\", \"testname\", \"APC\", $5)}"
 - name: testNoDisplayId
   input: |
     Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
@@ -47,17 +47,17 @@
       enclosure:
         discovery:
           mapping:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: ${source::monitors.enclosure.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               vendor: APC
-              model: $column(5)
-              serial_number: $column(6)
+              model: $5
+              serial_number: $6
               type: Computer
-              info: join(" ", $column(2), $column(3), $column(4))
+              info: ${awk::join(" ", $2, $3, $4)}
               device_hostname: testdevicehostname
               bios_version: testbiosversion
-              name: "sprintf(\"Computer: (%s %s)\", \"APC\", $column(5))"
+              name: "${awk::sprintf(\"Computer: (%s %s)\", \"APC\", $5)}"
 - name: testNoVendor
   input: |
     Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
@@ -76,17 +76,17 @@
       enclosure:
         discovery:
           mapping:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: ${source::monitors.enclosure.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              model: $column(5)
-              serial_number: $column(6)
+              id: $1
+              model: $5
+              serial_number: $6
               type: switch
               __display_id: testname
-              info: join(" ", $column(2), $column(3), $column(4))
+              info: ${awk::join(" ", $2, $3, $4)}
               device_hostname: testdevicehostname
               bios_version: testbiosversion
-              name: "sprintf(\"Switch: %s (%s)\", \"testname\", $column(5))"
+              name: "${awk::sprintf(\"Switch: %s (%s)\", \"testname\", $5)}"
 - name: testNoVendorNoModel
   input: |
     Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
@@ -104,16 +104,16 @@
       enclosure:
         discovery:
           mapping:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: ${source::monitors.enclosure.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              serial_number: $column(6)
+              id: $1
+              serial_number: $6
               type: blade
               __display_id: testname
-              info: join(" ", $column(2), $column(3), $column(4))
+              info: ${awk::join(" ", $2, $3, $4)}
               device_hostname: testdevicehostname
               bios_version: testbiosversion
-              name: "sprintf(\"Blade Enclosure: %s\", \"testname\")"
+              name: "${awk::sprintf(\"Blade Enclosure: %s\", \"testname\")}"
 - name: testNoVendorNoModelNoDisplayId
   input: |
     Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
@@ -130,12 +130,12 @@
       enclosure:
         discovery:
           mapping:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: ${source::monitors.enclosure.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              serial_number: $column(6)
+              id: $1
+              serial_number: $6
               type: storage
-              info: join(" ", $column(2), $column(3), $column(4))
+              info: ${awk::join(" ", $2, $3, $4)}
               device_hostname: testdevicehostname
               bios_version: testbiosversion
-              name: 'sprintf("Storage: %s", $column(1))'
+              name: '${awk::sprintf("Storage: %s", $1)}'

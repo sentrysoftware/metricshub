@@ -43,13 +43,13 @@ monitors:
             valueList: "5,15,20,25,30"
       mapping:
         # The Instance table
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
-          controller_number: $column(3)
-          model: $column(1)
+          id: $3
+          controller_number: $3
+          model: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(3), $column(1))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $3, $1)}"
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers
@@ -70,19 +70,19 @@ monitors:
           # PatrolStatus,StatusInformation,Name
           - type: translate
             column: 1
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
           # PatrolStatus,StatusInformation,Name
           - type: translate
             column: 2
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(3)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(1)
+          hw.status{hw.type="disk_controller"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   physical_disk:
     discovery:
       sources:
@@ -98,18 +98,18 @@ monitors:
             # DeviceID,Caption,SizeBytes,BlockSize
           - type: multiply
             column: 3
-            value: Column(4)
+            value: $4
       mapping:
         # The Instance table
         # DeviceID,Caption,SizeBytes,BlockSize
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(2)
+          id: $1
+          model: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase10($column(3)))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, bytes2HumanFormatBase10($3))}"
         metrics:
-          hw.physical_disk.size: $column(3)
+          hw.physical_disk.size: $3
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers
@@ -130,20 +130,20 @@ monitors:
           # DeviceID,PatrolStatus,HealthState
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
           # DeviceID,PatrolStatus,StatusInformation
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # DeviceID,PatrolStatus,StatusInformation
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -159,18 +159,18 @@ monitors:
             # DeviceID,Caption,SizeBytes,BlockSize
           - type: multiply
             column: 3
-            value: Column(4)
+            value: $4
       mapping:
         # The Instance table
         # DeviceID,Caption,SizeBytes,BlockSize
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(2)
+          id: $1
+          __display_id: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(2), bytes2HumanFormatBase2($column(3)))"
+          name: "${awk::sprintf(\"%s (%s)\", $2, bytes2HumanFormatBase2($3))}"
         metrics:
-          hw.logical_disk.limit: $column(3)
+          hw.logical_disk.limit: $3
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers
@@ -191,20 +191,20 @@ monitors:
           # DeviceID,PatrolStatus,HealthState
           - type: translate
             column: 2
-            translationTable: statusTranslationTable
+            translationTable: "${translation::statusTranslationTable}"
           # DeviceID,PatrolStatus,StatusInformation
           - type: translate
             column: 3
-            translationTable: statusInformationTranslationTable
+            translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # DeviceID,PatrolStatus,StatusInformation
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   statusInformationTranslationTable:
     "0": Unknown

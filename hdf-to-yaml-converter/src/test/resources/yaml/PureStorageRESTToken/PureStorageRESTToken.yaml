@@ -15,7 +15,7 @@ connector:
     - type: http
       method: POST
       url: /api/1.13/auth/session
-      header: $file("embeddedFile-1")$
+      header: "${file::embeddedFile-1}"
       body: "{\"api_token\": \"%{PASSWORD}\"}"
       resultContent: all
       expectedResult: session
@@ -30,20 +30,20 @@ monitors:
           type: http
           method: POST
           url: /api/1.13/auth/session
-          header: $file("embeddedFile-1")$
+          header: "${file::embeddedFile-1}"
           body: "{\"api_token\": \"%{PASSWORD}\"}"
           resultContent: all
           computes:
           # Parse Cookie
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
         source(2):
           # For use in Fan, Temperature, PowerSupply
           type: http
           method: GET
           url: /api/1.13/hardware
-          header: $file("embeddedFile-3")$
-          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "${file::embeddedFile-3}"
+          authenticationToken: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Convert JSON to CSV
             # Name is taken 3 times. Unique ID, Controller, and Name
@@ -53,11 +53,11 @@ monitors:
             properties: /status;/slot;/name;/temperature;/index;/identify;/voltage;/model;/speed;/serial;/details;
           # Parse Hardware query results
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
         source(3):
           # For use in other discoveries
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep Only Enclosures
             # name;model;serial;MSHW_Enclosure;DeviceType
@@ -69,8 +69,8 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/drive
-          header: $file("embeddedFile-3")$
-          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "${file::embeddedFile-3}"
+          authenticationToken: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Convert JSON to CSV
             # JSON;protocol;name;name;name;capacity;type;
@@ -80,22 +80,22 @@ monitors:
             # Parse Drive query results
             # name;enclosure;displayID;capacity;type;status;MSHW_DRIVE;DeviceType
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
           - type: excludeMatchingLines
             column: 6
             regExp: unused
       mapping:
         # InstanceTable
         # name;model;serial;MSHW_Enclosure;DeviceType
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          model: $column(2)
-          serial_number: $column(3)
-          type: $column(5)
+          id: $1
+          __display_id: $1
+          model: $2
+          serial_number: $3
+          type: $5
           vendor: Pure Storage
-          name: "sprintf(\"Enclosure: %s (%s %s)\", $column(1), \"Pure Storage\", $column(2))"
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $1, \"Pure Storage\", $2)}"
     collect:
       # Collect
       # MultiInstance
@@ -105,8 +105,8 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/hardware
-          header: $file("embeddedFile-3")$
-          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "${file::embeddedFile-3}"
+          authenticationToken: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Convert JSON to CSV
             # Status is collected 2 times. Status; StatusInformation
@@ -118,18 +118,18 @@ monitors:
             # json;PatrolStatus;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
           - type: translate
             column: 2
-            translationTable: StatusTranslationTable
+            translationTable: "${translation::StatusTranslationTable}"
             # Translate Status Information
             # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
           - type: translate
             column: 3
-            translationTable: StatusInformationTranslationTable
+            translationTable: "${translation::StatusInformationTranslationTable}"
         source(2):
           type: http
           method: GET
           url: /api/1.13/drive
-          header: $file("embeddedFile-3")$
-          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "${file::embeddedFile-3}"
+          authenticationToken: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Convert JSON to CSV
             # JSON;name;status;status;
@@ -140,28 +140,28 @@ monitors:
             # JSON;name;PatrolStatus;status;
           - type: translate
             column: 3
-            translationTable: DriveTranslationTable
+            translationTable: "${translation::DriveTranslationTable}"
             # Translate Status Information
             # JSON;name;PatrolStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: DriveInformationTranslationTable
+            translationTable: "${translation::DriveInformationTranslationTable}"
       mapping:
         # ValueTable
         # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(5)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $5
         metrics:
-          hw.status{hw.type="enclosure"}: $column(2)
+          hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   blade:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
             # Keep Only Blades
             # name;model;serial;MSHW_Blade;DeviceType
@@ -174,16 +174,16 @@ monitors:
       mapping:
         # InstanceTable
         # name;model;serial;MSHW_Blade;DeviceType
-        source: $monitors.blade.discovery.sources.source(1)$
+        source: "${source::monitors.blade.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          blade_name: $column(1)
-          model: $column(2)
-          serial_number: $column(3)
-          info: $column(5)
+          id: $1
+          __display_id: $1
+          blade_name: $1
+          model: $2
+          serial_number: $3
+          info: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $1, $2)}"
     collect:
       # Collect
       # MultiInstance
@@ -191,16 +191,16 @@ monitors:
       sources:
         source(1):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
       mapping:
         # InstanceTable
         # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
-        source: $monitors.blade.collect.sources.source(1)$
-        deviceId: $column(5)
+        source: "${source::monitors.blade.collect.sources.source(1)}"
+        deviceId: $5
         metrics:
-          hw.status{hw.type="blade"}: $column(2)
+          hw.status{hw.type="blade"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -208,7 +208,7 @@ monitors:
           # Discovery
           # name;enclosure;displayID;MSHW_Temperature;DeviceType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # name;enclosure;displayID;MSHW_Temperature;DeviceType
           - type: keepOnlyMatchingLines
@@ -217,13 +217,13 @@ monitors:
       mapping:
         # InstanceTable
         # name;enclosure;displayID;MSHW_Temperature;DeviceType
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          hw.parent.type: $column(5)
-          hw.parent.id: $column(2)
-          name: $column(3)
+          id: $1
+          __display_id: $3
+          hw.parent.type: $5
+          hw.parent.id: $2
+          name: $3
     collect:
       # Collect
       # MultiInstance
@@ -231,13 +231,13 @@ monitors:
       mapping:
         # ValueTable
         # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(5)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $5
         metrics:
-          hw.temperature: $column(6)
-          hw.status{hw.type="temperature"}: $column(2)
+          hw.temperature: $6
+          hw.status{hw.type="temperature"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   fan:
     discovery:
       sources:
@@ -245,7 +245,7 @@ monitors:
           # Discovery
           # name;enclosure;displayID;MSHW_FAN;DeviceType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # name;enclosure;displayID;MSHW_FAN;DeviceType
           - type: keepOnlyMatchingLines
@@ -254,13 +254,13 @@ monitors:
       mapping:
         # InstanceTable
         # name;enclosure;displayID;MSHW_FAN;DeviceType
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          hw.parent.type: $column(5)
-          hw.parent.id: $column(2)
-          name: $column(3)
+          id: $1
+          __display_id: $3
+          hw.parent.type: $5
+          hw.parent.id: $2
+          name: $3
     collect:
       # Collect
       # MultiInstance
@@ -268,12 +268,12 @@ monitors:
       mapping:
         # ValueTable
         # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(5)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $5
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -281,7 +281,7 @@ monitors:
           # Discovery
           # name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
           - type: keepOnlyMatchingLines
@@ -293,15 +293,15 @@ monitors:
       mapping:
         # InstanceTable
         # name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          power_supply_type: $column(4)
-          info: $column(5)
-          hw.parent.type: $column(7)
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+          id: $1
+          __display_id: $3
+          power_supply_type: $4
+          info: $5
+          hw.parent.type: $7
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $3, $4)}"
     collect:
       # Collect
       # MultiInstance
@@ -309,19 +309,19 @@ monitors:
       mapping:
         # ValueTable
         # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
-        source: $monitors.enclosure.collect.sources.source(1)$
-        deviceId: $column(5)
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        deviceId: $5
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
         source(1):
           # Discovery
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(2)$
+          from: "${source::monitors.enclosure.discovery.sources.source(2)}"
           computes:
           # name;enclosure;displayID;MSHW_NetworkCard;DeviceType
           - type: keepOnlyMatchingLines
@@ -331,8 +331,8 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/network
-          header: $file("embeddedFile-3")$
-          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "${file::embeddedFile-3}"
+          authenticationToken: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           # json;name;hwaddr;enabled;
           - type: json2csv
@@ -350,27 +350,27 @@ monitors:
           # Right Table : json;name;hwaddr;enabled;
           # Result: name;enclosure;displayID;MSHW_NetworkCard;DeviceType;json;name;hwaddr;enabled;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 3
           rightKeyColumn: 2
           computes:
           # Translate "enabled" to Link Speed Activation
           - type: translate
             column: 9
-            translationTable: LinkSpeedActivationTable
+            translationTable: "${translation::LinkSpeedActivationTable}"
       mapping:
         # InstanceTable
         # name;enclosure;displayID;MSHW_NetworkCard;DeviceType;json;name;hwaddr;enabled;
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          physical_address: $column(7)
-          physical_address_type: $column(10)
-          hw.parent.type: $column(5)
-          hw.parent.id: $column(2)
-          name: $column(3)
+          id: $1
+          __display_id: $3
+          physical_address: $7
+          physical_address_type: $10
+          hw.parent.type: $5
+          hw.parent.id: $2
+          name: $3
     collect:
       # Collect
       # MultiInstance
@@ -379,7 +379,7 @@ monitors:
         source(1):
           # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
           computes:
           # status;status;name;speed;
           - type: keepColumns
@@ -389,8 +389,8 @@ monitors:
           type: http
           method: GET
           url: /api/1.13/network
-          header: $file("embeddedFile-3")$
-          authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
+          header: "${file::embeddedFile-3}"
+          authenticationToken: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
             # Convert JSON to CSV
             # json;name;speed;
@@ -407,33 +407,33 @@ monitors:
           # Table 1 : PatrolStatus;StatusInformation;name;
           # Table 2 : json;name;speed;enabled;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 3
           rightKeyColumn: 2
           computes:
           # PatrolStatus;StatusInformation;name;json;name;speed;enabled;
           - type: translate
             column: 7
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
       mapping:
         # ValueTable
         # PatrolStatus;StatusInformation;name;json;name;speed;
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(3)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $3
         metrics:
-          hw.status{hw.type="network"}: $column(1)
-          hw.network.bandwidth.limit: megaBit2Bit($column(6))
-          hw.network.up: legacyLinkStatus($column(7))
+          hw.status{hw.type="network"}: $1
+          hw.network.bandwidth.limit: megaBit2Bit($6)
+          hw.network.up: legacyLinkStatus($7)
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   physical_disk:
     discovery:
       sources:
         source(1):
           # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(4)$
+          from: "${source::monitors.enclosure.discovery.sources.source(4)}"
           computes:
             # Keep only "MSHW_Drive"
             # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
@@ -443,16 +443,16 @@ monitors:
       mapping:
         # InstanceTable
         # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          model: $column(5)
-          hw.parent.type: $column(8)
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s (%s)\", $column(3), bytes2HumanFormatBase10($column(4)))"
+          id: $1
+          __display_id: $3
+          model: $5
+          hw.parent.type: $8
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s (%s)\", $3, bytes2HumanFormatBase10($4))}"
         metrics:
-          hw.physical_disk.size: $column(4)
+          hw.physical_disk.size: $4
     collect:
       # Collect
       # MultiInstance
@@ -460,12 +460,12 @@ monitors:
       mapping:
         # ValueTable
         # JSON;name;PatrolStatus;StatusInformation;
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(3)
+          hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   other_device:
     discovery:
       sources:
@@ -473,7 +473,7 @@ monitors:
           # Discovery
           # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(4)$
+          from: "${source::monitors.enclosure.discovery.sources.source(4)}"
           computes:
             # Keep only "MSHW_OtherDevice"
             # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
@@ -483,14 +483,14 @@ monitors:
       mapping:
         # InstanceTable
         # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          device_type: $column(5)
-          hw.parent.type: $column(8)
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s: %s\", $column(5), $column(3))"
+          id: $1
+          __display_id: $3
+          device_type: $5
+          hw.parent.type: $8
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s: %s\", $5, $3)}"
     collect:
       # Collect
       # MultiInstance
@@ -498,12 +498,12 @@ monitors:
       mapping:
         # ValueTable
         # JSON;name;PatrolStatus;StatusInformation;
-        source: $monitors.enclosure.collect.sources.source(2)$
-        deviceId: $column(2)
+        source: "${source::monitors.enclosure.collect.sources.source(2)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="other_device"}: $column(3)
+          hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
 translations:
   DriveInformationTranslationTable:
     healthy: healthy

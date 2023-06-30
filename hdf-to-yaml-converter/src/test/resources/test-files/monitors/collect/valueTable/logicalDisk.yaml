@@ -14,12 +14,12 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;ErrorCount;UnallocatedSpace
             legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
-            source: $monitors.logical_disk.collect.sources.source(1)$
+              StatusInformation: $3
+            deviceId: $1
+            source: ${source::monitors.logical_disk.collect.sources.source(1)}
             metrics:
-              hw.status{hw.type="logical_disk"}: $column(2)
-              hw.errors{hw.type="logical_disk"}: $column(4)
-              hw.logical_disk.usage{state="free"}: $column(5)
+              hw.status{hw.type="logical_disk"}: $2
+              hw.errors{hw.type="logical_disk"}: $4
+              hw.logical_disk.usage{state="free"}: $5
               hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
               

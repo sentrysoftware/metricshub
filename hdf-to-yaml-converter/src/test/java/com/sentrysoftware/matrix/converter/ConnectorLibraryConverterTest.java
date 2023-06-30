@@ -127,7 +127,7 @@ class ConnectorLibraryConverterTest {
 	}
 
 	private static final Pattern EMBEDDED_FILE_PATTERN = Pattern.compile(
-		"\\$file\\(\"(\\S+)\"\\)\\$",
+		"\\$\\{file::(\\S+)\\}",
 		Pattern.CASE_INSENSITIVE
 	);
 

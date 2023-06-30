@@ -25,15 +25,15 @@
               InstanceTable = Source(14)
               Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
               Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
-            source: $monitors.other_device.discovery.sources.source(14)$
+            source: ${source::monitors.other_device.discovery.sources.source(14)}
             attributes:
-              id: $column(2)
-              info: join(" ", $column(4), $column(5), $column(6))
-              device_type: $column(1)
+              id: $2
+              info: ${awk::join(" ", $4, $5, $6)}
+              device_type: $1
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: 'sprintf("%s: %s (%s)", $column(1), $column(2), $column(3))'
-              additional_label: $column(3)
+              name: '${awk::sprintf("%s: %s (%s)", $1, $2, $3)}'
+              additional_label: $3
             metrics:
               hw.other_device.value.limit{limit_type="degraded"}: test
               hw.other_device.value.limit{limit_type="critical"}: test2
@@ -64,13 +64,13 @@
               InstanceTable = Source(14)
               Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
               Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
-            source: $monitors.other_device.discovery.sources.source(14)$
+            source: ${source::monitors.other_device.discovery.sources.source(14)}
             attributes:
-              id: $column(2)
-              info: join(" ", $column(4), $column(5), $column(6))
+              id: $2
+              info: ${awk::join(" ", $4, $5, $6)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: $column(2)
+              name: $2
             metrics:
               hw.other_device.value.limit{limit_type="degraded"}: test
               hw.other_device.value.limit{limit_type="critical"}: test2
@@ -102,14 +102,14 @@
               InstanceTable = Source(14)
               Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
               Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
-            source: $monitors.other_device.discovery.sources.source(14)$
+            source: ${source::monitors.other_device.discovery.sources.source(14)}
             attributes:
-              id: $column(2)
-              info: join(" ", $column(4), $column(5), $column(6))
-              device_type: $column(1)
+              id: $2
+              info: ${awk::join(" ", $4, $5, $6)}
+              device_type: $1
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: 'sprintf("%s: %s", $column(1), $column(2))'
+              name: '${awk::sprintf("%s: %s", $1, $2)}'
             metrics:
               hw.other_device.value.limit{limit_type="degraded"}: test
               hw.other_device.value.limit{limit_type="critical"}: test2
@@ -142,14 +142,14 @@
               InstanceTable = Source(14)
               Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
               Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
-            source: $monitors.other_device.discovery.sources.source(14)$
+            source: ${source::monitors.other_device.discovery.sources.source(14)}
             attributes:
-              id: $column(2)
-              info: join(" ", $column(4), $column(5), $column(6))
+              id: $2
+              info: ${awk::join(" ", $4, $5, $6)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s)", $column(2), $column(3))
-              additional_label: $column(3)
+              name: ${awk::sprintf("%s (%s)", $2, $3)}
+              additional_label: $3
             metrics:
               hw.other_device.value.limit{limit_type="degraded"}: test
               hw.other_device.value.limit{limit_type="critical"}: test2

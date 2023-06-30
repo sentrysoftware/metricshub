@@ -30,28 +30,28 @@ monitors:
           # Source(1) = EF2
           # Note: A timeout here can indicate that there have been excessive failed authentication attempts
           type: osCommand
-          commandLine: "/bin/sh $file(\"embeddedFile-2\")$ %{USERNAME} %{PASSWORD};history -d $((HISTCMD-1))"
+          commandLine: "/bin/sh ${file::embeddedFile-2} %{USERNAME} %{PASSWORD};history -d $((HISTCMD-1))"
           timeout: 600
         source(2):
           # Need to copy this into Enclosure 3 to match other NaviSphere Connectors
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
         source(3):
           type: tableUnion
           tables:
-          - $monitors.enclosure.discovery.sources.source(2)$
-          - $monitors.enclosure.collect.sources.source(5)$
+          - "${source::monitors.enclosure.discovery.sources.source(2)}"
+          - "${source::monitors.enclosure.collect.sources.source(5)}"
     collect:
       sources:
         source(1):
           # Source(1) = EF2
           # Note: A timeout here can indicate that there have been excessive failed authentication attempts
           type: osCommand
-          commandLine: "/bin/sh $file(\"embeddedFile-2\")$ %{USERNAME} %{PASSWORD};history -d$((HISTCMD-1))"
+          commandLine: "/bin/sh ${file::embeddedFile-2} %{USERNAME} %{PASSWORD};history -d$((HISTCMD-1))"
           timeout: 600
         source(2):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(1)$
+          from: "${source::monitors.enclosure.collect.sources.source(1)}"
         source(3):
           type: copy
-          from: $monitors.enclosure.collect.sources.source(2)$
+          from: "${source::monitors.enclosure.collect.sources.source(2)}"

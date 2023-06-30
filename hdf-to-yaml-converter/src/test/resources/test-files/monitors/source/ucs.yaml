@@ -34,7 +34,7 @@
             source(2):
               _comment: Second UCS discovery comment
               type: ucs
-              queries: [ UCS Discovery Query 2a, $monitors.enclosure.discovery.sources.source(1)$ ]
+              queries: [ UCS Discovery Query 2a, '${source::monitors.enclosure.discovery.sources.source(1)}' ]
               exclude: excludeString2
               keep: keepString2
               selectColumns: "2"

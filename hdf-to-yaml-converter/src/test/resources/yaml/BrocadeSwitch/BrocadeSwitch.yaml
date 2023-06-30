@@ -37,14 +37,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # Class;Status;ID;SupplierID;PartNumber;SerialNumber
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(3)
-          model: $column(2)
-          serial_number: $column(4)
+          id: $1
+          vendor: $3
+          model: $2
+          serial_number: $4
           type: Chassis
-          name: "sprintf(\"Enclosure: (%s %s)\", $column(3), $column(2))"
+          name: "${awk::sprintf(\"Enclosure: (%s %s)\", $3, $2)}"
   temperature:
     discovery:
       sources:
@@ -74,12 +74,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;SensorType;Status;Value;SensorDescription;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(5)
+          id: $1
+          sensor_location: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $5)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -95,15 +95,15 @@ monitors:
             # ID;PatrolStatus;Value;
           - type: translate
             column: 2
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(2)
-          hw.temperature: $column(3)
+          hw.status{hw.type="temperature"}: $2
+          hw.temperature: $3
   fan:
     discovery:
       sources:
@@ -133,12 +133,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;SensorType;Status;Value;SensorDescription;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(5)
+          id: $1
+          sensor_location: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $5)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -154,15 +154,15 @@ monitors:
             # ID;PatrolStatus;Value;
           - type: translate
             column: 2
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
-          hw.fan.speed: $column(3)
+          hw.status{hw.type="fan"}: $2
+          hw.fan.speed: $3
   power_supply:
     discovery:
       sources:
@@ -186,12 +186,12 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;SensorType;Status;Value;SensorDescription;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          power_supply_type: $column(4)
+          id: $1
+          power_supply_type: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -207,14 +207,14 @@ monitors:
             # ID;PatrolStatus;Value;
           - type: translate
             column: 2
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
   network:
     discovery:
       sources:
@@ -234,17 +234,17 @@ monitors:
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
           - type: translate
             column: 3
-            translationTable: WaveTypeTranslationTable
+            translationTable: "${translation::WaveTypeTranslationTable}"
             # Translate Admin Speed
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
           - type: translate
             column: 5
-            translationTable: AdminSpeedTranslationTable
+            translationTable: "${translation::AdminSpeedTranslationTable}"
             # Translate Port Type
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
           - type: translate
             column: 7
-            translationTable: PortTypeTranslationTable
+            translationTable: "${translation::PortTypeTranslationTable}"
             # Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
             # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;
           - type: replace
@@ -305,8 +305,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 4
           rightKeyColumn: 2
           defaultRightLine: ;;;;
@@ -331,7 +331,7 @@ monitors:
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # WWN;SpeedMB;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -339,23 +339,23 @@ monitors:
           # Source(5) = Table joint of Source(3) and Source(4)
           # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName;WWN;SpeedMB;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(3)$
-          rightTable: $monitors.network.discovery.sources.source(4)$
+          leftTable: "${source::monitors.network.discovery.sources.source(3)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(4)}"
           leftKeyColumn: 4
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # InstanceTable = Source(5)
         # PortIndex;PhysicalState;WaveType;WWN;AdminSpeed;Name;PortType;RemoteWWN;PortWWN;RemotePortSymb;RemoteNodeName;WWN;SpeedMB;
-        source: $monitors.network.discovery.sources.source(5)$
+        source: "${source::monitors.network.discovery.sources.source(5)}"
         attributes:
-          id: $column(6)
-          physical_address: $column(4)
+          id: $6
+          physical_address: $4
           physical_address_type: WWN
-          device_type: $column(7)
-          info: "join(\" \", $column(3), $column(10), $column(11))"
+          device_type: $7
+          info: "${awk::join(\" \", $3, $10, $11)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(6), $column(7))"
+          name: "${awk::sprintf(\"%s (%s)\", $6, $7)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -375,17 +375,17 @@ monitors:
             # ID;Name;PATROLStatus;PhysicalState;LinkStatus;wwn
           - type: translate
             column: 3
-            translationTable: PortStatusTranslationTable
+            translationTable: "${translation::PortStatusTranslationTable}"
             # Translate the second column status into a more readable string
             # ID;Name;PATROLStatus;StatusInformation;LinkStatus;wwn
           - type: translate
             column: 4
-            translationTable: PortStatusInformationTranslationTable
+            translationTable: "${translation::PortStatusInformationTranslationTable}"
             # Translate the third column status into a LinkStatus value
             # ID;Name;PATROLStatus;StatusInformation;LinkStatus;wwn
           - type: translate
             column: 5
-            translationTable: PortLinkStatusInformationTranslationTable
+            translationTable: "${translation::PortLinkStatusInformationTranslationTable}"
             # Remove the trailing " 00 00 00 00 00 00 00 00" from the WWN address
             # ID;Name;PATROLStatus;StatusInformation;LinkStatus;wwn
           - type: replace
@@ -419,7 +419,7 @@ monitors:
             # Use an awk script to detect if speed is divisible by 106.25, 102.5 or 100 to get MBITs
             # WWN;SpeedMB;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3"
@@ -427,8 +427,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # ID;Name;PATROLStatus;StatusInformation;LinkStatus;WWN;WWN;SpeedMB;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 6
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -460,28 +460,28 @@ monitors:
           # Source(5) = Table joint of Source(3) and Source(4)
           # ID;Name;PATROLStatus;StatusInformation;LinkStatus;WWN;WWN;SpeedMB;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(3)$
-          rightTable: $monitors.network.collect.sources.source(4)$
+          leftTable: "${source::monitors.network.collect.sources.source(3)}"
+          rightTable: "${source::monitors.network.collect.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
       mapping:
         # ValueTable = Source(1)
         # ID;Name;PATROLStatus;StatusInformation;LinkStatus;WWN;WWN;SpeedMB;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
-        source: $monitors.network.collect.sources.source(5)$
-        deviceId: $column(2)
+        source: "${source::monitors.network.collect.sources.source(5)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="network"}: $column(3)
-          hw.network.up: legacyLinkStatus($column(5))
-          hw.network.bandwidth.limit: megaBit2Bit($column(8))
+          hw.status{hw.type="network"}: $3
+          hw.network.up: legacyLinkStatus($5)
+          hw.network.bandwidth.limit: megaBit2Bit($8)
           hw.network.full_duplex: legacyFullDuplex("full")
-          hw.errors{hw.type="network"}: $column(10)
-          hw.network.packets{direction="transmit"}: $column(11)
-          hw.network.packets{direction="receive"}: $column(12)
-          hw.network.io{direction="transmit"}: $column(13)
-          hw.network.io{direction="receive"}: $column(14)
+          hw.errors{hw.type="network"}: $10
+          hw.network.packets{direction="transmit"}: $11
+          hw.network.packets{direction="receive"}: $12
+          hw.network.io{direction="transmit"}: $13
+          hw.network.io{direction="receive"}: $14
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   other_device:
     discovery:
       sources:
@@ -506,17 +506,17 @@ monitors:
             # ID,DeviceType,SlotID
           - type: translate
             column: 2
-            translationTable: OtherDeviceTypeTT
+            translationTable: "${translation::OtherDeviceTypeTT}"
       mapping:
         # InstanceTable = Source(1)
         # ID,DeviceType,SlotID
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          device_type: $column(2)
-          info: $column(3)
+          id: $1
+          device_type: $2
+          info: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s\", $column(2), $column(1))"
+          name: "${awk::sprintf(\"%s: %s\", $2, $1)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -536,21 +536,21 @@ monitors:
             # ID,Status,StatusInfo
           - type: translate
             column: 2
-            translationTable: OtherDeviceStatusTT
+            translationTable: "${translation::OtherDeviceStatusTT}"
             # Translate the DeviceType
             # ID,DeviceType,SlotID
           - type: translate
             column: 3
-            translationTable: OtherDeviceStatusInfoTT
+            translationTable: "${translation::OtherDeviceStatusInfoTT}"
       mapping:
         # ValueTable = Source(1)
         # ID;PatrolStatus;
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   WaveTypeTranslationTable:
     "2": LongWave Laser

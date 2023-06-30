@@ -35,16 +35,16 @@ monitors:
             # ID;Model
           - type: translate
             column: 2
-            translationTable: iLoModelTranslationTable
+            translationTable: "${translation::iLoModelTranslationTable}"
       mapping:
         # Instance Table
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           device_type: Management Card
-          additional_label: $column(2)
+          additional_label: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s: %s (%s)\", \"Management Card\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s: %s (%s)\", \"Management Card\", $1, $2)}"
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
@@ -64,20 +64,20 @@ monitors:
             # ID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: iLoStatusTranslationTable
+            translationTable: "${translation::iLoStatusTranslationTable}"
             # Translate second Status into more readable string
             # ID;PATROLStatus;StatusInformation;PredictsFailure
           - type: translate
             column: 3
-            translationTable: iLoStatusInformationTranslationTable
+            translationTable: "${translation::iLoStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   network:
     discovery:
       sources:
@@ -101,16 +101,16 @@ monitors:
             value: 'Management Card - '
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(2)
-          physical_address: $column(3)
+          id: $1
+          model: $2
+          physical_address: $3
           physical_address_type: MAC
-          logical_address: $column(4)
+          logical_address: $4
           logical_address_type: IP
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -130,20 +130,20 @@ monitors:
             # ID;PATROLStatus;Condition
           - type: translate
             column: 2
-            translationTable: NetworkCardStatusTranslationTable
+            translationTable: "${translation::NetworkCardStatusTranslationTable}"
             # Translate second Condition into a more readable string
             # ID;PATROLStatus;statusInformation
           - type: translate
             column: 3
-            translationTable: NetworkCardStatusInformationTranslationTable
+            translationTable: "${translation::NetworkCardStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.network.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(2)
+          hw.status{hw.type="network"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   NetworkCardStatusInformationTranslationTable:
     "2": ""

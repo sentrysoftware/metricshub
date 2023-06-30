@@ -58,7 +58,7 @@ BEGIN{
   }
 
 # Skip unknown subsections
-NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\// {
+NF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != "Unknown" && $2 !~ /\
   skip = "1"
   skipTo = "/" $2
   }

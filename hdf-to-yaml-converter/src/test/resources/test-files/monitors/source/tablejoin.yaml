@@ -20,8 +20,8 @@
                 Source(14) = Table joint between Source(5) and Source(8)
                 SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;
               type: tableJoin
-              leftTable: $monitors.disk_controller.discovery.sources.source(5)$
-              rightTable: $monitors.disk_controller.discovery.sources.source(8)$
+              leftTable: ${source::monitors.disk_controller.discovery.sources.source(5)}
+              rightTable: ${source::monitors.disk_controller.discovery.sources.source(8)}
               leftKeyColumn: 1
               rightKeyColumn: 1
               defaultRightLine: ";;;"
@@ -48,8 +48,8 @@
                 TableJoin of Source(3) and Source(4) into Source(5)
                 MSHW;ID;MSHW;Status;StatusInformation;MSHW;PowerConsumption;
               type: tableJoin
-              leftTable: $monitors.enclosure.collect.sources.source(3)$
-              rightTable: $monitors.enclosure.collect.sources.source(4)$
+              leftTable: ${source::monitors.enclosure.collect.sources.source(3)}
+              rightTable: ${source::monitors.enclosure.collect.sources.source(4)}
               leftKeyColumn: 1
               rightKeyColumn: 1
               defaultRightLine: ";"

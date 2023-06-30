@@ -10,14 +10,14 @@
       vm:
         discovery:
           mapping:
-            source: $monitors.vm.discovery.sources.source(1)$
+            source: ${source::monitors.vm.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              name: sprintf("%s (%s)", $column(2), $column(3))
-              info: $column(4)
+              id: $1
+              __display_id: $2
+              name: ${awk::sprintf("%s (%s)", $2, $3)}
+              info: $4
               hw.parent.type: enclosure
-              vm.host.name: $column(3)
+              vm.host.name: $3
 - name: testDefaultName
   input: |
     VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
@@ -29,13 +29,13 @@
       vm:
         discovery:
           mapping:
-            source: $monitors.vm.discovery.sources.source(1)$
+            source: ${source::monitors.vm.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              name: sprintf("%s (%s)", $column(1), $column(2))
-              info: $column(3)
+              id: $1
+              name: ${awk::sprintf("%s (%s)", $1, $2)}
+              info: $3
               hw.parent.type: enclosure
-              vm.host.name: $column(2)
+              vm.host.name: $2
 - name: testNoHostname
   input: |
     VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
@@ -47,10 +47,10 @@
       vm:
         discovery:
           mapping:
-            source: $monitors.vm.discovery.sources.source(1)$
+            source: ${source::monitors.vm.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              __display_id: $column(2)
-              name: $column(2)
-              info: $column(3)
+              id: $1
+              __display_id: $2
+              name: $2
+              info: $3
               hw.parent.type: enclosure

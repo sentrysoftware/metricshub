@@ -20,6 +20,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_POWER_STATE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,7 +95,9 @@ public class BladeConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, bladeName, bladeModel)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(firstDisplayArgument, bladeName, bladeModel)
+				)
 			)
 		);
 	}

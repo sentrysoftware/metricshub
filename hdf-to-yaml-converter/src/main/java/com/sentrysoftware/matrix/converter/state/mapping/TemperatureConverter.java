@@ -20,6 +20,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPER
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_LIMIT_DEGRADED;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_VALUE;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,7 +81,9 @@ public class TemperatureConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, temperatureType)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(firstDisplayArgument, temperatureType)
+				)
 			)
 		);
 	}

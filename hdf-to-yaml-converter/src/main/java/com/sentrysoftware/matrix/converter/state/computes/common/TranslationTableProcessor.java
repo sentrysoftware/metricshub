@@ -17,7 +17,7 @@ public class TranslationTableProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createComputeTextNode(key, value, connector, "translationTable");
+		createComputeTextNode(key, String.format("${translation::%s}", value), connector, "translationTable");
 	}
 
 	@Override

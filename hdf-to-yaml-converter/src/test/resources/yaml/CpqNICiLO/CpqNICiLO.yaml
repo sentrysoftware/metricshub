@@ -2,8 +2,8 @@
 extends:
 - ../CpqNetwork-header/CpqNetwork-header
 constants:
-  Collect_source: $monitors.network.collect.sources.source(3)$
-  Discovery_source: $monitors.network.discovery.sources.source(3)$
+  Collect_source: "${source::monitors.network.collect.sources.source(3)}"
+  Discovery_source: "${source::monitors.network.discovery.sources.source(3)}"
 connector:
   displayName: HP Integrated Lights-Out Management Card - Network
   platforms: HP ProLiant

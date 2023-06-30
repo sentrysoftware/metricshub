@@ -43,7 +43,7 @@ monitors:
           vendor: ""
           model: X86-based PC
           type: Computer
-          name: "sprintf(\"Computer: (%s %s)\", \"\", \"X86-based PC\")"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", \"\", \"X86-based PC\")}"
   temperature:
     discovery:
       sources:
@@ -52,22 +52,22 @@ monitors:
           # It's not necessary to re-execute MS_HW_MBMClient.exe
           # Just have to filter the temperature lines
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 2
             regExp: temperature
       mapping:
         # The instance table
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
+          id: $3
           sensor_location: ""
           hw.parent.type: enclosure
           hw.parent.id: MBM
-          name: "sprintf(\"%s (%s)\", $column(3), \"\")"
+          name: "${awk::sprintf(\"%s (%s)\", $3, \"\")}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
+          hw.temperature.limit{limit_type="high.degraded"}: $6
     collect:
       # Collect type: MultiInstance (of course, one MBMClient call is enough to get
       # all the hardware information
@@ -83,10 +83,10 @@ monitors:
           selectColumns: "3,4"
       mapping:
         # The value table
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   voltage:
     discovery:
       sources:
@@ -95,7 +95,7 @@ monitors:
           # It's not necessary to re-execute MS_HW_MBMClient.exe
           # Just have to filter the voltage lines
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 2
@@ -110,16 +110,16 @@ monitors:
             value: 1000
       mapping:
         # The instance table
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
+          id: $3
           sensor_location: ""
           hw.parent.type: enclosure
           hw.parent.id: MBM
-          name: "sprintf(\"%s (%s)\", $column(3), \"\")"
+          name: "${awk::sprintf(\"%s (%s)\", $3, \"\")}"
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(5)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+          hw.voltage.limit{limit_type="low.critical"}: $5
+          hw.voltage.limit{limit_type="high.degraded"}: $6
     collect:
       # Collect type: MultiInstance (of course, one MBMClient call is enough to get
       # all the hardware information
@@ -140,10 +140,10 @@ monitors:
             value: 1000
       mapping:
         # The value table
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.voltage: $column(2)
+          hw.voltage: $2
   fan:
     discovery:
       sources:
@@ -152,22 +152,22 @@ monitors:
           # It's not necessary to re-execute MS_HW_MBMClient.exe
           # Just have to filter the Fan lines
           type: copy
-          from: $monitors.enclosure.discovery.sources.source(1)$
+          from: "${source::monitors.enclosure.discovery.sources.source(1)}"
           computes:
           - type: keepOnlyMatchingLines
             column: 2
             regExp: fan
       mapping:
         # The instance table
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(3)
+          id: $3
           sensor_location: ""
           hw.parent.type: enclosure
           hw.parent.id: MBM
-          name: "sprintf(\"%s (%s)\", $column(3), \"\")"
+          name: "${awk::sprintf(\"%s (%s)\", $3, \"\")}"
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(5)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $5
     collect:
       # Collect type: MultiInstance (of course, one MBMClient call is enough to get
       # all the hardware information
@@ -183,10 +183,10 @@ monitors:
           selectColumns: "3,4"
       mapping:
         # The value table
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(2)
+          hw.fan.speed: $2
   power_supply:
     discovery:
       mapping:

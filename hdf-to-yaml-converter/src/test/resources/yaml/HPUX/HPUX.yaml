@@ -36,44 +36,44 @@ monitors:
           selectColumns: 1-
       mapping:
         # The discovery table
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: HPUX
           vendor: HP
-          model: $column(1)
+          model: $1
           type: Computer
-          name: "sprintf(\"Computer: (%s %s)\", \"HP\", $column(1))"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", \"HP\", $1)}"
   cpu:
     discovery:
       sources:
         source(1):
-          # Source(1) = sh -$file("embeddedFile-1")$
+          # Source(1) = sh -${file::embeddedFile-1}
           # cpuID;cpuSpeed;cpuModel
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "3,5,6"
       mapping:
         # Instance table = source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(3)
+          id: $1
+          model: $3
           hw.parent.type: enclosure
           hw.parent.id: HPUX
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), megaHertz2HumanFormat($column(2)))"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $3, megaHertz2HumanFormat($2))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($2)
     collect:
       # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          # Source(1) = sh -f $file("embeddedFile-1")$
+          # Source(1) = sh -f ${file::embeddedFile-1}
           # cpuID;cpuStatus
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "3,4"
@@ -86,20 +86,20 @@ monitors:
             # cpuID;PATROLStatus;cpuStatus
           - type: translate
             column: 2
-            translationTable: cpuStatusTranslationTable
+            translationTable: "${translation::cpuStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # cpuID;PATROLStatus;statusInformation
           - type: translate
             column: 3
-            translationTable: cpuStatusInformationTranslationTable
+            translationTable: "${translation::cpuStatusInformationTranslationTable}"
       mapping:
         # ValueTable = source(1)
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="cpu"}: $column(2)
+          hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   cpuStatusInformationTranslationTable:
     CLAIMED: Claimed

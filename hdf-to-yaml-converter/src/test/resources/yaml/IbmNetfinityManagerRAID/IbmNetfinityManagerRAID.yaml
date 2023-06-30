@@ -27,14 +27,14 @@ monitors:
           selectColumns: "ID,1"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
           vendor: IBM
           model: ServeRAID
-          controller_number: $column(2)
-          id: $column(1)
+          controller_number: $2
+          id: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(2), \"IBM\", \"ServeRAID\")"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, \"IBM\", \"ServeRAID\")}"
   physical_disk:
     discovery:
       sources:
@@ -52,14 +52,14 @@ monitors:
             value: 1024
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase10($column(3)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s)\", $1, bytes2HumanFormatBase10($3))}"
         metrics:
-          hw.physical_disk.size: $column(3)
+          hw.physical_disk.size: $3
     collect:
       # Collect-type = mono-instance
       type: multiInstance
@@ -83,13 +83,13 @@ monitors:
             value: ", Channel "
           - type: rightConcat
             column: 2
-            value: Column(3)
+            value: $3
           - type: rightConcat
             column: 2
             value: ", Device "
           - type: rightConcat
             column: 2
-            value: Column(4)
+            value: $4
           - type: rightConcat
             column: 2
             value: ) Status
@@ -103,8 +103,8 @@ monitors:
           # Source(3) = table joint between Source(1) and Source(2) on the a4AttributeName
           # ID;a4AttributeName;a40ChannelNumber;a40TargetNumber;a4AttributeName;a4CurrentValueTextual
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.physical_disk.collect.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.collect.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           computes:
@@ -116,20 +116,20 @@ monitors:
             # ID;a4AttributeName;a40ChannelNumber;a40TargetNumber;a4AttributeName;PATROLStatus;a4CurrentValueTextual
           - type: translate
             column: 6
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
             # Translate the second status column into a more readable PATROL status
             # PATROLstatus;StatusInformation;
           - type: translate
             column: 7
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(6)
+          hw.status{hw.type="physical_disk"}: $6
         legacyTextParameters:
-          StatusInformation: $column(7)
+          StatusInformation: $7
   logical_disk:
     discovery:
       sources:
@@ -147,14 +147,14 @@ monitors:
             value: 1024
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s)\", $column(1), bytes2HumanFormatBase2($column(3)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s)\", $1, bytes2HumanFormatBase2($3))}"
         metrics:
-          hw.logical_disk.limit: $column(3)
+          hw.logical_disk.limit: $3
     collect:
       # Collect type is: mono-instance
       type: multiInstance
@@ -178,7 +178,7 @@ monitors:
             value: ' (Adapter '
           - type: rightConcat
             column: 2
-            value: Column(3)
+            value: $3
           - type: rightConcat
             column: 2
             value: ) Status
@@ -193,8 +193,8 @@ monitors:
           # The key is the AttributeName (that is hopefully unique...)
           # DeviceID;AttributeName;RaidIndex;a4AttributeName;a4CurrentValueTextual
           type: tableJoin
-          leftTable: $monitors.logical_disk.collect.sources.source(1)$
-          rightTable: $monitors.logical_disk.collect.sources.source(2)$
+          leftTable: "${source::monitors.logical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.logical_disk.collect.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 1
           computes:
@@ -206,20 +206,20 @@ monitors:
             # DeviceID;AttributeName;RaidIndex;a4AttributeName;PATROLStatus;a4CurrentValueTextual
           - type: translate
             column: 5
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
             # Translate the second CurrentValueTextual into a more readable string
             # DeviceID;AttributeName;RaidIndex;a4AttributeName;PATROLStatus;StatusInformation
           - type: translate
             column: 6
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = Source(3)
-        source: $monitors.logical_disk.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(5)
+          hw.status{hw.type="logical_disk"}: $5
         legacyTextParameters:
-          StatusInformation: $column(6)
+          StatusInformation: $6
 translations:
   PhysicalDiskStatusInformationTranslationTable:
     Hot Spare: Hot Spare

@@ -38,18 +38,18 @@ monitors:
           # Source(1) = output of EmbeddedFile(1)
           # deviceID;predictedFailure;status;statusInformation
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"
       mapping:
         # InstanceTable = Source(3)
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          vendor: $column(1)
+          id: $1
+          vendor: $1
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -62,13 +62,13 @@ monitors:
           # every hour. This is sufficient because Sun recommends running cediag/cestat once a day, so...
           # deviceID;predictedFailure;status;statusInformation
           type: copy
-          from: $monitors.memory.discovery.sources.source(1)$
+          from: "${source::monitors.memory.discovery.sources.source(1)}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory", state="predicted_failure"}: boolean($column(2))
-          hw.status{hw.type="memory"}: $column(3)
+          hw.status{hw.type="memory", state="predicted_failure"}: boolean($2)
+          hw.status{hw.type="memory"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4

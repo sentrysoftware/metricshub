@@ -42,22 +42,22 @@ monitors:
         source(3):
           # Manufacturer;Manufacturer;Description;Name;
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(2)$
-          rightTable: $monitors.enclosure.discovery.sources.source(1)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: IBM;DataPower;Appliance;
       mapping:
         # Instance Table
         # Manufacturer;Manufacturer;Description;Name;
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
           id: DataPowerAppliance
-          vendor: $column(1)
-          model: $column(3)
-          __display_id: $column(4)
+          vendor: $1
+          model: $3
+          __display_id: $4
           type: Computer
-          name: "sprintf(\"Computer: %s (%s %s)\", $column(4), $column(1), $column(3))"
+          name: "${awk::sprintf(\"Computer: %s (%s %s)\", $4, $1, $3)}"
   temperature:
     discovery:
       sources:
@@ -77,15 +77,15 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;UpperNC;UpperC;
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
-          hw.temperature.limit{limit_type="high.critical"}: $column(3)
+          hw.temperature.limit{limit_type="high.degraded"}: $2
+          hw.temperature.limit{limit_type="high.critical"}: $3
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -106,10 +106,10 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;Value;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   voltage:
     discovery:
       sources:
@@ -129,15 +129,15 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;LowerC;UpperC;
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: $column(3)
-          hw.voltage.limit{limit_type="low.critical"}: $column(2)
+          hw.voltage.limit{limit_type="high.degraded"}: $3
+          hw.voltage.limit{limit_type="low.critical"}: $2
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -158,10 +158,10 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         # ID;Value;
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.voltage: $column(2)
+          hw.voltage: $2
   fan:
     discovery:
       sources:
@@ -181,18 +181,18 @@ monitors:
             # ID;LowerC;FanStatus;
           - type: translate
             column: 1
-            translationTable: fanLocationTranslationTable
+            translationTable: "${translation::fanLocationTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
         # ID;LowerC;FanStatus;
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
         metrics:
-          hw.fan.speed.limit{limit_type="low.critical"}: $column(2)
+          hw.fan.speed.limit{limit_type="low.critical"}: $2
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -208,14 +208,14 @@ monitors:
             # ID;Value;
           - type: translate
             column: 1
-            translationTable: fanLocationTranslationTable
+            translationTable: "${translation::fanLocationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # ID;Value;
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(2)
+          hw.fan.speed: $2
   physical_disk:
     discovery:
       sources:
@@ -230,18 +230,18 @@ monitors:
             # Location;Vendor;ProductID;
           - type: translate
             column: 1
-            translationTable: diskLocationTranslationTable
+            translationTable: "${translation::diskLocationTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
         # ID;Vendor;ProductID;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
-          model: $column(3)
-          vendor: $column(2)
+          id: $1
+          __display_id: $1
+          model: $3
+          vendor: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -261,26 +261,26 @@ monitors:
             # DiskID;PATROLStatus;Status;
           - type: translate
             column: 2
-            translationTable: diskStatusTranslationTable
+            translationTable: "${translation::diskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DiskID;PATROLStatus;StatusInformation;
           - type: translate
             column: 3
-            translationTable: diskStatusInformationTranslationTable
+            translationTable: "${translation::diskStatusInformationTranslationTable}"
             # Translate the ID to Location
             # Location;PATROLStatus;StatusInformation;
           - type: translate
             column: 1
-            translationTable: diskLocationTranslationTable
+            translationTable: "${translation::diskLocationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # Location;PATROLStatus;StatusInformation;
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   power_supply:
     discovery:
       sources:
@@ -290,16 +290,16 @@ monitors:
           computes:
           # powersupply,Status,Status Information
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
       mapping:
         # InstanceTable = Source(1)
         # powersupply,Status,Status Information
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(1)
+          id: $1
+          __display_id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect
       type: multiInstance
@@ -310,16 +310,16 @@ monitors:
           computes:
           # powersupply,Status,Status Information
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
       mapping:
         # ValueTable = Source(1)
         # Location;PATROLStatus;StatusInformation;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   diskLocationTranslationTable:
     "1": HDD0

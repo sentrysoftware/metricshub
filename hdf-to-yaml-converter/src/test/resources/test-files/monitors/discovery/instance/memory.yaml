@@ -25,18 +25,18 @@
             _comment: |-
               The Instance Table
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: ${source::monitors.memory.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               __display_id: "1.1"
               type: "DDR4"
               vendor: "Vendor"
               model: "Model"
-              serial_number: $column(10)
-              info: join(" ", $column(2), $column(11), $column(13))
+              serial_number: $10
+              info: ${awk::join(" ", $2, $11, $13)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")
+              name: ${awk::sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")}
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
 - name: testNoDisplayId
@@ -65,17 +65,17 @@
             _comment: |-
               The Instance Table
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: ${source::monitors.memory.discovery.sources.source(1)}
             attributes:
               id: "1.1"
               type: "DDR4"
               vendor: "Vendor"
               model: "Model"
-              serial_number: $column(10)
-              info: join(" ", $column(2), $column(11), $column(13))
+              serial_number: $10
+              info: ${awk::join(" ", $2, $11, $13)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")
+              name: ${awk::sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")}
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
 
@@ -105,17 +105,17 @@
             _comment: |-
               The Instance Table
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: ${source::monitors.memory.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               __display_id: "1.1"
               type: "DDR4"
               model: "Model"
-              serial_number: $column(10)
-              info: join(" ", $column(2), $column(11), $column(13))
+              serial_number: $10
+              info: ${awk::join(" ", $2, $11, $13)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s MB)", "1.1", "DDR4", "16384")
+              name: ${awk::sprintf("%s (%s - %s MB)", "1.1", "DDR4", "16384")}
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
 
@@ -145,17 +145,17 @@
             _comment: |-
               The Instance Table
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: ${source::monitors.memory.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               __display_id: "1.1"
               type: "DDR4"
               vendor: "Vendor"
-              serial_number: $column(10)
-              info: join(" ", $column(2), $column(11), $column(13))
+              serial_number: $10
+              info: ${awk::join(" ", $2, $11, $13)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")
+              name: ${awk::sprintf("%s (%s - %s - %s MB)", "1.1", "Vendor", "DDR4", "16384")}
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
 
@@ -183,16 +183,16 @@
             _comment: |-
               The Instance Table
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: ${source::monitors.memory.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               __display_id: "1.1"
               type: "DDR4"
-              serial_number: $column(10)
-              info: join(" ", $column(2), $column(11), $column(13))
+              serial_number: $10
+              info: ${awk::join(" ", $2, $11, $13)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s)", "1.1", "DDR4")
+              name: ${awk::sprintf("%s (%s)", "1.1", "DDR4")}
 
 - name: testSizeOnly
   input: |
@@ -218,15 +218,15 @@
             _comment: |-
               The Instance Table
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: ${source::monitors.memory.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               __display_id: "1.1"
-              serial_number: $column(10)
-              info: join(" ", $column(2), $column(11), $column(13))
+              serial_number: $10
+              info: ${awk::join(" ", $2, $11, $13)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
-              name: sprintf("%s (%s MB)", "1.1", "16384")
+              name: ${awk::sprintf("%s (%s MB)", "1.1", "16384")}
             metrics:
               hw.memory.limit: mebiByte2Byte("16384")
 
@@ -253,12 +253,12 @@
             _comment: |-
               The Instance Table
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
-            source: $monitors.memory.discovery.sources.source(1)$
+            source: ${source::monitors.memory.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
+              id: $1
               __display_id: "1.1"
-              serial_number: $column(10)
-              info: join(" ", $column(2), $column(11), $column(13))
+              serial_number: $10
+              info: ${awk::join(" ", $2, $11, $13)}
               hw.parent.id: DIR5
               hw.parent.type: enclosure
               name: "1.1"

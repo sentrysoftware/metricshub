@@ -20,18 +20,18 @@
         collect:
           mapping:
             _comment: DeviceID;Status;StatusInformation;NetworkUp;NetworkDuplex;ZeroBufferCredit;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;LinkSpeed
-            source: $monitors.network.collect.sources.source(1)$
-            deviceId: $column(1)
+            source: ${source::monitors.network.collect.sources.source(1)}
+            deviceId: $1
             metrics:
-              hw.status{hw.type="network"}: $column(2)
-              hw.network.up: legacyLinkStatus($column(4))
-              hw.network.full_duplex: legacyFullDuplex($column(5))
-              hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $column(6)
-              hw.errors{hw.type="network"}: $column(7)
-              hw.network.io{direction="receive"}: $column(8)
-              hw.network.io{direction="transmit"}: $column(9)
-              hw.network.packets{direction="receive"}: $column(10)
-              hw.network.packets{direction="transmit"}: $column(11)
-              hw.network.bandwidth.limit: megaBit2Bit($column(12))
+              hw.status{hw.type="network"}: $2
+              hw.network.up: legacyLinkStatus($4)
+              hw.network.full_duplex: legacyFullDuplex($5)
+              hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $6
+              hw.errors{hw.type="network"}: $7
+              hw.network.io{direction="receive"}: $8
+              hw.network.io{direction="transmit"}: $9
+              hw.network.packets{direction="receive"}: $10
+              hw.network.packets{direction="transmit"}: $11
+              hw.network.bandwidth.limit: megaBit2Bit($12)
             legacyTextParameters:
-              StatusInformation: $column(3)
+              StatusInformation: $3

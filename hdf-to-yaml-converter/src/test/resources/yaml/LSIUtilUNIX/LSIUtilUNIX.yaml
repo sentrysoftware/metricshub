@@ -35,21 +35,21 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(1)
             # DeviceID;Vendor;Model;FirmwareVersion
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(1)
-          vendor: $column(2)
-          model: $column(3)
-          firmware_version: $column(4)
+          id: $1
+          controller_number: $1
+          vendor: $2
+          model: $3
+          firmware_version: $4
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s %s)\", $column(1), $column(2), $column(3))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $1, $2, $3)}"
   physical_disk:
     discovery:
       sources:
@@ -61,21 +61,21 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # ControllerNumber;diskID;model;size;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          vendor: $column(3)
+          id: $2
+          vendor: $3
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), bytes2HumanFormatBase10($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $3, bytes2HumanFormatBase10($4))}"
         metrics:
-          hw.physical_disk.size: $column(4)
+          hw.physical_disk.size: $4
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -88,7 +88,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(2)
             # diskID;Status;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,6"
@@ -106,15 +106,15 @@ monitors:
             # DiskID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: DiskStatusTranslationTable
+            translationTable: "${translation::DiskStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -126,21 +126,21 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # ControllerNumber;diskID;size;raidType
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          raid_level: $column(4)
+          id: $2
+          raid_level: $4
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), bytes2HumanFormatBase2($column(3)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $4, bytes2HumanFormatBase2($3))}"
         metrics:
-          hw.logical_disk.limit: $column(3)
+          hw.logical_disk.limit: $3
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -153,7 +153,7 @@ monitors:
             # Reformat lsiutil's output through awk see EmbeddedFile(3)
             # diskID;Status;
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,6"
@@ -171,15 +171,15 @@ monitors:
             # DiskID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: DiskStatusTranslationTable
+            translationTable: "${translation::DiskStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   DiskStatusTranslationTable:
     offlinerequested: degraded

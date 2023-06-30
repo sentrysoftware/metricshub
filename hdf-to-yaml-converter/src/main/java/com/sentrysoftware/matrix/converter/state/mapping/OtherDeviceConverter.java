@@ -31,6 +31,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +102,9 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, additionalLabel, deviceType)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(firstDisplayArgument, additionalLabel, deviceType)
+				)
 			)
 		);
 	}

@@ -19,15 +19,15 @@
             _comment: |-
               Instance Table
               ID;Vendor;Model;FirwareVersion;SerialNumber
-            source: $monitors.robotics.discovery.sources.source(1)$
+            source: ${source::monitors.robotics.discovery.sources.source(1)}
             attributes:
-              id: $column(1)
-              model: $column(3)
-              vendor: $column(2)
-              serial_number: $column(5)
-              info: $column(4)
+              id: $1
+              model: $3
+              vendor: $2
+              serial_number: $5
+              info: $4
               robotics_type: "Media Transfer"
-              name: sprintf("%s (%s %s - %s)", $column(1), $column(2), $column(3), "Media Transfer")
+              name: ${awk::sprintf("%s (%s %s - %s)", $1, $2, $3, "Media Transfer")}
               hw.parent.type: enclosure
             metrics:
               hw.errors.limit{hw.type="robotics", limit_type="degraded"}: test1

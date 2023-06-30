@@ -49,13 +49,13 @@ monitors:
             value: 'Fire '
       mapping:
         # The discovery table
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: SunF15K
           vendor: Sun
-          model: $column(1)
+          model: $1
           type: Computer
-          name: "sprintf(\"Computer: (%s %s)\", \"Sun\", $column(1))"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", \"Sun\", $1)}"
     collect:
       # Collect type is mono-instance
       type: monoInstance
@@ -66,19 +66,19 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-1")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-1} awk script
             # PowerConsumption;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;PowerConsumption;
             separators: ;
             selectColumns: 3
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         metrics:
-          hw.enclosure.power: $column(1)
-          hw.enclosure.energy: fakeCounter($column(1))
+          hw.enclosure.power: $1
+          hw.enclosure.energy: fakeCounter($1)
   fan:
     discovery:
       sources:
@@ -88,22 +88,22 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Send showenvironnment's output into the $file("embeddedFile-2")$ awk script
+            # Send showenvironnment's output into the ${file::embeddedFile-2} awk script
             # DeviceID;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;Fan;
             separators: ;
             selectColumns: 3
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(1)
+          id: $1
+          sensor_location: $1
           hw.parent.type: enclosure
           hw.parent.id: SunF15K
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -114,10 +114,10 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe the output of showenvironment into the $file("embeddedFile-2")$ awk script
+            # Pipe the output of showenvironment into the ${file::embeddedFile-2} awk script
             # DeviceID;Status
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;Fan;
             separators: ;
             selectColumns: "3,4"
@@ -129,15 +129,15 @@ monitors:
             # DeviceID;PATROLStatus;status
           - type: translate
             column: 3
-            translationTable: ShowEnvironmentStatusTranslationTable
+            translationTable: "${translation::ShowEnvironmentStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(2)
+          hw.status{hw.type="fan"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   temperature:
     discovery:
       sources:
@@ -147,22 +147,22 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-1")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-1} awk script
             # DeviceID;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;Temperature;
             separators: ;
             selectColumns: 3
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(1)
+          id: $1
+          sensor_location: $1
           hw.parent.type: enclosure
           hw.parent.id: SunF15K
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -173,10 +173,10 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-1")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-1} awk script
             # DeviceID;Temperature;Status
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;Temperature;
             separators: ;
             selectColumns: "3,4,5"
@@ -188,16 +188,16 @@ monitors:
             # DeviceID;Temperature;PATROLStatus;status
           - type: translate
             column: 3
-            translationTable: ShowEnvironmentStatusTranslationTable
+            translationTable: "${translation::ShowEnvironmentStatusTranslationTable}"
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="temperature"}: $column(3)
-          hw.temperature: $column(2)
+          hw.status{hw.type="temperature"}: $3
+          hw.temperature: $2
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   voltage:
     discovery:
       sources:
@@ -207,22 +207,22 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-1")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-1} awk script
             # DeviceID;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;Voltage;
             separators: ;
             selectColumns: 3
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(1)
+          id: $1
+          sensor_location: $1
           hw.parent.type: enclosure
           hw.parent.id: SunF15K
-          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -233,10 +233,10 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Piped showenvironment's output into the $file("embeddedFile-1")$ awk script
+            # Piped showenvironment's output into the ${file::embeddedFile-1} awk script
             # DeviceID;Voltage;Status
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;Voltage;
             separators: ;
             selectColumns: "3,4,5"
@@ -248,7 +248,7 @@ monitors:
             # DeviceID;Voltage;PATROLStatus;Status
           - type: translate
             column: 3
-            translationTable: ShowEnvironmentStatusTranslationTable
+            translationTable: "${translation::ShowEnvironmentStatusTranslationTable}"
             # Multiply voltage value by 1000 (convert from V to mV)
             # DeviceID;VoltageMilliVolts;PATROLstatus;status
           - type: multiply
@@ -256,38 +256,38 @@ monitors:
             value: 1000
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="voltage"}: $column(3)
-          hw.voltage: $column(2)
+          hw.status{hw.type="voltage"}: $3
+          hw.voltage: $2
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   power_supply:
     discovery:
       sources:
         source(1):
-          # Source(1) = output of showenvironment piped into the $file("embeddedFile-3")$ awk script
+          # Source(1) = output of showenvironment piped into the ${file::embeddedFile-3} awk script
           # DeviceID
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-3")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-3} awk script
             # DeviceID
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;PowerSupply;
             separators: ;
             selectColumns: 3
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: SunF15K
-          name: $column(1)
+          name: $1
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -298,10 +298,10 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-3")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-3} awk script
             # DeviceID;Status
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;PowerSupply;
             separators: ;
             selectColumns: "3,4"
@@ -313,15 +313,15 @@ monitors:
             # DeviceID;Current;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: ShowEnvironmentStatusTranslationTable
+            translationTable: "${translation::ShowEnvironmentStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -331,11 +331,11 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-1")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-1} awk script
             # Source(1) is the list of currents
             # DeviceType;DeviceID;
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;Current;
             separators: ;
             selectColumns: "2,3"
@@ -349,11 +349,11 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform
           timeout: 90
           computes:
-            # Pipe showplatform's output into the $file("embeddedFile-4")$ awk script
+            # Pipe showplatform's output into the ${file::embeddedFile-4} awk script
             # Source(2) is the list of domains
             # DeviceType;DeviceID;AdditionalLabel
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;Domain;
             separators: ;
             selectColumns: "2,3,4"
@@ -363,11 +363,11 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards
           timeout: 90
           computes:
-            # Pipe showboards' output into the $file("embeddedFile-5")$ awk script
+            # Pipe showboards' output into the ${file::embeddedFile-5} awk script
             # Source(3) is the list of boards
             # DeviceType;DeviceID;AdditionalLabel
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4"
@@ -376,19 +376,19 @@ monitors:
           # DeviceType;DeviceID;AdditionalLabel
           type: tableUnion
           tables:
-          - $monitors.other_device.discovery.sources.source(1)$
-          - $monitors.other_device.discovery.sources.source(2)$
-          - $monitors.other_device.discovery.sources.source(3)$
+          - "${source::monitors.other_device.discovery.sources.source(1)}"
+          - "${source::monitors.other_device.discovery.sources.source(2)}"
+          - "${source::monitors.other_device.discovery.sources.source(3)}"
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.other_device.discovery.sources.source(4)$
+        source: "${source::monitors.other_device.discovery.sources.source(4)}"
         attributes:
-          id: $column(2)
-          additional_label: $column(3)
-          device_type: $column(1)
+          id: $2
+          additional_label: $3
+          device_type: $1
           hw.parent.type: enclosure
           hw.parent.id: SunF15K
-          name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(3))"
+          name: "${awk::sprintf(\"%s: %s (%s)\", $1, $2, $3)}"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -399,10 +399,10 @@ monitors:
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
           computes:
-            # Pipe showenvironment's output into the $file("embeddedFile-1")$ awk script
+            # Pipe showenvironment's output into the ${file::embeddedFile-1} awk script
             # DeviceID;Status
           - type: awk
-            script: $file("embeddedFile-1")$
+            script: "${file::embeddedFile-1}"
             keep: ^MSHW;Current;
             separators: ;
             selectColumns: "3,5"
@@ -414,18 +414,18 @@ monitors:
             # DeviceID;Current;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: ShowEnvironmentStatusTranslationTable
+            translationTable: "${translation::ShowEnvironmentStatusTranslationTable}"
         source(2):
           # Source(2) = output of showplatform
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform
           timeout: 90
           computes:
-            # Pipe showplatform's output into the $file("embeddedFile-4")$ awk script
+            # Pipe showplatform's output into the ${file::embeddedFile-4} awk script
             # Source(2) is the list of domains
             # DeviceID;Status
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;Domain;
             separators: ;
             selectColumns: "3,5"
@@ -437,18 +437,18 @@ monitors:
             # DeviceID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: DomainStatusTranslationTable
+            translationTable: "${translation::DomainStatusTranslationTable}"
         source(3):
           # Source(3) = output of showboards
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards
           timeout: 90
           computes:
-            # Pipe showboards' output into the $file("embeddedFile-5")$ awk script
+            # Pipe showboards' output into the ${file::embeddedFile-5} awk script
             # Source(3) is the list of boards
             # DeviceID;Status
           - type: awk
-            script: $file("embeddedFile-5")$
+            script: "${file::embeddedFile-5}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,5"
@@ -460,23 +460,23 @@ monitors:
             # DeviceID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: BoardStatusTranslationTable
+            translationTable: "${translation::BoardStatusTranslationTable}"
         source(4):
           # Source(4) = union of Source(1), Source(2) and Source(3)
           # DeviceType;DeviceID;AdditionalLabel
           type: tableUnion
           tables:
-          - $monitors.other_device.collect.sources.source(1)$
-          - $monitors.other_device.collect.sources.source(2)$
-          - $monitors.other_device.collect.sources.source(3)$
+          - "${source::monitors.other_device.collect.sources.source(1)}"
+          - "${source::monitors.other_device.collect.sources.source(2)}"
+          - "${source::monitors.other_device.collect.sources.source(3)}"
       mapping:
         # ValueTable = Source(3)
-        source: $monitors.other_device.collect.sources.source(4)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(4)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   BoardStatusTranslationTable:
     iPOST: degraded

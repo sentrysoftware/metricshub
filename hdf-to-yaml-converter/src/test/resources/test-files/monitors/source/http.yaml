@@ -42,7 +42,7 @@
               resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
-                source: $monitors.enclosure.discovery.sources.source(1)$
+                source: ${source::monitors.enclosure.discovery.sources.source(1)}
                 concatMethod:
                   concatStart: concatStart
                   concatEnd: concatEnd
@@ -57,7 +57,7 @@
               resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
-                source: $monitors.enclosure.discovery.sources.source(2)$
+                source: ${source::monitors.enclosure.discovery.sources.source(2)}
                 concatMethod: list
 
 - name: collect
@@ -100,7 +100,7 @@
               resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
-                source: $monitors.enclosure.collect.sources.source(1)$
+                source: ${source::monitors.enclosure.collect.sources.source(1)}
                 concatMethod:
                   concatStart: concatStart
                   concatEnd: concatEnd
@@ -114,5 +114,5 @@
               resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
-                source: $monitors.enclosure.collect.sources.source(2)$
+                source: ${source::monitors.enclosure.collect.sources.source(2)}
                 concatMethod: list

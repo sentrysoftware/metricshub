@@ -40,15 +40,15 @@ monitors:
             # ID;Present;Location
           - type: translate
             column: 3
-            translationTable: FanTypeTranslationTable
+            translationTable: "${translation::FanTypeTranslationTable}"
       mapping:
         # Instance table = source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(3)
+          id: $1
+          sensor_location: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:
       # Fan collect type is : mono-instance
       type: monoInstance
@@ -57,7 +57,7 @@ monitors:
           # Collect the status of the fan
           # fanStatus
           type: snmpGet
-          oid: 1.3.6.1.4.1.232.6.2.6.6.1.5.$fan.id$
+          oid: "1.3.6.1.4.1.232.6.2.6.6.1.5.${fan::id}"
           computes:
             # Duplicate the fanStatus column
             # fanStatus;fanStatus
@@ -67,19 +67,19 @@ monitors:
             # PATROLStatus;fanStatus
           - type: translate
             column: 1
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
             # Translate the second fanStatus into a more readable string
             # PATROLStatus;statusInformation
           - type: translate
             column: 2
-            translationTable: FanStatusInformationTranslationTable
+            translationTable: "${translation::FanStatusInformationTranslationTable}"
       mapping:
         # Collect table = source(1)
-        source: $monitors.fan.collect.sources.source(1)$
+        source: "${source::monitors.fan.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="fan"}: $column(1)
+          hw.status{hw.type="fan"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   power_supply:
     discovery:
       sources:
@@ -97,11 +97,11 @@ monitors:
             valueList: "2,3,4"
       mapping:
         # InstanceTable = source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Power Supply collect (mono-instance)
       type: monoInstance
@@ -110,7 +110,7 @@ monitors:
           # Source(1) = snmpget of the global power supply condition
           # Condition
           type: snmpGet
-          oid: 1.3.6.1.4.1.232.6.2.9.1.$power_supply.id$
+          oid: "1.3.6.1.4.1.232.6.2.9.1.${power_supply::id}"
           computes:
             # Duplicate the condition column
             # Condition;Condition
@@ -120,19 +120,19 @@ monitors:
             # PATROLStatus;Condition
           - type: translate
             column: 1
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second Condition column into a more readable string
             # PATROLStatus;statusInformation
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
       mapping:
         # ValueTable = source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="power_supply"}: $column(1)
+          hw.status{hw.type="power_supply"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
 translations:
   FanStatusTranslationTable:
     "2": ok

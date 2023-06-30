@@ -56,21 +56,21 @@ monitors:
             value: ' ('
           - type: rightConcat
             column: 2
-            value: Column(1)
+            value: $1
           - type: rightConcat
             column: 2
             value: )
       mapping:
         # InstanceTable = Source(1)
         # Note: InstanceTable must contain only one line!
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: DIR5
           vendor: IBM
-          model: $column(2)
-          serial_number: $column(3)
+          model: $2
+          serial_number: $3
           type: Computer
-          name: "sprintf(\"Computer: (%s %s)\", \"IBM\", $column(2))"
+          name: "${awk::sprintf(\"Computer: (%s %s)\", \"IBM\", $2)}"
     collect:
       type: monoInstance
       sources:
@@ -85,11 +85,11 @@ monitors:
             regExp: 0$
           - type: translate
             column: 1
-            translationTable: enclosureIntrusionStatusTranslationTable
+            translationTable: "${translation::enclosureIntrusionStatusTranslationTable}"
       mapping:
-        source: $monitors.enclosure.collect.sources.source(1)$
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(1))
+          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($1)
   cpu:
     discovery:
       sources:
@@ -102,7 +102,7 @@ monitors:
           # Translate the Family number into a model name
           - type: translate
             column: 3
-            translationTable: cpuTypeTranslationTable
+            translationTable: "${translation::cpuTypeTranslationTable}"
           # Replace GenuineIntel by Intel and AuthenticAMD by AMD
           - type: replace
             column: 4
@@ -114,16 +114,16 @@ monitors:
             newValue: AMD
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          vendor: $column(4)
-          model: $column(3)
+          id: $2
+          vendor: $4
+          model: $3
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(2), $column(4), $column(3), megaHertz2HumanFormat($column(1)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $2, $4, $3, megaHertz2HumanFormat($1))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($1)
     collect:
       type: multiInstance
       sources:
@@ -137,17 +137,17 @@ monitors:
             column: 2
           - type: translate
             column: 2
-            translationTable: cpuStatusTranslationTable
+            translationTable: "${translation::cpuStatusTranslationTable}"
           - type: translate
             column: 3
-            translationTable: cpuStatusInformationTranslationTable
+            translationTable: "${translation::cpuStatusInformationTranslationTable}"
       mapping:
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="cpu"}: $column(2)
+          hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   memory:
     discovery:
       sources:
@@ -165,20 +165,20 @@ monitors:
           - type: perBitTranslation
             column: 5
             bitList: "1,2,3,4,5,6,7,8,9,10,11,12,13"
-            translationTable: MemoryBitTranslationTable
+            translationTable: "${translation::MemoryBitTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(4)
-          vendor: $column(2)
-          serial_number: $column(3)
-          type: $column(5)
+          id: $4
+          vendor: $2
+          serial_number: $3
+          type: $5
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s - %s - %s MB)\", $column(4), $column(2), $column(5), $column(1))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s MB)\", $4, $2, $5, $1)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(1))
+          hw.memory.limit: mebiByte2Byte($1)
     collect:
       type: multiInstance
       sources:
@@ -190,12 +190,12 @@ monitors:
           computes:
           - type: translate
             column: 1
-            translationTable: memoryStatusTranslationTable
+            translationTable: "${translation::memoryStatusTranslationTable}"
       mapping:
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.status{hw.type="memory"}: $column(1)
+          hw.status{hw.type="memory"}: $1
   fan:
     discovery:
       sources:
@@ -207,18 +207,18 @@ monitors:
           computes:
           - type: translate
             column: 2
-            translationTable: FanTypeTranslationTable
+            translationTable: "${translation::FanTypeTranslationTable}"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $3
           hw.fan.speed.limit{limit_type="low.critical"}: 0
     collect:
       # The collect (as all WBEM-based collects) is "MultiInstance
@@ -231,10 +231,10 @@ monitors:
           namespace: root/ibmsd
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.fan.speed: $column(1)
+          hw.fan.speed: $1
   temperature:
     discovery:
       sources:
@@ -246,7 +246,7 @@ monitors:
           computes:
           - type: translate
             column: 4
-            translationTable: TemperatureTypeTranslationTable
+            translationTable: "${translation::TemperatureTypeTranslationTable}"
             # Thresholds for Temperatures are sometimes reported as "0" by the agent.  Replacing these "0" by no value to prevent incorrect thresholds.
             # Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
           - type: leftConcat
@@ -275,16 +275,16 @@ monitors:
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(4)
+          id: $1
+          sensor_location: $4
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
-          hw.temperature.limit{limit_type="high.critical"}: $column(2)
+          hw.temperature.limit{limit_type="high.degraded"}: $3
+          hw.temperature.limit{limit_type="high.critical"}: $2
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
@@ -296,10 +296,10 @@ monitors:
           namespace: root/ibmsd
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.temperature: $column(1)
+          hw.temperature: $1
   voltage:
     discovery:
       sources:
@@ -312,7 +312,7 @@ monitors:
           # Translate the voltage type into a more readable string
           - type: translate
             column: 4
-            translationTable: VoltageTypeTranslationTable
+            translationTable: "${translation::VoltageTypeTranslationTable}"
             # Thresholds for voltages are sometimes reported as "0" by the agent.  Replacing these "0" by no value to prevent incorrect thresholds.
             # Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
           - type: leftConcat
@@ -341,16 +341,16 @@ monitors:
             newValue: ""
       mapping:
         # Here is the instance table = source(1)
-        source: $monitors.voltage.discovery.sources.source(1)$
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(4)
+          id: $1
+          sensor_location: $4
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
         metrics:
-          hw.voltage.limit{limit_type="high.degraded"}: $column(3)
-          hw.voltage.limit{limit_type="low.critical"}: $column(2)
+          hw.voltage.limit{limit_type="high.degraded"}: $3
+          hw.voltage.limit{limit_type="low.critical"}: $2
     collect:
       # It's a "MultiInstance" collect
       type: multiInstance
@@ -362,10 +362,10 @@ monitors:
           namespace: root/ibmsd
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(2)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $2
         metrics:
-          hw.voltage: $column(1)
+          hw.voltage: $1
   power_supply:
     discovery:
       sources:
@@ -376,12 +376,12 @@ monitors:
           namespace: root/ibmsd
       mapping:
         # 'The instance table:'
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
           hw.parent.id: DIR5
-          name: $column(1)
+          name: $1
     collect:
       # Collect type : multi instance (one source for several instances)
       type: multiInstance
@@ -401,20 +401,20 @@ monitors:
             # DeviceID;PatrolStatus;WBEMStatus
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second WBEM status column into a PATROL status
             # DeviceID;PatrolStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = Source(1)
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   VoltageTypeTranslationTable:
     "22": Remote +18 V

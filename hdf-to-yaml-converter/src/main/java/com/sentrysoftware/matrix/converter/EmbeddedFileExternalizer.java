@@ -72,9 +72,9 @@ public class EmbeddedFileExternalizer {
 	/**
 	 * If the value matches the embedded file pattern
 	 * <code>$embedded.EmbeddedFile(\\d+)$</code>, replace occurrences with
-	 * <code>$file("embedded_file_relative_path")$</code>. E.g.
-	 * <code>$file("embeddedFile-1")$</code> or
-	 * <code>$file("../Connector/embeddedFile-1")$</code>
+	 * <code>${file::embedded_file_relative_path}</code>. E.g.
+	 * <code>${file::embeddedFile-1}</code> or
+	 * <code>${file::../Connector/embeddedFile-1}</code>
 	 * 
 	 * @param value value to transform (input)
 	 * @return transformed value as String
@@ -107,7 +107,7 @@ public class EmbeddedFileExternalizer {
 		// Do replacement
 		return input.replace(
 			matcher.group(),
-			String.format("$file(\"%s\")$", path)
+			String.format("${file::%s}", path)
 		);
 	}
 

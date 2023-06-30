@@ -35,7 +35,7 @@ monitors:
             # ID;Model;EnclosureType
           - type: translate
             column: 3
-            translationTable: EnclosureTypeTranslationTable
+            translationTable: "${translation::EnclosureTypeTranslationTable}"
         source(2):
           # now activate powerconsuption if available
           # ID;powerconsuption
@@ -52,22 +52,22 @@ monitors:
           # now joint with source 1
           # ID;sc2UnitModelName;sc2UnitClass;SerialNumber;ID;powerconsuption
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.discovery.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # InstanceTable
         # ID;sc2UnitModelName;sc2UnitClass;SerialNumber;ID;powerconsuption
-        source: $monitors.enclosure.discovery.sources.source(3)$
+        source: "${source::monitors.enclosure.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
+          id: $1
           vendor: Fujitsu-Siemens
-          serial_number: $column(4)
-          model: $column(2)
-          type: $column(3)
-          name: "sprintf(\"Enclosure: (%s %s)\", \"Fujitsu-Siemens\", $column(2))"
+          serial_number: $4
+          model: $2
+          type: $3
+          name: "${awk::sprintf(\"Enclosure: (%s %s)\", \"Fujitsu-Siemens\", $2)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -87,12 +87,12 @@ monitors:
             # ID;intrusionCode;cabinetHousingOpenStatus
           - type: add
             column: 2
-            value: Column(3)
+            value: $3
             # Translate intrusionCode into IntrusionStatus
             # ID;intrusionStatus;cabinetHousingOpenStatus
           - type: translate
             column: 2
-            translationTable: IntrusionCodeTranslationTable
+            translationTable: "${translation::IntrusionCodeTranslationTable}"
         source(2):
           # now collect PowerConsumption
           # now activate powerconsuption if available
@@ -105,20 +105,20 @@ monitors:
           # now joint with source 1
           # ID;intrusionStatus;cabinetHousingOpenStatus;ID;powerconsuption
           type: tableJoin
-          leftTable: $monitors.enclosure.collect.sources.source(1)$
-          rightTable: $monitors.enclosure.collect.sources.source(2)$
+          leftTable: "${source::monitors.enclosure.collect.sources.source(1)}"
+          rightTable: "${source::monitors.enclosure.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         # ValueTable
         # ID;intrusionStatus;cabinetHousingOpenStatus;ID;powerconsuption
-        source: $monitors.enclosure.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.enclosure.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(2))
-          hw.enclosure.power: $column(5)
-          hw.enclosure.energy: fakeCounter($column(5))
+          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($2)
+          hw.enclosure.power: $5
+          hw.enclosure.energy: fakeCounter($5)
   temperature:
     discovery:
       sources:
@@ -137,7 +137,7 @@ monitors:
           # Copy table for sensors with valid discrete status.
           # ID;enclosureID;Status;sensorDesignation;currentValue;warningThreshold;alarmThreshold;
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
           # Exclude sensors with invalid discrete status.
           - type: excludeMatchingLines
@@ -158,18 +158,18 @@ monitors:
           # Remove thresholds
           - type: replace
             column: 6
-            existingValue: Column(6)
+            existingValue: $6
             newValue: ""
           - type: replace
             column: 7
-            existingValue: Column(7)
+            existingValue: $7
             newValue: ""
         source(3):
           # Make a copy of tables
           # This table is for sensors without a valid discrete status.
           # ID;enclosureID;Status;sensorDesignation;currentValue;warningThreshold;alarmThreshold;
           type: copy
-          from: $monitors.temperature.discovery.sources.source(1)$
+          from: "${source::monitors.temperature.discovery.sources.source(1)}"
           computes:
           # Keep only sensors with invalid discrete value
           - type: keepOnlyMatchingLines
@@ -178,7 +178,7 @@ monitors:
           # Remove discrete sensor value
           - type: replace
             column: 3
-            existingValue: Column(3)
+            existingValue: $3
             newValue: ""
           # Exclude where numeric sensor is zero
           - type: excludeMatchingLines
@@ -189,21 +189,21 @@ monitors:
           # ID;enclosureID;Status;sensorDesignation;currentValue;warningThreshold;alarmThreshold;
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(2)$
-          - $monitors.temperature.discovery.sources.source(3)$
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
+          - "${source::monitors.temperature.discovery.sources.source(3)}"
       mapping:
         # InstanceTable
         # ID;enclosureID;Status;sensorDesignation;currentValue;warningThreshold;alarmThreshold;
-        source: $monitors.temperature.discovery.sources.source(4)$
+        source: "${source::monitors.temperature.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
+          id: $1
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(6)
-          hw.temperature.limit{limit_type="high.critical"}: $column(7)
+          hw.temperature.limit{limit_type="high.degraded"}: $6
+          hw.temperature.limit{limit_type="high.critical"}: $7
     collect:
       # Collect type is Multi-instance
       type: multiInstance
@@ -222,22 +222,22 @@ monitors:
             # ID;currentValue;PATROLStatus;Status;
           - type: translate
             column: 3
-            translationTable: TemperatureStatusTranslationTable
+            translationTable: "${translation::TemperatureStatusTranslationTable}"
             # Translate Status into StatusInformation
             # ID;currentValue;PATROLStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: TemperatureStatusInformationTranslationTable
+            translationTable: "${translation::TemperatureStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = Source(1)
         # ID;currentValue;PATROLStatus;StatusInformation;
-        source: $monitors.temperature.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
-          hw.status{hw.type="temperature"}: $column(3)
+          hw.temperature: $2
+          hw.status{hw.type="temperature"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   fan:
     discovery:
       sources:
@@ -258,20 +258,20 @@ monitors:
             value: _MSHW_
           - type: leftConcat
             column: 4
-            value: Column(3)
+            value: $3
           - type: replace
             column: 4
             existingValue: 3_MSHW_0
             newValue: ""
       mapping:
         # The instance table
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(5)
+          id: $1
+          __display_id: $5
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(5)
+          hw.parent.id: $2
+          name: $5
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -291,21 +291,21 @@ monitors:
             # DeviceID;enclosureID;status;fanStatus;fanSpeed
           - type: translate
             column: 3
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
             # Translate the second fanStatus into a more readable string
             # DeviceID;status;statusInformation;fanSpeed
           - type: translate
             column: 4
-            translationTable: FanStatusInformationTranslationTable
+            translationTable: "${translation::FanStatusInformationTranslationTable}"
       mapping:
         # ValueTable
-        source: $monitors.fan.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="fan"}: $column(3)
-          hw.fan.speed: $column(5)
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $5
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   voltage:
     discovery:
       sources:
@@ -318,7 +318,7 @@ monitors:
         source(2):
           # Copy table for sensors with a valid discrete status
           type: copy
-          from: $monitors.voltage.discovery.sources.source(1)$
+          from: "${source::monitors.voltage.discovery.sources.source(1)}"
           computes:
           # Exclude sensors with invalid discrete status.
           - type: excludeMatchingLines
@@ -332,18 +332,18 @@ monitors:
           # Remove thresholds
           - type: replace
             column: 6
-            existingValue: Column(6)
+            existingValue: $6
             newValue: ""
           - type: replace
             column: 7
-            existingValue: Column(7)
+            existingValue: $7
             newValue: ""
         source(3):
           # Make a copy of table
           # This table is for sensors without a valid discrete status.
           # ID;enclosureID;Status;VoltageType;CurrentValue;LowerThreshold;UpperThreshold;
           type: copy
-          from: $monitors.voltage.discovery.sources.source(1)$
+          from: "${source::monitors.voltage.discovery.sources.source(1)}"
           computes:
           # Keep only sensors with invalid discrete value
           - type: keepOnlyMatchingLines
@@ -352,7 +352,7 @@ monitors:
           # Remove discrete sensor value
           - type: replace
             column: 3
-            existingValue: Column(3)
+            existingValue: $3
             newValue: ""
           # Exclude where numeric sensor is 4294967295
           - type: excludeMatchingLines
@@ -363,20 +363,20 @@ monitors:
           # ID;enclosureID;Status;VoltageType;CurrentValue;LowerThreshold;UpperThreshold;
           type: tableUnion
           tables:
-          - $monitors.voltage.discovery.sources.source(2)$
-          - $monitors.voltage.discovery.sources.source(3)$
+          - "${source::monitors.voltage.discovery.sources.source(2)}"
+          - "${source::monitors.voltage.discovery.sources.source(3)}"
       mapping:
         # InstanceTable
-        source: $monitors.voltage.discovery.sources.source(4)$
+        source: "${source::monitors.voltage.discovery.sources.source(4)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(4)
+          id: $1
+          __display_id: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(4)
+          hw.parent.id: $2
+          name: $4
         metrics:
-          hw.voltage.limit{limit_type="low.critical"}: $column(6)
-          hw.voltage.limit{limit_type="high.degraded"}: $column(7)
+          hw.voltage.limit{limit_type="low.critical"}: $6
+          hw.voltage.limit{limit_type="high.degraded"}: $7
     collect:
       # Collect type = "multi instance
       type: multiInstance
@@ -396,21 +396,21 @@ monitors:
             # ID;currentValue;PATROLStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: VoltageStatusTranslationTable
+            translationTable: "${translation::VoltageStatusTranslationTable}"
             # Translate Status into StatusInformation
             # ID;currentValue;PATROLStatus;StatusInformation;
           - type: translate
             column: 5
-            translationTable: VoltageStatusInformationTranslationTable
+            translationTable: "${translation::VoltageStatusInformationTranslationTable}"
       mapping:
         # ValueTable
-        source: $monitors.voltage.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.voltage: $column(3)
-          hw.status{hw.type="voltage"}: $column(4)
+          hw.voltage: $3
+          hw.status{hw.type="voltage"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   power_supply:
     discovery:
       sources:
@@ -426,13 +426,13 @@ monitors:
             valueList: "1,2"
       mapping:
         # InstanceTable
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(3)
+          hw.parent.id: $2
+          name: $3
     collect:
       # Collect type is "Multi-instance
       type: multiInstance
@@ -452,20 +452,20 @@ monitors:
             # status;powerSupplyUnitStatus
           - type: translate
             column: 3
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second powerSupplyUnitStatus into a more readable string
             # status;statusInformation
           - type: translate
             column: 4
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
       mapping:
         # Collect table
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(3)
+          hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   memory:
     discovery:
       sources:
@@ -499,16 +499,16 @@ monitors:
             value: "Speed: "
       mapping:
         # InstanceTable
-        source: $monitors.memory.discovery.sources.source(1)$
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(6)
-          type: $column(5)
-          info: $column(7)
+          id: $1
+          __display_id: $6
+          type: $5
+          info: $7
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s MB)\", $column(6), $column(5), $column(4))"
+          name: "${awk::sprintf(\"%s (%s - %s MB)\", $6, $5, $4)}"
         metrics:
-          hw.memory.limit: mebiByte2Byte($column(4))
+          hw.memory.limit: mebiByte2Byte($4)
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -528,20 +528,20 @@ monitors:
             # DeviceID;enclosureID;PATROLStatus;Status;
           - type: translate
             column: 3
-            translationTable: MemoryModuleStatusTranslationTable
+            translationTable: "${translation::MemoryModuleStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # DeviceID;enclosureID;PATROLStatus;StatusInformation;
           - type: translate
             column: 4
-            translationTable: MemoryModuleStatusInformationTranslationTable
+            translationTable: "${translation::MemoryModuleStatusInformationTranslationTable}"
       mapping:
         # ValueTable
-        source: $monitors.memory.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="memory"}: $column(3)
+          hw.status{hw.type="memory"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   cpu:
     discovery:
       sources:
@@ -571,16 +571,16 @@ monitors:
             newValue: ""
       mapping:
         # InstanceTable
-        source: $monitors.cpu.discovery.sources.source(1)$
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          model: $column(5)
-          __display_id: $column(6)
-          vendor: $column(7)
+          id: $1
+          model: $5
+          __display_id: $6
+          vendor: $7
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(6), $column(7), $column(5), megaHertz2HumanFormat($column(3)))"
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $6, $7, $5, megaHertz2HumanFormat($3))}"
         metrics:
-          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($3)
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -600,20 +600,20 @@ monitors:
             # ID;enclosureID;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: CPUStatusTranslationTable
+            translationTable: "${translation::CPUStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # PATROLStatus;StatusInformation
           - type: translate
             column: 4
-            translationTable: CPUStatusInformationTranslationTable
+            translationTable: "${translation::CPUStatusInformationTranslationTable}"
       mapping:
         # ValueTable
-        source: $monitors.cpu.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="cpu"}: $column(3)
+          hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
-          StatusInformation: $column(4)
+          StatusInformation: $4
   battery:
     discovery:
       sources:
@@ -635,13 +635,13 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Enclosure;Designation;Type;Status;
-        source: $monitors.battery.discovery.sources.source(1)$
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(3)
+          hw.parent.id: $2
+          name: $3
     collect:
       # Collect type = "multi instance
       type: multiInstance
@@ -660,19 +660,19 @@ monitors:
           # Translate TemperatureStatus into PATROLStatus
           - type: translate
             column: 2
-            translationTable: SC2CSSSensorTranslationTable
+            translationTable: "${translation::SC2CSSSensorTranslationTable}"
           # Translate Status into StatusInformation
           - type: translate
             column: 3
-            translationTable: SC2CSSSensorInformationTranslationTable
+            translationTable: "${translation::SC2CSSSensorInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.battery.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="battery"}: $column(2)
+          hw.status{hw.type="battery"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       sources:
@@ -694,13 +694,13 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Enclosure;Designation;Type;Status;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
+          id: $1
+          __display_id: $3
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: $column(3)
+          hw.parent.id: $2
+          name: $3
     collect:
       # Collect type = "multi instance
       type: multiInstance
@@ -719,19 +719,19 @@ monitors:
           # Translate TemperatureStatus into PATROLStatus
           - type: translate
             column: 2
-            translationTable: SC2CSSSensorTranslationTable
+            translationTable: "${translation::SC2CSSSensorTranslationTable}"
           # Translate Status into StatusInformation
           - type: translate
             column: 3
-            translationTable: SC2CSSSensorInformationTranslationTable
+            translationTable: "${translation::SC2CSSSensorInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   other_device:
     discovery:
       sources:
@@ -753,14 +753,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # ID;Enclosure;Designation;Type;Status;
-        source: $monitors.other_device.discovery.sources.source(1)$
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          __display_id: $column(3)
-          device_type: $column(4)
+          id: $1
+          __display_id: $3
+          device_type: $4
           hw.parent.type: enclosure
-          hw.parent.id: $column(2)
-          name: "sprintf(\"%s: %s\", $column(4), $column(3))"
+          hw.parent.id: $2
+          name: "${awk::sprintf(\"%s: %s\", $4, $3)}"
     collect:
       # Collect type = "multi instance
       type: multiInstance
@@ -779,19 +779,19 @@ monitors:
           # Translate TemperatureStatus into PATROLStatus
           - type: translate
             column: 2
-            translationTable: SC2CSSSensorTranslationTable
+            translationTable: "${translation::SC2CSSSensorTranslationTable}"
           # Translate Status into StatusInformation
           - type: translate
             column: 3
-            translationTable: SC2CSSSensorInformationTranslationTable
+            translationTable: "${translation::SC2CSSSensorInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.other_device.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="other_device"}: $column(2)
+          hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   TemperatureStatusTranslationTable:
     "3": ok

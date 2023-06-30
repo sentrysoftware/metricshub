@@ -20,7 +20,7 @@ connector:
       - Linux
     # We should find disks attached to one controller
     - type: osCommand
-      commandLine: /bin/sh $file("embeddedFile-1")$
+      commandLine: "/bin/sh ${file::embeddedFile-1}"
       expectedResult: Hard drive
       errorMessage: No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.
 sudoCommands:
@@ -31,29 +31,29 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-3")$
+          commandLine: "/bin/sh ${file::embeddedFile-3}"
           computes:
             # Reformat Source(1) output via EmbeddedFile(4)
             # MSHW;controllerID;status;model;serial;slot;memory;firmware;driver;batteryStatus;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,5,6,7,8,9,10"
       mapping:
         # The InstanceTable
         # controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-        source: $monitors.disk_controller.discovery.sources.source(1)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(1)
-          model: $column(2)
-          serial_number: $column(3)
-          firmware_version: $column(6)
-          driver_version: $column(7)
-          info: "join(\" \", $column(4), $column(5))"
+          id: $1
+          controller_number: $1
+          model: $2
+          serial_number: $3
+          firmware_version: $6
+          driver_version: $7
+          info: "${awk::join(\" \", $4, $5)}"
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -61,12 +61,12 @@ monitors:
         source(1):
           # Source(1) = EF4
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-3")$
+          commandLine: "/bin/sh ${file::embeddedFile-3}"
           computes:
             # Reformat Source(1) output via EmbeddedFile(4)
             # MSHW;controllerID;status;model;serial;slot;memory;firmware;driver;batteryStatus;
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,10"
@@ -74,30 +74,30 @@ monitors:
             # controllerID;Patrolstatus;batteryStatus;
           - type: translate
             column: 2
-            translationTable: DiskControllerStatusTranslationTable
+            translationTable: "${translation::DiskControllerStatusTranslationTable}"
             # Translate the Status into a PATROL status
             # controllerID;Patrolstatus;PatrolBatteryStatus;
           - type: translate
             column: 3
-            translationTable: ControllerBatteryStatusTranslationTable
+            translationTable: "${translation::ControllerBatteryStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # controllerID;Patrolstatus;status;PatrolBatteryStatus;batteryStatus;
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
   physical_disk:
     discovery:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           computes:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;controllerID;hardDriveID;status;location;vendor;model;firmware;serialNumber;sizeGB;channel;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,5,6,7,8,9,10,11"
@@ -109,18 +109,18 @@ monitors:
       mapping:
         # The InstanceTable
         # controllerID;hardDriveID;location;vendor;model;firmware;serialNumber;sizeB;channel;
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          vendor: $column(4)
-          model: $column(5)
-          serial_number: $column(7)
-          info: "join(\" \", $column(3), $column(9))"
+          id: $2
+          vendor: $4
+          model: $5
+          serial_number: $7
+          info: "${awk::join(\" \", $3, $9)}"
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), bytes2HumanFormatBase10($column(8)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $2, $4, bytes2HumanFormatBase10($8))}"
         metrics:
-          hw.physical_disk.size: $column(8)
+          hw.physical_disk.size: $8
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -128,12 +128,12 @@ monitors:
         source(1):
           # Source(1) = EF1
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-1")$
+          commandLine: "/bin/sh ${file::embeddedFile-1}"
           computes:
             # Reformat Source(1) output via EmbeddedFile(2)
             # MSHW;controllerID;hardDriveID;status;location;vendor;model;firmware;serialNumber;sizeGB;Channel;
           - type: awk
-            script: $file("embeddedFile-2")$
+            script: "${file::embeddedFile-2}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,4"
@@ -151,26 +151,26 @@ monitors:
             # hardDriveID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: DiskStatusTranslationTable
+            translationTable: "${translation::DiskStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
+          hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-5")$
+          commandLine: "/bin/sh ${file::embeddedFile-5}"
           computes:
             # Reformat Source(1) output via EmbeddedFile(6)
             # MSHW;controllerID;logicaldriveID;logicaldriveName;status;size;raidLevel;statusInfo;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,6,7"
@@ -182,16 +182,16 @@ monitors:
       mapping:
         # The InstanceTable
         # controllerID;logicaldriveID;logicaldriveName;size;raidLevel;
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(2)
-          raid_level: $column(5)
-          __display_id: $column(3)
+          id: $2
+          raid_level: $5
+          __display_id: $3
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
-          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(5), bytes2HumanFormatBase2($column(4)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $1)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $5, bytes2HumanFormatBase2($4))}"
         metrics:
-          hw.logical_disk.limit: $column(4)
+          hw.logical_disk.limit: $4
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -199,12 +199,12 @@ monitors:
         source(1):
           # Source(1) = EF5
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-5")$
+          commandLine: "/bin/sh ${file::embeddedFile-5}"
           computes:
             # Reformat Source(1) output via EmbeddedFile(6)
             # MSHW;controllerID;logicaldriveID;logicaldriveName;status;size;raidLevel;statusInfo;
           - type: awk
-            script: $file("embeddedFile-6")$
+            script: "${file::embeddedFile-6}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "3,5,8"
@@ -212,16 +212,16 @@ monitors:
             # logicaldriveID;Patrolstatus;statusInfo;
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # logicaldriveID;Patrolstatus;status;
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   DiskStatusTranslationTable:
     okay: ok

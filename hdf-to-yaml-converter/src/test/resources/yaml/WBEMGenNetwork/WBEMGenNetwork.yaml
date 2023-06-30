@@ -82,8 +82,8 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # MACAddress;Name;PNPDeviceID;MSNdisID;PNPDeviceID;
           type: tableJoin
-          leftTable: $monitors.network.discovery.sources.source(1)$
-          rightTable: $monitors.network.discovery.sources.source(2)$
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
           leftKeyColumn: 3
           rightKeyColumn: 2
           computes:
@@ -94,15 +94,15 @@ monitors:
             value: "PnP Device Id: "
       mapping:
         # InstanceTable = Source(3)
-        source: $monitors.network.discovery.sources.source(3)$
+        source: "${source::monitors.network.discovery.sources.source(3)}"
         attributes:
-          id: $column(4)
-          model: $column(2)
-          physical_address: $column(1)
+          id: $4
+          model: $2
+          physical_address: $1
           physical_address_type: MAC
-          info: $column(3)
+          info: $3
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(4), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $4, $2)}"
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -120,11 +120,11 @@ monitors:
           # DeviceID;PATROLStatus;HardwareStatus
           - type: translate
             column: 2
-            translationTable: GenericStatusTranslationTable
+            translationTable: "${translation::GenericStatusTranslationTable}"
           # DeviceID;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: GenericStatusInformationTranslationTable
+            translationTable: "${translation::GenericStatusInformationTranslationTable}"
         source(2):
           # LinkStatus
           # DeviceID;MediaConnectStatus
@@ -135,7 +135,7 @@ monitors:
           # DeviceID;LinkStatus
           - type: translate
             column: 2
-            translationTable: GenericLinkStatusTranslationTable
+            translationTable: "${translation::GenericLinkStatusTranslationTable}"
         source(3):
           # Transmitted errors
           # DeviceID;TransmitError
@@ -164,24 +164,24 @@ monitors:
           # Source(7) = Source(3) + Source(4)
           # DeviceID;TransmitError;DeviceID;ReceiveError
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(3)$
-          rightTable: $monitors.network.collect.sources.source(4)$
+          leftTable: "${source::monitors.network.collect.sources.source(3)}"
+          rightTable: "${source::monitors.network.collect.sources.source(4)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(8):
           # Source(8) = Source(5) + Source(6)
           # DeviceID;TransmitsOK;DeviceID;ReceivesOK
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(5)$
-          rightTable: $monitors.network.collect.sources.source(6)$
+          leftTable: "${source::monitors.network.collect.sources.source(5)}"
+          rightTable: "${source::monitors.network.collect.sources.source(6)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(9):
           # Source(9) = Source(8) + Source(7)
           # DeviceID;TransmitsOK;DeviceID;ReceivesOK;DeviceID;TransmitError;DeviceID;ReceiveError;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(8)$
-          rightTable: $monitors.network.collect.sources.source(7)$
+          leftTable: "${source::monitors.network.collect.sources.source(8)}"
+          rightTable: "${source::monitors.network.collect.sources.source(7)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;0;;0;
@@ -190,23 +190,23 @@ monitors:
             # DeviceID;TransmittedPackets;DeviceID;ReceivesOK;DeviceID;TransmitError;DeviceID;ReceiveError
           - type: add
             column: 2
-            value: Column(6)
+            value: $6
             # Computes ReceivedPackets ( = ReceivedErrors + ReceivesOK)
             # DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TransmitError;DeviceID;ReceiveError;
           - type: add
             column: 4
-            value: Column(8)
+            value: $8
             # Computes totalErrors ( = TransmitError + ReceiveError )
             # DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;
           - type: add
             column: 6
-            value: Column(8)
+            value: $8
         source(10):
           # Join LinkStatus and Status tables
           # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(2)$
-          rightTable: $monitors.network.collect.sources.source(1)$
+          leftTable: "${source::monitors.network.collect.sources.source(2)}"
+          rightTable: "${source::monitors.network.collect.sources.source(1)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;
@@ -226,16 +226,16 @@ monitors:
           # Join Status/LinkStatus with LinkSpeed
           # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(10)$
-          rightTable: $monitors.network.collect.sources.source(11)$
+          leftTable: "${source::monitors.network.collect.sources.source(10)}"
+          rightTable: "${source::monitors.network.collect.sources.source(11)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(13):
           # Join Source(12) + Source(9)
           # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(12)$
-          rightTable: $monitors.network.collect.sources.source(9)$
+          leftTable: "${source::monitors.network.collect.sources.source(12)}"
+          rightTable: "${source::monitors.network.collect.sources.source(9)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;;
@@ -271,26 +271,26 @@ monitors:
           # Final Join: Source(13) + Source(14)
           # DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;Name;BytesReceived;BytesTransmitted
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(13)$
-          rightTable: $monitors.network.collect.sources.source(14)$
+          leftTable: "${source::monitors.network.collect.sources.source(13)}"
+          rightTable: "${source::monitors.network.collect.sources.source(14)}"
           leftKeyColumn: 8
           rightKeyColumn: 1
           defaultRightLine: ;;;
       mapping:
         # And here is the ValueTable (at last!)
-        source: $monitors.network.collect.sources.source(15)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(15)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="network"}: $column(4)
-          hw.network.up: legacyLinkStatus($column(2))
-          hw.network.bandwidth.limit: megaBit2Bit($column(7))
-          hw.errors{hw.type="network"}: $column(13)
-          hw.network.packets{direction="transmit"}: $column(9)
-          hw.network.packets{direction="receive"}: $column(11)
-          hw.network.io{direction="receive"}: $column(17)
-          hw.network.io{direction="transmit"}: $column(18)
+          hw.status{hw.type="network"}: $4
+          hw.network.up: legacyLinkStatus($2)
+          hw.network.bandwidth.limit: megaBit2Bit($7)
+          hw.errors{hw.type="network"}: $13
+          hw.network.packets{direction="transmit"}: $9
+          hw.network.packets{direction="receive"}: $11
+          hw.network.io{direction="receive"}: $17
+          hw.network.io{direction="transmit"}: $18
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
 translations:
   GenericStatusTranslationTable:
     "0": ok

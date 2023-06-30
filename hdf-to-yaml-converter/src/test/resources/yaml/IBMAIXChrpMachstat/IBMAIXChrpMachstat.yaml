@@ -33,12 +33,12 @@ monitors:
           value: SystemCooling;System Cooling;
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.fan.discovery.sources.source(1)$
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          sensor_location: $column(2)
+          id: $1
+          sensor_location: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type = mono-instance
       type: monoInstance
@@ -60,19 +60,19 @@ monitors:
             # PATROLStatus;EPOW Event
           - type: translate
             column: 1
-            translationTable: FanStatusTranslationTable
+            translationTable: "${translation::FanStatusTranslationTable}"
             # Translate the second EPOW Event column into a more readable string
             # PATROLStatus;statusInformation
           - type: translate
             column: 2
-            translationTable: FanStatusInformationTranslationTable
+            translationTable: "${translation::FanStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1) (easy enough)
-        source: $monitors.fan.collect.sources.source(1)$
+        source: "${source::monitors.fan.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="fan"}: $column(1)
+          hw.status{hw.type="fan"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
   power_supply:
     discovery:
       sources:
@@ -82,12 +82,12 @@ monitors:
           value: SystemPower;System Power;
       mapping:
         # Instance Table = Source(1)
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          power_supply_type: $column(2)
+          id: $1
+          power_supply_type: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type = mono-instance
       type: monoInstance
@@ -109,19 +109,19 @@ monitors:
             # PATROLStatus;EPOW Event
           - type: translate
             column: 1
-            translationTable: PowerSupplyStatusTranslationTable
+            translationTable: "${translation::PowerSupplyStatusTranslationTable}"
             # Translate the second EPOW Event column into a more readable string
             # PATROLStatus;statusInformation
           - type: translate
             column: 2
-            translationTable: PowerSupplyStatusInformationTranslationTable
+            translationTable: "${translation::PowerSupplyStatusInformationTranslationTable}"
       mapping:
         # ValueTable = Source(1) (easy enough)
-        source: $monitors.power_supply.collect.sources.source(1)$
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
         metrics:
-          hw.status{hw.type="power_supply"}: $column(1)
+          hw.status{hw.type="power_supply"}: $1
         legacyTextParameters:
-          StatusInformation: $column(2)
+          StatusInformation: $2
 translations:
   FanStatusTranslationTable:
     "1": degraded

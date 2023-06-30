@@ -29,15 +29,15 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: "/bin/sh $file(\"embeddedFile-1\")$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          commandLine: "/bin/sh ${file::embeddedFile-1} %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 600
     collect:
       sources:
         source(1):
-          # Source(1) = the output of "$file("embeddedFile-1")$
+          # Source(1) = the output of \"${file::embeddedFile-1}
           type: osCommand
-          commandLine: "/bin/sh $file(\"embeddedFile-1\")$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          commandLine: "/bin/sh ${file::embeddedFile-1} %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 600
   logical_disk:
@@ -45,13 +45,13 @@ monitors:
       sources:
         source(1):
           type: osCommand
-          commandLine: "/bin/sh $file(\"embeddedFile-3\")$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          commandLine: "/bin/sh ${file::embeddedFile-3} %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 3600
     collect:
       sources:
         source(1):
           type: osCommand
-          commandLine: "/bin/sh $file(\"embeddedFile-3\")$ %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+          commandLine: "/bin/sh ${file::embeddedFile-3} %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true
           timeout: 3600

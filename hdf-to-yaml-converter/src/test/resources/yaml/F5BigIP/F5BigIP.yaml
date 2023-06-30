@@ -31,14 +31,14 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # Model,SerialNumber
-        source: $monitors.enclosure.discovery.sources.source(1)$
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
         attributes:
           id: F5-BigIP
           vendor: F5
-          model: $column(1)
-          serial_number: $column(2)
+          model: $1
+          serial_number: $2
           type: Switch
-          name: "sprintf(\"Switch: (%s %s)\", \"F5\", $column(1))"
+          name: "${awk::sprintf(\"Switch: (%s %s)\", \"F5\", $1)}"
   temperature:
     discovery:
       sources:
@@ -81,18 +81,18 @@ monitors:
           # Name;Temperature;WarnThreshold;
           type: tableUnion
           tables:
-          - $monitors.temperature.discovery.sources.source(1)$
-          - $monitors.temperature.discovery.sources.source(2)$
+          - "${source::monitors.temperature.discovery.sources.source(1)}"
+          - "${source::monitors.temperature.discovery.sources.source(2)}"
       mapping:
         # InstanceTable = Source(3)
         # Name;Temperature;WarnThreshold;
-        source: $monitors.temperature.discovery.sources.source(3)$
+        source: "${source::monitors.temperature.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(3)
+          hw.temperature.limit{limit_type="high.degraded"}: $3
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -114,15 +114,15 @@ monitors:
           # Name;Temperature;
           type: tableUnion
           tables:
-          - $monitors.temperature.collect.sources.source(1)$
-          - $monitors.temperature.collect.sources.source(2)$
+          - "${source::monitors.temperature.collect.sources.source(1)}"
+          - "${source::monitors.temperature.collect.sources.source(2)}"
       mapping:
         # ValueTable = Source(3)
         # Name;Temperature;
-        source: $monitors.temperature.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.temperature.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.temperature: $column(2)
+          hw.temperature: $2
   fan:
     discovery:
       sources:
@@ -165,19 +165,19 @@ monitors:
           # Name;Speed;Status;WarnThreshold;
           type: tableUnion
           tables:
-          - $monitors.fan.discovery.sources.source(1)$
-          - $monitors.fan.discovery.sources.source(2)$
+          - "${source::monitors.fan.discovery.sources.source(1)}"
+          - "${source::monitors.fan.discovery.sources.source(2)}"
       mapping:
         # InstanceTable = Source(3)
         # Only CPU fans will have numeric thresholds
         # Name;Speed;Status;WarnThreshold;
-        source: $monitors.fan.discovery.sources.source(3)$
+        source: "${source::monitors.fan.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
         metrics:
-          hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
+          hw.fan.speed.limit{limit_type="low.degraded"}: $4
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -205,22 +205,22 @@ monitors:
             # Name;FanSpeed;Status;
           - type: translate
             column: 3
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
         source(3):
           # Union CPU and Chassis
           # Name;Speed;Status;
           type: tableUnion
           tables:
-          - $monitors.fan.collect.sources.source(1)$
-          - $monitors.fan.collect.sources.source(2)$
+          - "${source::monitors.fan.collect.sources.source(1)}"
+          - "${source::monitors.fan.collect.sources.source(2)}"
       mapping:
         # ValueTable = Source(3)
         # Name;Speed;Status;
-        source: $monitors.fan.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.fan.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.fan.speed: $column(2)
-          hw.status{hw.type="fan"}: $column(3)
+          hw.fan.speed: $2
+          hw.status{hw.type="fan"}: $3
   power_supply:
     discovery:
       sources:
@@ -239,11 +239,11 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # Name;Status;
-        source: $monitors.power_supply.discovery.sources.source(1)$
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -259,14 +259,14 @@ monitors:
             # Name;PatrolStatus;
           - type: translate
             column: 2
-            translationTable: SensorStatusTranslationTable
+            translationTable: "${translation::SensorStatusTranslationTable}"
       mapping:
         # ValueTable = Source(1)
         # Name;Speed;Status;
-        source: $monitors.power_supply.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="power_supply"}: $column(2)
+          hw.status{hw.type="power_supply"}: $2
   network:
     discovery:
       sources:
@@ -279,13 +279,13 @@ monitors:
       mapping:
         # InstanceTable = Source(1)
         # PortID;ActiveSpeed,MACAddress
-        source: $monitors.network.discovery.sources.source(1)$
+        source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          physical_address: $column(3)
+          id: $1
+          physical_address: $3
           physical_address_type: MAC
           hw.parent.type: enclosure
-          name: $column(1)
+          name: $1
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -301,12 +301,12 @@ monitors:
             # PortID;ActiveSpeed,ActiveDuplex,LinkStatus
           - type: translate
             column: 3
-            translationTable: DuplexStatusTranslationTable
+            translationTable: "${translation::DuplexStatusTranslationTable}"
             # Translate Link Status
             # PortID;ActiveSpeed,ActiveDuplex,LinkStatus
           - type: translate
             column: 4
-            translationTable: LinkStatusTranslationTable
+            translationTable: "${translation::LinkStatusTranslationTable}"
         source(2):
           # Source(2) = sysInterfaceStatTable SNMP Table
           # All metrics are 64 bit, so will only work with SNMP v2/3
@@ -319,13 +319,13 @@ monitors:
             # PortID;PacketsRec;BytesRec;PacketsTrans;BytesTrans;ErrorsTotal;ErrorsOut;
           - type: add
             column: 6
-            value: Column(7)
+            value: $7
         source(3):
           # Join the port information with the stats
           # PortID;PacketsRec;BytesRec;PacketsTrans;BytesTrans;ErrorsTotal;ErrorsOut;
           type: tableJoin
-          leftTable: $monitors.network.collect.sources.source(1)$
-          rightTable: $monitors.network.collect.sources.source(2)$
+          leftTable: "${source::monitors.network.collect.sources.source(1)}"
+          rightTable: "${source::monitors.network.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;
@@ -333,17 +333,17 @@ monitors:
         # ValueTable = Source(1)
         #   1         2        #    3        # 4         5       6         7       8        #  9        #   10      11
         # PortID;ActiveSpeed,ActiveDuplex,LinkStatus;PortID;PacketsRec;BytesRec;PacketsTrans;BytesTrans;ErrorsTotal;ErrorsOut;
-        source: $monitors.network.collect.sources.source(3)$
-        deviceId: $column(1)
+        source: "${source::monitors.network.collect.sources.source(3)}"
+        deviceId: $1
         metrics:
-          hw.network.up: legacyLinkStatus($column(4))
-          hw.network.bandwidth.limit: megaBit2Bit($column(2))
-          hw.network.full_duplex: legacyFullDuplex($column(3))
-          hw.errors{hw.type="network"}: $column(10)
-          hw.network.packets{direction="transmit"}: $column(8)
-          hw.network.packets{direction="receive"}: $column(6)
-          hw.network.io{direction="transmit"}: $column(9)
-          hw.network.io{direction="receive"}: $column(7)
+          hw.network.up: legacyLinkStatus($4)
+          hw.network.bandwidth.limit: megaBit2Bit($2)
+          hw.network.full_duplex: legacyFullDuplex($3)
+          hw.errors{hw.type="network"}: $10
+          hw.network.packets{direction="transmit"}: $8
+          hw.network.packets{direction="receive"}: $6
+          hw.network.io{direction="transmit"}: $9
+          hw.network.io{direction="receive"}: $7
 translations:
   SensorStatusTranslationTable:
     "0": failed

@@ -49,7 +49,7 @@ monitors:
             value: .
           - type: rightConcat
             column: 2
-            value: Column(3)
+            value: $3
         source(2):
           # Source(2) = the cpqScsiPhyDrv snmp table
           # We're going to keep only disk controllers that have disks attached to them
@@ -77,7 +77,7 @@ monitors:
             value: .
           - type: rightConcat
             column: 2
-            value: Column(3)
+            value: $3
             # Remove disks that are marked as missing by Insight Manager
             # These disks shouldn't be discovered, that way they'll be marked
             # as "missing" by Hardware Sentry
@@ -89,21 +89,21 @@ monitors:
           # in order to keep only disk controllers with physical disks
           # ID;ControllerNumber;BusNumber;FWVers;BIOSVers;Model;ID;ControllerIndex;BusNumber;Model;Size;SerialNumber;Status
           type: tableJoin
-          leftTable: $monitors.disk_controller.discovery.sources.source(1)$
-          rightTable: $monitors.disk_controller.discovery.sources.source(2)$
+          leftTable: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.disk_controller.discovery.sources.source(2)}"
           leftKeyColumn: 2
           rightKeyColumn: 2
       mapping:
         # The InstanceTable
-        source: $monitors.disk_controller.discovery.sources.source(3)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(3)}"
         attributes:
-          id: $column(1)
-          controller_number: $column(2)
-          model: $column(6)
-          firmware_version: $column(4)
-          bios_version: $column(5)
+          id: $1
+          controller_number: $2
+          model: $6
+          firmware_version: $4
+          bios_version: $5
           hw.parent.type: enclosure
-          name: "sprintf(\"Disk Controller: %s (%s)\", $column(2), $column(6))"
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $6)}"
     collect:
       # Collect type = "multi-instance
       type: multiInstance
@@ -123,34 +123,34 @@ monitors:
             # ID;Status;ControllerStatus
           - type: translate
             column: 2
-            translationTable: DiskControllerStatusTranslationTable
+            translationTable: "${translation::DiskControllerStatusTranslationTable}"
             # Translate second ControllerStatus into a more readable string
             # ID;Status;statusInformation
           - type: translate
             column: 3
-            translationTable: DiskControllerStatusInformationTranslationTable
+            translationTable: "${translation::DiskControllerStatusInformationTranslationTable}"
       mapping:
         # ValueTable = source(1)
-        source: $monitors.disk_controller.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="disk_controller"}: $column(2)
+          hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   physical_disk:
     discovery:
       mapping:
         # The instance table = DiskController.Discovery.Source(2)
-        source: $monitors.disk_controller.discovery.sources.source(2)$
+        source: "${source::monitors.disk_controller.discovery.sources.source(2)}"
         attributes:
-          id: $column(1)
-          vendor: $column(4)
-          serial_number: $column(6)
+          id: $1
+          vendor: $4
+          serial_number: $6
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), bytes2HumanFormatBase10($column(5)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase10($5))}"
         metrics:
-          hw.physical_disk.size: $column(5)
+          hw.physical_disk.size: $5
     collect:
       # Collect type is: multi-instance
       type: multiInstance
@@ -173,26 +173,26 @@ monitors:
             # ID;PATROLstatus;status;status
           - type: translate
             column: 2
-            translationTable: PhysicalDiskStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # ID;PATROLstatus;statusInformation;status
           - type: translate
             column: 3
-            translationTable: PhysicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
             # Translate the third status into a 0 (no failure predicted) or 1 (failure is predicted)
             # ID;PATROLstatus;statusInformation;predictFailureStatus
           - type: translate
             column: 4
-            translationTable: PhysicalDiskSMARTStatusTranslationTable
+            translationTable: "${translation::PhysicalDiskSMARTStatusTranslationTable}"
       mapping:
         # The ValueTable = source(1)
-        source: $monitors.physical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="physical_disk"}: $column(2)
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
+          hw.status{hw.type="physical_disk"}: $2
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
   logical_disk:
     discovery:
       sources:
@@ -212,7 +212,7 @@ monitors:
             # ID;ControllerNumber;BusNumber;RAIDLevel;Size
           - type: translate
             column: 4
-            translationTable: RAIDLevelTranslationTable
+            translationTable: "${translation::RAIDLevelTranslationTable}"
             # Concatenate ControllerNumber and BusNumber to obtain the ControllerIndex
             # ID;ControllerIndex;BusNumber;RAIDLevel;Size
           - type: rightConcat
@@ -220,18 +220,18 @@ monitors:
             value: .
           - type: rightConcat
             column: 2
-            value: Column(3)
+            value: $3
       mapping:
         # The InstanceTable
-        source: $monitors.logical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          raid_level: $column(4)
+          id: $1
+          raid_level: $4
           hw.parent.type: disk_controller
-          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
-          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), bytes2HumanFormatBase2($column(5)))"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase2($5))}"
         metrics:
-          hw.logical_disk.limit: $column(5)
+          hw.logical_disk.limit: $5
     collect:
       # Collect type = MultiInstance
       type: multiInstance
@@ -251,20 +251,20 @@ monitors:
             # ID;PATROLStatus;Status
           - type: translate
             column: 2
-            translationTable: LogicalDiskStatusTranslationTable
+            translationTable: "${translation::LogicalDiskStatusTranslationTable}"
             # Translate the second status column into a more readable string
             # ID;PATROLStatus;StatusInformation
           - type: translate
             column: 3
-            translationTable: LogicalDiskStatusInformationTranslationTable
+            translationTable: "${translation::LogicalDiskStatusInformationTranslationTable}"
       mapping:
         # The ValueTable = source(1)
-        source: $monitors.logical_disk.collect.sources.source(1)$
-        deviceId: $column(1)
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        deviceId: $1
         metrics:
-          hw.status{hw.type="logical_disk"}: $column(2)
+          hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
-          StatusInformation: $column(3)
+          StatusInformation: $3
 translations:
   DiskControllerStatusTranslationTable:
     "2": ok

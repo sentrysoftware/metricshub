@@ -42,7 +42,7 @@ monitors:
           # Source(1) = output of smartd -c + smartctl reformatted by awk (see EmbeddedFile(1))
           # DeviceID;Vendor;SerialNumber
           type: osCommand
-          commandLine: "sh $file(\"embeddedFile-1\")$ \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
+          commandLine: "sh ${file::embeddedFile-1} \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4"
@@ -55,13 +55,13 @@ monitors:
             regExp: "[Vv]irtual"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.physical_disk.discovery.sources.source(1)$
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
-          serial_number: $column(3)
-          vendor: $column(2)
+          id: $1
+          serial_number: $3
+          vendor: $2
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+          name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       # Collect type is "one instance per instance
       type: monoInstance
@@ -69,12 +69,12 @@ monitors:
         source(1):
           # Source(1) = output of smartctl
           type: osCommand
-          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -H $physical_disk.id$"
+          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -H ${physical_disk::id}"
           computes:
             # Process smartctl's output through awk EmbeddedFile(4)
             # SMARTstatus
           - type: awk
-            script: $file("embeddedFile-4")$
+            script: "${file::embeddedFile-4}"
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
@@ -82,12 +82,12 @@ monitors:
             # 1;PredictedFailure
           - type: translate
             column: 1
-            translationTable: PhysicalDiskPredictedFailureTranslationTable
+            translationTable: "${translation::PhysicalDiskPredictedFailureTranslationTable}"
         source(2):
           # Source(2) = output of the shell script based on dd
           # 1;Status;StatusInformation
           type: osCommand
-          commandLine: /bin/sh $file("embeddedFile-5")$ $physical_disk.id$
+          commandLine: "/bin/sh ${file::embeddedFile-5} ${physical_disk::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4"
@@ -95,18 +95,18 @@ monitors:
           # Source(3) = Table joint of Source(1) and Source(2)
           # 1;PredictedFailure;1;Status;StatusInformation
           type: tableJoin
-          leftTable: $monitors.physical_disk.collect.sources.source(1)$
-          rightTable: $monitors.physical_disk.collect.sources.source(2)$
+          leftTable: "${source::monitors.physical_disk.collect.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.collect.sources.source(2)}"
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.physical_disk.collect.sources.source(3)$
+        source: "${source::monitors.physical_disk.collect.sources.source(3)}"
         metrics:
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(2))
-          hw.status{hw.type="physical_disk"}: $column(4)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($2)
+          hw.status{hw.type="physical_disk"}: $4
         legacyTextParameters:
-          StatusInformation: $column(5)
+          StatusInformation: $5
   temperature:
     discovery:
       sources:
@@ -114,20 +114,20 @@ monitors:
           # Source(1) = output of EmbeddedFile(2)
           # DeviceID;WarningThreshold
           type: osCommand
-          commandLine: "sh $file(\"embeddedFile-2\")$ \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
+          commandLine: "sh ${file::embeddedFile-2} \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartd\" \"%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl\""
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3"
       mapping:
         # InstanceTable = Source(1)
-        source: $monitors.temperature.discovery.sources.source(1)$
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
         attributes:
-          id: $column(1)
+          id: $1
           sensor_location: Harddisk
           hw.parent.type: enclosure
-          name: "sprintf(\"%s (%s)\", $column(1), \"Harddisk\")"
+          name: "${awk::sprintf(\"%s (%s)\", $1, \"Harddisk\")}"
         metrics:
-          hw.temperature.limit{limit_type="high.degraded"}: $column(2)
+          hw.temperature.limit{limit_type="high.degraded"}: $2
     collect:
       # Collect type is mono-instance (one instance per collect)
       type: monoInstance
@@ -135,20 +135,20 @@ monitors:
         source(1):
           # Source(1) = output of smartctl
           type: osCommand
-          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -a $physical_disk.id$"
+          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -a ${physical_disk::id}"
           computes:
             # Process smartctl's output through awk EmbeddedFile(3)
             # Temperature
           - type: awk
-            script: $file("embeddedFile-3")$
+            script: "${file::embeddedFile-3}"
             keep: ^MSHW;
             separators: ;
             selectColumns: 2
       mapping:
         # ValueTable = Source(1)
-        source: $monitors.temperature.collect.sources.source(1)$
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
         metrics:
-          hw.temperature: $column(1)
+          hw.temperature: $1
 translations:
   PhysicalDiskPredictedFailureTranslationTable:
     Ok!: 1;false

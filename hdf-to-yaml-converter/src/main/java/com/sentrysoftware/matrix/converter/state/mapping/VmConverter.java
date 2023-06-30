@@ -16,6 +16,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_HOS
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER_RATIO;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER_STATE;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-public class VMConverter extends AbstractMappingConverter {
+public class VmConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
 	static {
@@ -69,9 +70,11 @@ public class VMConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(
-					displayId != null ? displayId : deviceId,
-					existingAttributes.get(HDF_HOSTNAME)
+				wrapInAwkRefIfFunctionDetected(
+					buildNameValue(
+						displayId != null ? displayId : deviceId,
+						existingAttributes.get(HDF_HOSTNAME)
+					)
 				)
 			)
 		);

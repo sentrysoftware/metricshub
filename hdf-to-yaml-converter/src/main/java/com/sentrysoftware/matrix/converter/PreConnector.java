@@ -98,6 +98,14 @@ public class PreConnector {
 	private static final Pattern CODE_COMMENT_PATTERN = Pattern.compile("(((['\"])(?:(?!\\2|\\\\).|\\\\.)*+\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*+\\*\\/)|(^\\s*$)|^\\s*(.*?)\\s*=\\s*(.*?)\\s*$", Pattern.MULTILINE);
 
 	/**
+	 * Pattern to remove comments (see https://regex101.com/r/vI2iW5/1)
+	 * <p>
+	 * Usage:
+	 * {@code REMOVE_COMMENTS_PATTERN.matcher(code).replaceAll("$1")}
+	 */
+	private static final Pattern REMOVE_COMMENTS_PATTERN = Pattern.compile("((['\"])(?:(?!\\2|\\\\).|\\\\.)*\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*\\*\\/");
+
+	/**
 	 * Map each HDF status value with the corresponding OpenTelemetry state
 	 */
 	private static final Map<String, String> HDF_STATUS_TO_OTEL_STATE = Map.of(
@@ -156,9 +164,12 @@ public class PreConnector {
 			throws IOException {
 
 		String rawCode = buildRawCode(hdfStream);
-		
+
 		// Process code comments
 		rawCode = processComments(rawCode);
+
+		// Remove comments
+		rawCode = removeComments(rawCode);
 
 		// Now process #include directives
 		rawCode = processIncludeDirectives(rawCode);
@@ -312,7 +323,7 @@ public class PreConnector {
 			} else if (group5 != null) {
 				if (!list.isEmpty()) {
 					// We've got the key-value pair
-					list.removeIf(x -> x.isEmpty());
+					list.removeIf(String::isEmpty);
 					comments.put(group5.trim().toLowerCase(), list);
 				}
 
@@ -321,6 +332,17 @@ public class PreConnector {
 		}
 
 		return defineMatcher.appendTail(tempRawCode).toString();
+	}
+
+	/**
+	 * Remove any comment
+	 * 
+	 * @param rawCode
+	 * @return code without comments
+	 */
+	private String removeComments(String rawCode) {
+
+		return REMOVE_COMMENTS_PATTERN.matcher(rawCode).replaceAll("$1");
 	}
 
 	void detectRemainingEmbeddedFiles(String rawCode) {
@@ -996,4 +1018,5 @@ public class PreConnector {
 				OptionalInt.empty();
 		}
 	}
+
 }

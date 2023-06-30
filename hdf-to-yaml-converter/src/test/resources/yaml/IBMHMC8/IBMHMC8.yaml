@@ -38,4 +38,4 @@ monitors:
             value: " - FRU Details: "
           - type: rightConcat
             column: 3
-            value: Column(6)
+            value: $6

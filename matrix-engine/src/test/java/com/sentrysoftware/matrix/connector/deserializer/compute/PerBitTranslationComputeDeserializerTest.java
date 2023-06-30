@@ -34,7 +34,7 @@ class PerBitTranslationComputeDeserializerTest extends DeserializerTest {
 					.type("perBitTranslation")
 					.column(1)
 					.bitList("1,2,3,4")
-					.translationTable("translationTableTest")
+					.translationTable("${translation::translationTableTest}")
 					.build()
         );
 
