@@ -55,7 +55,7 @@ public class LedConverter extends AbstractMappingConverter {
 	protected void setName(ObjectNode existingAttributes, ObjectNode newAttributes) {
 		final JsonNode deviceId = existingAttributes.get(HDF_DEVICE_ID);
 		if (deviceId == null) {
-			throw new IllegalStateException(String.format("%s cannot be null.", HDF_DEVICE_ID));
+			return;
 		}
 
 		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
