@@ -1,7 +1,9 @@
 package com.sentrysoftware.matrix.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -188,4 +191,30 @@ class ConnectorLibraryConverterTest {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Test
+	/**
+	 * Run this test using JVM argument
+	 * -Dhc.project.path=path_to_<hardware-connectors>_project E.g.
+	 * -Dhc.project.path=/opt/workspace/hardware-connectors
+	 * 
+	 */
+	@Disabled("The test is disabled because it's supposed to be launched on the developer's machine only.")
+	void produceYamlConnectors() {
+		try {
+			final String hcProjectPath = System.getProperty("hc.project.path");
+
+			assertNotNull(hcProjectPath);
+
+			new ConnectorLibraryConverter(
+				Path.of(hcProjectPath, "src", "main", "hdf"),
+				Path.of(hcProjectPath, "src", "main", "connector")
+			)
+			.process();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			fail("Conversion error detected.");
+		}
+	}
+
 }
