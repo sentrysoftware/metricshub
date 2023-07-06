@@ -50,13 +50,11 @@ public class EmbeddedFileExternalizer {
 	 * @throws IOException
 	 */
 	public void externalize() throws IOException {
-		if (embeddedFiles == null || embeddedFiles.isEmpty()) {
-			return;
-		}
-
-		// Externalize each embedded file
-		for (Entry<String, String> embeddedFileEntry : embeddedFiles.entrySet()) {
-			extractEmbeddedFile(embeddedFileEntry.getKey(), embeddedFileEntry.getValue());
+		if (embeddedFiles != null) {
+			// Externalize each embedded file
+			for (Entry<String, String> embeddedFileEntry : embeddedFiles.entrySet()) {
+				extractEmbeddedFile(embeddedFileEntry.getKey(), embeddedFileEntry.getValue());
+			}
 		}
 
 		// Traverse the connector node and replace embedded files references

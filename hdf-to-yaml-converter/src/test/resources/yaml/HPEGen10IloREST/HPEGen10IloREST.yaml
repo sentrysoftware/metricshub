@@ -28,7 +28,7 @@ connector:
     - type: http
       method: GET
       url: /redfish/v1/
-      header: $embedded.EmbeddedFile(1)$
+      header: "${file::../RedfishREST-header/embeddedFile-1}"
       expectedResult: iLO 5
       errorMessage: Invalid credentials / not an HP iLO 5
 monitors:
@@ -101,7 +101,7 @@ monitors:
             source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
           url: $3EthernetInterfaces/
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # JSONID;ChassisID;EthernetURL;
@@ -120,7 +120,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(1)}"
             concatMethod: json_array_extended
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
             # Extract data
@@ -143,7 +143,7 @@ monitors:
             source: "${source::monitors.enclosure.discovery.sources.source(1)}"
             concatMethod: json_array_extended
           url: $2NetworkAdapters/
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # JSONID;ChassisID;NetworkAdapterURL;
@@ -163,7 +163,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(3)}"
             concatMethod: json_array_extended
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # JsonID;ChassisID;NetworkPorts;Manufacturer;Model;PartNumber;SerialNumber;
@@ -179,7 +179,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(4)}"
             concatMethod: json_array_extended
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # JsonID;ChassisID;NetworkPort;Manufacturer;Model;PartNumber;SerialNumber;
@@ -198,7 +198,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(5)}"
             concatMethod: json_array_extended
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
             # PhysicalPortAssignment
@@ -218,7 +218,7 @@ monitors:
             source: "${source::monitors.enclosure.discovery.sources.source(3)}"
             concatMethod: json_array_extended
           url: $3BaseNetworkAdapters/
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # JSONID;ChassisID;NetworkAdapterURL;
@@ -237,7 +237,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(7)}"
             concatMethod: json_array_extended
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;null;null;WWPN;Name
@@ -313,7 +313,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(1)}"
             concatMethod: json_array
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # JSONID;EthernetID;LinkStatus;Health;Health;Speed;
@@ -328,7 +328,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(5)}"
             concatMethod: json_array
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           # PhysicalPortAssignment
@@ -343,7 +343,7 @@ monitors:
             source: "${source::monitors.network.discovery.sources.source(7)}"
             concatMethod: json_array
           url: $3
-          header: $embedded.EmbeddedFile(1)$
+          header: "${file::../RedfishREST-header/embeddedFile-1}"
           resultContent: body
           computes:
           - type: json2csv
