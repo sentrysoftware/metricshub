@@ -2,7 +2,7 @@
 extends:
 - ../VMwareESX5iLUN-header/VMwareESX5iLUN-header
 constants:
-  _ExecuteLocally: '"0"'
+  _ExecuteLocally: 0
   _EsxcliConstant: esxcli
 connector:
   displayName: VMware ESXi 5 LUN (SSH)

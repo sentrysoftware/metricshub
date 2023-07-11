@@ -2,7 +2,7 @@
 extends:
 - ../HitachiDiskArray-header/HitachiDiskArray-header
 constants:
-  HITACHI_NAMESPACE: '"root/hitachi/smis"'
+  HITACHI_NAMESPACE: root/hitachi/smis
 connector:
   displayName: Hitachi SVP SMI-S Agent
   platforms: "Hitachi VSP G Series, Hitachi HUS-VM"

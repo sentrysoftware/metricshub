@@ -2,8 +2,8 @@
 extends:
 - ../SMISShared-header/SMISShared-header
 constants:
-  _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^5|\)\|\(|5|\)"'
-  _FCPORT_TYPE_VALUELIST: "\"14,15,16,17,18\""
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: \(^5|\)\|\(|5|\)
+  _FCPORT_TYPE_VALUELIST: "14,15,16,17,18"
 connector:
   displayName: SMI-S Compliant SAN Switches
   platforms: Any SMI-S compliant SAN switch

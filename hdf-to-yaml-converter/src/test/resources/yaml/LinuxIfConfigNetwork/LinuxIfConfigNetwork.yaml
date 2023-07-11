@@ -2,8 +2,8 @@
 extends:
 - ../LinuxNetwork-header/LinuxNetwork-header
 constants:
-  GLOBAL_COMMAND_LINE: '"/sbin/ifconfig -a"'
-  COLLECT_COMMAND_LINE: "\"/sbin/ifconfig -a  ${network::id}\""
+  GLOBAL_COMMAND_LINE: /sbin/ifconfig -a
+  COLLECT_COMMAND_LINE: "/sbin/ifconfig -a  ${network::id}"
 connector:
   displayName: Linux - Network (ifconfig)
   platforms: Any system

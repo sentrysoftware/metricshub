@@ -61,9 +61,10 @@ public class PreConnector {
 	/**
 	 * Pattern to detect <code>#define</code> statements
 	 * <li>group(1): constant name
-	 * <li>group(2): constant value
+	 * <li>group(3): constant value without trailing and leading double quotes.
+	 * <li>group(4): constant value.
 	 */
-	private static final Pattern DEFINE_PATTERN = Pattern.compile("^\\s*#define\\s+(\\w+)\\s+(.+?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+	private static final Pattern DEFINE_PATTERN = Pattern.compile("^\\s*#define\\s+(\\w+)\\s+(\"(.+?)\"|(.+?))\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 	/**
 	 * Pattern to detect <code>EmbeddedFile(n):</code> blocks
@@ -221,7 +222,8 @@ public class PreConnector {
 
 	/**
 	 * Search the <em>#define key value</em> entries and update the constants key-value pair. This method discards the
-	 * <em>#define</em> entry from the resulting raw code.
+	 * <em>#define</em> entry from the resulting raw code.<br>
+	 * This method discards trailing and leading double quotes that could be defined in the constant value.
 	 * 
 	 * @param rawCode Connector's raw code
 	 * @return raw code as string value
@@ -232,7 +234,11 @@ public class PreConnector {
 		StringBuffer tempRawCode = new StringBuffer();
 
 		while (defineMatcher.find()) {
-			constants.put(defineMatcher.group(1), defineMatcher.group(2));
+			String constantValue = defineMatcher.group(3);
+			if (constantValue == null) {
+				constantValue = defineMatcher.group(4);
+			}
+			constants.put(defineMatcher.group(1), constantValue);
 			defineMatcher.appendReplacement(tempRawCode, "");
 		}
 

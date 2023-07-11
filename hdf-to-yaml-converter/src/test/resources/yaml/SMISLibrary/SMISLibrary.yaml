@@ -2,8 +2,8 @@
 extends:
 - ../SMISShared-header/SMISShared-header
 constants:
-  _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^22|\)\|\(|22|\)\|\(^35|\)\|\(|35|\)"'
-  _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: \(^22|\)\|\(|22|\)\|\(^35|\)\|\(|35|\)
+  _FCPORT_TYPE_VALUELIST: "10,11,12"
 connector:
   displayName: SMI-S Compliant Storage Libraries
   platforms: Any SMI-S compliant storage library
