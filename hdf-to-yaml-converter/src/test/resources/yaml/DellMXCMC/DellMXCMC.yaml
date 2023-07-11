@@ -2,9 +2,9 @@
 extends:
 - ../DellCMC-header/DellCMC-header
 constants:
-  ENCLO_SOURCE_DISCO: "\"${source::monitors.enclosure.discovery.sources.source(11)}\""
+  ENCLO_SOURCE_DISCO: "${source::monitors.enclosure.discovery.sources.source(11)}"
   _Command: racadm
-  ENCLO_SOURCE_COL: "\"${source::monitors.enclosure.collect.sources.source(10)}\""
+  ENCLO_SOURCE_COL: "${source::monitors.enclosure.collect.sources.source(10)}"
 connector:
   displayName: Dell MX7000 Chassis
   platforms: Dell MX7000 Chassis

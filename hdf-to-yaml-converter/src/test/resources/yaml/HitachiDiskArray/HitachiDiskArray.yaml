@@ -2,7 +2,7 @@
 extends:
 - ../HitachiDiskArray-header/HitachiDiskArray-header
 constants:
-  HITACHI_NAMESPACE: '"root/smis/current"'
+  HITACHI_NAMESPACE: root/smis/current
 connector:
   displayName: Hitachi Storage Command Suite SMI-S Agent
   platforms: "Hitachi AMS,Hitachi HUS,Hitachi USP,Hitachi VSP"

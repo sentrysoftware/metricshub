@@ -1,7 +1,7 @@
 ---
 constants:
-  _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)\|\(^15|\)\|\(^16|\)\|\(^24|\)\|\(^25|\)"'
-  _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: \(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)\|\(^15|\)\|\(^16|\)\|\(^24|\)\|\(^25|\)
+  _FCPORT_TYPE_VALUELIST: "10,11,12"
 connector:
   displayName: EMC Unity SMI-S Agent
   platforms: EMC Unity

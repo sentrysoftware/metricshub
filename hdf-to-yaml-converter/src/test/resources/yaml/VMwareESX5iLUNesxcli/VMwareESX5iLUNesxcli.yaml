@@ -2,7 +2,7 @@
 extends:
 - ../VMwareESX5iLUN-header/VMwareESX5iLUN-header
 constants:
-  _ExecuteLocally: '"1"'
+  _ExecuteLocally: 1
   _EsxcliConstant: "esxcli -s %{SUDO:vcenter} %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD}"
 connector:
   detection:

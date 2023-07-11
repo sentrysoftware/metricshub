@@ -2,8 +2,8 @@
 extends:
 - ../SMISShared-header/SMISShared-header
 constants:
-  _COMPUTERSYSTEM_DEDICATED_REGEXP: '"\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)"'
-  _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: \(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)
+  _FCPORT_TYPE_VALUELIST: "10,11,12"
 connector:
   displayName: SMI-S Compliant Disk Arrays
   platforms: Any SMI-S compliant disk array

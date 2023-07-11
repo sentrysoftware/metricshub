@@ -1080,6 +1080,42 @@ class PreConnectorTest {
 
 			assertEquals(expected, actual);
 		}
+		{
+
+			// Extract value enclosed in double quotes
+			final String rawCode = "#define _IsiStatusCommand \"/usr/bin/isi(\\w+) status -w\"\n";
+
+			final PreConnector preConnector = new PreConnector();
+			preConnector.processDefineDirectives(rawCode);
+			final Map<String, String> actual = preConnector.getConstants();
+			final Map<String, String> expected = Map.of("_IsiStatusCommand", "/usr/bin/isi(\\w+) status -w");
+
+			assertEquals(expected, actual);
+		}
+		{
+
+			// Extract value enclosed in double quotes where double quotes are also located in the extracted string
+			final String rawCode = "#define _IsiStatusCommand \"\"/usr/bin/isi(\\w+)\" status -w\"\n";
+
+			final PreConnector preConnector = new PreConnector();
+			preConnector.processDefineDirectives(rawCode);
+			final Map<String, String> actual = preConnector.getConstants();
+			final Map<String, String> expected = Map.of("_IsiStatusCommand", "\"/usr/bin/isi(\\w+)\" status -w");
+
+			assertEquals(expected, actual);
+		}
+		{
+
+			// Extract value enclosed in protected double quotes
+			final String rawCode = "#define _IsiStatusCommand \\\"/usr/bin/isi(\\w+) status -w\\\"\n";
+
+			final PreConnector preConnector = new PreConnector();
+			preConnector.processDefineDirectives(rawCode);
+			final Map<String, String> actual = preConnector.getConstants();
+			final Map<String, String> expected = Map.of("_IsiStatusCommand", "\\\"/usr/bin/isi(\\w+) status -w\\\"");
+
+			assertEquals(expected, actual);
+		}
 	}
 
 	@Test

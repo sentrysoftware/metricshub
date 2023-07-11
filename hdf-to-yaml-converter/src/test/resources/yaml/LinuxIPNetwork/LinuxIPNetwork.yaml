@@ -2,8 +2,8 @@
 extends:
 - ../LinuxNetwork-header/LinuxNetwork-header
 constants:
-  GLOBAL_COMMAND_LINE: '"/sbin/ip a"'
-  COLLECT_COMMAND_LINE: "\"/sbin/ip -s link show dev ${network::id}\""
+  GLOBAL_COMMAND_LINE: /sbin/ip a
+  COLLECT_COMMAND_LINE: "/sbin/ip -s link show dev ${network::id}"
 connector:
   displayName: Linux - Network (ip)
   platforms: Any system
