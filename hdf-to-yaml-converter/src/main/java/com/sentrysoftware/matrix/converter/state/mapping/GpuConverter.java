@@ -66,7 +66,7 @@ public class GpuConverter extends AbstractMappingConverter {
 		metricsMap.put(HDF_POWER_CONSUMPTION, IMappingKey.of(METRICS, YAML_GPU_POWER));
 		metricsMap.put(HDF_RECEIVED_BYTES_RATE,
 				IMappingKey.of(METRICS, YAML_GPU_IO_RECEIVE, AbstractMappingConverter::buildFakeCounterFunction));
-		metricsMap.put(HDF_TRANSMITTED_BYTES_RATES,
+		metricsMap.put(HDF_TRANSMITTED_BYTES_RATE,
 				IMappingKey.of(METRICS, YAML_GPU_IO_TRANSMIT, AbstractMappingConverter::buildFakeCounterFunction));
 
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);

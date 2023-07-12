@@ -248,7 +248,7 @@ public class ConverterConstants {
 	public static final String HDF_RECEIVED_BYTES = "receivedbytes";
 	public static final String HDF_TRANSMITTED_BYTES = "transmittedbytes";
 	public static final String HDF_RECEIVED_BYTES_RATE = "receivedbytesrate";
-	public static final String HDF_TRANSMITTED_BYTES_RATES = "transmittedbytesrates";
+	public static final String HDF_TRANSMITTED_BYTES_RATE = "transmittedbytesrate";
 	public static final String HDF_USED_TIME_PERCENT_WARNING_THRESHOLD = "usedtimepercentwarningthreshold";
 	public static final String HDF_USED_TIME_PERCENT_ALARM_THRESHOLD = "usedtimepercentalarmthreshold";
 	public static final String HDF_MEMORY_UTILIZATION_WARNING_THRESHOLD = "memoryutilizationwarningthreshold";
