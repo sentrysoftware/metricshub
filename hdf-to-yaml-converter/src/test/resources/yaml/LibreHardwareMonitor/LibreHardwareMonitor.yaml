@@ -528,4 +528,5 @@ monitors:
           hw.power{hw.type="gpu"}: $5
           hw.energy{hw.type="gpu"}: fakeCounter($5)
           hw.gpu.io{direction="receive"}: fakeCounter($6)
+          hw.gpu.io{direction="transmit"}: fakeCounter($7)
           hw.gpu.utilization{task="general"}: percent2Ratio($8)

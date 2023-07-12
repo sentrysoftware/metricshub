@@ -75,6 +75,7 @@ monitors:
           hw.gpu.memory.utilization: percent2Ratio($6)
           hw.gpu.utilization{task="encoder"}: percent2Ratio($7)
           hw.gpu.utilization{task="decoder"}: percent2Ratio($8)
+          hw.gpu.io{direction="transmit"}: fakeCounter($3)
           hw.gpu.io{direction="receive"}: fakeCounter($4)
           hw.power{hw.type="gpu"}: $9
           hw.energy{hw.type="gpu"}: fakeCounter($9)
