@@ -202,6 +202,8 @@ monitors:
           hw.parent.type: $1
           hw.parent.id: $2
           name: "${awk::sprintf(\"%s (%s)\", $3, $6)}"
+        conditionalCollection:
+          hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $9
     collect:
       # Collect type = multi-instance
       type: multiInstance

@@ -1050,6 +1050,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $1
           name: $3
+        conditionalCollection:
+          hw.fan.speed: $4
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
@@ -1211,6 +1213,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $1
           name: $3
+        conditionalCollection:
+          hw.temperature: $4
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance

@@ -58,6 +58,8 @@ monitors:
           serial_number: $5
           info: $6
           name: "${awk::sprintf(\"Enclosure: (%s %s)\", $3, $4)}"
+        conditionalCollection:
+          hw.status{hw.type="enclosure"}: $7
     collect:
       # Collect type is multi-instance (of course)
       type: multiInstance

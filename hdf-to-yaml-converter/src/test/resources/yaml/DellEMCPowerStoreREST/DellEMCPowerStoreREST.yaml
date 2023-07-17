@@ -506,6 +506,8 @@ monitors:
           hw.parent.type: disk_controller
           hw.parent.id: $9
           name: "${awk::sprintf(\"%s (%s)\", $4, $7)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: megaBit2Bit($6)
     collect:
       # Collect
       type: multiInstance

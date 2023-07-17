@@ -130,6 +130,10 @@ monitors:
           device_type: $7
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s - %s - %s)\", $5, $7, $9, $10)}"
+        conditionalCollection:
+          hw.errors{hw.type="network"}: $15
+          hw.network.packets{direction="transmit"}: $13
+          hw.network.packets{direction="receive"}: $14
     collect:
       # Collect type is multi-instance
       type: multiInstance

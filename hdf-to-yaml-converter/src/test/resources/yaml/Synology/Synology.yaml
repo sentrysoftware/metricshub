@@ -105,6 +105,8 @@ monitors:
           id: $1
           hw.parent.type: enclosure
           name: $2
+        conditionalCollection:
+          hw.status{hw.type="fan"}: $3
     collect:
       # Collect
       type: multiInstance
@@ -176,6 +178,8 @@ monitors:
           id: $1
           hw.parent.type: enclosure
           name: $2
+        conditionalCollection:
+          hw.status{hw.type="power_supply"}: $3
     collect:
       # Collect type: MonoInstance
       type: monoInstance
@@ -346,6 +350,8 @@ monitors:
           id: $1
           hw.parent.type: enclosure
           name: $2
+        conditionalCollection:
+          hw.status{hw.type="other_device"}: $3
     collect:
       # Collect type: MonoInstance
       type: monoInstance

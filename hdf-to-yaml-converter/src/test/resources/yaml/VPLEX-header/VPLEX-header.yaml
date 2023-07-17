@@ -110,6 +110,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $5
           name: $2
+        conditionalCollection:
+          hw.status{hw.type="fan"}: $3
     collect:
       # FANS
       # Collect

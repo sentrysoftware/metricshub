@@ -515,6 +515,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $2
           name: "${awk::sprintf(\"%s (%s)\", $4, $6)}"
+        conditionalCollection:
+          hw.temperature: $5
     collect:
       type: multiInstance
       sources:

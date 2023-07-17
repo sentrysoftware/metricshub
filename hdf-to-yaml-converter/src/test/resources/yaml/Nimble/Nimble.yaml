@@ -795,6 +795,8 @@ monitors:
           hw.parent.type: blade
           hw.parent.id: $2
           name: $4
+        conditionalCollection:
+          hw.status{hw.type="network"}: $7
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance

@@ -77,6 +77,8 @@ monitors:
           vm.host.name: $2
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $2, $2)}"
+        conditionalCollection:
+          hw.power{hw.type="vm"}: $3
     collect:
       type: multiInstance
       sources:

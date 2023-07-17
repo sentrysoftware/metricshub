@@ -96,6 +96,8 @@ monitors:
           type: Switch
           info: $4
           name: "${awk::sprintf(\"Switch: %s (%s %s)\", $6, $7, $6)}"
+        conditionalCollection:
+          hw.enclosure.power: $10
     collect:
       type: multiInstance
       sources:

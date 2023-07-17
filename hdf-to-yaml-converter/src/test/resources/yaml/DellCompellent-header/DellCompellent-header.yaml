@@ -505,6 +505,9 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $6
           hw.fan.speed.limit{limit_type="low.critical"}: $7
+        conditionalCollection:
+          hw.fan.speed: $5
+          hw.status{hw.type="fan"}: $8
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -738,6 +741,9 @@ monitors:
         metrics:
           hw.voltage.limit{limit_type="low.critical"}: $8
           hw.voltage.limit{limit_type="high.degraded"}: $7
+        conditionalCollection:
+          hw.voltage: $5
+          hw.status{hw.type="voltage"}: $6
     collect:
       # Collect type = multi-instance
       type: multiInstance

@@ -46,6 +46,8 @@ monitors:
           info: $2
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $1, $1)}"
+        conditionalCollection:
+          hw.power{hw.type="vm"}: 0
     collect:
       type: multiInstance
       sources:

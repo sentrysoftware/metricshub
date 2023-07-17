@@ -312,6 +312,9 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: STKLSeries
           name: "${awk::sprintf(\"%s: %s (%s)\", $4, $1, $2)}"
+        conditionalCollection:
+          hw.status{hw.type="other_device"}: $5
+          hw.other_device.uses: $6
     collect:
       # Collect
       type: multiInstance

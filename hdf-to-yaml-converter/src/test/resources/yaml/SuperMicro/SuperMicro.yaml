@@ -775,6 +775,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $2
           name: $4
+        conditionalCollection:
+          hw.network.bandwidth.limit: megaBit2Bit($6)
     collect:
       # Collection Type
       type: multiInstance

@@ -58,6 +58,9 @@ monitors:
           serial_number: $5
           type: Computer
           name: "${awk::sprintf(\"Computer: (%s %s)\", \"Dell\", $4)}"
+        conditionalCollection:
+          hw.status{hw.type="enclosure"}: $2
+          hw.enclosure.power: $6
     collect:
       # Collect
       type: multiInstance
@@ -146,6 +149,9 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $7
           hw.temperature.limit{limit_type="high.critical"}: $6
+        conditionalCollection:
+          hw.status{hw.type="temperature"}: $3
+          hw.temperature: $4
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -207,6 +213,9 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $7
           hw.fan.speed.limit{limit_type="low.critical"}: $6
+        conditionalCollection:
+          hw.status{hw.type="fan"}: $3
+          hw.fan.speed: $4
     collect:
       # Collect type is MultiInstance
       type: multiInstance

@@ -53,6 +53,9 @@ monitors:
           serial_number: $4
           info: $8
           name: "${awk::sprintf(\"Enclosure: (%s %s)\", $2, $3)}"
+        conditionalCollection:
+          hw.status{hw.type="enclosure"}: $5
+          hw.enclosure.power: $7
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -157,6 +160,9 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $8
           hw.fan.speed.limit{limit_type="low.critical"}: $9
+        conditionalCollection:
+          hw.status{hw.type="fan"}: $4
+          hw.fan.speed: $7
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance

@@ -158,6 +158,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $9
           name: $4
+        conditionalCollection:
+          hw.temperature: $5
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -230,6 +232,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $9
           name: $4
+        conditionalCollection:
+          hw.voltage: $5
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
@@ -378,6 +382,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $9
           name: $4
+        conditionalCollection:
+          hw.fan.speed: $5
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance

@@ -136,6 +136,8 @@ monitors:
           serial_number: $3
           type: Computer
           name: "${awk::sprintf(\"Computer: %s (%s %s)\", \"HPWBEM\", \"HP\", $2)}"
+        conditionalCollection:
+          hw.enclosure.power: $5
     collect:
       type: multiInstance
       sources:
@@ -764,6 +766,13 @@ monitors:
           info: $4
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $9, $7)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: megaBit2Bit($5)
+          hw.network.packets{direction="receive"}: $8
+          hw.network.packets{direction="transmit"}: $8
+          hw.errors{hw.type="network"}: $8
+          hw.network.io{direction="receive"}: $8
+          hw.network.io{direction="transmit"}: $8
     collect:
       # Collect type is "multi-instance
       type: multiInstance

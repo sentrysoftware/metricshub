@@ -389,6 +389,8 @@ monitors:
           hw.parent.type: $5
           hw.parent.id: $2
           name: $3
+        conditionalCollection:
+          hw.network.bandwidth.limit: megaBit2Bit($9)
     collect:
       # Collect
       # MultiInstance

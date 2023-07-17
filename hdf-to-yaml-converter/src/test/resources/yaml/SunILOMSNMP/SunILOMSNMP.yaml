@@ -138,6 +138,9 @@ monitors:
           serial_number: $5
           info: "${awk::join(\" \", $10, $4)}"
           name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $3, $6, $7)}"
+        conditionalCollection:
+          hw.status{hw.type="enclosure"}: $8
+          hw.enclosure.power: $12
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -291,6 +294,9 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $5
           hw.temperature.limit{limit_type="high.critical"}: $6
+        conditionalCollection:
+          hw.temperature: $4
+          hw.status{hw.type="temperature"}: $7
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -352,6 +358,9 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $8
           hw.fan.speed.limit{limit_type="low.critical"}: $9
+        conditionalCollection:
+          hw.fan.speed: $7
+          hw.status{hw.type="fan"}: $4
     collect:
       # Collect type is mono-instance
       type: multiInstance
@@ -478,6 +487,9 @@ monitors:
         metrics:
           hw.voltage.limit{limit_type="high.degraded"}: $6
           hw.voltage.limit{limit_type="low.critical"}: $5
+        conditionalCollection:
+          hw.voltage: $4
+          hw.status{hw.type="voltage"}: $7
     collect:
       # Collect type is mono-instance
       type: multiInstance

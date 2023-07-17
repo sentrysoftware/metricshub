@@ -50,6 +50,8 @@ monitors:
           model: $1
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $3, $1)}"
+        conditionalCollection:
+          hw.status{hw.type="disk_controller"}: $2
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers

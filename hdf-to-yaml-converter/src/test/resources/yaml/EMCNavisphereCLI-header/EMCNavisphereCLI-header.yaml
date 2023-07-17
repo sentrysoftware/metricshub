@@ -562,6 +562,8 @@ monitors:
           info: "${awk::join(\" \", $8, $10, $9)}"
           hw.parent.type: enclosure
           name: $2
+        conditionalCollection:
+          hw.network.bandwidth.limit: megaBit2Bit($7)
     collect:
       # Collect type: MultiInstance
       type: multiInstance

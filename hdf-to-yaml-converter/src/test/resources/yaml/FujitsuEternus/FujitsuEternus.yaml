@@ -1526,6 +1526,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s - %s)\", $2, $8, bytes2HumanFormatBase2($3))}"
         metrics:
           hw.logical_disk.limit: $3
+        conditionalCollection:
+          hw.logical_disk.usage{state="free"}: $4
     collect:
       # Collect type is multiinstance
       type: multiInstance

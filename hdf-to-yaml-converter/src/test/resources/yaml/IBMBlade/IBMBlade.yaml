@@ -196,6 +196,8 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $3
           hw.temperature.limit{limit_type="high.critical"}: $4
+        conditionalCollection:
+          hw.status{hw.type="temperature"}: $5
     collect:
       type: multiInstance
       sources:
@@ -576,6 +578,8 @@ monitors:
           name: $2
         metrics:
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio($7)
+        conditionalCollection:
+          hw.status{hw.type="fan"}: $6
     collect:
       # Collect-type
       type: multiInstance

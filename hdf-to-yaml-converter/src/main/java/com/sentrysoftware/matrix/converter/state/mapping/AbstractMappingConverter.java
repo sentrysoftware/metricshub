@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -93,6 +94,8 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		convertOneToOneAttributes((ObjectNode) mapping, existingAttributes, newAttributes);
 
 		convertAdditionalInformationToInfo(existingAttributes, newAttributes);
+
+		convertParameterActivation((ObjectNode) mapping, existingAttributes, newAttributes);
 
 		convertAttachmentProperties(existingAttributes, newAttributes);
 
@@ -274,6 +277,59 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 			throw new IllegalArgumentException("Unrecognized IMappingKey");
 		}
 
+	}
+
+	/**
+	 * Convert ParameterActivation attributes to the conditionalCollection mapping based on the given specification
+	 * <entity>.<job>.Instance.ParameterActivation.<metric>=<value>
+	 * is to be converted to:
+	 * monitors:
+	 *   <entity>:
+	 *     <job>:
+	 *       mapping:
+	 *         conditionalCollection:
+	 *           <metric>: <value>
+	 *
+	 * @param mapping
+	 * @param existingAttributes
+	 * @param newAttributes
+	 */
+	private void convertParameterActivation(
+			final ObjectNode mapping,
+			final ObjectNode existingAttributes,
+			final ObjectNode newAttributes
+			) {
+		final Pattern PATTERN = Pattern.compile(
+				"(parameteractivation\\.([a-z0-9]+|[a-z0-9]+))\\s*$",
+				Pattern.CASE_INSENSITIVE
+				);
+
+		final Iterator<Entry<String, JsonNode>> iter = existingAttributes.fields();
+
+		while (iter.hasNext()) {
+			final Entry<String, JsonNode> attributeEntry = iter.next();
+			String key = attributeEntry.getKey();
+			Matcher matcher = PATTERN.matcher(key);
+
+			if (matcher.matches()) {
+				final ObjectNode conditionalCollection = getOrCreateSubNode(CONDITIONAL_COLLECTION, mapping);
+
+				// We take the <metric> part of the key and try to convert it using the OneToOneAttributeMapping
+				// or the metric itself if there is no match
+				String newMetric = matcher.group(2);
+				Entry<String, IMappingKey> mappingKey = getOneToOneAttributesMapping().get(newMetric);
+				if (mappingKey != null) {
+					convertKeyValueInNode(mappingKey.getValue(), attributeEntry.getValue().asText(), conditionalCollection);
+				} else {
+					mappingKey = getOneToOneMetricsMapping().get(newMetric);
+					if (mappingKey != null) {
+						convertKeyValueInNode(mappingKey.getValue(), attributeEntry.getValue().asText(), conditionalCollection);
+					} else {
+						conditionalCollection.set(newMetric, (TextNode) attributeEntry.getValue());
+					}
+				}
+			}
+		}
 	}
 
 	/**

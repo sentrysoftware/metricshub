@@ -138,6 +138,8 @@ monitors:
           info: $7
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s %s)\", $6, $2, $3)}"
+        conditionalCollection:
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($5)
     collect:
       type: multiInstance
       sources:

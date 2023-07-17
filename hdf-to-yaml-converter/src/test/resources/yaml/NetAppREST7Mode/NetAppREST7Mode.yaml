@@ -105,6 +105,8 @@ monitors:
           model: $5
           serial_number: $7
           name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $4, $6, $5)}"
+        conditionalCollection:
+          hw.status{hw.type="enclosure"}: $8
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
@@ -465,6 +467,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s - %s)\", $4, $6, bytes2HumanFormatBase10($11))}"
         metrics:
           hw.physical_disk.size: $11
+        conditionalCollection:
+          hw.status{hw.type="physical_disk"}: $12
     collect:
       # Collect
       # Collect type: MultiInstance
@@ -597,6 +601,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: Global
           name: "${awk::sprintf(\"%s (%s)\", $2, $5)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: megaBit2Bit($7)
     collect:
       # Collection type (Multi-instance)
       type: multiInstance

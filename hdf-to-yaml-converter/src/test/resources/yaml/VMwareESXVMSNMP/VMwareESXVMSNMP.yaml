@@ -35,6 +35,8 @@ monitors:
           __display_id: $2
           hw.parent.type: enclosure
           name: $2
+        conditionalCollection:
+          hw.power{hw.type="vm"}: $3
     collect:
       # Collect type is: multi-instance
       type: multiInstance

@@ -1023,6 +1023,8 @@ monitors:
           physical_address_type: $8
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s - %s - %s)\", $3, $7, $6, $5)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: megaBit2Bit($9)
     collect:
       # Collection
       type: multiInstance

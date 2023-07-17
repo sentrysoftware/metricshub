@@ -67,6 +67,7 @@ public class ConverterConstants {
 	public static final String METRICS = "metrics";
 	public static final String LEGACY_TEXT_PARAMETERS = "legacyTextParameters";
 	public static final String CONNECTION_TYPES = "connectionTypes";
+	public static final String CONDITIONAL_COLLECTION = "conditionalCollection";
 
 	// Monitor types
 	public static final String HDF_BATTERY = "battery";

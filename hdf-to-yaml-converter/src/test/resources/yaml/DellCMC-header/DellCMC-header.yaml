@@ -139,6 +139,9 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $3
           hw.temperature.limit{limit_type="high.critical"}: $4
+        conditionalCollection:
+          hw.temperature: $5
+          hw.status{hw.type="temperature"}: $6
     collect:
       # Collect type is multi-instance
       type: multiInstance
