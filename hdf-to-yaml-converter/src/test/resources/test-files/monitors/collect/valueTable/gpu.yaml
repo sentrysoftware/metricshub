@@ -63,7 +63,7 @@
     Gpu.Collect.EncoderUsedTimePercent=ValueTable.Column(12)
     Gpu.Collect.MemoryUtilization=ValueTable.Column(13)
     Gpu.Collect.ReceivedBytesRate=ValueTable.Column(15)
-    Gpu.Collect.TransmittedBytesRates=ValueTable.Column(17)
+    Gpu.Collect.TransmittedBytesRate=ValueTable.Column(17)
     Gpu.Collect.PowerConsumption=ValueTable.Column(18)
   expected:
     monitors:
