@@ -29,7 +29,7 @@ public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 						sources,
 						Pattern.compile(
 							String.format(
-                                "\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)discovery\\.sources)\\.(%s)\\})\\s*",
+								"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)discovery\\.sources)\\.(%s)\\})\\s*",
 								Pattern.quote(jobName),
 								getSourceIdentifiersRegex(sources)
 							),
@@ -66,7 +66,7 @@ public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 						allAtOnceSources,
 						Pattern.compile(
 							String.format(
-                                "\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)allatonce\\.sources)\\.(%s)\\})\\s*",
+								"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)allatonce\\.sources)\\.(%s)\\})\\s*",
 								Pattern.quote(jobName),
 								getSourceIdentifiersRegex(allAtOnceSources)
 							),
