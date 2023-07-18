@@ -16,7 +16,7 @@ public class PreSourceDepUpdate extends SourceConnectorUpdateChain {
 				sources,
 				Pattern.compile(
 					String.format(
-						"\\s*(\\$((?i)pre)\\.(%s)\\$)\\s*",
+						"\\s*(\\$\\{source::((?i)pre)\\.(%s)\\})\\s*",
 						getSourceIdentifiersRegex(sources)
 					),
 					Pattern.MULTILINE
