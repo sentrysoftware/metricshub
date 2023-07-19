@@ -299,17 +299,12 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 			final ObjectNode existingAttributes,
 			final ObjectNode newAttributes
 			) {
-		final Pattern PATTERN = Pattern.compile(
-				"(parameteractivation\\.([a-z0-9]+|[a-z0-9]+))\\s*$",
-				Pattern.CASE_INSENSITIVE
-				);
-
 		final Iterator<Entry<String, JsonNode>> iter = existingAttributes.fields();
 
 		while (iter.hasNext()) {
 			final Entry<String, JsonNode> attributeEntry = iter.next();
 			String key = attributeEntry.getKey();
-			Matcher matcher = PATTERN.matcher(key);
+			Matcher matcher = Pattern.compile(PARAMETER_ACTIVATION_REGEX, Pattern.CASE_INSENSITIVE).matcher(key);
 
 			if (matcher.matches()) {
 				final ObjectNode conditionalCollection = getOrCreateSubNode(CONDITIONAL_COLLECTION, mapping);
@@ -317,16 +312,11 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 				// We take the <metric> part of the key and try to convert it using the OneToOneAttributeMapping
 				// or the metric itself if there is no match
 				String newMetric = matcher.group(2);
-				Entry<String, IMappingKey> mappingKey = getOneToOneAttributesMapping().get(newMetric);
+				Entry<String, IMappingKey> mappingKey = getOneToOneMetricsMapping().get(newMetric);
 				if (mappingKey != null) {
 					convertKeyValueInNode(mappingKey.getValue(), attributeEntry.getValue().asText(), conditionalCollection);
 				} else {
-					mappingKey = getOneToOneMetricsMapping().get(newMetric);
-					if (mappingKey != null) {
-						convertKeyValueInNode(mappingKey.getValue(), attributeEntry.getValue().asText(), conditionalCollection);
-					} else {
-						conditionalCollection.set(newMetric, (TextNode) attributeEntry.getValue());
-					}
+					conditionalCollection.set(newMetric, (TextNode) attributeEntry.getValue());
 				}
 			}
 		}

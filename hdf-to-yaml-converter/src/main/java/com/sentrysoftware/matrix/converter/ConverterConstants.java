@@ -69,6 +69,8 @@ public class ConverterConstants {
 	public static final String CONNECTION_TYPES = "connectionTypes";
 	public static final String CONDITIONAL_COLLECTION = "conditionalCollection";
 
+	public static final String PARAMETER_ACTIVATION_REGEX = "(parameteractivation\\.([a-z0-9]+|[a-z0-9]+))\\s*$";
+
 	// Monitor types
 	public static final String HDF_BATTERY = "battery";
 	public static final String HDF_BLADE = "blade";
