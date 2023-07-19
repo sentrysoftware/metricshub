@@ -54,7 +54,7 @@ monitors:
           # Remove the " Temperature" statement from the temperature location
           - type: replace
             column: 2
-            existingValue: temperature
+            existingValue: ' Temperature'
             newValue: ""
       mapping:
         # InstanceTable = Source(1)

@@ -105,7 +105,7 @@ monitors:
             column: 1
           - type: leftConcat
             column: 2
-            value: fan
+            value: 'Fan '
           - type: excludeMatchingLines
             column: 3
             regExp: 2

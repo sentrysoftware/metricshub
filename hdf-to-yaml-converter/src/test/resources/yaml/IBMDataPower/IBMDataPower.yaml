@@ -72,7 +72,7 @@ monitors:
             # ID;UpperNC;UpperC;
           - type: replace
             column: 1
-            existingValue: temperature
+            existingValue: 'Temperature '
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
@@ -101,7 +101,7 @@ monitors:
             # ID;Value;
           - type: replace
             column: 1
-            existingValue: temperature
+            existingValue: 'Temperature '
             newValue: ""
       mapping:
         # ValueTable = Source(1)
@@ -124,7 +124,7 @@ monitors:
             # ID;LowerC;UpperC;
           - type: replace
             column: 1
-            existingValue: voltage
+            existingValue: 'Voltage '
             newValue: ""
       mapping:
         # InstanceTable = Source(1)
@@ -153,7 +153,7 @@ monitors:
             # ID;Value;
           - type: replace
             column: 1
-            existingValue: voltage
+            existingValue: 'Voltage '
             newValue: ""
       mapping:
         # ValueTable = Source(1)

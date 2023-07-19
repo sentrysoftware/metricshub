@@ -489,7 +489,7 @@ monitors:
             # DeviceID;Name;WarningLow;WarningHigh;location
           - type: replace
             column: 2
-            existingValue: voltage
+            existingValue: ' Voltage'
             newValue: ""
           - type: replace
             column: 2
@@ -593,7 +593,7 @@ monitors:
             # DeviceID;Name;Status;Temperature;NominalHigh;WarningHigh;Location;
           - type: replace
             column: 2
-            existingValue: temperature
+            existingValue: ' Temperature'
             newValue: ""
           - type: replace
             column: 2
@@ -694,7 +694,7 @@ monitors:
             # DeviceID;Type;Status;Speed;NominalLow;WarningLow;Location;
           - type: replace
             column: 2
-            existingValue: fan
+            existingValue: ' Fan'
             newValue: ""
           - type: replace
             column: 2

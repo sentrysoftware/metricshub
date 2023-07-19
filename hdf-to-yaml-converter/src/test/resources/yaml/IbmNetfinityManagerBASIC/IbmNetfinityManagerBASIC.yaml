@@ -33,7 +33,7 @@ monitors:
           # Remove the "temperature" word from the attribute name
           - type: replace
             column: 2
-            existingValue: temperature
+            existingValue: ' temperature'
             newValue: ""
       mapping:
         # Instance table = source(1)
@@ -93,7 +93,7 @@ monitors:
           # Remove the "fan" word from the attribute name
           - type: replace
             column: 2
-            existingValue: fan
+            existingValue: ' fan'
             newValue: ""
       mapping:
         # Instance table = source(1)
@@ -154,7 +154,7 @@ monitors:
           # Remove the " voltage" word (that is not needed)
           - type: replace
             column: 2
-            existingValue: voltage
+            existingValue: ' voltage'
             newValue: ""
       mapping:
         # The instance table is Source(1)

@@ -337,7 +337,7 @@ public class ConversionHelper {
 	 * @return {@link Optional} of {@link String} value
 	 */
 	private static Optional<String> getYamlMonitorNameOptional(final String value) {
-		return Optional.ofNullable(HDF_TO_YAML_MONITOR_NAME.get(value.toLowerCase().trim()));
+		return Optional.ofNullable(HDF_TO_YAML_MONITOR_NAME.get(value.toLowerCase()));
 	}
 
 	/**
