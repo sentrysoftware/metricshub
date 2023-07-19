@@ -132,6 +132,7 @@ monitors:
         metrics:
           hw.status{hw.type="physical_disk"}: $2
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)
+          hw.errors{hw.type="physical_disk"}: $5
         legacyTextParameters:
           StatusInformation: $3
   logical_disk:

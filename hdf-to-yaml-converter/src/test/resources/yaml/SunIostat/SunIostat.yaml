@@ -128,6 +128,7 @@ monitors:
         source: "${source::monitors.physical_disk.collect.sources.source(3)}"
         deviceId: $1
         metrics:
+          hw.errors{hw.type="physical_disk"}: $2
           hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $3
           hw.errors{hw.type="physical_disk", hw.error.type="media"}: $4
           hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $5

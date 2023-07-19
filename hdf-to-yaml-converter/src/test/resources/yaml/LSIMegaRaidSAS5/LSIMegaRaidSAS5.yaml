@@ -116,6 +116,7 @@ monitors:
         deviceId: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $5
+          hw.errors{hw.type="physical_disk"}: $2
         legacyTextParameters:
           StatusInformation: $6
   logical_disk:
