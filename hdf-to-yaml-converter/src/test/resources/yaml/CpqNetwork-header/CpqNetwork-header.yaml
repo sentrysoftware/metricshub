@@ -142,7 +142,7 @@ monitors:
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s - %s)\", $12, $2, $3)}"
         conditionalCollection:
-          hw.network.up: legacyLinkStatus($10)
+          hw.network.up: $10
     collect:
       # Collect type is multi-instance
       type: multiInstance

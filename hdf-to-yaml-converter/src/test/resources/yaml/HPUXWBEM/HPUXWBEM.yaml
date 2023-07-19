@@ -74,7 +74,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($2)
         conditionalCollection:
-          hw.cpu.speed: megaHertz2Hertz($4)
+          hw.cpu.speed: $4
     collect:
       type: multiInstance
       sources:

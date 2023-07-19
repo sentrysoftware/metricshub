@@ -575,7 +575,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: 10
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
         conditionalCollection:
-          hw.fan.speed_ratio: percent2Ratio($3)
+          hw.fan.speed_ratio: $3
           hw.fan.speed: $2
     collect:
       # Collect type is multi-instance

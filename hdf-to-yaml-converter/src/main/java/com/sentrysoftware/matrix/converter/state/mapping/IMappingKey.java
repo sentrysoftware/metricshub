@@ -31,4 +31,11 @@ public interface IMappingKey {
 	static Entry<String, IMappingKey> of(final String where, final String newKey, final UnaryOperator<String> valueConverter) {
 		return Map.entry(where, new MappingKeyWithValueConverter(newKey, valueConverter));
 	}
+
+	/**
+	 * Mapping key which represents the new YAML metric
+	 * 
+	 * @return String value
+	 */
+	String getKey();
 }

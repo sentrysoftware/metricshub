@@ -510,7 +510,7 @@ monitors:
           hw.parent.type: enclosure
           name: $1
         conditionalCollection:
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($12)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: $12
     collect:
       # COLLECT
       # Collect type is "multi-instance"

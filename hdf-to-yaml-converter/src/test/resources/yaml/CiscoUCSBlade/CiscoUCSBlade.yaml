@@ -881,7 +881,7 @@ monitors:
           hw.parent.id: $3
           name: "${awk::sprintf(\"%s (%s - %s)\", $2, $5, $10)}"
         conditionalCollection:
-          hw.network.bandwidth.limit: megaBit2Bit($12)
+          hw.network.bandwidth.limit: $12
     collect:
       # Collect type is multi-instance
       type: multiInstance

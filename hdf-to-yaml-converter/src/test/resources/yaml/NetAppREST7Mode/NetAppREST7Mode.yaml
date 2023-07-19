@@ -602,7 +602,7 @@ monitors:
           hw.parent.id: Global
           name: "${awk::sprintf(\"%s (%s)\", $2, $5)}"
         conditionalCollection:
-          hw.network.bandwidth.limit: megaBit2Bit($7)
+          hw.network.bandwidth.limit: $7
     collect:
       # Collection type (Multi-instance)
       type: multiInstance

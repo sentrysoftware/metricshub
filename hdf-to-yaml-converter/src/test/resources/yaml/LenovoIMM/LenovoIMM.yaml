@@ -360,7 +360,7 @@ monitors:
           name: $1
         conditionalCollection:
           hw.status{hw.type="fan"}: $2
-          hw.fan.speed_ratio: percent2Ratio($3)
+          hw.fan.speed_ratio: $3
     collect:
       # Collect type is MultiInstance
       type: multiInstance

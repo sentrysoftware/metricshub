@@ -159,8 +159,8 @@ monitors:
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $4, $5)}"
         conditionalCollection:
-          hw.network.bandwidth.limit: megaBit2Bit($7)
-          hw.network.up: legacyLinkStatus($7)
+          hw.network.bandwidth.limit: $7
+          hw.network.up: $7
     collect:
       type: multiInstance
       sources:

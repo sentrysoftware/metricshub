@@ -783,7 +783,7 @@ monitors:
         conditionalCollection:
           hw.fan.speed: $5
           hw.status{hw.type="fan"}: $8
-          hw.fan.speed_ratio: percent2Ratio($3)
+          hw.fan.speed_ratio: $3
     collect:
       type: multiInstance
       sources:

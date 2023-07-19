@@ -193,8 +193,8 @@ monitors:
         metrics:
           hw.physical_disk.size: $6
         conditionalCollection:
-          errorcount: $9
-          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($10)
+          hw.errors{hw.type="physical_disk"}: $9
+          hw.physical_disk.endurance_utilization{state="remaining"}: $10
     collect:
       # Collect
       type: multiInstance

@@ -461,7 +461,7 @@ monitors:
           hw.parent.id: $2
           name: $4
         conditionalCollection:
-          hw.network.bandwidth.limit: megaBit2Bit($7)
+          hw.network.bandwidth.limit: $7
     collect:
       # Collect type: MultiInstance
       type: multiInstance
@@ -554,7 +554,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $9
         conditionalCollection:
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($10)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: $10
     collect:
       # Collect type: MultiInstance
       type: multiInstance

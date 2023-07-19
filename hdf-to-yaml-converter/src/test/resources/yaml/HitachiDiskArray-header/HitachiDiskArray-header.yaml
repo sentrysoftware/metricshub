@@ -389,7 +389,7 @@ monitors:
           hw.parent.id: $13
           name: "${awk::sprintf(\"%s (%s)\", $2, $9)}"
         conditionalCollection:
-          hw.network.up: legacyLinkStatus($11)
+          hw.network.up: $11
     collect:
       # Collect type is multiinstance
       type: multiInstance

@@ -125,7 +125,7 @@ monitors:
           name: $2
         conditionalCollection:
           hw.fan.speed: $3
-          hw.fan.speed_ratio: percent2Ratio($4)
+          hw.fan.speed_ratio: $4
     collect:
       # Collect type is multi-instance
       type: multiInstance

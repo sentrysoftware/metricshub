@@ -707,7 +707,7 @@ monitors:
           hw.parent.id: $2
           name: $3
         conditionalCollection:
-          hw.network.bandwidth.limit: megaBit2Bit($8)
+          hw.network.bandwidth.limit: $8
     collect:
       # Collection type
       type: multiInstance

@@ -22,7 +22,10 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	protected static final Pattern COLUMN_PATTERN = Pattern.compile("^\\$\\d+$");
 
-	private static final Pattern PARAMETER_ACTIVATION_PATTERN = Pattern.compile(PARAMETER_ACTIVATION_REGEX, Pattern.CASE_INSENSITIVE);
+	private static final Pattern PARAMETER_ACTIVATION_PATTERN = Pattern.compile(
+		"(parameteractivation\\.([a-z0-9]+|[a-z0-9]+))\\s*$",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	/**
 	 * Get one to one attributes mapping
@@ -97,7 +100,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 		convertAdditionalInformationToInfo(existingAttributes, newAttributes);
 
-		convertParameterActivation((ObjectNode) mapping, existingAttributes, newAttributes);
+		convertParameterActivation((ObjectNode) mapping, existingAttributes);
 
 		convertAttachmentProperties(existingAttributes, newAttributes);
 
@@ -294,13 +297,11 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 *
 	 * @param mapping
 	 * @param existingAttributes
-	 * @param newAttributes
 	 */
 	private void convertParameterActivation(
 			final ObjectNode mapping,
-			final ObjectNode existingAttributes,
-			final ObjectNode newAttributes
-			) {
+			final ObjectNode existingAttributes
+	) {
 		final Iterator<Entry<String, JsonNode>> iter = existingAttributes.fields();
 
 		while (iter.hasNext()) {
@@ -313,12 +314,15 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 				// We take the <metric> part of the key and try to convert it using the OneToOneAttributeMapping
 				// or the metric itself if there is no match
-				String newMetric = matcher.group(2);
-				Entry<String, IMappingKey> mappingKey = getOneToOneMetricsMapping().get(newMetric);
+				String metric = matcher.group(2);
+				Entry<String, IMappingKey> mappingKey = getOneToOneMetricsMapping().get(metric);
 				if (mappingKey != null) {
-					convertKeyValueInNode(mappingKey.getValue(), attributeEntry.getValue().asText(), conditionalCollection);
+					conditionalCollection.set(
+						mappingKey.getValue().getKey(),
+						(TextNode) attributeEntry.getValue()
+					);
 				} else {
-					conditionalCollection.set(newMetric, (TextNode) attributeEntry.getValue());
+					conditionalCollection.set(metric, (TextNode) attributeEntry.getValue());
 				}
 			}
 		}

@@ -191,7 +191,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $5
         conditionalCollection:
-          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($12)
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: $12
     collect:
       # Collect type is multi-instance
       type: multiInstance
