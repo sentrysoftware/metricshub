@@ -58,6 +58,9 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $5
           name: "${awk::sprintf(\"%s (%s %s)\", $1, $6, $7)}"
+        conditionalCollection:
+          hw.tape_drive.operations{type="mount"}: $2
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: $3
     collect:
       # Collect type is multi-instance
       type: multiInstance

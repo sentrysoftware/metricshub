@@ -141,6 +141,8 @@ monitors:
           info: "${awk::join(\" \", $5, $13, $14)}"
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s - %s)\", $12, $2, $3)}"
+        conditionalCollection:
+          hw.network.up: $10
     collect:
       # Collect type is multi-instance
       type: multiInstance

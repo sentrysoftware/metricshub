@@ -192,6 +192,9 @@ monitors:
           name: "${awk::sprintf(\"%s (%s - %s)\", $2, $3, bytes2HumanFormatBase10($6))}"
         metrics:
           hw.physical_disk.size: $6
+        conditionalCollection:
+          hw.errors{hw.type="physical_disk"}: $9
+          hw.physical_disk.endurance_utilization{state="remaining"}: $10
     collect:
       # Collect
       type: multiInstance

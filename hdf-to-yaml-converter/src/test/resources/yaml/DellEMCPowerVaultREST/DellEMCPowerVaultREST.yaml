@@ -418,6 +418,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s - %s)\", $3, $5, bytes2HumanFormatBase10($9))}"
         metrics:
           hw.physical_disk.size: $9
+        conditionalCollection:
+          hw.physical_disk.endurance_utilization{state="remaining"}: $11
     collect:
       # Collect
       type: multiInstance
@@ -540,6 +542,8 @@ monitors:
           hw.parent.type: disk_controller
           hw.parent.id: $4
           name: "${awk::sprintf(\"%s (%s - %s - %s)\", $3, $7, $5, $6)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: $12
     collect:
       # Collect
       type: multiInstance

@@ -71,6 +71,8 @@ monitors:
           serial_number: $3
           type: Storage
           name: "${awk::sprintf(\"Storage: %s (%s %s)\", $7, \"EMC\", $2)}"
+        conditionalCollection:
+          hw.status{hw.type="enclosure"}: $9
     collect:
       # Collect type is multiinstance
       type: multiInstance
@@ -595,6 +597,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $4, bytes2HumanFormatBase2($2))}"
         metrics:
           hw.logical_disk.limit: $2
+        conditionalCollection:
+          hw.logical_disk.usage{state="free"}: $5
     collect:
       # The LogicalDisk  collect is a "MultiInstance" collect
       type: multiInstance

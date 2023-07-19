@@ -80,6 +80,8 @@ monitors:
           sensor_location: $5
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $1, $5)}"
+        conditionalCollection:
+          hw.temperature: $4
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -139,6 +141,8 @@ monitors:
           sensor_location: $5
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $1, $5)}"
+        conditionalCollection:
+          hw.fan.speed: $4
     collect:
       # Collect type = multi-instance
       type: multiInstance
@@ -356,6 +360,8 @@ monitors:
           info: "${awk::join(\" \", $3, $10, $11)}"
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $6, $7)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: $13
     collect:
       # Collect type = multi-instance
       type: multiInstance

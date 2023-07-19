@@ -250,6 +250,9 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $4
           hw.fan.speed.limit{limit_type="low.critical"}: $5
+        conditionalCollection:
+          hw.status{hw.type="fan"}: $9
+          hw.fan.speed: $10
     collect:
       # COLLECT
       # Collect type is "multi-instance"

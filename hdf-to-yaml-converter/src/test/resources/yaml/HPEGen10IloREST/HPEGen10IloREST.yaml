@@ -301,6 +301,8 @@ monitors:
           physical_address: $9
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s - %s)\", $10, $6, $4)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: $7
     collect:
       # Collect
       # EthernetInterfaces

@@ -365,6 +365,12 @@ monitors:
           physical_address_type: WWN
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $2, $3)}"
+        conditionalCollection:
+          hw.network.packets{direction="receive"}: $6
+          hw.network.packets{direction="transmit"}: $6
+          hw.errors{hw.type="network"}: $6
+          hw.network.io{direction="receive"}: $6
+          hw.network.io{direction="transmit"}: $6
     collect:
       # Collect type = multi-instance
       type: multiInstance

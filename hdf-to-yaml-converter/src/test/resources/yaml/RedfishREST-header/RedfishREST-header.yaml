@@ -695,6 +695,8 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $6
           hw.temperature.limit{limit_type="high.critical"}: $7
+        conditionalCollection:
+          hw.temperature: $8
     collect:
       type: multiInstance
       sources:

@@ -147,6 +147,8 @@ monitors:
           type: Storage
           device_hostname: $7
           name: "${awk::sprintf(\"Storage: %s (%s %s)\", $7, \"EMC\", $2)}"
+        conditionalCollection:
+          hw.status{hw.type="enclosure"}: $10
     collect:
       # Collect type is multiinstance
       type: multiInstance

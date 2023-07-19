@@ -54,6 +54,8 @@ monitors:
           info: "${awk::join(\" \", $4, $5)}"
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $2)}"
+        conditionalCollection:
+          batterystatus: $8
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance

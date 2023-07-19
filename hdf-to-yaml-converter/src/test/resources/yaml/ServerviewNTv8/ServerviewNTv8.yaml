@@ -68,6 +68,8 @@ monitors:
           model: $2
           type: $3
           name: "${awk::sprintf(\"Enclosure: (%s %s)\", \"Fujitsu-Siemens\", $2)}"
+        conditionalCollection:
+          hw.enclosure.power: $6
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -204,6 +206,9 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $6
           hw.temperature.limit{limit_type="high.critical"}: $7
+        conditionalCollection:
+          hw.temperature: $5
+          hw.status{hw.type="temperature"}: $3
     collect:
       # Collect type is Multi-instance
       type: multiInstance
@@ -272,6 +277,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $2
           name: $5
+        conditionalCollection:
+          hw.fan.speed: $4
     collect:
       # Collect type is "multi-instance
       type: multiInstance
@@ -377,6 +384,9 @@ monitors:
         metrics:
           hw.voltage.limit{limit_type="low.critical"}: $6
           hw.voltage.limit{limit_type="high.degraded"}: $7
+        conditionalCollection:
+          hw.voltage: $5
+          hw.status{hw.type="voltage"}: $3
     collect:
       # Collect type = "multi instance
       type: multiInstance

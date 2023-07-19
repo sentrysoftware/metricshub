@@ -96,6 +96,8 @@ monitors:
           bios_version: $7
           info: "${awk::join(\" \", $3, $6)}"
           name: "${awk::sprintf(\"Computer: (%s %s)\", $5, $2)}"
+        conditionalCollection:
+          hw.enclosure.power: $9
     collect:
       # Collect type is mono-instance
       type: multiInstance

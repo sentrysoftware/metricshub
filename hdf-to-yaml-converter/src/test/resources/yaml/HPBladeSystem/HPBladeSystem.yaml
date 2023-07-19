@@ -84,6 +84,8 @@ monitors:
           serial_number: $5
           info: "${awk::join(\" \", $6, $7)}"
           name: "${awk::sprintf(\"Enclosure: (%s %s)\", \"HP\", $3)}"
+        conditionalCollection:
+          hw.enclosure.power: $9
     collect:
       type: multiInstance
       sources:
@@ -249,6 +251,9 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $6
+        conditionalCollection:
+          hw.status{hw.type="temperature"}: $7
+          hw.temperature: $5
     collect:
       # Collect type is "multi-instance
       type: multiInstance

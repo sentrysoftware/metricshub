@@ -188,6 +188,9 @@ monitors:
           name: "${awk::sprintf(\"%s (%s MB)\", $1, $4)}"
         metrics:
           hw.memory.limit: mebiByte2Byte($4)
+        conditionalCollection:
+          hw.status{hw.type="memory"}: $2
+          hw.errors{hw.type="memory"}: $3
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -485,6 +488,16 @@ monitors:
           serial_number: $15
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $2, $12)}"
+        conditionalCollection:
+          hw.status{hw.type="network"}: $3
+          hw.network.up: $4
+          hw.network.bandwidth.limit: $10
+          hw.network.packets{direction="receive"}: $7
+          hw.network.packets{direction="transmit"}: $6
+          hw.errors{hw.type="network"}: $5
+          hw.network.io{direction="receive"}: $9
+          hw.network.io{direction="transmit"}: $8
+          hw.network.full_duplex: $11
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance

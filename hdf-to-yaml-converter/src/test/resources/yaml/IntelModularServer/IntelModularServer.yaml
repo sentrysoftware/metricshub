@@ -64,6 +64,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
           name: $1
+        conditionalCollection:
+          hw.status{hw.type="blade"}: $3
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -124,6 +126,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: IntelChassis
           name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $1, $4)}"
+        conditionalCollection:
+          hw.status{hw.type="disk_controller"}: $5
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
@@ -288,6 +292,9 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $1, $4)}"
         metrics:
           hw.fan.speed.limit{limit_type="low.critical"}: $5
+        conditionalCollection:
+          hw.fan.speed: $5
+          hw.status{hw.type="fan"}: $3
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance

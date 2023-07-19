@@ -173,6 +173,9 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $7
           hw.temperature.limit{limit_type="high.critical"}: $6
+        conditionalCollection:
+          hw.status{hw.type="temperature"}: $5
+          hw.temperature: $10
     collect:
       # COLLECT
       # Collect type is "multi-instance"
@@ -273,6 +276,9 @@ monitors:
         metrics:
           hw.voltage.limit{limit_type="low.critical"}: $9
           hw.voltage.limit{limit_type="high.degraded"}: $7
+        conditionalCollection:
+          hw.voltage: $10
+          hw.status{hw.type="voltage"}: $5
     collect:
       # COLLECT
       # Collect type is "multi-instance"
@@ -503,6 +509,8 @@ monitors:
           __display_id: $1
           hw.parent.type: enclosure
           name: $1
+        conditionalCollection:
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: $12
     collect:
       # COLLECT
       # Collect type is "multi-instance"

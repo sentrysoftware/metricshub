@@ -178,6 +178,8 @@ monitors:
           name: $1
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $4
+        conditionalCollection:
+          hw.status{hw.type="fan"}: $3
     collect:
       # Collect type = multi-instance
       type: multiInstance

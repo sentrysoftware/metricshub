@@ -126,6 +126,8 @@ monitors:
           hw.parent.type: enclosure
           hw.parent.id: $8
           name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
+        conditionalCollection:
+          hw.status{hw.type="blade"}: $4
     collect:
       # Collect type is MultiInstance
       type: multiInstance

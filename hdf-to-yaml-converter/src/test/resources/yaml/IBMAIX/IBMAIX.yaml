@@ -260,6 +260,10 @@ monitors:
           info: $5
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s - %s)\", $1, $3, $2)}"
+        conditionalCollection:
+          hw.network.bandwidth.limit: $14
+          hw.network.full_duplex: $15
+          hw.network.up: $8
     collect:
       # Collect type is multi-instance
       type: multiInstance
@@ -351,6 +355,9 @@ monitors:
           name: "${awk::sprintf(\"%s (%s MB)\", $1, $5)}"
         metrics:
           hw.memory.limit: mebiByte2Byte($5)
+        conditionalCollection:
+          hw.status{hw.type="memory"}: $3
+          hw.errors{hw.type="memory"}: $4
     collect:
       # Collect type is multi-instance
       type: multiInstance

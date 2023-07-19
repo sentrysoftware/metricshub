@@ -378,6 +378,9 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $4
           hw.temperature.limit{limit_type="high.critical"}: $3
+        conditionalCollection:
+          hw.temperature: $5
+          hw.status{hw.type="temperature"}: $7
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -437,6 +440,9 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $4
           hw.fan.speed.limit{limit_type="low.critical"}: $3
+        conditionalCollection:
+          hw.fan.speed: $5
+          hw.status{hw.type="fan"}: $7
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -496,6 +502,9 @@ monitors:
         metrics:
           hw.voltage.limit{limit_type="low.critical"}: $4
           hw.voltage.limit{limit_type="high.degraded"}: $3
+        conditionalCollection:
+          hw.voltage: $5
+          hw.status{hw.type="voltage"}: $7
     collect:
       # Collect type is MultiInstance
       type: multiInstance

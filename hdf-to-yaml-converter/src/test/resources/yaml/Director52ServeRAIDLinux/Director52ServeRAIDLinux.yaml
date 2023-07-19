@@ -308,6 +308,8 @@ monitors:
           driver_version: $8
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $2, $3, $4)}"
+        conditionalCollection:
+          batterystatus: $10
     collect:
       # The DiskController collect is a "MultiInstance" collect
       # Only ONE WBEM query will be done in order to get the information for all disk controllers

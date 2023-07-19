@@ -12,6 +12,8 @@
     Enclosure.Discovery.Instance.Type="Computer"
     Enclosure.Discovery.Instance.DeviceHostName="testdevicehostname"
     Enclosure.Discovery.Instance.BiosVersion="testbiosversion"
+    Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(7)
+
   expected:
     monitors:
       enclosure:
@@ -20,15 +22,17 @@
             source: ${source::monitors.enclosure.discovery.sources.source(1)}
             attributes:
               id: $1
+              __display_id: testname
               vendor: APC
               model: $5
               serial_number: $6
               type: Computer
-              __display_id: testname
-              info: ${awk::join(" ", $2, $3, $4)}
               device_hostname: testdevicehostname
               bios_version: testbiosversion
+              info: ${awk::join(" ", $2, $3, $4)}
               name: "${awk::sprintf(\"Computer: %s (%s %s)\", \"testname\", \"APC\", $5)}"
+            conditionalCollection:
+              hw.status{hw.type="enclosure"}: $7
 - name: testNoDisplayId
   input: |
     Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%

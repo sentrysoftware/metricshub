@@ -142,6 +142,10 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $3
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
+        conditionalCollection:
+          hw.fan.speed: $4
+          hw.fan.speed_ratio: $5
+          hw.status{hw.type="fan"}: $6
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
@@ -267,6 +271,9 @@ monitors:
           name: $10
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $3
+        conditionalCollection:
+          hw.temperature: $4
+          hw.status{hw.type="temperature"}: $5
     collect:
       # Collect type is all instances in one single shot
       type: multiInstance
@@ -404,6 +411,9 @@ monitors:
         metrics:
           hw.voltage.limit{limit_type="low.critical"}: $3
           hw.voltage.limit{limit_type="high.degraded"}: $4
+        conditionalCollection:
+          hw.voltage: $5
+          hw.status{hw.type="voltage"}: $6
     collect:
       # Collect type is all instances in one single shot
       type: multiInstance

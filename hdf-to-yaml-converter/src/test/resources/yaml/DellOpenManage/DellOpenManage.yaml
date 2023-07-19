@@ -73,6 +73,8 @@ monitors:
           type: Computer
           info: "${awk::join(\" \", $3, $4)}"
           name: "${awk::sprintf(\"Computer: (%s %s)\", \"Dell\", $2)}"
+        conditionalCollection:
+          hw.enclosure.energy: $6
     collect:
       # Collect
       type: multiInstance
@@ -193,6 +195,8 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $5
           hw.temperature.limit{limit_type="high.critical"}: $4
+        conditionalCollection:
+          hw.temperature: $3
     collect:
       # Collect type is MultiInstance
       type: multiInstance
@@ -277,6 +281,8 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $4
           hw.fan.speed.limit{limit_type="low.critical"}: $5
+        conditionalCollection:
+          hw.fan.speed: $3
     collect:
       # Collect type = mono-instance
       type: multiInstance
@@ -331,6 +337,8 @@ monitors:
         metrics:
           hw.voltage.limit{limit_type="high.degraded"}: $4
           hw.voltage.limit{limit_type="low.critical"}: $5
+        conditionalCollection:
+          hw.voltage: $2
     collect:
       # Collect type = mono-instance
       type: multiInstance
