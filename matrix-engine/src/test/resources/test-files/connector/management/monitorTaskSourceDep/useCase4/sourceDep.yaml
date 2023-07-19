@@ -23,10 +23,10 @@ monitors:
           query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(1)
           namespace: root/emc
           executeForEachEntryOf:
-            source: $monitors.enclosure.discovery.sources.source(1)$
+            source: ${source::monitors.enclosure.discovery.sources.source(1)}
             concatMethod: list
       mapping:
-        source: $monitors.enclosure.discovery.sources.Source(2)$
+        source: ${source::monitors.enclosure.discovery.sources.Source(2)}
         attributes:
           id: buildId($column(1))
           parent: ""
@@ -49,10 +49,10 @@ monitors:
           query: SELECT __PATH, OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(1)
           namespace: root/emc
           executeForEachEntryOf:
-            source: $monitors.enclosure.collect.sources.source(1)$
+            source: ${source::monitors.enclosure.collect.sources.source(1)}
             concatMethod: list
       mapping:
         deviceId: $column(1) 
-        source: $monitors.enclosure.collect.sources.source(2)$
+        source: ${source::monitors.enclosure.collect.sources.source(2)}
         metrics:
           hw.status: $column(2)

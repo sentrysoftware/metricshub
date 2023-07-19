@@ -34,25 +34,25 @@ class ConnectorLibrarySerializerTest {
 	private static final TableJoinSource SOURCE7 = TableJoinSource
 		.builder()
 		.type("tableJoin")
-		.leftTable("$monitors.enclosure.discovery.sources.source(6)$")
-		.rightTable("$monitors.enclosure.discovery.sources.source(5)$")
+		.leftTable("${source::monitors.enclosure.discovery.sources.source(6)}")
+		.rightTable("${source::monitors.enclosure.discovery.sources.source(5)}")
 		.leftKeyColumn(5)
 		.rightKeyColumn(1)
 		.keyType("WBEM")
 		.defaultRightLine(";;;;")
-		.key("$monitors.enclosure.discovery.sources.source(7)$")
+		.key("${source::monitors.enclosure.discovery.sources.source(7)}")
 		.build();
 
 	private static final TableJoinSource SOURCE6 = TableJoinSource
 		.builder()
 		.type("tableJoin")
-		.leftTable("$monitors.enclosure.discovery.sources.source(1)$")
-		.rightTable("$monitors.enclosure.discovery.sources.source(4)$")
+		.leftTable("${source::monitors.enclosure.discovery.sources.source(1)}")
+		.rightTable("${source::monitors.enclosure.discovery.sources.source(4)}")
 		.leftKeyColumn(1)
 		.rightKeyColumn(1)
 		.keyType("WBEM")
 		.defaultRightLine(";;")
-		.key("$monitors.enclosure.discovery.sources.source(6)$")
+		.key("${source::monitors.enclosure.discovery.sources.source(6)}")
 		.build();
 
 	private static final WbemSource SOURCE5 = WbemSource
@@ -60,7 +60,7 @@ class ConnectorLibrarySerializerTest {
 		.type("wbem")
 		.query("SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem")
 		.namespace("root/emc")
-		.key("$monitors.enclosure.discovery.sources.source(5)$")
+		.key("${source::monitors.enclosure.discovery.sources.source(5)}")
 		.build();
 
 	private static final TableUnionSource SOURCE4 = TableUnionSource
@@ -69,12 +69,12 @@ class ConnectorLibrarySerializerTest {
 		.tables(
 			new ArrayList<>(
 				List.of(
-					"$monitors.enclosure.discovery.sources.source(2)$",
-					"$monitors.enclosure.discovery.sources.source(3)$"
+					"${source::monitors.enclosure.discovery.sources.source(2)}",
+					"${source::monitors.enclosure.discovery.sources.source(3)}"
 				)
 			)
 		)
-		.key("$monitors.enclosure.discovery.sources.source(4)$")
+		.key("${source::monitors.enclosure.discovery.sources.source(4)}")
 		.build();
 
 	private static final WbemSource SOURCE3 = WbemSource
@@ -82,7 +82,7 @@ class ConnectorLibrarySerializerTest {
 		.type("wbem")
 		.query("SELECT Antecedent,Dependent FROM EMC_SystemPackaging")
 		.namespace("root/emc")
-		.key("$monitors.enclosure.discovery.sources.source(3)$")
+		.key("${source::monitors.enclosure.discovery.sources.source(3)}")
 		.build();
 
 	private static final WbemSource SOURCE2 = WbemSource
@@ -90,7 +90,7 @@ class ConnectorLibrarySerializerTest {
 		.type("wbem")
 		.query("SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage")
 		.namespace("root/emc")
-		.key("$monitors.enclosure.discovery.sources.source(2)$")
+		.key("${source::monitors.enclosure.discovery.sources.source(2)}")
 		.build();
 
 	private static final WbemSource SOURCE1 = WbemSource
@@ -98,7 +98,7 @@ class ConnectorLibrarySerializerTest {
 		.type("wbem")
 		.query("SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis")
 		.namespace("root/emc")
-		.key("$monitors.enclosure.discovery.sources.source(1)$")
+		.key("${source::monitors.enclosure.discovery.sources.source(1)}")
 		.build();
 
 	@TempDir
@@ -108,20 +108,20 @@ class ConnectorLibrarySerializerTest {
 	static void setUp() {
 		SOURCE7.setReferences(
 			Set.of(
-				"$monitors.enclosure.discovery.sources.source(6)$",
-				"$monitors.enclosure.discovery.sources.source(5)$"
+				"${source::monitors.enclosure.discovery.sources.source(6)}",
+				"${source::monitors.enclosure.discovery.sources.source(5)}"
 			)
 		);
 		SOURCE4.setReferences(			
 			Set.of(
-				"$monitors.enclosure.discovery.sources.source(2)$",
-				"$monitors.enclosure.discovery.sources.source(3)$"
+				"${source::monitors.enclosure.discovery.sources.source(2)}",
+				"${source::monitors.enclosure.discovery.sources.source(3)}"
 			)
 		);
 		SOURCE6.setReferences(
 			Set.of(
-				"$monitors.enclosure.discovery.sources.source(1)$",
-				"$monitors.enclosure.discovery.sources.source(4)$"
+				"${source::monitors.enclosure.discovery.sources.source(1)}",
+				"${source::monitors.enclosure.discovery.sources.source(4)}"
 			)
 		);
 	}
@@ -207,7 +207,7 @@ class ConnectorLibrarySerializerTest {
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.source("$monitors.enclosure.discovery.sources.source(7)$")
+			.source("${source::monitors.enclosure.discovery.sources.source(7)}")
 			.attributes(
 				Map.of(
 					"id", "buildId($column(6))",

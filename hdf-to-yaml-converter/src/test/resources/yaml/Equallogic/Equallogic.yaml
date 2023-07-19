@@ -443,6 +443,7 @@ monitors:
         deviceId: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
+          hw.errors{hw.type="physical_disk"}: $4
         legacyTextParameters:
           StatusInformation: $3
   logical_disk:

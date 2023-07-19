@@ -436,6 +436,8 @@ monitors:
         deviceId: $1
         legacyTextParameters:
           StatusInformation: $3
+        metrics:
+          hw.errors{hw.type="physical_disk"}: $5
   network:
     discovery:
       sources:

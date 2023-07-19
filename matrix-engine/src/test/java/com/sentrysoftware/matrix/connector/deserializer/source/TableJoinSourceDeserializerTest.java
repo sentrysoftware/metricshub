@@ -36,7 +36,7 @@ class TableJoinSourceDeserializerTest extends DeserializerTest {
 					.leftKeyColumn(2)
 					.rightKeyColumn(3)
 					.defaultRightLine("testdefault;;;")
-					.key("$pre.testTableJoinSource$")
+					.key("${source::pre.testTableJoinSource}")
 					.computes(Collections.emptyList())
 					.build()
 			);

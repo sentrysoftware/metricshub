@@ -21,7 +21,7 @@ public class SourcesDeserializer extends AbstractLinkedHashMapDeserializer<Sourc
 
 	@Override
 	protected void updateMapValues(JsonParser parser, DeserializationContext ctxt, Map<String, Source> map) {
-		map.forEach((key, source) -> source.setKey(String.format("%s.%s$", nodePath, key)));
+		map.forEach((key, source) -> source.setKey(String.format("%s.%s}", nodePath, key)));
 	}
 
 	@Override

@@ -43,7 +43,7 @@ class AwkComputeDeserializerTest extends DeserializerTest {
 				"testCompute",
 				HttpSource
 					.builder()
-					.key("$pre.testCompute$")
+					.key("${source::pre.testCompute}")
 					.type("http")
 					.url("/testUrl/")
                     .computes(computes)

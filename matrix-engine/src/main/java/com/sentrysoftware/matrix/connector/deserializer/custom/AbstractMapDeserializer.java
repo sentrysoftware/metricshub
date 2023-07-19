@@ -67,7 +67,8 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 			getNodePath(context.getParent(), path);
 		}
 
-		return path.stream().collect(Collectors.joining(".", "$", ""));
+
+		return path.stream().collect(Collectors.joining(".", "${source::", ""));
 
 	}
 

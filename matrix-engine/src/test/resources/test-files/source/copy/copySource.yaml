@@ -5,4 +5,4 @@ connector:
 pre:
   testCopySource:
     type: copy
-    from: $pre.anotherSource$
+    from: ${source::pre.anotherSource}

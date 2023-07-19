@@ -146,6 +146,7 @@ monitors:
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
         metrics:
           hw.status{hw.type="physical_disk"}: $2
+          hw.errors{hw.type="physical_disk"}: $1
         legacyTextParameters:
           StatusInformation: $3
   memory:

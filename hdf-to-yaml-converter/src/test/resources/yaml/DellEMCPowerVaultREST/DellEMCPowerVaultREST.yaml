@@ -439,6 +439,7 @@ monitors:
         deviceId: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
+          hw.errors{hw.type="physical_disk"}: $5
           hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($6)
         legacyTextParameters:
           StatusInformation: $4

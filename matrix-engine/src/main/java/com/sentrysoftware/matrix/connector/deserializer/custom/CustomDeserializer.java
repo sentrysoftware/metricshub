@@ -26,7 +26,7 @@ public class CustomDeserializer extends DelegatingDeserializer {
 	 * Source reference pattern
 	 */
 	private static final Pattern REFERENCE_PATTERN = Pattern.compile(
-			"\\s*(\\$((monitors)\\.(.*)\\.(.*)\\.sources\\.(.*))|(pre\\.(.*))\\$)\\s*",
+			"\\s*(\\$\\{source::((monitors)\\.(.*)\\.(.*)\\.sources\\.(.*))|(pre\\.(.*))\\})\\s*",
 			Pattern.MULTILINE | Pattern.CASE_INSENSITIVE
 		);
 	
