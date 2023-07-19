@@ -14,9 +14,9 @@ import com.sentrysoftware.matrix.connector.deserializer.PostDeserializeHelper;
 
 class SourceTest {
 
-	private static final String SOURCE_REF0 = "$pre.source1$";
-	private static final String SOURCE_REF1 = "$monitors.cpu.discovery.sources.source1$";
-	private static final String SOURCE_REF2 = "$monitors.cpu.discovery.sources.source2$";
+	private static final String SOURCE_REF0 = "${source::pre.source1}";
+	private static final String SOURCE_REF1 = "${source::monitors.cpu.discovery.sources.source1}";
+	private static final String SOURCE_REF2 = "${source::monitors.cpu.discovery.sources.source2}";
 
 	private static final  ObjectMapper MAPPER = PostDeserializeHelper
 		.addPostDeserializeSupport(JsonHelper.buildYamlMapper());
@@ -25,7 +25,7 @@ class SourceTest {
 	void testReferencesCopy() throws IOException {
 		final String copyYaml = """
 			type: copy
-			from: $monitors.cpu.discovery.sources.source1$
+			from: ${source::monitors.cpu.discovery.sources.source1}
 			forceSerialization: false
 			""";
 		final Source source = MAPPER.readValue(copyYaml, Source.class);
@@ -37,13 +37,13 @@ class SourceTest {
 		final String httpYaml = """
 			type: http
 			url: url/$entry.column(1)$
-			header: $pre.source1$
+			header: ${source::pre.source1}
 			body: body1
 			authenticationToken: authToken
 			resultContent: body
 			forceSerialization: false
 			executeForEachEntryOf:
-			  source: $monitors.cpu.discovery.sources.source1$
+			  source: ${source::monitors.cpu.discovery.sources.source1}
 			  concatMethod: list
 			""";
 
@@ -73,7 +73,7 @@ class SourceTest {
 		final String osCommandYaml = """
 				type: osCommand
 				forceSerialization: false
-				commandLine: $monitors.cpu.discovery.sources.source1$
+				commandLine: ${source::monitors.cpu.discovery.sources.source1}
 				exclude: exclude
 				keep: keep
 				beginAtLineNumber: 1
@@ -95,7 +95,7 @@ class SourceTest {
 		final String snmpGetYaml = """
 				type: snmpGet
 				forceSerialization: false
-				oid: $monitors.cpu.discovery.sources.source1$
+				oid: ${source::monitors.cpu.discovery.sources.source1}
 				""";
 
 		final Source source = MAPPER.readValue(snmpGetYaml, Source.class);
@@ -110,7 +110,7 @@ class SourceTest {
 		final String snmpTableYaml = """
 				type: snmpTable
 				forceSerialization: false
-				oid: $monitors.cpu.discovery.sources.source1$
+				oid: ${source::monitors.cpu.discovery.sources.source1}
 				selectColumns: ID,1,2,3
 				""";
 
@@ -125,7 +125,7 @@ class SourceTest {
 	void testReferencesStatic() throws IOException {
 		final String staticSourceYaml = """
 			type: static
-			value: $monitors.cpu.discovery.sources.source1$
+			value: ${source::monitors.cpu.discovery.sources.source1}
 			""";
 		final Source source = MAPPER.readValue(staticSourceYaml, Source.class);
 		assertEquals(Set.of(SOURCE_REF1), source.getReferences());
@@ -136,8 +136,8 @@ class SourceTest {
 		final String tableJoinYaml = """
 				type: tableJoin
 				forceSerialization: false
-				leftTable: $monitors.cpu.discovery.sources.source1$
-				rightTable: $monitors.cpu.discovery.sources.source2$
+				leftTable: ${source::monitors.cpu.discovery.sources.source1}
+				rightTable: ${source::monitors.cpu.discovery.sources.source2}
 				defaultRightLine: ;;;;;;
 				keyType: WBEM
 				leftKeyColumn: 1
@@ -158,8 +158,8 @@ class SourceTest {
 				type: tableUnion
 				forceSerialization: false
 				tables: 
-				- $monitors.cpu.discovery.sources.source1$
-				- $monitors.cpu.discovery.sources.source2$
+				- ${source::monitors.cpu.discovery.sources.source1}
+				- ${source::monitors.cpu.discovery.sources.source2}
 				""";
 
 		final Source source = MAPPER.readValue(tableUnionYaml, Source.class);
@@ -174,8 +174,8 @@ class SourceTest {
 		final String wbemYaml = """
 				type: wbem
 				forceSerialization: false
-				query: $monitors.cpu.discovery.sources.source1$
-				namespace: $monitors.cpu.discovery.sources.source2$
+				query: ${source::monitors.cpu.discovery.sources.source1}
+				namespace: ${source::monitors.cpu.discovery.sources.source2}
 				""";
 
 		final Source source = MAPPER.readValue(wbemYaml, Source.class);
@@ -190,8 +190,8 @@ class SourceTest {
 		final String wmiYaml = """
 				type: wmi
 				forceSerialization: false
-				query: $monitors.cpu.discovery.sources.source1$
-				namespace: $monitors.cpu.discovery.sources.source2$
+				query: ${source::monitors.cpu.discovery.sources.source1}
+				namespace: ${source::monitors.cpu.discovery.sources.source2}
 				""";
 
 		final Source source = MAPPER.readValue(wmiYaml, Source.class);

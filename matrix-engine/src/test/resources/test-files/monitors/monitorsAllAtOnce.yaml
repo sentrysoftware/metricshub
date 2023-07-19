@@ -39,22 +39,22 @@ monitors:
           namespace: root/emc
         source(6):
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)$
-          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftTable: ${source::monitors.enclosure.discovery.sources.source(1)}
+          rightTable: ${source::monitors.enclosure.discovery.sources.source(4)}
           leftKeyColumn: 1
           rightKeyColumn: 1
           keyType: WBEM
           defaultRightLine: ;;
         source(7):
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(6)$
-          rightTable: $monitors.enclosure.discovery.sources.source(5)$
+          leftTable: ${source::monitors.enclosure.discovery.sources.source(6)}
+          rightTable: ${source::monitors.enclosure.discovery.sources.source(5)}
           leftKeyColumn: 5
           rightKeyColumn: 1
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
-        source: $monitors.enclosure.discovery.sources.Source(7)$
+        source: ${source::monitors.enclosure.discovery.sources.Source(7)}
         attributes:
           # Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(6)
           id: buildId($column(6))

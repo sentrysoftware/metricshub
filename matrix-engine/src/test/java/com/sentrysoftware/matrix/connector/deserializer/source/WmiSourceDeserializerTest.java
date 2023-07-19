@@ -30,7 +30,7 @@ class WmiSourceDeserializerTest extends DeserializerTest {
 			Map.of("testWmiSource",
 				WmiSource
 					.builder()
-					.key("$pre.testWmiSource$")
+					.key("${source::pre.testWmiSource}")
 					.type("wmi")
 					.query("testQuery")
 					.namespace("testNamespace")
