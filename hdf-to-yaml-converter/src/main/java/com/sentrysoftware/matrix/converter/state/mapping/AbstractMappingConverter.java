@@ -22,6 +22,8 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	protected static final Pattern COLUMN_PATTERN = Pattern.compile("^\\$\\d+$");
 
+	private static final Pattern PARAMETER_ACTIVATION_PATTERN = Pattern.compile(PARAMETER_ACTIVATION_REGEX, Pattern.CASE_INSENSITIVE);
+
 	/**
 	 * Get one to one attributes mapping
 	 * 
@@ -304,7 +306,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		while (iter.hasNext()) {
 			final Entry<String, JsonNode> attributeEntry = iter.next();
 			String key = attributeEntry.getKey();
-			Matcher matcher = Pattern.compile(PARAMETER_ACTIVATION_REGEX, Pattern.CASE_INSENSITIVE).matcher(key);
+			Matcher matcher = PARAMETER_ACTIVATION_PATTERN.matcher(key);
 
 			if (matcher.matches()) {
 				final ObjectNode conditionalCollection = getOrCreateSubNode(CONDITIONAL_COLLECTION, mapping);
