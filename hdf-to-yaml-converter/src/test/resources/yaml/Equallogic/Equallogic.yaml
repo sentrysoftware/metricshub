@@ -546,7 +546,7 @@ monitors:
             # ID;ID;ID;Name;Status
           - type: leftConcat
             column: 4
-            value: battery
+            value: 'Battery '
         source(2):
           # Source(2) = NVram Batteries
           # ID;Status

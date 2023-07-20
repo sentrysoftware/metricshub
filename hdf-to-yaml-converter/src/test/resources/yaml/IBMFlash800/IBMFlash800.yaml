@@ -388,7 +388,7 @@ monitors:
             # ID;Name;Units;Type;
           - type: replace
             column: 2
-            existingValue: voltage
+            existingValue: ' Voltage'
             newValue: ""
             # Add the Name to the Type
             # ID;Name;Units;Type;

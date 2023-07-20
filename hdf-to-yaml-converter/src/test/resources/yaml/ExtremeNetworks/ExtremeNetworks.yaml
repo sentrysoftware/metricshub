@@ -160,7 +160,7 @@ monitors:
           computes:
           - type: leftConcat
             column: 2
-            value: fan
+            value: 'Fan '
       mapping:
         # Id;Name
         source: "${source::monitors.fan.discovery.sources.source(1)}"

@@ -250,7 +250,7 @@ monitors:
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
           - type: replace
             column: 3
-            existingValue: fan
+            existingValue: ' FAN'
             newValue: ""
             # Remove the word " RPM" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
@@ -268,7 +268,7 @@ monitors:
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
           - type: replace
             column: 3
-            existingValue: fan
+            existingValue: ' Fan'
             newValue: ""
       mapping:
         # Instance Table = Source(1)
