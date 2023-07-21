@@ -58,9 +58,9 @@ public class ConnectorLibraryParser {
 	 */
 	public Map<String, Connector> parseConnectorsFromAllYamlFiles(Path yamlParentDirectory) throws IOException {
 		final long startTime = System.currentTimeMillis();
-		ConnectorFileVisitor fileVisitor = new ConnectorFileVisitor();
+		final ConnectorFileVisitor fileVisitor = new ConnectorFileVisitor();
 		Files.walkFileTree(yamlParentDirectory, fileVisitor);
-		System.out.println("Duration:" + (System.currentTimeMillis() - startTime) / 1000);
+		System.out.println("Yaml Loading Duration:" + (System.currentTimeMillis() - startTime) / 1000);
 		return fileVisitor.getConnectorsMap();
 	}
 
