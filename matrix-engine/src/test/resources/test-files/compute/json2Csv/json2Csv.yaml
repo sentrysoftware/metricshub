@@ -10,4 +10,4 @@ pre:
     computes:
       - type: json2Csv
         entryKey: /
-        properties: [ property, test, here ]
+        properties: property;test;here

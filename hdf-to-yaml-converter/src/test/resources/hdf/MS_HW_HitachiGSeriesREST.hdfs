@@ -419,7 +419,7 @@ Memory.Discovery.Source(2).Compute(2).String=Column(2)
 // JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
 Memory.Discovery.Source(2).Compute(3).Type=LeftConcat
 Memory.Discovery.Source(2).Compute(3).Column=5
-Memory.Discovery.Source(2).Compute(3)."Cache Flash Memory;"
+Memory.Discovery.Source(2).Compute(3).String="Cache Flash Memory;"
 
 // Source(3) = Union of Source(1) and Source(2)
 // JSON_ID; enclosureID; deviceID; displayID; type; model; cache size

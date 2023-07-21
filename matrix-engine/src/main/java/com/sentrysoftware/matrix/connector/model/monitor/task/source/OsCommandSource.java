@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.BooleanDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.PositiveIntegerDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
@@ -40,8 +41,8 @@ public class OsCommandSource extends Source {
 
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
-
-	private boolean executeLocally;
+	@JsonDeserialize(using = BooleanDeserializer.class)
+	private Boolean executeLocally;
 	private String exclude;
 	private String keep;
 	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
@@ -59,7 +60,7 @@ public class OsCommandSource extends Source {
 		@JsonProperty("forceSerialization") boolean forceSerialization,
 		@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
 		@JsonProperty("timeout") Long timeout,
-		@JsonProperty("executeLocally") boolean executeLocally,
+		@JsonProperty("executeLocally") Boolean executeLocally,
 		@JsonProperty("exclude") String exclude,
 		@JsonProperty("keep") String keep,
 		@JsonProperty("beginAtLineNumber") Integer beginAtLineNumber,

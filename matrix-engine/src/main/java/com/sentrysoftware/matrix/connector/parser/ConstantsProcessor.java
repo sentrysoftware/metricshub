@@ -27,12 +27,12 @@ public class ConstantsProcessor implements NodeProcessor {
 			final Map<String, String> replacements = new HashMap<>();
 			for (String key : constantKeys) {
 				final JsonNode child = constantsNode.get(key);
-				replacements.put(String.format("$constants.%s$", key), child.asText());
+				replacements.put(key, child.asText());
 			}
 
 			final UnaryOperator<String> transformer = value ->  performReplacements(replacements, value);
 
-			final Predicate<String> replacementPredicate = value -> value.indexOf("$constants.") != -1;
+			final Predicate<String> replacementPredicate = value -> value != null;
 			replacePlaceholderValues(node, transformer, replacementPredicate);
 
 			((ObjectNode) node).remove("constants");

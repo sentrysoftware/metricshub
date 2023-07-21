@@ -424,6 +424,7 @@ monitors:
             # JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
           - type: leftConcat
             column: 5
+            value: Cache Flash Memory;
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
           # JSON_ID; enclosureID; deviceID; displayID; type; model; cache size
