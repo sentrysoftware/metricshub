@@ -237,7 +237,7 @@ monitors:
 translations:
   TempStatusInformationTranslationTable:
     "1": Over Heating
-    "2": ok
+    "2": Ok
   StatusInformationTranslationTable:
     "1": Unknow
     "2": Bad

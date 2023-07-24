@@ -431,7 +431,7 @@ translations:
     "3": Speed High
     Default: UNKNOWN
   diskStatusInformationTranslationTable:
-    "1": ok
+    "1": Ok
     "2": Unknown
     "3": Absent
     "4": Failed

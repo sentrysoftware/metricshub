@@ -1107,7 +1107,7 @@ translations:
     "1000": The device is running normal.
     "2000": Status is not determined.
     "3000": The device has warning state.
-    Default: failed
+    Default: Alarm
   StatusTranslationTable:
     "5000": UNKNOWN
     "4000": failed

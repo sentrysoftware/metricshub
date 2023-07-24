@@ -290,7 +290,7 @@ translations:
     "4": Overload
   powerStatusInformationTranslationTable:
     "1": Normal
-    "2": failed
+    "2": Alarm
     "3": Not Installed
   powerStatusTranslationTable:
     "1": ok

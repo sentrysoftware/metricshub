@@ -496,8 +496,8 @@ tempStatusTranslationTable(Default)="OK"
 //Power Supply Status Translation Table
 
 powerStatusTranslationTable(1)="OK"
-powerStatusTranslationTable(2)="Alarm"
-powerStatusTranslationTable(3)="Alarm"
+powerStatusTranslationTable(2)="ALARM"
+powerStatusTranslationTable(3)="ALARM"
 powerStatusTranslationTable(Default)="OK"
 
 //Power Supply Status Translation Table

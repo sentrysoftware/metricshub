@@ -838,7 +838,7 @@ translations:
     Warning: The device has warning state.
     Critical: The device is in critical state.
     OK: The device is running normal.
-    Default: failed
+    Default: Alarm
   StatusTranslationTable:
     Warning: degraded
     Critical: failed
