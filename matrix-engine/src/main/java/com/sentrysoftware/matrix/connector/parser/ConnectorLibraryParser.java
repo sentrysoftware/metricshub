@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -15,6 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.TreeMap;
 
+@Slf4j
 public class ConnectorLibraryParser {
 
 	public static final ObjectMapper OBJECT_MAPPER = JsonHelper.buildYamlMapper();
@@ -60,7 +62,7 @@ public class ConnectorLibraryParser {
 		final long startTime = System.currentTimeMillis();
 		final ConnectorFileVisitor fileVisitor = new ConnectorFileVisitor();
 		Files.walkFileTree(yamlParentDirectory, fileVisitor);
-		System.out.println("Yaml Loading Duration:" + (System.currentTimeMillis() - startTime) / 1000);
+		log.info("Yaml loading duration: {} seconds", (System.currentTimeMillis() - startTime) / 1000);
 		return fileVisitor.getConnectorsMap();
 	}
 
