@@ -110,9 +110,9 @@ public class PreConnector {
 	 * Map each HDF status value with the corresponding OpenTelemetry state
 	 */
 	private static final Map<String, String> HDF_STATUS_TO_OTEL_STATE = Map.of(
-		"ok", "ok",
-		"warn", "degraded",
-		"alarm", "failed"
+		"OK", "ok",
+		"WARN", "degraded",
+		"ALARM", "failed"
 	);
 
 	/**
@@ -411,7 +411,7 @@ public class PreConnector {
 	 */
 	private String convertHdfStatusToOtelState(String translatedValue) {
 		return HDF_STATUS_TO_OTEL_STATE.getOrDefault(
-			translatedValue.toLowerCase(),
+			translatedValue,
 			translatedValue
 		);
 	}
