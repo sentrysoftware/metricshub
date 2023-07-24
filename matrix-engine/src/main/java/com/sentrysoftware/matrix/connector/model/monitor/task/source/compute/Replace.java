@@ -28,12 +28,9 @@ public class Replace extends Compute {
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
-	@NonNull
-	@JsonSetter(nulls = FAIL)
 	private String existingValue;
 
-	@NonNull
-	@JsonSetter(nulls = FAIL)
+
 	private String newValue;
 
 	@Builder
@@ -41,8 +38,8 @@ public class Replace extends Compute {
 	public Replace(
 		@JsonProperty("type") String type, 
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
-		@JsonProperty(value = "existingValue", required = true) @NonNull String existingValue,
-		@JsonProperty(value = "newValue", required = true) @NonNull String newValue
+		@JsonProperty(value = "existingValue") String existingValue,
+		@JsonProperty(value = "newValue") String newValue
 	) {
 
 		super(type);

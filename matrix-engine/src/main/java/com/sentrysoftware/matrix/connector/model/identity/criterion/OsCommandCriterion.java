@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.BooleanDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
 
@@ -31,7 +32,8 @@ public class OsCommandCriterion extends Criterion {
 	private String commandLine;
 	private String errorMessage;
 	private String expectedResult;
-	private boolean executeLocally;
+	@JsonDeserialize(using = BooleanDeserializer.class)
+	private Boolean executeLocally;
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
@@ -43,7 +45,7 @@ public class OsCommandCriterion extends Criterion {
 			@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
 			@JsonProperty("errorMessage") String errorMessage,
 			@JsonProperty("expectedResult") String expectedResult,
-			@JsonProperty("executeLocally") boolean executeLocally,
+			@JsonProperty("executeLocally") Boolean executeLocally,
 			@JsonProperty("timeout") Long timeout) {
 
 		super(type, forceSerialization);

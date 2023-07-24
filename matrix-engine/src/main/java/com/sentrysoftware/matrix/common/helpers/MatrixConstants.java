@@ -14,5 +14,7 @@ public class MatrixConstants {
 	public static final String NEW_LINE = "\n";
 	public static final String TAB = "\t";
 	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
+	public static final String YAML_CONNECTOR_KEY = "connector";
+	public static final String YAML_DISPLAY_NAME_KEY = "displayName";
 
 }

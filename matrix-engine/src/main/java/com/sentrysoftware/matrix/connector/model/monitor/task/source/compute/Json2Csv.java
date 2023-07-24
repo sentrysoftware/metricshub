@@ -30,7 +30,7 @@ public class Json2Csv extends Compute {
 	@JsonSetter(nulls = SKIP)
 	private String entryKey = "/";
 
-	private List<String> properties = new ArrayList<>();
+	private String properties;
 	private String separator;
 
 	@Builder
@@ -38,13 +38,13 @@ public class Json2Csv extends Compute {
 	public Json2Csv(
 		@JsonProperty("type") String type, 
 		@JsonProperty("entryKey") String entryKey,
-		@JsonProperty("properties") List<String> properties,
+		@JsonProperty("properties") String properties,
 		@JsonProperty("separator") String separator
 	) {
 
 		super(type);
 		this.entryKey = entryKey == null ? "/" : entryKey;
-		this.properties = properties == null ? new ArrayList<>() : properties;
+		this.properties = properties;
 		this.separator = separator == null ? TABLE_SEP : separator;
 	}
 
@@ -66,7 +66,7 @@ public class Json2Csv extends Compute {
 			.builder()
 			.type(type)
 			.entryKey(entryKey)
-			.properties(properties == null ? null : new ArrayList<>(properties))
+			.properties(properties)
 			.separator(separator)
 			.build();
 	}
@@ -75,11 +75,6 @@ public class Json2Csv extends Compute {
 	public void update(UnaryOperator<String> updater) {
 		entryKey = updater.apply(entryKey);
 		separator = updater.apply(separator);
-		if (properties != null && !properties.isEmpty()) {
-			properties = properties
-				.stream()
-				.map(updater::apply)
-				.collect(Collectors.toCollection(ArrayList::new));
-		}
+		properties = updater.apply(properties);
 	}
 }

@@ -32,7 +32,7 @@ class Json2CsvComputeDeserializerTest extends DeserializerTest {
         computes.add(
             Json2Csv.builder()
 					.type("json2Csv")
-					.properties(List.of("property", "test", "here"))
+					.properties("property;test;here")
 					.entryKey("/")
 					.build()
         );
