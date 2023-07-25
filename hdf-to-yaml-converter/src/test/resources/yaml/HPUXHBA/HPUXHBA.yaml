@@ -49,6 +49,7 @@ monitors:
           model: $3
           physical_address: $6
           physical_address_type: WWN
+          bandwidth: $5
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $1, $3)}"
     collect:

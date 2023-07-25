@@ -109,6 +109,7 @@ monitors:
           physical_address_type: MAC
           logical_address: $4
           logical_address_type: IP
+          bandwidth: $6
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:

@@ -61,6 +61,7 @@ monitors:
           vendor: QLogic
           model: $2
           serial_number: $6
+          bandwidth: $4
           physical_address: $3
           physical_address_type: WWN
           device_type: $5

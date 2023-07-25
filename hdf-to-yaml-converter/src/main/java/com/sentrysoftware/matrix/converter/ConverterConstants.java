@@ -221,6 +221,7 @@ public class ConverterConstants {
 	public static final String YAML_LOGICAL_ADDRESS_TYPE = "logical_address_type";
 	public static final String YAML_VM_HOSTNAME = "vm.host.name";
 	public static final String YAML_USE_FOR_CAPACITY_REPORT = "__use_for_capacity_report";
+	public static final String YAML_BANDWIDTH = "bandwidth";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -282,6 +283,7 @@ public class ConverterConstants {
 	public static final String HDF_RECEIVED_PACKETS = "receivedpackets";
 	public static final String HDF_TRANSMITTED_PACKETS = "transmittedpackets";
 	public static final String HDF_LINK_SPEED = "linkspeed";
+	public static final String HDF_BANDWIDTH = YAML_BANDWIDTH;
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";

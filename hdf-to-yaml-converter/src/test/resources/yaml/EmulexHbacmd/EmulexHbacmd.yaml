@@ -74,6 +74,7 @@ monitors:
           id: $2
           vendor: Emulex
           model: $1
+          bandwidth: $3
           physical_address: $2
           physical_address_type: WWN
           device_type: HBA FC Port

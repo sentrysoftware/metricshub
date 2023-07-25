@@ -49,6 +49,7 @@ monitors:
           id: $1
           __display_id: $1
           device_type: $2
+          bandwidth: $4
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:

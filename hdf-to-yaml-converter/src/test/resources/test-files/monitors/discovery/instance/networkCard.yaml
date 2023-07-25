@@ -16,6 +16,7 @@
     NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
     NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
     NetworkCard.Discovery.Instance.Vendor=InstanceTable.Column(12)
+    NetworkCard.Discovery.Instance.Bandwidth=InstanceTable.Column(13)
   expected:
     monitors:
       network:
@@ -36,6 +37,7 @@
               hw.parent.type: $5
               hw.parent.id: $4
               vendor: $12
+              bandwidth: $13
               name: ${awk::sprintf("%s (%s - %s - %s)", $6, $7, $12, $9)}
 - name: testNoVendor
   input: |

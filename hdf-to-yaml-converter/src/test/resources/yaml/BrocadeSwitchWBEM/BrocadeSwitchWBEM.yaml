@@ -680,6 +680,7 @@ monitors:
         source: "${source::monitors.network.discovery.sources.source(28)}"
         attributes:
           id: $13
+          bandwidth: $5
           physical_address: $6
           physical_address_type: $9
           device_type: $3
