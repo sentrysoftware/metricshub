@@ -125,6 +125,7 @@ monitors:
           id: $5
           vendor: $9
           model: $10
+          bandwidth: $4
           physical_address: $6
           physical_address_type: WWN
           device_type: $7

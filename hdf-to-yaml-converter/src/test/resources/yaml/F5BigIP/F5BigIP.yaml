@@ -284,6 +284,7 @@ monitors:
         source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
           id: $1
+          bandwidth: $2
           physical_address: $3
           physical_address_type: MAC
           hw.parent.type: enclosure

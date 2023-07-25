@@ -38,6 +38,7 @@ monitors:
         source: "${source::monitors.network.discovery.sources.source(1)}"
         attributes:
           id: $1
+          bandwidth: $2
           physical_address: $4
           physical_address_type: MAC
           model: $3

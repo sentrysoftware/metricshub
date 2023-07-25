@@ -320,6 +320,7 @@ monitors:
         source: "${source::monitors.network.discovery.sources.source(2)}"
         attributes:
           id: $1
+          bandwidth: $3
           physical_address: $4
           physical_address_type: WWN
           device_type: $2

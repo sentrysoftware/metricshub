@@ -485,6 +485,7 @@ monitors:
           physical_address: $13
           physical_address_type: $14
           device_type: $12
+          bandwidth: $10
           serial_number: $15
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"%s (%s)\", $2, $12)}"

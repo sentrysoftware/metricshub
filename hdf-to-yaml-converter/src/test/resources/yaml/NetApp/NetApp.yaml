@@ -624,6 +624,7 @@ monitors:
         attributes:
           id: $1
           model: $2
+          bandwidth: $5
           physical_address: $3
           physical_address_type: $4
           device_type: $6

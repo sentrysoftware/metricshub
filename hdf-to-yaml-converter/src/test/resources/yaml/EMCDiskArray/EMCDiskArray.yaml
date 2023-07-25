@@ -759,6 +759,7 @@ monitors:
         attributes:
           id: $5
           __display_id: $6
+          bandwidth: $8
           physical_address: $7
           physical_address_type: $11
           device_type: $10

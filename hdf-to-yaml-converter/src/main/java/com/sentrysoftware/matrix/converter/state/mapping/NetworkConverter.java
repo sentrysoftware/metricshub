@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
 import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BANDWIDTH;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
@@ -24,6 +25,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ZERO_BUFFER_CREDIT_COUNT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BANDWIDTH;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DEVICE_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
@@ -46,7 +48,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_PHYSIC
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +79,8 @@ public class NetworkConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_LOGICAL_ADDRESS, IMappingKey.of(ATTRIBUTES, YAML_LOGICAL_ADDRESS));
 		attributesMap.put(HDF_LOGICAL_ADDRESS_TYPE, IMappingKey.of(ATTRIBUTES, YAML_LOGICAL_ADDRESS_TYPE));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
-		
+		attributesMap.put(HDF_BANDWIDTH, IMappingKey.of(ATTRIBUTES, YAML_BANDWIDTH));
+
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
@@ -96,6 +99,7 @@ public class NetworkConverter extends AbstractMappingConverter {
 		metricsMap.put(HDF_RECEIVED_PACKETS, IMappingKey.of(METRICS, YAML_NETWORK_RECEIVED_PACKETS));
 		metricsMap.put(HDF_TRANSMITTED_PACKETS, IMappingKey.of(METRICS, YAML_NETWORK_TRANSMITTED_PACKETS));
 		metricsMap.put(HDF_LINK_SPEED, IMappingKey.of(METRICS, YAML_NETWORK_BANDWIDTH_LIMIT, AbstractMappingConverter::buildMegaBit2BitFunction));
+
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
 

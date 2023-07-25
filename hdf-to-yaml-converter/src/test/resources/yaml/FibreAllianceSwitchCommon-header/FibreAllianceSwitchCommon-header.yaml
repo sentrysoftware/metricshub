@@ -170,6 +170,7 @@ monitors:
           id: $1
           __display_id: $10
           vendor: $7
+          bandwidth: $8
           physical_address: $5
           physical_address_type: WWN
           serial_number: $6
