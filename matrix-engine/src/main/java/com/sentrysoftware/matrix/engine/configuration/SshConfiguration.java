@@ -9,14 +9,14 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-public class Sshconfiguration extends OsCommandConfiguration {
+public class SshConfiguration extends OsCommandConfiguration {
 
 	private String username;
 	private char[] password;
 	private File privateKey;
 
 	@Builder()
-	public Sshconfiguration(final boolean useSudo, final Set<String> useSudoCommands, final String sudoCommand, final Long timeout, final String username,
+	public SshConfiguration(final boolean useSudo, final Set<String> useSudoCommands, final String sudoCommand, final Long timeout, final String username,
 							final char[] password, final File privateKey) {
 		super(useSudo, useSudoCommands, sudoCommand, timeout);
 

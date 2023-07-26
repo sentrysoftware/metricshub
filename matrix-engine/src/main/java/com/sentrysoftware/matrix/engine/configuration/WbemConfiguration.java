@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Wbemconfiguration implements IConfiguration {
+public class WbemConfiguration implements IConfiguration {
 
 	@Builder.Default
 	private final TransportProtocols protocol = TransportProtocols.HTTPS;
