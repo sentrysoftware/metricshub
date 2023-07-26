@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HostConfiguration {
+
 	private String hostname;
 	private String hostType;
 	private long strategyTimeout;
