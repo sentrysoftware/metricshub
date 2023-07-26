@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@Builder
 @NoArgsConstructor
 public class OsCommandConfiguration implements IConfiguration {
 

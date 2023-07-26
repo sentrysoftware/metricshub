@@ -2,12 +2,14 @@ package com.sentrysoftware.matrix.engine.configuration;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class SshConfiguration extends OsCommandConfiguration {
 
