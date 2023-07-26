@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.configuration;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,11 +19,16 @@ public class OsCommandConfiguration implements IConfiguration {
 	private Long timeout = DEFAULT_TIMEOUT;
 
 	@Builder
-	public OsCommandConfiguration(final boolean useSudo, final Set<String> useSudoCommands, final String sudoCommand, final Long timeout) {
-		this.useSudo = useSudo;
-		this.useSudoCommands = useSudoCommands;
-		this.sudoCommand = sudoCommand;
-		this.timeout = timeout;
+	public OsCommandConfiguration(
+			final boolean useSudo,
+			final Set<String> useSudoCommands,
+			final String sudoCommand,
+			final Long timeout
+	) {
+			this.useSudo = useSudo;
+			this.useSudoCommands = useSudoCommands;
+			this.sudoCommand = sudoCommand;
+			this.timeout = timeout;
 	}
 
 	@Override

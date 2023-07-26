@@ -23,9 +23,7 @@ public class WbemConfiguration implements IConfiguration {
 	private final Long timeout = 120L;
 
 	String username;
-
 	char[] password;
-
 	String vCenter;
 
 	@Override
