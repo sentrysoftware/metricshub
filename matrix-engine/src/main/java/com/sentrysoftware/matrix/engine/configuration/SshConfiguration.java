@@ -17,11 +17,10 @@ public class SshConfiguration extends OsCommandConfiguration {
 	private char[] password;
 	private File privateKey;
 
-	@Builder()
+	@Builder(builderMethodName = "sshConfigurationBuilder")
 	public SshConfiguration(final boolean useSudo, final Set<String> useSudoCommands, final String sudoCommand, final Long timeout, final String username,
 							final char[] password, final File privateKey) {
 		super(useSudo, useSudoCommands, sudoCommand, timeout);
-
 		this.username = username;
 		this.password = password;
 		this.privateKey = privateKey;
