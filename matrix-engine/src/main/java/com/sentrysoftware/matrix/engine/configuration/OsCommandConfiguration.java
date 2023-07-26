@@ -20,15 +20,15 @@ public class OsCommandConfiguration implements IConfiguration {
 
 	@Builder
 	public OsCommandConfiguration(
-			final boolean useSudo,
-			final Set<String> useSudoCommands,
-			final String sudoCommand,
-			final Long timeout
+		final boolean useSudo,
+		final Set<String> useSudoCommands,
+		final String sudoCommand,
+		final Long timeout
 	) {
-			this.useSudo = useSudo;
-			this.useSudoCommands = useSudoCommands;
-			this.sudoCommand = sudoCommand;
-			this.timeout = timeout;
+		this.useSudo = useSudo;
+		this.useSudoCommands = useSudoCommands;
+		this.sudoCommand = sudoCommand;
+		this.timeout = timeout;
 	}
 
 	@Override

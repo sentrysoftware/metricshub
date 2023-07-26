@@ -18,4 +18,9 @@ public class Constants {
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
 	public static final String SSH_CONFIGURATION_TO_STRING = "SSH as testUser";
 	public static final String SNMP_CONFIGURATION_TO_STRING = "SNMP v1 (public)";
+	public static final String HOSTNAME = "localhost";
+	public static final String SSH_SUDO_COMMAND = "sudo pwd";
+	public static final String INVALID_PROTOCOL_EXCEPTION_MESSAGE = "Invalid protocol value: ";
+	public static final String INVALID_SNMP_VERSION = "Invalid SNMP version: ";
+	public final static String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
 }
