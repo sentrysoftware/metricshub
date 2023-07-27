@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link SshConfiguration}
  */
-public class SshConfigurationTest {
+class SshConfigurationTest {
 
 	@Test
 	public void testBuilder() {

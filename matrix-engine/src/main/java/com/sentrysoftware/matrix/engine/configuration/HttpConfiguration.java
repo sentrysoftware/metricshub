@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class HttpConfiguration implements IConfiguration {
 
 	@Builder.Default

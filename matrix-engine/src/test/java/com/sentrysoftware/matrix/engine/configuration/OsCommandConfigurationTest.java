@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link OsCommandConfiguration}
  */
-public class OsCommandConfigurationTest {
+class OsCommandConfigurationTest {
 	@Test
 	public void testToString() {
 		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();

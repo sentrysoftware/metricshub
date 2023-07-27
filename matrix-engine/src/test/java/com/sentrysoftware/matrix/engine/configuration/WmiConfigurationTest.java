@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link WmiConfiguration}
  */
-public class WmiConfigurationTest {
+class WmiConfigurationTest {
 
 	@Test
 	public void testToString() {

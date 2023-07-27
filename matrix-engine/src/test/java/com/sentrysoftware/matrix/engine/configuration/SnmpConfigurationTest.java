@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test of {@link SnmpConfiguration}
  */
-public class SnmpConfigurationTest {
+class SnmpConfigurationTest {
 
 	@Test
 	public void testToString() {

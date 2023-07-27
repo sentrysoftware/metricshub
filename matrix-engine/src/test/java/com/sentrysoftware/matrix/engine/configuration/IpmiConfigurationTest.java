@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link IpmiConfiguration}
  */
-public class IpmiConfigurationTest {
+class IpmiConfigurationTest {
 	@Test
 	public void testToString() {
 		final IpmiConfiguration ipmiConfiguration = new IpmiConfiguration();

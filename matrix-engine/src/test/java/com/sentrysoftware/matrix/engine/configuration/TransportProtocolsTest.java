@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test of {@link TransportProtocols}
  */
-public class TransportProtocolsTest {
+class TransportProtocolsTest {
 	@Test
 	public void testToString() {
 		final TransportProtocols transportProtocols = TransportProtocols.HTTP;

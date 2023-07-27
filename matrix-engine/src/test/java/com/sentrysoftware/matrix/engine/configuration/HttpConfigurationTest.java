@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link HttpConfiguration}
  */
-public class HttpConfigurationTest {
+class HttpConfigurationTest {
 	@Test
 	public void testToString() {
 		final HttpConfiguration httpsConfiguration = new HttpConfiguration();

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link WbemConfiguration}
  */
-public class WbemConfigurationTest {
+class WbemConfigurationTest {
 
 	@Test
 	public void testToString() {

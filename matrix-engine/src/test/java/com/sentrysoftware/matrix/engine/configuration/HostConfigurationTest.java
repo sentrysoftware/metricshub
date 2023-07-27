@@ -12,16 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link HostConfiguration}
  */
-public class HostConfigurationTest {
+class HostConfigurationTest {
 	@Test
 	public void testToString() {
-       final HostConfiguration hostConfiguration = HostConfiguration.builder()
-		   .strategyTimeout(STRATEGY_TIMEOUT)
-		   .hostType(ENCLOSURE)
-		   .hostname(LOCALHOST)
-		   .sequential(false)
-		   .retryDelay(RETRY_DELAY)
-		   .build();
-	   assertEquals(HOST_CONFIGURATION_TO_STRING, hostConfiguration.toString());
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.strategyTimeout(STRATEGY_TIMEOUT)
+			.hostType(ENCLOSURE)
+			.hostname(LOCALHOST)
+			.sequential(false)
+			.retryDelay(RETRY_DELAY)
+			.build();
+		assertEquals(HOST_CONFIGURATION_TO_STRING, hostConfiguration.toString());
 	}
 }

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test of {@link WinRmConfiguration}
  */
-public class WinRmConfigurationTest {
+class WinRmConfigurationTest {
 
 	@Test
 	public void testToString() {
