@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.monitor;
+package com.sentrysoftware.matrix.telemetry;
 
 import com.sentrysoftware.matrix.connector.model.alert.AlertRule;
 import com.sentrysoftware.matrix.telemetry.AbstractMetric;

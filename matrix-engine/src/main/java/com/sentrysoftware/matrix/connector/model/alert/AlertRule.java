@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.model.alert;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
-import com.sentrysoftware.matrix.connector.model.monitor.Monitor;
+import com.sentrysoftware.matrix.telemetry.Monitor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

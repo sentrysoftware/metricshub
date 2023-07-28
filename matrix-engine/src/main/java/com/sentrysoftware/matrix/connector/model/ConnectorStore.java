@@ -1,25 +1,18 @@
 package com.sentrysoftware.matrix.connector.model;
 
-import com.sentrysoftware.matrix.common.exception.DeserializationException;
+import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ConnectorStore {
-
-	private static final String CONNECTORS_RELATIVE_PATH = "/matrix/connector";
 
 	private static final ConnectorStore store = new ConnectorStore();
 
@@ -44,30 +37,9 @@ public class ConnectorStore {
 	}
 
 	private Map<String, Connector> deserializeConnectors() throws IOException, URISyntaxException {
-		final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(
-				this.getClass().getClassLoader());
-
-		return Arrays
-				.stream(resolver.getResources(
-						ConnectorStore.class.getResource(CONNECTORS_RELATIVE_PATH).toURI() + "/*"))
-				.map(resource -> {
-					try (InputStream inputStream = resource.getInputStream();
-						 ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
-
-						return (Connector) objectInputStream.readObject();
-
-					} catch (ClassNotFoundException | IOException e) {
-						String message = String.format("Error while deserializing connector %s.",
-								resource.getFilename());
-						log.error(message);
-						log.debug("Exception: ", e);
-						throw new DeserializationException(message, e);
-					}
-				})
-				.collect(Collectors.toMap(connector -> connector.getConnectorIdentity().getCompiledFilename(),
-						Function.identity(),
-						(first, second) -> first,
-						() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
-
+		// Connectors Yaml files exist in hdf-to-yaml-converter/src/test/resources/yaml
+		final Path yamlParentDirectory = Paths.get("hdf-to-yaml-converter", "src", "test", "resources", "yaml");
+		final ConnectorLibraryParser connectorLibraryParser = new ConnectorLibraryParser();
+		return connectorLibraryParser.parseConnectorsFromAllYamlFiles(yamlParentDirectory);
 	}
 }

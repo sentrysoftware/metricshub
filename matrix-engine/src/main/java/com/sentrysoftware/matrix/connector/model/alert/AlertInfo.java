@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.alert;
 
-import com.sentrysoftware.matrix.connector.model.monitor.Monitor;
+import com.sentrysoftware.matrix.telemetry.Monitor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
