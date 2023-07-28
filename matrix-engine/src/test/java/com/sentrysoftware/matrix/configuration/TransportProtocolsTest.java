@@ -1,6 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
-
-import org.junit.Test;
+package com.sentrysoftware.matrix.configuration;
 
 import static com.sentrysoftware.matrix.constants.Constants.HTTP;
 import static com.sentrysoftware.matrix.constants.Constants.HTTPS;
@@ -10,18 +8,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Test of {@link TransportProtocols}
  */
 class TransportProtocolsTest {
 	@Test
-	public void testToString() {
+	void testToString() {
 		final TransportProtocols transportProtocols = TransportProtocols.HTTP;
 		assertEquals("http", transportProtocols.toString());
 	}
 
 	@Test
-	public void testInterpretValueOf() {
+	void testInterpretValueOf() {
 		// Valid protocols are HTTP and HTTPS
 		assertEquals(TransportProtocols.HTTP, TransportProtocols.interpretValueOf(HTTP));
 		assertEquals(TransportProtocols.HTTPS, TransportProtocols.interpretValueOf(HTTPS));

@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
+package com.sentrysoftware.matrix.configuration;
 
 import com.sentrysoftware.matrix.alert.AlertInfo;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;

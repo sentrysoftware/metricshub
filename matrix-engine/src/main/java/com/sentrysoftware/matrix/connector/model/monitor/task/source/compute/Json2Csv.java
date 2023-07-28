@@ -5,11 +5,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

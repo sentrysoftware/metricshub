@@ -1,6 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
-
-import org.junit.Test;
+package com.sentrysoftware.matrix.configuration;
 
 import static com.sentrysoftware.matrix.constants.Constants.HTTPS_WITH_PORT;
 import static com.sentrysoftware.matrix.constants.Constants.HTTP_CONFIGURATION_TO_STRING;
@@ -8,10 +6,13 @@ import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.Test;
+
 /**
  * Test of {@link HttpConfiguration}
  */
 class HttpConfigurationTest {
+
 	@Test
 	public void testToString() {
 		final HttpConfiguration httpsConfiguration = new HttpConfiguration();

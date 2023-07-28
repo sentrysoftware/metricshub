@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
+package com.sentrysoftware.matrix.configuration;
 
 public enum TransportProtocols {
 

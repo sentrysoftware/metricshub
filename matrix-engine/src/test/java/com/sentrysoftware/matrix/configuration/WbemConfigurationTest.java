@@ -1,6 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
-
-import org.junit.jupiter.api.Test;
+package com.sentrysoftware.matrix.configuration;
 
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
@@ -10,13 +8,15 @@ import static com.sentrysoftware.matrix.constants.Constants.WBEM_NAMESPACE;
 import static com.sentrysoftware.matrix.constants.Constants.WBEM_VCENTER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Test of {@link WbemConfiguration}
  */
 class WbemConfigurationTest {
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		final WbemConfiguration wbemConfiguration = new WbemConfiguration();
 
 		// When the userName is NOT null, it's appended to the result

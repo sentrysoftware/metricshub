@@ -1,6 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
-
-import org.junit.Test;
+package com.sentrysoftware.matrix.configuration;
 
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.SSH;
@@ -10,13 +8,15 @@ import static com.sentrysoftware.matrix.constants.Constants.SSH_SUDO_COMMAND;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Test of {@link SshConfiguration}
  */
 class SshConfigurationTest {
 
 	@Test
-	public void testBuilder() {
+	void testBuilder() {
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
 			.username(USERNAME)
@@ -33,7 +33,7 @@ class SshConfigurationTest {
 	}
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		final SshConfiguration sshConfiguration = new SshConfiguration();
 
 		// When the userName is NOT null, it's appended to the result

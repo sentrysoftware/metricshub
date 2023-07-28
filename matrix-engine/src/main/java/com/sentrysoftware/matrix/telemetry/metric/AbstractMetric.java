@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.telemetry;
+package com.sentrysoftware.matrix.telemetry.metric;
 
 import lombok.Data;
 

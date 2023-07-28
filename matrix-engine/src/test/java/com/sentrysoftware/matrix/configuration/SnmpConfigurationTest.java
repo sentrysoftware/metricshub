@@ -1,6 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
-
-import org.junit.Test;
+package com.sentrysoftware.matrix.configuration;
 
 import static com.sentrysoftware.matrix.constants.Constants.AES;
 import static com.sentrysoftware.matrix.constants.Constants.DES;
@@ -9,8 +7,8 @@ import static com.sentrysoftware.matrix.constants.Constants.INVALID_PRIVACY_VALU
 import static com.sentrysoftware.matrix.constants.Constants.INVALID_SNMP_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.NO;
 import static com.sentrysoftware.matrix.constants.Constants.NONE;
-import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_ENCRYPTED_TO_STRING;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_V1_TO_STRING;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_V2C_TO_STRING;
@@ -19,13 +17,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
+
+
 /**
  * Test of {@link SnmpConfiguration}
  */
 class SnmpConfigurationTest {
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		// Privacy is not NULL, version is V3_MD5 and username is NULL
 		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.version(SnmpConfiguration.SnmpVersion.V3_MD5)
@@ -69,7 +70,7 @@ class SnmpConfigurationTest {
 	}
 
 	@Test
-	public void testSnmpVersionInterpretValueOf() {
+	void testSnmpVersionInterpretValueOf() {
 		// Version 1
 		assertEquals(SnmpConfiguration.SnmpVersion.V1, SnmpConfiguration.SnmpVersion.interpretValueOf("1"));
 		assertEquals(SnmpConfiguration.SnmpVersion.V1, SnmpConfiguration.SnmpVersion.interpretValueOf("v1"));
@@ -99,7 +100,7 @@ class SnmpConfigurationTest {
 	}
 
 	@Test
-	public void testPrivacyInterpretValueOf() {
+	void testPrivacyInterpretValueOf() {
 		// Encryption is defined: privacy is not equal to NO and not equal to NONE
 		assertEquals(SnmpConfiguration.Privacy.DES, SnmpConfiguration.Privacy.interpretValueOf(DES));
 		assertEquals(SnmpConfiguration.Privacy.AES, SnmpConfiguration.Privacy.interpretValueOf(AES));

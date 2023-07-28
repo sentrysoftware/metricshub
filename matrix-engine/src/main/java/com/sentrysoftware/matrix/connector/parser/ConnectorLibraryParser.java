@@ -51,6 +51,33 @@ public class ConnectorLibraryParser {
 
 			return FileVisitResult.CONTINUE;
 		}
+
+		/**
+		 * Whether the JsonNode is a final Connector. It means that this JsonNode defines the displayName section.
+		 *
+		 * @param connector JsonNode that contains connector's data
+		 * @return <code>true</code> if the {@link JsonNode} is a final connector, otherwise false.
+		 */
+		private boolean isConnector(final JsonNode connector) {
+
+			final JsonNode connectorNode = connector.get(MatrixConstants.YAML_CONNECTOR_KEY);
+			if (connectorNode != null && !connectorNode.isNull()) {
+				final JsonNode displayName = connectorNode.get(MatrixConstants.YAML_DISPLAY_NAME_KEY);
+				return displayName != null && !displayName.isNull();
+			}
+
+			return false;
+		}
+
+		/**
+		 * Whether the connector is a YAML file or not
+		 *
+		 * @param name given fileName
+		 * @return boolean value
+		 */
+		private boolean isYamlFile(final String name) {
+			return name.toLowerCase().endsWith(".yaml");
+		}
 	}
 
 	/**
@@ -64,32 +91,5 @@ public class ConnectorLibraryParser {
 		Files.walkFileTree(yamlParentDirectory, fileVisitor);
 		log.info("Yaml loading duration: {} seconds", (System.currentTimeMillis() - startTime) / 1000);
 		return fileVisitor.getConnectorsMap();
-	}
-
-	/**
-	 * Whether the JsonNode is a final Connector. It means that this JsonNode defines the displayName section.
-	 *
-	 * @param connector JsonNode that contains connector's data
-	 * @return <code>true</code> if the {@link JsonNode} is a final connector, otherwise false.
-	 */
-	private boolean isConnector(final JsonNode connector) {
-
-		final JsonNode connectorNode = connector.get(MatrixConstants.YAML_CONNECTOR_KEY);
-		if (connectorNode != null && !connectorNode.isNull()) {
-			final JsonNode displayName = connectorNode.get(MatrixConstants.YAML_DISPLAY_NAME_KEY);
-			return displayName != null && !displayName.isNull();
-		}
-
-		return false;
-	}
-
-	/**
-	 * Whether the connector is a YAML file or not
-	 *
-	 * @param name given fileName
-	 * @return boolean value
-	 */
-	private boolean isYamlFile(final String name) {
-		return name.toLowerCase().endsWith(".yaml");
 	}
 }

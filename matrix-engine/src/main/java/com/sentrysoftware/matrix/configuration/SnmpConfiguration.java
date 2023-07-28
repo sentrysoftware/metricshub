@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
+package com.sentrysoftware.matrix.configuration;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +13,8 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class SnmpConfiguration implements IConfiguration {
 
-	private final static String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
-	private final static String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
+	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
+	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
 	@Builder.Default
 	private final SnmpVersion version = SnmpVersion.V1;
 	@Builder.Default

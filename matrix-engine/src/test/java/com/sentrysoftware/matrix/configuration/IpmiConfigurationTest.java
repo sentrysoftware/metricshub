@@ -1,6 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
-
-import org.junit.Test;
+package com.sentrysoftware.matrix.configuration;
 
 import static com.sentrysoftware.matrix.constants.Constants.BMC_KEY;
 import static com.sentrysoftware.matrix.constants.Constants.IMPI_CONFIGURATION_TO_STRING;
@@ -9,12 +7,15 @@ import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Test of {@link IpmiConfiguration}
  */
 class IpmiConfigurationTest {
+
 	@Test
-	public void testToString() {
+	void testToString() {
 		final IpmiConfiguration ipmiConfiguration = new IpmiConfiguration();
 
 		// When the userName is NOT null, it's appended to the result
@@ -28,4 +29,5 @@ class IpmiConfigurationTest {
 		ipmiConfiguration.setUsername(null);
 		assertEquals(IPMI, ipmiConfiguration.toString());
 	}
+
 }

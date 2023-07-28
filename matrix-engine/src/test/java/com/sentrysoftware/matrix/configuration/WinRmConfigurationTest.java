@@ -1,8 +1,4 @@
-package com.sentrysoftware.matrix.engine.configuration;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
+package com.sentrysoftware.matrix.configuration;
 
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
@@ -11,13 +7,17 @@ import static com.sentrysoftware.matrix.constants.Constants.WINRM_CONFIGURATION_
 import static com.sentrysoftware.matrix.constants.Constants.WINRM_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Test of {@link WinRmConfiguration}
  */
 class WinRmConfigurationTest {
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		final WinRmConfiguration winRmConfiguration = new WinRmConfiguration();
 
 		// When the userName is NOT null, it's appended to the result
