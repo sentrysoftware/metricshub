@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.engine.configuration;
 
 import com.sentrysoftware.matrix.connector.model.alert.AlertInfo;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 public class HostConfiguration {
 
 	private String hostname;
-	private String hostType;
+	private DeviceKind hostType;
 	private long strategyTimeout;
 	private Set<String> excludedConnectors;
 	private boolean sequential;

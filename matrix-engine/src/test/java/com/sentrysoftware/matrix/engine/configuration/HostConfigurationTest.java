@@ -1,8 +1,8 @@
 package com.sentrysoftware.matrix.engine.configuration;
 
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import org.junit.Test;
 
-import static com.sentrysoftware.matrix.constants.Constants.ENCLOSURE;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_CONFIGURATION_TO_STRING;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.RETRY_DELAY;
@@ -17,7 +17,7 @@ class HostConfigurationTest {
 	public void testToString() {
 		final HostConfiguration hostConfiguration = HostConfiguration.builder()
 			.strategyTimeout(STRATEGY_TIMEOUT)
-			.hostType(ENCLOSURE)
+			.hostType(DeviceKind.LINUX)
 			.hostname(LOCALHOST)
 			.sequential(false)
 			.retryDelay(RETRY_DELAY)

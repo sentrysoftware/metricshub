@@ -16,8 +16,6 @@ public class Constants {
 	public static final Long STRATEGY_TIMEOUT = 100L;
 	public static final Long RETRY_DELAY = 30L;
 	public static final String SSH_SUDO_COMMAND = "sudo pwd";
-	public static final String ENCLOSURE = "Enclosure";
-
 
 	// Configuration toString output
 	public static final String HTTP_CONFIGURATION_TO_STRING = "HTTPS/443 as testUser";
