@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 public class HostConfiguration {
 
 	private String hostname;
+	private String hostId;
 	private DeviceKind hostType;
 	private long strategyTimeout;
 	private Set<String> excludedConnectors;

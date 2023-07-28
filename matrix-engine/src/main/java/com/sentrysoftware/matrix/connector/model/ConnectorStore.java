@@ -31,6 +31,12 @@ public class ConnectorStore {
 
 	}
 
+	/**
+	 * This method retrieves Connectors data in a Map from a given connector directory
+	 * The key of the Map will be the connector file name and Value will be the Connector Object
+	 * @return Map<String, Connector>
+	 * @throws IOException
+	 */
 	private Map<String, Connector> deserializeConnectors() throws IOException {
 		final ConnectorLibraryParser connectorLibraryParser = new ConnectorLibraryParser();
 		return connectorLibraryParser.parseConnectorsFromAllYamlFiles(connectorDirectory);
