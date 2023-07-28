@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.alert;
+package com.sentrysoftware.matrix.alert;
 
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import lombok.AllArgsConstructor;

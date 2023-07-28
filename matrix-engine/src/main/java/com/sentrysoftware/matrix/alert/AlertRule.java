@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.alert;
+package com.sentrysoftware.matrix.alert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;

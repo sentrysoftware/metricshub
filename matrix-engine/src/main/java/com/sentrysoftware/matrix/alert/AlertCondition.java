@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.alert;
+package com.sentrysoftware.matrix.alert;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

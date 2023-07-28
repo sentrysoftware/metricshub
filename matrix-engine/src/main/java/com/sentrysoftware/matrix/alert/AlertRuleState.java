@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.alert;
+package com.sentrysoftware.matrix.alert;
 public enum AlertRuleState {
 	INACTIVE,
 	PENDING,

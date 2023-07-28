@@ -1,8 +1,6 @@
 package com.sentrysoftware.matrix.telemetry;
 
-import com.sentrysoftware.matrix.connector.model.alert.AlertRule;
-import com.sentrysoftware.matrix.telemetry.AbstractMetric;
-import com.sentrysoftware.matrix.telemetry.Resource;
+import com.sentrysoftware.matrix.alert.AlertRule;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

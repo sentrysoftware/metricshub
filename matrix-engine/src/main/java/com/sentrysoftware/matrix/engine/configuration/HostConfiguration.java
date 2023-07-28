@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.engine.configuration;
 
-import com.sentrysoftware.matrix.connector.model.alert.AlertInfo;
+import com.sentrysoftware.matrix.alert.AlertInfo;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
