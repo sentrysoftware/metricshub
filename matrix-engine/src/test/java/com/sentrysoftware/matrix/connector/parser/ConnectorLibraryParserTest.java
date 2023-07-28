@@ -4,17 +4,18 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConnectorLibraryParserTest {
+class ConnectorLibraryParserTest {
 	public static final String ENCLOSURE = "enclosure";
 	public static final String SNMP_TABLE = "snmpTable";
 	public static final String DISCOVERY_MAPPING_NAME = "name";
@@ -39,7 +40,7 @@ public class ConnectorLibraryParserTest {
 	 * @throws IOException if the file does not exist
 	 */
 	@Test
-	public void testVisitFile() throws IOException {
+	void testVisitFile() throws IOException {
 		final Path yamlTestPath = Paths.get("src", "test", "resources", "test-files", "connector", "connectorLibraryParser");
 		final Map<String, Connector> connectors = new ConnectorLibraryParser().parseConnectorsFromAllYamlFiles(yamlTestPath);
 
