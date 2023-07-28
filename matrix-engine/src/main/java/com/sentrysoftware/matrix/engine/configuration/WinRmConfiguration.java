@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WinRmConfiguration implements IWinProtocol {
+public class WinRmConfiguration implements IWinConfiguration {
 
 	private String username;
 	private char[] password;
