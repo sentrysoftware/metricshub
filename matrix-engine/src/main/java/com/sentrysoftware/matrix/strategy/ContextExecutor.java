@@ -19,6 +19,12 @@ public class ContextExecutor {
 
 	private IStrategy strategy;
 
+	/**
+	 * This method prepares the strategy, runs the run method it in a separate thread.
+	 * Upon thread completion, it calls the post method of the IStrategy instance and ensures proper termination of the task
+	 * @return boolean true if the executor is terminated and false if it is timed out
+	 * @throws InterruptedException if the thread is interrupted while waiting
+	 */
 	public boolean execute() throws InterruptedException {
 
 		final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -39,7 +45,7 @@ public class ContextExecutor {
 		final boolean isTerminated = executorService.awaitTermination(strategyTimeout, TimeUnit.SECONDS);
 
 		strategy.post();
-		
+
 		return isTerminated;
 	}
 }
