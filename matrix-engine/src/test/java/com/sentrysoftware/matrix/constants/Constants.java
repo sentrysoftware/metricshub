@@ -60,5 +60,7 @@ public class Constants {
 	public final static String NO = "no";
 	public final static String NONE = "none";
 	public final static String INVALID_PRIVACY_VALUE = "sha-256";
+	// Thread sleep duration in milliseconds
+	public final static long THREAD_SLEEP_DURATION = 25000L;
 
 }
