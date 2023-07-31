@@ -16,5 +16,6 @@ public class MatrixConstants {
 	public static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
 	public static final String YAML_CONNECTOR_KEY = "connector";
 	public static final String YAML_DISPLAY_NAME_KEY = "displayName";
+	public static final long DEFAULT_JOB_TIMEOUT = 5 * 60L;
 
 }

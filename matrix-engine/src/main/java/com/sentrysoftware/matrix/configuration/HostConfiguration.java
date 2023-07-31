@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_JOB_TIMEOUT;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -20,7 +22,8 @@ public class HostConfiguration {
 	private String hostname;
 	private String hostId;
 	private DeviceKind hostType;
-	private long strategyTimeout;
+	@Builder.Default
+	private long strategyTimeout = DEFAULT_JOB_TIMEOUT;
 	private Set<String> excludedConnectors;
 	private boolean sequential;
 	private Consumer<AlertInfo> alertTrigger;
