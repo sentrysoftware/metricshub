@@ -263,6 +263,7 @@
 					<excludes>
 						<!-- Exclude simple DTO, VO and POJO -->
 						<exclude>com/sentrysoftware/matrix/connector/model/**</exclude>
+						<exclude>com/sentrysoftware/matrix/strategy/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
