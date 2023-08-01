@@ -6,7 +6,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSo
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.UcsSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.WmiSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
@@ -52,11 +51,6 @@ public class SourceProcessor implements ISourceProcessor {
 	}
 
 	public SourceTable process(final TableUnionSource tableUnionSource) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public SourceTable process(final UcsSource ucsSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
