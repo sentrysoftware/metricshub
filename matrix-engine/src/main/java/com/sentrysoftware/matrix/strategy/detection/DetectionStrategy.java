@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.detection;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.matrix.connector.model.metric.MetricType;
+import com.sentrysoftware.matrix.connector.model.metric.StateSet;
 import com.sentrysoftware.matrix.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
@@ -69,13 +70,12 @@ public class DetectionStrategy extends AbstractStrategy {
 		final Connector connector = connectorTestResult.getConnector();
 		final Map<String, AbstractMetric> monitorMetrics = new HashMap<>();
 		final Map<String, String> monitorAttributes = new HashMap<>();
-		final String metricsKey = METRICS_KEY;
 
 		// Get monitor metrics from connector
-		final MetricDefinition metricDefinition = connector.getMetrics().get(metricsKey);
+		final MetricDefinition metricDefinition = connector.getMetrics().get(METRICS_KEY);
 
 		// Check whether metric type is Enum
-		if(metricDefinition.getType() instanceof MetricType){
+		if(metricDefinition != null && metricDefinition.getType() instanceof MetricType){
 			final NumberMetric numberMetric = new NumberMetric();
 			if(connectorTestResult.isSuccess()){
 				numberMetric.setValue(1.0);
@@ -83,8 +83,8 @@ public class DetectionStrategy extends AbstractStrategy {
 				numberMetric.setValue(0.0);
 			}
 			numberMetric.setCollectTime(new Date().getTime());
-			monitorMetrics.put(metricsKey, numberMetric);
-		} else {
+			monitorMetrics.put(METRICS_KEY, numberMetric);
+		} else if(metricDefinition != null && metricDefinition.getType() instanceof StateSet){
 			// When metric type is stateSet
 			final StateSetMetric stateSetMetric = new StateSetMetric();
 			if(connectorTestResult.isSuccess()){
@@ -93,7 +93,7 @@ public class DetectionStrategy extends AbstractStrategy {
 				stateSetMetric.setValue(STATE_SET_METRIC_FAILED);
 			}
 			stateSetMetric.setCollectTime(new Date().getTime());
-			monitorMetrics.put(metricsKey, stateSetMetric);
+			monitorMetrics.put(METRICS_KEY, stateSetMetric);
 		}
 
 		// Get monitor attributes
