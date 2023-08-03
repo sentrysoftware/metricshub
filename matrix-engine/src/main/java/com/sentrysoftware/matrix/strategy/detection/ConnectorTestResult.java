@@ -20,6 +20,10 @@ public class ConnectorTestResult {
 	private Connector connector;
 
 	@Default
-	private List<CriterionTestResult> criterionTestResult = new ArrayList<>();
+	private List<CriterionTestResult> criterionTestResults = new ArrayList<>();
+
+	public boolean isSuccess() {
+		return !criterionTestResults.isEmpty() && criterionTestResults.stream().allMatch(CriterionTestResult::isSuccess);
+	}
 
 }

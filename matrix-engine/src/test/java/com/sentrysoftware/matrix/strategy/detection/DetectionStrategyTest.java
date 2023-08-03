@@ -31,7 +31,7 @@ import static com.sentrysoftware.matrix.constants.Constants.YAML_TEST_FILE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DetectionStrategyTest {
+class DetectionStrategyTest {
 
 	@Test
 	public void testCreateMonitors() throws IOException {
