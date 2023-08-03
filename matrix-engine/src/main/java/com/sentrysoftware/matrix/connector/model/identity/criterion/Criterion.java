@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = WmiCriterion.class, name = "wmi"),
 		@JsonSubTypes.Type(value = WbemCriterion.class, name = "wbem"),
 		@JsonSubTypes.Type(value = ServiceCriterion.class, name = "service"),
-		@JsonSubTypes.Type(value = UcsCriterion.class, name = "ucs"),
 		@JsonSubTypes.Type(value = OsCommandCriterion.class, name = "osCommand")
 	}
 )
