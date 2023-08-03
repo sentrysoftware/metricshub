@@ -11,11 +11,17 @@ public class Constants {
 	public static final String WMI_NAMESPACE = "testWmiNamespace";
 	public static final String WBEM_VCENTER = "testWbemVCenter";
 	public static final byte[] BMC_KEY = new byte[]{0x06, 0x66};
-	public static final String LOCALHOST = "localhost";
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
 	public static final Long STRATEGY_TIMEOUT = 100L;
 	public static final Long RETRY_DELAY = 30L;
 	public static final String SSH_SUDO_COMMAND = "sudo pwd";
+
+	// Yaml test file name
+	public final static String YAML_TEST_FILE_NAME = "AAC";
+
+	// Host information
+	public static final String LOCALHOST = "localhost";
+	public final static String HOST_ID = "PC-120";
 
 	// Configuration toString output
 	public static final String HTTP_CONFIGURATION_TO_STRING = "HTTPS/443 as testUser";
@@ -63,5 +69,9 @@ public class Constants {
 
 	// Thread sleep duration in milliseconds
 	public final static long THREAD_SLEEP_DURATION = 350000L;
+
+	// OS
+	public final static String LINUX = "LINUX";
+	public final static String WINDOWS = "WINDOWS";
 
 }
