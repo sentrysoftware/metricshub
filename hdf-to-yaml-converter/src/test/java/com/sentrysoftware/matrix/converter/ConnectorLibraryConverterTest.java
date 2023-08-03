@@ -88,7 +88,7 @@ class ConnectorLibraryConverterTest {
 			}
 		});
 
-		final int expectedFileCounter = 286;
+		final int expectedFileCounter = 281;
 		assertEquals(expectedFileCounter, fileCounter.get());
 	}
 

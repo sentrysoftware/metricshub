@@ -1,9 +1,0 @@
----
-connector:
-  detection:
-    appliesTo: [ linux ]
-    criteria:
-      - type: ucs
-        forceSerialization: true
-        query: SELECT dn FROM networkElement
-        expectedResult: ^networkElement;sys/

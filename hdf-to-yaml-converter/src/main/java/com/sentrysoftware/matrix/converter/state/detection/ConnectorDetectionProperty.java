@@ -13,7 +13,6 @@ import com.sentrysoftware.matrix.converter.state.detection.process.ConnectorProc
 import com.sentrysoftware.matrix.converter.state.detection.productrequirements.ConnectorProductRequirementsProperty;
 import com.sentrysoftware.matrix.converter.state.detection.service.ConnectorServiceProperty;
 import com.sentrysoftware.matrix.converter.state.detection.snmp.ConnectorSnmpProperty;
-import com.sentrysoftware.matrix.converter.state.detection.ucs.ConnectorUcsProperty;
 import com.sentrysoftware.matrix.converter.state.detection.wbem.ConnectorWbemProperty;
 import com.sentrysoftware.matrix.converter.state.detection.wmi.ConnectorWmiProperty;
 
@@ -35,8 +34,7 @@ public class ConnectorDetectionProperty {
 			ConnectorDeviceTypeProperty.getConnectorProperties(),
 			ConnectorProcessProperty.getConnectorProperties(),
 			ConnectorProductRequirementsProperty.getConnectorProperties(),
-			ConnectorServiceProperty.getConnectorProperties(),
-			ConnectorUcsProperty.getConnectorProperties()
+			ConnectorServiceProperty.getConnectorProperties()
 		)
 		.flatMap(Set::stream)
 		.collect(Collectors.toSet());

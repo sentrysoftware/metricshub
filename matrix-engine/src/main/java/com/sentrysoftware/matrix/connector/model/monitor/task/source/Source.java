@@ -35,7 +35,6 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = StaticSource.class, name = "static"),
 		@JsonSubTypes.Type(value = TableJoinSource.class, name = "tableJoin"),
 		@JsonSubTypes.Type(value = TableUnionSource.class, name = "tableUnion"),
-		@JsonSubTypes.Type(value = UcsSource.class, name = "ucs"),
 		@JsonSubTypes.Type(value = WbemSource.class, name = "wbem"),
 		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi"),
 	}
