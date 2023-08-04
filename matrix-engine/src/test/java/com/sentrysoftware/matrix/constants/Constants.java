@@ -74,4 +74,6 @@ public class Constants {
 	public final static String LINUX = "LINUX";
 	public final static String WINDOWS = "WINDOWS";
 
+	public final static String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
+	public final static String CONNECTOR_YAML = "connector.yaml";
 }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
@@ -32,7 +33,13 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		final String hostname = hostConfiguration.getHostname();
 		log.debug("Hostname {} - Start Discovery", hostname);
 
-		Map<String, Connector> connectorStore = telemetryManager.getConnectorStore().getStore();
+		final ConnectorStore cs = telemetryManager.getConnectorStore();
+		if (cs == null) {
+			log.error("Hostname {} - No connectorStore found. Stopping discovery operation.", hostname);
+			return null;
+		}
+
+		final Map<String, Connector> connectorStore = cs.getStore();
 		if (connectorStore == null) {
 			log.error("Hostname {} - No connectorStore found. Stopping discovery operation.", hostname);
 			return null;
@@ -53,7 +60,8 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			return new ArrayList<>();
 		}
 
-		List<Connector> connectors = connectorStore.values().stream()
+		final List<Connector> connectors = connectorStore.values().stream()
+				.filter(connector -> connector.getOrCreateConnectorIdentity().getDetection() != null)
 				// No Auto Detection Filtering
 				.filter(connector -> !connector.getOrCreateConnectorIdentity().getDetection().isDisableAutoDetection())
 				// DeviceKind Filtering
@@ -64,7 +72,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 				.filter(connector -> anyMatch(connector.getSourceTypes(), acceptedSources))
 				.collect(Collectors.toList());
 
-		Set<String> supersedes = new HashSet<>();
+		final Set<String> supersedes = new HashSet<>();
 		List<ConnectorTestResult> connectorTestResults = 
 				runAllConnectorsDetectionCriteria(connectors.stream(), hostConfiguration)
 				// Keep Only Success Connectors

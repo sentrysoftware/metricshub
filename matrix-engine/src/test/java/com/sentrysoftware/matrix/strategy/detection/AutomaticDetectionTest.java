@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR_YAML;
+import static com.sentrysoftware.matrix.constants.Constants.DETECTION_FOLDER;
+import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,160 +47,165 @@ class AutomaticDetectionTest {
 
 	@Test
 	public void testRunExcludeAllConnectorsFiltering() {
-		Map<String, Map<String, Monitor>> monitors = new HashMap<>();
-		HostProperties hostProperties = new HostProperties();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
 
-		Set<String> connectors = new HashSet<>();
-		connectors.add("connector.yaml");
-		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		HostConfiguration hostConfiguration = new HostConfiguration("localhost", "hostId", DeviceKind.WINDOWS, 0, null, connectors, true, null, 0, null, configurations);
+		final Set<String> connectors = new HashSet<>();
+		connectors.add(CONNECTOR_YAML);
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		HostConfiguration hostConfiguration = new HostConfiguration(
+				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, connectors, true, null, 0, null, configurations);
 
-		File store = new File("src/test/resources/test-files/connector/detection");
-		Path storePath = store.toPath();
-		ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put("connector.yaml", new Connector());
-		TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final File store = new File(DETECTION_FOLDER);
+		final Path storePath = store.toPath();
+		final ConnectorStore connectorStore = new ConnectorStore(storePath);
+		connectorStore.getStore().put(CONNECTOR_YAML, new Connector());
+		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
 		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
 	}
 
 	@Test
 	public void testRunAutoDetectionFiltering() {
-		Map<String, Map<String, Monitor>> monitors = new HashMap<>();
-		HostProperties hostProperties = new HostProperties();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
 
-		Set<String> connectors = new HashSet<>();
-		connectors.add("connector.yaml");
-		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		final Set<String> connectors = new HashSet<>();
+		connectors.add(CONNECTOR_YAML);
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
-		HostConfiguration hostConfiguration = new HostConfiguration("localhost", "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+		final HostConfiguration hostConfiguration = new HostConfiguration(
+				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
 
-		File store = new File("src/test/resources/test-files/connector/detection");
-		Path storePath = store.toPath();
+		final File store = new File(DETECTION_FOLDER);
+		final Path storePath = store.toPath();
 
-		Detection detection = new Detection();
+		final Detection detection = new Detection();
 		// Disable Auto detection
 		detection.setDisableAutoDetection(true);
 		detection.setAppliesTo(Set.of(DeviceKind.WINDOWS));
 		detection.setConnectionTypes(Set.of(ConnectionType.LOCAL));
 
-		ConnectorIdentity connectorIdentity = new ConnectorIdentity();
+		final ConnectorIdentity connectorIdentity = new ConnectorIdentity();
 		connectorIdentity.setDetection(detection);
 
-		Connector connector = new Connector();
+		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 		connector.setSourceTypes(Set.of(SnmpSource.class));
 
-		ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put("connector.yaml", connector);
+		final ConnectorStore connectorStore = new ConnectorStore(storePath);
+		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
 		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
 	}
 
 	@Test
 	public void testDeviceKindFiltering() {
-		Map<String, Map<String, Monitor>> monitors = new HashMap<>();
-		HostProperties hostProperties = new HostProperties();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
 
-		Set<String> connectors = new HashSet<>();
-		connectors.add("connector.yaml");
-		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		final Set<String> connectors = new HashSet<>();
+		connectors.add(CONNECTOR_YAML);
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
-		HostConfiguration hostConfiguration = new HostConfiguration("localhost", "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+		final HostConfiguration hostConfiguration = new HostConfiguration(
+				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
 
-		File store = new File("src/test/resources/test-files/connector/detection");
-		Path storePath = store.toPath();
+		final File store = new File(DETECTION_FOLDER);
+		final Path storePath = store.toPath();
 
-		Detection detection = new Detection();
+		final Detection detection = new Detection();
 		detection.setDisableAutoDetection(false);
 		// appliesTo Linux when host is Windows
 		detection.setAppliesTo(Set.of(DeviceKind.LINUX));
 		detection.setConnectionTypes(Set.of(ConnectionType.LOCAL));
 
-		ConnectorIdentity connectorIdentity = new ConnectorIdentity();
+		final ConnectorIdentity connectorIdentity = new ConnectorIdentity();
 		connectorIdentity.setDetection(detection);
 
-		Connector connector = new Connector();
+		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 		connector.setSourceTypes(Set.of(SnmpSource.class));
 
-		ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put("connector.yaml", connector);
+		final ConnectorStore connectorStore = new ConnectorStore(storePath);
+		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
 		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
 	}
 
 	@Test
 	public void testConnectionTypesFiltering() {
-		Map<String, Map<String, Monitor>> monitors = new HashMap<>();
-		HostProperties hostProperties = new HostProperties();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
 
-		Set<String> connectors = new HashSet<>();
-		connectors.add("connector.yaml");
-		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		final Set<String> connectors = new HashSet<>();
+		connectors.add(CONNECTOR_YAML);
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
-		HostConfiguration hostConfiguration = new HostConfiguration("localhost", "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+		final HostConfiguration hostConfiguration = new HostConfiguration(
+				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
 
-		File store = new File("src/test/resources/test-files/connector/detection");
-		Path storePath = store.toPath();
+		final File store = new File(DETECTION_FOLDER);
+		final Path storePath = store.toPath();
 
-		Detection detection = new Detection();
+		final Detection detection = new Detection();
 		detection.setDisableAutoDetection(false);
 		detection.setAppliesTo(Set.of(DeviceKind.WINDOWS));
 		// Connection type Remote
 		detection.setConnectionTypes(Set.of(ConnectionType.REMOTE));
 
-		ConnectorIdentity connectorIdentity = new ConnectorIdentity();
+		final ConnectorIdentity connectorIdentity = new ConnectorIdentity();
 		connectorIdentity.setDetection(detection);
 
-		Connector connector = new Connector();
+		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 		connector.setSourceTypes(Set.of(SnmpSource.class));
 
-		ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put("connector.yaml", connector);
+		final ConnectorStore connectorStore = new ConnectorStore(storePath);
+		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
 		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
 	}
 
 	@Test
 	public void testAcceptedSourcesFiltering() {
-		Map<String, Map<String, Monitor>> monitors = new HashMap<>();
-		HostProperties hostProperties = new HostProperties();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
 
-		Set<String> connectors = new HashSet<>();
-		connectors.add("connector.yaml");
-		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		final Set<String> connectors = new HashSet<>();
+		connectors.add(CONNECTOR_YAML);
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
-		HostConfiguration hostConfiguration = new HostConfiguration("localhost", "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+		final HostConfiguration hostConfiguration = new HostConfiguration(
+				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
 
-		File store = new File("src/test/resources/test-files/connector/detection");
-		Path storePath = store.toPath();
+		final File store = new File(DETECTION_FOLDER);
+		final Path storePath = store.toPath();
 
-		Detection detection = new Detection();
+		final Detection detection = new Detection();
 		detection.setDisableAutoDetection(false);
 		detection.setAppliesTo(Set.of(DeviceKind.WINDOWS));
 		detection.setConnectionTypes(Set.of(ConnectionType.LOCAL));
 
-		ConnectorIdentity connectorIdentity = new ConnectorIdentity();
+		final ConnectorIdentity connectorIdentity = new ConnectorIdentity();
 		connectorIdentity.setDetection(detection);
 
-		Connector connector = new Connector();
+		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 		// Http Source when host is configured with Snmp
 		connector.setSourceTypes(Set.of(HttpSource.class));
 
-		ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put("connector.yaml", connector);
+		final ConnectorStore connectorStore = new ConnectorStore(storePath);
+		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
 		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
 	}
 }

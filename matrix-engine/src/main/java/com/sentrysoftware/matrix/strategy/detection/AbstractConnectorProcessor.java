@@ -96,32 +96,18 @@ public abstract class AbstractConnectorProcessor {
 	}
 
 	/**
-	 * If a connector is defined in the supersedes list of another detected connector then it will be removed
-	 *
-	 * @param connectorTestResults
-	 */
-	void handleSupersedes(@NonNull final List<ConnectorTestResult> connectorTestResults) {
-		final Set<String> supersedes = new HashSet<>();
-		connectorTestResults.forEach(connectorTestResult -> updateSupersedes(supersedes, connectorTestResult));
-
-		connectorTestResults.removeIf(c -> supersedes.contains(c.getConnector().getConnectorIdentity().getCompiledFilename().toLowerCase()));
-	}
-
-	/**
 	 * Update the given {@link Set} of supersedes connectors
 	 *
 	 * @param supersedes
 	 * @param connectorTestResult
 	 */
 	void updateSupersedes(@NonNull final Set<String> supersedes, @NonNull final ConnectorTestResult connectorTestResult) {
-		Set<String> connectorSupersedes = connectorTestResult.getConnector().getConnectorIdentity().getDetection().getSupersedes();
-		if (connectorSupersedes == null
-				|| connectorSupersedes.isEmpty()) {
+		final Set<String> connectorSupersedes = connectorTestResult.getConnector().getConnectorIdentity().getDetection().getSupersedes();
+		if (connectorSupersedes == null || connectorSupersedes.isEmpty()) {
 			return;
 		}
 
-		supersedes.addAll(connectorSupersedes.stream()
-				.map(fileName -> fileName.toLowerCase()).collect(Collectors.toSet()));
+		supersedes.addAll(connectorSupersedes.stream().map(fileName -> fileName.toLowerCase()).collect(Collectors.toSet()));
 	}
 
 	/**
@@ -132,7 +118,7 @@ public abstract class AbstractConnectorProcessor {
 	 * @return The filtered {@link List} of {@link ConnectorTestResult}
 	 */
 	List<ConnectorTestResult> filterLastResort(@NonNull List<ConnectorTestResult> connectorTestResults) {
-		Set<String> monitorsSet = new HashSet<>();
+		final Set<String> monitorsSet = new HashSet<>();
 		connectorTestResults.forEach(ctr -> monitorsSet.addAll(ctr.getConnector().getMonitors().keySet()));
 		return connectorTestResults.stream()
 				.filter(ctr -> monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort()))
