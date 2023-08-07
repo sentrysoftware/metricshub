@@ -38,7 +38,7 @@ public class Constants {
 	public static final String SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING = "SNMP v3 with MD5 auth";
 	public static final String SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING = "SNMP v3 with MD5 auth as testUser";
 	public static final String HOST_CONFIGURATION_TO_STRING = "HostConfiguration(hostname=localhost," +
-			" hostId=localhost, hostType=LINUX, strategyTimeout=100, excludedConnectors=null, sequential=false," +
+			" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
 			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations=null)";
 
 
@@ -74,4 +74,6 @@ public class Constants {
 	public final static String LINUX = "LINUX";
 	public final static String WINDOWS = "WINDOWS";
 
+	public final static String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
+	public final static String CONNECTOR_YAML = "connector.yaml";
 }

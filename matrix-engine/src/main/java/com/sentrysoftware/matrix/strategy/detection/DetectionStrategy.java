@@ -4,6 +4,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.matrix.connector.model.metric.MetricType;
 import com.sentrysoftware.matrix.connector.model.metric.StateSet;
+
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
@@ -18,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.METRICS_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
@@ -38,7 +41,18 @@ public class DetectionStrategy extends AbstractStrategy {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
+		if (hostConfiguration == null) {
+			return;
+		}
+
+		final Set<String> selectedConnectors = hostConfiguration.getSelectedConnectors();
+		// If one or more connector are selected, we run them
+		if (selectedConnectors != null && !selectedConnectors.isEmpty()) {
+			new ConnectorSelection().run(telemetryManager);
+		} else { // Else we run the automatic detection
+			new AutomaticDetection().run(telemetryManager);
+		}
 
 	}
 
