@@ -35,13 +35,13 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 
 		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
 		if (telemetryManagerConnectorStore == null) {
-			log.error("Hostname {} - No connectorStore found. Stopping discovery operation.", hostname);
+			log.error("Hostname {} - No connectorStore found. Stopping detection operation.", hostname);
 			return null;
 		}
 
 		final Map<String, Connector> connectorStore = telemetryManagerConnectorStore.getStore();
 		if (connectorStore == null) {
-			log.error("Hostname {} - No connectorStore found. Stopping discovery operation.", hostname);
+			log.error("Hostname {} - No connectorStore found. Stopping detection operation.", hostname);
 			return null;
 		}
 
@@ -56,7 +56,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		}
 
 		if (connectorStore.isEmpty()) {
-			log.error("Hostname {} - No connector to detect. Stopping discovery operation.", hostname);
+			log.error("Hostname {} - No connector to detect. Stopping detection operation.", hostname);
 			return new ArrayList<>();
 		}
 

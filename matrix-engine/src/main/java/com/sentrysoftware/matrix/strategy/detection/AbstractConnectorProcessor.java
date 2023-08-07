@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
 import lombok.NonNull;
@@ -123,6 +124,22 @@ public abstract class AbstractConnectorProcessor {
 		return connectorTestResults.stream()
 				.filter(ctr -> monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort()))
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Return true if the name of the {@link Connector} is in the set of connector names
+	 * @param connector
+	 * @param connectorNameSet
+	 * @return
+	 */
+	boolean isConnectorContainedInSet(@NonNull final Connector connector, @NonNull final Set<String> connectorNameSet) {
+		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
+		if (connectorIdentity == null) {
+			return false;
+		}
+
+		final String connectorName = connectorIdentity.getCompiledFilename();
+		return connectorName != null && connectorNameSet.contains(connectorName);
 	}
 
 	private ConnectorTestResult runConnectorDetectionCriteria(Connector connector, String hostname) {
