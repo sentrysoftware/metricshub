@@ -33,13 +33,13 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		final String hostname = hostConfiguration.getHostname();
 		log.debug("Hostname {} - Start Discovery", hostname);
 
-		final ConnectorStore cs = telemetryManager.getConnectorStore();
-		if (cs == null) {
+		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
+		if (telemetryManagerConnectorStore == null) {
 			log.error("Hostname {} - No connectorStore found. Stopping discovery operation.", hostname);
 			return null;
 		}
 
-		final Map<String, Connector> connectorStore = cs.getStore();
+		final Map<String, Connector> connectorStore = telemetryManagerConnectorStore.getStore();
 		if (connectorStore == null) {
 			log.error("Hostname {} - No connectorStore found. Stopping discovery operation.", hostname);
 			return null;
