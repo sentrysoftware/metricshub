@@ -18,5 +18,8 @@ public class CriterionTestResult {
 	private String message;
 
 	private Throwable exception;
+	public static CriterionTestResult empty() {
+		return CriterionTestResult.builder().build();
+	}
 
 }
