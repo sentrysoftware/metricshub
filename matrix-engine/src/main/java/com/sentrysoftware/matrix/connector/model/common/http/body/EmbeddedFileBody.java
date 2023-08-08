@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.common.http.body;
 
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
-import com.sentrysoftware.matrix.engine.strategy.matsya.HttpMacrosUpdater;
+import com.sentrysoftware.matrix.matsya.HttpMacrosUpdater;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.NonNull;
 
 import java.util.function.UnaryOperator;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
 @Data
 @NoArgsConstructor

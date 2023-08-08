@@ -263,8 +263,6 @@ public abstract class AbstractConnectorProcessor {
 			executable = () -> criterionProcessor.process((ServiceCriterion) criterion);
 		} else if(criterion instanceof ProductRequirementsCriterion){
 			executable = () -> criterionProcessor.process((ProductRequirementsCriterion) criterion);
-		} else if(criterion instanceof ProductRequirementsCriterion){
-			executable = () -> criterionProcessor.process((ProductRequirementsCriterion) criterion);
 		} else if(criterion instanceof ProcessCriterion){
 			executable = () -> criterionProcessor.process((ProcessCriterion) criterion);
 		} else if(criterion instanceof IpmiCriterion){

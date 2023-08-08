@@ -38,7 +38,7 @@ public class HttpMacrosUpdater {
 			@NonNull String hostname
 	) {
 
-		if (text == null) {
+		if (text == null || text.isEmpty()) {
 			return EMPTY;
 		}
 

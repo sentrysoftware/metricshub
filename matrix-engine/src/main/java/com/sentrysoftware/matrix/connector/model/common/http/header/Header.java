@@ -1,13 +1,14 @@
 package com.sentrysoftware.matrix.connector.model.common.http.header;
 
-import com.sentrysoftware.matrix.engine.strategy.matsya.HttpMacrosUpdater;
+
+import com.sentrysoftware.matrix.matsya.HttpMacrosUpdater;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static org.springframework.util.Assert.isTrue;
 
 public interface Header extends Serializable {

@@ -264,6 +264,8 @@
 						<!-- Exclude simple DTO, VO and POJO -->
 						<exclude>com/sentrysoftware/matrix/connector/model/**</exclude>
 						<exclude>com/sentrysoftware/matrix/strategy/**</exclude>
+						<exclude>com/sentrysoftware/matrix/matsya/**</exclude>
+						<exclude>com/sentrysoftware/matrix/connector/model/common/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

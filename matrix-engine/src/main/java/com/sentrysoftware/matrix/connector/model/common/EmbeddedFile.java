@@ -20,6 +20,10 @@ public class EmbeddedFile implements Serializable {
 	private String type;
 	private Integer index;
 
+	/**
+	 *
+	 * @return EmbeddedFile instance
+	 */
 	public EmbeddedFile copy() {
 		return EmbeddedFile
 				.builder()
@@ -29,10 +33,18 @@ public class EmbeddedFile implements Serializable {
 				.build();
 	}
 
+	/**
+	 *
+	 * @return String that contains the embedded file description
+	 */
 	public String description() {
 		return String.format("EmbeddedFile(%d)", index);
 	}
 
+	/**
+	 *
+	 * @param updater
+	 */
 	public void update(UnaryOperator<String> updater) {
 		content = updater.apply(content);
 		type = updater.apply(type);

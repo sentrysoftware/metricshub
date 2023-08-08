@@ -79,8 +79,7 @@ public class OsCommandHelper {
 	 * @throws IOException If an error occurred in the temp file creation.
 	 */
 	public static Map<String, File> createOsCommandEmbeddedFiles(
-			@NonNull
-			final String commandLine,
+			@NonNull final String commandLine,
 			final Map<Integer, EmbeddedFile> embeddedFiles,
 			final OsCommandConfiguration osCommandConfiguration,
 			final Function<String, File> tempFileCreator
@@ -220,8 +219,7 @@ public class OsCommandHelper {
 	 */
 	@WithSpan("OS Command")
 	public static String runLocalCommand(
-			@NonNull
-			final String command,
+			@NonNull final String command,
 			@SpanAttribute("OSCommand.timeout") final long timeout,
 			@SpanAttribute("OSCommand.command") final String noPasswordCommand)
 			throws InterruptedException, IOException, TimeoutException {
@@ -239,7 +237,7 @@ public class OsCommandHelper {
 		final Future<String> future = executor.submit(() -> {
 
 			try (final InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
-				 final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+				final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 				final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
@@ -288,12 +286,9 @@ public class OsCommandHelper {
 	 * @throws InterruptedException
 	 */
 	public static String runSshCommand(
-			@NonNull
-			final String command,
-			@NonNull
-			final String hostname,
-			@NonNull
-			final SshConfiguration sshConfiguration,
+			@NonNull final String command,
+			@NonNull final String hostname,
+			@NonNull final SshConfiguration sshConfiguration,
 			final long timeout,
 			final List<File> localFiles,
 			final String noPasswordCommand) throws MatsyaException, InterruptedException, ControlledSshException {
@@ -333,6 +328,7 @@ public class OsCommandHelper {
 	 * @param <T>
 	 * @param executable
 	 * @param hostname
+	 * @param timeout
 	 * @return The executable result (e.g. a {@link String} value)
 	 * @throws InterruptedException
 	 * @throws ControlledSshException
@@ -370,9 +366,7 @@ public class OsCommandHelper {
 	 * @param command The command.
 	 * @return An Optional with The file name if found otherwise an empty optional.
 	 */
-	static Optional<String> getFileNameFromSudoCommand(
-			@NonNull
-			final String command) {
+	static Optional<String> getFileNameFromSudoCommand(@NonNull final String command) {
 		final Matcher matcher = SUDO_PATTERN.matcher(command);
 		return matcher.find() ?
 				Optional.ofNullable(matcher.group(1)) :
@@ -466,8 +460,8 @@ public class OsCommandHelper {
 	 * <li>Local (use java Process)</li>
 	 * <li>Remote windows (use WMI/WinRm command)</li>
 	 * <li>Remote Linux (use SSH)<:li>
-	 * <p>It replace Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
-	 * <p>If necessary, it create embedded files and delete them after the command execution.</p>
+	 * <p>It replaces Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
+	 * <p>If necessary, it creates embedded files and deletes them after the command execution.</p>
 	 * </p>
 	 *
 	 * @param commandLine The command Line. (mandatory)
@@ -485,10 +479,8 @@ public class OsCommandHelper {
 	 * @throws ControlledSshException
 	 */
 	public static OsCommandResult runOsCommand(
-			@NonNull
-			final String commandLine,
-			@NonNull
-			final TelemetryManager telemetryManager,
+			@NonNull final String commandLine,
+			@NonNull final TelemetryManager telemetryManager,
 			final Map<Integer, EmbeddedFile> embeddedFiles,
 			final Long commandTimeout,
 			final boolean isExecuteLocally,

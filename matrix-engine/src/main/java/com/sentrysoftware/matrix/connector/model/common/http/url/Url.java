@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_MACRO;
 
 @NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class Url {
@@ -16,6 +16,7 @@ public class Url {
 	 * @param port        port of the request
 	 * @param requestPath request path of the request
 	 * @param protocol    protocol used by the request
+	 * @return formatted String
 	 */
 	public static String format(@NonNull final String hostname, @NonNull final Integer port, @NonNull final String requestPath, @NonNull final String protocol) {
 
