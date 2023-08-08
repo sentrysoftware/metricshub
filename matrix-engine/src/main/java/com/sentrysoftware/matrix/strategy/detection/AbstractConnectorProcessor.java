@@ -118,7 +118,7 @@ public abstract class AbstractConnectorProcessor {
 	 * @param connectorTestResults The {@link List} of {@link ConnectorTestResult}
 	 * @return The filtered {@link List} of {@link ConnectorTestResult}
 	 */
-	List<ConnectorTestResult> filterLastResort(@NonNull List<ConnectorTestResult> connectorTestResults) {
+	protected List<ConnectorTestResult> filterLastResort(@NonNull List<ConnectorTestResult> connectorTestResults) {
 		final Set<String> monitorsSet = new HashSet<>();
 		connectorTestResults.forEach(ctr -> monitorsSet.addAll(ctr.getConnector().getMonitors().keySet()));
 		return connectorTestResults.stream()
@@ -132,7 +132,7 @@ public abstract class AbstractConnectorProcessor {
 	 * @param connectorNameSet
 	 * @return
 	 */
-	boolean isConnectorContainedInSet(@NonNull final Connector connector, @NonNull final Set<String> connectorNameSet) {
+	protected boolean isConnectorContainedInSet(@NonNull final Connector connector, @NonNull final Set<String> connectorNameSet) {
 		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
 		if (connectorIdentity == null) {
 			return false;

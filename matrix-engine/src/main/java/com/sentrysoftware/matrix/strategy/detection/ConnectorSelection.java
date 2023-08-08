@@ -39,7 +39,7 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 
 		final Set<String> selectedConnectors = hostConfiguration.getSelectedConnectors();
 		if (selectedConnectors == null || selectedConnectors.isEmpty()) {
-			log.error("Hostname {} - No connectors has been selected for the detection. Stopping discovery operation.", hostname);
+			log.error("Hostname {} - No connectors have been selected for the detection. Stopping discovery operation.", hostname);
 			return null;
 		}
 
