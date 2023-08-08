@@ -45,7 +45,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link HttpCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param httpCriterion
 	 * @return
 	 */
 	CriterionTestResult process(HttpCriterion httpCriterion) {
@@ -55,7 +55,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link IpmiCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param ipmiCriterion
 	 * @return
 	 */
 	CriterionTestResult process(IpmiCriterion ipmiCriterion) {
@@ -65,7 +65,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link OsCommandCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param osCommandCriterion
 	 * @return
 	 */
 	CriterionTestResult process(OsCommandCriterion osCommandCriterion) {
@@ -75,7 +75,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link ProcessCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param processCriterion
 	 * @return
 	 */
 	CriterionTestResult process(ProcessCriterion processCriterion) {
@@ -85,7 +85,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link ProductRequirementsCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param productRequirementsCriterion
 	 * @return
 	 */
 	CriterionTestResult process(ProductRequirementsCriterion productRequirementsCriterion) {
@@ -95,7 +95,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link ServiceCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param serviceCriterion
 	 * @return
 	 */
 	CriterionTestResult process(ServiceCriterion serviceCriterion) {
@@ -105,7 +105,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link SnmpCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param snmpCriterion
 	 * @return
 	 */
 	CriterionTestResult process(SnmpCriterion snmpCriterion) {
@@ -115,7 +115,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link SnmpGetCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param snmpGetCriterion
 	 * @return
 	 */
 	CriterionTestResult process(SnmpGetCriterion snmpGetCriterion) {
@@ -125,7 +125,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param snmpGetNextCriterion
 	 * @return
 	 */
 	CriterionTestResult process(SnmpGetNextCriterion snmpGetNextCriterion) {
@@ -135,7 +135,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param wmiCriterion
 	 * @return
 	 */
 	CriterionTestResult process(WmiCriterion wmiCriterion) {
@@ -145,7 +145,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param wbemCriterion
 	 * @return
 	 */
 	CriterionTestResult process(WbemCriterion wbemCriterion) {
@@ -155,7 +155,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link WqlCriterion} through Matsya and return the {@link CriterionTestResult}
-	 * @param deviceTypeCriterion
+	 * @param wqlCriterion
 	 * @return
 	 */
 	CriterionTestResult process(WqlCriterion wqlCriterion) {

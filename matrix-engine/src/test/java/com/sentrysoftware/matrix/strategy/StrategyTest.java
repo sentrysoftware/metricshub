@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.strategy;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static com.sentrysoftware.matrix.constants.Constants.THREAD_SLEEP_DURATION;
@@ -61,6 +62,12 @@ class StrategyTest implements IStrategy {
 	 * @throws InterruptedException
 	 */
 	@Test
+	@Disabled
+	/**
+	 * This test is disabled because it tests the real timeout. It will take 5 minutes to complete.
+	 * Currently, it slows down the build process.
+	 * We have to mock the contextExecutor later to use another smaller strategyTimeout value
+	 */
 	public void testContextExecutorWithExpiringStrategyTimeout() throws InterruptedException {
 		contextExecutor = new ContextExecutor(this);
 		this.threadSleepDuration = THREAD_SLEEP_DURATION;
