@@ -1,21 +1,8 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.identity.Detection;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
@@ -33,9 +20,21 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.WqlCriterion
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_LOCK_TIMEOUT;
 
@@ -141,7 +140,7 @@ public abstract class AbstractConnectorProcessor {
 	 * @param connectorTestResults The {@link List} of {@link ConnectorTestResult}
 	 * @return The filtered {@link List} of {@link ConnectorTestResult}
 	 */
-	List<ConnectorTestResult> filterLastResort(@NonNull List<ConnectorTestResult> connectorTestResults) {
+	protected List<ConnectorTestResult> filterLastResort(@NonNull List<ConnectorTestResult> connectorTestResults) {
 		final Set<String> monitorsSet = new HashSet<>();
 		connectorTestResults.forEach(ctr -> monitorsSet.addAll(ctr.getConnector().getMonitors().keySet()));
 		return connectorTestResults.stream()
@@ -278,6 +277,22 @@ public abstract class AbstractConnectorProcessor {
 		} else {
 			return executable.get();
 		}
+	}
+
+	/**
+	 * Return true if the name of the {@link Connector} is in the set of connector names
+	 * @param connector
+	 * @param connectorNameSet
+	 * @return
+	 */
+	protected boolean isConnectorContainedInSet(@NonNull final Connector connector, @NonNull final Set<String> connectorNameSet) {
+		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
+		if (connectorIdentity == null) {
+			return false;
+		}
+
+		final String connectorName = connectorIdentity.getCompiledFilename();
+		return connectorName != null && connectorNameSet.contains(connectorName);
 	}
 
 	/**
