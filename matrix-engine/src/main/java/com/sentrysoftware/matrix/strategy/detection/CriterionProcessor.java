@@ -1,5 +1,13 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import java.util.regex.Pattern;
+
+import org.bouncycastle.util.test.TestResult;
+
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
+import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
@@ -13,18 +21,22 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextC
 import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.WmiCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.WqlCriterion;
+import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Slf4j
 public class CriterionProcessor {
 
 	private MatsyaClientsExecutor matsyaClientsExecutor;
@@ -32,6 +44,8 @@ public class CriterionProcessor {
 	private TelemetryManager telemetryManager;
 
 	private String connectorName;
+
+	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 
 	/**
 	 * Process the given {@link DeviceTypeCriterion} through Matsya and return the {@link CriterionTestResult}
@@ -49,8 +63,47 @@ public class CriterionProcessor {
 	 * @return
 	 */
 	CriterionTestResult process(HttpCriterion httpCriterion) {
-		// TODO
-		return null;
+
+		if (httpCriterion == null) {
+			return CriterionTestResult.empty();
+		}
+
+		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
+
+		if (hostConfiguration == null) {
+			log.debug("There is no host configuration. Cannot process HTTP detection {}.", httpCriterion);
+			return CriterionTestResult.empty();
+		}
+
+		final String hostname = hostConfiguration.getHostname();
+
+		final HttpConfiguration httpConfiguration = (HttpConfiguration) hostConfiguration
+				.getConfigurations()
+				.get(HttpConfiguration.class);
+
+		if (httpConfiguration == null) {
+			log.debug("Hostname {} - The HTTP credentials are not configured for this host. Cannot process HTTP detection {}.",
+					hostname,
+					httpCriterion);
+			return CriterionTestResult.empty();
+		}
+
+		final String result = matsyaClientsExecutor.executeHttp(
+				HttpRequest
+				.builder()
+				.hostname(hostname)
+				.method(httpCriterion.getMethod().toString())
+				.url(httpCriterion.getUrl())
+				.header(new StringHeader(httpCriterion.getHeader()))
+				.body(new StringBody(httpCriterion.getBody()))
+				.httpConfiguration(httpConfiguration)
+				.resultContent(httpCriterion.getResultContent())
+				.authenticationToken(httpCriterion.getAuthenticationToken())
+				.build(),
+				false
+				);
+
+		return checkHttpResult(hostname, result, httpCriterion.getExpectedResult());
 	}
 
 	/**
@@ -161,5 +214,50 @@ public class CriterionProcessor {
 	CriterionTestResult process(WqlCriterion wqlCriterion) {
 		// TODO
 		return null;
+	}
+
+	/**
+	 * @param hostname			The hostname against which the HTTP test has been carried out.
+	 * @param result			The actual result of the HTTP test.
+	 *
+	 * @param expectedResult	The expected result of the HTTP test.
+	 * @return					A {@link TestResult} summarizing the outcome of the HTTP test.
+	 */
+	private CriterionTestResult checkHttpResult(final String hostname, final String result, final String expectedResult) {
+
+		String message;
+		boolean success = false;
+
+		if (expectedResult == null) {
+			if (result == null || result.isEmpty()) {
+				message = String.format("Hostname %s - HTTP test failed - The HTTP test did not return any result.", hostname);
+			} else {
+				message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
+				success = true;
+			}
+
+		} else {
+			// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
+			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
+			if (result != null && pattern.matcher(result).find()) {
+				message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
+				success = true;
+			} else {
+				message = String
+						.format("Hostname %s - HTTP test failed - "
+								+ "The result (%s) returned by the HTTP test did not match the expected result (%s).",
+								hostname, result, expectedResult);
+				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
+			}
+		}
+
+		log.debug(message);
+
+		return CriterionTestResult
+				.builder()
+				.result(result)
+				.message(message)
+				.success(success)
+				.build();
 	}
 }
