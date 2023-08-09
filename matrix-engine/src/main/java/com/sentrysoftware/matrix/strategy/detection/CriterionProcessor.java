@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
+
 import java.util.regex.Pattern;
 
 import org.bouncycastle.util.test.TestResult;
@@ -44,8 +46,6 @@ public class CriterionProcessor {
 	private TelemetryManager telemetryManager;
 
 	private String connectorName;
-
-	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 
 	/**
 	 * Process the given {@link DeviceTypeCriterion} through Matsya and return the {@link CriterionTestResult}

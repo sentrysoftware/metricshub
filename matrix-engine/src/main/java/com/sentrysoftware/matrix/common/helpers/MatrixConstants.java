@@ -38,6 +38,6 @@ public class MatrixConstants {
 	private static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s.compute(%d)";
 	private static final String COMPUTE = "compute";
 	private static final String SOURCE = "source";
-
+	public static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 
 }
