@@ -15,6 +15,8 @@ public class Constants {
 	public static final Long STRATEGY_TIMEOUT = 100L;
 	public static final Long RETRY_DELAY = 30L;
 	public static final String SSH_SUDO_COMMAND = "sudo pwd";
+	public static final String HTTP_GET = "GET";
+	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -76,4 +78,9 @@ public class Constants {
 
 	public final static String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
 	public final static String CONNECTOR_YAML = "connector.yaml";
+
+	public final static String RESULT = "result";
+	public final static String TEST = "test";
+	public final static String TEST_BODY = "test_body";
+	public final static String ERROR = "error";
 }
