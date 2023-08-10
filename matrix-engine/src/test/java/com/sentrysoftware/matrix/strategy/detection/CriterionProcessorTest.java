@@ -2,8 +2,6 @@ package com.sentrysoftware.matrix.strategy.detection;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
-import com.sentrysoftware.matrix.configuration.IConfiguration;
-import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
@@ -16,12 +14,13 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,13 +33,10 @@ import static com.sentrysoftware.matrix.constants.Constants.HTTP;
 import static com.sentrysoftware.matrix.constants.Constants.HTTP_GET;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
-import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.RESULT;
-import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_OS_DETECTION;
 import static com.sentrysoftware.matrix.constants.Constants.TEST;
 import static com.sentrysoftware.matrix.constants.Constants.TEST_BODY;
-import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -53,7 +49,7 @@ class CriterionProcessorTest {
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMOck;
 
-	@Mock
+	@InjectMocks
 	private CriterionProcessor criterionProcessorMock;
 
 	@Mock
@@ -61,37 +57,14 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessDeviceTypeCriterion() {
-		// Init the mocks
-		MockitoAnnotations.initMocks(this);
 
 		// Init configurations
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final WmiConfiguration wmiProtocol = WmiConfiguration.builder()
-				.namespace(LOCALHOST)
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.timeout(STRATEGY_TIMEOUT)
+		final TelemetryManager engineConfiguration = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.NETWORK).build())
 				.build();
-		// Add configurations to configurations Map
-		configurations.put(wmiProtocol.getClass(), wmiProtocol);
-		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostname(LOCALHOST)
-				.hostId(LOCALHOST)
-				.hostType(DeviceKind.WINDOWS)
-				.configurations(configurations)
-				.build();
-
-		// Create a TelemetryManager instance
-		final TelemetryManager engineConfiguration = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.build();
-
-		// Mock getHostConfiguration and getWinConfiguration
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(configurations.get(wmiProtocol.getClass())).when(telemetryManagerMock).getWinConfiguration();
 
+		// Init CriterionTestResult success and failure instances
 		final CriterionTestResult successfulTestResult = CriterionTestResult
 				.builder()
 				.message(SUCCESSFUL_OS_DETECTION)
@@ -106,8 +79,12 @@ class CriterionProcessorTest {
 				.success(false)
 				.build();
 
+		// Test configured NETWORK OS
+
 		final DeviceTypeCriterion deviceTypeCriterion = DeviceTypeCriterion.builder().build();
 		assertEquals(successfulTestResult, criterionProcessorMock.process(deviceTypeCriterion));
+
+		// Include NETWORK OS
 
 		deviceTypeCriterion.setKeep(Set.of(DeviceKind.NETWORK));
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
@@ -118,40 +95,72 @@ class CriterionProcessorTest {
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		assertEquals(failedTestResult, criterionProcessorMock.process(deviceTypeCriterion));
 
+		// Test Linux OS
+
+		// Exclude only Linux OS with empty keep set
 		deviceTypeCriterion.setExclude(Set.of(DeviceKind.LINUX));
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		assertEquals(successfulTestResult, criterionProcessorMock.process(deviceTypeCriterion));
 
+		// Include only Linux OS with empty keep set
 		deviceTypeCriterion.setKeep(Set.of(DeviceKind.LINUX));
 		deviceTypeCriterion.setExclude(Collections.emptySet());
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		criterionProcessorMock.process(deviceTypeCriterion);
 		assertEquals(failedTestResult, criterionProcessorMock.process(deviceTypeCriterion));
 
-		successfulTestResult.setResult(CONFIGURED_OS_SOLARIS_MESSAGE);
-		failedTestResult.setResult(CONFIGURED_OS_SOLARIS_MESSAGE);
-		engineConfiguration.setHostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST)
-				.hostType(DeviceKind.SOLARIS).build());
-
-		deviceTypeCriterion.setKeep(Set.of(DeviceKind.LINUX));
-		deviceTypeCriterion.setExclude(Collections.emptySet());
-		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(failedTestResult, criterionProcessorMock.process(deviceTypeCriterion));
-
-		deviceTypeCriterion.setKeep(Set.of(DeviceKind.SOLARIS));
-		deviceTypeCriterion.setExclude(Collections.emptySet());
-		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(successfulTestResult, criterionProcessorMock.process(deviceTypeCriterion));
-
+		// Exclude only Linux with empty keep set
 		deviceTypeCriterion.setKeep(Collections.emptySet());
 		deviceTypeCriterion.setExclude(Set.of(DeviceKind.LINUX));
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		assertEquals(successfulTestResult, criterionProcessorMock.process(deviceTypeCriterion));
 
+		// TEST SOLARIS OS
+
+		// Prepare CriterionTestResult with specific SOLARIS CriterionTestResult instances
+		successfulTestResult.setResult(CONFIGURED_OS_SOLARIS_MESSAGE);
+		failedTestResult.setResult(CONFIGURED_OS_SOLARIS_MESSAGE);
+		engineConfiguration.setHostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST)
+				.hostType(DeviceKind.SOLARIS).build());
+
+		// Exclude only SOLARIS OS
 		deviceTypeCriterion.setKeep(Collections.emptySet());
 		deviceTypeCriterion.setExclude(Set.of(DeviceKind.SOLARIS));
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		assertEquals(failedTestResult, criterionProcessorMock.process(deviceTypeCriterion));
+
+		// Include only SOLARIS OS
+		deviceTypeCriterion.setKeep(Set.of(DeviceKind.SOLARIS));
+		deviceTypeCriterion.setExclude(Collections.emptySet());
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		assertEquals(successfulTestResult, criterionProcessorMock.process(deviceTypeCriterion));
+	}
+
+	@Test
+	void testIsDeviceTypeIncluded() {
+		// Create the device criterion instance
+		final DeviceTypeCriterion deviceTypeCriterion = DeviceTypeCriterion.builder().build();
+
+		// Prepare the device kind list
+		final List<DeviceKind> deviceKindList = Arrays.asList(DeviceKind.STORAGE, DeviceKind.NETWORK, DeviceKind.LINUX);
+		assertTrue(criterionProcessorMock.isDeviceKindIncluded(deviceKindList, deviceTypeCriterion));
+
+		// Keep only Solaris OS
+		deviceTypeCriterion.setKeep(Set.of(DeviceKind.SOLARIS));
+		assertFalse(criterionProcessorMock.isDeviceKindIncluded(deviceKindList, deviceTypeCriterion));
+
+		// Keep only Linux
+		deviceTypeCriterion.setKeep(Set.of(DeviceKind.LINUX));
+		assertTrue(criterionProcessorMock.isDeviceKindIncluded(deviceKindList, deviceTypeCriterion));
+
+		// Exclude only Solaris and with empty keep set
+		deviceTypeCriterion.setKeep(Collections.emptySet());
+		deviceTypeCriterion.setExclude(Set.of(DeviceKind.SOLARIS));
+		assertTrue(criterionProcessorMock.isDeviceKindIncluded(deviceKindList, deviceTypeCriterion));
+
+		// Exclude only Linux
+		deviceTypeCriterion.setExclude(Set.of(DeviceKind.LINUX));
+		assertFalse(criterionProcessorMock.isDeviceKindIncluded(deviceKindList, deviceTypeCriterion));
 	}
 
 	@Test

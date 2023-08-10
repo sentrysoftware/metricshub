@@ -1,13 +1,8 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
-
-import java.util.regex.Pattern;
-
-import org.bouncycastle.util.test.TestResult;
-
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
@@ -27,12 +22,24 @@ import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.test.TestResult;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FAILED_OS_DETECTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 
 @Data
 @AllArgsConstructor
@@ -49,16 +56,65 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link DeviceTypeCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param deviceTypeCriterion
 	 * @return
 	 */
 	CriterionTestResult process(DeviceTypeCriterion deviceTypeCriterion) {
-		// TODO
-		return null;
+
+		if (deviceTypeCriterion == null) {
+			log.error(MALFORMED_CRITERION_MESSAGE,
+					telemetryManager.getHostConfiguration().getHostname(), deviceTypeCriterion);
+			return CriterionTestResult.empty();
+		}
+
+		final DeviceKind deviceKind = telemetryManager.getHostConfiguration().getHostType();
+
+		if (DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Arrays.asList(DeviceKind.SOLARIS, DeviceKind.SOLARIS), deviceTypeCriterion)
+				|| !DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion)) {
+			return CriterionTestResult
+					.builder()
+					.message(FAILED_OS_DETECTION_MESSAGE)
+					.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
+					.success(false)
+					.build();
+		}
+
+		return CriterionTestResult
+				.builder()
+				.message(SUCCESSFUL_OS_DETECTION_MESSAGE)
+				.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
+				.success(true)
+				.build();
+	}
+
+	/**
+	 * Return true if the deviceKind in the deviceKindList is included in the DeviceTypeCriterion detection.
+	 *
+	 * @param deviceKindList
+	 * @param deviceTypeCriterion
+	 * @return
+	 */
+	public boolean isDeviceKindIncluded(final List<DeviceKind> deviceKindList, final DeviceTypeCriterion deviceTypeCriterion) {
+
+		final Set<DeviceKind> keepOnly = deviceTypeCriterion.getKeep();
+		final Set<DeviceKind> exclude = deviceTypeCriterion.getExclude();
+
+		if (keepOnly != null && deviceKindList.stream().anyMatch(keepOnly::contains)) {
+			return true;
+		}
+
+		if (exclude != null && deviceKindList.stream().anyMatch(exclude::contains)) {
+			return false;
+		}
+
+		// If no osType is in KeepOnly or Exclude, then return true if KeepOnly is null or empty.
+		return keepOnly == null || keepOnly.isEmpty();
 	}
 
 	/**
 	 * Process the given {@link HttpCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param httpCriterion
 	 * @return
 	 */
@@ -90,24 +146,25 @@ public class CriterionProcessor {
 
 		final String result = matsyaClientsExecutor.executeHttp(
 				HttpRequest
-				.builder()
-				.hostname(hostname)
-				.method(httpCriterion.getMethod().toString())
-				.url(httpCriterion.getUrl())
-				.header(new StringHeader(httpCriterion.getHeader()))
-				.body(new StringBody(httpCriterion.getBody()))
-				.httpConfiguration(httpConfiguration)
-				.resultContent(httpCriterion.getResultContent())
-				.authenticationToken(httpCriterion.getAuthenticationToken())
-				.build(),
+						.builder()
+						.hostname(hostname)
+						.method(httpCriterion.getMethod().toString())
+						.url(httpCriterion.getUrl())
+						.header(new StringHeader(httpCriterion.getHeader()))
+						.body(new StringBody(httpCriterion.getBody()))
+						.httpConfiguration(httpConfiguration)
+						.resultContent(httpCriterion.getResultContent())
+						.authenticationToken(httpCriterion.getAuthenticationToken())
+						.build(),
 				false
-				);
+		);
 
 		return checkHttpResult(hostname, result, httpCriterion.getExpectedResult());
 	}
 
 	/**
 	 * Process the given {@link IpmiCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param ipmiCriterion
 	 * @return
 	 */
@@ -118,6 +175,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link OsCommandCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param osCommandCriterion
 	 * @return
 	 */
@@ -128,6 +186,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link ProcessCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param processCriterion
 	 * @return
 	 */
@@ -138,6 +197,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link ProductRequirementsCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param productRequirementsCriterion
 	 * @return
 	 */
@@ -148,6 +208,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link ServiceCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param serviceCriterion
 	 * @return
 	 */
@@ -158,6 +219,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link SnmpCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param snmpCriterion
 	 * @return
 	 */
@@ -168,6 +230,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link SnmpGetCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param snmpGetCriterion
 	 * @return
 	 */
@@ -178,6 +241,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param snmpGetNextCriterion
 	 * @return
 	 */
@@ -188,6 +252,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param wmiCriterion
 	 * @return
 	 */
@@ -198,6 +263,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param wbemCriterion
 	 * @return
 	 */
@@ -208,6 +274,7 @@ public class CriterionProcessor {
 
 	/**
 	 * Process the given {@link WqlCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
 	 * @param wqlCriterion
 	 * @return
 	 */
@@ -217,11 +284,10 @@ public class CriterionProcessor {
 	}
 
 	/**
-	 * @param hostname			The hostname against which the HTTP test has been carried out.
-	 * @param result			The actual result of the HTTP test.
-	 *
-	 * @param expectedResult	The expected result of the HTTP test.
-	 * @return					A {@link TestResult} summarizing the outcome of the HTTP test.
+	 * @param hostname       The hostname against which the HTTP test has been carried out.
+	 * @param result         The actual result of the HTTP test.
+	 * @param expectedResult The expected result of the HTTP test.
+	 * @return A {@link TestResult} summarizing the outcome of the HTTP test.
 	 */
 	private CriterionTestResult checkHttpResult(final String hostname, final String result, final String expectedResult) {
 
@@ -245,7 +311,7 @@ public class CriterionProcessor {
 			} else {
 				message = String
 						.format("Hostname %s - HTTP test failed - "
-								+ "The result (%s) returned by the HTTP test did not match the expected result (%s).",
+										+ "The result (%s) returned by the HTTP test did not match the expected result (%s).",
 								hostname, result, expectedResult);
 				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
 			}
