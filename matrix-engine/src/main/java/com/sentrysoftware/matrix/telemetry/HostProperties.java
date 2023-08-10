@@ -16,6 +16,7 @@ public class HostProperties {
 
 	private boolean isLocalhost;
 	private String ipmitoolCommand;
+	private int ipmiExecutionCount;
 	private Set<String> possibleWmiNamespaces;
 	private Set<String> possibleWbemNamespaces;
 	private String vCenterTicket;
