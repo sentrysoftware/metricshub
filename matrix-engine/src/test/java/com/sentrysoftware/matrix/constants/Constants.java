@@ -83,4 +83,8 @@ public class Constants {
 	public final static String TEST = "test";
 	public final static String TEST_BODY = "test_body";
 	public final static String ERROR = "error";
+	public final static String SUCCESSFUL_OS_DETECTION = "Successful OS detection operation";
+	public final static String FAILED_OS_DETECTION = "Failed OS detection operation";
+	public final static String CONFIGURED_OS_NT_MESSAGE = "Configured OS type : NT";
+	public final static String CONFIGURED_OS_SOLARIS_MESSAGE = "Configured OS type : SOLARIS";
 }
