@@ -37,6 +37,9 @@ public class MatrixConstants {
 	public static final String ALTERNATE_COLUMN_SEPARATOR = ",";
 	public static final String IPMI_TOOL_SUDO_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ";
 	public static final String IPMI_TOOL_SUDO_MACRO = "%{SUDO:ipmitool}";
+	public static final String IPMI_DETECTION_FAILURE_MESSAGE = "Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.";
+	public static final String WMI_QUERY = "SELECT Description FROM ComputerSystem";
+	public static final String WMI_NAMESPACE = "root\\hardware";
 	public static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 	public static final String IPMI_TOOL_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 	public static final String SOLARIS_VERSION_COMMAND = "/usr/bin/uname -r";

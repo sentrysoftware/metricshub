@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.END_OF_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_DETECTION_FAILURE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_SOLARIS_VERSION_NOT_IDENTIFIED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_COMMAND;
@@ -54,6 +55,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OLD_SOLAR
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI_INTERFACE_DRIVER;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
 @Slf4j
 @Data
@@ -72,6 +75,7 @@ public class CriterionProcessor {
 		this.matsyaClientsExecutor = matsyaClientsExecutor;
 		this.telemetryManager = telemetryManager;
 		this.connectorName = connectorName;
+		this.wqlDetectionHelper = new WqlDetectionHelper(matsyaClientsExecutor);
 	}
 
 	/**
@@ -152,12 +156,10 @@ public class CriterionProcessor {
 			return processOutOfBandIpmiDetection();
 		}
 
-		final String message = String.format("Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.",
-				telemetryManager.getHostConfiguration().getHostname(),
-				hostType.name());
-
 		return CriterionTestResult.builder()
-				.message(message)
+				.message(String.format(IPMI_DETECTION_FAILURE_MESSAGE,
+						telemetryManager.getHostConfiguration().getHostname(),
+						hostType.name()))
 				.success(false)
 				.build();
 	}
@@ -181,8 +183,8 @@ public class CriterionProcessor {
 
 		WmiCriterion ipmiWmiCriterion = WmiCriterion
 				.builder()
-				.query("SELECT Description FROM ComputerSystem")
-				.namespace("root\\hardware")
+				.query(WMI_QUERY)
+				.namespace(WMI_NAMESPACE)
 				.build();
 
 		return wqlDetectionHelper.performDetectionTest(hostname, configuration, ipmiWmiCriterion);
@@ -411,10 +413,9 @@ public class CriterionProcessor {
 			final String hostname,
 			final SshConfiguration sshConfiguration,
 			final int timeout) throws InterruptedException, IOException, TimeoutException, MatsyaException, ControlledSshException {
-		String result = telemetryManager.getHostProperties().isLocalhost() ? // or we can use NetworkHelper.isLocalhost(hostname)
+		return telemetryManager.getHostProperties().isLocalhost() ? // or we can use NetworkHelper.isLocalhost(hostname)
 				OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) :
 				OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
-		return result;
 	}
 
 	/**

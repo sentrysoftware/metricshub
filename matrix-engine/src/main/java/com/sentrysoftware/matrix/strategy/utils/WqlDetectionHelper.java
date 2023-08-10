@@ -67,13 +67,15 @@ public class WqlDetectionHelper {
 
 	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
 
+	public WqlDetectionHelper(final MatsyaClientsExecutor matsyaClientsExecutor) {
+		this.matsyaClientsExecutor = matsyaClientsExecutor;
+	}
 
 	/**
 	 * Find the possible WBEM namespaces using the configured {@link WbemConfiguration}.
 	 *
-	 * @param hostname	The hostname of the host device.
-	 * @param configuration	The user's configured {@link WbemConfiguration}.
-	 *
+	 * @param hostname      The hostname of the host device.
+	 * @param configuration The user's configured {@link WbemConfiguration}.
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
@@ -105,7 +107,7 @@ public class WqlDetectionHelper {
 						).stream()
 						.filter(row -> !row.isEmpty())
 						.map(row -> row.get(0))
-						.filter(Objects:: nonNull)
+						.filter(Objects::nonNull)
 						.filter(namespace -> !namespace.isBlank())
 						.filter(namespace -> !namespace.toLowerCase().contains("interop"))
 						.filter(namespace -> !IGNORED_WBEM_NAMESPACES.contains(namespace))
@@ -165,9 +167,8 @@ public class WqlDetectionHelper {
 	/**
 	 * Find the possible WMI namespaces on specified hostname with specified credentials.
 	 *
-	 * @param hostname	The hostname of the device.
-	 * @param configuration	Win configuration (credentials, timeout)
-	 *
+	 * @param hostname      The hostname of the device.
+	 * @param configuration Win configuration (credentials, timeout)
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
@@ -196,7 +197,7 @@ public class WqlDetectionHelper {
 					).stream()
 					.filter(row -> !row.isEmpty())
 					.map(row -> row.get(0))
-					.filter(Objects :: nonNull)
+					.filter(Objects::nonNull)
 					.filter(namespace -> !namespace.isBlank())
 					.filter(namespace -> !namespace.toLowerCase().contains("interop"))
 					.filter(namespace -> !IGNORED_WMI_NAMESPACES.contains(namespace))
@@ -249,11 +250,11 @@ public class WqlDetectionHelper {
 	 * <p>
 	 * The namespace in the criterion must be "Automatic".
 	 * <p>
-	 * @param hostname The host name
-	 * @param configuration WBEM/WMI configuration (credentials, timeout)
-	 * @param criterion WQL detection properties (WQL, expected result, namespace must be "Automatic")
-	 * @param possibleNamespaces The possible namespaces to execute the WQL on
 	 *
+	 * @param hostname           The host name
+	 * @param configuration      WBEM/WMI configuration (credentials, timeout)
+	 * @param criterion          WQL detection properties (WQL, expected result, namespace must be "Automatic")
+	 * @param possibleNamespaces The possible namespaces to execute the WQL on
 	 * @return A {@link NamespaceResult} wrapping the detected namespace
 	 * and the error message if the detection fails.
 	 */
@@ -338,10 +339,10 @@ public class WqlDetectionHelper {
 	 * <p>
 	 * Note: "Automatic" namespace is not supported in this method.
 	 * <p>
-	 * @param hostname Host name
-	 * @param configuration WBEM/WMI configuration (credentials, timeout)
-	 * @param criterion WQL detection properties (WQL, namespace, expected result)
 	 *
+	 * @param hostname      Host name
+	 * @param configuration WBEM/WMI configuration (credentials, timeout)
+	 * @param criterion     WQL detection properties (WQL, namespace, expected result)
 	 * @return {@link CriterionTestResult} which indicates if the check has succeeded or not.
 	 */
 	public CriterionTestResult performDetectionTest(
@@ -395,6 +396,7 @@ public class WqlDetectionHelper {
 	 * Assess whether an exception (or any of its causes) is simply an error saying that the
 	 * requested namespace of class doesn't exist, which is considered okay.
 	 * <p>
+	 *
 	 * @param t Exception to verify
 	 * @return whether specified exception is acceptable while performing namespace detection
 	 */
@@ -447,6 +449,7 @@ public class WqlDetectionHelper {
 	private static class WqlQuery {
 		private String wql;
 		private String namespace;
+
 		public WqlQuery(final String wql, final String namespace) {
 			this.wql = wql;
 			this.namespace = namespace;
