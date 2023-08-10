@@ -15,6 +15,10 @@ public class Constants {
 	public static final Long STRATEGY_TIMEOUT = 100L;
 	public static final Long RETRY_DELAY = 30L;
 	public static final String SSH_SUDO_COMMAND = "sudo pwd";
+	public final static String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
+	public final static String CONNECTOR_YAML = "connector.yaml";
+	public final static String IPMI_SUCCESS_MESSAGE = "System description;";
+	public final static String IPMI_FAILURE_MESSAGE = "No result";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -22,6 +26,7 @@ public class Constants {
 	// Host information
 	public static final String LOCALHOST = "localhost";
 	public final static String HOST_ID = "PC-120";
+	public static final String MANAGEMENT_CARD_HOST = "management-card-host";
 
 	// Configuration toString output
 	public static final String HTTP_CONFIGURATION_TO_STRING = "HTTPS/443 as testUser";
@@ -40,7 +45,27 @@ public class Constants {
 	public static final String HOST_CONFIGURATION_TO_STRING = "HostConfiguration(hostname=localhost," +
 			" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
 			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations=null)";
+	public static final String CRITERION_TEST_RESULT_FAILURE_MESSAGE = "Hostname host-linux - No OS command configuration for this host." +
+			" Returning an empty result";
+	public static final String IPMI_RESULT_EXAMPLE = "Device ID                 : 3\r\n" + "Device Revision           : 3\r\n"
+			+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
+			+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
+			+ "Product ID                : 790 (0x0316)\r\n" + "Product Name              : Unknown (0x316)";
+	public static final String SUDO_KEYWORD = "sudo";
+	public static final String INVALID_SSH_RESPONSE = "Wrong result";
 
+	public static final String OOB_NULL_RESULT_MESSAGE = "Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.";
+	public static final String SYSTEM_POWER_UP_MESSAGE = "System power state is up";
+	public static final String IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE = "Successfully connected to the IPMI BMC chip with the IPMI-over-LAN " +
+			"interface.";
+	public static final String IPMI_CONNECTION_SUCCESS_WITH_IN_BAND_DRIVER_MESSAGE = "Successfully connected to the IPMI BMC chip with the in-band driver" +
+			" interface.";
+	public static final String PATH = "PATH";
+	public static final String NO_OS_CONFIGURATION_MESSAGE = " - No OS command configuration for this host. Returning an empty result";
+	public static final String IPMI_TOOL_COMMAND = "ipmitoolCommand ";
+	public static final String BMC = "bmc";
+	public static final String LIPMI = "lipmi";
+	public static final String LINUX_BUILD_IPMI_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info";
 
 	// Exception messages
 
@@ -73,7 +98,13 @@ public class Constants {
 	// OS
 	public final static String LINUX = "LINUX";
 	public final static String WINDOWS = "WINDOWS";
-
-	public final static String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
-	public final static String CONNECTOR_YAML = "connector.yaml";
+	public final static String HOST_WIN = "host-win";
+	public static final String HOST_LINUX = "host-linux";
+	public static final String VALID_SOLARIS_VERSION_TEN = "5.10";
+	public static final String VALID_SOLARIS_VERSION_NINE = "5.9";
+	public static final String OLD_SOLARIS_VERSION = "4.1.1B";
+	public static final String INVALID_SOLARIS_VERSION = "invalid";
+	public static final String OLD_SOLARIS_VERSION_MESSAGE = "Solaris version (4.1.1B) is too old";
+	public static final String UNKNOWN_SOLARIS_VERSION = "Unknown Solaris version";
+	public static final String SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN = "Could not";
 }
