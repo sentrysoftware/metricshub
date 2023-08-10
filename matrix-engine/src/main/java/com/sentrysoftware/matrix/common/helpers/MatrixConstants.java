@@ -32,26 +32,20 @@ public class MatrixConstants {
 	public static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
 	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
 	public static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
-	protected static final int MAX_THREADS_COUNT = 50;
-	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
 	public static final int DEFAULT_LOCK_TIMEOUT = 2 * 60; // 2 minutes
-	public static final String COMPUTE = "compute";
-	public static final String SOURCE = "source";
 	public static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
 	public static final String ALTERNATE_COLUMN_SEPARATOR = ",";
 	public static final String IPMI_TOOL_SUDO_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ";
 	public static final String IPMI_TOOL_SUDO_MACRO = "%{SUDO:ipmitool}";
-
+	public static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 	public static final String IPMI_TOOL_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 	public static final String SOLARIS_VERSION_COMMAND = "/usr/bin/uname -r";
 	public static final String IPMI_VERSION = "IPMI Version";
 	public static final String IPMI_SOLARIS_VERSION_NOT_IDENTIFIED = "Hostname %s - Could not identify Solaris version %s. Exception: %s";
 	public static final String OPEN_IPMI_INTERFACE_DRIVER = "open";
 	public static final String END_OF_IPMI_COMMAND = " bmc info";
-	public static final String INVALID_SOLARIS_VERSION = "invalid";
 	public static final String OLD_SOLARIS_VERSION_MESSAGE = "Solaris version (%s) is too old for the host: %s IPMI cannot be " +
 			"executed. Returning an empty result.";
-	public static final String UNKNOWN_SOLARIS_VERSION = "Unknown Solaris version";
 	public static final String SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN = "Could not identify Solaris version as a valid one.\nThe 'uname -r' " +
 			"command returned: ";
 	public static final String BMC = "bmc";

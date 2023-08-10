@@ -19,6 +19,8 @@ public class Constants {
 	public final static String CONNECTOR_YAML = "connector.yaml";
 	public final static String IPMI_SUCCESS_MESSAGE = "System description;";
 	public final static String IPMI_FAILURE_MESSAGE = "No result";
+	public static final String HTTP_GET = "GET";
+	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -45,8 +47,6 @@ public class Constants {
 	public static final String HOST_CONFIGURATION_TO_STRING = "HostConfiguration(hostname=localhost," +
 			" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
 			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations=null)";
-	public static final String CRITERION_TEST_RESULT_FAILURE_MESSAGE = "Hostname host-linux - No OS command configuration for this host." +
-			" Returning an empty result";
 	public static final String IPMI_RESULT_EXAMPLE = "Device ID                 : 3\r\n" + "Device Revision           : 3\r\n"
 			+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
 			+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
@@ -107,4 +107,8 @@ public class Constants {
 	public static final String OLD_SOLARIS_VERSION_MESSAGE = "Solaris version (4.1.1B) is too old";
 	public static final String UNKNOWN_SOLARIS_VERSION = "Unknown Solaris version";
 	public static final String SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN = "Could not";
+	public final static String RESULT = "result";
+	public final static String TEST = "test";
+	public final static String TEST_BODY = "test_body";
+	public final static String ERROR = "error";
 }
