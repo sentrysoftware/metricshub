@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.constants;
 
+import java.util.List;
+
 public class Constants {
 
 	// Global constants
@@ -8,7 +10,6 @@ public class Constants {
 	public static final String PASSWORD = "testPassword";
 	public static final String WBEM_NAMESPACE = "testWbemNamespace";
 	public static final String WINRM_NAMESPACE = "testWinRmNamespace";
-	public static final String WMI_NAMESPACE = "testWmiNamespace";
 	public static final String WBEM_VCENTER = "testWbemVCenter";
 	public static final byte[] BMC_KEY = new byte[]{0x06, 0x66};
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
@@ -21,6 +22,29 @@ public class Constants {
 	public final static String IPMI_FAILURE_MESSAGE = "No result";
 	public static final String HTTP_GET = "GET";
 	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
+	public final static String NO_TEST_WILL_BE_PERFORMED_MESSAGE = "Process presence check: No test will be performed.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE = "Process presence check: OS unknown, no test will be performed.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE = "Process presence check: No tests will be performed for OS: aix.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE = "Process presence check: No test will be performed remotely.";
+	public final static String PROCESS_CRITERION_COMMAND_LINE = "MBM[5-9]\\.exe";
+	public final static String WMI_QUERY_EMPTY_VALUE_MESSAGE = "WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" " +
+			"returned empty value.";
+	public final static String WBEM_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
+	public final static String WMI_NAMESPACE = "root\\cimv2";
+	public final static String RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "One or more currently running processes match the following regular expression:\n- " +
+			"Regexp (should match with the command-line): MBM[5-9]\\.exe";
+	public final static String NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "No currently running processes match the following regular expression:\n" +
+			"- Regexp (should match with the command-line): MBM[5-9]\\.exe\n" +
+			"- Currently running process list:\n" +
+			"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
+			"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"";
+	public final static List<List<String>> EXCUTE_WMI_RESULT = List.of(
+			List.of("0", "System Idle Process", "0", ""),
+			List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
+			List.of("10564", "eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
+	public final static List<List<String>> LIST_ALL_LINUX_PROCESSES_RESULT = List.of(
+			List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
+			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";

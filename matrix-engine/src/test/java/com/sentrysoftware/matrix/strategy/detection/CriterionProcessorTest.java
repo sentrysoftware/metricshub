@@ -24,7 +24,6 @@ import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +46,7 @@ import static com.sentrysoftware.matrix.constants.Constants.BMC;
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.ERROR;
+import static com.sentrysoftware.matrix.constants.Constants.EXCUTE_WMI_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_OS_DETECTION;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
@@ -63,16 +63,24 @@ import static com.sentrysoftware.matrix.constants.Constants.IPMI_SUCCESS_MESSAGE
 import static com.sentrysoftware.matrix.constants.Constants.IPMI_TOOL_COMMAND;
 import static com.sentrysoftware.matrix.constants.Constants.LINUX_BUILD_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.constants.Constants.LIPMI;
+import static com.sentrysoftware.matrix.constants.Constants.LIST_ALL_LINUX_PROCESSES_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.MANAGEMENT_CARD_HOST;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.OOB_NULL_RESULT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.PATH;
+import static com.sentrysoftware.matrix.constants.Constants.PROCESS_CRITERION_COMMAND_LINE;
 import static com.sentrysoftware.matrix.constants.Constants.RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_OS_DETECTION;
@@ -84,10 +92,13 @@ import static com.sentrysoftware.matrix.constants.Constants.UNKNOWN_SOLARIS_VERS
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_NINE;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_TEN;
-import static org.junit.Assert.assertNull;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_QUERY;
+import static com.sentrysoftware.matrix.constants.Constants.WMI_NAMESPACE;
+import static com.sentrysoftware.matrix.constants.Constants.WMI_QUERY_EMPTY_VALUE_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -116,7 +127,7 @@ class CriterionProcessorTest {
 	private TelemetryManager telemetryManagerMock;
 
 	@Test
-	void testVisitProcessProcessNull() {
+	void testProcessProcessProcessNull() {
 		final ProcessCriterion processCriterion = null;
 
 		final TelemetryManager engineConfiguration = TelemetryManager
@@ -129,7 +140,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitProcessCommandLineNull() {
+	void testProcessProcessCommandLineNull() {
 		final TelemetryManager engineConfiguration = TelemetryManager
 				.builder()
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
@@ -140,7 +151,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitProcessCommandLineEmpty() {
+	void testProcessProcessCommandLineEmpty() {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
 		processCriterion.setCommandLine("");
 
@@ -154,16 +165,17 @@ class CriterionProcessorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: No test will be performed.", criterionTestResult.getMessage());
-		Assertions.assertNull(criterionTestResult.getResult());
+		assertEquals(NO_TEST_WILL_BE_PERFORMED_MESSAGE, criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
-	void testVisitProcessNotLocalHost() {
+	void testProcessProcessNotLocalHost() {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 		final TelemetryManager engineConfiguration = TelemetryManager
 				.builder()
+				.hostProperties(HostProperties.builder().build())
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
 				.build();
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
@@ -173,14 +185,14 @@ class CriterionProcessorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: No test will be performed remotely.", criterionTestResult.getMessage());
-		Assertions.assertNull(criterionTestResult.getResult());
+		assertEquals(NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE, criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
-	void testVisitProcessUnknownOS() {
+	void testProcessProcessUnknownOS() {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
 		final TelemetryManager engineConfiguration = TelemetryManager
 				.builder()
@@ -197,15 +209,16 @@ class CriterionProcessorTest {
 
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
-			assertEquals("Process presence check: OS unknown, no test will be performed.", criterionTestResult.getMessage());
-			Assertions.assertNull(criterionTestResult.getResult());
+			assertEquals(NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
 		}
 	}
 
 	@Test
-	void testVisitProcessWindowsEmptyResult() throws Exception {
+	void testProcessProcessWindowsEmptyResult() {
+		MockitoAnnotations.initMocks(this);
 		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
 		final TelemetryManager engineConfiguration = TelemetryManager
 				.builder()
@@ -220,7 +233,7 @@ class CriterionProcessorTest {
 			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(CriterionTestResult.error(processCriterion,
-					"WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" returned empty value."))
+					WMI_QUERY_EMPTY_VALUE_MESSAGE))
 					.when(wqlDetectionHelperMock)
 					.performDetectionTest(any(), any(), any());
 
@@ -228,17 +241,16 @@ class CriterionProcessorTest {
 
 			assertNotNull(criterionTestResult);
 			assertFalse(criterionTestResult.isSuccess());
-			assertTrue(criterionTestResult.getMessage().contains("WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\"" +
-					" returned empty value."));
-			Assertions.assertNull(criterionTestResult.getResult());
+			assertTrue(criterionTestResult.getMessage().contains(WMI_QUERY_EMPTY_VALUE_MESSAGE));
+			assertNull(criterionTestResult.getResult());
 		}
 	}
 
 	@Test
 	@Disabled
-	void testVisitProcessWindowsOK() throws Exception {
+	void testProcessProcessWindowsOK() throws Exception {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
 				.timeout(STRATEGY_TIMEOUT)
@@ -261,32 +273,26 @@ class CriterionProcessorTest {
 			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
 			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
 
-			doReturn(
-					List.of(
-							List.of("0", "System Idle Process", "0", ""),
-							List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
-							List.of("10564", "eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")))
+			doReturn(EXCUTE_WMI_RESULT)
 					.when(matsyaClientsExecutorMock).executeWmi(
-							"localhost",
+							LOCALHOST,
 							wmiConfiguration,
-							"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
-							"root\\cimv2");
+							WBEM_QUERY,
+							WMI_NAMESPACE);
 
 			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
 
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
-			assertEquals(
-					"One or more currently running processes match the following regular expression:\n- Regexp (should match with the command-line): MBM[5-9]\\.exe",
-					criterionTestResult.getMessage());
-			Assertions.assertNull(criterionTestResult.getResult());
+			assertEquals(RUNNING_PROCESS_MATCH_REGEX_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
 		}
 	}
 
 	@Test
-	void testVisitProcessLinuxNoProcess() {
+	void testProcessProcessLinuxNoProcess() {
 		final ProcessCriterion process = new ProcessCriterion();
-		process.setCommandLine("MBM[5-9]\\.exe");
+		process.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
 		final TelemetryManager engineConfiguration = TelemetryManager
 				.builder()
@@ -301,29 +307,23 @@ class CriterionProcessorTest {
 			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
 			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
 			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
-					List.of(
-							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
-							List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")));
+					LIST_ALL_LINUX_PROCESSES_RESULT);
 
 			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(process);
 
 			assertNotNull(criterionTestResult);
 			assertFalse(criterionTestResult.isSuccess());
 			assertEquals(
-					"No currently running processes match the following regular expression:\n" +
-							"- Regexp (should match with the command-line): MBM[5-9]\\.exe\n" +
-							"- Currently running process list:\n" +
-							"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
-							"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"",
+					NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
 					criterionTestResult.getMessage());
-			Assertions.assertNull(criterionTestResult.getResult());
+			assertNull(criterionTestResult.getResult());
 		}
 	}
 
 	@Test
-	void testVisitProcessLinuxOK() {
+	void testProcessProcessLinuxOK() {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
 		final TelemetryManager engineConfiguration = TelemetryManager
 				.builder()
@@ -336,27 +336,21 @@ class CriterionProcessorTest {
 		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
 			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
 			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
-					List.of(
-							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
-							List.of("2", "MBM6.exe", "user", "0", "MBM6.exe arg1 arg2"),
-							List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(EXCUTE_WMI_RESULT);
 
 			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
 
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
-			assertEquals(
-					"One or more currently running processes match the following regular expression:\n- Regexp (should match with the command-line): MBM[5-9]\\.exe",
-					criterionTestResult.getMessage());
-			Assertions.assertNull(criterionTestResult.getResult());
+			assertEquals(RUNNING_PROCESS_MATCH_REGEX_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
 		}
 	}
 
 	@Test
-	void testVisitProcessNotImplementedAixOK() {
+	void testProcessProcessNotImplementedAixOK() {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
 		final TelemetryManager engineConfiguration = TelemetryManager
 				.builder()
@@ -373,8 +367,8 @@ class CriterionProcessorTest {
 
 			assertNotNull(criterionTestResult);
 			assertTrue(criterionTestResult.isSuccess());
-			assertEquals("Process presence check: No tests will be performed for OS: aix.", criterionTestResult.getMessage());
-			Assertions.assertNull(criterionTestResult.getResult());
+			assertEquals(NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
 		}
 	}
 
@@ -487,7 +481,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessHttpCriterionNullTest() throws Exception {
+	void HttpCriterionProcessHttpCriterionNullTest() {
 		final HttpCriterion httpCriterion = null;
 		final HostConfiguration hostConfiguration = HostConfiguration
 				.builder()
@@ -510,7 +504,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessHttpConfigurationNullTest() throws Exception {
+	void HttpCriterionProcessHttpConfigurationNullTest() {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 				.type(HTTP)
 				.method(HttpMethod.GET)
@@ -533,7 +527,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessRequestWrongResultTest() throws Exception {
+	void HttpCriterionProcessRequestWrongResultTest() {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 				.type(HTTP)
 				.method(HttpMethod.GET)
@@ -590,7 +584,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessOKTest() throws Exception {
+	void HttpCriterionProcessOKTest() {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 				.type(HTTP)
 				.method(HttpMethod.GET)
@@ -885,7 +879,7 @@ class CriterionProcessorTest {
 
 		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
-		String commandResult = null;
+		String commandResult;
 
 		// Test successful command
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -926,34 +920,33 @@ class CriterionProcessorTest {
 
 	@Test
 	void testGetIpmiCommandForSolaris() throws Exception {
-		{ // Solaris Version 10 => bmc
-			final String commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_TEN);
-			assertEquals(IPMI_TOOL_COMMAND + BMC, commandResult);
-		}
-		{ // Solaris version 9 => lipmi
-			final String commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_NINE);
-			assertEquals(IPMI_TOOL_COMMAND + LIPMI, commandResult);
-		}
+		// Solaris Version 10 => bmc
+		String commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_TEN);
+		assertEquals(IPMI_TOOL_COMMAND + BMC, commandResult);
+
+		// Solaris version 9 => lipmi
+		commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_NINE);
+		assertEquals(IPMI_TOOL_COMMAND + LIPMI, commandResult);
 
 
-		{// wrong String OS version
-			final Exception exception = assertThrows(Exception.class, () -> {
-				criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, INVALID_SOLARIS_VERSION);
-			});
+		// wrong String OS version
+		Exception exception = assertThrows(Exception.class, () -> {
+			criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, INVALID_SOLARIS_VERSION);
+		});
 
-			final String actualMessage = exception.getMessage();
+		String actualMessage = exception.getMessage();
 
-			assertTrue(actualMessage.contains(UNKNOWN_SOLARIS_VERSION));
-		}
-		{// old OS version
-			final Exception exception = assertThrows(Exception.class, () -> {
-				criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, OLD_SOLARIS_VERSION);
-			});
+		assertTrue(actualMessage.contains(UNKNOWN_SOLARIS_VERSION));
 
-			final String actualMessage = exception.getMessage();
+		// old OS version
+		exception = assertThrows(Exception.class, () -> {
+			criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, OLD_SOLARIS_VERSION);
+		});
 
-			assertTrue(actualMessage.contains(OLD_SOLARIS_VERSION_MESSAGE));
-		}
+		actualMessage = exception.getMessage();
+
+		assertTrue(actualMessage.contains(OLD_SOLARIS_VERSION_MESSAGE));
+
 	}
 
 

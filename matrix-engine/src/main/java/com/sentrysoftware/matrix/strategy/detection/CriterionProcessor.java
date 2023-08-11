@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY_PROCESS_COMMAND_LINE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.END_OF_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FAILED_OS_DETECTION_MESSAGE;
@@ -60,12 +61,18 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LIPMI;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_PROCESS_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OLD_SOLARIS_VERSION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI_INTERFACE_DRIVER;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.REMOTE_PROCESS_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNKNOWN_LOCAL_OS_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
@@ -275,7 +282,7 @@ public class CriterionProcessor {
 			ipmitoolCommand = buildIpmiCommand(hostType, hostname, sshConfiguration, osCommandConfiguration, defaultTimeout);
 		}
 
-		// buildIpmiCommand method can either return the actual result of the built command or an error. If it an error we display it in the error message
+		// buildIpmiCommand method can either return the actual result of the built command or an error. If it is an error we display it in the error message
 		if (!ipmitoolCommand.startsWith("PATH=")) {
 			return CriterionTestResult.builder().success(false).result("").message(ipmitoolCommand).build();
 		}
@@ -305,7 +312,7 @@ public class CriterionProcessor {
 	}
 
 	/**
-	 * Process IPMI detection for the Out Of Band device
+	 * Process IPMI detection for the Out-Of-Band device
 	 *
 	 * @return {@link CriterionTestResult} wrapping the status of the criterion execution
 	 */
@@ -491,10 +498,51 @@ public class CriterionProcessor {
 	 * Process the given {@link ProcessCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
 	 * @param processCriterion
-	 * @return
+	 * @return CriterionTestResult instance
 	 */
 	CriterionTestResult process(ProcessCriterion processCriterion) {
-		return null;
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (processCriterion == null || processCriterion.getCommandLine() == null) {
+			log.error(MALFORMED_PROCESS_CRITERION_MESSAGE, hostname, processCriterion);
+			return CriterionTestResult.empty();
+		}
+
+		if (processCriterion.getCommandLine().isEmpty()) {
+			log.debug(EMPTY_PROCESS_COMMAND_LINE_MESSAGE, hostname);
+			return CriterionTestResult.builder()
+					.success(true)
+					.message(NO_TEST_WILL_BE_PERFORMED_MESSAGE)
+					.result(null)
+					.build();
+		}
+
+		if (!telemetryManager.getHostProperties().isLocalhost()) {
+			log.debug(REMOTE_PROCESS_MESSAGE, hostname);
+			return CriterionTestResult.builder()
+					.success(true)
+					.message(NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE)
+					.result(null)
+					.build();
+		}
+
+		final Optional<LocalOsHandler.ILocalOs> maybeLocalOS = LocalOsHandler.getOs();
+		if (maybeLocalOS.isEmpty()) {
+			log.debug(UNKNOWN_LOCAL_OS_MESSAGE, hostname);
+			return CriterionTestResult.builder()
+					.success(true)
+					.message(NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE)
+					.result(null)
+					.build();
+		}
+
+		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
+				processCriterion.getCommandLine(),
+				wqlDetectionHelper,
+				hostname
+		);
+		maybeLocalOS.get().accept(localOSVisitor);
+		return localOSVisitor.getCriterionTestResult();
 	}
 
 	/**
