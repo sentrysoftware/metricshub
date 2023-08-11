@@ -15,6 +15,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
@@ -22,6 +23,7 @@ import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -60,6 +62,7 @@ import static com.sentrysoftware.matrix.constants.Constants.LIPMI;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.MANAGEMENT_CARD_HOST;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
+import static com.sentrysoftware.matrix.constants.Constants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION_MESSAGE;
@@ -84,6 +87,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -109,6 +113,114 @@ class CriterionProcessorTest {
 	@Mock
 	private TelemetryManager telemetryManagerMock;
 
+
+	@Test
+	void testVisitServiceCheckServiceNull() {
+		final ServiceCriterion serviceCriterion = null;
+		assertTrue(criterionProcessorMock.process(serviceCriterion).getMessage().contains("Malformed Service criterion."));
+	}
+
+	@Test
+	void testVisitServiceCheckServiceNameNull() {
+		assertTrue(criterionProcessorMock.process(new ServiceCriterion()).getMessage().contains("Malformed Service criterion."));
+	}
+
+	@Test
+	void testVisitServiceCheckProtocolNull() {
+		final TelemetryManager engineConfiguration = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.NETWORK).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName("TWGIPC");
+
+		assertTrue(criterionProcessorMock.process(serviceCriterion).getMessage().contains(NEITHER_WMI_NOR_WINRM_ERROR));
+	}
+
+	@Test
+	void testVisitServiceCheckOsNull() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+		final TelemetryManager engineConfiguration = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.NETWORK)
+						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+						.build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName("TWGIPC");
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.getMessage().contains("Host OS is not Windows"));
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitServiceCheckOsNotWindows() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+		final TelemetryManager engineConfiguration = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.NETWORK)
+						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+						.build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName("TWGIPC");
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testVisitServiceCheckServiceNameEmpty() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+		final TelemetryManager engineConfiguration = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.NETWORK)
+						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+						.build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName("");
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.getMessage().contains("Service name is not specified"));
+		assertNotNull(criterionTestResult.getResult());
+	}
 
 	@Test
 	void testProcessDeviceTypeCriterion() {
