@@ -13,8 +13,16 @@ import org.springframework.util.Assert;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_QUERY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_FOR_OS_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WQL_DETECTION_HELPER_NULL_MESSAGE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,7 +39,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	@Override
 	public void visit(final LocalOsHandler.Windows os) {
 
-		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper cannot be null.");
+		Assert.state(wqlDetectionHelper != null, WQL_DETECTION_HELPER_NULL_MESSAGE);
 
 		final WmiConfiguration localWmiConfiguration = WmiConfiguration
 				.builder()
@@ -42,12 +50,12 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 		final WmiCriterion criterion = WmiCriterion
 				.builder()
-				.query("SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process")
-				.namespace("root\\cimv2")
+				.query(CRITERION_PROCESSOR_VISITOR_QUERY)
+				.namespace(CRITERION_PROCESSOR_VISITOR_NAMESPACE)
 				.expectedResult(command)
 				.build();
 
-		criterionTestResult = wqlDetectionHelper.performDetectionTest("localhost", localWmiConfiguration, criterion);
+		criterionTestResult = wqlDetectionHelper.performDetectionTest(LOCALHOST, localWmiConfiguration, criterion);
 
 	}
 
@@ -99,6 +107,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	/**
 	 * List all Linux process.
+	 *
 	 * @return
 	 */
 	public static List<List<String>> listAllLinuxProcesses() {
@@ -108,7 +117,8 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	}
 
 	/**
-	 * Get the ps output useful informations: pid;comm;ruser;ppid;args
+	 * Get the "ps Command" output useful information: pid;comm;ruser;ppid;args
+	 *
 	 * @param processHandle
 	 * @return
 	 */
@@ -123,6 +133,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	/**
 	 * Process the command process list result.
+	 *
 	 * @param result
 	 */
 	private void processResult(final List<List<String>> result) {
@@ -132,13 +143,11 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 				.ifPresentOrElse(
 						line -> success(
 								String.format( //NOSONAR
-										"One or more currently running processes match the following regular expression:\n- " +
-												"Regexp (should match with the command-line): %s",
+										RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
 										command)),
 						() -> fail(
 								String.format( //NOSONAR
-										"No currently running processes match the following regular expression:\n- " +
-												"Regexp (should match with the command-line): %s\n- Currently running process list:\n%s",
+										NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
 										command,
 										result.stream().map(line -> line.stream().collect(Collectors.joining(TABLE_SEP)))
 												.collect(Collectors.joining(NEW_LINE)))));
@@ -146,18 +155,20 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	/**
 	 * Not implemented OS case.
+	 *
 	 * @param os
 	 */
 	private void notImplemented(final String os) {
-		success(String.format("Process presence check: No tests will be performed for OS: %s.", os));
+		success(String.format(NO_TEST_FOR_OS_MESSAGE, os));
 	}
 
 	/**
 	 * Create a failed criterionTestResult.
+	 *
 	 * @param message error message.
 	 */
 	private void fail(final String message) {
-		log.error("Hostname {} - Process Criterion, {}", hostname, message);
+		log.error(CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE, hostname, message);
 		criterionTestResult = CriterionTestResult.builder()
 				.message(message)
 				.build();
@@ -165,10 +176,11 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	/**
 	 * Create a success criterionTestResult.
+	 *
 	 * @param message success message.
 	 */
 	private void success(final String message) {
-		log.debug("Hostname {} - Process Criterion, {}", hostname, message);
+		log.debug(CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE, hostname, message);
 		criterionTestResult = CriterionTestResult.builder()
 				.success(true)
 				.message(message)
