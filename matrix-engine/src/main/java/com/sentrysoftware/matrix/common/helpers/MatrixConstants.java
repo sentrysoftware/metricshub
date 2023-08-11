@@ -58,4 +58,23 @@ public class MatrixConstants {
 			"command returned: ";
 	public static final String BMC = "bmc";
 	public static final String LIPMI = "lipmi";
+	public static final String MALFORMED_PROCESS_CRITERION_MESSAGE = "Hostname {} - Malformed process criterion {}. Cannot process process detection.";
+	public static final String EMPTY_PROCESS_COMMAND_LINE_MESSAGE = "Hostname {} - Process Criterion, Process Command Line is empty.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_MESSAGE = "Process presence check: No test will be performed.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE = "Process presence check: OS unknown, no test will be performed.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE = "Process presence check: No tests will be performed for OS: aix.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE = "Process presence check: No test will be performed remotely.";
+	public final static String REMOTE_PROCESS_MESSAGE = "Hostname {} - Process criterion, not localhost.";
+	public final static String UNKNOWN_LOCAL_OS_MESSAGE = "Hostname {} - Process criterion, unknown local OS.";
+	public final static String CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE = "Hostname {} - Process Criterion, {}";
+	public final static String NO_TEST_FOR_OS_MESSAGE = "Process presence check: No tests will be performed for OS: %s.";
+	public final static String RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "One or more currently running processes match the following regular expression:\n- " +
+			"Regexp (should match with the command-line): %s";
+	public final static String NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "No currently running processes match the following regular expression:\n- " +
+			"Regexp (should match with the command-line): %s\n- Currently running process list:\n%s";
+	public final static String CRITERION_PROCESSOR_VISITOR_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
+	public final static String CRITERION_PROCESSOR_VISITOR_NAMESPACE = "root\\cimv2";
+	public final static String WQL_DETECTION_HELPER_NULL_MESSAGE = "wqlDetectionHelper cannot be null.";
+	public final static String LOCALHOST = "localhost";
+
 }

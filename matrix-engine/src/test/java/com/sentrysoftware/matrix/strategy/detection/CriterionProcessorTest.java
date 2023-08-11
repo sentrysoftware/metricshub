@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
@@ -15,12 +16,15 @@ import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,12 +39,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.sentrysoftware.matrix.constants.Constants.BMC;
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.ERROR;
+import static com.sentrysoftware.matrix.constants.Constants.EXCUTE_WMI_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_OS_DETECTION;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
@@ -57,16 +63,24 @@ import static com.sentrysoftware.matrix.constants.Constants.IPMI_SUCCESS_MESSAGE
 import static com.sentrysoftware.matrix.constants.Constants.IPMI_TOOL_COMMAND;
 import static com.sentrysoftware.matrix.constants.Constants.LINUX_BUILD_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.constants.Constants.LIPMI;
+import static com.sentrysoftware.matrix.constants.Constants.LIST_ALL_LINUX_PROCESSES_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.MANAGEMENT_CARD_HOST;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.OOB_NULL_RESULT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.PATH;
+import static com.sentrysoftware.matrix.constants.Constants.PROCESS_CRITERION_COMMAND_LINE;
 import static com.sentrysoftware.matrix.constants.Constants.RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_OS_DETECTION;
@@ -78,10 +92,13 @@ import static com.sentrysoftware.matrix.constants.Constants.UNKNOWN_SOLARIS_VERS
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_NINE;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_TEN;
-import static org.junit.Assert.assertNull;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_QUERY;
+import static com.sentrysoftware.matrix.constants.Constants.WMI_NAMESPACE;
+import static com.sentrysoftware.matrix.constants.Constants.WMI_QUERY_EMPTY_VALUE_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -109,6 +126,251 @@ class CriterionProcessorTest {
 	@Mock
 	private TelemetryManager telemetryManagerMock;
 
+	@Test
+	void testProcessProcessProcessNull() {
+		final ProcessCriterion processCriterion = null;
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process(processCriterion));
+	}
+
+	@Test
+	void testProcessProcessCommandLineNull() {
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process(processCriterion));
+	}
+
+	@Test
+	void testProcessProcessCommandLineEmpty() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("");
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(NO_TEST_WILL_BE_PERFORMED_MESSAGE, criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testProcessProcessNotLocalHost() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostProperties(HostProperties.builder().build())
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE, criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testProcessProcessUnknownOS() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.empty());
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testProcessProcessWindowsEmptyResult() {
+		MockitoAnnotations.initMocks(this);
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
+
+			doReturn(CriterionTestResult.error(processCriterion,
+					WMI_QUERY_EMPTY_VALUE_MESSAGE))
+					.when(wqlDetectionHelperMock)
+					.performDetectionTest(any(), any(), any());
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertTrue(criterionTestResult.getMessage().contains(WMI_QUERY_EMPTY_VALUE_MESSAGE));
+			assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	@Disabled
+	void testProcessProcessWindowsOK() throws Exception {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+						.build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
+
+			doReturn(EXCUTE_WMI_RESULT)
+					.when(matsyaClientsExecutorMock).executeWmi(
+							LOCALHOST,
+							wmiConfiguration,
+							WBEM_QUERY,
+							WMI_NAMESPACE);
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(RUNNING_PROCESS_MATCH_REGEX_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testProcessProcessLinuxNoProcess() {
+		final ProcessCriterion process = new ProcessCriterion();
+		process.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
+					LIST_ALL_LINUX_PROCESSES_RESULT);
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(process);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(
+					NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
+					criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testProcessProcessLinuxOK() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(EXCUTE_WMI_RESULT);
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(RUNNING_PROCESS_MATCH_REGEX_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testProcessProcessNotImplementedAixOK() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.AIX));
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getResult());
+		}
+	}
 
 	@Test
 	void testProcessDeviceTypeCriterion() {
@@ -219,7 +481,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessHttpCriterionNullTest() throws Exception {
+	void HttpCriterionProcessHttpCriterionNullTest() {
 		final HttpCriterion httpCriterion = null;
 		final HostConfiguration hostConfiguration = HostConfiguration
 				.builder()
@@ -242,7 +504,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessHttpConfigurationNullTest() throws Exception {
+	void HttpCriterionProcessHttpConfigurationNullTest() {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 				.type(HTTP)
 				.method(HttpMethod.GET)
@@ -265,7 +527,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessRequestWrongResultTest() throws Exception {
+	void HttpCriterionProcessRequestWrongResultTest() {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 				.type(HTTP)
 				.method(HttpMethod.GET)
@@ -322,7 +584,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessOKTest() throws Exception {
+	void HttpCriterionProcessOKTest() {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 				.type(HTTP)
 				.method(HttpMethod.GET)
@@ -617,7 +879,7 @@ class CriterionProcessorTest {
 
 		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
-		String commandResult = null;
+		String commandResult;
 
 		// Test successful command
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -658,34 +920,33 @@ class CriterionProcessorTest {
 
 	@Test
 	void testGetIpmiCommandForSolaris() throws Exception {
-		{ // Solaris Version 10 => bmc
-			final String commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_TEN);
-			assertEquals(IPMI_TOOL_COMMAND + BMC, commandResult);
-		}
-		{ // Solaris version 9 => lipmi
-			final String commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_NINE);
-			assertEquals(IPMI_TOOL_COMMAND + LIPMI, commandResult);
-		}
+		// Solaris Version 10 => bmc
+		String commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_TEN);
+		assertEquals(IPMI_TOOL_COMMAND + BMC, commandResult);
+
+		// Solaris version 9 => lipmi
+		commandResult = criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_NINE);
+		assertEquals(IPMI_TOOL_COMMAND + LIPMI, commandResult);
 
 
-		{// wrong String OS version
-			final Exception exception = assertThrows(Exception.class, () -> {
-				criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, INVALID_SOLARIS_VERSION);
-			});
+		// wrong String OS version
+		Exception exception = assertThrows(Exception.class, () -> {
+			criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, INVALID_SOLARIS_VERSION);
+		});
 
-			final String actualMessage = exception.getMessage();
+		String actualMessage = exception.getMessage();
 
-			assertTrue(actualMessage.contains(UNKNOWN_SOLARIS_VERSION));
-		}
-		{// old OS version
-			final Exception exception = assertThrows(Exception.class, () -> {
-				criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, OLD_SOLARIS_VERSION);
-			});
+		assertTrue(actualMessage.contains(UNKNOWN_SOLARIS_VERSION));
 
-			final String actualMessage = exception.getMessage();
+		// old OS version
+		exception = assertThrows(Exception.class, () -> {
+			criterionProcessorMock.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, OLD_SOLARIS_VERSION);
+		});
 
-			assertTrue(actualMessage.contains(OLD_SOLARIS_VERSION_MESSAGE));
-		}
+		actualMessage = exception.getMessage();
+
+		assertTrue(actualMessage.contains(OLD_SOLARIS_VERSION_MESSAGE));
+
 	}
 
 
