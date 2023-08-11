@@ -127,11 +127,6 @@ class CriterionProcessorTest {
 
 	@Test
 	void testVisitServiceCheckProtocolNull() {
-		final TelemetryManager engineConfiguration = TelemetryManager.builder()
-				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.NETWORK).build())
-				.build();
-		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
 		serviceCriterion.setName("TWGIPC");
 
@@ -147,12 +142,12 @@ class CriterionProcessorTest {
 				.build();
 		final TelemetryManager engineConfiguration = TelemetryManager.builder()
 				.hostConfiguration(HostConfiguration.builder()
-						.hostname(LOCALHOST)
-						.hostId(LOCALHOST)
-						.hostType(DeviceKind.NETWORK)
-						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+						.hostname(HOST_WIN)
+						.hostId(HOST_WIN)
+						.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
 						.build())
 				.build();
+		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
@@ -173,16 +168,6 @@ class CriterionProcessorTest {
 				.password(PASSWORD.toCharArray())
 				.timeout(STRATEGY_TIMEOUT)
 				.build();
-		final TelemetryManager engineConfiguration = TelemetryManager.builder()
-				.hostConfiguration(HostConfiguration.builder()
-						.hostname(LOCALHOST)
-						.hostId(LOCALHOST)
-						.hostType(DeviceKind.NETWORK)
-						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
-						.build())
-				.build();
-		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
 		serviceCriterion.setName("TWGIPC");
 
@@ -205,12 +190,12 @@ class CriterionProcessorTest {
 				.hostConfiguration(HostConfiguration.builder()
 						.hostname(LOCALHOST)
 						.hostId(LOCALHOST)
-						.hostType(DeviceKind.NETWORK)
+						.hostType(DeviceKind.WINDOWS)
 						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
 						.build())
 				.build();
+		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
 		serviceCriterion.setName("");
 

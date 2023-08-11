@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.detection;
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.IpmiCommandForSolarisException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IWinConfiguration;
@@ -63,6 +64,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
@@ -513,8 +515,63 @@ public class CriterionProcessor {
 	 * @return
 	 */
 	CriterionTestResult process(ServiceCriterion serviceCriterion) {
-		// TODO
-		return null;
+		// Sanity checks
+		if (serviceCriterion == null || serviceCriterion.getName() == null) {
+			return CriterionTestResult.error(serviceCriterion, "Malformed Service criterion.");
+		}
+
+		// Find the configured protocol (WinRM or WMI)
+		final IWinConfiguration winConfiguration = telemetryManager.getWinConfiguration();
+
+		if (winConfiguration == null) {
+			return CriterionTestResult.error(serviceCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
+		}
+
+		// The host system must be Windows
+		if (!DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
+			return CriterionTestResult.error(serviceCriterion, "Host OS is not Windows. Skipping this test.");
+		}
+
+		// Our local system must be Windows
+		if (!LocalOsHandler.isWindows()) {
+			return CriterionTestResult.success(serviceCriterion, "Local OS is not Windows. Skipping this test.");
+
+		}
+
+		// Check the service name
+		final String serviceName = serviceCriterion.getName();
+		if (serviceName.isBlank()) {
+			return CriterionTestResult.success(serviceCriterion, "Service name is not specified. Skipping this test.");
+		}
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		// Build a new WMI criterion to check the service existence
+		WmiCriterion serviceWmiCriterion = WmiCriterion
+				.builder()
+				.query(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
+				.namespace("root\\cimv2")
+				.build();
+
+		// Perform this WMI test
+		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, serviceWmiCriterion);
+		if (!wmiTestResult.isSuccess()) {
+			return wmiTestResult;
+		}
+
+		// The result contains ServiceName;State
+		final String result = wmiTestResult.getResult();
+
+		// Check whether the reported state is "Running"
+		if (result != null && result.toLowerCase().contains(TABLE_SEP + "running")) {
+			return CriterionTestResult.success(serviceCriterion, String.format("The %s Windows Service is currently running.", serviceName));
+		}
+
+		// We're here: no good!
+		return CriterionTestResult.failure(
+				serviceWmiCriterion,
+				String.format("The %s Windows Service is not reported as running:\n%s", serviceName, result) //NOSONAR
+		);
 	}
 
 	/**
