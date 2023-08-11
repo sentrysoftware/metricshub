@@ -41,6 +41,11 @@ public class MatrixConstants {
 	public static final String WMI_QUERY = "SELECT Description FROM ComputerSystem";
 	public static final String WMI_NAMESPACE = "root\\hardware";
 	public static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
+	public static final String FAILED_OS_DETECTION_MESSAGE = "Failed OS detection operation";
+	public static final String SUCCESSFUL_OS_DETECTION_MESSAGE = "Successful OS detection operation";
+	public static final String CONFIGURE_OS_TYPE_MESSAGE = "Configured OS type : ";
+	public static final String MALFORMED_CRITERION_MESSAGE = "Hostname {} - Malformed DeviceType criterion {}." +
+			" Cannot process DeviceType criterion detection.";
 	public static final String IPMI_TOOL_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 	public static final String SOLARIS_VERSION_COMMAND = "/usr/bin/uname -r";
 	public static final String IPMI_VERSION = "IPMI Version";

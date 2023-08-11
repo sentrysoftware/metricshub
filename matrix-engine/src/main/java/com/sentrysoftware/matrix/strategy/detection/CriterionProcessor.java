@@ -37,12 +37,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.test.TestResult;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.END_OF_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FAILED_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_DETECTION_FAILURE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_SOLARIS_VERSION_NOT_IDENTIFIED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_COMMAND;
@@ -50,11 +56,13 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LIPMI;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OLD_SOLARIS_VERSION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI_INTERFACE_DRIVER;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
@@ -85,8 +93,55 @@ public class CriterionProcessor {
 	 * @return
 	 */
 	CriterionTestResult process(DeviceTypeCriterion deviceTypeCriterion) {
-		// TODO
-		return null;
+
+		if (deviceTypeCriterion == null) {
+			log.error(MALFORMED_CRITERION_MESSAGE,
+					telemetryManager.getHostConfiguration().getHostname(), deviceTypeCriterion);
+			return CriterionTestResult.empty();
+		}
+
+		final DeviceKind deviceKind = telemetryManager.getHostConfiguration().getHostType();
+
+		if (DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Arrays.asList(DeviceKind.SOLARIS, DeviceKind.SOLARIS), deviceTypeCriterion)
+				|| !DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion)) {
+			return CriterionTestResult
+					.builder()
+					.message(FAILED_OS_DETECTION_MESSAGE)
+					.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
+					.success(false)
+					.build();
+		}
+
+		return CriterionTestResult
+				.builder()
+				.message(SUCCESSFUL_OS_DETECTION_MESSAGE)
+				.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
+				.success(true)
+				.build();
+	}
+
+	/**
+	 * Return true if the deviceKind in the deviceKindList is included in the DeviceTypeCriterion detection.
+	 *
+	 * @param deviceKindList
+	 * @param deviceTypeCriterion
+	 * @return
+	 */
+	public boolean isDeviceKindIncluded(final List<DeviceKind> deviceKindList, final DeviceTypeCriterion deviceTypeCriterion) {
+
+		final Set<DeviceKind> keepOnly = deviceTypeCriterion.getKeep();
+		final Set<DeviceKind> exclude = deviceTypeCriterion.getExclude();
+
+		if (keepOnly != null && deviceKindList.stream().anyMatch(keepOnly::contains)) {
+			return true;
+		}
+
+		if (exclude != null && deviceKindList.stream().anyMatch(exclude::contains)) {
+			return false;
+		}
+
+		// If no osType is in KeepOnly or Exclude, then return true if KeepOnly is null or empty.
+		return keepOnly == null || keepOnly.isEmpty();
 	}
 
 	/**
