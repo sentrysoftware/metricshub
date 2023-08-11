@@ -115,4 +115,8 @@ public class Constants {
 	public final static String FAILED_OS_DETECTION = "Failed OS detection operation";
 	public final static String CONFIGURED_OS_NT_MESSAGE = "Configured OS type : NETWORK";
 	public final static String CONFIGURED_OS_SOLARIS_MESSAGE = "Configured OS type : SOLARIS";
+
+	// Version Number
+	public final static String LOW_VERSION_NUMBER = "0.0.1";
+	public final static String HIGH_VERSION_NUMBER = "1000.0.1";
 }

@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.detection;
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.IpmiCommandForSolarisException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.helpers.VersionHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IWinConfiguration;
@@ -31,6 +32,7 @@ import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
@@ -496,14 +499,25 @@ public class CriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link ProductRequirementsCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link ProductRequirementsCriterion} and return the {@link CriterionTestResult}
 	 *
 	 * @param productRequirementsCriterion
 	 * @return
 	 */
 	CriterionTestResult process(ProductRequirementsCriterion productRequirementsCriterion) {
-		// TODO
-		return null;
+		// If there is no requirement, then no check is needed
+		if (productRequirementsCriterion == null
+				|| productRequirementsCriterion.getEngineVersion() == null
+				|| productRequirementsCriterion.getEngineVersion().isBlank()) {
+			return CriterionTestResult.builder().success(true).build();
+		}
+
+		return CriterionTestResult.builder()
+				.success(
+						VersionHelper.isVersionLessThanOtherVersion(
+								productRequirementsCriterion.getEngineVersion(),
+								VersionHelper.getClassVersion(getClass())))
+				.build();
 	}
 
 	/**

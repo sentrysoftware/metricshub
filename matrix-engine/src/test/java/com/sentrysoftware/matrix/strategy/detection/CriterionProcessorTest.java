@@ -15,6 +15,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
@@ -42,6 +43,7 @@ import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_NT_MES
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.ERROR;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_OS_DETECTION;
+import static com.sentrysoftware.matrix.constants.Constants.HIGH_VERSION_NUMBER;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_WIN;
@@ -58,6 +60,7 @@ import static com.sentrysoftware.matrix.constants.Constants.IPMI_TOOL_COMMAND;
 import static com.sentrysoftware.matrix.constants.Constants.LINUX_BUILD_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.constants.Constants.LIPMI;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
+import static com.sentrysoftware.matrix.constants.Constants.LOW_VERSION_NUMBER;
 import static com.sentrysoftware.matrix.constants.Constants.MANAGEMENT_CARD_HOST;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
@@ -91,7 +94,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
-
 
 /**
  * This is a test for {@link CriterionProcessor}
@@ -756,4 +758,49 @@ class CriterionProcessorTest {
 				.build().getMessage(), criterionProcessorMock.process(new IpmiCriterion()).getMessage());
 	}
 
+	@Test
+	void ProductRequirementsCriterionProcessCriterionNullTest() throws Exception {
+		final ProductRequirementsCriterion productRequirementsCriterion = null;
+
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionNullVersionTest() throws Exception {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.build();
+
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionEmptyVersionTest() throws Exception {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.engineVersion("")
+				.build();
+
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionOKTest() throws Exception {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.engineVersion(LOW_VERSION_NUMBER)
+				.build();
+
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionNOKTest() throws Exception {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.engineVersion(HIGH_VERSION_NUMBER) // We will need to update the test once we reach matrix-engine version 1000
+				.build();
+
+		assertFalse(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
 }
