@@ -8,6 +8,7 @@ import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
+import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.configuration.TransportProtocols;
 import com.sentrysoftware.matrix.configuration.WbemConfiguration;
@@ -26,7 +27,6 @@ import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
-import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
 import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
@@ -47,11 +47,8 @@ import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,8 +94,8 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
-	 * @param <T>
 	 *
+	 * @param <T>
 	 * @param callable
 	 * @param timeout
 	 * @return {@link T} result returned by the callable.
@@ -194,6 +191,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Execute SNMP Table through matsya
+	 *
 	 * @param oid
 	 * @param selectColumnArray
 	 * @param configuration
@@ -284,7 +282,7 @@ public class MatsyaClientsExecutor {
 					case TABLE:
 						return snmpClient.table(oid, selectColumnArray);
 
-					default :
+					default:
 						throw new IllegalArgumentException("Not implemented.");
 				}
 
@@ -309,12 +307,13 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Execute TableJoin Using Matsya
+	 *
 	 * @param leftTable
 	 * @param rightTable
 	 * @param leftKeyColumnNumber
 	 * @param rightKeyColumnNumber
 	 * @param defaultRightLine
-	 * @param wbemKeyType {@link true} if WBEM
+	 * @param wbemKeyType          {@link true} if WBEM
 	 * @param caseInsensitive
 	 * @return
 	 */
@@ -324,7 +323,7 @@ public class MatsyaClientsExecutor {
 											   final int rightKeyColumnNumber,
 											   final List<String> defaultRightLine,
 											   final boolean wbemKeyType,
-											   boolean caseInsensitive){
+											   boolean caseInsensitive) {
 
 		trace(() ->
 				log.trace("Executing Table Join request:\n- Left-table:\n{}\n- Right-table:\n{}\n",
@@ -368,6 +367,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Execute JSON to CSV operation using Matsya.
+	 *
 	 * @param jsonSource
 	 * @param jsonEntryKey
 	 * @param propertyList
@@ -430,10 +430,10 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Parse a XML with the argument properties into a list of values list.
 	 *
-	 * @param xml The XML.
+	 * @param xml        The XML.
 	 * @param properties A string containing the paths to properties to retrieve separated by a semi-colon character. If the property comes from an attribute, it will be preceded by a superior character: '>'.
-	 * @param recordTag A string containing the first element xml tags path to convert. example: /rootTag/tag2
-	 * @return  The list of values list.
+	 * @param recordTag  A string containing the first element xml tags path to convert. example: /rootTag/tag2
+	 * @return The list of values list.
 	 * @throws XFlatException if an error occurred in the XML parsing.
 	 */
 	public List<List<String>> executeXmlParsing(
@@ -465,11 +465,11 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Perform a WQL query, either against a CIM server (WBEM) or WMI
 	 * <p>
-	 * @param hostname Hostname
-	 * @param protoConfig The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
-	 * @param query WQL query to execute
-	 * @param namespace The namespace
 	 *
+	 * @param hostname    Hostname
+	 * @param protoConfig The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
+	 * @param query       WQL query to execute
+	 * @param namespace   The namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
 	 * @throws MatsyaException when anything wrong happens with the Matsya library
@@ -495,11 +495,11 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Perform a WQL remote command query, either against a CIM server (WBEM) or WMI
 	 * <p>
-	 * @param hostname Hostname
-	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
-	 * @param command Windows remote command to execute
-	 * @param embeddedFiles The list of embedded files used in the wql remote command query
 	 *
+	 * @param hostname      Hostname
+	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
+	 * @param command       Windows remote command to execute
+	 * @param embeddedFiles The list of embedded files used in the wql remote command query
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
 	 * @throws MatsyaException when anything wrong happens with the Matsya library
@@ -529,14 +529,13 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Determine if a vCenter server is configured and call the appropriate method to run the WBEM query.
 	 * <p>
-	 * @param hostname Hostname
-	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
-	 * @param query WQL query to execute
-	 * @param namespace WBEM namespace
 	 *
+	 * @param hostname   Hostname
+	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
+	 * @param query      WQL query to execute
+	 * @param namespace  WBEM namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 *
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("WBEM")
@@ -558,14 +557,13 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Perform a WBEM query using vCenter ticket authentication.
 	 * <p>
-	 * @param hostname Hostname
-	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
-	 * @param query WQL query to execute
-	 * @param namespace WBEM namespace
 	 *
+	 * @param hostname   Hostname
+	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
+	 * @param query      WQL query to execute
+	 * @param namespace  WBEM namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 *
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	private List<List<String>> doVCenterQuery(
@@ -608,11 +606,12 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Perform a query to a vCenterServer in order to obtain an authentication ticket.
 	 * <p>
-	 * @param vCenter vCenter server FQDN or IP
+	 *
+	 * @param vCenter  vCenter server FQDN or IP
 	 * @param username Username
 	 * @param password Password
 	 * @param hostname Hostname
-	 * @param timeout Timeout
+	 * @param timeout  Timeout
 	 * @return A ticket String
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
@@ -642,6 +641,7 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Assess whether the exception (or any of its causes) is an access denied error saying that we must refresh the vCenter ticket.
 	 * <p>
+	 *
 	 * @param t Exception to verify
 	 * @return whether specified exception tells us that the ticket needs to be refreshed
 	 */
@@ -663,14 +663,13 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Perform a WBEM query.
 	 * <p>
-	 * @param hostname Hostname
-	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
-	 * @param query WQL query to execute
-	 * @param namespace WBEM namespace
 	 *
+	 * @param hostname   Hostname
+	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
+	 * @param query      WQL query to execute
+	 * @param namespace  WBEM namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 *
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	private List<List<String>> doWbemQuery(final String hostname, final WbemConfiguration wbemConfig, final String query,
@@ -746,7 +745,6 @@ public class MatsyaClientsExecutor {
 	 * @param wmiConfig WMI Protocol configuration (credentials, timeout)
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 *
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("WMI")
@@ -822,11 +820,11 @@ public class MatsyaClientsExecutor {
 	 * Execute a command on a remote Windows system through Matsya and return an object with
 	 * the output of the command.
 	 *
-	 * @param command The command to execute. (Mandatory)
-	 * @param hostname Host to connect to.  (Mandatory)
-	 * @param username The username name.
-	 * @param password The password.
-	 * @param timeout Timeout in seconds
+	 * @param command    The command to execute. (Mandatory)
+	 * @param hostname   Host to connect to.  (Mandatory)
+	 * @param username   The username name.
+	 * @param password   The password.
+	 * @param timeout    Timeout in seconds
 	 * @param localFiles The local files list
 	 * @return
 	 * @throws MatsyaException For any problem encountered.
@@ -891,8 +889,8 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Convert the given result to a {@link List} of {@link List} table
 	 *
-	 * @param result          The result we want to process
-	 * @param properties      The ordered properties
+	 * @param result     The result we want to process
+	 * @param properties The ordered properties
 	 * @return {@link List} of {@link List} table
 	 */
 	List<List<String>> buildWmiTable(final List<Map<String, Object>> result, final List<String> properties) {
@@ -917,10 +915,9 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Executes the given HTTP request through MATSYA
 	 *
-	 * @param httpRequest	The {@link HttpRequest} values.
-	 * @param logMode		Whether or not logging is enabled.
-	 *
-	 * @return				The result of the execution of the given HTTP request.
+	 * @param httpRequest The {@link HttpRequest} values.
+	 * @param logMode     Whether or not logging is enabled.
+	 * @return The result of the execution of the given HTTP request.
 	 */
 	@WithSpan("HTTP")
 	public String executeHttp(@SpanAttribute("http.config") @NonNull HttpRequest httpRequest, boolean logMode) {
@@ -1012,7 +1009,7 @@ public class MatsyaClientsExecutor {
 		return RetryOperation
 				.<String>builder()
 				.withDescription(String.format("%s %s", method, fullUrl))
-				.withWaitStrategy((int)telemetryManager.getHostConfiguration().getRetryDelay())
+				.withWaitStrategy((int) telemetryManager.getHostConfiguration().getRetryDelay())
 				.withMaxRetries(1)
 				.withHostname(hostname)
 				.withDefaultValue(EMPTY)
@@ -1043,7 +1040,7 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @param resultContent          Which result should be returned. E.g. HTTP status, body, header or all
 	 * @param logMode                Whether or not logging is enabled
-	 * @param httpConfiguration           HTTP protocol configuration
+	 * @param httpConfiguration      HTTP protocol configuration
 	 * @param hostname               The device hostname
 	 * @param method                 The HTTP method: GET, POST, DELETE, ...etc.
 	 * @param username               The HTTP server username
@@ -1055,7 +1052,6 @@ public class MatsyaClientsExecutor {
 	 * @param url                    The HTTP URL path
 	 * @param protocol               The protocol: http or https
 	 * @param fullUrl                The full HTTP URL. E.g. <pre>http://www.example.com:1080/api/v1/examples</pre>
-	 *
 	 * @return String value
 	 */
 	private String doHttpRequest( // NOSONAR on HTTP arguments
@@ -1112,11 +1108,20 @@ public class MatsyaClientsExecutor {
 			// The request has been successful
 			String result;
 			switch (resultContent) {
-				case BODY: result = httpResponse.getBody(); break;
-				case HEADER: result = httpResponse.getHeader(); break;
-				case HTTP_STATUS: result = String.valueOf(statusCode); break;
-				case ALL: result = httpResponse.toString(); break;
-				default: throw new IllegalArgumentException("Unsupported ResultContent: " + resultContent);
+				case BODY:
+					result = httpResponse.getBody();
+					break;
+				case HEADER:
+					result = httpResponse.getHeader();
+					break;
+				case HTTP_STATUS:
+					result = String.valueOf(statusCode);
+					break;
+				case ALL:
+					result = httpResponse.toString();
+					break;
+				default:
+					throw new IllegalArgumentException("Unsupported ResultContent: " + resultContent);
 			}
 
 			trace(() ->
@@ -1158,17 +1163,15 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * @param url			The full URL of the HTTP request.
-	 * @param method		The HTTP method (GET, POST, ...).
-	 * @param username		The username for the connexion.
-	 * @param password		The password for the connexion.
-	 * @param headerContent	The {@link Map} of properties-values in the header.
-	 * @param bodyContent	The body as a plain text.
-	 * @param timeout		The timeout of the request.
-	 *
-	 * @return				The {@link HttpResponse} returned by the server.
-	 *
-	 * @throws IOException	If a reading or writing operation fails.
+	 * @param url           The full URL of the HTTP request.
+	 * @param method        The HTTP method (GET, POST, ...).
+	 * @param username      The username for the connexion.
+	 * @param password      The password for the connexion.
+	 * @param headerContent The {@link Map} of properties-values in the header.
+	 * @param bodyContent   The body as a plain text.
+	 * @param timeout       The timeout of the request.
+	 * @return The {@link HttpResponse} returned by the server.
+	 * @throws IOException If a reading or writing operation fails.
 	 */
 	private HttpResponse sendHttpRequest(String url, String method, String username, char[] password,
 										 Map<String, String> headerContent, String bodyContent, int timeout) throws IOException {
@@ -1194,6 +1197,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Use Matsya ssh-client in order to run ssh command
+	 *
 	 * @param hostname
 	 * @param username
 	 * @param password
@@ -1207,20 +1211,14 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("SSH")
 	public static String runRemoteSshCommand( // NOSONAR on arguments
-											  @NonNull @SpanAttribute("host.hostname")
-											  final String hostname,
-											  @NonNull @SpanAttribute("ssh.username")
-											  final String username,
+											  @NonNull @SpanAttribute("host.hostname") final String hostname,
+											  @NonNull @SpanAttribute("ssh.username") final String username,
 											  final char[] password,
-											  @SpanAttribute("ssh.key_file_path")
-											  final File keyFilePath,
+											  @SpanAttribute("ssh.key_file_path") final File keyFilePath,
 											  final String command,
-											  @SpanAttribute("ssh.timeout")
-											  final long timeout,
-											  @SpanAttribute("ssh.local_files")
-											  final List<File> localFiles,
-											  @SpanAttribute("ssh.command")
-											  final String noPasswordCommand) throws MatsyaException {
+											  @SpanAttribute("ssh.timeout") final long timeout,
+											  @SpanAttribute("ssh.local_files") final List<File> localFiles,
+											  @SpanAttribute("ssh.command") final String noPasswordCommand) throws MatsyaException {
 
 		trace(() ->
 				log.trace("Executing Remote SSH command:\n- hostname: {}\n- username: {}\n- key-file-path: {}\n"
@@ -1246,7 +1244,7 @@ public class MatsyaClientsExecutor {
 
 		// We have a command: execute it
 		try (final SSHClient sshClient = createSshClientInstance(hostname)) {
-			sshClient.connect((int)timeoutInMilliseconds);
+			sshClient.connect((int) timeoutInMilliseconds);
 
 			if (password == null) {
 				log.warn("Hostname {} - Password could not be read. Using an empty password instead.", hostname);
@@ -1269,7 +1267,7 @@ public class MatsyaClientsExecutor {
 
 			final SSHClient.CommandResult commandResult = sshClient.executeCommand(
 					updatedCommand,
-					(int)timeoutInMilliseconds);
+					(int) timeoutInMilliseconds);
 
 			final long responseTime = System.currentTimeMillis() - startTime;
 
@@ -1318,10 +1316,10 @@ public class MatsyaClientsExecutor {
 	 * <li>username only</li>
 	 * </p>
 	 *
-	 * @param sshClient The Matsya SSH client
-	 * @param hostname The hostname
-	 * @param username The username
-	 * @param password The password
+	 * @param sshClient  The Matsya SSH client
+	 * @param hostname   The hostname
+	 * @param username   The username
+	 * @param password   The password
 	 * @param privateKey The private key file
 	 * @throws MatsyaException If a Matsya error occurred.
 	 */
@@ -1361,14 +1359,14 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Replace in the SSH command all the local files path with their remote path.
 	 *
-	 * @param command The SSH command.
+	 * @param command    The SSH command.
 	 * @param localFiles The local files list.
 	 * @return The updated command.
 	 */
 	static String updateCommandWithLocalList(
 			final String command,
 			final List<File> localFiles) {
-		return  localFiles == null || localFiles.isEmpty() ?
+		return localFiles == null || localFiles.isEmpty() ?
 				command :
 				localFiles.stream().reduce(
 						command,
@@ -1390,19 +1388,17 @@ public class MatsyaClientsExecutor {
 	 * <li>Open a terminal.</li>
 	 * </p>
 	 *
-	 * @param hostname The hostname (mandatory)
-	 * @param username The username (mandatory)
-	 * @param password The password
+	 * @param hostname   The hostname (mandatory)
+	 * @param username   The username (mandatory)
+	 * @param password   The password
 	 * @param privateKey The private key file
-	 * @param timeout The timeout (>0) in seconds
+	 * @param timeout    The timeout (>0) in seconds
 	 * @return The Matsya SSH client
 	 * @throws MatsyaException If a Matsya error occurred.
 	 */
 	public static SSHClient connectSshClientTerminal(
-			@NonNull
-			final String hostname,
-			@NonNull
-			final String username,
+			@NonNull final String hostname,
+			@NonNull final String username,
 			final char[] password,
 			final File privateKey,
 			final int timeout) throws MatsyaException {
@@ -1432,7 +1428,7 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Run the IPMI detection in order to detect the Chassis power state
 	 *
-	 * @param hostname            The host name or the IP address we wish to query
+	 * @param hostname          The host name or the IP address we wish to query
 	 * @param ipmiConfiguration The Matrix {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
 	 * @return String value. E.g. System power state is up
 	 * @throws TimeoutException
@@ -1479,11 +1475,11 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Build MATSYA IPMI configuration
 	 *
-	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
+	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
 	 * @param ipmiConfiguration Matrix {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
 	 * @return new instance of MATSYA {@link IpmiConfiguration}
 	 */
-	private static IpmiConfiguration buildIpmiConfiguration(@NonNull String hostname, @NonNull IpmiConfiguration ipmiConfiguration) {
+	private static com.sentrysoftware.matsya.ipmi.IpmiConfiguration buildIpmiConfiguration(@NonNull String hostname, @NonNull IpmiConfiguration ipmiConfiguration) {
 		String username = ipmiConfiguration.getUsername();
 		char[] password = ipmiConfiguration.getPassword();
 		Long timeout = ipmiConfiguration.getTimeout();
@@ -1492,7 +1488,7 @@ public class MatsyaClientsExecutor {
 		notNull(password, PASSWORD_CANNOT_BE_NULL);
 		notNull(timeout, TIMEOUT_CANNOT_BE_NULL);
 
-		return new IpmiConfiguration(hostname,
+		return new com.sentrysoftware.matsya.ipmi.IpmiConfiguration(hostname,
 				username,
 				password,
 				ipmiConfiguration.getBmcKey(),
@@ -1503,7 +1499,7 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Run IPMI Over-LAN request in order to get all the sensors
 	 *
-	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
+	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
 	 * @param ipmiConfiguration The Matrix {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
 	 * @return String output contains FRUs and Sensor states and readings
 	 * @throws TimeoutException
@@ -1550,10 +1546,10 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Execute a WinRM query through Matsya
 	 *
-	 * @param hostname The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param hostname           The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param WinRmConfiguration WinRM Protocol configuration (credentials, timeout)
-	 * @param query The query to execute
-	 * @param namespace The namespace on which to execute the query
+	 * @param query              The query to execute
+	 * @param namespace          The namespace on which to execute the query
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
@@ -1566,7 +1562,7 @@ public class MatsyaClientsExecutor {
 			throws MatsyaException {
 		final String username = WinRmConfiguration.getUsername();
 		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(WinRmConfiguration.getProtocol()) ?
-				HttpProtocolEnum.HTTP: HttpProtocolEnum.HTTPS;
+				HttpProtocolEnum.HTTP : HttpProtocolEnum.HTTPS;
 		final Integer port = WinRmConfiguration.getPort();
 		final List<AuthenticationEnum> authentications = WinRmConfiguration.getAuthentications();
 		final Long timeout = WinRmConfiguration.getTimeout();
@@ -1632,9 +1628,9 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Execute a WinRM remote command through Matsya
 	 *
-	 * @param hostname The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param hostname           The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param WinRmConfiguration WinRM Protocol configuration (credentials, timeout)
-	 * @param command The command to execute
+	 * @param command            The command to execute
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
@@ -1686,7 +1682,7 @@ public class MatsyaClientsExecutor {
 
 			// If the command returns an error
 			if (result.getStatusCode() != 0) {
-				throw new MatsyaException(String.format("WinRM remote command failed on %s: %s",hostname, result.getStderr()));
+				throw new MatsyaException(String.format("WinRM remote command failed on %s: %s", hostname, result.getStderr()));
 			}
 
 			String resultStdout = result.getStdout();
