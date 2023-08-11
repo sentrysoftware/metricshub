@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
@@ -15,12 +16,16 @@ import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.sentrysoftware.matrix.constants.Constants.BMC;
@@ -109,6 +115,268 @@ class CriterionProcessorTest {
 	@Mock
 	private TelemetryManager telemetryManagerMock;
 
+	@Test
+	void testVisitProcessProcessNull() {
+		final ProcessCriterion processCriterion = null;
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process(processCriterion));
+	}
+
+	@Test
+	void testVisitProcessCommandLineNull() {
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process(processCriterion));
+	}
+
+	@Test
+	void testVisitProcessCommandLineEmpty() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("");
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals("Process presence check: No test will be performed.", criterionTestResult.getMessage());
+		Assertions.assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitProcessNotLocalHost() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals("Process presence check: No test will be performed remotely.", criterionTestResult.getMessage());
+		Assertions.assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitProcessUnknownOS() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.empty());
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals("Process presence check: OS unknown, no test will be performed.", criterionTestResult.getMessage());
+			Assertions.assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitProcessWindowsEmptyResult() throws Exception {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
+
+			doReturn(CriterionTestResult.error(processCriterion,
+					"WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" returned empty value."))
+					.when(wqlDetectionHelperMock)
+					.performDetectionTest(any(), any(), any());
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertTrue(criterionTestResult.getMessage().contains("WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\"" +
+					" returned empty value."));
+			Assertions.assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	@Disabled
+	void testVisitProcessWindowsOK() throws Exception {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+						.build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
+
+			doReturn(
+					List.of(
+							List.of("0", "System Idle Process", "0", ""),
+							List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
+							List.of("10564", "eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")))
+					.when(matsyaClientsExecutorMock).executeWmi(
+							"localhost",
+							wmiConfiguration,
+							"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process",
+							"root\\cimv2");
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(
+					"One or more currently running processes match the following regular expression:\n- Regexp (should match with the command-line): MBM[5-9]\\.exe",
+					criterionTestResult.getMessage());
+			Assertions.assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitProcessLinuxNoProcess() {
+		final ProcessCriterion process = new ProcessCriterion();
+		process.setCommandLine("MBM[5-9]\\.exe");
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
+					List.of(
+							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
+							List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")));
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(process);
+
+			assertNotNull(criterionTestResult);
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(
+					"No currently running processes match the following regular expression:\n" +
+							"- Regexp (should match with the command-line): MBM[5-9]\\.exe\n" +
+							"- Currently running process list:\n" +
+							"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
+							"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"",
+					criterionTestResult.getMessage());
+			Assertions.assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitProcessLinuxOK() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
+			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(
+					List.of(
+							List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
+							List.of("2", "MBM6.exe", "user", "0", "MBM6.exe arg1 arg2"),
+							List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")));
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(
+					"One or more currently running processes match the following regular expression:\n- Regexp (should match with the command-line): MBM[5-9]\\.exe",
+					criterionTestResult.getMessage());
+			Assertions.assertNull(criterionTestResult.getResult());
+		}
+	}
+
+	@Test
+	void testVisitProcessNotImplementedAixOK() {
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine("MBM[5-9]\\.exe");
+
+		final TelemetryManager engineConfiguration = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+				.hostProperties(HostProperties.builder().isLocalhost(true).build())
+				.build();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(engineConfiguration.getHostProperties()).when(telemetryManagerMock).getHostProperties();
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.AIX));
+
+			final CriterionTestResult criterionTestResult = criterionProcessorMock.process(processCriterion);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals("Process presence check: No tests will be performed for OS: aix.", criterionTestResult.getMessage());
+			Assertions.assertNull(criterionTestResult.getResult());
+		}
+	}
 
 	@Test
 	void testProcessDeviceTypeCriterion() {
