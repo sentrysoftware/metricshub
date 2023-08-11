@@ -90,6 +90,8 @@ public class Constants {
 	public static final String BMC = "bmc";
 	public static final String LIPMI = "lipmi";
 	public static final String LINUX_BUILD_IPMI_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info";
+	public static final String TWGIPC = "TWGIPC";
+	public static final String SERVICE_NAME_NOT_SPECIFIED_MESSAGE = "Service name is not specified";
 
 	// Exception messages
 
@@ -139,4 +141,6 @@ public class Constants {
 	public final static String FAILED_OS_DETECTION = "Failed OS detection operation";
 	public final static String CONFIGURED_OS_NT_MESSAGE = "Configured OS type : NETWORK";
 	public final static String CONFIGURED_OS_SOLARIS_MESSAGE = "Configured OS type : SOLARIS";
+	public static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
+	public static final String HOST_OS_IS_NOT_WINDOWS_MESSAGE = "Host OS is not Windows";
 }

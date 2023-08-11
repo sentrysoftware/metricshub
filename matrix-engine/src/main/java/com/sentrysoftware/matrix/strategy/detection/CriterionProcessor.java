@@ -49,10 +49,13 @@ import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_QUERY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY_PROCESS_COMMAND_LINE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.END_OF_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FAILED_OS_DETECTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_DETECTION_FAILURE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_SOLARIS_VERSION_NOT_IDENTIFIED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_COMMAND;
@@ -60,8 +63,10 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LIPMI;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_PROCESS_CRITERION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SERVICE_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
@@ -69,10 +74,15 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_W
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OLD_SOLARIS_VERSION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI_INTERFACE_DRIVER;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.REMOTE_PROCESS_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.RUNNING;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SERVICE_NAME_NOT_SPECIFIED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNKNOWN_LOCAL_OS_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_NOT_RUNNING_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_RUNNING_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
@@ -563,8 +573,63 @@ public class CriterionProcessor {
 	 * @return
 	 */
 	CriterionTestResult process(ServiceCriterion serviceCriterion) {
-		// TODO
-		return null;
+		// Sanity checks
+		if (serviceCriterion == null || serviceCriterion.getName() == null) {
+			return CriterionTestResult.error(serviceCriterion, MALFORMED_SERVICE_CRITERION_MESSAGE);
+		}
+
+		// Find the configured protocol (WinRM or WMI)
+		final IWinConfiguration winConfiguration = telemetryManager.getWinConfiguration();
+
+		if (winConfiguration == null) {
+			return CriterionTestResult.error(serviceCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
+		}
+
+		// The host system must be Windows
+		if (!DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
+			return CriterionTestResult.error(serviceCriterion, HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE);
+		}
+
+		// Our local system must be Windows
+		if (!LocalOsHandler.isWindows()) {
+			return CriterionTestResult.success(serviceCriterion, LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE);
+
+		}
+
+		// Check the service name
+		final String serviceName = serviceCriterion.getName();
+		if (serviceName.isBlank()) {
+			return CriterionTestResult.success(serviceCriterion, SERVICE_NAME_NOT_SPECIFIED);
+		}
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		// Build a new WMI criterion to check the service existence
+		WmiCriterion serviceWmiCriterion = WmiCriterion
+				.builder()
+				.query(String.format(CRITERION_WMI_QUERY, serviceName))
+				.namespace(CRITERION_WMI_NAMESPACE)
+				.build();
+
+		// Perform this WMI test
+		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, serviceWmiCriterion);
+		if (!wmiTestResult.isSuccess()) {
+			return wmiTestResult;
+		}
+
+		// The result contains ServiceName;State
+		final String result = wmiTestResult.getResult();
+
+		// Check whether the reported state is "Running"
+		if (result != null && result.toLowerCase().contains(TABLE_SEP + RUNNING)) {
+			return CriterionTestResult.success(serviceCriterion, String.format(WINDOWS_IS_RUNNING_MESSAGE, serviceName));
+		}
+
+		// We're here: no good!
+		return CriterionTestResult.failure(
+				serviceWmiCriterion,
+				String.format(WINDOWS_IS_NOT_RUNNING_MESSAGE, serviceName, result) //NOSONAR
+		);
 	}
 
 	/**

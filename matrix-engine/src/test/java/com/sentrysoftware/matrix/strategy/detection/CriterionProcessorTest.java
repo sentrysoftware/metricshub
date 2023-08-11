@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCr
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
@@ -26,6 +27,7 @@ import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -50,6 +52,7 @@ import static com.sentrysoftware.matrix.constants.Constants.EXCUTE_WMI_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_OS_DETECTION;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
+import static com.sentrysoftware.matrix.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_WIN;
 import static com.sentrysoftware.matrix.constants.Constants.HTTP;
 import static com.sentrysoftware.matrix.constants.Constants.HTTP_GET;
@@ -67,6 +70,7 @@ import static com.sentrysoftware.matrix.constants.Constants.LIST_ALL_LINUX_PROCE
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.MANAGEMENT_CARD_HOST;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
+import static com.sentrysoftware.matrix.constants.Constants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
@@ -81,6 +85,7 @@ import static com.sentrysoftware.matrix.constants.Constants.PATH;
 import static com.sentrysoftware.matrix.constants.Constants.PROCESS_CRITERION_COMMAND_LINE;
 import static com.sentrysoftware.matrix.constants.Constants.RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SERVICE_NAME_NOT_SPECIFIED_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_OS_DETECTION;
@@ -88,6 +93,7 @@ import static com.sentrysoftware.matrix.constants.Constants.SUDO_KEYWORD;
 import static com.sentrysoftware.matrix.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.TEST;
 import static com.sentrysoftware.matrix.constants.Constants.TEST_BODY;
+import static com.sentrysoftware.matrix.constants.Constants.TWGIPC;
 import static com.sentrysoftware.matrix.constants.Constants.UNKNOWN_SOLARIS_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_NINE;
@@ -101,6 +107,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -370,6 +377,99 @@ class CriterionProcessorTest {
 			assertEquals(NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE, criterionTestResult.getMessage());
 			assertNull(criterionTestResult.getResult());
 		}
+	}
+
+	@Test
+	void testVisitServiceCheckServiceNull() {
+		final ServiceCriterion serviceCriterion = null;
+		assertTrue(criterionProcessorMock.process(serviceCriterion).getMessage().contains("Malformed Service criterion."));
+	}
+
+	@Test
+	void testVisitServiceCheckServiceNameNull() {
+		assertTrue(criterionProcessorMock.process(new ServiceCriterion()).getMessage().contains("Malformed Service criterion."));
+	}
+
+	@Test
+	void testVisitServiceCheckProtocolNull() {
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName(TWGIPC);
+
+		assertTrue(criterionProcessorMock.process(serviceCriterion).getMessage().contains(NEITHER_WMI_NOR_WINRM_ERROR));
+	}
+
+	@Test
+	void testVisitServiceCheckOsNull() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+		final TelemetryManager engineConfiguration = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder()
+						.hostname(HOST_WIN)
+						.hostId(HOST_WIN)
+						.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+						.build())
+				.build();
+		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName(TWGIPC);
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.getMessage().contains(HOST_OS_IS_NOT_WINDOWS_MESSAGE));
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitServiceCheckOsNotWindows() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName(TWGIPC);
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testVisitServiceCheckServiceNameEmpty() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.timeout(STRATEGY_TIMEOUT)
+				.build();
+		final TelemetryManager engineConfiguration = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.WINDOWS)
+						.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+						.build())
+				.build();
+		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
+		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		final ServiceCriterion serviceCriterion = new ServiceCriterion();
+		serviceCriterion.setName("");
+
+		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.getMessage().contains(SERVICE_NAME_NOT_SPECIFIED_MESSAGE));
+		assertNotNull(criterionTestResult.getResult());
 	}
 
 	@Test

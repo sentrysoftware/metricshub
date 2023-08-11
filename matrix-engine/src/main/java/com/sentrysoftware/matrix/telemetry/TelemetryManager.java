@@ -39,14 +39,14 @@ public class TelemetryManager {
 	 */
 	public IWinConfiguration getWinConfiguration() {
 		// We prioritize WinRM over WMI as it's more efficient.
-		final IWinConfiguration configuration = (WinRmConfiguration) this.getHostConfiguration().getConfigurations().get(WinRmConfiguration.class);
+		final IWinConfiguration winConfiguration = (WinRmConfiguration) this.getHostConfiguration().getConfigurations().get(WinRmConfiguration.class);
 
 		// Let's try WMI if the WinRM is not available
-		if (configuration == null) {
-			return (WinRmConfiguration) this.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
+		if (winConfiguration == null) {
+			return (WmiConfiguration) this.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
 		}
 
-		return configuration;
+		return winConfiguration;
 	}
 
 }
