@@ -46,6 +46,7 @@ import static com.sentrysoftware.matrix.constants.Constants.ERROR;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_OS_DETECTION;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
+import static com.sentrysoftware.matrix.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_WIN;
 import static com.sentrysoftware.matrix.constants.Constants.HTTP;
 import static com.sentrysoftware.matrix.constants.Constants.HTTP_GET;
@@ -70,6 +71,7 @@ import static com.sentrysoftware.matrix.constants.Constants.OOB_NULL_RESULT_MESS
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.PATH;
 import static com.sentrysoftware.matrix.constants.Constants.RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.SERVICE_NAME_NOT_SPECIFIED_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_OS_DETECTION;
@@ -77,6 +79,7 @@ import static com.sentrysoftware.matrix.constants.Constants.SUDO_KEYWORD;
 import static com.sentrysoftware.matrix.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.TEST;
 import static com.sentrysoftware.matrix.constants.Constants.TEST_BODY;
+import static com.sentrysoftware.matrix.constants.Constants.TWGIPC;
 import static com.sentrysoftware.matrix.constants.Constants.UNKNOWN_SOLARIS_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_NINE;
@@ -128,7 +131,7 @@ class CriterionProcessorTest {
 	@Test
 	void testVisitServiceCheckProtocolNull() {
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
-		serviceCriterion.setName("TWGIPC");
+		serviceCriterion.setName(TWGIPC);
 
 		assertTrue(criterionProcessorMock.process(serviceCriterion).getMessage().contains(NEITHER_WMI_NOR_WINRM_ERROR));
 	}
@@ -151,13 +154,13 @@ class CriterionProcessorTest {
 		doReturn(engineConfiguration.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
-		serviceCriterion.setName("TWGIPC");
+		serviceCriterion.setName(TWGIPC);
 
 		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().contains("Host OS is not Windows"));
+		assertTrue(criterionTestResult.getMessage().contains(HOST_OS_IS_NOT_WINDOWS_MESSAGE));
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -169,7 +172,7 @@ class CriterionProcessorTest {
 				.timeout(STRATEGY_TIMEOUT)
 				.build();
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
-		serviceCriterion.setName("TWGIPC");
+		serviceCriterion.setName(TWGIPC);
 
 		final CriterionTestResult criterionTestResult = criterionProcessorMock.process(serviceCriterion);
 
@@ -203,7 +206,7 @@ class CriterionProcessorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().contains("Service name is not specified"));
+		assertTrue(criterionTestResult.getMessage().contains(SERVICE_NAME_NOT_SPECIFIED_MESSAGE));
 		assertNotNull(criterionTestResult.getResult());
 	}
 

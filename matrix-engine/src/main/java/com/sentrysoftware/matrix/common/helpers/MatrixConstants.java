@@ -58,4 +58,13 @@ public class MatrixConstants {
 			"command returned: ";
 	public static final String BMC = "bmc";
 	public static final String LIPMI = "lipmi";
+	public static final String MALFORMED_SERVICE_CRITERION_MESSAGE = "Malformed Service criterion.";
+	public static final String SERVICE_NAME_NOT_SPECIFIED = "Service name is not specified. Skipping this test.";
+	public static final String HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE = "Host OS is not Windows. Skipping this test.";
+	public static final String LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE = "Local OS is not Windows. Skipping this test.";
+	public static final String CRITERION_WMI_QUERY = "SELECT Name, State FROM Win32_Service WHERE Name = '%s'";
+	public static final String CRITERION_WMI_NAMESPACE = "root\\cimv2";
+	public static final String WINDOWS_IS_RUNNING_MESSAGE = "The %s Windows Service is currently running.";
+	public static final String RUNNING = "running";
+	public static final String WINDOWS_IS_NOT_RUNNING_MESSAGE = "The %s Windows Service is not reported as running:\n%s";
 }

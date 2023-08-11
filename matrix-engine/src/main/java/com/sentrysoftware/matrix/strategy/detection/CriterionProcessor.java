@@ -47,9 +47,12 @@ import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_QUERY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.END_OF_IPMI_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FAILED_OS_DETECTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_DETECTION_FAILURE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_SOLARIS_VERSION_NOT_IDENTIFIED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_COMMAND;
@@ -57,14 +60,20 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LIPMI;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SERVICE_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OLD_SOLARIS_VERSION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI_INTERFACE_DRIVER;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.RUNNING;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SERVICE_NAME_NOT_SPECIFIED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_NOT_RUNNING_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_RUNNING_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
@@ -517,7 +526,7 @@ public class CriterionProcessor {
 	CriterionTestResult process(ServiceCriterion serviceCriterion) {
 		// Sanity checks
 		if (serviceCriterion == null || serviceCriterion.getName() == null) {
-			return CriterionTestResult.error(serviceCriterion, "Malformed Service criterion.");
+			return CriterionTestResult.error(serviceCriterion, MALFORMED_SERVICE_CRITERION_MESSAGE);
 		}
 
 		// Find the configured protocol (WinRM or WMI)
@@ -529,19 +538,19 @@ public class CriterionProcessor {
 
 		// The host system must be Windows
 		if (!DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
-			return CriterionTestResult.error(serviceCriterion, "Host OS is not Windows. Skipping this test.");
+			return CriterionTestResult.error(serviceCriterion, HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE);
 		}
 
 		// Our local system must be Windows
 		if (!LocalOsHandler.isWindows()) {
-			return CriterionTestResult.success(serviceCriterion, "Local OS is not Windows. Skipping this test.");
+			return CriterionTestResult.success(serviceCriterion, LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE);
 
 		}
 
 		// Check the service name
 		final String serviceName = serviceCriterion.getName();
 		if (serviceName.isBlank()) {
-			return CriterionTestResult.success(serviceCriterion, "Service name is not specified. Skipping this test.");
+			return CriterionTestResult.success(serviceCriterion, SERVICE_NAME_NOT_SPECIFIED);
 		}
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
@@ -549,8 +558,8 @@ public class CriterionProcessor {
 		// Build a new WMI criterion to check the service existence
 		WmiCriterion serviceWmiCriterion = WmiCriterion
 				.builder()
-				.query(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
-				.namespace("root\\cimv2")
+				.query(String.format(CRITERION_WMI_QUERY, serviceName))
+				.namespace(CRITERION_WMI_NAMESPACE)
 				.build();
 
 		// Perform this WMI test
@@ -563,14 +572,14 @@ public class CriterionProcessor {
 		final String result = wmiTestResult.getResult();
 
 		// Check whether the reported state is "Running"
-		if (result != null && result.toLowerCase().contains(TABLE_SEP + "running")) {
-			return CriterionTestResult.success(serviceCriterion, String.format("The %s Windows Service is currently running.", serviceName));
+		if (result != null && result.toLowerCase().contains(TABLE_SEP + RUNNING)) {
+			return CriterionTestResult.success(serviceCriterion, String.format(WINDOWS_IS_RUNNING_MESSAGE, serviceName));
 		}
 
 		// We're here: no good!
 		return CriterionTestResult.failure(
 				serviceWmiCriterion,
-				String.format("The %s Windows Service is not reported as running:\n%s", serviceName, result) //NOSONAR
+				String.format(WINDOWS_IS_NOT_RUNNING_MESSAGE, serviceName, result) //NOSONAR
 		);
 	}
 
