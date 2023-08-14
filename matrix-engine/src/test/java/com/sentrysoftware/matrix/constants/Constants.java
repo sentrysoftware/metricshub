@@ -45,6 +45,8 @@ public class Constants {
 	public final static List<List<String>> LIST_ALL_LINUX_PROCESSES_RESULT = List.of(
 			List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
+	public final static String OID = "1.3.6.1.4.1.674.10893.1.20";
+	public static final String EMPTY = "";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -109,6 +111,9 @@ public class Constants {
 	public final static String WINRM = "WinRM";
 	public final static String WBEM_HTTPS = "https/5989";
 	public final static String IPMI = "IPMI";
+	public final static String SNMP_VERSION = "2.4.6";
+	public final static String EXECUTE_SNMP_GET_RESULT = "UCS System Cisco";
+	public final static String EXPECTED_SNMP_RESULT = "UCS";
 
 	// Encryption
 

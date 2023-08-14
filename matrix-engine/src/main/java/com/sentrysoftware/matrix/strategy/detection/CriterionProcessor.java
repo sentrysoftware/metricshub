@@ -33,10 +33,10 @@ import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.test.TestResult;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -643,6 +643,14 @@ public class CriterionProcessor {
 		return null;
 	}
 
+	@Data
+	@Builder
+	public static class TestResult {
+		private String message;
+		private boolean success;
+		private String csvTable;
+	}
+
 	/**
 	 * Process the given {@link SnmpGetCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
@@ -654,91 +662,92 @@ public class CriterionProcessor {
 		return null;
 	}
 
-	/**
-	 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
-	 *
-	 * @param snmpGetNextCriterion
-	 * @return
-	 */
-	CriterionTestResult process(SnmpGetNextCriterion snmpGetNextCriterion) {
-		// TODO
-		return null;
-	}
-
-	/**
-	 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
-	 *
-	 * @param wmiCriterion
-	 * @return
-	 */
-	CriterionTestResult process(WmiCriterion wmiCriterion) {
-		// TODO
-		return null;
-	}
-
-	/**
-	 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
-	 *
-	 * @param wbemCriterion
-	 * @return
-	 */
-	CriterionTestResult process(WbemCriterion wbemCriterion) {
-		// TODO
-		return null;
-	}
-
-	/**
-	 * Process the given {@link WqlCriterion} through Matsya and return the {@link CriterionTestResult}
-	 *
-	 * @param wqlCriterion
-	 * @return
-	 */
-	CriterionTestResult process(WqlCriterion wqlCriterion) {
-		// TODO
-		return null;
-	}
-
-	/**
-	 * @param hostname       The hostname against which the HTTP test has been carried out.
-	 * @param result         The actual result of the HTTP test.
-	 * @param expectedResult The expected result of the HTTP test.
-	 * @return A {@link TestResult} summarizing the outcome of the HTTP test.
-	 */
-	private CriterionTestResult checkHttpResult(final String hostname, final String result, final String expectedResult) {
-
-		String message;
-		boolean success = false;
-
-		if (expectedResult == null) {
-			if (result == null || result.isEmpty()) {
-				message = String.format("Hostname %s - HTTP test failed - The HTTP test did not return any result.", hostname);
-			} else {
-				message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
-				success = true;
-			}
-
-		} else {
-			// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
-			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
-			if (result != null && pattern.matcher(result).find()) {
-				message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
-				success = true;
-			} else {
-				message = String
-						.format("Hostname %s - HTTP test failed - "
-										+ "The result (%s) returned by the HTTP test did not match the expected result (%s).",
-								hostname, result, expectedResult);
-				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
-			}
+		/**
+		 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
+		 *
+		 * @param snmpGetNextCriterion
+		 * @return
+		 */
+		CriterionTestResult process (SnmpGetNextCriterion snmpGetNextCriterion){
+			// TODO
+			return null;
 		}
 
-		log.debug(message);
+		/**
+		 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
+		 *
+		 * @param wmiCriterion
+		 * @return
+		 */
+		CriterionTestResult process (WmiCriterion wmiCriterion){
+			// TODO
+			return null;
+		}
 
-		return CriterionTestResult
-				.builder()
-				.result(result)
-				.message(message)
-				.success(success)
-				.build();
+		/**
+		 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
+		 *
+		 * @param wbemCriterion
+		 * @return
+		 */
+		CriterionTestResult process (WbemCriterion wbemCriterion){
+			// TODO
+			return null;
+		}
+
+		/**
+		 * Process the given {@link WqlCriterion} through Matsya and return the {@link CriterionTestResult}
+		 *
+		 * @param wqlCriterion
+		 * @return
+		 */
+		CriterionTestResult process (WqlCriterion wqlCriterion){
+			// TODO
+			return null;
+		}
+
+		/**
+		 * @param hostname       The hostname against which the HTTP test has been carried out.
+		 * @param result         The actual result of the HTTP test.
+		 * @param expectedResult The expected result of the HTTP test.
+		 * @return A {@link TestResult} summarizing the outcome of the HTTP test.
+		 */
+		private CriterionTestResult checkHttpResult ( final String hostname, final String result,
+		final String expectedResult){
+
+			String message;
+			boolean success = false;
+
+			if (expectedResult == null) {
+				if (result == null || result.isEmpty()) {
+					message = String.format("Hostname %s - HTTP test failed - The HTTP test did not return any result.", hostname);
+				} else {
+					message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
+					success = true;
+				}
+
+			} else {
+				// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
+				final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
+				if (result != null && pattern.matcher(result).find()) {
+					message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
+					success = true;
+				} else {
+					message = String
+							.format("Hostname %s - HTTP test failed - "
+											+ "The result (%s) returned by the HTTP test did not match the expected result (%s).",
+									hostname, result, expectedResult);
+					message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
+				}
+			}
+
+			log.debug(message);
+
+			return CriterionTestResult
+					.builder()
+					.result(result)
+					.message(message)
+					.success(success)
+					.build();
+		}
 	}
-}
