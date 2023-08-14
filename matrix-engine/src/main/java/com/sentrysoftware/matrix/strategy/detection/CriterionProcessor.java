@@ -9,6 +9,7 @@ import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IWinConfiguration;
 import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
 import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.configuration.SshConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
@@ -67,6 +68,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCAL_OS_
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_PROCESS_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SERVICE_CRITERION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
@@ -76,9 +78,16 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.REMOTE_PROCESS_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.RUNNING;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SERVICE_NAME_NOT_SPECIFIED;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_EMPTY_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_NULL_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_WITH_EXCEPTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_OID_NOT_MATCH_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_SNMP_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNKNOWN_LOCAL_OS_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_NOT_RUNNING_MESSAGE;
@@ -652,102 +661,221 @@ public class CriterionProcessor {
 	}
 
 	/**
+	 * Simply check the value consistency and verify whether the returned value is
+	 * not null or empty
+	 *
+	 * @param hostname
+	 * @param oid
+	 * @param result
+	 * @return {@link TestResult} wrapping the message and the success status
+	 */
+	private TestResult checkSNMPGetValue(final String hostname, final String oid, final String result) {
+		String message;
+		boolean success = false;
+		if (result == null) {
+			message = String.format(SNMP_FAILED_NULL_RESULT_MESSAGE,
+					hostname, oid);
+		} else if (result.trim().isEmpty()) {
+			message = String.format(SNMP_FAILED_EMPTY_RESULT_MESSAGE,
+					hostname, oid);
+		} else {
+			message = String.format(SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE, hostname, oid, result);
+			success = true;
+		}
+
+		log.debug(message);
+
+		return TestResult.builder().message(message).success(success).build();
+	}
+
+	/**
+	 * Verify the value returned by SNMP Get query. Check the value consistency when
+	 * the expected output is not defined. Otherwise check if the value matches the
+	 * expected regex.
+	 *
+	 * @param hostname
+	 * @param oid
+	 * @param expected
+	 * @param result
+	 * @return {@link TestResult} wrapping the success status and the message
+	 */
+	private TestResult checkSNMPGetResult(final String hostname, final String oid, final String expected, final String result) {
+		if (expected == null) {
+			return checkSNMPGetValue(hostname, oid, result);
+		}
+		return checkSNMPGetExpectedValue(hostname, oid, expected, result);
+	}
+
+	/**
+	 * Check if the result matches the expected value
+	 *
+	 * @param hostname
+	 * @param oid
+	 * @param expected
+	 * @param result
+	 * @return {@link TestResult} wrapping the message and the success status
+	 */
+	private TestResult checkSNMPGetExpectedValue(final String hostname, final String oid, final String expected,
+												 final String result) {
+
+		String message;
+		boolean success = false;
+
+		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+		if (result == null || !pattern.matcher(result).find()) {
+			message = String.format(
+					SNMP_OID_NOT_MATCH_MESSAGE,
+					hostname, oid);
+			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
+		} else {
+			message = String.format(SUCCESSFUL_SNMP_MESSAGE, hostname, oid, result);
+			success = true;
+		}
+
+		log.debug(message);
+
+		return TestResult.builder().message(message).success(success).build();
+	}
+
+
+	/**
 	 * Process the given {@link SnmpGetCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
 	 * @param snmpGetCriterion
-	 * @return
+	 * @return SnmpCriterion instance
 	 */
 	CriterionTestResult process(SnmpGetCriterion snmpGetCriterion) {
-		// TODO
-		return null;
-	}
-
-		/**
-		 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
-		 *
-		 * @param snmpGetNextCriterion
-		 * @return
-		 */
-		CriterionTestResult process (SnmpGetNextCriterion snmpGetNextCriterion){
-			// TODO
-			return null;
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		if (null == snmpGetCriterion || snmpGetCriterion.getOid() == null) {
+			log.error(MALFORMED_SNMP_GET_CRITERION_MESSAGE, hostname, snmpGetCriterion);
+			return CriterionTestResult.empty();
 		}
 
-		/**
-		 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
-		 *
-		 * @param wmiCriterion
-		 * @return
-		 */
-		CriterionTestResult process (WmiCriterion wmiCriterion){
-			// TODO
-			return null;
+		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager.getHostConfiguration()
+				.getConfigurations().get(SnmpConfiguration.class);
+
+		if (protocol == null) {
+			log.debug(SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE, hostname, snmpGetCriterion);
+			return CriterionTestResult.empty();
 		}
 
-		/**
-		 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
-		 *
-		 * @param wbemCriterion
-		 * @return
-		 */
-		CriterionTestResult process (WbemCriterion wbemCriterion){
-			// TODO
-			return null;
-		}
+		try {
 
-		/**
-		 * Process the given {@link WqlCriterion} through Matsya and return the {@link CriterionTestResult}
-		 *
-		 * @param wqlCriterion
-		 * @return
-		 */
-		CriterionTestResult process (WqlCriterion wqlCriterion){
-			// TODO
-			return null;
-		}
+			final String result = matsyaClientsExecutor.executeSNMPGet(
+					snmpGetCriterion.getOid(),
+					protocol,
+					hostname,
+					false);
 
-		/**
-		 * @param hostname       The hostname against which the HTTP test has been carried out.
-		 * @param result         The actual result of the HTTP test.
-		 * @param expectedResult The expected result of the HTTP test.
-		 * @return A {@link TestResult} summarizing the outcome of the HTTP test.
-		 */
-		private CriterionTestResult checkHttpResult ( final String hostname, final String result,
-		final String expectedResult){
-
-			String message;
-			boolean success = false;
-
-			if (expectedResult == null) {
-				if (result == null || result.isEmpty()) {
-					message = String.format("Hostname %s - HTTP test failed - The HTTP test did not return any result.", hostname);
-				} else {
-					message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
-					success = true;
-				}
-
-			} else {
-				// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
-				final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
-				if (result != null && pattern.matcher(result).find()) {
-					message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
-					success = true;
-				} else {
-					message = String
-							.format("Hostname %s - HTTP test failed - "
-											+ "The result (%s) returned by the HTTP test did not match the expected result (%s).",
-									hostname, result, expectedResult);
-					message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
-				}
-			}
-
-			log.debug(message);
+			final TestResult testResult = checkSNMPGetResult(
+					hostname,
+					snmpGetCriterion.getOid(),
+					snmpGetCriterion.getExpectedResult(),
+					result);
 
 			return CriterionTestResult
 					.builder()
 					.result(result)
-					.message(message)
-					.success(success)
+					.success(testResult.isSuccess())
+					.message(testResult.getMessage())
 					.build();
+
+		} catch (final Exception e) {
+			final String message = String.format(
+					SNMP_FAILED_WITH_EXCEPTION_MESSAGE,
+					hostname, snmpGetCriterion.getOid(), e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult.builder().message(message).build();
 		}
 	}
+
+
+	/**
+	 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
+	 * @param snmpGetNextCriterion
+	 * @return
+	 */
+	CriterionTestResult process(SnmpGetNextCriterion snmpGetNextCriterion) {
+		// TODO
+		return null;
+	}
+
+	/**
+	 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
+	 * @param wmiCriterion
+	 * @return
+	 */
+	CriterionTestResult process(WmiCriterion wmiCriterion) {
+		// TODO
+		return null;
+	}
+
+	/**
+	 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
+	 * @param wbemCriterion
+	 * @return
+	 */
+	CriterionTestResult process(WbemCriterion wbemCriterion) {
+		// TODO
+		return null;
+	}
+
+	/**
+	 * Process the given {@link WqlCriterion} through Matsya and return the {@link CriterionTestResult}
+	 *
+	 * @param wqlCriterion
+	 * @return
+	 */
+	CriterionTestResult process(WqlCriterion wqlCriterion) {
+		// TODO
+		return null;
+	}
+
+	/**
+	 * @param hostname       The hostname against which the HTTP test has been carried out.
+	 * @param result         The actual result of the HTTP test.
+	 * @param expectedResult The expected result of the HTTP test.
+	 * @return A {@link TestResult} summarizing the outcome of the HTTP test.
+	 */
+	private CriterionTestResult checkHttpResult(final String hostname, final String result,
+												final String expectedResult) {
+
+		String message;
+		boolean success = false;
+
+		if (expectedResult == null) {
+			if (result == null || result.isEmpty()) {
+				message = String.format("Hostname %s - HTTP test failed - The HTTP test did not return any result.", hostname);
+			} else {
+				message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
+				success = true;
+			}
+
+		} else {
+			// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
+			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
+			if (result != null && pattern.matcher(result).find()) {
+				message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
+				success = true;
+			} else {
+				message = String
+						.format("Hostname %s - HTTP test failed - "
+										+ "The result (%s) returned by the HTTP test did not match the expected result (%s).",
+								hostname, result, expectedResult);
+				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
+			}
+		}
+
+		log.debug(message);
+
+		return CriterionTestResult
+				.builder()
+				.result(result)
+				.message(message)
+				.success(success)
+				.build();
+	}
+}

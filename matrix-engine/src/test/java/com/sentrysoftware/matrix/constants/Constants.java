@@ -112,9 +112,24 @@ public class Constants {
 	public final static String WBEM_HTTPS = "https/5989";
 	public final static String IPMI = "IPMI";
 	public final static String SNMP_VERSION = "2.4.6";
-	public final static String EXECUTE_SNMP_GET_RESULT = "UCS System Cisco";
-	public final static String EXPECTED_SNMP_RESULT = "UCS";
-
+	public final static String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
+	public final static String EXPECTED_SNMP_RESULT = "CMC";
+	public final static String SNMP_CONFIGURATION_COMMUNITY = "public";
+	public final static String SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE = "Hostname host-win - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. " +
+			"Returned result: CMC DELL";
+	public final static String SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE = "Hostname host-win - SNMP test failed - " +
+			"SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
+			"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.";
+	public final static String SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP Get " +
+			"of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.";
+	public final static String SNMP_GET_EMPTY_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get " +
+			"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.";
+	public final static String SNMP_GET_NULL_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
+			"unsuccessful due to a null result";
+	public final static String SNMP_GET_EXCEPTION_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+			"due to an exception. " +
+			"Message: SNMPGet timeout";
+	public final static String SNMP_GET_TIMEOUT_MESSAGE = "SNMPGet timeout";
 	// Encryption
 
 	public final static String AES = "aes";

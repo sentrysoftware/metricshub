@@ -19,7 +19,6 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterio
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
@@ -94,6 +93,14 @@ import static com.sentrysoftware.matrix.constants.Constants.PROCESS_CRITERION_CO
 import static com.sentrysoftware.matrix.constants.Constants.RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SERVICE_NAME_NOT_SPECIFIED_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_COMMUNITY;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EMPTY_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXCEPTION_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NULL_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_TIMEOUT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
@@ -145,16 +152,9 @@ class CriterionProcessorTest {
 	private TelemetryManager telemetryManager;
 
 	private void initSNMP() {
-
-		if (telemetryManager.getHostConfiguration() != null
-				&& telemetryManager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class) != null) {
-
-			return;
-		}
-
-		final SnmpConfiguration protocol = SnmpConfiguration
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 				.builder()
-				.community("public")
+				.community(SNMP_CONFIGURATION_COMMUNITY)
 				.version(SnmpConfiguration.SnmpVersion.V1)
 				.port(161)
 				.timeout(120L)
@@ -163,25 +163,23 @@ class CriterionProcessorTest {
 		telemetryManager = TelemetryManager
 				.builder()
 				.hostConfiguration(HostConfiguration.builder().hostname(HOST_WIN).hostId(HOST_WIN).hostType(DeviceKind.LINUX)
-						.configurations(Map.of(SnmpConfiguration.class, protocol))
+						.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
 						.build())
 				.build();
 	}
 
 	@Test
-	void testVisitSNMPGetReturnsEmptyResult() {
+	void testProcessSNMPGetReturnsEmptyResult() {
 
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process((SnmpCriterion) null));
-		assertEquals(CriterionTestResult.empty(),
-				criterionProcessorMock.process(SnmpGetCriterion.builder().oid(null).build()));
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process((SnmpGetCriterion) null));
 		assertNull(criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build()).getResult());
 	}
 
 	@Test
-	void testVisitSNMPGetExpectedResultMatches() throws Exception {
+	void testProcessSNMPGetExpectedResultMatches() throws Exception {
 
 		initSNMP();
 
@@ -190,7 +188,7 @@ class CriterionProcessorTest {
 		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder()
 				.oid(OID).expectedResult(EXPECTED_SNMP_RESULT).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-						"Hostname ecs1-01 - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned result: UCS System Cisco")
+						SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE)
 				.result(EXECUTE_SNMP_GET_RESULT)
 				.success(true)
 				.build();
@@ -198,7 +196,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetExpectedResultNotMatches() throws Exception {
+	void testProcessSNMPGetExpectedResultNotMatches() throws Exception {
 
 		initSNMP();
 
@@ -206,15 +204,14 @@ class CriterionProcessorTest {
 		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-						"Hostname ecs1-01 - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
-								"OID did not match with the expected result. Expected value: 2.4.6 - returned value UCS System Cisco.")
+						SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE)
 				.result(EXECUTE_SNMP_GET_RESULT)
 				.build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void testVisitSNMPGetSuccessWithNoExpectedResult() throws Exception {
+	void testProcessSNMPGetSuccessWithNoExpectedResult() throws Exception {
 
 		initSNMP();
 
@@ -222,14 +219,14 @@ class CriterionProcessorTest {
 		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-						"Hostname ecs1-01 - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned result: UCS System Cisco.")
+						SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE)
 				.result(EXECUTE_SNMP_GET_RESULT)
 				.success(true).build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void testVisitSNMPGetEmptyResult() throws Exception {
+	void testProcessSNMPGetEmptyResult() throws Exception {
 
 		initSNMP();
 
@@ -237,37 +234,35 @@ class CriterionProcessorTest {
 		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-						"Hostname ecs1-01 - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.")
+						SNMP_GET_EMPTY_RESULT_MESSAGE)
 				.result(EMPTY).build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void testVisitSNMPGetNullResult() throws Exception {
+	void testProcessSNMPGetNullResult() throws Exception {
 
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(matsyaClientsExecutorMock.executeSNMPGet(any(), any(), any(), eq(false)));
+		doReturn(null).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-						"Hostname ecs1-01 - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to a null result")
+						SNMP_GET_NULL_RESULT_MESSAGE)
 				.build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void testVisitSNMPGetException() throws Exception {
+	void testProcessSNMPGetException() throws Exception {
 
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doThrow(new TimeoutException("SNMPGet timeout")).when(matsyaClientsExecutorMock).executeSNMPGet(any(),
+		doThrow(new TimeoutException(SNMP_GET_TIMEOUT_MESSAGE)).when(matsyaClientsExecutorMock).executeSNMPGet(any(),
 				any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(
-						"Hostname ecs1-01 - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an exception. " +
-								"Message: SNMPGet timeout")
+		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_EXCEPTION_MESSAGE)
 				.build();
 		assertEquals(expected, actual);
 	}
@@ -519,18 +514,18 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitServiceCheckServiceNull() {
+	void testProcessServiceCheckServiceNull() {
 		final ServiceCriterion serviceCriterion = null;
 		assertTrue(criterionProcessorMock.process(serviceCriterion).getMessage().contains("Malformed Service criterion."));
 	}
 
 	@Test
-	void testVisitServiceCheckServiceNameNull() {
+	void testProcessServiceCheckServiceNameNull() {
 		assertTrue(criterionProcessorMock.process(new ServiceCriterion()).getMessage().contains("Malformed Service criterion."));
 	}
 
 	@Test
-	void testVisitServiceCheckProtocolNull() {
+	void testProcessServiceCheckProtocolNull() {
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
 		serviceCriterion.setName(TWGIPC);
 
@@ -538,7 +533,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitServiceCheckOsNull() {
+	void testProcessServiceCheckOsNull() {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -566,7 +561,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitServiceCheckOsNotWindows() {
+	void testProcessServiceCheckOsNotWindows() {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -584,7 +579,7 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(WINDOWS)
-	void testVisitServiceCheckServiceNameEmpty() {
+	void testProcessServiceCheckServiceNameEmpty() {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
