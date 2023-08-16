@@ -153,7 +153,7 @@ class CriterionProcessorTest {
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
-	@InjectMocks
+	@Mock
 	private WqlDetectionHelper wqlDetectionHelperMock;
 	@InjectMocks
 	private CriterionProcessor criterionProcessorMock;

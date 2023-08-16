@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
 import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.configuration.SshConfiguration;
+import com.sentrysoftware.matrix.configuration.WbemConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
@@ -48,6 +49,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_NAMESPACE;
@@ -90,6 +92,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFU
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_SNMP_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNKNOWN_LOCAL_OS_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM_CREDENTIALS_NOT_CONFIGURED_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM_MALFORMED_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_NOT_RUNNING_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_RUNNING_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
@@ -812,6 +816,57 @@ public class CriterionProcessor {
 		return null;
 	}
 
+
+	/**
+	 * Find the namespace to use for the execution of the given {@link WbemCriterion}.
+	 *
+	 * @param hostname          The hostname of the host device
+	 * @param wbemConfiguration The WBEM protocol configuration (port, credentials, etc.)
+	 * @param wbemCriterion     The WQL criterion with an "Automatic" namespace
+	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
+	 */
+	private CriterionTestResult findNamespace(final String hostname, final WbemConfiguration wbemConfiguration, final WbemCriterion wbemCriterion) {
+		// Get the list of possible namespaces on this host
+		Set<String> possibleWbemNamespaces = telemetryManager.getHostProperties().getPossibleWbemNamespaces();
+
+		// Only one thread at a time must be figuring out the possible namespaces on a given host
+		synchronized (possibleWbemNamespaces) {
+
+			if (possibleWbemNamespaces.isEmpty()) {
+
+				// If we don't have this list already, figure it out now
+				final WqlDetectionHelper.PossibleNamespacesResult possibleWbemNamespacesResult =
+						wqlDetectionHelper.findPossibleNamespaces(hostname, wbemConfiguration);
+
+				// If we can't detect the namespace then we must stop
+				if (!possibleWbemNamespacesResult.isSuccess()) {
+					return CriterionTestResult.error(wbemCriterion, possibleWbemNamespacesResult.getErrorMessage());
+				}
+
+				// Store the list of possible namespaces in HostMonitoring, for next time we need it
+				possibleWbemNamespaces.clear();
+				possibleWbemNamespaces.addAll(possibleWbemNamespacesResult.getPossibleNamespaces());
+
+			}
+		}
+
+		// Perform a namespace detection
+		WqlDetectionHelper.NamespaceResult namespaceResult =
+				wqlDetectionHelper.detectNamespace(hostname, wbemConfiguration, wbemCriterion, Collections.unmodifiableSet(possibleWbemNamespaces));
+
+		// If that was successful, remember it in HostMonitoring, so we don't perform this
+		// (costly) detection again
+		if (namespaceResult.getResult().isSuccess()) {
+			telemetryManager
+					.getHostProperties()
+					.getConnectorNamespaces()
+					.get(namespaceResult.getNamespace())
+					.setAutomaticWbemNamespace(namespaceResult.getNamespace());
+		}
+
+		return namespaceResult.getResult();
+	}
+
 	/**
 	 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
@@ -819,8 +874,44 @@ public class CriterionProcessor {
 	 * @return
 	 */
 	CriterionTestResult process(WbemCriterion wbemCriterion) {
-		// TODO
-		return null;
+		// Sanity check
+		if (wbemCriterion == null || wbemCriterion.getQuery() == null) {
+			return CriterionTestResult.error(wbemCriterion, WBEM_MALFORMED_CRITERION_MESSAGE);
+		}
+
+		// Gather the necessary info on the test that needs to be performed
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		final WbemConfiguration wbemConfiguration =
+				(WbemConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(WbemConfiguration.class);
+		if (wbemConfiguration == null) {
+			return CriterionTestResult.error(wbemCriterion, WBEM_CREDENTIALS_NOT_CONFIGURED_MESSAGE);
+		}
+
+		// If namespace is specified as "Automatic"
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getNamespace())) {
+
+			final String cachedNamespace = telemetryManager
+					.getHostProperties()
+					.getConnectorNamespaces()
+					.get(wbemCriterion.getNamespace())
+					.getAutomaticWbemNamespace();
+
+			// If not detected already, find the namespace
+			if (cachedNamespace == null) {
+				return findNamespace(hostname, wbemConfiguration, wbemCriterion);
+			}
+
+			// Update the criterion with the cached namespace
+			WqlCriterion cachedNamespaceCriterion = wbemCriterion.copy();
+			cachedNamespaceCriterion.setNamespace(cachedNamespace);
+
+			// Run the test
+			return wqlDetectionHelper.performDetectionTest(hostname, wbemConfiguration, cachedNamespaceCriterion);
+		}
+
+		// Run the test
+		return wqlDetectionHelper.performDetectionTest(hostname, wbemConfiguration, wbemCriterion);
 	}
 
 	/**

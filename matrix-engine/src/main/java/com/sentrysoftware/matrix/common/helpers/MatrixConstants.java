@@ -97,6 +97,8 @@ public class MatrixConstants {
 	public final static String SNMP_FAILED_NULL_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to a null result";
 	public final static String SNMP_FAILED_EMPTY_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an empty result.";
 	public final static String SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP Get of %s. Returned result: %s.";
-	public static final String AUTOMATIC_NAMESPACE = "automatic";
+	public final static String AUTOMATIC_NAMESPACE = "automatic";
+	public final static String WBEM_MALFORMED_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection.";
+	public final static String WBEM_CREDENTIALS_NOT_CONFIGURED_MESSAGE = "The WBEM credentials are not configured for this host.";
 
 }
