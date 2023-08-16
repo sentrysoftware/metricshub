@@ -85,4 +85,17 @@ public class MatrixConstants {
 	public final static String CRITERION_PROCESSOR_VISITOR_NAMESPACE = "root\\cimv2";
 	public final static String WQL_DETECTION_HELPER_NULL_MESSAGE = "wqlDetectionHelper cannot be null.";
 	public final static String LOCALHOST = "localhost";
+	public final static String MALFORMED_SNMP_GET_CRITERION_MESSAGE = "Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection.";
+	public final static String SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE = "Hostname {} - The SNMP credentials are not configured. Cannot process SNMP " +
+			"detection {}.";
+	public final static String SNMP_FAILED_WITH_EXCEPTION_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was" +
+			" unsuccessful due to an exception. Message: %s";
+	public final static String SNMP_OID_NOT_MATCH_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was successful " +
+			"but the value of the returned OID did not match with the" +
+			" expected result. ";
+	public final static String SUCCESSFUL_SNMP_MESSAGE = "Hostname %s - Successful SNMP Get of %s. Returned result: %s";
+	public final static String SNMP_FAILED_NULL_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to a null result";
+	public final static String SNMP_FAILED_EMPTY_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an empty result.";
+	public final static String SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP Get of %s. Returned result: %s.";
+
 }

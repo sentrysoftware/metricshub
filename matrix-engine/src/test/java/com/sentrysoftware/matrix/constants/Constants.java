@@ -45,6 +45,8 @@ public class Constants {
 	public final static List<List<String>> LIST_ALL_LINUX_PROCESSES_RESULT = List.of(
 			List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
+	public final static String OID = "1.3.6.1.4.1.674.10893.1.20";
+	public static final String EMPTY = "";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -109,7 +111,25 @@ public class Constants {
 	public final static String WINRM = "WinRM";
 	public final static String WBEM_HTTPS = "https/5989";
 	public final static String IPMI = "IPMI";
-
+	public final static String SNMP_VERSION = "2.4.6";
+	public final static String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
+	public final static String EXPECTED_SNMP_RESULT = "CMC";
+	public final static String SNMP_CONFIGURATION_COMMUNITY = "public";
+	public final static String SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE = "Hostname host-win - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. " +
+			"Returned result: CMC DELL";
+	public final static String SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE = "Hostname host-win - SNMP test failed - " +
+			"SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
+			"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.";
+	public final static String SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP Get " +
+			"of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.";
+	public final static String SNMP_GET_EMPTY_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get " +
+			"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.";
+	public final static String SNMP_GET_NULL_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
+			"unsuccessful due to a null result";
+	public final static String SNMP_GET_EXCEPTION_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+			"due to an exception. " +
+			"Message: SNMPGet timeout";
+	public final static String SNMP_GET_TIMEOUT_MESSAGE = "SNMPGet timeout";
 	// Encryption
 
 	public final static String AES = "aes";

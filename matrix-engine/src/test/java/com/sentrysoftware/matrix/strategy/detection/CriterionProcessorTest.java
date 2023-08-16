@@ -6,6 +6,7 @@ import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
 import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
 import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.configuration.SshConfiguration;
 import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
@@ -18,6 +19,7 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterio
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
@@ -43,12 +45,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import static com.sentrysoftware.matrix.constants.Constants.BMC;
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
 import static com.sentrysoftware.matrix.constants.Constants.ERROR;
 import static com.sentrysoftware.matrix.constants.Constants.EXCUTE_WMI_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.EXECUTE_SNMP_GET_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_OS_DETECTION;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
@@ -77,6 +83,7 @@ import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERF
 import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.OID;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.OLD_SOLARIS_VERSION_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.OOB_NULL_RESULT_MESSAGE;
@@ -86,6 +93,15 @@ import static com.sentrysoftware.matrix.constants.Constants.PROCESS_CRITERION_CO
 import static com.sentrysoftware.matrix.constants.Constants.RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SERVICE_NAME_NOT_SPECIFIED_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_CONFIGURATION_COMMUNITY;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EMPTY_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXCEPTION_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NULL_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_TIMEOUT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_OS_DETECTION;
@@ -114,6 +130,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 
 
@@ -132,6 +149,123 @@ class CriterionProcessorTest {
 
 	@Mock
 	private TelemetryManager telemetryManagerMock;
+	private TelemetryManager telemetryManager;
+
+	private void initSNMP() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+				.builder()
+				.community(SNMP_CONFIGURATION_COMMUNITY)
+				.version(SnmpConfiguration.SnmpVersion.V1)
+				.port(161)
+				.timeout(120L)
+				.build();
+
+		telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(HOST_WIN).hostId(HOST_WIN).hostType(DeviceKind.LINUX)
+						.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
+						.build())
+				.build();
+	}
+
+	@Test
+	void testProcessSNMPGetReturnsEmptyResult() {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process((SnmpGetCriterion) null));
+		assertNull(criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build()).getResult());
+	}
+
+	@Test
+	void testProcessSNMPGetExpectedResultMatches() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder()
+				.oid(OID).expectedResult(EXPECTED_SNMP_RESULT).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+						SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE)
+				.result(EXECUTE_SNMP_GET_RESULT)
+				.success(true)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetExpectedResultNotMatches() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+						SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE)
+				.result(EXECUTE_SNMP_GET_RESULT)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetSuccessWithNoExpectedResult() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+						SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE)
+				.result(EXECUTE_SNMP_GET_RESULT)
+				.success(true).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetEmptyResult() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+						SNMP_GET_EMPTY_RESULT_MESSAGE)
+				.result(EMPTY).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNullResult() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(null).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+						SNMP_GET_NULL_RESULT_MESSAGE)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetException() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doThrow(new TimeoutException(SNMP_GET_TIMEOUT_MESSAGE)).when(matsyaClientsExecutorMock).executeSNMPGet(any(),
+				any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_EXCEPTION_MESSAGE)
+				.build();
+		assertEquals(expected, actual);
+	}
 
 	@Test
 	void testProcessProcessProcessNull() {
@@ -380,18 +514,18 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitServiceCheckServiceNull() {
+	void testProcessServiceCheckServiceNull() {
 		final ServiceCriterion serviceCriterion = null;
 		assertTrue(criterionProcessorMock.process(serviceCriterion).getMessage().contains("Malformed Service criterion."));
 	}
 
 	@Test
-	void testVisitServiceCheckServiceNameNull() {
+	void testProcessServiceCheckServiceNameNull() {
 		assertTrue(criterionProcessorMock.process(new ServiceCriterion()).getMessage().contains("Malformed Service criterion."));
 	}
 
 	@Test
-	void testVisitServiceCheckProtocolNull() {
+	void testProcessServiceCheckProtocolNull() {
 		final ServiceCriterion serviceCriterion = new ServiceCriterion();
 		serviceCriterion.setName(TWGIPC);
 
@@ -399,7 +533,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitServiceCheckOsNull() {
+	void testProcessServiceCheckOsNull() {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -427,7 +561,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitServiceCheckOsNotWindows() {
+	void testProcessServiceCheckOsNotWindows() {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -445,7 +579,7 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(WINDOWS)
-	void testVisitServiceCheckServiceNameEmpty() {
+	void testProcessServiceCheckServiceNameEmpty() {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
