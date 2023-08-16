@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
@@ -69,6 +70,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_PROCESS_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SERVICE_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_CRITERION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
@@ -82,6 +84,16 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_CRED
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_EMPTY_RESULT_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_NULL_RESULT_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_WITH_EXCEPTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_CANNOT_EXTRACT_VALUE_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_EXPECTED_RETURNED_VALUES_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_EMPTY_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_NULL_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_OID_NOT_MATCHING_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_OID_NOT_UNDER_SAME_TREE_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_RESULT_REGEX;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_RETURNED_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_SUCCESSFUL_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_OID_NOT_MATCH_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
@@ -781,14 +793,95 @@ public class CriterionProcessor {
 					.build();
 
 		} catch (final Exception e) {
-			final String message = String.format(
-					SNMP_FAILED_WITH_EXCEPTION_MESSAGE,
-					hostname, snmpGetCriterion.getOid(), e.getMessage());
+			final String message = String.format(SNMP_FAILED_WITH_EXCEPTION_MESSAGE, hostname, snmpGetCriterion.getOid(), e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
 	}
 
+
+	/**
+	 * Simply check the value consistency and verify whether the returned OID is
+	 * under the same tree of the requested OID.
+	 *
+	 * @param hostname
+	 * @param oid
+	 * @param result
+	 * @return {@link TestResult} wrapping the message and the success status
+	 */
+	private TestResult checkSNMPGetNextValue(final String hostname, final String oid, final String result) {
+		String message;
+		boolean success = false;
+		if (result == null) {
+			message = String.format(SNMP_GETNEXT_FAILED_NULL_RESULT_MESSAGE, hostname, oid);
+		} else if (result.isBlank()) {
+			message = String.format(SNMP_GETNEXT_FAILED_EMPTY_RESULT_MESSAGE, hostname, oid);
+		} else if (!result.startsWith(oid)) {
+			message = String.format(SNMP_GETNEXT_FAILED_OID_NOT_UNDER_SAME_TREE_MESSAGE, hostname, oid, result.split("\\s")[0]);
+		} else {
+			message = String.format(SNMP_GETNEXT_SUCCESSFUL_MESSAGE, hostname, oid, result);
+			success = true;
+		}
+
+		log.debug(message);
+
+		return TestResult.builder().message(message).success(success).build();
+	}
+
+	/**
+	 * Check if the result matches the expected value
+	 *
+	 * @param hostname
+	 * @param oid
+	 * @param expected
+	 * @param result
+	 * @return {@link TestResult} wrapping the message and the success status
+	 */
+	private TestResult checkSNMPGetNextExpectedValue(final String hostname, final String oid, final String expected,
+													 final String result) {
+		String message;
+		boolean success = true;
+		final Matcher matcher = SNMP_GETNEXT_RESULT_REGEX.matcher(result);
+		if (matcher.find()) {
+			final String value = matcher.group(1);
+			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+			if (!pattern.matcher(value).find()) {
+				message = String.format(SNMP_GETNEXT_FAILED_OID_NOT_MATCHING_MESSAGE, hostname, oid);
+				message += String.format(SNMP_GETNEXT_EXPECTED_RETURNED_VALUES_MESSAGE, expected, value);
+				success = false;
+			} else {
+				message = String.format(SNMP_GETNEXT_SUCCESSFUL_MESSAGE, hostname, oid, result);
+			}
+		} else {
+			message = String.format(SNMP_GETNEXT_CANNOT_EXTRACT_VALUE_MESSAGE, hostname, oid);
+			message += String.format(SNMP_GETNEXT_RETURNED_RESULT_MESSAGE, result);
+			success = false;
+		}
+
+		log.debug(message);
+
+		return TestResult.builder().message(message).success(success).build();
+	}
+
+	/**
+	 * Verify the value returned by SNMP GetNext query. Check the value consistency
+	 * when the expected output is not defined. Otherwise check if the value matches
+	 * the expected regex.
+	 *
+	 * @param hostname
+	 * @param oid
+	 * @param expected
+	 * @param result
+	 * @return {@link TestResult} wrapping the success status and the message
+	 */
+	private TestResult checkSNMPGetNextResult(final String hostname, final String oid, final String expected,
+											  final String result) {
+		if (expected == null) {
+			return checkSNMPGetNextValue(hostname, oid, result);
+		}
+
+		return checkSNMPGetNextExpectedValue(hostname, oid, expected, result);
+	}
 
 	/**
 	 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
@@ -797,8 +890,46 @@ public class CriterionProcessor {
 	 * @return
 	 */
 	CriterionTestResult process(SnmpGetNextCriterion snmpGetNextCriterion) {
-		// TODO
-		return null;
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (snmpGetNextCriterion == null || snmpGetNextCriterion.getOid() == null) {
+			log.error(MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE, hostname, snmpGetNextCriterion);
+			return CriterionTestResult.empty();
+		}
+
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager.getHostConfiguration()
+				.getConfigurations().get(SnmpConfiguration.class);
+
+		if (snmpConfiguration == null) {
+			log.debug(SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE, hostname, snmpGetNextCriterion);
+			return CriterionTestResult.empty();
+		}
+
+		try {
+
+			final String result = matsyaClientsExecutor.executeSNMPGetNext(
+					snmpGetNextCriterion.getOid(),
+					snmpConfiguration,
+					hostname,
+					false);
+
+			final TestResult testResult = checkSNMPGetNextResult(
+					hostname,
+					snmpGetNextCriterion.getOid(),
+					snmpGetNextCriterion.getExpectedResult(),
+					result);
+
+			return CriterionTestResult.builder()
+					.result(result)
+					.success(testResult.isSuccess())
+					.message(testResult.getMessage())
+					.build();
+
+		} catch (final Exception e) {
+			final String message = String.format(SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE, hostname, snmpGetNextCriterion.getOid(), e.getMessage());
+			log.debug(message, e);
+			return CriterionTestResult.builder().message(message).build();
+		}
 	}
 
 	/**

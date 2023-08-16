@@ -20,6 +20,7 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterio
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
@@ -56,6 +57,11 @@ import static com.sentrysoftware.matrix.constants.Constants.EXCUTE_WMI_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.EXECUTE_SNMP_GET_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_OS_DETECTION;
+import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_NULL_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
@@ -98,6 +104,13 @@ import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EMPTY_RESUL
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXCEPTION_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NEXT_CRITERION_VERSION;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NEXT_FIRST_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NEXT_FOURTH_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NEXT_SECOND_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NEXT_THIRD_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NEXT_TIMEOUT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_NULL_RESULT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_GET_TIMEOUT_MESSAGE;
@@ -105,6 +118,8 @@ import static com.sentrysoftware.matrix.constants.Constants.SNMP_VERSION;
 import static com.sentrysoftware.matrix.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_OS_DETECTION;
+import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.SUDO_KEYWORD;
 import static com.sentrysoftware.matrix.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.TEST;
@@ -166,6 +181,130 @@ class CriterionProcessorTest {
 						.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
 						.build())
 				.build();
+	}
+
+	@Test
+	void testProcessSNMPGetNextException() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doThrow(new TimeoutException(SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE)).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(),
+				any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(
+						SNMP_GET_NEXT_TIMEOUT_MESSAGE)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextNullResult() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(null).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_NULL_MESSAGE).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextEmptyResult() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE).result(EMPTY).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextNotSameSubTreeOID() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(SNMP_GET_NEXT_FIRST_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE)
+				.result(SNMP_GET_NEXT_FIRST_RESULT).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextSuccessWithNoExpectedResult() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE)
+				.result(SNMP_GET_NEXT_SECOND_RESULT)
+				.success(true).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextExpectedResultNotMatches() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID)
+				.expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE)
+				.result(SNMP_GET_NEXT_SECOND_RESULT)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextExpectedResultMatches() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(SNMP_GET_NEXT_THIRD_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID)
+				.expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE)
+				.result(SNMP_GET_NEXT_THIRD_RESULT)
+				.success(true)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextExpectedResultCannotExtract() throws Exception {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(SNMP_GET_NEXT_FOURTH_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessorMock.process(SnmpGetNextCriterion.builder()
+				.oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION)
+				.build());
+		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE)
+				.result(SNMP_GET_NEXT_FOURTH_RESULT)
+				.build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessSNMPGetNextReturnsEmptyResult() {
+
+		initSNMP();
+
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process((SnmpGetNextCriterion) null));
+		assertEquals(CriterionTestResult.empty(), criterionProcessorMock.process((SnmpGetNextCriterion) null));
+		assertNull(criterionProcessorMock.process(SnmpGetNextCriterion.builder().oid(OID).build()).getResult());
 	}
 
 	@Test
