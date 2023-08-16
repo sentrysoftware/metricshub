@@ -14,5 +14,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class MappingResource {
 	private String type;
+	@Builder.Default
 	private Map<String, String> attributes = new HashMap<>();
 }
