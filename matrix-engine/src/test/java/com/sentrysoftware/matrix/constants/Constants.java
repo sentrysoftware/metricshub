@@ -30,6 +30,8 @@ public class Constants {
 	public final static String WMI_QUERY_EMPTY_VALUE_MESSAGE = "WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" " +
 			"returned empty value.";
 	public final static String WBEM_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
+	public final static String WEBM_CRITERION_SUCCESS_EXPECTED_RESULT = "^Some Res[aeiouy]lt";
+	public final static String WEBM_CRITERION_FAILURE_EXPECTED_RESULT = "^S Res[aeiouy]lt";
 	public final static String WMI_NAMESPACE = "root\\cimv2";
 	public final static String RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "One or more currently running processes match the following regular expression:\n- " +
 			"Regexp (should match with the command-line): MBM[5-9]\\.exe";
@@ -42,6 +44,12 @@ public class Constants {
 			List.of("0", "System Idle Process", "0", ""),
 			List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
 			List.of("10564", "eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
+	public final static List<List<String>> EXCUTE_WBEM_RESULT = List.of(
+			List.of("some result"));
+	public final static String WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE = "WbemCriterion test ran but failed";
+	public final static String WBEM_MALFORMED_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection";
+	public final static String WBEM_CRITERION_NO_RESULT_MESSAGE = "No result.";
+	public final static String WBEM_CREDENTIALS_NOT_CONFIGURED = "The WBEM credentials are not configured for this host.";
 	public final static List<List<String>> LIST_ALL_LINUX_PROCESSES_RESULT = List.of(
 			List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));

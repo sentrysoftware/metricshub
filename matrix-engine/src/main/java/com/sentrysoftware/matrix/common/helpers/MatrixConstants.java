@@ -97,5 +97,6 @@ public class MatrixConstants {
 	public final static String SNMP_FAILED_NULL_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to a null result";
 	public final static String SNMP_FAILED_EMPTY_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an empty result.";
 	public final static String SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP Get of %s. Returned result: %s.";
+	public static final String AUTOMATIC_NAMESPACE = "automatic";
 
 }

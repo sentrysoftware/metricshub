@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
@@ -8,6 +9,7 @@ import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
 import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.configuration.SshConfiguration;
+import com.sentrysoftware.matrix.configuration.WbemConfiguration;
 import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
@@ -20,12 +22,14 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterio
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterion;
 import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
+import com.sentrysoftware.matrix.telemetry.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -52,6 +56,7 @@ import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_NT_MES
 import static com.sentrysoftware.matrix.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
 import static com.sentrysoftware.matrix.constants.Constants.ERROR;
+import static com.sentrysoftware.matrix.constants.Constants.EXCUTE_WBEM_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.EXCUTE_WMI_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.EXECUTE_SNMP_GET_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_RESULT;
@@ -114,7 +119,13 @@ import static com.sentrysoftware.matrix.constants.Constants.UNKNOWN_SOLARIS_VERS
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_NINE;
 import static com.sentrysoftware.matrix.constants.Constants.VALID_SOLARIS_VERSION_TEN;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_CREDENTIALS_NOT_CONFIGURED;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_CRITERION_NO_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_MALFORMED_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.WBEM_QUERY;
+import static com.sentrysoftware.matrix.constants.Constants.WEBM_CRITERION_FAILURE_EXPECTED_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.WMI_NAMESPACE;
 import static com.sentrysoftware.matrix.constants.Constants.WMI_QUERY_EMPTY_VALUE_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -142,14 +153,92 @@ class CriterionProcessorTest {
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
-	@Mock
+	@InjectMocks
 	private WqlDetectionHelper wqlDetectionHelperMock;
 	@InjectMocks
 	private CriterionProcessor criterionProcessorMock;
 
 	@Mock
 	private TelemetryManager telemetryManagerMock;
+
+	@Mock
+	private SourceTable sourceTableMock;
 	private TelemetryManager telemetryManager;
+	private WbemConfiguration wbemConfiguration;
+
+	private void initWbem() {
+		wbemConfiguration = WbemConfiguration.builder().build();
+		telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX)
+						.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+						.build())
+				.build();
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+	}
+
+	@Test
+	public void testProcessWbemCriterionSuccess() throws Exception {
+		initWbem();
+		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
+		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+
+		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		assertTrue(result.isSuccess());
+	}
+
+	@Test
+	public void testProcessWbemCriterionActualResultIsNotExpectedResult() throws Exception {
+		initWbem();
+		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
+		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT).build();
+		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		assertFalse(result.isSuccess());
+		assertTrue(result.getMessage().contains(WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE));
+	}
+
+	@Test
+	public void testProcessWbemCriterionMalformedCriterion() throws Exception {
+		CriterionTestResult result = criterionProcessorMock.process((WbemCriterion) null);
+		assertFalse(result.isSuccess());
+		assertTrue(result.getMessage().contains(WBEM_MALFORMED_CRITERION_MESSAGE));
+	}
+
+	@Test
+	public void testProcessWbemEmptyQueryResult() throws Exception {
+		initWbem();
+		doReturn(List.of()).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
+		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+
+		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		assertFalse(result.isSuccess());
+		assertTrue(result.getResult().equals(WBEM_CRITERION_NO_RESULT_MESSAGE));
+	}
+
+	@Test
+	public void testProcessWbemCriterionWithNullWbemConfiguration() throws Exception {
+		wbemConfiguration = null;
+		telemetryManager = TelemetryManager.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).configurations(Map.of())
+						.build())
+				.build();
+		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+
+		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		assertFalse(result.isSuccess());
+		assertTrue(result.getMessage().contains(WBEM_CREDENTIALS_NOT_CONFIGURED));
+	}
+
+	@Test
+	public void testProcessWbemCriterionWithMatsyaException() throws Exception {
+		initWbem();
+		doThrow(MatsyaException.class).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
+		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		assertFalse(result.isSuccess());
+		assertTrue(result.getException() instanceof MatsyaException);
+	}
 
 	private void initSNMP() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
