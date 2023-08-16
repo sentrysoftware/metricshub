@@ -675,7 +675,7 @@ public class CriterionProcessor {
 		if (result == null) {
 			message = String.format(SNMP_FAILED_NULL_RESULT_MESSAGE,
 					hostname, oid);
-		} else if (result.trim().isEmpty()) {
+		} else if (result.isBlank()) {
 			message = String.format(SNMP_FAILED_EMPTY_RESULT_MESSAGE,
 					hostname, oid);
 		} else {
@@ -746,7 +746,7 @@ public class CriterionProcessor {
 	 */
 	CriterionTestResult process(SnmpGetCriterion snmpGetCriterion) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-		if (null == snmpGetCriterion || snmpGetCriterion.getOid() == null) {
+		if (snmpGetCriterion == null || snmpGetCriterion.getOid() == null) {
 			log.error(MALFORMED_SNMP_GET_CRITERION_MESSAGE, hostname, snmpGetCriterion);
 			return CriterionTestResult.empty();
 		}
