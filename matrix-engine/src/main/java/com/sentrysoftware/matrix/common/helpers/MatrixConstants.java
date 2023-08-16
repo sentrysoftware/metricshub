@@ -3,6 +3,8 @@ package com.sentrysoftware.matrix.common.helpers;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.regex.Pattern;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MatrixConstants {
 
@@ -97,5 +99,23 @@ public class MatrixConstants {
 	public final static String SNMP_FAILED_NULL_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to a null result";
 	public final static String SNMP_FAILED_EMPTY_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an empty result.";
 	public final static String SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP Get of %s. Returned result: %s.";
+	public final static Pattern SNMP_GETNEXT_RESULT_REGEX = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
+	public final static String MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE = "Hostname {} - Malformed SNMP GetNext criterion {}. " +
+			"Cannot process SNMP GetNext detection.";
+	public final static String SNMP_GETNEXT_FAILED_NULL_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to a null" +
+			" result.";
+	public final static String SNMP_GETNEXT_FAILED_EMPTY_RESULT_MESSAGE = "Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an " +
+			"empty result.";
+	public final static String SNMP_GETNEXT_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.";
 
+	public final static String SNMP_GETNEXT_FAILED_OID_NOT_UNDER_SAME_TREE_MESSAGE = "Hostname %s - SNMP test failed - SNMP GetNext of %s was successful " +
+			"but the returned OID is not under the same tree. Returned OID: %s.";
+	public final static String SNMP_GETNEXT_FAILED_OID_NOT_MATCHING_MESSAGE = "Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but " +
+			"the value of the returned OID did not match with the expected result. ";
+	public final static String SNMP_GETNEXT_EXPECTED_RETURNED_VALUES_MESSAGE = "Expected value: %s - returned value %s.";
+	public final static String SNMP_GETNEXT_CANNOT_EXTRACT_VALUE_MESSAGE = "Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the " +
+			"value cannot be extracted. ";
+	public final static String SNMP_GETNEXT_RETURNED_RESULT_MESSAGE = "Returned result: %s.";
+	public final static String SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE = "Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful " +
+			"due to an exception. Message: %s";
 }

@@ -130,6 +130,35 @@ public class Constants {
 			"due to an exception. " +
 			"Message: SNMPGet timeout";
 	public final static String SNMP_GET_TIMEOUT_MESSAGE = "SNMPGet timeout";
+	public static final String SNMP_GET_NEXT_FIRST_RESULT = "1.3.6.1.4.1.674.99999.1.20.1 ASN_INTEGER 1";
+	public static final String SNMP_GET_NEXT_SECOND_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1";
+	public static final String SNMP_GET_NEXT_THIRD_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6";
+	public static final String SNMP_GET_NEXT_FOURTH_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
+	public static final String SNMP_GET_NEXT_CRITERION_VERSION = "2.4.6";
+	public static final String SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE = "SNMPGetNext timeout";
+	public static final String SNMP_GET_NEXT_TIMEOUT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+			"was unsuccessful due to an exception. " +
+			"Message: SNMPGetNext timeout";
+	public static final String FAILED_SNMP_GET_NEXT_NULL_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
+			"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+			"due to a null result.";
+	public static final String FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+			"was unsuccessful due to an empty result.";
+	public static final String FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE = "Hostname host-win - SNMP test failed - SNMP " +
+			"GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the returned OID is" +
+			" not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.";
+	public static final String SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP GetNext of " +
+			"1.3.6.1.4.1.674.10893.1.20. Returned result: " +
+			"1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.";
+	public static final String FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE = "Hostname host-win - SNMP test failed - " +
+			"SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of " +
+			"the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.";
+	public static final String SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP GetNext of " +
+			"1.3.6.1.4.1.674.10893.1.20. " +
+			"Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.";
+	public static final String FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
+			"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
+			"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
 	// Encryption
 
 	public final static String AES = "aes";
