@@ -196,9 +196,9 @@ class CriterionProcessorTest {
 	public void testProcessWbemCriterionSuccess() throws Exception {
 		initWbem();
 		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
 
-		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		final CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
 		assertTrue(result.isSuccess());
 	}
 
@@ -206,15 +206,15 @@ class CriterionProcessorTest {
 	public void testProcessWbemCriterionActualResultIsNotExpectedResult() throws Exception {
 		initWbem();
 		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT).build();
-		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT).build();
+		final CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getMessage().contains(WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE));
 	}
 
 	@Test
 	public void testProcessWbemCriterionMalformedCriterion() throws Exception {
-		CriterionTestResult result = criterionProcessorMock.process((WbemCriterion) null);
+		final CriterionTestResult result = criterionProcessorMock.process((WbemCriterion) null);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getMessage().contains(WBEM_MALFORMED_CRITERION_MESSAGE));
 	}
@@ -223,9 +223,9 @@ class CriterionProcessorTest {
 	public void testProcessWbemEmptyQueryResult() throws Exception {
 		initWbem();
 		doReturn(List.of()).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
 
-		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		final CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getResult().equals(WBEM_CRITERION_NO_RESULT_MESSAGE));
 	}
@@ -238,9 +238,9 @@ class CriterionProcessorTest {
 						.build())
 				.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
 
-		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		final CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getMessage().contains(WBEM_CREDENTIALS_NOT_CONFIGURED));
 	}
@@ -249,8 +249,8 @@ class CriterionProcessorTest {
 	public void testProcessWbemCriterionWithMatsyaException() throws Exception {
 		initWbem();
 		doThrow(MatsyaException.class).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
-		CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
+		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final CriterionTestResult result = criterionProcessorMock.process(wbemCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getException() instanceof MatsyaException);
 	}
