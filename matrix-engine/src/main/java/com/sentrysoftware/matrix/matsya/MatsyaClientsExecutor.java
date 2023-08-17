@@ -467,7 +467,7 @@ public class MatsyaClientsExecutor {
 	 * <p>
 	 *
 	 * @param hostname    Hostname
-	 * @param protoConfig The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
+	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
 	 * @param query       WQL query to execute
 	 * @param namespace   The namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
@@ -476,17 +476,17 @@ public class MatsyaClientsExecutor {
 	 */
 	public List<List<String>> executeWql(
 			final String hostname,
-			final IConfiguration protoConfig,
+			final IConfiguration configuration,
 			final String query,
 			final String namespace
 	) throws MatsyaException {
 
-		if (protoConfig instanceof WbemConfiguration) {
-			return executeWbem(hostname, (WbemConfiguration) protoConfig, query, namespace);
-		} else if (protoConfig instanceof WmiConfiguration) {
-			return executeWmi(hostname, (WmiConfiguration) protoConfig, query, namespace);
-		} else if (protoConfig instanceof WinRmConfiguration) {
-			return executeWqlThroughWinRm(hostname, (WinRmConfiguration) protoConfig, query, namespace);
+		if (configuration instanceof WbemConfiguration) {
+			return executeWbem(hostname, (WbemConfiguration) configuration, query, namespace);
+		} else if (configuration instanceof WmiConfiguration) {
+			return executeWmi(hostname, (WmiConfiguration) configuration, query, namespace);
+		} else if (configuration instanceof WinRmConfiguration) {
+			return executeWqlThroughWinRm(hostname, (WinRmConfiguration) configuration, query, namespace);
 		}
 
 		throw new IllegalStateException("WQL queries can be executed only in WBEM, WMI and WinRM protocols.");
