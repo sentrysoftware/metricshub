@@ -72,6 +72,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SERVICE_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_WMI_CRITERION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
@@ -942,7 +943,7 @@ public class CriterionProcessor {
 	CriterionTestResult process(WmiCriterion wmiCriterion) {
 		// Sanity check
 		if (wmiCriterion == null || wmiCriterion.getQuery() == null) {
-			return CriterionTestResult.error(wmiCriterion, "Malformed criterion. Cannot perform detection.");
+			return CriterionTestResult.error(wmiCriterion, MALFORMED_WMI_CRITERION_MESSAGE);
 		}
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
