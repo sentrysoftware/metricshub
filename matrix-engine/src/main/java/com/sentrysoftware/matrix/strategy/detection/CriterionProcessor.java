@@ -49,6 +49,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_NAMESPACE;
@@ -936,11 +937,107 @@ public class CriterionProcessor {
 	 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
 	 * @param wmiCriterion
-	 * @return
+	 * @return CriterionTestResult instance
 	 */
 	CriterionTestResult process(WmiCriterion wmiCriterion) {
-		// TODO
-		return null;
+		// Sanity check
+		if (wmiCriterion == null || wmiCriterion.getQuery() == null) {
+			return CriterionTestResult.error(wmiCriterion, "Malformed criterion. Cannot perform detection.");
+		}
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		// Find the configured protocol (WinRM or WMI)
+		final IWinConfiguration winConfiguration = telemetryManager.getWinConfiguration();
+
+		if (winConfiguration == null) {
+			return CriterionTestResult.error(wmiCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
+		}
+
+		// If namespace is specified as "Automatic"
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wmiCriterion.getNamespace())) {
+
+			final String cachedNamespace = telemetryManager
+					.getHostProperties()
+					.getConnectorNamespaces()
+					.get(wmiCriterion.getNamespace())
+					.getAutomaticWmiNamespace();
+
+			// If not detected already, find the namespace
+			if (cachedNamespace == null) {
+				return findNamespace(hostname, winConfiguration, wmiCriterion);
+			}
+
+			// Update the criterion with the cached namespace
+			WqlCriterion cachedNamespaceCriterion = wmiCriterion.copy();
+			cachedNamespaceCriterion.setNamespace(cachedNamespace);
+
+			// Run the test
+			return wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, cachedNamespaceCriterion);
+		}
+
+		// Run the test
+		return wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, wmiCriterion);
+	}
+
+	/**
+	 * Find the namespace to use for the execution of the given {@link WqlCriterion}.
+	 *
+	 * @param hostname         The hostname of the device
+	 * @param winConfiguration The Win protocol configuration (credentials, etc.)
+	 * @param wqlCriterion     The WQL criterion with an "Automatic" namespace
+	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
+	 */
+	CriterionTestResult findNamespace(final String hostname, final IWinConfiguration winConfiguration, final WqlCriterion wqlCriterion) {
+
+		// Get the list of possible namespaces on this host
+		Set<String> possibleWmiNamespaces = telemetryManager.getHostProperties().getPossibleWmiNamespaces();
+
+		// Only one thread at a time must be figuring out the possible namespaces on a given host
+		synchronized (possibleWmiNamespaces) {
+
+			if (possibleWmiNamespaces.isEmpty()) {
+
+				// If we don't have this list already, figure it out now
+				final WqlDetectionHelper.PossibleNamespacesResult possibleWmiNamespacesResult =
+						wqlDetectionHelper.findPossibleNamespaces(hostname, winConfiguration);
+
+				// If we can't detect the namespace then we must stop
+				if (!possibleWmiNamespacesResult.isSuccess()) {
+					return CriterionTestResult.error(wqlCriterion, possibleWmiNamespacesResult.getErrorMessage());
+				}
+
+				// Store the list of possible namespaces in HostMonitoring, for next time we need it
+				possibleWmiNamespaces.clear();
+				possibleWmiNamespaces.addAll(possibleWmiNamespacesResult.getPossibleNamespaces());
+
+			}
+		}
+
+		// Perform a namespace detection
+		WqlDetectionHelper.NamespaceResult namespaceResult =
+				wqlDetectionHelper.detectNamespace(hostname, winConfiguration, wqlCriterion, Collections.unmodifiableSet(possibleWmiNamespaces));
+
+		// If that was successful, remember it in HostMonitoring, so we don't perform this
+		// (costly) detection again
+		if (namespaceResult.getResult().isSuccess()) {
+			if (wqlCriterion instanceof WmiCriterion) {
+				telemetryManager
+						.getHostProperties()
+						.getConnectorNamespaces()
+						.get(namespaceResult.getNamespace())
+						.setAutomaticWmiNamespace(namespaceResult.getNamespace());
+			} else {
+				telemetryManager
+						.getHostProperties()
+						.getConnectorNamespaces()
+						.get(namespaceResult.getNamespace())
+						.setAutomaticWbemNamespace(namespaceResult.getNamespace());
+			}
+
+		}
+
+		return namespaceResult.getResult();
 	}
 
 	/**

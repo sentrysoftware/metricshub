@@ -47,6 +47,7 @@ public class Constants {
 			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
 	public final static String OID = "1.3.6.1.4.1.674.10893.1.20";
 	public static final String EMPTY = "";
+	public static final String AUTOMATIC = "Automatic";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -159,6 +160,14 @@ public class Constants {
 	public static final String FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
 			"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
 			"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
+	public final static List<List<String>> EXCUTE_WBEM_RESULT = List.of(
+			List.of("some result"));
+	public final static String WEBM_CRITERION_FAILURE_EXPECTED_RESULT = "^S Res[aeiouy]lt";
+	public final static String WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE = "WmiCriterion test ran but failed";
+	public final static String WEBM_CRITERION_SUCCESS_EXPECTED_RESULT = "^Some Res[aeiouy]lt";
+	public final static String WBEM_MALFORMED_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection";
+	public final static String WBEM_CRITERION_NO_RESULT_MESSAGE = "No result.";
+	public final static String WMI_CREDENTIALS_NOT_CONFIGURED = "Neither WMI nor WinRM credentials are configured for this host.";
 	// Encryption
 
 	public final static String AES = "aes";

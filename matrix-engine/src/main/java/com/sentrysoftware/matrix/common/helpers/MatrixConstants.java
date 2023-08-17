@@ -118,4 +118,5 @@ public class MatrixConstants {
 	public final static String SNMP_GETNEXT_RETURNED_RESULT_MESSAGE = "Returned result: %s.";
 	public final static String SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE = "Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful " +
 			"due to an exception. Message: %s";
+	public final static String AUTOMATIC_NAMESPACE = "automatic";
 }
