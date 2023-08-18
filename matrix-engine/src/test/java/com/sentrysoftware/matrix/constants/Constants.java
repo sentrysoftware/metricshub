@@ -55,6 +55,8 @@ public class Constants {
 			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
 	public final static String OID = "1.3.6.1.4.1.674.10893.1.20";
 	public static final String EMPTY = "";
+	public final static String ROOT = "root";
+	public static final String AUTOMATIC = "Automatic";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -167,6 +169,27 @@ public class Constants {
 	public static final String FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
 			"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
 			"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
+	public static final String CRITERION_WMI_NAMESPACE = "root\\cimv2";
+	public static final String WMI_EXCEPTION_OTHER_MESSAGE = "other";
+
+	public static final String WMI_EXCEPTION_WBEM_E_NOT_FOUND_MESSAGE = "WBEM_E_NOT_FOUND";
+	public static final String WMI_EXCEPTION_WBEM_E_INVALID_NAMESPACE_MESSAGE = "WBEM_E_INVALID_NAMESPACE";
+	public static final String WMI_EXCEPTION_WBEM_E_INVALID_CLASS_MESSAGE = "WBEM_E_INVALID_CLASS";
+	public final static String EXCUTE_WBEM_RESULT_ELEMENT = "some result";
+	public final static String RESULT_MESSAGE_SHOULD_CONTAIN_RESULT = "Result message must contain the query result";
+	public final static String WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE = "WmiCriterion test ran but failed";
+	public final static String TIMEOUT_EXCEPTION = "TimeoutException";
+	public final static String WMI_COM_EXCEPTION_MESSAGE = "WBEM_E_INVALID_NAMESPACE";
+	public final static String WEBM_CRITERION_NOT_MATCHING_EXPECTED_RESULT = "^Some Res[^aeiouy]lt";
+	public final static String WMI_CREDENTIALS_NOT_CONFIGURED = "Neither WMI nor WinRM credentials are configured for this host.";
+	public final static String FORCED_NAMESPACE = "forced";
+	public final static String WBEM_NAMESPACE_TIMEOUT_MESSAGE = "very long";
+	public final static String WBEM_NAMESPACE_TIMEOUT_ERROR_MESSAGE = "Error message must contain the cause of the problem";
+	public final static String MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE = "no response";
+	public final static String FIRST_NAMESPACE = "namespace1";
+	public final static String SECOND_NAMESPACE = "namespace2";
+	public final static String INTEROP_NAMESPACE = "interop";
+
 	// Encryption
 
 	public final static String AES = "aes";
