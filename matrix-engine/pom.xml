@@ -289,7 +289,6 @@
 								<manifest>
 									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-									<mainClass>com.sentrysoftware.matrix.common.helpers.VersionHelper</mainClass>
 								</manifest>
 								<manifestSections>
 									<manifestSection>

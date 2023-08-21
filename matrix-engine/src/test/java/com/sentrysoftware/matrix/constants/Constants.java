@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.constants;
 
+import java.util.List;
+
 public class Constants {
 
 	// Global constants
@@ -8,7 +10,6 @@ public class Constants {
 	public static final String PASSWORD = "testPassword";
 	public static final String WBEM_NAMESPACE = "testWbemNamespace";
 	public static final String WINRM_NAMESPACE = "testWinRmNamespace";
-	public static final String WMI_NAMESPACE = "testWmiNamespace";
 	public static final String WBEM_VCENTER = "testWbemVCenter";
 	public static final byte[] BMC_KEY = new byte[]{0x06, 0x66};
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
@@ -21,6 +22,41 @@ public class Constants {
 	public final static String IPMI_FAILURE_MESSAGE = "No result";
 	public static final String HTTP_GET = "GET";
 	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
+	public final static String NO_TEST_WILL_BE_PERFORMED_MESSAGE = "Process presence check: No test will be performed.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE = "Process presence check: OS unknown, no test will be performed.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE = "Process presence check: No tests will be performed for OS: aix.";
+	public final static String NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE = "Process presence check: No test will be performed remotely.";
+	public final static String PROCESS_CRITERION_COMMAND_LINE = "MBM[5-9]\\.exe";
+	public final static String WMI_QUERY_EMPTY_VALUE_MESSAGE = "WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" " +
+			"returned empty value.";
+	public final static String WBEM_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
+	public final static String WEBM_CRITERION_SUCCESS_EXPECTED_RESULT = "^Some Res[aeiouy]lt";
+	public final static String WEBM_CRITERION_FAILURE_EXPECTED_RESULT = "^S Res[aeiouy]lt";
+	public final static String WMI_NAMESPACE = "root\\cimv2";
+	public final static String RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "One or more currently running processes match the following regular expression:\n- " +
+			"Regexp (should match with the command-line): MBM[5-9]\\.exe";
+	public final static String NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "No currently running processes match the following regular expression:\n" +
+			"- Regexp (should match with the command-line): MBM[5-9]\\.exe\n" +
+			"- Currently running process list:\n" +
+			"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
+			"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"";
+	public final static List<List<String>> EXCUTE_WMI_RESULT = List.of(
+			List.of("0", "System Idle Process", "0", ""),
+			List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
+			List.of("10564", "eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
+	public final static List<List<String>> EXCUTE_WBEM_RESULT = List.of(
+			List.of("some result"));
+	public final static String WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE = "WbemCriterion test ran but failed";
+	public final static String WBEM_MALFORMED_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection";
+	public final static String WBEM_CRITERION_NO_RESULT_MESSAGE = "No result.";
+	public final static String WBEM_CREDENTIALS_NOT_CONFIGURED = "The WBEM credentials are not configured for this host.";
+	public final static List<List<String>> LIST_ALL_LINUX_PROCESSES_RESULT = List.of(
+			List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
+			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
+	public final static String OID = "1.3.6.1.4.1.674.10893.1.20";
+	public static final String EMPTY = "";
+	public final static String ROOT = "root";
+	public static final String AUTOMATIC = "Automatic";
 
 	// Yaml test file name
 	public final static String YAML_TEST_FILE_NAME = "AAC";
@@ -66,6 +102,8 @@ public class Constants {
 	public static final String BMC = "bmc";
 	public static final String LIPMI = "lipmi";
 	public static final String LINUX_BUILD_IPMI_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info";
+	public static final String TWGIPC = "TWGIPC";
+	public static final String SERVICE_NAME_NOT_SPECIFIED_MESSAGE = "Service name is not specified";
 
 	// Exception messages
 
@@ -83,6 +121,74 @@ public class Constants {
 	public final static String WINRM = "WinRM";
 	public final static String WBEM_HTTPS = "https/5989";
 	public final static String IPMI = "IPMI";
+	public final static String SNMP_VERSION = "2.4.6";
+	public final static String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
+	public final static String EXPECTED_SNMP_RESULT = "CMC";
+	public final static String SNMP_CONFIGURATION_COMMUNITY = "public";
+	public final static String SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE = "Hostname host-win - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. " +
+			"Returned result: CMC DELL";
+	public final static String SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE = "Hostname host-win - SNMP test failed - " +
+			"SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
+			"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.";
+	public final static String SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP Get " +
+			"of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.";
+	public final static String SNMP_GET_EMPTY_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get " +
+			"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.";
+	public final static String SNMP_GET_NULL_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
+			"unsuccessful due to a null result";
+	public final static String SNMP_GET_EXCEPTION_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+			"due to an exception. " +
+			"Message: SNMPGet timeout";
+	public final static String SNMP_GET_TIMEOUT_MESSAGE = "SNMPGet timeout";
+	public static final String SNMP_GET_NEXT_FIRST_RESULT = "1.3.6.1.4.1.674.99999.1.20.1 ASN_INTEGER 1";
+	public static final String SNMP_GET_NEXT_SECOND_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1";
+	public static final String SNMP_GET_NEXT_THIRD_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6";
+	public static final String SNMP_GET_NEXT_FOURTH_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
+	public static final String SNMP_GET_NEXT_CRITERION_VERSION = "2.4.6";
+	public static final String SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE = "SNMPGetNext timeout";
+	public static final String SNMP_GET_NEXT_TIMEOUT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+			"was unsuccessful due to an exception. " +
+			"Message: SNMPGetNext timeout";
+	public static final String FAILED_SNMP_GET_NEXT_NULL_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
+			"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+			"due to a null result.";
+	public static final String FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+			"was unsuccessful due to an empty result.";
+	public static final String FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE = "Hostname host-win - SNMP test failed - SNMP " +
+			"GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the returned OID is" +
+			" not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.";
+	public static final String SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP GetNext of " +
+			"1.3.6.1.4.1.674.10893.1.20. Returned result: " +
+			"1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.";
+	public static final String FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE = "Hostname host-win - SNMP test failed - " +
+			"SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of " +
+			"the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.";
+	public static final String SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP GetNext of " +
+			"1.3.6.1.4.1.674.10893.1.20. " +
+			"Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.";
+	public static final String FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
+			"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
+			"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
+	public static final String CRITERION_WMI_NAMESPACE = "root\\cimv2";
+	public static final String WMI_EXCEPTION_OTHER_MESSAGE = "other";
+
+	public static final String WMI_EXCEPTION_WBEM_E_NOT_FOUND_MESSAGE = "WBEM_E_NOT_FOUND";
+	public static final String WMI_EXCEPTION_WBEM_E_INVALID_NAMESPACE_MESSAGE = "WBEM_E_INVALID_NAMESPACE";
+	public static final String WMI_EXCEPTION_WBEM_E_INVALID_CLASS_MESSAGE = "WBEM_E_INVALID_CLASS";
+	public final static String EXCUTE_WBEM_RESULT_ELEMENT = "some result";
+	public final static String RESULT_MESSAGE_SHOULD_CONTAIN_RESULT = "Result message must contain the query result";
+	public final static String WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE = "WmiCriterion test ran but failed";
+	public final static String TIMEOUT_EXCEPTION = "TimeoutException";
+	public final static String WMI_COM_EXCEPTION_MESSAGE = "WBEM_E_INVALID_NAMESPACE";
+	public final static String WEBM_CRITERION_NOT_MATCHING_EXPECTED_RESULT = "^Some Res[^aeiouy]lt";
+	public final static String WMI_CREDENTIALS_NOT_CONFIGURED = "Neither WMI nor WinRM credentials are configured for this host.";
+	public final static String FORCED_NAMESPACE = "forced";
+	public final static String WBEM_NAMESPACE_TIMEOUT_MESSAGE = "very long";
+	public final static String WBEM_NAMESPACE_TIMEOUT_ERROR_MESSAGE = "Error message must contain the cause of the problem";
+	public final static String MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE = "no response";
+	public final static String FIRST_NAMESPACE = "namespace1";
+	public final static String SECOND_NAMESPACE = "namespace2";
+	public final static String INTEROP_NAMESPACE = "interop";
 
 	// Encryption
 
@@ -119,4 +225,6 @@ public class Constants {
 	// Version Number
 	public final static String LOW_VERSION_NUMBER = "0.0.1";
 	public final static String HIGH_VERSION_NUMBER = "1000.0.1";
+	public static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
+	public static final String HOST_OS_IS_NOT_WINDOWS_MESSAGE = "Host OS is not Windows";
 }
