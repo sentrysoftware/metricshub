@@ -221,6 +221,10 @@ public class Constants {
 	public final static String FAILED_OS_DETECTION = "Failed OS detection operation";
 	public final static String CONFIGURED_OS_NT_MESSAGE = "Configured OS type : NETWORK";
 	public final static String CONFIGURED_OS_SOLARIS_MESSAGE = "Configured OS type : SOLARIS";
+
+	// Version Number
+	public final static String LOW_VERSION_NUMBER = "0.0.1";
+	public final static String HIGH_VERSION_NUMBER = "1000.0.1";
 	public static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
 	public static final String HOST_OS_IS_NOT_WINDOWS_MESSAGE = "Host OS is not Windows";
 }

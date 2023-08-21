@@ -20,6 +20,7 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCr
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
@@ -68,6 +69,7 @@ import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE;
 import static com.sentrysoftware.matrix.constants.Constants.FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE;
+import static com.sentrysoftware.matrix.constants.Constants.HIGH_VERSION_NUMBER;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_LINUX;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
@@ -86,6 +88,7 @@ import static com.sentrysoftware.matrix.constants.Constants.LINUX_BUILD_IPMI_COM
 import static com.sentrysoftware.matrix.constants.Constants.LIPMI;
 import static com.sentrysoftware.matrix.constants.Constants.LIST_ALL_LINUX_PROCESSES_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
+import static com.sentrysoftware.matrix.constants.Constants.LOW_VERSION_NUMBER;
 import static com.sentrysoftware.matrix.constants.Constants.MANAGEMENT_CARD_HOST;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.NEITHER_WMI_NOR_WINRM_ERROR;
@@ -161,7 +164,6 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
-
 
 /**
  * This is a test for {@link CriterionProcessor}
@@ -1481,6 +1483,51 @@ class CriterionProcessorTest {
 				.builder()
 				.message(OOB_NULL_RESULT_MESSAGE)
 				.build().getMessage(), criterionProcessorMock.process(new IpmiCriterion()).getMessage());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionNullTest() {
+		final ProductRequirementsCriterion productRequirementsCriterion = null;
+
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionNullVersionTest() {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.build();
+
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionEmptyVersionTest() {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.engineVersion("")
+				.build();
+
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionOKTest() {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.engineVersion(LOW_VERSION_NUMBER)
+				.build();
+		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
+	}
+
+	@Test
+	void ProductRequirementsCriterionProcessCriterionNOKTest() {
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
+				.builder()
+				.engineVersion(HIGH_VERSION_NUMBER) // We will need to update the test once we reach matrix-engine version 1000
+				.build();
+
+		assertFalse(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
 
 	private void initWmi() {

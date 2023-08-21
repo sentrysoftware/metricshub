@@ -4,6 +4,7 @@ import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.IpmiCommandForSolarisException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.VersionHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IWinConfiguration;
@@ -581,15 +582,30 @@ public class CriterionProcessor {
 		return localOSVisitor.getCriterionTestResult();
 	}
 
+	public static void main(String[] args) {
+
+	}
+
 	/**
-	 * Process the given {@link ProductRequirementsCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link ProductRequirementsCriterion} and return the {@link CriterionTestResult}
 	 *
 	 * @param productRequirementsCriterion
 	 * @return
 	 */
 	CriterionTestResult process(ProductRequirementsCriterion productRequirementsCriterion) {
-		// TODO
-		return null;
+		// If there is no requirement, then no check is needed
+		if (productRequirementsCriterion == null
+				|| productRequirementsCriterion.getEngineVersion() == null
+				|| productRequirementsCriterion.getEngineVersion().isBlank()) {
+			return CriterionTestResult.builder().success(true).build();
+		}
+
+		return CriterionTestResult.builder()
+				.success(
+						VersionHelper.isVersionLessThanOtherVersion(
+								productRequirementsCriterion.getEngineVersion(),
+								VersionHelper.getClassVersion()))
+				.build();
 	}
 
 	/**

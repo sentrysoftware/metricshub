@@ -60,6 +60,10 @@ public class MatrixConstants {
 			"command returned: ";
 	public static final String BMC = "bmc";
 	public static final String LIPMI = "lipmi";
+	public static final String VERSION_REGEX_DELIMITER = "\\.";
+	public static final String VERSION_REGEX_REPLACEMENT = "[^\\d\\.]";
+	public static final String ENGINE_PROPERTIES_FILE_NAME = "engine.properties";
+	public static final String ENGINE_VERSION_PROPERTY = "engine.version";
 	public static final String MALFORMED_SERVICE_CRITERION_MESSAGE = "Malformed Service criterion.";
 	public static final String SERVICE_NAME_NOT_SPECIFIED = "Service name is not specified. Skipping this test.";
 	public static final String HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE = "Host OS is not Windows. Skipping this test.";
