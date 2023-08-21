@@ -1,70 +1,39 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import java.net.URL;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IMPLEMENTATION_TITLE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IMPLEMENTATION_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MANIFEST_FILE_PATH;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MATRIX_ENGINE;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_PROPERTIES_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_VERSION_PROPERTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERSION_REGEX_DELIMITER;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERSION_REGEX_REPLACEMENT;
 
 @Slf4j
 public class VersionHelper {
 
-	private VersionHelper() {}
+	private VersionHelper() {
+	}
 
 	/**
-	 * Returns the JAR implementation version for the specified class.
-	 * @param pClass Any {@link Class} in the JAR we want to know the version.
-	 * @return The version of the JAR (extracted from the MANIFEST) or <code>null</code> if not available.
+	 * Returns the project version
+	 *
+	 * @return The current version of matrix engine module (which is equal to the project version)
 	 */
-	public static String getClassVersion(Class<?> pClass) {
-		if (null == pClass) {
-			return null;
-		}
-		String version = null;
-
+	public static String getClassVersion() {
+		final ClassPathResource resource = new ClassPathResource(ENGINE_PROPERTIES_FILE_NAME);
+		final Properties properties = new Properties();
 		try {
-
-			String path = pClass.getProtectionDomain().getCodeSource().getLocation().getPath();
-			URL vClassUrl = ClassLoader.getSystemResource(path);
-
-			if (null == vClassUrl) {
-				return null;
-			}
-
-			String vClassUri = vClassUrl.toString();
-			if (!vClassUri.startsWith("jar:")) {
-				return null;
-			}
-
-			int vSeparatorIndex = vClassUri.lastIndexOf('!');
-			if (vSeparatorIndex <= 0) {
-				return null;
-			}
-
-			String vManifestUri = vClassUri.substring(0, vSeparatorIndex + 2) + MANIFEST_FILE_PATH;
-			URL vUrl = new URL(vManifestUri);
-			Manifest manifest = new Manifest(vUrl.openStream());
-			Attributes attribute = manifest.getMainAttributes();
-			if (attribute != null && MATRIX_ENGINE.equalsIgnoreCase(attribute.getValue(IMPLEMENTATION_TITLE))) {
-				version = attribute.getValue(IMPLEMENTATION_VERSION);
-			}
-
-		} catch (Throwable vEx) {
-			if (log.isWarnEnabled()) {
-				log.warn("getClassVersion", vEx, "Cannot retrieve JAR manifest");
-			}
-			return null;
-
+			final InputStream inputStream = resource.getInputStream();
+			properties.load(inputStream);
+			inputStream.close();
+		} catch (IOException ioException) {
+			log.error(ioException.getMessage(), ioException);
 		}
-
-		return version;
+		return properties.getProperty(ENGINE_VERSION_PROPERTY);
 	}
 
 	/**
@@ -73,8 +42,7 @@ public class VersionHelper {
 	 * @param version
 	 * @param otherVersion
 	 * @return <code>true</code> if <code>version</code> is less than
-	 *         <code>otherVersion</code> otherwise <code>false</code>
-	 * 
+	 * <code>otherVersion</code> otherwise <code>false</code>
 	 */
 	public static boolean isVersionLessThanOtherVersion(String version, String otherVersion) {
 
@@ -87,8 +55,7 @@ public class VersionHelper {
 	 * @param version1
 	 * @param version2
 	 * @return 0 if both versions are the equal, -1 if <code>version1</code> is less
-	 *         than <code>version2</code>
-	 * 
+	 * than <code>version2</code>
 	 */
 	public static int compareVersions(String version1, String version2) {
 
@@ -118,7 +85,6 @@ public class VersionHelper {
 	 *
 	 * @param version
 	 * @return normalized version
-	 * 
 	 */
 	private static String normalizeVersion(final String version) {
 

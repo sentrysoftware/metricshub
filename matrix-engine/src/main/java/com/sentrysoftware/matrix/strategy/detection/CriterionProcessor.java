@@ -39,12 +39,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.test.TestResult;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
@@ -498,6 +506,10 @@ public class CriterionProcessor {
 		return null;
 	}
 
+	public static void main(String[] args) {
+
+	}
+
 	/**
 	 * Process the given {@link ProductRequirementsCriterion} and return the {@link CriterionTestResult}
 	 *
@@ -516,7 +528,7 @@ public class CriterionProcessor {
 				.success(
 						VersionHelper.isVersionLessThanOtherVersion(
 								productRequirementsCriterion.getEngineVersion(),
-								VersionHelper.getClassVersion(getClass())))
+								VersionHelper.getClassVersion()))
 				.build();
 	}
 

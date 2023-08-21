@@ -60,9 +60,7 @@ public class MatrixConstants {
 	public static final String LIPMI = "lipmi";
 	public static final String VERSION_REGEX_DELIMITER = "\\.";
 	public static final String VERSION_REGEX_REPLACEMENT = "[^\\d\\.]";
-	public static final String MANIFEST_FILE_PATH = "META-INF/MANIFEST.MF";
-	public static final String MATRIX_ENGINE = "matrix engine";
-	public static final String IMPLEMENTATION_TITLE = "Implementation-Title";
-	public static final String IMPLEMENTATION_VERSION = "Implementation-Version";
+	public static final String ENGINE_PROPERTIES_FILE_NAME = "engine.properties";
+	public static final String ENGINE_VERSION_PROPERTY = "engine.version";
 
 }

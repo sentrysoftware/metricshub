@@ -759,14 +759,14 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionNullTest() throws Exception {
+	void ProductRequirementsCriterionProcessCriterionNullTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = null;
 
 		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionNullVersionTest() throws Exception {
+	void ProductRequirementsCriterionProcessCriterionNullVersionTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 				.builder()
 				.build();
@@ -775,7 +775,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionEmptyVersionTest() throws Exception {
+	void ProductRequirementsCriterionProcessCriterionEmptyVersionTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 				.builder()
 				.engineVersion("")
@@ -785,17 +785,16 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionOKTest() throws Exception {
+	void ProductRequirementsCriterionProcessCriterionOKTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 				.builder()
 				.engineVersion(LOW_VERSION_NUMBER)
 				.build();
-
 		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionNOKTest() throws Exception {
+	void ProductRequirementsCriterionProcessCriterionNOKTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 				.builder()
 				.engineVersion(HIGH_VERSION_NUMBER) // We will need to update the test once we reach matrix-engine version 1000
