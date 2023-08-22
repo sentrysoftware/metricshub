@@ -26,10 +26,10 @@ public class HttpConfiguration implements IConfiguration {
 	@Override
 	public String toString() {
 		return String.format(
-				"%s/%d%s",
-				https ? "HTTPS" : "HTTP",
-				port,
-				username != null ? " as " + username : ""
+			"%s/%d%s",
+			Boolean.TRUE.equals(https) ? "HTTPS" : "HTTP",
+			port,
+			username != null ? " as " + username : ""
 		);
 	}
 }

@@ -22,6 +22,11 @@ public class ConnectorTestResult {
 	@Default
 	private List<CriterionTestResult> criterionTestResults = new ArrayList<>();
 
+	/**
+	 * Whether the connector's criteria are successfully executed or not
+	 * 
+	 * @return boolean value
+	 */
 	public boolean isSuccess() {
 		return !criterionTestResults.isEmpty() && criterionTestResults.stream().allMatch(CriterionTestResult::isSuccess);
 	}

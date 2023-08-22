@@ -49,19 +49,19 @@ public class HttpMacrosUpdater {
 
 		// Replace provided macros which don't need processing
 		String updatedContent = text
-				.replace(USERNAME_MACRO, username)
-				.replace(HOSTNAME_MACRO, hostname)
-				.replace(PASSWORD_MACRO, passwordAsString)
-				.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken);
+			.replace(USERNAME_MACRO, username)
+			.replace(HOSTNAME_MACRO, hostname)
+			.replace(PASSWORD_MACRO, passwordAsString)
+			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken);
 
 		// Encode the password into a base64 string
 		// then replace the macro with the resulting value
 		if (updatedContent.indexOf(PASSWORD_BASE64_MACRO) != -1) {
 			updatedContent = updatedContent
-					.replace(
-							PASSWORD_BASE64_MACRO,
-							Base64.getEncoder().encodeToString(passwordAsString.getBytes())
-					);
+				.replace(
+					PASSWORD_BASE64_MACRO,
+					Base64.getEncoder().encodeToString(passwordAsString.getBytes())
+				);
 		}
 
 		// Join the username and password with a colon `username:password`
@@ -69,24 +69,22 @@ public class HttpMacrosUpdater {
 		// then replace the macro with the resulting value
 		if (updatedContent.indexOf(BASIC_AUTH_BASE64_MACRO) != -1) {
 			updatedContent = updatedContent
-					.replace(
-							BASIC_AUTH_BASE64_MACRO,
-							Base64
-									.getEncoder()
-									.encodeToString(
-											String.format("%s:%s", username, passwordAsString).getBytes()
-									)
-					);
+				.replace(
+					BASIC_AUTH_BASE64_MACRO,
+					Base64.getEncoder().encodeToString(
+						String.format("%s:%s", username, passwordAsString).getBytes()
+					)
+				);
 		}
 
 		// Encode the authentication token into SHA256 string
 		// then replace the macro with the resulting value
 		if (updatedContent.indexOf(SHA256_AUTH_MACRO) != -1) {
 			updatedContent = updatedContent
-					.replace(
-							SHA256_AUTH_MACRO,
-							encodeSha256(authenticationToken)
-					);
+				.replace(
+					SHA256_AUTH_MACRO,
+					encodeSha256(authenticationToken)
+				);
 		}
 
 		return updatedContent;

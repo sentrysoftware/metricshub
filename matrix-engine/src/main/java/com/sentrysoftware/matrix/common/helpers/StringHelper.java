@@ -60,16 +60,16 @@ public class StringHelper {
 		}
 
 		return new StringBuilder(throwable.getClass().getSimpleName())
-				.append(": ")
-				.append(throwable.getMessage())
-				.append("\n")
-				.append(Stream
-						.iterate(throwable, Objects::nonNull, Throwable::getCause)
-						.filter(th -> th != throwable)
-						.map(th -> String.format("Caused by %s: %s", th.getClass().getSimpleName(), th.getMessage()))
-						.collect(Collectors.joining("\n"))
-				)
-				.toString();
+			.append(": ")
+			.append(throwable.getMessage())
+			.append("\n")
+			.append(Stream
+					.iterate(throwable, Objects::nonNull, Throwable::getCause)
+					.filter(th -> th != throwable)
+					.map(th -> String.format("Caused by %s: %s", th.getClass().getSimpleName(), th.getMessage()))
+					.collect(Collectors.joining("\n"))
+			)
+			.toString();
 
 	}
 
@@ -89,11 +89,11 @@ public class StringHelper {
 		}
 
 		return headers
-				.entrySet()
-				.stream()
-				.map(entry -> String.format("%s: %s", entry.getKey(), entry.getValue()))
-				.sorted()
-				.collect(Collectors.joining("\n"));
+			.entrySet()
+			.stream()
+			.map(entry -> String.format("%s: %s", entry.getKey(), entry.getValue()))
+			.sorted()
+			.collect(Collectors.joining("\n"));
 	}
 
 	/**

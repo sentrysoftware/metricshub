@@ -1,5 +1,17 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.*;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.IpmiCommandForSolarisException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
@@ -23,7 +35,6 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.OsCommandCri
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterion;
@@ -36,82 +47,11 @@ import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_QUERY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY_PROCESS_COMMAND_LINE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.END_OF_IPMI_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FAILED_OS_DETECTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_DETECTION_FAILURE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_SOLARIS_VERSION_NOT_IDENTIFIED;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LIPMI;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_PROCESS_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SERVICE_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_WMI_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OLD_SOLARIS_VERSION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI_INTERFACE_DRIVER;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.REMOTE_PROCESS_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.RUNNING;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SERVICE_NAME_NOT_SPECIFIED;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_EMPTY_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_NULL_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_WITH_EXCEPTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_CANNOT_EXTRACT_VALUE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_EXPECTED_RETURNED_VALUES_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_EMPTY_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_NULL_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_OID_NOT_MATCHING_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_OID_NOT_UNDER_SAME_TREE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_RESULT_REGEX;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_RETURNED_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_SUCCESSFUL_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_OID_NOT_MATCH_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_SNMP_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNKNOWN_LOCAL_OS_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM_CREDENTIALS_NOT_CONFIGURED_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM_MALFORMED_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_NOT_RUNNING_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_RUNNING_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
 @Slf4j
 @Data
@@ -126,7 +66,11 @@ public class CriterionProcessor {
 
 	private WqlDetectionHelper wqlDetectionHelper;
 
-	public CriterionProcessor(MatsyaClientsExecutor matsyaClientsExecutor, TelemetryManager telemetryManager, String connectorName) {
+	public CriterionProcessor(
+		MatsyaClientsExecutor matsyaClientsExecutor,
+		TelemetryManager telemetryManager,
+		String connectorName
+	) {
 		this.matsyaClientsExecutor = matsyaClientsExecutor;
 		this.telemetryManager = telemetryManager;
 		this.connectorName = connectorName;
@@ -137,9 +81,9 @@ public class CriterionProcessor {
 	 * Process the given {@link DeviceTypeCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
 	 * @param deviceTypeCriterion
-	 * @return
+	 * @return new {@link CriterionTestResult} instance
 	 */
-	CriterionTestResult process(DeviceTypeCriterion deviceTypeCriterion) {
+	public CriterionTestResult process(DeviceTypeCriterion deviceTypeCriterion) {
 
 		if (deviceTypeCriterion == null) {
 			log.error(MALFORMED_CRITERION_MESSAGE,
@@ -152,19 +96,19 @@ public class CriterionProcessor {
 		if (DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Arrays.asList(DeviceKind.SOLARIS, DeviceKind.SOLARIS), deviceTypeCriterion)
 				|| !DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion)) {
 			return CriterionTestResult
-					.builder()
-					.message(FAILED_OS_DETECTION_MESSAGE)
-					.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
-					.success(false)
-					.build();
+				.builder()
+				.message(FAILED_OS_DETECTION_MESSAGE)
+				.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
+				.success(false)
+				.build();
 		}
 
 		return CriterionTestResult
-				.builder()
-				.message(SUCCESSFUL_OS_DETECTION_MESSAGE)
-				.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
-				.success(true)
-				.build();
+			.builder()
+			.message(SUCCESSFUL_OS_DETECTION_MESSAGE)
+			.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
+			.success(true)
+			.build();
 	}
 
 	/**
@@ -172,7 +116,7 @@ public class CriterionProcessor {
 	 *
 	 * @param deviceKindList
 	 * @param deviceTypeCriterion
-	 * @return
+	 * @return new {@link CriterionTestResult} instance
 	 */
 	public boolean isDeviceKindIncluded(final List<DeviceKind> deviceKindList, final DeviceTypeCriterion deviceTypeCriterion) {
 
@@ -195,9 +139,9 @@ public class CriterionProcessor {
 	 * Process the given {@link HttpCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
 	 * @param httpCriterion
-	 * @return
+	 * @return new {@link CriterionTestResult} instance
 	 */
-	CriterionTestResult process(HttpCriterion httpCriterion) {
+	public CriterionTestResult process(HttpCriterion httpCriterion) {
 
 		if (httpCriterion == null) {
 			return CriterionTestResult.empty();
@@ -213,8 +157,8 @@ public class CriterionProcessor {
 		final String hostname = hostConfiguration.getHostname();
 
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) hostConfiguration
-				.getConfigurations()
-				.get(HttpConfiguration.class);
+			.getConfigurations()
+			.get(HttpConfiguration.class);
 
 		if (httpConfiguration == null) {
 			log.debug("Hostname {} - The HTTP credentials are not configured for this host. Cannot process HTTP detection {}.",
@@ -224,18 +168,18 @@ public class CriterionProcessor {
 		}
 
 		final String result = matsyaClientsExecutor.executeHttp(
-				HttpRequest
-						.builder()
-						.hostname(hostname)
-						.method(httpCriterion.getMethod().toString())
-						.url(httpCriterion.getUrl())
-						.header(new StringHeader(httpCriterion.getHeader()))
-						.body(new StringBody(httpCriterion.getBody()))
-						.httpConfiguration(httpConfiguration)
-						.resultContent(httpCriterion.getResultContent())
-						.authenticationToken(httpCriterion.getAuthenticationToken())
-						.build(),
-				false
+			HttpRequest
+				.builder()
+				.hostname(hostname)
+				.method(httpCriterion.getMethod().toString())
+				.url(httpCriterion.getUrl())
+				.header(new StringHeader(httpCriterion.getHeader()))
+				.body(new StringBody(httpCriterion.getBody()))
+				.httpConfiguration(httpConfiguration)
+				.resultContent(httpCriterion.getResultContent())
+				.authenticationToken(httpCriterion.getAuthenticationToken())
+				.build(),
+			false
 		);
 
 		return checkHttpResult(hostname, result, httpCriterion.getExpectedResult());
@@ -247,7 +191,7 @@ public class CriterionProcessor {
 	 * @param ipmiCriterion
 	 * @return CriterionTestResult instance
 	 */
-	CriterionTestResult process(IpmiCriterion ipmiCriterion) {
+	public CriterionTestResult process(IpmiCriterion ipmiCriterion) {
 		final DeviceKind hostType = telemetryManager.getHostConfiguration().getHostType();
 
 		if (DeviceKind.WINDOWS.equals(hostType)) {
@@ -258,19 +202,24 @@ public class CriterionProcessor {
 			return processOutOfBandIpmiDetection();
 		}
 
-		return CriterionTestResult.builder()
-				.message(String.format(IPMI_DETECTION_FAILURE_MESSAGE,
-						telemetryManager.getHostConfiguration().getHostname(),
-						hostType.name()))
-				.success(false)
-				.build();
+		return CriterionTestResult
+			.builder()
+			.message(
+				String.format(
+					IPMI_DETECTION_FAILURE_MESSAGE,
+					telemetryManager.getHostConfiguration().getHostname(),
+					hostType.name()
+				)
+			)
+			.success(false)
+			.build();
 	}
 
 	/**
 	 * Process IPMI detection for the Windows (NT) system
 	 *
 	 * @param ipmiCriterion instance of IpmiCriterion
-	 * @return CriterionTestResult instance
+	 * @return new {@link CriterionTestResult} instance
 	 */
 	private CriterionTestResult processWindowsIpmiDetection(final IpmiCriterion ipmiCriterion) {
 
@@ -284,10 +233,10 @@ public class CriterionProcessor {
 		}
 
 		WmiCriterion ipmiWmiCriterion = WmiCriterion
-				.builder()
-				.query(WMI_QUERY)
-				.namespace(WMI_NAMESPACE)
-				.build();
+			.builder()
+			.query(WMI_QUERY)
+			.namespace(WMI_NAMESPACE)
+			.build();
 
 		return wqlDetectionHelper.performDetectionTest(hostname, configuration, ipmiWmiCriterion);
 	}
@@ -296,13 +245,15 @@ public class CriterionProcessor {
 	 * Process IPMI detection for the Unix system
 	 *
 	 * @param hostType
-	 * @return CriterionTestResult instance
+	 * @return new {@link CriterionTestResult} instance
 	 */
 	private CriterionTestResult processUnixIpmiDetection(final DeviceKind hostType) {
 		String ipmitoolCommand = telemetryManager.getHostProperties().getIpmitoolCommand();
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
-				.getHostConfiguration().getConfigurations().get(SshConfiguration.class);
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SshConfiguration.class);
 
 		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
 		final OsCommandConfiguration osCommandConfiguration = telemetryManager.getHostProperties().isLocalhost()
@@ -314,6 +265,7 @@ public class CriterionProcessor {
 			log.warn(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
+
 		final int defaultTimeout = osCommandConfiguration.getTimeout().intValue();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
 			ipmitoolCommand = buildIpmiCommand(hostType, hostname, sshConfiguration, osCommandConfiguration, defaultTimeout);
@@ -323,25 +275,37 @@ public class CriterionProcessor {
 		if (!ipmitoolCommand.startsWith("PATH=")) {
 			return CriterionTestResult.builder().success(false).result("").message(ipmitoolCommand).build();
 		}
+
 		// execute the command
 		try {
 			String result = null;
 			result = runOsCommand(ipmitoolCommand, hostname, sshConfiguration, defaultTimeout);
 			if (result != null && !result.contains(IPMI_VERSION)) {
 				// Didn't find what we expected: exit
-				return CriterionTestResult.builder().success(false).result(result)
-						.message("Did not get the expected result from the IPMI tool command: " + ipmitoolCommand).build();
+				return CriterionTestResult
+					.builder()
+					.success(false)
+					.result(result)
+					.message("Did not get the expected result from the IPMI tool command: " + ipmitoolCommand)
+					.build();
 			} else {
 				// everything goes well
 				telemetryManager.getHostProperties().setIpmiExecutionCount(telemetryManager.getHostProperties().getIpmiExecutionCount() + 1);
-				return CriterionTestResult.builder().success(true).result(result)
-						.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.")
-						.build();
+				return CriterionTestResult
+					.builder()
+					.success(true)
+					.result(result)
+					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.")
+					.build();
 			}
 
-		} catch (final Exception e) {
-			final String message = String.format("Hostname %s - Cannot execute the IPMI tool command %s. Exception: %s.",
-					hostname, ipmitoolCommand, e.getMessage());
+		} catch (final Exception e) { // NOSONAR on intterruption
+			final String message = String.format(
+				"Hostname %s - Cannot execute the IPMI tool command %s. Exception: %s.",
+				hostname,
+				ipmitoolCommand,
+				e.getMessage()
+			);
 			log.debug(message, e);
 			return CriterionTestResult.builder().success(false).message(message).build();
 		}
@@ -355,8 +319,10 @@ public class CriterionProcessor {
 	 */
 	private CriterionTestResult processOutOfBandIpmiDetection() {
 
-		final IpmiConfiguration configuration = (IpmiConfiguration) telemetryManager.getHostConfiguration()
-				.getConfigurations().get(IpmiConfiguration.class);
+		final IpmiConfiguration configuration = (IpmiConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(IpmiConfiguration.class);
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
@@ -369,26 +335,28 @@ public class CriterionProcessor {
 			final String result = matsyaClientsExecutor.executeIpmiDetection(hostname, configuration);
 			if (result == null) {
 				return CriterionTestResult
-						.builder()
-						.message("Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.")
-						.build();
+					.builder()
+					.message("Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.")
+					.build();
 			}
 
 			return CriterionTestResult
-					.builder()
-					.result(result)
-					.message("Successfully connected to the IPMI BMC chip with the IPMI-over-LAN interface.")
-					.success(true)
-					.build();
+				.builder()
+				.result(result)
+				.message("Successfully connected to the IPMI BMC chip with the IPMI-over-LAN interface.")
+				.success(true)
+				.build();
 
-		} catch (final Exception e) {
-			final String message = String.format("Hostname %s - Cannot execute IPMI-over-LAN command to get the chassis status. Exception: %s",
-					hostname, e.getMessage());
+		} catch (final Exception e) { // NOSONAR on intterruption
+			final String message = String.format(
+				"Hostname %s - Cannot execute IPMI-over-LAN command to get the chassis status. Exception: %s",
+				hostname, e.getMessage()
+			);
 			log.debug(message, e);
 			return CriterionTestResult
-					.builder()
-					.message(message)
-					.build();
+				.builder()
+				.message(message)
+				.build();
 		}
 	}
 
@@ -424,7 +392,7 @@ public class CriterionProcessor {
 				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
 				// (Solaris)
 				solarisOsVersion = runOsCommand(SOLARIS_VERSION_COMMAND, hostname, sshConfiguration, defaultTimeout);
-			} catch (final Exception e) {
+			} catch (final Exception e) { // NOSONAR on intterruption
 				final String message = String.format(IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
 						hostname, ipmitoolCommand, e.getMessage());
 				log.debug(message, e);
@@ -435,8 +403,12 @@ public class CriterionProcessor {
 				try {
 					ipmitoolCommand = getIpmiCommandForSolaris(ipmitoolCommand, hostname, solarisOsVersion);
 				} catch (final IpmiCommandForSolarisException e) {
-					final String message = String.format(IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
-							hostname, ipmitoolCommand, e.getMessage());
+					final String message = String.format(
+						IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
+						hostname,
+						ipmitoolCommand,
+						e.getMessage()
+					);
 					log.debug(message, e);
 					return message;
 				}
@@ -467,9 +439,12 @@ public class CriterionProcessor {
 			throws IpmiCommandForSolarisException {
 		final String[] split = solarisOsVersion.split("\\.");
 		if (split.length < 2) {
-			throw new IpmiCommandForSolarisException(String.format(
+			throw new IpmiCommandForSolarisException(
+				String.format(
 					"Unknown Solaris version (%s) for host: %s IPMI cannot be executed. Returning an empty result.",
-					solarisOsVersion, hostname));
+					solarisOsVersion, hostname
+				)
+			);
 		}
 
 		final String solarisVersion = split[1];
@@ -489,8 +464,9 @@ public class CriterionProcessor {
 				ipmitoolCommand = ipmitoolCommand + BMC;
 			}
 		} catch (final NumberFormatException e) {
-			throw new IpmiCommandForSolarisException(SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN
-					+ solarisOsVersion + ".");
+			throw new IpmiCommandForSolarisException(
+				SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN + solarisOsVersion + "."
+			);
 		}
 
 		return ipmitoolCommand;
@@ -503,7 +479,7 @@ public class CriterionProcessor {
 	 * @param hostname
 	 * @param sshConfiguration
 	 * @param timeout
-	 * @return
+	 * @return Command execution output
 	 * @throws InterruptedException
 	 * @throws IOException
 	 * @throws TimeoutException
@@ -514,10 +490,12 @@ public class CriterionProcessor {
 			final String ipmitoolCommand,
 			final String hostname,
 			final SshConfiguration sshConfiguration,
-			final int timeout) throws InterruptedException, IOException, TimeoutException, MatsyaException, ControlledSshException {
+			final int timeout
+	) throws InterruptedException, IOException, TimeoutException, MatsyaException, ControlledSshException {
+
 		return telemetryManager.getHostProperties().isLocalhost() ? // or we can use NetworkHelper.isLocalhost(hostname)
-				OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) :
-				OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
+			OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) :
+			OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
 	}
 
 	/**
@@ -526,8 +504,7 @@ public class CriterionProcessor {
 	 * @param osCommandCriterion
 	 * @return
 	 */
-	CriterionTestResult process(OsCommandCriterion osCommandCriterion) {
-		// TODO
+	public CriterionTestResult process(OsCommandCriterion osCommandCriterion) {
 		return null;
 	}
 
@@ -537,10 +514,10 @@ public class CriterionProcessor {
 	 * @param processCriterion
 	 * @return CriterionTestResult instance
 	 */
-	CriterionTestResult process(ProcessCriterion processCriterion) {
+	public CriterionTestResult process(ProcessCriterion processCriterion) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		if (processCriterion == null || processCriterion.getCommandLine() == null) {
+		if (processCriterion == null) {
 			log.error(MALFORMED_PROCESS_CRITERION_MESSAGE, hostname, processCriterion);
 			return CriterionTestResult.empty();
 		}
@@ -548,51 +525,48 @@ public class CriterionProcessor {
 		if (processCriterion.getCommandLine().isEmpty()) {
 			log.debug(EMPTY_PROCESS_COMMAND_LINE_MESSAGE, hostname);
 			return CriterionTestResult.builder()
-					.success(true)
-					.message(NO_TEST_WILL_BE_PERFORMED_MESSAGE)
-					.result(null)
-					.build();
+				.success(true)
+				.message(NO_TEST_WILL_BE_PERFORMED_MESSAGE)
+				.result(null)
+				.build();
 		}
 
 		if (!telemetryManager.getHostProperties().isLocalhost()) {
 			log.debug(REMOTE_PROCESS_MESSAGE, hostname);
 			return CriterionTestResult.builder()
-					.success(true)
-					.message(NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE)
-					.result(null)
-					.build();
+				.success(true)
+				.message(NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE)
+				.result(null)
+				.build();
 		}
 
 		final Optional<LocalOsHandler.ILocalOs> maybeLocalOS = LocalOsHandler.getOs();
 		if (maybeLocalOS.isEmpty()) {
 			log.debug(UNKNOWN_LOCAL_OS_MESSAGE, hostname);
 			return CriterionTestResult.builder()
-					.success(true)
-					.message(NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE)
-					.result(null)
-					.build();
+				.success(true)
+				.message(NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE)
+				.result(null)
+				.build();
 		}
 
 		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
-				processCriterion.getCommandLine(),
-				wqlDetectionHelper,
-				hostname
+			processCriterion.getCommandLine(),
+			wqlDetectionHelper,
+			hostname
 		);
+
 		maybeLocalOS.get().accept(localOSVisitor);
 		return localOSVisitor.getCriterionTestResult();
-	}
-
-	public static void main(String[] args) {
-
 	}
 
 	/**
 	 * Process the given {@link ProductRequirementsCriterion} and return the {@link CriterionTestResult}
 	 *
 	 * @param productRequirementsCriterion
-	 * @return
+	 * @return {@link CriterionTestResult} instance
 	 */
-	CriterionTestResult process(ProductRequirementsCriterion productRequirementsCriterion) {
+	public CriterionTestResult process(ProductRequirementsCriterion productRequirementsCriterion) {
 		// If there is no requirement, then no check is needed
 		if (productRequirementsCriterion == null
 				|| productRequirementsCriterion.getEngineVersion() == null
@@ -601,22 +575,24 @@ public class CriterionProcessor {
 		}
 
 		return CriterionTestResult.builder()
-				.success(
-						VersionHelper.isVersionLessThanOtherVersion(
-								productRequirementsCriterion.getEngineVersion(),
-								VersionHelper.getClassVersion()))
-				.build();
+			.success(
+				VersionHelper.isVersionLessThanOtherVersion(
+					productRequirementsCriterion.getEngineVersion(),
+					VersionHelper.getClassVersion()
+				)
+			)
+			.build();
 	}
 
 	/**
 	 * Process the given {@link ServiceCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
 	 * @param serviceCriterion
-	 * @return
+	 * @return {@link CriterionTestResult} instance
 	 */
-	CriterionTestResult process(ServiceCriterion serviceCriterion) {
+	public CriterionTestResult process(ServiceCriterion serviceCriterion) {
 		// Sanity checks
-		if (serviceCriterion == null || serviceCriterion.getName() == null) {
+		if (serviceCriterion == null) {
 			return CriterionTestResult.error(serviceCriterion, MALFORMED_SERVICE_CRITERION_MESSAGE);
 		}
 
@@ -648,10 +624,10 @@ public class CriterionProcessor {
 
 		// Build a new WMI criterion to check the service existence
 		WmiCriterion serviceWmiCriterion = WmiCriterion
-				.builder()
-				.query(String.format(CRITERION_WMI_QUERY, serviceName))
-				.namespace(CRITERION_WMI_NAMESPACE)
-				.build();
+			.builder()
+			.query(String.format(CRITERION_WMI_QUERY, serviceName))
+			.namespace(CRITERION_WMI_NAMESPACE)
+			.build();
 
 		// Perform this WMI test
 		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, serviceWmiCriterion);
@@ -669,20 +645,9 @@ public class CriterionProcessor {
 
 		// We're here: no good!
 		return CriterionTestResult.failure(
-				serviceWmiCriterion,
-				String.format(WINDOWS_IS_NOT_RUNNING_MESSAGE, serviceName, result) //NOSONAR
+			serviceWmiCriterion,
+			String.format(WINDOWS_IS_NOT_RUNNING_MESSAGE, serviceName, result) //NOSONAR
 		);
-	}
-
-	/**
-	 * Process the given {@link SnmpCriterion} through Matsya and return the {@link CriterionTestResult}
-	 *
-	 * @param snmpCriterion
-	 * @return
-	 */
-	CriterionTestResult process(SnmpCriterion snmpCriterion) {
-		// TODO
-		return null;
 	}
 
 	@Data
@@ -756,9 +721,7 @@ public class CriterionProcessor {
 
 		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 		if (result == null || !pattern.matcher(result).find()) {
-			message = String.format(
-					SNMP_OID_NOT_MATCH_MESSAGE,
-					hostname, oid);
+			message = String.format(SNMP_OID_NOT_MATCH_MESSAGE, hostname, oid);
 			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
 		} else {
 			message = String.format(SUCCESSFUL_SNMP_MESSAGE, hostname, oid, result);
@@ -777,9 +740,9 @@ public class CriterionProcessor {
 	 * @param snmpGetCriterion
 	 * @return SnmpCriterion instance
 	 */
-	CriterionTestResult process(SnmpGetCriterion snmpGetCriterion) {
+	public CriterionTestResult process(SnmpGetCriterion snmpGetCriterion) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-		if (snmpGetCriterion == null || snmpGetCriterion.getOid() == null) {
+		if (snmpGetCriterion == null) {
 			log.error(MALFORMED_SNMP_GET_CRITERION_MESSAGE, hostname, snmpGetCriterion);
 			return CriterionTestResult.empty();
 		}
@@ -795,25 +758,27 @@ public class CriterionProcessor {
 		try {
 
 			final String result = matsyaClientsExecutor.executeSNMPGet(
-					snmpGetCriterion.getOid(),
-					protocol,
-					hostname,
-					false);
+				snmpGetCriterion.getOid(),
+				protocol,
+				hostname,
+				false
+			);
 
 			final TestResult testResult = checkSNMPGetResult(
-					hostname,
-					snmpGetCriterion.getOid(),
-					snmpGetCriterion.getExpectedResult(),
-					result);
+				hostname,
+				snmpGetCriterion.getOid(),
+				snmpGetCriterion.getExpectedResult(),
+				result
+			);
 
 			return CriterionTestResult
-					.builder()
-					.result(result)
-					.success(testResult.isSuccess())
-					.message(testResult.getMessage())
-					.build();
+				.builder()
+				.result(result)
+				.success(testResult.isSuccess())
+				.message(testResult.getMessage())
+				.build();
 
-		} catch (final Exception e) {
+		} catch (final Exception e) { // NOSONAR on intterruption
 			final String message = String.format(SNMP_FAILED_WITH_EXCEPTION_MESSAGE, hostname, snmpGetCriterion.getOid(), e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
@@ -910,10 +875,10 @@ public class CriterionProcessor {
 	 * @param snmpGetNextCriterion
 	 * @return
 	 */
-	CriterionTestResult process(SnmpGetNextCriterion snmpGetNextCriterion) {
+	public CriterionTestResult process(SnmpGetNextCriterion snmpGetNextCriterion) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		if (snmpGetNextCriterion == null || snmpGetNextCriterion.getOid() == null) {
+		if (snmpGetNextCriterion == null) {
 			log.error(MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE, hostname, snmpGetNextCriterion);
 			return CriterionTestResult.empty();
 		}
@@ -929,24 +894,26 @@ public class CriterionProcessor {
 		try {
 
 			final String result = matsyaClientsExecutor.executeSNMPGetNext(
-					snmpGetNextCriterion.getOid(),
-					snmpConfiguration,
-					hostname,
-					false);
+				snmpGetNextCriterion.getOid(),
+				snmpConfiguration,
+				hostname,
+				false
+			);
 
 			final TestResult testResult = checkSNMPGetNextResult(
-					hostname,
-					snmpGetNextCriterion.getOid(),
-					snmpGetNextCriterion.getExpectedResult(),
-					result);
+				hostname,
+				snmpGetNextCriterion.getOid(),
+				snmpGetNextCriterion.getExpectedResult(),
+				result
+			);
 
 			return CriterionTestResult.builder()
-					.result(result)
-					.success(testResult.isSuccess())
-					.message(testResult.getMessage())
-					.build();
+				.result(result)
+				.success(testResult.isSuccess())
+				.message(testResult.getMessage())
+				.build();
 
-		} catch (final Exception e) {
+		} catch (final Exception e) { // NOSONAR on intterruption
 			final String message = String.format(SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE, hostname, snmpGetNextCriterion.getOid(), e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
@@ -959,9 +926,9 @@ public class CriterionProcessor {
 	 * @param wmiCriterion
 	 * @return CriterionTestResult instance
 	 */
-	CriterionTestResult process(WmiCriterion wmiCriterion) {
+	public CriterionTestResult process(WmiCriterion wmiCriterion) {
 		// Sanity check
-		if (wmiCriterion == null || wmiCriterion.getQuery() == null) {
+		if (wmiCriterion == null) {
 			return CriterionTestResult.error(wmiCriterion, MALFORMED_WMI_CRITERION_MESSAGE);
 		}
 
@@ -978,10 +945,10 @@ public class CriterionProcessor {
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wmiCriterion.getNamespace())) {
 
 			final String cachedNamespace = telemetryManager
-					.getHostProperties()
-					.getConnectorNamespaces()
-					.get(wmiCriterion.getNamespace())
-					.getAutomaticWmiNamespace();
+				.getHostProperties()
+				.getConnectorNamespaces()
+				.get(wmiCriterion.getNamespace())
+				.getAutomaticWmiNamespace();
 
 			// If not detected already, find the namespace
 			if (cachedNamespace == null) {
@@ -1043,16 +1010,16 @@ public class CriterionProcessor {
 		if (namespaceResult.getResult().isSuccess()) {
 			if (wqlCriterion instanceof WmiCriterion) {
 				telemetryManager
-						.getHostProperties()
-						.getConnectorNamespaces()
-						.get(namespaceResult.getNamespace())
-						.setAutomaticWmiNamespace(namespaceResult.getNamespace());
+					.getHostProperties()
+					.getConnectorNamespaces()
+					.get(namespaceResult.getNamespace())
+					.setAutomaticWmiNamespace(namespaceResult.getNamespace());
 			} else {
 				telemetryManager
-						.getHostProperties()
-						.getConnectorNamespaces()
-						.get(namespaceResult.getNamespace())
-						.setAutomaticWbemNamespace(namespaceResult.getNamespace());
+					.getHostProperties()
+					.getConnectorNamespaces()
+					.get(namespaceResult.getNamespace())
+					.setAutomaticWbemNamespace(namespaceResult.getNamespace());
 			}
 
 		}
@@ -1102,10 +1069,10 @@ public class CriterionProcessor {
 		// (costly) detection again
 		if (namespaceResult.getResult().isSuccess()) {
 			telemetryManager
-					.getHostProperties()
-					.getConnectorNamespaces()
-					.get(namespaceResult.getNamespace())
-					.setAutomaticWbemNamespace(namespaceResult.getNamespace());
+				.getHostProperties()
+				.getConnectorNamespaces()
+				.get(namespaceResult.getNamespace())
+				.setAutomaticWbemNamespace(namespaceResult.getNamespace());
 		}
 
 		return namespaceResult.getResult();
@@ -1117,9 +1084,9 @@ public class CriterionProcessor {
 	 * @param wbemCriterion
 	 * @return
 	 */
-	CriterionTestResult process(WbemCriterion wbemCriterion) {
+	public CriterionTestResult process(WbemCriterion wbemCriterion) {
 		// Sanity check
-		if (wbemCriterion == null || wbemCriterion.getQuery() == null) {
+		if (wbemCriterion == null) {
 			return CriterionTestResult.error(wbemCriterion, WBEM_MALFORMED_CRITERION_MESSAGE);
 		}
 
@@ -1136,10 +1103,10 @@ public class CriterionProcessor {
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getNamespace())) {
 
 			final String cachedNamespace = telemetryManager
-					.getHostProperties()
-					.getConnectorNamespaces()
-					.get(wbemCriterion.getNamespace())
-					.getAutomaticWbemNamespace();
+				.getHostProperties()
+				.getConnectorNamespaces()
+				.get(wbemCriterion.getNamespace())
+				.getAutomaticWbemNamespace();
 
 			// If not detected already, find the namespace
 			if (cachedNamespace == null) {
@@ -1156,17 +1123,6 @@ public class CriterionProcessor {
 
 		// Run the test
 		return wqlDetectionHelper.performDetectionTest(hostname, wbemConfiguration, wbemCriterion);
-	}
-
-	/**
-	 * Process the given {@link WqlCriterion} through Matsya and return the {@link CriterionTestResult}
-	 *
-	 * @param wqlCriterion
-	 * @return
-	 */
-	CriterionTestResult process(WqlCriterion wqlCriterion) {
-		// TODO
-		return null;
 	}
 
 	/**
@@ -1207,10 +1163,11 @@ public class CriterionProcessor {
 		log.debug(message);
 
 		return CriterionTestResult
-				.builder()
-				.result(result)
-				.message(message)
-				.success(success)
-				.build();
+			.builder()
+			.result(result)
+			.message(message)
+			.success(success)
+			.build();
 	}
+
 }

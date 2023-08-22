@@ -64,7 +64,6 @@ class WqlDetectionHelperTest {
 	@InjectMocks
 	private WqlDetectionHelper wqlDetectionHelperMock;
 
-
 	@Test
 	void testWbemFindPossibleNamespacesForcedProtocol() {
 
@@ -80,15 +79,15 @@ class WqlDetectionHelperTest {
 	void testWbemFindPossibleNamespacesNoResponse() throws Exception {
 
 		final WbemConfiguration wbemConfiguration = WbemConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.build();
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 
 		// No response from the host
 		doThrow(new MatsyaException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException(WBEM_NAMESPACE_TIMEOUT_MESSAGE)))
-				.when(matsyaClientsExecutorMock)
-				.executeWbem(any(), eq(wbemConfiguration), any(), any());
+			.when(matsyaClientsExecutorMock)
+			.executeWbem(any(), eq(wbemConfiguration), any(), any());
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(LOCALHOST, wbemConfiguration);
 		assertFalse(result.isSuccess());
@@ -100,10 +99,10 @@ class WqlDetectionHelperTest {
 	void testWbemFindPossibleNamespacesEmpty() throws Exception {
 
 		final WbemConfiguration wbemConfiguration = WbemConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.build();
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 
 		// We will always return "not found"
 		doThrow(new MatsyaException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))).when(matsyaClientsExecutorMock)
@@ -118,20 +117,20 @@ class WqlDetectionHelperTest {
 	void testWbemFindPossibleNamespaces() throws Exception {
 
 		final WbemConfiguration wbemConfiguration = WbemConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.build();
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 
 		// By default, WBEM will throw an "invalid namespace" exception
 		// except for 2 namespaces where we will return a result
 		doThrow(
-				new MatsyaException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)),
-				new MatsyaException(new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS)),
-				new MatsyaException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))
+			new MatsyaException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)),
+			new MatsyaException(new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS)),
+			new MatsyaException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))
 		)
-				.when(matsyaClientsExecutorMock)
-				.executeWbem(any(), eq(wbemConfiguration), any(), any());
+		.when(matsyaClientsExecutorMock)
+		.executeWbem(any(), eq(wbemConfiguration), any(), any());
 
 		doReturn(List.of(List.of(FIRST_NAMESPACE))).when(matsyaClientsExecutorMock).executeWbem(any(), eq(wbemConfiguration), any(), eq(ROOT));
 
@@ -160,14 +159,14 @@ class WqlDetectionHelperTest {
 	void testWmiFindPossibleNamespacesNoResponse() throws Exception {
 
 		final WmiConfiguration wmiConfiguration = WmiConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.build();
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 
 		// No response from the host
 		doThrow(new MatsyaException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException(WBEM_NAMESPACE_TIMEOUT_MESSAGE)))
-				.when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+			.when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(LOCALHOST, wmiConfiguration);
 		assertFalse(result.isSuccess());
@@ -178,10 +177,10 @@ class WqlDetectionHelperTest {
 	void testWmiFindPossibleNamespacesEmpty() throws Exception {
 
 		final WmiConfiguration wmiConfiguration = WmiConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.build();
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 
 		// We return an empty list
 		doReturn(Collections.emptyList()).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), eq(ROOT));
@@ -195,14 +194,14 @@ class WqlDetectionHelperTest {
 	void testWmiFindPossibleNamespaces() throws Exception {
 
 		final WmiConfiguration wmiConfiguration = WmiConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.build();
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 
 		doReturn(List.of(List.of(FIRST_NAMESPACE), List.of(SECOND_NAMESPACE)))
-				.when(matsyaClientsExecutorMock)
-				.executeWql(any(), eq(wmiConfiguration), any(), any());
+			.when(matsyaClientsExecutorMock)
+			.executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(LOCALHOST, wmiConfiguration);
 		assertTrue(result.isSuccess());
@@ -329,8 +328,8 @@ class WqlDetectionHelperTest {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder().build();
 		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).build();
 		doReturn(EXCUTE_WBEM_RESULT)
-				.when(matsyaClientsExecutorMock)
-				.executeWql(any(), eq(wmiConfiguration), any(), any());
+			.when(matsyaClientsExecutorMock)
+			.executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.NamespaceResult result = wqlDetectionHelperMock.detectNamespace(LOCALHOST, wmiConfiguration, wmiCriterion,
 				Set.of(CRITERION_WMI_NAMESPACE));
