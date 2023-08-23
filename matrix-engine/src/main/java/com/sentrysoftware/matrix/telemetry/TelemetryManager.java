@@ -23,7 +23,8 @@ public class TelemetryManager {
 
 	@Default
 	private Map<String, Map<String, Monitor>> monitors = new HashMap<>();
-	private HostProperties hostProperties;
+	@Default
+	private HostProperties hostProperties = new HostProperties();
 	private HostConfiguration hostConfiguration;
 	private ConnectorStore connectorStore;
 

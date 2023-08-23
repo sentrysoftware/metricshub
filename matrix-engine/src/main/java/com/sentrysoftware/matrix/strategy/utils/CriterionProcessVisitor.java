@@ -42,18 +42,18 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 		Assert.state(wqlDetectionHelper != null, WQL_DETECTION_HELPER_NULL_MESSAGE);
 
 		final WmiConfiguration localWmiConfiguration = WmiConfiguration
-				.builder()
-				.username(null)
-				.password(null)
-				.timeout(30L)
-				.build();
+			.builder()
+			.username(null)
+			.password(null)
+			.timeout(30L)
+			.build();
 
 		final WmiCriterion criterion = WmiCriterion
-				.builder()
-				.query(CRITERION_PROCESSOR_VISITOR_QUERY)
-				.namespace(CRITERION_PROCESSOR_VISITOR_NAMESPACE)
-				.expectedResult(command)
-				.build();
+			.builder()
+			.query(CRITERION_PROCESSOR_VISITOR_QUERY)
+			.namespace(CRITERION_PROCESSOR_VISITOR_NAMESPACE)
+			.expectedResult(command)
+			.build();
 
 		criterionTestResult = wqlDetectionHelper.performDetectionTest(LOCALHOST, localWmiConfiguration, criterion);
 
@@ -111,9 +111,10 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	 * @return
 	 */
 	public static List<List<String>> listAllLinuxProcesses() {
-		return ProcessHandle.allProcesses()
-				.map(CriterionProcessVisitor::getProcessDetails)
-				.collect(Collectors.toList());
+		return ProcessHandle
+			.allProcesses()
+			.map(CriterionProcessVisitor::getProcessDetails)
+			.toList();
 	}
 
 	/**
@@ -124,11 +125,12 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	 */
 	static List<String> getProcessDetails(final ProcessHandle processHandle) {
 		return List.of(
-				String.valueOf(processHandle.pid()),
-				processHandle.info().command().orElse(""),
-				processHandle.info().user().orElse(""),
-				processHandle.parent().map(ProcessHandle::pid).map(String::valueOf).orElse(""),
-				processHandle.info().commandLine().orElse(""));
+			String.valueOf(processHandle.pid()),
+			processHandle.info().command().orElse(""),
+			processHandle.info().user().orElse(""),
+			processHandle.parent().map(ProcessHandle::pid).map(String::valueOf).orElse(""),
+			processHandle.info().commandLine().orElse("")
+		);
 	}
 
 	/**
@@ -138,19 +140,26 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	 */
 	private void processResult(final List<List<String>> result) {
 		result.stream()
-				.filter(line -> line.get(1).matches(command))
-				.findFirst()
-				.ifPresentOrElse(
-						line -> success(
-								String.format( //NOSONAR
-										RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
-										command)),
-						() -> fail(
-								String.format( //NOSONAR
-										NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
-										command,
-										result.stream().map(line -> line.stream().collect(Collectors.joining(TABLE_SEP)))
-												.collect(Collectors.joining(NEW_LINE)))));
+			.filter(line -> line.get(1).matches(command))
+			.findFirst()
+			.ifPresentOrElse(
+				line -> success(
+					String.format( //NOSONAR
+						RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
+						command
+					)
+				),
+				() -> fail(
+					String.format( //NOSONAR
+						NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
+						command,
+						result
+							.stream()
+							.map(line -> line.stream().collect(Collectors.joining(TABLE_SEP)))
+							.collect(Collectors.joining(NEW_LINE))
+					)
+				)
+			);
 	}
 
 	/**
@@ -169,9 +178,10 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	 */
 	private void fail(final String message) {
 		log.error(CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE, hostname, message);
-		criterionTestResult = CriterionTestResult.builder()
-				.message(message)
-				.build();
+		criterionTestResult = CriterionTestResult
+			.builder()
+			.message(message)
+			.build();
 	}
 
 	/**
@@ -181,9 +191,10 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	 */
 	private void success(final String message) {
 		log.debug(CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE, hostname, message);
-		criterionTestResult = CriterionTestResult.builder()
-				.success(true)
-				.message(message)
-				.build();
+		criterionTestResult = CriterionTestResult
+			.builder()
+			.success(true)
+			.message(message)
+			.build();
 	}
 }

@@ -5,7 +5,8 @@ import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import lombok.Data;
 
 @Data
-public abstract class AbstractStrategy implements IStrategy, Runnable {
+public abstract class AbstractStrategy implements IStrategy {
 
 	protected TelemetryManager telemetryManager;
+	protected long strategyTime;
 }

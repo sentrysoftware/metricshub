@@ -3,13 +3,13 @@ package com.sentrysoftware.matrix.strategy.detection;
 import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR_YAML;
 import static com.sentrysoftware.matrix.constants.Constants.DETECTION_FOLDER;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,18 +35,18 @@ import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 class AutomaticDetectionTest {
 
 	@Test
-	public void testRunNull() {
-		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection().run(null));
+	void testRunNull() {
+		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(null));
 	}
 
 	@Test
-	public void testRunEmptyTelemetryManager() {
+	void testRunEmptyTelemetryManager() {
 		TelemetryManager telemetryManager = new TelemetryManager();
-		assertNull(new AutomaticDetection().run(telemetryManager));
+		assertEquals(Collections.emptyList(), new AutomaticDetection(telemetryManager).run());
 	}
 
 	@Test
-	public void testRunExcludeAllConnectorsFiltering() {
+	void testRunExcludeAllConnectorsFiltering() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -62,11 +62,11 @@ class AutomaticDetectionTest {
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
 		connectorStore.getStore().put(CONNECTOR_YAML, new Connector());
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
 	}
 
 	@Test
-	public void testRunAutoDetectionFiltering() {
+	void testRunAutoDetectionFiltering() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -98,11 +98,11 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
 	}
 
 	@Test
-	public void testDeviceKindFiltering() {
+	void testDeviceKindFiltering() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -134,11 +134,11 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
 	}
 
 	@Test
-	public void testConnectionTypesFiltering() {
+	void testConnectionTypesFiltering() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -170,11 +170,11 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
 	}
 
 	@Test
-	public void testAcceptedSourcesFiltering() {
+	void testAcceptedSourcesFiltering() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -206,6 +206,6 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection().run(telemetryManager));
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
 	}
 }

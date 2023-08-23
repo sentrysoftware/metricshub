@@ -1,24 +1,13 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
-import com.sentrysoftware.matrix.common.exception.ControlledSshException;
-import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.exception.MatsyaRuntimeException;
-import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
-import com.sentrysoftware.matrix.configuration.IConfiguration;
-import com.sentrysoftware.matrix.configuration.IWinConfiguration;
-import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
-import com.sentrysoftware.matrix.configuration.SshConfiguration;
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.telemetry.SshSemaphoreFactory;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_LOCK_TIMEOUT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PASSWORD_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.USERNAME_MACRO;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -46,16 +35,27 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_LOCK_TIMEOUT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PASSWORD_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.USERNAME_MACRO;
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
+import com.sentrysoftware.matrix.common.exception.ControlledSshException;
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.exception.MatsyaRuntimeException;
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.configuration.IConfiguration;
+import com.sentrysoftware.matrix.configuration.IWinConfiguration;
+import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
+import com.sentrysoftware.matrix.configuration.SshConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.telemetry.SshSemaphoreFactory;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandHelper {
@@ -262,8 +262,9 @@ public class OsCommandHelper {
 							timeout));
 
 		} catch (final ExecutionException e) {
-			if (e.getCause() instanceof IOException) {
-				throw (IOException) e.getCause();
+			final Throwable cause = e.getCause();
+			if (cause instanceof IOException ioException) {
+				throw ioException;
 			}
 			return null;
 
@@ -413,9 +414,9 @@ public class OsCommandHelper {
 		if (configuration == null) {
 			return defaultTimeout;
 		}
-		final Long timeout = configuration instanceof IWinConfiguration ?
-				((IWinConfiguration) configuration).getTimeout() :
-				((SshConfiguration) configuration).getTimeout();
+		final Long timeout = configuration instanceof IWinConfiguration winConfiguration ?
+			winConfiguration.getTimeout() :
+			((SshConfiguration) configuration).getTimeout();
 		return timeout != null ? timeout : defaultTimeout;
 	}
 
@@ -428,11 +429,11 @@ public class OsCommandHelper {
 		if (configuration == null) {
 			return Optional.empty();
 		}
-		if (configuration instanceof IWinConfiguration) {
-			return Optional.ofNullable(((IWinConfiguration) configuration).getUsername());
+		if (configuration instanceof IWinConfiguration winConfiguration) {
+			return Optional.ofNullable(winConfiguration.getUsername());
 		}
-		if (configuration instanceof SshConfiguration) {
-			return Optional.ofNullable(((SshConfiguration) configuration).getUsername());
+		if (configuration instanceof SshConfiguration sshConfiguration) {
+			return Optional.ofNullable(sshConfiguration.getUsername());
 		}
 		return Optional.empty();
 	}
@@ -446,11 +447,11 @@ public class OsCommandHelper {
 		if (protocolConfiguration == null) {
 			return Optional.empty();
 		}
-		if (protocolConfiguration instanceof IWinConfiguration) {
-			return Optional.ofNullable(((IWinConfiguration) protocolConfiguration).getPassword());
+		if (protocolConfiguration instanceof IWinConfiguration winConfiguration) {
+			return Optional.ofNullable(winConfiguration.getPassword());
 		}
-		if (protocolConfiguration instanceof SshConfiguration) {
-			return Optional.ofNullable(((SshConfiguration) protocolConfiguration).getPassword());
+		if (protocolConfiguration instanceof SshConfiguration sshConfiguration) {
+			return Optional.ofNullable(sshConfiguration.getPassword());
 		}
 		return Optional.empty();
 	}
@@ -570,20 +571,22 @@ public class OsCommandHelper {
 				// Case Windows Remote
 			} else if (DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
 				commandResult = MatsyaClientsExecutor.executeWinRemoteCommand(
-						command,
-						configuration,
-						hostname,
-						embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+					command,
+					configuration,
+					hostname,
+					embeddedTempFiles.values().stream().map(File::getAbsolutePath).toList()
+				);
 
 				// Case others (Linux) Remote
 			} else {
 				commandResult = runSshCommand(
-						command,
-						hostname,
-						(SshConfiguration) configuration,
-						timeout,
-						new ArrayList<>(embeddedTempFiles.values()),
-						noPasswordCommand);
+					command,
+					hostname,
+					(SshConfiguration) configuration,
+					timeout,
+					new ArrayList<>(embeddedTempFiles.values()),
+					noPasswordCommand
+				);
 			}
 
 			return new OsCommandResult(commandResult, noPasswordCommand);

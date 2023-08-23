@@ -1,27 +1,6 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
-import com.sentrysoftware.matrix.connector.model.identity.Detection;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.OsCommandCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.WmiCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.WqlCriterion;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,21 +15,46 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_LOCK_TIMEOUT;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
+import com.sentrysoftware.matrix.connector.model.identity.Detection;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.OsCommandCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.WmiCriterion;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractConnectorProcessor {
 
 	protected static final int MAX_THREADS_COUNT = 50;
 	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
-	private TelemetryManager telemetryManager;
+	protected TelemetryManager telemetryManager;
+
+	protected AbstractConnectorProcessor(@NonNull TelemetryManager telemetryManager) {
+		this.telemetryManager = telemetryManager;
+	}
 
 	/**
 	 * Run the Detection job and returns the detected {@link ConnectorTestResult}
-	 * @param telemetryManager The telemetry manager
+	 * 
 	 * @return The {@link List} of {@link ConnectorTestResult}
 	 */
-	public abstract List<ConnectorTestResult> run(TelemetryManager telemetryManager);
+	public abstract List<ConnectorTestResult> run();
 
 	/**
 	 * Run all detection criteria of the {@link Connector} on the {@link HostConfiguration}
@@ -62,14 +66,14 @@ public abstract class AbstractConnectorProcessor {
 			@NonNull Stream<Connector> connectors,
 			@NonNull HostConfiguration hostConfiguration) {
 
-		List<ConnectorTestResult> result = new ArrayList<>();
 		final String hostname = hostConfiguration.getHostname();
 
-		result = hostConfiguration.isSequential() ?
-				runConnectorsSequentially(connectors, hostname) :
-					runConnectorsSimultaneously(connectors, hostname);
+		return (
+			hostConfiguration.isSequential() ?
+				runConnectorsSequentially(connectors, hostname) : runConnectorsSimultaneously(connectors, hostname)
+		)
+		.stream();
 
-		return result.stream();
 	}
 
 	/**
@@ -82,8 +86,11 @@ public abstract class AbstractConnectorProcessor {
 			@NonNull Stream<Connector> connectors,
 			@NonNull String hostname) {
 		final List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
+
 		connectors.forEach(
-				connector -> connectorTestResults.add(runConnectorDetectionCriteria(connector, hostname)));
+			connector -> connectorTestResults.add(runConnectorDetectionCriteria(connector, hostname))
+		);
+
 		return connectorTestResults;
 	}
 
@@ -94,15 +101,21 @@ public abstract class AbstractConnectorProcessor {
 	 * @return The result of each connector
 	 */
 	private List<ConnectorTestResult> runConnectorsSimultaneously(
-			@NonNull Stream<Connector> connectors,
-			@NonNull String hostname) {
+		@NonNull Stream<Connector> connectors,
+		@NonNull String hostname
+	) {
 		final List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
 		final List<ConnectorTestResult> connectorTestResultsSynchronized = Collections.synchronizedList(connectorTestResults);
 
 		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 
-		connectors.forEach(connector -> threadsPool
-				.execute(() -> connectorTestResultsSynchronized.add(runConnectorDetectionCriteria(connector, hostname))));
+		connectors.forEach(
+			connector -> threadsPool.execute(
+				() -> connectorTestResultsSynchronized.add(
+					runConnectorDetectionCriteria(connector, hostname)
+				)
+			)
+		);
 
 		// Order the shutdown
 		threadsPool.shutdown();
@@ -114,7 +127,10 @@ public abstract class AbstractConnectorProcessor {
 			if (e instanceof InterruptedException) {
 				Thread.currentThread().interrupt();
 			}
+			log.error("Hostname {} - Exception encountered while running connectors simultaneously.", hostname);
+			log.debug(HOSTNAME_EXCEPTION_MESSAGE, hostname, e);
 		}
+
 		return connectorTestResults;
 	}
 
@@ -130,7 +146,12 @@ public abstract class AbstractConnectorProcessor {
 			return;
 		}
 
-		supersedes.addAll(connectorSupersedes.stream().map(fileName -> fileName.toLowerCase()).collect(Collectors.toSet()));
+		supersedes.addAll(
+			connectorSupersedes
+				.stream()
+				.map(String::toLowerCase)
+				.collect(Collectors.toSet())
+		);
 	}
 
 	/**
@@ -143,9 +164,12 @@ public abstract class AbstractConnectorProcessor {
 	protected List<ConnectorTestResult> filterLastResort(@NonNull List<ConnectorTestResult> connectorTestResults) {
 		final Set<String> monitorsSet = new HashSet<>();
 		connectorTestResults.forEach(ctr -> monitorsSet.addAll(ctr.getConnector().getMonitors().keySet()));
-		return connectorTestResults.stream()
-				.filter(ctr -> monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort()))
-				.collect(Collectors.toList());
+		return connectorTestResults
+			.stream()
+			.filter(ctr ->
+				monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort())
+			)
+			.toList();
 	}
 
 	/**
@@ -165,8 +189,13 @@ public abstract class AbstractConnectorProcessor {
 	 * @param defaultValue the default value to return in case of any glitch
 	 * @return T instance
 	 */
-	protected <T> T forceSerialization(@NonNull Supplier<T> executable, @NonNull final Connector connector,
-									   final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
+	protected <T> T forceSerialization(
+		@NonNull Supplier<T> executable,
+		@NonNull final Connector connector,
+		final Object objToProcess,
+		@NonNull final String description,
+		@NonNull final T defaultValue
+	) {
 
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
@@ -177,11 +206,12 @@ public abstract class AbstractConnectorProcessor {
 			isLockAcquired = forceSerializationLock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error("Hostname {} - Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
-					hostname,
-					description,
-					objToProcess,
-					connector.getConnectorIdentity().getCompiledFilename());
-			log.debug("Hostname {} - Exception: ", hostname, e);
+				hostname,
+				description,
+				objToProcess,
+				connector.getConnectorIdentity().getCompiledFilename()
+			);
+			log.debug(HOSTNAME_EXCEPTION_MESSAGE, hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -216,64 +246,70 @@ public abstract class AbstractConnectorProcessor {
 	 */
 	ReentrantLock getForceSerializationLock(final Connector connector) {
 		return telemetryManager.getHostProperties()
-			.getConnectorNamespaces().get(connector
-			.getConnectorIdentity().getCompiledFilename())
+			.getConnectorNamespaces()
+			.get(connector.getConnectorIdentity().getCompiledFilename())
 			.getForceSerializationLock();
 	}
 
 
 	/**
-	 * Accept the criterion visitor which implement the logic that needs to be
-	 * executed for each criterion implementation
+	 * Run the criterion processor which implements the logic that needs to be
+	 * executed for this criterion instance.
 	 *
 	 * @param criterion The criterion we wish to process
 	 * @param connector The {@link Connector} defining the criterion
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
-	protected CriterionTestResult processCriterion(final Criterion criterion, Connector connector) {
+	protected CriterionTestResult processCriterion(final Criterion criterion, final Connector connector) {
 
 		// Instantiate matsyaClientsExecutor with the telemetryManager instance
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 
 		// Instantiate criterionProcessor with matsyaClientsExecutor, telemetryManager and connector name
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(matsyaClientsExecutor,
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			matsyaClientsExecutor,
 			telemetryManager,
-			connector.getConnectorIdentity().getCompiledFilename());
+			connector.getConnectorIdentity().getCompiledFilename()
+		);
 
-		Supplier<CriterionTestResult> executable = null;
+		final Supplier<CriterionTestResult> executable;
 
-		// Based on the type of criterion, call process method and store the call in a supplier
-
-		if(criterion instanceof HttpCriterion){
-			executable = () -> criterionProcessor.process((HttpCriterion) criterion);
-		} else if(criterion instanceof SnmpCriterion){
-			executable = () -> criterionProcessor.process((SnmpCriterion) criterion);
-		} else if(criterion instanceof OsCommandCriterion){
-			executable = () -> criterionProcessor.process((OsCommandCriterion) criterion);
-		} else if(criterion instanceof SnmpGetNextCriterion){
-			executable = () -> criterionProcessor.process((SnmpGetNextCriterion) criterion);
-		} else if(criterion instanceof WmiCriterion){
-			executable = () -> criterionProcessor.process((WmiCriterion) criterion);
-		} else if(criterion instanceof WbemCriterion){
-			executable = () -> criterionProcessor.process((WbemCriterion) criterion);
-		} else if(criterion instanceof WqlCriterion){
-			executable = () -> criterionProcessor.process((WqlCriterion) criterion);
-		} else if(criterion instanceof ServiceCriterion){
-			executable = () -> criterionProcessor.process((ServiceCriterion) criterion);
-		} else if(criterion instanceof ProductRequirementsCriterion){
-			executable = () -> criterionProcessor.process((ProductRequirementsCriterion) criterion);
-		} else if(criterion instanceof ProcessCriterion){
-			executable = () -> criterionProcessor.process((ProcessCriterion) criterion);
-		} else if(criterion instanceof IpmiCriterion){
-			executable = () -> criterionProcessor.process((IpmiCriterion) criterion);
-		} else if(criterion instanceof DeviceTypeCriterion){
-			executable = () -> criterionProcessor.process((DeviceTypeCriterion) criterion);
+		// Based on the type of criterion, store the call of the process method in the supplier
+		if (criterion instanceof HttpCriterion httpCriterion) {
+			executable = () -> criterionProcessor.process(httpCriterion);
+		} else if (criterion instanceof SnmpGetCriterion snmpGetCriterion) {
+			executable = () -> criterionProcessor.process(snmpGetCriterion);
+		} else if (criterion instanceof SnmpGetNextCriterion snmpGetNextCriterion) {
+			executable = () -> criterionProcessor.process(snmpGetNextCriterion);
+		} else if (criterion instanceof OsCommandCriterion osCommandCriterion) {
+			executable = () -> criterionProcessor.process(osCommandCriterion);
+		} else if (criterion instanceof WmiCriterion wmiCriterion) {
+			executable = () -> criterionProcessor.process(wmiCriterion);
+		} else if (criterion instanceof WbemCriterion wbemCriterion) {
+			executable = () -> criterionProcessor.process(wbemCriterion);
+		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
+			executable = () -> criterionProcessor.process(serviceCriterion);
+		} else if (criterion instanceof ProductRequirementsCriterion productRequirementsCriterion) {
+			executable = () -> criterionProcessor.process(productRequirementsCriterion);
+		} else if (criterion instanceof ProcessCriterion processCriterion) {
+			executable = () -> criterionProcessor.process(processCriterion);
+		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
+			executable = () -> criterionProcessor.process(ipmiCriterion);
+		} else if (criterion instanceof DeviceTypeCriterion deviceTypeCriterion) {
+			executable = () -> criterionProcessor.process(deviceTypeCriterion);
+		} else {
+			throw new IllegalStateException("Unhandled criterion instance: " + criterion.getClass().getSimpleName());
 		}
 
 		// If isForceSerialization is true, call forceSerialization
 		if (criterion.isForceSerialization()) {
-			return forceSerialization(executable,
-				connector, criterion, "criterion", CriterionTestResult.empty());
+			return forceSerialization(
+				executable,
+				connector,
+				criterion,
+				"criterion",
+				CriterionTestResult.empty()
+			);
 		} else {
 			return executable.get();
 		}
@@ -283,9 +319,13 @@ public abstract class AbstractConnectorProcessor {
 	 * Return true if the name of the {@link Connector} is in the set of connector names
 	 * @param connector
 	 * @param connectorNameSet
-	 * @return
+	 * @return boolean value
 	 */
-	protected boolean isConnectorContainedInSet(@NonNull final Connector connector, @NonNull final Set<String> connectorNameSet) {
+	protected boolean isConnectorContainedInSet(
+		@NonNull final Connector connector,
+		@NonNull final Set<String> connectorNameSet
+	) {
+
 		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
 		if (connectorIdentity == null) {
 			return false;
@@ -306,34 +346,45 @@ public abstract class AbstractConnectorProcessor {
 	private ConnectorTestResult runConnectorDetectionCriteria(Connector connector, String hostname) {
 		final Detection detection = connector.getConnectorIdentity().getDetection();
 
-		final ConnectorTestResult connectorTestResult = ConnectorTestResult.builder().connector(connector).build();
+		final ConnectorTestResult connectorTestResult = ConnectorTestResult
+			.builder()
+			.connector(connector)
+			.build();
 
 		if (detection == null) {
-			log.warn("Hostname {} - The connector {} DOES NOT match the platform as it has no detection to test.",
-					hostname, connector.getConnectorIdentity().getCompiledFilename());
+			log.warn(
+				"Hostname {} - The connector {} DOES NOT match the platform as it has no detection to test.",
+				hostname,
+				connector.getConnectorIdentity().getCompiledFilename()
+			);
 			return connectorTestResult;
 		}
 
 		final List<Criterion> criteria = detection.getCriteria();
 
 		if (criteria == null || criteria.isEmpty()) {
-			log.warn("Hostname {} - The connector {} DOES NOT match the platform as it has no criteria to test.",
-					hostname, connector.getConnectorIdentity().getCompiledFilename());
+			log.warn(
+				"Hostname {} - The connector {} DOES NOT match the platform as it has no criteria to test.",
+				hostname,
+				connector.getConnectorIdentity().getCompiledFilename()
+			);
 			return connectorTestResult;
 		}
-		final CriterionProcessor criterionProcessor = new CriterionProcessor();
-		criterionProcessor.setConnectorName(connector.getConnectorIdentity().getCompiledFilename());
-		for (Criterion criterion : criteria) {
+
+		for (final Criterion criterion : criteria) {
 			final CriterionTestResult criterionTestResult = processCriterion(criterion, connector);
 			if (!criterionTestResult.isSuccess()) {
-				log.debug("Hostname {} - Detected failed criterion for connector {}. Message: {}.",
-						hostname,
-						connector.getConnectorIdentity().getCompiledFilename(),
-						criterionTestResult.getMessage());
+				log.debug(
+					"Hostname {} - Detected failed criterion for connector {}. Message: {}.",
+					hostname,
+					connector.getConnectorIdentity().getCompiledFilename(),
+					criterionTestResult.getMessage()
+				);
 			}
 
 			connectorTestResult.getCriterionTestResults().add(criterionTestResult);
 		}
+
 		return connectorTestResult;
 	}
 }

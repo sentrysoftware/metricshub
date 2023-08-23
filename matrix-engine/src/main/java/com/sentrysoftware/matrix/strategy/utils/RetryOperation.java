@@ -57,9 +57,9 @@ public class RetryOperation<T> {
 		} catch (RetryableException e) {
 			if (maxRetries <= 0) {
 				log.info(
-						"Hostname {} - {} failed and will not be retried.",
-						hostname,
-						description
+					"Hostname {} - {} failed and will not be retried.",
+					hostname,
+					description
 				);
 				return defaultValue;
 			}
@@ -77,11 +77,11 @@ public class RetryOperation<T> {
 	private T retry(final Supplier<T> function) {
 
 		log.info(
-				"Hostname {} - {} failed and will be retried {} time{}.",
-				hostname,
-				description,
-				maxRetries,
-				maxRetries == 1 ? EMPTY : "s"
+			"Hostname {} - {} failed and will be retried {} time{}.",
+			hostname,
+			description,
+			maxRetries,
+			maxRetries == 1 ? EMPTY : "s"
 		);
 
 		int retryCounter = 0;
@@ -91,10 +91,10 @@ public class RetryOperation<T> {
 				if (waitStrategy > 0) {
 
 					log.info(
-							"Hostname {} - {} retry will be performed after {} seconds.",
-							hostname,
-							description,
-							waitStrategy
+						"Hostname {} - {} retry will be performed after {} seconds.",
+						hostname,
+						description,
+						waitStrategy
 					);
 
 					pauseRetry();
@@ -107,18 +107,18 @@ public class RetryOperation<T> {
 				retryCounter++;
 
 				log.info(
-						"Hostname {} - {} failed on retry {} / {}.",
-						hostname,
-						description,
-						retryCounter,
-						maxRetries
+					"Hostname {} - {} failed on retry {} / {}.",
+					hostname,
+					description,
+					retryCounter,
+					maxRetries
 				);
 
 				if (retryCounter >= maxRetries) {
 					log.warn(
-							"Hostname {} - Max retries exceeded for {}.",
-							hostname,
-							description
+						"Hostname {} - Max retries exceeded for {}.",
+						hostname,
+						description
 					);
 					break;
 				}
@@ -138,18 +138,18 @@ public class RetryOperation<T> {
 			TimeUnit.SECONDS.sleep(waitStrategy);
 		} catch (InterruptedException e) {
 			log.warn(
-					"Hostname {} - {} retry interrupted while sleeping.",
-					hostname,
-					description
+				"Hostname {} - {} retry interrupted while sleeping.",
+				hostname,
+				description
 			);
 
 			log.debug(
-					String.format(
-							"Hostname %s - %s retry interrupted while sleeping. Exception: ",
-							hostname,
-							description
-					),
-					e
+				String.format(
+					"Hostname %s - %s retry interrupted while sleeping. Exception: ",
+					hostname,
+					description
+				),
+				e
 			);
 
 			Thread.currentThread().interrupt();

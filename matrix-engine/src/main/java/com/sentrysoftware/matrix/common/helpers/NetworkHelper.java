@@ -18,11 +18,11 @@ public class NetworkHelper {
 	 * Typical localhost names, which we should figure out immediately
 	 */
 	private static final Set<String> TYPICAL_LOCALHOST_HOSTNAMES = Set.of(
-			"localhost",
-			"127.0.0.1",
-			"::1",
-			"0:0:0:0:0:0:0:1",
-			"0000:0000:0000:0000:0000:0000:0000:0001"
+		"localhost",
+		"127.0.0.1",
+		"::1",
+		"0:0:0:0:0:0:0:1",
+		"0000:0000:0000:0000:0000:0000:0000:0001"
 	);
 
 	private NetworkHelper() {

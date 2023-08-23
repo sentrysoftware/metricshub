@@ -32,12 +32,12 @@ public class CriterionTestResult {
 	 * @param result    Its result (that doesn't match with the criterion)
 	 * @return a new {@link CriterionTestResult} instance
 	 */
-	public static CriterionTestResult failure(Criterion criterion, String result) {
+	public static CriterionTestResult failure(final Criterion criterion, final String result) {
 		final String message = String.format( //NOSONAR
-				"%s test ran but failed:\n%s\n\nActual result:\n%s",
-				criterion.getClass().getSimpleName(),
-				criterion.toString(),
-				result
+			"%s test ran but failed:\n%s\n\nActual result:\n%s",
+			criterion.getClass().getSimpleName(),
+			criterion.toString(),
+			result
 		);
 		return CriterionTestResult.builder().success(false).message(message).result(result).build();
 	}
@@ -58,10 +58,10 @@ public class CriterionTestResult {
 			message = "Error with a <null> Criterion: " + reason;
 		} else {
 			message = String.format( //NOSONAR
-					"Error in %s test:\n%s\n\n%s",
-					criterion.getClass().getSimpleName(),
-					criterion.toString(),
-					reason
+				"Error in %s test:\n%s\n\n%s",
+				criterion.getClass().getSimpleName(),
+				criterion.toString(),
+				reason
 			);
 		}
 		return CriterionTestResult.builder().success(false).message(message).exception(t).build();
@@ -75,7 +75,7 @@ public class CriterionTestResult {
 	 * @param reason    The reason why it failed
 	 * @return a new {@link CriterionTestResult} instance
 	 */
-	public static CriterionTestResult error(Criterion criterion, String reason) {
+	public static CriterionTestResult error(final Criterion criterion, final String reason) {
 		return error(criterion, reason, null);
 	}
 
@@ -87,19 +87,19 @@ public class CriterionTestResult {
 	 * @param t         the Exception that made the test fail
 	 * @return a new {@link CriterionTestResult} instance
 	 */
-	public static CriterionTestResult error(Criterion criterion, Throwable t) {
+	public static CriterionTestResult error(final Criterion criterion, final Throwable t) {
 		final StringBuilder messageBuilder = new StringBuilder();
 		messageBuilder
-				.append(t.getClass().getSimpleName())
-				.append(": ")
-				.append(t.getMessage());
+			.append(t.getClass().getSimpleName())
+			.append(": ")
+			.append(t.getMessage());
 		Throwable cause = t.getCause();
 		if (cause != null) {
 			messageBuilder
-					.append("\nCaused by ")
-					.append(cause.getClass().getSimpleName())
-					.append(": ")
-					.append(cause.getMessage());
+				.append("\nCaused by ")
+				.append(cause.getClass().getSimpleName())
+				.append(": ")
+				.append(cause.getMessage());
 		} else {
 			cause = t;
 		}
@@ -114,14 +114,20 @@ public class CriterionTestResult {
 	 * @param result    Its result
 	 * @return a new {@link CriterionTestResult} instance
 	 */
-	public static CriterionTestResult success(Criterion criterion, String result) {
+	public static CriterionTestResult success(final Criterion criterion, final String result) {
 		final String message = String.format( //NOSONAR
-				"%s test succeeded:\n%s\n\nResult: %s",
-				criterion.getClass().getSimpleName(),
-				criterion.toString(),
-				result
+			"%s test succeeded:\n%s\n\nResult: %s",
+			criterion.getClass().getSimpleName(),
+			criterion.toString(),
+			result
 		);
-		return CriterionTestResult.builder().success(true).message(message).result(result).build();
+
+		return CriterionTestResult
+			.builder()
+			.success(true)
+			.message(message)
+			.result(result)
+			.build();
 	}
 
 

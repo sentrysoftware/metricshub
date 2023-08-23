@@ -25,21 +25,21 @@ import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
-public class ConnectorSelectionTest {
+class ConnectorSelectionTest {
 
 	@Test
-	public void testRunNull() {
-		assertThrows(NullPointerException.class, () -> new ConnectorSelection().run(null));
+	void testRunNull() {
+		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(null));
 	}
 
 	@Test
-	public void testRunEmptyTelemetryManager() {
+	void testRunEmptyTelemetryManager() {
 		TelemetryManager telemetryManager = new TelemetryManager();
-		assertNull(new ConnectorSelection().run(telemetryManager));
+		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager).run());
 	}
 
 	@Test
-	public void testRunNoSelectedConnectors() {
+	void testRunNoSelectedConnectors() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -61,11 +61,11 @@ public class ConnectorSelectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertNull(new ConnectorSelection().run(telemetryManager));
+		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager).run());
 	}
 
 	@Test
-	public void testRunEmptySelectedConnectors() {
+	void testRunEmptySelectedConnectors() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -88,11 +88,11 @@ public class ConnectorSelectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertNull(new ConnectorSelection().run(telemetryManager));
+		assertEquals(Collections.emptyList(),  new ConnectorSelection(telemetryManager).run());
 	}
 
 	@Test
-	public void testRunConnectorNotSelected() {
+	void testRunConnectorNotSelected() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
@@ -116,6 +116,6 @@ public class ConnectorSelectionTest {
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
 
-		assertEquals(new ArrayList<>(), new ConnectorSelection().run(telemetryManager));
+		assertEquals(new ArrayList<>(), new ConnectorSelection(telemetryManager).run());
 	}
 }
