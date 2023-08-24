@@ -86,6 +86,10 @@ public class HostConfiguration {
 		// Add IPMI through WMI
 		if (DeviceKind.WINDOWS.equals(hostType) && sources.contains(WmiSource.class)) {
 			sources.add(IpmiSource.class);
+			// Add OSCommand through Remote WMI Commands
+			if (!isLocalhost) {
+				sources.add(OsCommandSource.class);
+			}
 		}
 
 		// Add IPMI through OSCommand remote (SSH)
