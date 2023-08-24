@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.IpmiCommandForSolarisException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.VersionHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
@@ -44,6 +45,7 @@ import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -505,7 +507,44 @@ public class CriterionProcessor {
 	 * @return
 	 */
 	public CriterionTestResult process(OsCommandCriterion osCommandCriterion) {
-		return null;
+		if (osCommandCriterion == null || osCommandCriterion.getCommandLine() == null) {
+			return CriterionTestResult.error(osCommandCriterion, "Malformed OSCommand criterion.");
+		}
+
+		if (osCommandCriterion.getCommandLine().isEmpty() ||
+				osCommandCriterion.getExpectedResult() == null || osCommandCriterion.getExpectedResult().isEmpty()) {
+			return CriterionTestResult.success(osCommandCriterion, "CommandLine or ExpectedResult are empty. Skipping this test.");
+		}
+
+		try {
+			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
+					osCommandCriterion.getCommandLine(),
+					telemetryManager,
+					osCommandCriterion.getTimeout(),
+					osCommandCriterion.getExecuteLocally(),
+					telemetryManager.getHostProperties().isLocalhost());
+
+			final OsCommandCriterion osCommandNoPassword = OsCommandCriterion.builder()
+					.commandLine(osCommandResult.getNoPasswordCommand())
+					.executeLocally(osCommandCriterion.getExecuteLocally())
+					.timeout(osCommandCriterion.getTimeout())
+					.expectedResult(osCommandCriterion.getExpectedResult())
+					.build();
+
+			final Matcher matcher = Pattern
+					.compile(PslUtils.psl2JavaRegex(osCommandCriterion.getExpectedResult()),
+							Pattern.CASE_INSENSITIVE | Pattern.MULTILINE)
+					.matcher(osCommandResult.getResult());
+
+			return matcher.find()?
+					CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult()) :
+						CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
+
+		} catch(NoCredentialProvidedException e) {
+			return CriterionTestResult.error(osCommandCriterion, e.getMessage());
+		} catch (Exception e) {
+			return CriterionTestResult.error(osCommandCriterion, e);
+		}
 	}
 
 	/**

@@ -15,7 +15,7 @@ public class WmiConfiguration implements IWinConfiguration {
 	private char[] password;
 	private String namespace;
 	@Builder.Default
-	private final Long timeout = 120L;
+	private Long timeout = 120L;
 
 	@Override
 	public String toString() {

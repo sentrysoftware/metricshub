@@ -26,9 +26,9 @@ public class OsCommandConfiguration implements IConfiguration {
 		final Long timeout
 	) {
 		this.useSudo = useSudo;
-		this.useSudoCommands = useSudoCommands;
-		this.sudoCommand = sudoCommand;
-		this.timeout = timeout;
+		this.useSudoCommands = useSudoCommands == null ? new HashSet<>() : useSudoCommands;
+		this.sudoCommand = sudoCommand == null ? SUDO : sudoCommand;
+		this.timeout = timeout == null ? DEFAULT_TIMEOUT : timeout;
 	}
 
 	@Override

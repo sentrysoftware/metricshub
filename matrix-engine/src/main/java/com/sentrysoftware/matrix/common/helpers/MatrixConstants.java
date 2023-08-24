@@ -131,5 +131,13 @@ public class MatrixConstants {
 			"due to an exception. Message: %s";
 	public static final String MALFORMED_WMI_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection.";
 	public static final String HOSTNAME_EXCEPTION_MESSAGE = "Hostname {} - Exception: ";
+	public final static String YAML_EXTENDS_KEY = "extends";
 
+	/**
+	 * A compiled representation of a file converter
+	 * We attempt to match input like $file("*")$
+	 */
+	public static final Pattern FILE_PATTERN = Pattern.compile(
+			"\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE
+			);
 }

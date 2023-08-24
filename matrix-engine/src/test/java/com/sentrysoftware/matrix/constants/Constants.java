@@ -64,9 +64,13 @@ public class Constants {
 	public static final String EMPTY = "";
 	public static final String ROOT = "root";
 	public static final String AUTOMATIC = "Automatic";
+	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
 
 	// Yaml test file name
 	public static final String YAML_TEST_FILE_NAME = "AAC";
+	public static final String COMMAND_FILE_ABSOLUTE_PATH = "${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
+	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
+	public static final String TXT_FILE_EXTENSION = "txt";
 
 	// Host information
 	public static final String LOCALHOST = "localhost";
@@ -89,7 +93,7 @@ public class Constants {
 	public static final String SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING = "SNMP v3 with MD5 auth as testUser";
 	public static final String HOST_CONFIGURATION_TO_STRING = "HostConfiguration(hostname=localhost," +
 			" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
-			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations=null)";
+			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations={})";
 	public static final String IPMI_RESULT_EXAMPLE = "Device ID                 : 3\r\n" + "Device Revision           : 3\r\n"
 			+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
 			+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
