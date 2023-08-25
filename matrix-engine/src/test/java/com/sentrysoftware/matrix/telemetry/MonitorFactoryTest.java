@@ -197,7 +197,6 @@ class MonitorFactoryTest {
 				.hostProperties(HostProperties.builder().isLocalhost(Boolean.TRUE).build()).build();
 
 		// Mock host configuration and host properties
-		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
 		// Call create host monitor
