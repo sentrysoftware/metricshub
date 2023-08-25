@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.METRICS_KEY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
@@ -43,7 +43,7 @@ class DetectionStrategyTest {
 		final Map<String, Connector> connectors = new ConnectorLibraryParser().parseConnectorsFromAllYamlFiles(yamlTestPath);
 		final Connector connector = connectors.get(YAML_TEST_FILE_NAME + ".yaml");
 		final Map<String, MetricDefinition> connectorMetrics = new HashMap<>();
-		connectorMetrics.put(METRICS_KEY, MetricDefinition.builder().type(MetricType.GAUGE).build());
+		connectorMetrics.put(CONNECTOR_STATUS_METRIC_KEY, MetricDefinition.builder().type(MetricType.GAUGE).build());
 		connector.setMetrics(connectorMetrics);
 
 		// Initiate telemetryManager with host configuration
@@ -64,7 +64,7 @@ class DetectionStrategyTest {
 		criterionTestResultList.add(criterionTestResult);
 
 		// Create a ConnectorTestResult instance and set the connector and the previously created criterionTestResultList
-		final ConnectorTestResult connectorTestResult  = ConnectorTestResult.builder()
+		final ConnectorTestResult connectorTestResult = ConnectorTestResult.builder()
 			.connector(connector)
 			.criterionTestResults(criterionTestResultList)
 			.build();
@@ -82,19 +82,25 @@ class DetectionStrategyTest {
 		assertEquals(1, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).size());
 		assertEquals(monitorId, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
 			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_ID));
-		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_NAME));
-		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_CONNECTOR_ID));
-		assertTrue(telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_APPLIES_TO_OS).contains(LINUX));
-		assertTrue(telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_APPLIES_TO_OS).contains(WINDOWS));
+		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
+			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_NAME));
+		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
+			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_CONNECTOR_ID));
+		assertTrue(telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getAttributes()
+			.get(MONITOR_ATTRIBUTE_APPLIES_TO_OS).contains(LINUX));
+		assertTrue(telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId)
+			.getAttributes().get(MONITOR_ATTRIBUTE_APPLIES_TO_OS).contains(WINDOWS));
 
 		// Check monitor metrics
-		NumberMetric numberMetric = (NumberMetric) telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getMetrics().get(METRICS_KEY);
+		NumberMetric numberMetric = (NumberMetric) telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId)
+			.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
 		assertEquals(1.0, numberMetric.getValue());
 
 		// Set criterion test result to isSuccess = false, call DetectionStrategy and expect the metric to be set to 0.0
 		criterionTestResult.setSuccess(false);
 		detectionStrategy.createMonitors(connectorTestResultList);
-		numberMetric = (NumberMetric) telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getMetrics().get(METRICS_KEY);
+		numberMetric = (NumberMetric) telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getMetrics()
+			.get(CONNECTOR_STATUS_METRIC_KEY);
 		assertEquals(0.0, numberMetric.getValue());
 
 	}

@@ -1,19 +1,41 @@
 package com.sentrysoftware.matrix.telemetry.metric;
 
-import lombok.AllArgsConstructor;
+import java.util.Map;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class StateSetMetric extends AbstractMetric {
 
 	private String value;
 	private String previousValue;
 	private String[] stateSet;
+
+	// Default constructor
+	public StateSetMetric() {
+	}
+
+	@Builder
+	public StateSetMetric(
+			String name,
+			long collectTime,
+			Map<String, String> attributes,
+			String value,
+			String[] stateSet
+	) {
+		super(name, collectTime, attributes);
+		this.value = value;
+		this.stateSet = stateSet;
+	}
+
+	@Override
+	public void save() {
+		super.save();
+		previousValue = value;
+	}
 }
