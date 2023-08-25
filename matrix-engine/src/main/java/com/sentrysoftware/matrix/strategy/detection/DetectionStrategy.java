@@ -73,8 +73,8 @@ public class DetectionStrategy extends AbstractStrategy {
 		final HostProperties hostProperties = telemetryManager.getHostProperties();
 		try {
 			monitorFactory.createHostMonitor(hostProperties.isLocalhost());
-		} catch (UnknownHostException e) {
-			throw new RuntimeException(e);
+		} catch (UnknownHostException unknownHostException) {
+			throw new RuntimeException(unknownHostException);
 		}
 		// Create monitors
 		createMonitors(connectorTestResults);

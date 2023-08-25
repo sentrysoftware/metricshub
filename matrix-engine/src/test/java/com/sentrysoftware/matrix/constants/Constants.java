@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.constants;
 
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
+
+import java.net.InetAddress;
 import java.util.List;
 
 public class Constants {
@@ -65,7 +68,9 @@ public class Constants {
 	public static final String ROOT = "root";
 
 	public static final String MONITOR_ID_ATTRIBUTE_VALUE = "anyMonitorId";
-	public static final String AGENT_HOSTNAME_VALUE = "host.docker.internal";
+	public static final String UNKNOWN = "unknown";
+	public static final String AGENT_HOSTNAME_VALUE = StringHelper
+			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
 	public static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
 	public static final String ID = "id";
 	public static final String LOCATION = "location";
