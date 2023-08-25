@@ -25,9 +25,11 @@ import java.util.Set;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_DESCRIPTION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_PARENT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 
@@ -37,8 +39,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET
 public class DetectionStrategy extends AbstractStrategy {
 
 	public DetectionStrategy(
-			final TelemetryManager telemetryManager,
-			final long strategyTime
+		final TelemetryManager telemetryManager,
+		final long strategyTime
 	) {
 		this.telemetryManager = telemetryManager;
 		this.strategyTime = strategyTime;
@@ -47,6 +49,7 @@ public class DetectionStrategy extends AbstractStrategy {
 	@Override
 	public void run() {
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
+		final HostProperties hostProperties = telemetryManager.getHostProperties();
 		if (hostConfiguration == null) {
 			return;
 		}
@@ -55,9 +58,7 @@ public class DetectionStrategy extends AbstractStrategy {
 		log.debug("Hostname {} - Start detection strategy.", hostname);
 
 		// Detect if we monitor localhost then set the localhost property in the HostProperties instance
-		telemetryManager
-				.getHostProperties()
-				.setLocalhost(NetworkHelper.isLocalhost(hostname));
+		hostProperties.setLocalhost(NetworkHelper.isLocalhost(hostname));
 
 		final Set<String> selectedConnectors = hostConfiguration.getSelectedConnectors();
 		final List<ConnectorTestResult> connectorTestResults;
@@ -70,12 +71,8 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Create Host monitor
 		final MonitorFactory monitorFactory = new MonitorFactory();
-		final HostProperties hostProperties = telemetryManager.getHostProperties();
-		try {
-			monitorFactory.createHostMonitor(hostProperties.isLocalhost());
-		} catch (UnknownHostException unknownHostException) {
-			throw new RuntimeException(unknownHostException);
-		}
+		monitorFactory.createHostMonitor(hostProperties.isLocalhost());
+
 		// Create monitors
 		createMonitors(connectorTestResults);
 	}
@@ -115,14 +112,15 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
-		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, telemetryManager.getHostConfiguration().getHostId() + "@" +
-			connector.getConnectorIdentity().getCompiledFilename());
-		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connector.getConnectorIdentity().getCompiledFilename());
-		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connector.getConnectorIdentity().getCompiledFilename());
+		final String hostId = telemetryManager.getHostConfiguration().getHostId();
+		final String connectorCompiledFileName = connector.getConnectorIdentity().getCompiledFilename();
+		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, hostId + "@" + connectorCompiledFileName);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorCompiledFileName);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorCompiledFileName);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_APPLIES_TO_OS, connector.getConnectorIdentity().getDetection()
 			.getAppliesTo().toString());
-		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT, telemetryManager.getHostConfiguration() == null ? null :
-			telemetryManager.getHostConfiguration().getHostId());
+		monitorAttributes.put(MONITOR_ATTRIBUTE_DESCRIPTION, connector.getConnectorIdentity().getInformation());
+		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT, hostId);
 
 		// Create or update the monitor by calling monitor factory
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey());
@@ -140,9 +138,9 @@ public class DetectionStrategy extends AbstractStrategy {
 		} else if (metricDefinition != null && metricDefinition.getType() instanceof StateSet) {
 			// When metric type is stateSet
 			if (connectorTestResult.isSuccess()) {
-				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, strategyTime);
+				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET, strategyTime);
 			} else {
-				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_FAILED, strategyTime);
+				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_FAILED, STATE_SET, strategyTime);
 			}
 		}
 	}

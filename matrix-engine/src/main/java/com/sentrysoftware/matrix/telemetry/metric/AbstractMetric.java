@@ -1,25 +1,19 @@
 package com.sentrysoftware.matrix.telemetry.metric;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public abstract class AbstractMetric {
 
 	private String name;
 	private long collectTime;
 	private long previousCollectTime;
 	private Map<String, String> attributes = new HashMap<>();
-
-	// Default constructor
-	AbstractMetric() {
-
-	}
-
 	AbstractMetric(String name, long collectTime, Map<String, String> attributes) {
 		this.name = name;
 		this.collectTime = collectTime;

@@ -50,6 +50,12 @@ public class TelemetryManager {
 		return winConfiguration;
 	}
 
+	/**
+	 * This metho finds a monitor using its type and its id attribute
+	 * @param type
+	 * @param id
+	 * @return Monitor instance
+	 */
 	public Monitor findMonitorByTypeAndId(final String type, final String id) {
 		final Map<String, Monitor> findMonitorByTypeResult = findMonitorByType(type);
 		if (findMonitorByTypeResult != null) {
@@ -58,14 +64,22 @@ public class TelemetryManager {
 		return null;
 	}
 
+	/**
+	 * This metho finds a monitor using its id attribute
+	 * @param id
+	 * @param monitorsMap
+	 * @return Monitor instance
+	 */
 	public Monitor findMonitorById(final String id, final  Map<String, Monitor> monitorsMap){
 		return monitorsMap.get(id);
 	}
 
-
-
+	/**
+	 * This metho finds a monitor using its type
+	 * @param type
+	 * @return Monitor instance
+	 */
 	private Map<String, Monitor> findMonitorByType(final String type) {
 		return this.getMonitors() == null ? null : this.getMonitors().get(type);
 	}
-
 }

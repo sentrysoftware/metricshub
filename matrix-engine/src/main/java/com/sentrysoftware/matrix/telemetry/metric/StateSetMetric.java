@@ -1,13 +1,15 @@
 package com.sentrysoftware.matrix.telemetry.metric;
 
-import java.util.Map;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Map;
+
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class StateSetMetric extends AbstractMetric {
@@ -15,10 +17,6 @@ public class StateSetMetric extends AbstractMetric {
 	private String value;
 	private String previousValue;
 	private String[] stateSet;
-
-	// Default constructor
-	public StateSetMetric() {
-	}
 
 	@Builder
 	public StateSetMetric(

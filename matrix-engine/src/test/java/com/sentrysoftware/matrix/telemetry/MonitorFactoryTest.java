@@ -1,14 +1,9 @@
-package com.sentrysoftware.matrix;
+package com.sentrysoftware.matrix.telemetry;
 
 import com.sentrysoftware.matrix.common.HostLocation;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.telemetry.HostProperties;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
-import com.sentrysoftware.matrix.telemetry.Resource;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
@@ -26,6 +21,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_JOB_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 import static com.sentrysoftware.matrix.constants.Constants.AGENT_HOSTNAME_ATTRIBUTE;
 import static com.sentrysoftware.matrix.constants.Constants.AGENT_HOSTNAME_VALUE;
@@ -52,7 +48,7 @@ class MonitorFactoryTest {
 	private MonitorFactory monitorFactoryMock;
 
 	@Test
-	public void testCreateOrUpdateMonitorExists() {
+	void testCreateOrUpdateMonitorExists() {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
@@ -71,7 +67,7 @@ class MonitorFactoryTest {
 	}
 
 	@Test
-	public void testCreateOrUpdateMonitorNotExists() {
+	void testCreateOrUpdateMonitorNotExists() {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
@@ -88,7 +84,7 @@ class MonitorFactoryTest {
 	}
 
 	@Test
-	public void testCollectNumberMetricNotExists() {
+	void testCollectNumberMetricNotExists() {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
@@ -112,7 +108,7 @@ class MonitorFactoryTest {
 	}
 
 	@Test
-	public void testCollectNumberMetricExists() {
+	void testCollectNumberMetricExists() {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
@@ -141,7 +137,7 @@ class MonitorFactoryTest {
 	}
 
 	@Test
-	public void testCollectStateSetMetricNotExists() {
+	void testCollectStateSetMetricNotExists() {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
@@ -154,7 +150,7 @@ class MonitorFactoryTest {
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
-		monitorFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, DEFAULT_JOB_TIMEOUT);
+		monitorFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET,DEFAULT_JOB_TIMEOUT);
 
 		// Retrieve the resulting stateSet metric
 		final StateSetMetric stateSetMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
@@ -165,7 +161,7 @@ class MonitorFactoryTest {
 	}
 
 	@Test
-	public void testCollectStateSetMetricExists() {
+	void testCollectStateSetMetricExists() {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
@@ -183,7 +179,7 @@ class MonitorFactoryTest {
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
-		monitorFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, DEFAULT_JOB_TIMEOUT);
+		monitorFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET, DEFAULT_JOB_TIMEOUT);
 
 		// Retrieve the resulting stateSet metric
 		final StateSetMetric stateSetMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
@@ -194,7 +190,7 @@ class MonitorFactoryTest {
 	}
 
 	@Test
-	public void testCreateHostMonitor() throws UnknownHostException {
+	void testCreateHostMonitor() {
 		// Create a telemetry manager instance with necessary information in host configuration and host properties
 		final TelemetryManager telemetryManager = TelemetryManager.builder()
 				.hostConfiguration(HostConfiguration.builder().hostId(HOST_ID).hostname(HOST_NAME).hostType(DeviceKind.LINUX).build())
@@ -226,5 +222,29 @@ class MonitorFactoryTest {
 		assertEquals(LINUX.toLowerCase(), hostMonitorResource.getAttributes().get(OS_TYPE));
 		assertEquals(AGENT_HOSTNAME_VALUE, hostMonitorResource.getAttributes().get(AGENT_HOSTNAME_ATTRIBUTE));
 		assertEquals(HOST_NAME, hostMonitorResource.getAttributes().get(HOST_NAME));
+	}
+
+	@Test
+	void testExtractAttributesFromMetricName() {
+		assertEquals(
+				Map.of("hw.type", "cpu"),
+				MonitorFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\"}")
+		);
+
+		assertEquals(
+				Map.of(
+						"hw.type", "cpu",
+						"host.id", "host"
+				),
+				MonitorFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\", host.id=\"host\"}")
+		);
+
+		assertEquals(
+				Map.of(
+						"hw.type", "cpu",
+						"host.id", "host"
+				),
+				MonitorFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\",host.id=\"host\"}")
+		);
 	}
 }

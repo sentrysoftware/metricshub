@@ -5,6 +5,7 @@ import com.sentrysoftware.matrix.common.HostLocation;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
@@ -14,16 +15,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AGENT_HOSTNAME_VALUE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AGENT_HOST_NAME;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CLOSING_BRACKET;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EQUALS_OPERATOR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_CREATION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_ID;
@@ -32,8 +30,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_HOST_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.METRIC_ATTRIBUTES_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPENING_BRACKET;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OS_TYPE;
 
 @Slf4j
@@ -70,7 +68,12 @@ public class MonitorFactory {
 			foundMonitor.setType(monitorType);
 			return foundMonitor;
 		} else {
-			final Monitor newMonitor = Monitor.builder().resource(resource).attributes(attributes).metrics(new HashMap<>()).type(monitorType).build();
+			final Monitor newMonitor = Monitor
+				.builder()
+				.resource(resource)
+				.attributes(attributes)
+				.type(monitorType)
+				.build();
 			Map<String, Monitor> monitorsMap = telemetryManager.getMonitors().get(monitorType);
 			if (monitorsMap == null) {
 				monitorsMap = new HashMap<>();
@@ -87,20 +90,39 @@ public class MonitorFactory {
 	 * @param monitor     a given monitor
 	 * @param metricName  the metric's name
 	 * @param value       the metric's value
+	 * @param stateSet    array of states values. E.g. [ "ok", "degraded", "failed" ]
 	 * @param collectTime the metric's collect time
 	 */
-	public void collectStateSetMetric(final Monitor monitor, final String metricName, final String value, final long collectTime) {
-		StateSetMetric metric = monitor.getMetric(metricName, StateSetMetric.class);
-		if (metric == null) {
-			metric = new StateSetMetric();
-		}
-		metric.setValue(value);
-		setMetricData(metric, metricName, collectTime);
-		if (monitor.getMetric(metricName, StateSetMetric.class) == null) {
-			monitor.getMetrics().put(metricName, metric);
-		}
-	}
+	public void collectStateSetMetric(
+		final Monitor monitor,
+		final String metricName,
+		final String value,
+		final String[] stateSet,
+		final long collectTime
+	) {
 
+		final StateSetMetric metric = monitor.getMetric(metricName, StateSetMetric.class);
+		if (metric == null) {
+			// Add the metric directly in the monitor's metrics
+			monitor.addMetric(
+				metricName,
+				StateSetMetric
+					.builder()
+					.stateSet(stateSet)
+					.name(metricName)
+					.collectTime(collectTime)
+					.value(value)
+					.attributes(extractAttributesFromMetricName(metricName))
+					.build()
+			);
+		} else {
+			// stateSet, metricName, and metric's attributes will never change over the collects
+			// so, we only set the value and collect time
+			metric.setValue(value);
+			metric.setCollectTime(collectTime);
+		}
+
+	}
 	/**
 	 * This method sets number metric in the monitor
 	 *
@@ -110,30 +132,33 @@ public class MonitorFactory {
 	 * @param collectTime the metric's collect time
 	 */
 
-	public void collectNumberMetric(final Monitor monitor, final String metricName, final double value, final long collectTime) {
-		NumberMetric metric = monitor.getMetric(metricName, NumberMetric.class);
-		if (metric == null) {
-			metric = new NumberMetric();
-		}
-		metric.setValue(value);
-		setMetricData(metric, metricName, collectTime);
-		if (monitor.getMetric(metricName, NumberMetric.class) == null) {
-			monitor.getMetrics().put(metricName, metric);
-		}
-	}
+	public void collectNumberMetric(
+			final Monitor monitor,
+			final String metricName,
+			final double value,
+			final long collectTime
+	) {
 
-	/**
-	 * This method sets AbstractMetric data
-	 *
-	 * @param metric      a given monitor metric
-	 * @param metricName  metric's name
-	 * @param collectTime metric's collect time
-	 */
-	private void setMetricData(final AbstractMetric metric, final String metricName, final long collectTime) {
-		metric.setName(metricName);
-		metric.setCollectTime(collectTime);
-		final Map<String, String> metricAttributes = extractMetricAttributesFromMetricName(metricName);
-		metric.setAttributes(metricAttributes);
+		final NumberMetric metric = monitor.getMetric(metricName, NumberMetric.class);
+		if (metric == null) {
+			// Add the metric directly in the monitor's metrics
+			monitor.addMetric(
+					metricName,
+					NumberMetric
+							.builder()
+							.name(metricName)
+							.collectTime(collectTime)
+							.value(value)
+							.attributes(extractAttributesFromMetricName(metricName))
+							.build()
+			);
+		} else {
+			// stateSet, metricName, and metric's attributes will never change over the collects
+			// so, we only set the value and collect time
+			metric.setValue(value);
+			metric.setCollectTime(collectTime);
+		}
+
 	}
 
 	/**
@@ -142,21 +167,31 @@ public class MonitorFactory {
 	 * @param metricName the metric's name
 	 * @return a Map with attributes names as keys and attributes values as values
 	 */
-	private Map<String, String> extractMetricAttributesFromMetricName(final String metricName) {
-		final Map<String, String> metricAttributes = new HashMap<>();
-		String metricAttributeKeysValuesString = null;
-		if (metricName.contains(OPENING_BRACKET)) {
-			metricAttributeKeysValuesString = metricName.substring(metricName.indexOf(OPENING_BRACKET), metricName.lastIndexOf(CLOSING_BRACKET));
-		}
-		if (metricAttributeKeysValuesString != null && !metricAttributeKeysValuesString.isBlank()) {
-			final String[] attributeKeyValuePairs = metricAttributeKeysValuesString.trim().split(COMMA);
-			for (String keyValue : attributeKeyValuePairs) {
-				final String attributeKey = keyValue.split(EQUALS_OPERATOR)[0];
-				final String attributeValue = keyValue.split(EQUALS_OPERATOR)[1];
-				metricAttributes.put(attributeKey, attributeValue);
+	static Map<String, String> extractAttributesFromMetricName(final String metricName) {
+
+		// Create a map to store the extracted attributes
+		final Map<String, String> attributes = new HashMap<>();
+
+		// Create a Matcher object
+		final Matcher matcher = METRIC_ATTRIBUTES_PATTERN.matcher(metricName);
+
+		if (matcher.find()) {
+			final String attributeMap = matcher.group(1);
+
+			// Split the attribute map into key-value pairs
+			final String[] keyValuePairs = attributeMap.split(",");
+
+			// Iterate through the key-value pairs
+			for (String pair : keyValuePairs) {
+				final String[] parts = pair.trim().split("=");
+				if (parts.length == 2) {
+					// Set the key-value pair and remove the double quotes from the value
+					attributes.put(parts[0], parts[1].replace("\"", ""));
+				}
 			}
 		}
-		return metricAttributes;
+
+		return attributes;
 	}
 
 	/**
@@ -164,32 +199,44 @@ public class MonitorFactory {
 	 *
 	 * @param isLocalhost Whether the host should be localhost or not.
 	 * @return Monitor instance
-	 * @throws UnknownHostException If the host's hostname could not be resolved.
 	 */
-	public Monitor createHostMonitor(final boolean isLocalhost) throws UnknownHostException {
-		final HostProperties hostProperties = telemetryManager.getHostProperties();
-		hostProperties.setLocalhost(Boolean.TRUE);
-
+	public Monitor createHostMonitor(final boolean isLocalhost) {
+		// Get the host configuration
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 
-		final String hostname = hostConfiguration == null ? null : hostConfiguration.getHostname();
+		final String hostname = hostConfiguration.getHostname();
 
 		// Create the host
-		final Map<String, String> monitorAttributes = Map.of(MONITOR_ATTRIBUTE_ID, telemetryManager.getHostConfiguration().getHostId(),
-			LOCATION, isLocalhost ? HostLocation.LOCAL.getKey() : HostLocation.REMOTE.getKey());
+		final Map<String, String> monitorAttributes = Map.of(
+			MONITOR_ATTRIBUTE_ID,
+			telemetryManager.getHostConfiguration().getHostId(),
+			LOCATION,
+			isLocalhost ? HostLocation.LOCAL.getKey() : HostLocation.REMOTE.getKey()
+		);
+
+		final DeviceKind deviceKind = hostConfiguration.getHostType();
 
 		// The host resource os.type
-		final String osType = HOST_TYPE_TO_OTEL_OS_TYPE.getOrDefault(hostConfiguration.getHostType(),
-			hostConfiguration.getHostType().getDisplayName().toLowerCase());
+		final String osType = HOST_TYPE_TO_OTEL_OS_TYPE.getOrDefault(
+			deviceKind,
+			deviceKind.getDisplayName().toLowerCase()
+		);
 
 		// The host resource host.type
-		final String hostType = HOST_TYPE_TO_OTEL_HOST_TYPE.getOrDefault(hostConfiguration.getHostType(),
-			hostConfiguration.getHostType().getDisplayName().toLowerCase());
+		final String hostType = HOST_TYPE_TO_OTEL_HOST_TYPE.getOrDefault(
+			deviceKind,
+			deviceKind.getDisplayName().toLowerCase()
+		);
 
-
-		final Map<String, String> resourceAttributes = Map.of(HOST_ID, hostConfiguration.getHostId(), HOST_NAME,
-			NetworkHelper.getFqdn(hostname), HOST_TYPE, hostType, OS_TYPE, osType,
-			AGENT_HOST_NAME, AGENT_HOSTNAME_VALUE);
+		final Map<String, String> resourceAttributes = Map.of(
+			HOST_ID, hostConfiguration.getHostId(),
+			HOST_NAME,
+			NetworkHelper.getFqdn(hostname),
+			HOST_TYPE,
+			hostType,
+			OS_TYPE, osType,
+			AGENT_HOST_NAME, AGENT_HOSTNAME_VALUE
+		);
 		final Resource monitorResource = Resource.builder().type(HOST).attributes(resourceAttributes).build();
 
 

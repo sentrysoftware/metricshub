@@ -17,8 +17,11 @@ import java.util.Map;
 @NoArgsConstructor
 public class Monitor {
 
+	@Builder.Default
 	private Map<String, AbstractMetric> metrics = new HashMap<>();
+	@Builder.Default
 	private Map<String, String> attributes = new HashMap<>();
+	@Builder.Default
 	private Map<String, List<AlertRule>> alertRules = new HashMap<>();
 	private Resource resource;
 	private long discoveryTime;
@@ -35,12 +38,13 @@ public class Monitor {
 		return type.cast(metrics.get(metricName));
 	}
 
-	/**
-	 * Returns whether the monitor contains a given metric
-	 * @param metricName
-	 * @return true or false
+	/***
+	 * Add a new metric in the map of metrics
+	 *
+	 * @param metricName The unique name of the metric
+	 * @param metric     The metric instance to add
 	 */
-	public boolean hasMetric(final String metricName){
-		return metrics.containsKey(metricName);
+	public void addMetric(String metricName, AbstractMetric metric) {
+		metrics.put(metricName, metric);
 	}
 }
