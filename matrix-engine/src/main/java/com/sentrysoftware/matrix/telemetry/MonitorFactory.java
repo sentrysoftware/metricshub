@@ -160,7 +160,7 @@ public class MonitorFactory {
 	}
 
 	/**
-	 * Creates the Host.
+	 * Creates the Host monitor
 	 *
 	 * @param isLocalhost Whether the host should be localhost or not.
 	 * @return Monitor instance
