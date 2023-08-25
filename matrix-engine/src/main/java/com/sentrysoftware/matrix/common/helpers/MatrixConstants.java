@@ -40,8 +40,7 @@ public class MatrixConstants {
 	public static final String MONITOR_ATTRIBUTE_NAME = "name";
 	public static final String MONITOR_ATTRIBUTE_CONNECTOR_ID = "connector_id";
 	public static final String MONITOR_ATTRIBUTE_APPLIES_TO_OS = "applies_to_os";
-	public static final String MONITOR_ATTRIBUTE_DETECTION = "detection";
-	public static final String MONITOR_ATTRIBUTE_PARENT = "parent";
+	public static final String MONITOR_ATTRIBUTE_PARENT = "hw.parent.id";
 	public static final String USERNAME_MACRO = "%{USERNAME}";
 	public static final String AUTHENTICATION_TOKEN_MACRO = "%{AUTHENTICATIONTOKEN}";
 	public static final String PASSWORD_MACRO = "%{PASSWORD}";
@@ -92,7 +91,6 @@ public class MatrixConstants {
 	public static final String EMPTY_PROCESS_COMMAND_LINE_MESSAGE = "Hostname {} - Process Criterion, Process Command Line is empty.";
 	public static final String NO_TEST_WILL_BE_PERFORMED_MESSAGE = "Process presence check: No test will be performed.";
 	public static final String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE = "Process presence check: OS unknown, no test will be performed.";
-	public static final String NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE = "Process presence check: No tests will be performed for OS: aix.";
 	public static final String NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE = "Process presence check: No test will be performed remotely.";
 	public static final String REMOTE_PROCESS_MESSAGE = "Hostname {} - Process criterion, not localhost.";
 	public static final String UNKNOWN_LOCAL_OS_MESSAGE = "Hostname {} - Process criterion, unknown local OS.";
