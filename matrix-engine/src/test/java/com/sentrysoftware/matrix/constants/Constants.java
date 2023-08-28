@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.constants;
 
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
+
+import java.net.InetAddress;
 import java.util.List;
 
 public class Constants {
@@ -41,12 +44,12 @@ public class Constants {
 			"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
 			"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"";
 	public static final String WMI_CRITERION_TEST_SUCCEED_MESSAGE = """
-		WmiCriterion test succeeded:
-		- WQL Query: SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process
-		- Namespace: root\\cimv2
-		- Expected Result: MBM[5-9]\\.exe
-		
-		Result: MBM6.exe""";
+			WmiCriterion test succeeded:
+			- WQL Query: SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process
+			- Namespace: root\\cimv2
+			- Expected Result: MBM[5-9]\\.exe
+					
+			Result: MBM6.exe""";
 	public static final List<List<String>> EXECUTE_WMI_RESULT = List.of(
 			List.of("0", "System Idle Process", "0", ""),
 			List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
@@ -165,6 +168,19 @@ public class Constants {
 	public static final String SUDO_NAVISECCLI_COMMAND = "%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
 	public static final String SEN_EMBEDDED_0001_PATH = "C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001";
 	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh ${file::C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001}";
+
+	public static final String MONITOR_ID_ATTRIBUTE_VALUE = "anyMonitorId";
+	public static final String UNKNOWN = "unknown";
+	public static final String AGENT_HOSTNAME_VALUE = StringHelper
+			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
+	public static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
+	public static final String LOCATION = "location";
+	public static final String COMPUTE = "compute";
+	public static final String HOST_ID_ATTRIBUTE = "host.id";
+	public static final String HOST_TYPE = "host.type";
+	public static final String OS_TYPE = "os.type";
+	public static final String HOST_NAME = "host.name";
+	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
 
 	// Yaml test file name
 	public static final String YAML_TEST_FILE_NAME = "AAC";
