@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.constants;
 
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
+
+import java.net.InetAddress;
 import java.util.List;
 
 public class Constants {
@@ -41,12 +44,12 @@ public class Constants {
 			"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
 			"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"";
 	public static final String WMI_CRITERION_TEST_SUCCEED_MESSAGE = """
-		WmiCriterion test succeeded:
-		- WQL Query: SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process
-		- Namespace: root\\cimv2
-		- Expected Result: MBM[5-9]\\.exe
-		
-		Result: MBM6.exe""";
+			WmiCriterion test succeeded:
+			- WQL Query: SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process
+			- Namespace: root\\cimv2
+			- Expected Result: MBM[5-9]\\.exe
+					
+			Result: MBM6.exe""";
 	public static final List<List<String>> EXECUTE_WMI_RESULT = List.of(
 			List.of("0", "System Idle Process", "0", ""),
 			List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
@@ -63,7 +66,21 @@ public class Constants {
 	public static final String OID = "1.3.6.1.4.1.674.10893.1.20";
 	public static final String EMPTY = "";
 	public static final String ROOT = "root";
-	public static final String AUTOMATIC = "Automatic";
+
+	public static final String MONITOR_ID_ATTRIBUTE_VALUE = "anyMonitorId";
+	public static final String UNKNOWN = "unknown";
+	public static final String AGENT_HOSTNAME_VALUE = StringHelper
+			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
+	public static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
+	public static final String ID = "id";
+	public static final String LOCATION = "location";
+	public static final String COMPUTE = "compute";
+	public static final String HOST = "host";
+	public static final String HOST_ID_ATTRIBUTE = "host.id";
+	public static final String HOST_TYPE = "host.type";
+	public static final String OS_TYPE = "os.type";
+	public static final String HOST_NAME = "host.name";
+	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
 
 	// Yaml test file name
 	public static final String YAML_TEST_FILE_NAME = "AAC";

@@ -1,9 +1,23 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.net.InetAddress;
+import java.util.Map;
 import java.util.regex.Pattern;
+
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.AIX;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.HPUX;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.LINUX;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.NETWORK;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.OOB;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.SOLARIS;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.STORAGE;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.TRU64;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.VMS;
+import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.WINDOWS;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MatrixConstants {
@@ -19,14 +33,14 @@ public class MatrixConstants {
 	public static final String YAML_CONNECTOR_KEY = "connector";
 	public static final String YAML_DISPLAY_NAME_KEY = "displayName";
 	public static final long DEFAULT_JOB_TIMEOUT = 5 * 60L;
-	public static final String METRICS_KEY = "mtx_sentry.connector.status";
+	public static final String CONNECTOR_STATUS_METRIC_KEY = "mtx_sentry.connector.status";
 	public static final String STATE_SET_METRIC_OK = "ok";
 	public static final String STATE_SET_METRIC_FAILED = "failed";
 	public static final String MONITOR_ATTRIBUTE_ID = "id";
 	public static final String MONITOR_ATTRIBUTE_NAME = "name";
 	public static final String MONITOR_ATTRIBUTE_CONNECTOR_ID = "connector_id";
 	public static final String MONITOR_ATTRIBUTE_APPLIES_TO_OS = "applies_to_os";
-	public static final String MONITOR_ATTRIBUTE_DETECTION = "detection";
+	public static final String MONITOR_ATTRIBUTE_PARENT = "hw.parent.id";
 	public static final String USERNAME_MACRO = "%{USERNAME}";
 	public static final String AUTHENTICATION_TOKEN_MACRO = "%{AUTHENTICATIONTOKEN}";
 	public static final String PASSWORD_MACRO = "%{PASSWORD}";
@@ -77,7 +91,6 @@ public class MatrixConstants {
 	public static final String EMPTY_PROCESS_COMMAND_LINE_MESSAGE = "Hostname {} - Process Criterion, Process Command Line is empty.";
 	public static final String NO_TEST_WILL_BE_PERFORMED_MESSAGE = "Process presence check: No test will be performed.";
 	public static final String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE = "Process presence check: OS unknown, no test will be performed.";
-	public static final String NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE = "Process presence check: No tests will be performed for OS: aix.";
 	public static final String NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE = "Process presence check: No test will be performed remotely.";
 	public static final String REMOTE_PROCESS_MESSAGE = "Hostname {} - Process criterion, not localhost.";
 	public static final String UNKNOWN_LOCAL_OS_MESSAGE = "Hostname {} - Process criterion, unknown local OS.";
@@ -131,5 +144,57 @@ public class MatrixConstants {
 			"due to an exception. Message: %s";
 	public static final String MALFORMED_WMI_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection.";
 	public static final String HOSTNAME_EXCEPTION_MESSAGE = "Hostname {} - Exception: ";
+	public static final String UNKNOWN = "unknown";
+	public static final String HOST_TYPE_STORAGE = "storage";
+	public static final String HOST_TYPE_NETWORK = "network";
+	public static final String HOST_TYPE_COMPUTE = "compute";
+	public static final String OS_TYPE_STORAGE = "storage";
+	public static final String OS_TYPE_NETWORK = "network";
+	public static final String OS_TYPE_SOLARIS = "solaris";
+	public static final String OS_TYPE_WINDOWS = "windows";
+	public static final String OS_TYPE_MANAGEMENT = "management";
+	public static final String OS_TYPE_LINUX = "linux";
+	public static final String OS_TYPE_AIX = "aix";
+	public static final String OS_TYPE_HP_UX = "hpux";
+	public static final String OS_TYPE_TRUE64 = "true64";
+	public static final String OS_TYPE_OPEN_VMS = "openvms";
+	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_HOST_TYPE = Map.of(
+			VMS, HOST_TYPE_COMPUTE,
+			TRU64, HOST_TYPE_COMPUTE,
+			HPUX, HOST_TYPE_COMPUTE,
+			AIX, HOST_TYPE_COMPUTE,
+			LINUX, HOST_TYPE_COMPUTE,
+			OOB, HOST_TYPE_COMPUTE,
+			WINDOWS, HOST_TYPE_COMPUTE,
+			NETWORK, HOST_TYPE_NETWORK,
+			STORAGE, HOST_TYPE_STORAGE,
+			SOLARIS, HOST_TYPE_COMPUTE);
 
+	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_OS_TYPE = Map.of(
+			VMS, OS_TYPE_OPEN_VMS,
+			TRU64, OS_TYPE_TRUE64,
+			HPUX, OS_TYPE_HP_UX,
+			AIX, OS_TYPE_AIX,
+			LINUX, OS_TYPE_LINUX,
+			OOB, OS_TYPE_MANAGEMENT,
+			WINDOWS, OS_TYPE_WINDOWS,
+			NETWORK, OS_TYPE_NETWORK,
+			STORAGE, OS_TYPE_STORAGE,
+			SOLARIS, OS_TYPE_SOLARIS);
+	public static final String AGENT_HOSTNAME_VALUE = StringHelper
+			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
+	public static final String OPENING_BRACKET = "{";
+	public static final String CLOSING_BRACKET = "}";
+	public static final String EQUALS_OPERATOR = "=";
+	public static final String COMMA = ",";
+	public static final String HOST_ID = "host.id";
+	public static final String HOST_TYPE = "host.type";
+	public static final String HOST_NAME = "host.name";
+	public static final String OS_TYPE = "os.type";
+	public static final String AGENT_HOST_NAME = "agent.host.name";
+	public static final String HOST = "host";
+	public static final String LOCATION = "location";
+	public static final String HOST_CREATION_MESSAGE = "Hostname {} - Created host ID: {} ";
+	public static final String MONITOR_ATTRIBUTE_DESCRIPTION = "description";
+	public static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
 }

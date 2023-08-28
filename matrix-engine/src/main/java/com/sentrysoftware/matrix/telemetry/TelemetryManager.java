@@ -28,13 +28,13 @@ public class TelemetryManager {
 	private HostConfiguration hostConfiguration;
 	private ConnectorStore connectorStore;
 
-	public synchronized void run(){
+	public synchronized void run() {
 		// Implement the code here 
 	}
 
 	/**
 	 * Get the protocol configuration used to execute requests on Windows machines.
-	 *  (WinRM or WMI)<br> WinRM is prioritized.
+	 * (WinRM or WMI)<br> WinRM is prioritized.
 	 *
 	 * @return {@link com.sentrysoftware.matrix.configuration.IWinConfiguration} instance.
 	 */
@@ -50,4 +50,36 @@ public class TelemetryManager {
 		return winConfiguration;
 	}
 
+	/**
+	 * This metho finds a monitor using its type and its id attribute
+	 * @param type
+	 * @param id
+	 * @return Monitor instance
+	 */
+	public Monitor findMonitorByTypeAndId(final String type, final String id) {
+		final Map<String, Monitor> findMonitorByTypeResult = findMonitorByType(type);
+		if (findMonitorByTypeResult != null) {
+			return findMonitorById(id, findMonitorByTypeResult);
+		}
+		return null;
+	}
+
+	/**
+	 * This metho finds a monitor using its id attribute
+	 * @param id
+	 * @param monitorsMap
+	 * @return Monitor instance
+	 */
+	public Monitor findMonitorById(final String id, final  Map<String, Monitor> monitorsMap){
+		return monitorsMap.get(id);
+	}
+
+	/**
+	 * This metho finds a monitor using its type
+	 * @param type
+	 * @return Monitor instance
+	 */
+	private Map<String, Monitor> findMonitorByType(final String type) {
+		return this.getMonitors() == null ? null : this.getMonitors().get(type);
+	}
 }

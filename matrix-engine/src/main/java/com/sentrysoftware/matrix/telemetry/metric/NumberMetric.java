@@ -1,18 +1,36 @@
 package com.sentrysoftware.matrix.telemetry.metric;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.util.Map;
 
 @Data
-@Builder
-@EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class NumberMetric extends AbstractMetric {
 
 	private Double value;
 	private Double previousValue;
+
+	@Builder
+	public NumberMetric(
+			String name,
+			long collectTime,
+			Map<String, String> attributes,
+			Double value
+	) {
+		super(name, collectTime, attributes);
+		this.value = value;
+	}
+
+	@Override
+	public void save() {
+		super.save();
+		previousValue = value;
+	}
 }
