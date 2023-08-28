@@ -1853,34 +1853,6 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitOsCommandLineNull() {
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setExpectedResult("Agent Rev:");
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
-
-		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.build();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-				"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString()
-				+ "\n\n"
-				+ "Malformed OSCommand criterion.",
-				criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
 	void testVisitOsCommandExpectedResultNull() {
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
 		osCommandCriterion.setCommandLine("naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent");

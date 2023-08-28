@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANT_FIND_EMBEDDED_FILE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class EmbeddedFilesResolver {
 	private final Set<Path> parents;
 	private final Map<String, String> alreadyProcessedEmbeddedFiles;
 
-	public EmbeddedFilesResolver(JsonNode connector, Path connectorDirectory, Set<Path> parents) {
+	public EmbeddedFilesResolver(final JsonNode connector, final Path connectorDirectory, final Set<Path> parents) {
 		this.connector = connector;
 		this.connectorDirectory = connectorDirectory;
 		this.parents = parents;
@@ -43,11 +44,11 @@ public class EmbeddedFilesResolver {
 	 */
 	public void internalize() throws IOException {
 
-		JsonParser jsonParser = connector.traverse();
+		final JsonParser jsonParser = connector.traverse();
 		JsonToken token = jsonParser.nextToken();
 
 		while (token != null) {
-			String currentValue = jsonParser.getValueAsString();
+			final String currentValue = jsonParser.getValueAsString();
 
 			if (currentValue == null) {
 				token = jsonParser.nextToken();
@@ -56,13 +57,13 @@ public class EmbeddedFilesResolver {
 
 			final Matcher fileMatcher = FILE_PATTERN.matcher(currentValue);
 			while (fileMatcher.find()) {
-				String fileName = fileMatcher.group(1);
+				final String fileName = fileMatcher.group(1);
 
 				if (!alreadyProcessedEmbeddedFiles.containsKey(fileName)) {
-					String filePath = findAbsolutePath(fileName);
+					final String filePath = findAbsolutePath(fileName);
 
 					if (filePath == null || filePath.isEmpty()) {
-						throw new IOException("Can't find embedded file: " + fileName);
+						throw new IOException(CANT_FIND_EMBEDDED_FILE + fileName);
 					}
 					alreadyProcessedEmbeddedFiles.put(fileName, filePath);
 				}
@@ -79,10 +80,10 @@ public class EmbeddedFilesResolver {
 		// Traverse the connector node and replace embedded files references
 		// E.g. ${file::file-1} becomes ${file::file-absolute-path-1}
 		replacePlaceholderValues(
-				connector,
-				this::performFileRefReplacements,
-				value -> value.indexOf("${file::") != -1
-				);
+			connector,
+			this::performFileRefReplacements,
+			value -> value.indexOf("${file::") != -1
+			);
 	}
 
 	/**
@@ -99,10 +100,10 @@ public class EmbeddedFilesResolver {
 		}
 
 		// If the file doesn't exist in the connector's directory, lets check the parents
-		Iterator<Path> iter = parents.iterator();
+		final Iterator<Path> iterator = parents.iterator();
 
-		while (iter.hasNext()) {
-			filePath = iter.next().resolve(fileName).normalize();
+		while (iterator.hasNext()) {
+			filePath = iterator.next().resolve(fileName).normalize();
 			if (filePath.toFile().exists()) {
 				return filePath.toString();
 			}
@@ -120,10 +121,10 @@ public class EmbeddedFilesResolver {
 	 * @param replacementPredicate replacement predicate
 	 */
 	public static void replacePlaceholderValues(
-			final JsonNode node,
-			final UnaryOperator<String> transformer,
-			final Predicate<String> replacementPredicate
-			) {
+		final JsonNode node,
+		final UnaryOperator<String> transformer,
+		final Predicate<String> replacementPredicate
+		) {
 		if (node.isObject()) {
 
 			// Get JsonNode fields
@@ -143,10 +144,10 @@ public class EmbeddedFilesResolver {
 					final String oldValue = child.asText();
 					// No need to transform value if it doesn't have the placeholder
 					replaceJsonNode(
-							() -> ((ObjectNode) node).set(fieldName, new TextNode(transformer.apply(oldValue))),
-							oldValue,
-							replacementPredicate
-							);
+						() -> ((ObjectNode) node).set(fieldName, new TextNode(transformer.apply(oldValue))),
+						oldValue,
+						replacementPredicate
+					);
 				}
 			}
 		} else if (node.isArray()) {
@@ -165,10 +166,10 @@ public class EmbeddedFilesResolver {
 					// No need to transform value if it doesn't have the placeholder
 					final int index = i;
 					replaceJsonNode(
-							() -> ((ArrayNode) node).set(index, new TextNode(transformer.apply(oldValue))),
-							oldValue,
-							replacementPredicate
-							);
+						() -> ((ArrayNode) node).set(index, new TextNode(transformer.apply(oldValue))),
+						oldValue,
+						replacementPredicate
+					);
 				}
 			}
 		}
@@ -191,8 +192,6 @@ public class EmbeddedFilesResolver {
 	 * Perform replacements on the given value using the key-value pairs
 	 * provided in the replacements {@link Map}
 	 * 
-	 * @param replacements Key-value pairs of placeholder to value to replace.
-	 * E.g { ${file::embeddedFileInit}=$embedded.EmbeddedFile(1)$, ${file::embeddedFileOther}=$embedded.EmbeddedFile(2)$ }
 	 * @param value to replace
 	 * @return new {@link String} value
 	 */
@@ -219,9 +218,9 @@ public class EmbeddedFilesResolver {
 	private String replaceFileReference(final Matcher matcher, final String value) {
 		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1));
 		String res =  value.replace(
-				matcher.group(1),
-				replacement
-				);
+			matcher.group(1),
+			replacement
+			);
 		return res;
 	}
 }

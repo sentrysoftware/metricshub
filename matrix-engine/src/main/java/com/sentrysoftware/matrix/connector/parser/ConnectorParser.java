@@ -89,9 +89,9 @@ public class ConnectorParser {
 		PostDeserializeHelper.addPostDeserializeSupport(mapper);
 
 		return ConnectorParser.builder()
-				.deserializer(new ConnectorDeserializer(mapper))
-				.processor(NodeProcessorHelper.withExtendsAndConstantsProcessor(connectorDirectory, mapper))
-				.build();
+			.deserializer(new ConnectorDeserializer(mapper))
+			.processor(NodeProcessorHelper.withExtendsAndConstantsProcessor(connectorDirectory, mapper))
+			.build();
 	}
 
 	/**
@@ -127,8 +127,8 @@ public class ConnectorParser {
 	 * @param parents      The parents map to resolve
 	 * @throws IOException
 	 */
-	private void resolveParents(final JsonNode connector, final Path connectorDir, Map<Path, JsonNode> parents)
-			throws IOException {
+	private void resolveParents(final JsonNode connector, final Path connectorDir, final Map<Path, JsonNode> parents)
+		throws IOException {
 
 		final ArrayNode extended = (ArrayNode) connector.get(YAML_EXTENDS_KEY);
 		if (extended == null || extended.isNull() || extended.isEmpty()) {
@@ -136,8 +136,9 @@ public class ConnectorParser {
 		}
 
 		final List<Entry<Path, JsonNode>> nextEntries = new ArrayList<>();
+		Entry<Path, JsonNode> parentEntry;
 		for (final JsonNode extendedNode : extended) {
-			final Entry<Path, JsonNode> parentEntry = getConnectorParentEntry(connectorDir, extendedNode.asText());
+			parentEntry = getConnectorParentEntry(connectorDir, extendedNode.asText());
 			nextEntries.add(parentEntry);
 			parents.put(parentEntry.getKey(), parentEntry.getValue());
 		}
@@ -156,13 +157,15 @@ public class ConnectorParser {
 	 * @return a Map entry defining the path as key and the {@link JsonNode} parent connector as value
 	 * @throws IOException
 	 */
-	private Entry<Path, JsonNode> getConnectorParentEntry(final Path connectorCurrentDir,
-			final String connectorRelativePath) throws IOException {
+	private Entry<Path, JsonNode> getConnectorParentEntry(
+		final Path connectorCurrentDir,
+		final String connectorRelativePath) throws IOException {
 		final Path connectorPath = connectorCurrentDir.resolve(connectorRelativePath + ".yaml");
 		if (!Files.exists(connectorPath)) {
 			throw new IllegalStateException("Cannot find extended connector " + connectorPath.toString());
 		}
-		return new AbstractMap.SimpleEntry<>(connectorPath.getParent(),
-				deserializer.getMapper().readTree(connectorPath.toFile()));
+		return new AbstractMap.SimpleEntry<>(
+			connectorPath.getParent(),
+			deserializer.getMapper().readTree(connectorPath.toFile()));
 	}
 }

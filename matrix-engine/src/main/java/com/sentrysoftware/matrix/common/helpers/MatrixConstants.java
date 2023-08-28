@@ -131,13 +131,31 @@ public class MatrixConstants {
 			"due to an exception. Message: %s";
 	public static final String MALFORMED_WMI_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection.";
 	public static final String HOSTNAME_EXCEPTION_MESSAGE = "Hostname {} - Exception: ";
-	public final static String YAML_EXTENDS_KEY = "extends";
+	public static final String YAML_EXTENDS_KEY = "extends";
+	public static final String MALFORMED_OSCOMMAND_CRITERION = "Malformed OSCommand criterion.";
+	public static final String COMMAND_LINE_OR_EXPECTED_RESULT_EMPTY = "CommandLine or ExpectedResult are empty. Skipping this test.";
+	public static final String HTTP_TEST_FAILED_NO_RESULT = "Hostname %s - HTTP test failed - The HTTP test did not return any result.";
+	public static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
+	public static final String HTTP_TEST_FAILED_UNEXPECTED_RESULT = "Hostname %s - HTTP test failed - The result (%s) returned by the HTTP test did not match the expected result (%s).";
+	public static final String CANT_FIND_EMBEDDED_FILE = "Can't find embedded file: ";
+	public static final String COMMAND_TIMEOUT = "Command \"%s\" execution has timed out after %d s";
+	public static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
+	public static final String CANNOT_GET_EMBEDDED_FILE = "Cannot get the EmbeddedFile from the Connector. File name: ";
+	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
+	public static final String EMBEDDED_FILE_CONTENT_NULL = "EmbeddedFile content is null. File name: ";
+	public static final String SUDO_REGEX = "%%{SUDO:%s}";
+	public static final String CMD_EXE_C = "CMD.EXE /C ";
+	public static final String LOCAL_COMMAND_PROCESS_NULL = "Local command Process is null.";
+	public static final String TIMEOUT_SSH_SEMAPHORE_PERMIT = "Failed to run SSH command on %s. Timed out trying to get ssh semaphore permit.";
+	public static final String HOST_NULL_OR_EMPTY = "host cannot be null nor empty.";
+	public static final String HIDDEN_PASSWORD = "********";
+	public static final String COULDNT_READ_EMBEDDED_FILE = "Could not read embedded file: ";
 
 	/**
 	 * A compiled representation of a file converter
 	 * We attempt to match input like $file("*")$
 	 */
-	public static final Pattern FILE_PATTERN = Pattern.compile(
-			"\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE
-			);
+	public static final Pattern FILE_PATTERN = Pattern.compile("\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE);
+
+	public static final Pattern SUDO_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
 }
