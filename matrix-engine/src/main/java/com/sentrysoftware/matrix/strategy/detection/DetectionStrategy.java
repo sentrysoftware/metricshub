@@ -16,7 +16,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_A
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_PARENT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 
@@ -136,11 +134,12 @@ public class DetectionStrategy extends AbstractStrategy {
 				monitorFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 0.0, strategyTime);
 			}
 		} else if (metricDefinition != null && metricDefinition.getType() instanceof StateSet) {
+			final String[] stateSetSet = ((StateSet) metricDefinition.getType()).getSet().stream().toArray(String[]::new);
 			// When metric type is stateSet
 			if (connectorTestResult.isSuccess()) {
-				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET, strategyTime);
+				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, stateSetSet, strategyTime);
 			} else {
-				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_FAILED, STATE_SET, strategyTime);
+				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_FAILED, stateSetSet, strategyTime);
 			}
 		}
 	}

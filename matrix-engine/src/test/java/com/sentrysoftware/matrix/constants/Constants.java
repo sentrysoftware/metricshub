@@ -80,6 +80,7 @@ public class Constants {
 	public static final String HOST_TYPE = "host.type";
 	public static final String OS_TYPE = "os.type";
 	public static final String HOST_NAME = "host.name";
+	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
 
 	// Yaml test file name
 	public static final String YAML_TEST_FILE_NAME = "AAC";

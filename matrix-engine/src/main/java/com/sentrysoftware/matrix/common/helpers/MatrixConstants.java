@@ -197,6 +197,4 @@ public class MatrixConstants {
 	public static final String HOST_CREATION_MESSAGE = "Hostname {} - Created host ID: {} ";
 	public static final String MONITOR_ATTRIBUTE_DESCRIPTION = "description";
 	public static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
-	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
-
 }

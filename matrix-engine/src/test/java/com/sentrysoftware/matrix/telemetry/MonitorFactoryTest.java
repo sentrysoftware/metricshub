@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +20,6 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_JOB_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 import static com.sentrysoftware.matrix.constants.Constants.AGENT_HOSTNAME_ATTRIBUTE;
 import static com.sentrysoftware.matrix.constants.Constants.AGENT_HOSTNAME_VALUE;
@@ -35,6 +33,7 @@ import static com.sentrysoftware.matrix.constants.Constants.LINUX;
 import static com.sentrysoftware.matrix.constants.Constants.LOCATION;
 import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.matrix.constants.Constants.OS_TYPE;
+import static com.sentrysoftware.matrix.constants.Constants.STATE_SET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doReturn;

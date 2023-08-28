@@ -135,8 +135,8 @@ public class MonitorFactory {
 	public void collectNumberMetric(
 			final Monitor monitor,
 			final String metricName,
-			final double value,
-			final long collectTime
+			final Double value,
+			final Long collectTime
 	) {
 
 		final NumberMetric metric = monitor.getMetric(metricName, NumberMetric.class);
