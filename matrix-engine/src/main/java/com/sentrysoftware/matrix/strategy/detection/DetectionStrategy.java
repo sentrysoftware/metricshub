@@ -133,13 +133,13 @@ public class DetectionStrategy extends AbstractStrategy {
 			} else {
 				monitorFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 0.0, strategyTime);
 			}
-		} else if (metricDefinition != null && metricDefinition.getType() instanceof StateSet) {
-			final String[] stateSetSet = ((StateSet) metricDefinition.getType()).getSet().stream().toArray(String[]::new);
+		} else if (metricDefinition != null && metricDefinition.getType() instanceof StateSet stateSetType) {
 			// When metric type is stateSet
+			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
 			if (connectorTestResult.isSuccess()) {
-				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, stateSetSet, strategyTime);
+				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, stateSet, strategyTime);
 			} else {
-				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_FAILED, stateSetSet, strategyTime);
+				monitorFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_FAILED, stateSet, strategyTime);
 			}
 		}
 	}
