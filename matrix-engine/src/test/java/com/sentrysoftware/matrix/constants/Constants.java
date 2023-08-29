@@ -65,17 +65,117 @@ public class Constants {
 			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
 	public static final String OID = "1.3.6.1.4.1.674.10893.1.20";
 	public static final String EMPTY = "";
+	public static final String SINGLE_SPACE = " ";
 	public static final String ROOT = "root";
+	public static final String AUTOMATIC = "Automatic";
+	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
+	public static final String CMD = "cmd";
+	public static final String ID = "id";
+	public static final String BAT = "bat";
+	public static final String ECHO_OS = "ECHO %OS%";
+	public static final String ARCCONF_PATH = "/[opt|usr]/StorMan/arcconf";
+	public static final String PWD_COMMAND = "pwd";
+	public static final String AGENT_REV_RESULT = "Agent Rev:";
+	public static final String NAVISECCLI_COMMAND = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+	public static final String ECHO_HELLO_WORLD = "echo Hello World";
+	public static final String WINDOWS_NT_HELLO_WORLD = "Windows_NT\nHello World";
+	public static final String END_OF_LINE = "\n";
+	public static final String END_OF_LINE_IN_BRACKETS = "[\r\n]";
+	public static final String TEXT = "text";
+	public static final String KEY = "key";
+	public static final String SPACE_KEY = SINGLE_SPACE + KEY;
+	public static final String SUDO_KEY = "%{SUDO:key} key";
+	public static final String SUDO_KEY_RESULT = "sudo key\nsudo key";
+	public static final String PAUSE = "PAUSE";
+	public static final String NAVISECCLI_CAMEL_CASE = "NaviSecCli";
+	public static final String SLEEP_5 = "sleep 5";
+	public static final String ECHO_TEST_UPPER_CASE = "ECHO Test";
+	public static final String ECHO_TEST_LOWER_CASE = "echo Test";
+	public static final String TEST_RESULT = "Test";
+	public static final String RAIDCTL_PATH = "/usr/sbin/raidctl";
+	public static final String Q_HOST = "(?i)\\QHost\\E";
+	public static final String Q_USERNAME = "(?i)\\Q%{UserName}\\E";
+	public static final String Q_HOSTNAME = "(?i)\\Q%{HOSTNAME}\\E";
+	public static final String PERCENT_USERNAME = "%{UserName}";
+	public static final String HARD_DRIVE = "Hard drive";
+
+	// Embedded files
+	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";
+	public static final String TEMP_EMBEDDED_2 = "/tmp/SEN_Embedded_2";
+	public static final String AWK_EMBEDDED_CONTENT_PERCENT_SUDO = "# Awk (or nawk)\n" +
+		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+		"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+		"elif [ -f /usr/bin/nawk ]; then\n" +
+		"	AWK=\"/usr/bin/nawk\";\n" +
+		"else\n" +
+		"	AWK=\"awk\";\n" +
+		"fi\n" +
+		"if [ -f /opt/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/opt/StorMan\";\n" +
+		"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/usr/StorMan\";\n" +
+		"else\n" +
+		"	echo No Storman Installed; exit;\n" +
+		"fi\n" +
+		"DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+		"for CTRL in $DEVICES\n" +
+		"                do\n" +
+		"                echo MSHWController $CTRL\n" +
+		"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" +
+		"                done";
+	public static final String AWK_EMBEDDED_CONTENT_SUDO = "# Awk (or nawk)\n" +
+			"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+			"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+			"elif [ -f /usr/bin/nawk ]; then\n" +
+			"	AWK=\"/usr/bin/nawk\";\n" +
+			"else\n" +
+			"	AWK=\"awk\";\n" +
+			"fi\n" +
+			"if [ -f /opt/StorMan/arcconf ]; then\n" +
+			"       STORMAN=\"/opt/StorMan\";\n" +
+			"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+			"       STORMAN=\"/usr/StorMan\";\n" +
+			"else\n" +
+			"	echo No Storman Installed; exit;\n" +
+			"fi\n" +
+			"DEVICES=`sudo $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+			"for CTRL in $DEVICES\n" +
+			"                do\n" +
+			"                echo MSHWController $CTRL\n" +
+			"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" +
+			"                done";
+	public static final String SH_EMBEDDED_FILE_1 = "/bin/sh ${file::EmbeddedFile(1)}";
+	public static final String EMBEDDED_FILE_1 = "EmbeddedFile(1)";
+	public static final String EMBEDDED_FILE_2 = "EmbeddedFile(2)";
+	public static final String EMBEDDED_FILE_1_COPY_COMMAND_LINE = "copy ${file::EmbeddedFile(1)} ${file::EmbeddedFile(1)}.bat > NUL & ${file::EmbeddedFile(1)}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::EmbeddedFile(1)}.bat & del /F /Q ${file::EmbeddedFile(2)}.bat ";
+	public static final String CMD_COMMAND = "CMD.EXE /C cmd";
+	public static final String NO_PASSWORD_COMMAND = " naviseccli -User testUser -Password ******** -Address host -Scope 1 getagent";
+	public static final String CLEAR_PASSWORD_COMMAND = " naviseccli -User testUser -Password pwd -Address host -Scope 1 getagent";
+	public static final String COMMAND_TO_UPDATE =
+		"copy ${file::EmbeddedFile(2)} ${file::EmbeddedFile(2)}.bat > NUL"
+			+ " & ${file::EmbeddedFile(1)}"
+			+ " & ${file::EmbeddedFile(2)}.bat"
+			+ " & del /F /Q ${file::EmbeddedFile(1)}"
+			+ " & del /F /Q ${file::EmbeddedFile(2)}.bat";
+	public static final String UPDATED_COMMAND =
+		"copy ${file::/tmp/SEN_Embedded_2} ${file::/tmp/SEN_Embedded_2}.bat > NUL"
+			+ " & ${file::/tmp/SEN_Embedded_1.bat}"
+			+ " & ${file::/tmp/SEN_Embedded_2}.bat"
+			+ " & del /F /Q ${file::/tmp/SEN_Embedded_1.bat}"
+			+ " & del /F /Q ${file::/tmp/SEN_Embedded_2}.bat";
+	public static final String RAIDCTL_COMMAND = "/usr/sbin/raidctl -S";
+	public static final String SUDO_RAIDCTL_COMMAND = "%{SUDO:/usr/sbin/raidctl} /usr/sbin/raidctl -S";
+	public static final String SUDO_NAVISECCLI_COMMAND = "%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
+	public static final String SEN_EMBEDDED_0001_PATH = "C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001";
+	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh ${file::C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001}";
 
 	public static final String MONITOR_ID_ATTRIBUTE_VALUE = "anyMonitorId";
 	public static final String UNKNOWN = "unknown";
 	public static final String AGENT_HOSTNAME_VALUE = StringHelper
 			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
 	public static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
-	public static final String ID = "id";
 	public static final String LOCATION = "location";
 	public static final String COMPUTE = "compute";
-	public static final String HOST = "host";
 	public static final String HOST_ID_ATTRIBUTE = "host.id";
 	public static final String HOST_TYPE = "host.type";
 	public static final String OS_TYPE = "os.type";
@@ -84,11 +184,18 @@ public class Constants {
 
 	// Yaml test file name
 	public static final String YAML_TEST_FILE_NAME = "AAC";
+	public static final String COMMAND_FILE_ABSOLUTE_PATH = "${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
+	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
+	public static final String TXT_FILE_EXTENSION = "txt";
+	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
 
 	// Host information
 	public static final String LOCALHOST = "localhost";
 	public static final String HOST_ID = "PC-120";
 	public static final String MANAGEMENT_CARD_HOST = "management-card-host";
+	public static final String HOST = "host";
+	public static final String HOSTNAME = "hostname";
+	public static final String HOST_CAMEL_CASE = "Host";
 
 	// Configuration toString output
 	public static final String HTTP_CONFIGURATION_TO_STRING = "HTTPS/443 as testUser";
@@ -106,7 +213,7 @@ public class Constants {
 	public static final String SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING = "SNMP v3 with MD5 auth as testUser";
 	public static final String HOST_CONFIGURATION_TO_STRING = "HostConfiguration(hostname=localhost," +
 			" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
-			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations=null)";
+			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations={})";
 	public static final String IPMI_RESULT_EXAMPLE = "Device ID                 : 3\r\n" + "Device Revision           : 3\r\n"
 			+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
 			+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
@@ -134,6 +241,7 @@ public class Constants {
 	public static final String INVALID_PROTOCOL_EXCEPTION_MESSAGE = "Invalid protocol value: ";
 	public static final String INVALID_SNMP_VERSION = "Invalid SNMP version: ";
 	public static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
+	public static final String ERROR_IN_FILE1 = "error in file1";
 
 	// Protocols
 	public static final String INVALID_PROTOCOL = "SFTPST";

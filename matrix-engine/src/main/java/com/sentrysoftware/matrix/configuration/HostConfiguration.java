@@ -17,6 +17,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -41,7 +42,8 @@ public class HostConfiguration {
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
 	private Map<String, String> connectorVariables;
-	private Map<Class<? extends IConfiguration>, IConfiguration> configurations;
+	@Builder.Default
+	private Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
 
 	static {
@@ -84,6 +86,10 @@ public class HostConfiguration {
 		// Add IPMI through WMI
 		if (DeviceKind.WINDOWS.equals(hostType) && sources.contains(WmiSource.class)) {
 			sources.add(IpmiSource.class);
+			// Add OSCommand through Remote WMI Commands
+			if (!isLocalhost) {
+				sources.add(OsCommandSource.class);
+			}
 		}
 
 		// Add IPMI through OSCommand remote (SSH)

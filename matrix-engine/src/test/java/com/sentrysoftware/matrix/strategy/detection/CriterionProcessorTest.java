@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
+import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -56,6 +57,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.OsCommandCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
@@ -67,6 +69,7 @@ import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -1637,4 +1640,669 @@ class CriterionProcessorTest {
 		assertTrue(result.getException() instanceof MatsyaException);
 	}
 
+	@Test
+	void testProcessOsCommandNotExpectedResult() {
+		final OsCommandCriterion osCommandCriterion = OsCommandCriterion.builder()
+				.commandLine(SSH_SUDO_COMMAND)
+				.errorMessage(EMPTY)
+				.expectedResult(RESULT)
+				.executeLocally(true)
+				.timeout(30L)
+				.build();
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		final SshConfiguration sshConfiguration = new SshConfiguration();
+		sshConfiguration.setUsername(USERNAME);
+		sshConfiguration.setPassword(PASSWORD.toCharArray());
+		configurations.put(SshConfiguration.class, sshConfiguration);
+
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().useSudo(false).build();
+		configurations.put(OsCommandConfiguration.class, osCommandConfiguration);
+
+		final HostConfiguration hostConfiguration = new HostConfiguration();
+		hostConfiguration.setHostname(LOCALHOST);
+		hostConfiguration.setConfigurations(configurations);
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostProperties(hostProperties)
+				.hostConfiguration(hostConfiguration)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		// The result is not the same as the expected result
+		OsCommandResult result = new OsCommandResult(ERROR, SSH_SUDO_COMMAND);
+
+		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
+			osCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					SSH_SUDO_COMMAND,
+					telemetryManager,
+					30L,
+					true,
+					true))
+			.thenReturn(result);
+			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+			final String message = String.format(
+					"OsCommandCriterion test ran but failed:\n"
+							+ "- CommandLine: %s\n"
+							+ "- ExecuteLocally: true\n"
+							+ "- ExpectedResult: %s\n"
+							+ "- Timeout: 30\n"
+							+ "\n"
+							+ "Actual result:\n"
+							+ "%s", SSH_SUDO_COMMAND, RESULT, ERROR);
+
+			assertEquals(ERROR, criterionTestResult.getResult());
+			assertFalse(criterionTestResult.isSuccess());
+			assertEquals(message, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getException());
+		}
+	}
+
+	@Test
+	void testProcessOsCommandOK() {
+		final OsCommandCriterion osCommandCriterion = OsCommandCriterion.builder()
+				.commandLine(SSH_SUDO_COMMAND)
+				.errorMessage(EMPTY)
+				.expectedResult(RESULT)
+				.executeLocally(true)
+				.timeout(30L)
+				.build();
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		final SshConfiguration sshConfiguration = new SshConfiguration();
+		sshConfiguration.setUsername(USERNAME);
+		sshConfiguration.setPassword(PASSWORD.toCharArray());
+		configurations.put(SshConfiguration.class, sshConfiguration);
+
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().useSudo(false).build();
+		configurations.put(OsCommandConfiguration.class, osCommandConfiguration);
+
+		final HostConfiguration hostConfiguration = new HostConfiguration();
+		hostConfiguration.setHostname(LOCALHOST);
+		hostConfiguration.setConfigurations(configurations);
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostProperties(hostProperties)
+				.hostConfiguration(hostConfiguration)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		OsCommandResult result = new OsCommandResult(RESULT, SSH_SUDO_COMMAND);
+
+		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
+			osCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					SSH_SUDO_COMMAND,
+					telemetryManager,
+					30L,
+					true,
+					true))
+			.thenReturn(result);
+			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+			final String message = String.format(
+					"OsCommandCriterion test succeeded:\n"
+							+ "- CommandLine: %s\n"
+							+ "- ExecuteLocally: true\n"
+							+ "- ExpectedResult: %s\n"
+							+ "- Timeout: 30\n"
+							+ "\n"
+							+ "Result: %s", SSH_SUDO_COMMAND, RESULT, RESULT);
+
+			assertEquals(RESULT, criterionTestResult.getResult());
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(message, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getException());
+		}
+	}
+
+	@Test
+	void testProcessOsCommandEmbeddedFileOK() {
+		final OsCommandCriterion osCommandCriterion = OsCommandCriterion.builder()
+				.commandLine(COMMAND_FILE_ABSOLUTE_PATH)
+				.errorMessage(EMPTY)
+				.expectedResult(RESULT)
+				.executeLocally(true)
+				.timeout(120L)
+				.build();
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		final SshConfiguration sshConfiguration = new SshConfiguration();
+		sshConfiguration.setUsername(USERNAME);
+		sshConfiguration.setPassword(PASSWORD.toCharArray());
+		configurations.put(SshConfiguration.class, sshConfiguration);
+
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().useSudo(false).build();
+		configurations.put(OsCommandConfiguration.class, osCommandConfiguration);
+
+		final HostConfiguration hostConfiguration = new HostConfiguration();
+		hostConfiguration.setHostname(LOCALHOST);
+		hostConfiguration.setConfigurations(configurations);
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostProperties(hostProperties)
+				.hostConfiguration(hostConfiguration)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		OsCommandResult result = new OsCommandResult(RESULT, COMMAND_FILE_ABSOLUTE_PATH);
+
+		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
+			osCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					COMMAND_FILE_ABSOLUTE_PATH,
+					telemetryManager,
+					120L,
+					true,
+					true))
+			.thenReturn(result);
+			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+			final String message = String.format(
+					"OsCommandCriterion test succeeded:\n"
+							+ "- CommandLine: %s\n"
+							+ "- ExecuteLocally: true\n"
+							+ "- ExpectedResult: %s\n"
+							+ "- Timeout: 120\n"
+							+ "\n"
+							+ "Result: %s", COMMAND_FILE_ABSOLUTE_PATH, RESULT, RESULT);
+
+			assertEquals(RESULT, criterionTestResult.getResult());
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(message, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getException());
+		}
+	}
+
+	@Test
+	void testVisitOsCommandNull() {
+		final OsCommandCriterion osCommandCriterion = null;
+
+		final CriterionTestResult criterionTestResult = new CriterionProcessor().process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("malformed"));
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitOsCommandExpectedResultNull() {
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent");
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+				criterionTestResult.getMessage());
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitOsCommandLineEmpty() {
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("");
+		osCommandCriterion.setExpectedResult("Agent Rev:");
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+				criterionTestResult.getMessage());
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitOsCommandExpectedResultEmpty() {
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent");
+		osCommandCriterion.setExpectedResult("");
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+				criterionTestResult.getMessage());
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitOsCommandRemoteNoUser() {
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent");
+		osCommandCriterion.setExpectedResult("Agent Rev:");
+		osCommandCriterion.setExecuteLocally(false);
+		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.build();
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.hostId("id")
+				.hostname("host")
+				.hostType(DeviceKind.LINUX)
+				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+				.build();
+
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(false)
+				.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(hostConfiguration)
+				.hostProperties(hostProperties)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+				"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"No credentials provided.",
+				criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testVisitOsCommandWindowsError() {
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("PAUSE");
+		osCommandCriterion.setExpectedResult(" ");
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("No date.");
+
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.build();
+
+		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
+		osCommandConfiguration.setTimeout(1L);
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.hostId("id")
+				.hostname("localhost")
+				.hostType(DeviceKind.WINDOWS)
+				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration))
+				.build();
+
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(hostConfiguration)
+				.hostProperties(hostProperties)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+				"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"TimeoutException: Command \"PAUSE\" execution has timed out after 1 s",
+				criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testVisitOsCommandLinuxError() {
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("sleep 5");
+		osCommandCriterion.setExpectedResult(" ");
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("No date.");
+		osCommandCriterion.setTimeout(1L);
+
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.build();
+
+		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
+		osCommandConfiguration.setTimeout(1L);
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.hostId("id")
+				.hostname("localhost")
+				.hostType(DeviceKind.WINDOWS)
+				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration))
+				.build();
+
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(hostConfiguration)
+				.hostProperties(hostProperties)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+				"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
+				criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testVisitOsCommandLocalWindowsFailedToMatchCriteria() {
+
+		final String result = "Test";
+
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("ECHO Test");
+		osCommandCriterion.setExpectedResult("Nothing");
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("No display.");
+
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.build();
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.hostId("id")
+				.hostname("localhost")
+				.hostType(DeviceKind.WINDOWS)
+				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+				.build();
+
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(hostConfiguration)
+				.hostProperties(hostProperties)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+				"OsCommandCriterion test ran but failed:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"Actual result:\n" + result,
+				criterionTestResult.getMessage());
+		assertEquals(result, criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testVisitOsCommandLocalLinuxFailedToMatchCriteria() {
+
+		final String result = "Test";
+
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("echo Test");
+		osCommandCriterion.setExpectedResult("Nothing");
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("No display.");
+
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.timeout(1L)
+				.build();
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.hostId("id")
+				.hostname("localhost")
+				.hostType(DeviceKind.LINUX)
+				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+				.build();
+
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(hostConfiguration)
+				.hostProperties(hostProperties)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+				"OsCommandCriterion test ran but failed:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"Actual result:\n" + result,
+				criterionTestResult.getMessage());
+		assertEquals(result, criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testVisitOsCommandLocalWindows() {
+
+		final String result = "Test";
+
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("ECHO Test");
+		osCommandCriterion.setExpectedResult(result);
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("No display.");
+
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.timeout(1L)
+				.build();
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.hostId("id")
+				.hostname("localhost")
+				.hostType(DeviceKind.WINDOWS)
+				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+				.build();
+
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(hostConfiguration)
+				.hostProperties(hostProperties)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"Result: " + result,
+				criterionTestResult.getMessage());
+		assertEquals(result, criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(LINUX)
+	void testVisitOsCommandLocalLinux() {
+
+		final String result = "Test";
+
+		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
+		osCommandCriterion.setCommandLine("echo Test");
+		osCommandCriterion.setExpectedResult(result);
+		osCommandCriterion.setExecuteLocally(true);
+		osCommandCriterion.setErrorMessage("No display.");
+
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+				.username(" ")
+				.password("pwd".toCharArray())
+				.timeout(1L)
+				.build();
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.hostId("id")
+				.hostname("localhost")
+				.hostType(DeviceKind.LINUX)
+				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+				.build();
+
+		final HostProperties hostProperties = HostProperties
+				.builder()
+				.isLocalhost(true)
+				.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(hostConfiguration)
+				.hostProperties(hostProperties)
+				.build();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				matsyaClientsExecutorMock,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
+				"\n\n" +
+				"Result: " + result,
+				criterionTestResult.getMessage());
+		assertEquals(result, criterionTestResult.getResult());
+	}
 }

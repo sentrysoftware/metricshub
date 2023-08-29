@@ -1,11 +1,21 @@
 package com.sentrysoftware.matrix.connector.parser;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.YAML_EXTENDS_KEY;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.deserializer.ConnectorDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.PostDeserializeHelper;
@@ -15,6 +25,7 @@ import com.sentrysoftware.matrix.connector.update.CompiledFilenameUpdate;
 import com.sentrysoftware.matrix.connector.update.ConnectorUpdateChain;
 import com.sentrysoftware.matrix.connector.update.MonitorTaskSourceDepUpdate;
 import com.sentrysoftware.matrix.connector.update.PreSourceDepUpdate;
+import com.sentrysoftware.matrix.strategy.utils.EmbeddedFilesResolver;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +53,13 @@ public class ConnectorParser {
 
 		// PRE-Processing
 		if (processor != null) {
+			final Map<Path, JsonNode> parents = new HashMap<>();
+			final Path connectorDirectory = file.toPath().getParent();
+			resolveParents(node, connectorDirectory, parents);
+
 			node = processor.process(node);
+
+			new EmbeddedFilesResolver(node, connectorDirectory, parents.keySet()).internalize();
 		}
 
 		// POST-Processing
@@ -100,5 +117,55 @@ public class ConnectorParser {
 		connectorParser.setConnectorUpdateChain(availableSource);
 
 		return connectorParser;
+	}
+
+	/**
+	 * Resolve connector parent paths
+	 * 
+	 * @param connector    The connector object as {@link JsonNode}
+	 * @param connectorDir The connector directory
+	 * @param parents      The parents map to resolve
+	 * @throws IOException
+	 */
+	private void resolveParents(final JsonNode connector, final Path connectorDir, final Map<Path, JsonNode> parents)
+		throws IOException {
+
+		final ArrayNode extended = (ArrayNode) connector.get(YAML_EXTENDS_KEY);
+		if (extended == null || extended.isNull() || extended.isEmpty()) {
+			return;
+		}
+
+		final List<Entry<Path, JsonNode>> nextEntries = new ArrayList<>();
+		Entry<Path, JsonNode> parentEntry;
+		for (final JsonNode extendedNode : extended) {
+			parentEntry = getConnectorParentEntry(connectorDir, extendedNode.asText());
+			nextEntries.add(parentEntry);
+			parents.put(parentEntry.getKey(), parentEntry.getValue());
+		}
+
+		for (Entry<Path, JsonNode> entry : nextEntries) {
+			resolveParents(entry.getValue(), entry.getKey(), parents);
+		}
+	}
+
+	/**
+	 * Get a connector entry where the entry key is the connector path and the value
+	 * is the connector as {@link JsonNode}
+	 * 
+	 * @param connectorCurrentDir   The current directory of the connector which extends the parent
+	 * @param connectorRelativePath The relative path of the connector parent
+	 * @return a Map entry defining the path as key and the {@link JsonNode} parent connector as value
+	 * @throws IOException
+	 */
+	private Entry<Path, JsonNode> getConnectorParentEntry(
+		final Path connectorCurrentDir,
+		final String connectorRelativePath) throws IOException {
+		final Path connectorPath = connectorCurrentDir.resolve(connectorRelativePath + ".yaml");
+		if (!Files.exists(connectorPath)) {
+			throw new IllegalStateException("Cannot find extended connector " + connectorPath.toString());
+		}
+		return new AbstractMap.SimpleEntry<>(
+			connectorPath.getParent(),
+			deserializer.getMapper().readTree(connectorPath.toFile()));
 	}
 }
