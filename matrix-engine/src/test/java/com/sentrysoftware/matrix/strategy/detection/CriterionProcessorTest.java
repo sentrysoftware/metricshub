@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.junit.jupiter.api.condition.OS.LINUX;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -19,6 +19,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,8 +53,6 @@ import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
-import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
-import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
@@ -65,8 +64,8 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCrite
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.WmiCriterion;
-import com.sentrysoftware.matrix.matsya.HttpRequest;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.matsya.http.HttpRequest;
 import com.sentrysoftware.matrix.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandResult;
@@ -929,7 +928,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessRequestWrongResultTest() {
+	void HttpCriterionProcessRequestWrongResultTest() throws IOException {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 			.type(HTTP)
 			.method(HttpMethod.GET)
@@ -959,8 +958,8 @@ class CriterionProcessorTest {
 			.hostname(HOST_ID)
 			.method(HTTP_GET)
 			.url(httpCriterion.getUrl())
-			.header(new StringHeader(httpCriterion.getHeader()))
-			.body(new StringBody(httpCriterion.getBody()))
+			.header(httpCriterion.getHeader(), MY_CONNECTOR_1_NAME, HOST_ID)
+			.body(httpCriterion.getBody(), MY_CONNECTOR_1_NAME, HOST_ID)
 			.httpConfiguration(httpConfiguration)
 			.resultContent(httpCriterion.getResultContent())
 			.authenticationToken(httpCriterion.getAuthenticationToken())
@@ -992,7 +991,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessOKTest() {
+	void HttpCriterionProcessOKTest() throws IOException {
 		final HttpCriterion httpCriterion = HttpCriterion.builder()
 			.type(HTTP)
 			.method(HttpMethod.GET)
@@ -1021,8 +1020,8 @@ class CriterionProcessorTest {
 			.hostname(HOST_ID)
 			.method(HTTP_GET)
 			.url(httpCriterion.getUrl())
-			.header(new StringHeader(httpCriterion.getHeader()))
-			.body(new StringBody(httpCriterion.getBody()))
+			.header(httpCriterion.getHeader(), MY_CONNECTOR_1_NAME, HOST)
+			.body(httpCriterion.getBody(), MY_CONNECTOR_1_NAME, HOST_ID)
 			.httpConfiguration(httpConfiguration)
 			.resultContent(httpCriterion.getResultContent())
 			.authenticationToken(httpCriterion.getAuthenticationToken())

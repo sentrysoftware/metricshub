@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.common.http.header;
+package com.sentrysoftware.matrix.matsya.http;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

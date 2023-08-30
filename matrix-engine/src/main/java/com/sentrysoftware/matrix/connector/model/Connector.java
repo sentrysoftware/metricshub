@@ -3,19 +3,18 @@ package com.sentrysoftware.matrix.connector.model;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.connector.deserializer.custom.EmbeddedFilesDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.ExtendsDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.SourcesDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
@@ -65,11 +64,6 @@ public class Connector implements Serializable {
 
 	@Default
 	private Map<String, MonitorJob> monitors = new LinkedHashMap<>();
-
-	@Default
-	@JsonDeserialize(using = EmbeddedFilesDeserializer.class)
-	@JsonSetter(nulls = SKIP)
-	private Map<String, String> embedded = new HashMap<>();
 
 	@Default
 	@JsonSetter(nulls = SKIP)

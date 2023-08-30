@@ -1,10 +1,8 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANNOT_GET_EMBEDDED_FILE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANT_FIND_EMBEDDED_FILE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CMD_EXE_C;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMAND_TIMEOUT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COULDNT_READ_EMBEDDED_FILE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_LOCK_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMBEDDED_FILE_CONTENT_NULL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMBEDDED_TEMP_FILE_PREFIX;
@@ -22,7 +20,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUDO_REGE
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TIMEOUT_SSH_SEMAPHORE_PERMIT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.USERNAME_MACRO;
 import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.Assert.state;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +48,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
@@ -78,7 +74,6 @@ import lombok.NonNull;
 public class OsCommandHelper {
 
 	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
-	static final Map<String, EmbeddedFile> FOUND_EMBEDDED_FILES = new HashMap<>();
 
 	/**
 	 * Create the temporary embedded files in the given command line.
@@ -92,32 +87,33 @@ public class OsCommandHelper {
 	public static Map<String, File> createOsCommandEmbeddedFiles(
 		@NonNull final String commandLine,
 		final OsCommandConfiguration osCommandConfiguration,
+		@NonNull final Map<String, EmbeddedFile> commandLineEmbeddedFiles,
 		final Function<String, File> tempFileCreator
 	) throws IOException {
-
-		if (FOUND_EMBEDDED_FILES.isEmpty()) {
-			return Collections.emptyMap();
-		}
 
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
 		try {
 			final Matcher matcher = FILE_PATTERN.matcher(commandLine);
 			while (matcher.find()) {
-				// ${file::file-absolute-path}
+
+				// ${file::file-absolute-path} fileName is file-absolute-path // NOSONAR on comment
 				final String fileName = matcher.group(1);
 
+				// Example: ${file::file-absolute-path} // NOSONAR on comment
+				final String fileNameRef = matcher.group();
+
 				embeddedTempFiles.computeIfAbsent(
-					fileName,
+					fileNameRef,
 					k -> {
 						// The embedded file is available in the connector
-						final EmbeddedFile embeddedFile = FOUND_EMBEDDED_FILES.get(fileName);
+						final EmbeddedFile embeddedFile = commandLineEmbeddedFiles.get(fileNameRef);
 
 						// This means there is a design problem or the HDF developer indicated a wrong embedded file
-						notNull(embeddedFile, () -> CANNOT_GET_EMBEDDED_FILE + fileName);
+						state(embeddedFile != null, () -> CANNOT_GET_EMBEDDED_FILE + fileName);
 						final String content = embeddedFile.getContent();
 
 						// This means there is a design problem, the content can never be null
-						notNull(content, () -> EMBEDDED_FILE_CONTENT_NULL + fileName);
+						state(content != null, () -> EMBEDDED_FILE_CONTENT_NULL + fileName);
 
 						try {
 							return createTempFileWithEmbeddedFileContent(embeddedFile, osCommandConfiguration, tempFileCreator);
@@ -265,8 +261,8 @@ public class OsCommandHelper {
 			throw new TimeoutException(String.format(COMMAND_TIMEOUT, noPasswordCommand != null ? noPasswordCommand : command, timeout));
 
 		} catch (final ExecutionException exception) {
-			if (exception.getCause() instanceof IOException) {
-				throw (IOException) exception.getCause();
+			if (exception.getCause() instanceof IOException ioException) {
+				throw ioException;
 			}
 			return null;
 
@@ -402,18 +398,23 @@ public class OsCommandHelper {
 		final OsCommandConfiguration osCommandConfiguration,
 		final IConfiguration configuration,
 		final long defaultTimeout) {
+
 		if (commandTimeout != null) {
 			return commandTimeout.intValue();
 		}
+
 		if (osCommandConfiguration != null && osCommandConfiguration.getTimeout() != null) {
 			return osCommandConfiguration.getTimeout().intValue();
 		}
+
 		if (configuration == null) {
 			return defaultTimeout;
 		}
-		final Long timeout = configuration instanceof IWinConfiguration ?
-			((IWinConfiguration) configuration).getTimeout() :
-				((SshConfiguration) configuration).getTimeout();
+
+		final Long timeout = configuration instanceof IWinConfiguration winConfiguration ?
+			winConfiguration.getTimeout() :
+			((SshConfiguration) configuration).getTimeout();
+
 		return timeout != null ? timeout : defaultTimeout;
 	}
 
@@ -481,15 +482,16 @@ public class OsCommandHelper {
 		@NonNull final TelemetryManager telemetryManager,
 		final Long commandTimeout,
 		final boolean isExecuteLocally,
-		final boolean isLocalhost)
-			throws IOException,
-			MatsyaException,
-			InterruptedException,
-			TimeoutException,
-			NoCredentialProvidedException,
-			ControlledSshException {
+		final boolean isLocalhost
+	) throws IOException,
+		MatsyaException,
+		InterruptedException,
+		TimeoutException,
+		NoCredentialProvidedException,
+		ControlledSshException {
 
 		final IConfiguration configuration;
+
 		if(!isLocalhost && telemetryManager.getHostConfiguration().getHostType() == DeviceKind.WINDOWS) {
 			configuration = telemetryManager.getWinConfiguration();
 		} else {
@@ -513,11 +515,10 @@ public class OsCommandHelper {
 			.getConfigurations()
 			.get(OsCommandConfiguration.class);
 
-		findEmbeddedFiles(commandLine);
-
 		final Map<String, File> embeddedTempFiles = createOsCommandEmbeddedFiles(
 			commandLine,
 			osCommandConfiguration,
+			EmbeddedFileHelper.findEmbeddedFiles(commandLine),
 			TEMP_FILE_CREATOR
 		);
 
@@ -534,14 +535,21 @@ public class OsCommandHelper {
 		final String updatedEmbeddedFilesCommand = embeddedTempFiles.entrySet().stream()
 			.reduce(
 				updatedSudoCommand,
-				(s, entry) -> s.replaceAll(
-					toCaseInsensitiveRegex(entry.getKey()),
-					Matcher.quoteReplacement(entry.getValue().getAbsolutePath())),
-				(s1, s2) -> null);
+				(s, entry) -> s
+					.replaceAll(
+						toCaseInsensitiveRegex(entry.getKey()),
+						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
+					),
+				(s1, s2) -> null
+			);
 
 		final String command = maybePassword
-			.map(password -> updatedEmbeddedFilesCommand.replaceAll(
-				toCaseInsensitiveRegex(PASSWORD_MACRO), String.valueOf(password)))
+			.map(password -> updatedEmbeddedFilesCommand
+				.replaceAll(
+					toCaseInsensitiveRegex(PASSWORD_MACRO),
+					String.valueOf(password)
+				)
+			)
 			.orElse(updatedEmbeddedFilesCommand);
 
 		final String noPasswordCommand = maybePassword
@@ -554,7 +562,8 @@ public class OsCommandHelper {
 				commandTimeout,
 				osCommandConfiguration,
 				configuration,
-				telemetryManager.getHostConfiguration().getStrategyTimeout());
+				telemetryManager.getHostConfiguration().getStrategyTimeout()
+			);
 
 			final String commandResult;
 
@@ -563,10 +572,9 @@ public class OsCommandHelper {
 				final String localCommandResult = runLocalCommand(
 					command,
 					timeout,
-					noPasswordCommand);
-				commandResult = localCommandResult != null ?
-					localCommandResult :
-						EMPTY;
+					noPasswordCommand
+				);
+				commandResult = localCommandResult != null ? localCommandResult : EMPTY;
 
 				// Case Windows Remote
 			} else if (DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
@@ -574,8 +582,12 @@ public class OsCommandHelper {
 					hostname,
 					configuration,
 					command,
-					embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()));
-
+					embeddedTempFiles
+						.values()
+						.stream()
+						.map(File::getAbsolutePath)
+						.toList()
+				);
 				// Case others (Linux) Remote
 			} else {
 				commandResult = runSshCommand(
@@ -584,7 +596,8 @@ public class OsCommandHelper {
 					(SshConfiguration) configuration,
 					timeout,
 					new ArrayList<>(embeddedTempFiles.values()),
-					noPasswordCommand);
+					noPasswordCommand
+				);
 			}
 
 			return new OsCommandResult(commandResult, noPasswordCommand);
@@ -606,63 +619,4 @@ public class OsCommandHelper {
 		}
 	}
 
-	/**
-	 * Find all the embedded files in a command line
-	 * @param commandLine
-	 * @throws IOException
-	 */
-	public static void findEmbeddedFiles(@NonNull final String commandLine) throws IOException{
-		final Map<String, EmbeddedFile> embeddedFiles = new HashMap<>();
-		final List<String> alreadyProcessedFiles = new ArrayList<>();
-		int index = 1;
-		final Matcher fileMatcher = FILE_PATTERN.matcher(commandLine);
-		while (fileMatcher.find()) {
-			// The absolute path of the file
-			String fileName = fileMatcher.group(1);
-
-			// If the embeddedFile has already been processed, no need to continue
-			if (!alreadyProcessedFiles.contains(fileName)) {
-				Path filePath = new File(fileName).toPath();
-
-				if (filePath == null || !filePath.toFile().exists()) {
-					throw new IOException(CANT_FIND_EMBEDDED_FILE + fileName);
-				}
-
-				embeddedFiles.put(fileName, new EmbeddedFile(parseEmbeddedFile(filePath), findExtension(fileName), index));
-				alreadyProcessedFiles.add(fileName);
-				index++;
-			}
-		}
-
-		FOUND_EMBEDDED_FILES.putAll(embeddedFiles);
-	}
-
-	/**
-	 * Returns the extension of a file given the file name 
-	 * @param fileName
-	 * @return
-	 */
-	private static String findExtension(final String fileName) {
-		int index = fileName.lastIndexOf('.');
-		if (index > 0) {
-			return fileName.substring(index + 1);
-		}
-		return null;
-	}
-
-	/**
-	 * Read the file at the filePath location, and return its content
-	 * @param filePath The absolute path of the file to read
-	 * @return String value
-	 * @throws IOException
-	 */
-	private static String parseEmbeddedFile(final Path filePath) throws IOException {
-		try {
-			return Files.readAllLines(filePath)
-				.stream()
-				.collect(Collectors.joining("\n"));
-		} catch (Exception e) {
-			throw new IOException(COULDNT_READ_EMBEDDED_FILE + filePath);
-		}
-	}
 }

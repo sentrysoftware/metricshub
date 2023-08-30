@@ -145,8 +145,8 @@ public class Constants {
 			"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" +
 			"                done";
 	public static final String SH_EMBEDDED_FILE_1 = "/bin/sh ${file::EmbeddedFile(1)}";
-	public static final String EMBEDDED_FILE_1 = "EmbeddedFile(1)";
-	public static final String EMBEDDED_FILE_2 = "EmbeddedFile(2)";
+	public static final String EMBEDDED_FILE_1_REF = "${file::EmbeddedFile(1)}";
+	public static final String EMBEDDED_FILE_2_REF = "${file::EmbeddedFile(2)}";
 	public static final String EMBEDDED_FILE_1_COPY_COMMAND_LINE = "copy ${file::EmbeddedFile(1)} ${file::EmbeddedFile(1)}.bat > NUL & ${file::EmbeddedFile(1)}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::EmbeddedFile(1)}.bat & del /F /Q ${file::EmbeddedFile(2)}.bat ";
 	public static final String CMD_COMMAND = "CMD.EXE /C cmd";
 	public static final String NO_PASSWORD_COMMAND = " naviseccli -User testUser -Password ******** -Address host -Scope 1 getagent";
@@ -158,16 +158,16 @@ public class Constants {
 			+ " & del /F /Q ${file::EmbeddedFile(1)}"
 			+ " & del /F /Q ${file::EmbeddedFile(2)}.bat";
 	public static final String UPDATED_COMMAND =
-		"copy ${file::/tmp/SEN_Embedded_2} ${file::/tmp/SEN_Embedded_2}.bat > NUL"
-			+ " & ${file::/tmp/SEN_Embedded_1.bat}"
-			+ " & ${file::/tmp/SEN_Embedded_2}.bat"
-			+ " & del /F /Q ${file::/tmp/SEN_Embedded_1.bat}"
-			+ " & del /F /Q ${file::/tmp/SEN_Embedded_2}.bat";
+		"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL"
+			+ " & /tmp/SEN_Embedded_1.bat"
+			+ " & /tmp/SEN_Embedded_2.bat"
+			+ " & del /F /Q /tmp/SEN_Embedded_1.bat"
+			+ " & del /F /Q /tmp/SEN_Embedded_2.bat";
 	public static final String RAIDCTL_COMMAND = "/usr/sbin/raidctl -S";
 	public static final String SUDO_RAIDCTL_COMMAND = "%{SUDO:/usr/sbin/raidctl} /usr/sbin/raidctl -S";
 	public static final String SUDO_NAVISECCLI_COMMAND = "%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
-	public static final String SEN_EMBEDDED_0001_PATH = "C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001";
-	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh ${file::C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001}";
+	public static final String SEN_EMBEDDED_0001_PATH = "/tmp/SEN_Embedded_0001";
+	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/SEN_Embedded_0001";
 
 	public static final String MONITOR_ID_ATTRIBUTE_VALUE = "anyMonitorId";
 	public static final String UNKNOWN = "unknown";

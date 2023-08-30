@@ -1,7 +1,5 @@
-package com.sentrysoftware.matrix.connector.model.common.http.header;
+package com.sentrysoftware.matrix.matsya.http;
 
-
-import com.sentrysoftware.matrix.matsya.HttpMacrosUpdater;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -18,7 +18,7 @@ public class EmbeddedFile implements Serializable {
 
 	private String content;
 	private String type;
-	private Integer index;
+	private String reference;
 
 	/**
 	 *
@@ -29,16 +29,16 @@ public class EmbeddedFile implements Serializable {
 				.builder()
 				.content(content)
 				.type(type)
-				.index(index)
+				.reference(reference)
 				.build();
 	}
 
 	/**
 	 *
-	 * @return String that contains the embedded file description
+	 * @return String that contains the embedded file reference
 	 */
 	public String description() {
-		return String.format("EmbeddedFile(%d)", index);
+		return reference;
 	}
 
 	/**
