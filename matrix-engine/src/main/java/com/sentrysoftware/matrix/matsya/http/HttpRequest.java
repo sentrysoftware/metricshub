@@ -53,7 +53,11 @@ public class HttpRequest {
 		 * @return this builder
 		 * @throws IOException
 		 */
-		public HttpRequestBuilder header(String value, String connectorName, String hostname) throws IOException {
+		public HttpRequestBuilder header(
+			final String value,
+			final String connectorName,
+			final String hostname
+		) throws IOException {
 			if (value != null) {
 				final Optional<EmbeddedFile> maybeEmbeddedFile = getHttpEmbeddedFile(value, "header", connectorName, hostname);
 				if (maybeEmbeddedFile.isPresent()) {
@@ -74,7 +78,11 @@ public class HttpRequest {
 		 * @return this builder
 		 * @throws IOException
 		 */
-		public HttpRequestBuilder body(String value, String connectorName, String hostname) throws IOException {
+		public HttpRequestBuilder body(
+			final String value,
+			final String connectorName,
+			final String hostname
+		) throws IOException {
 			if (value != null) {
 				final Optional<EmbeddedFile> maybeEmbeddedFile = getHttpEmbeddedFile(value, "body", connectorName, hostname);
 				if (maybeEmbeddedFile.isPresent()) {
@@ -99,10 +107,10 @@ public class HttpRequest {
 		 * @throws IOException
 		 */
 		public static Optional<EmbeddedFile> getHttpEmbeddedFile(
-			String value,
-			String context,
-			String connectorName,
-			String hostname
+			final String value,
+			final String context,
+			final String connectorName,
+			final String hostname
 		) throws IOException {
 
 			final Map<String, EmbeddedFile> embeddedFiles = EmbeddedFileHelper.findEmbeddedFiles(value);
