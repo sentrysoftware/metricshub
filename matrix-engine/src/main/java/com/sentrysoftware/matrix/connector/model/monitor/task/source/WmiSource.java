@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -8,8 +9,6 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
-import static com.fasterxml.jackson.annotation.Nulls.FAIL;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -17,6 +16,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
+import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -84,6 +85,11 @@ public class WmiSource extends Source {
 		addNonNull(stringJoiner, "- namespace=", namespace);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public SourceTable accept(final ISourceProcessor sourceProcessor) {
+		return sourceProcessor.process(this);
 	}
 
 }

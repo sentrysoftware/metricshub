@@ -171,7 +171,16 @@ public class MatrixConstants {
 	public static final Pattern FILE_PATTERN = Pattern.compile("\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE);
 
 	public static final Pattern SUDO_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
-	
+	public static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("%\\w+\\.collect\\.deviceid%", Pattern.CASE_INSENSITIVE);
+	public static final Pattern SOURCE_REFERENCE_PATTERN = Pattern.compile(
+		"%((\\w+)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))%",
+		Pattern.CASE_INSENSITIVE);
+	public static final Pattern SOURCE_PATTERN = Pattern.compile(
+		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
+		Pattern.CASE_INSENSITIVE);
+	public static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile("%entry.column\\(([1-9]\\d*)\\)%", Pattern.CASE_INSENSITIVE);
+	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
+
 	public static final String UNKNOWN = "unknown";
 	public static final String HOST_TYPE_STORAGE = "storage";
 	public static final String HOST_TYPE_NETWORK = "network";
@@ -225,4 +234,6 @@ public class MatrixConstants {
 	public static final String HOST_CREATION_MESSAGE = "Hostname {} - Created host ID: {} ";
 	public static final String MONITOR_ATTRIBUTE_DESCRIPTION = "description";
 	public static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
+	public static final String AUTHENTICATION_TOKEN = "authenticationToken";
+	public static final String BRACKET_PERCENT_S = "[%s]";
 }

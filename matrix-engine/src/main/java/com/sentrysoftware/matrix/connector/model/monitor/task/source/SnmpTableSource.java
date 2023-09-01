@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
+import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -86,5 +88,10 @@ public class SnmpTableSource extends SnmpSource {
 	public void update(UnaryOperator<String> updater) {
 		super.update(updater);
 		selectColumns = updater.apply(selectColumns);
+	}
+
+	@Override
+	public SourceTable accept(final ISourceProcessor sourceProcessor) {
+		return sourceProcessor.process(this);
 	}
 }

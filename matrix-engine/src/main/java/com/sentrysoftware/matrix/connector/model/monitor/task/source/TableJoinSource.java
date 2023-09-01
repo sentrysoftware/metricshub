@@ -17,6 +17,8 @@ import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeseriali
 import com.sentrysoftware.matrix.connector.deserializer.custom.PositiveIntegerDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
+import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -113,6 +115,11 @@ public class TableJoinSource extends Source {
 		addNonNull(stringJoiner, "- keyType=", keyType);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public SourceTable accept(final ISourceProcessor sourceProcessor) {
+		return sourceProcessor.process(this);
 	}
 
 }

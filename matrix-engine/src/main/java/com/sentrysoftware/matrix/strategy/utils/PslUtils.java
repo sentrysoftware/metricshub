@@ -1,5 +1,13 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PslUtils {
 
 	private static final String SPECIAL_CHARACTERS = "^$.*+?[]\\";
@@ -127,5 +135,58 @@ public class PslUtils {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Converts an entry and its result into an extended JSON format:
+	 * 	{
+	 * 		"Entry":{
+	 * 			"Full":"<entry>",
+	 * 			"Column(1)":"<1st field value>",
+	 * 	    	"Column(2)":"<2nd field value>",
+	 * 			"Column(3)":"<3rd field value>",
+	 * 			"Value":<result> <- Result must be properly formatted (either "result" or {"property":"value"}
+	 * 		}
+	 * 	}
+	 *
+	 * @param entry The row of values.
+	 * @param tableResult The output returned by the SourceVisitor.
+	 * @return String value
+	 */
+	public static String formatExtendedJSON(@NonNull String row, @NonNull SourceTable tableResult)
+			throws IllegalArgumentException{
+		
+		if (row.isEmpty()) {
+			log.error("formatExtendedJSON received Empty row of values. Returning empty string.");
+			return EMPTY;
+		}
+
+		String rawData = tableResult.getRawData();
+		if (rawData == null || rawData.isEmpty()) {
+			log.error("formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", 
+					tableResult);
+			return EMPTY;
+		}
+
+		StringBuilder jsonContent = new StringBuilder();
+		jsonContent.append("{\n\"Entry\":{\n\"Full\":\"")
+		.append(row)
+		.append("\",\n");
+
+		int i = 1;
+
+		for (String value : row.split(",")) {
+			jsonContent
+			.append("\"Column(")
+			.append(i)
+			.append(")\":\"")
+			.append(value)
+			.append("\",\n");
+			i++;
+		}
+
+		jsonContent.append("\"Value\":").append(rawData).append("\n}\n}");
+
+		return jsonContent.toString();
 	}
 }

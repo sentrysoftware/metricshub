@@ -17,8 +17,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
+import com.sentrysoftware.matrix.connector.model.common.IEntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
+import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -74,6 +78,8 @@ public abstract class Source implements Serializable {
 
 	public abstract void update(UnaryOperator<String> updater);
 
+	public abstract SourceTable accept(final ISourceProcessor sourceVisitor);
+
 	@Override
 	public String toString() {
 
@@ -100,6 +106,24 @@ public abstract class Source implements Serializable {
 	public boolean isExecuteForEachEntryOf() {
 		return executeForEachEntryOf != null && executeForEachEntryOf.getSource() != null
 				&& !executeForEachEntryOf.getSource().isBlank();
+	}
+
+	/**
+	 * Get the {@link EntryConcatMethod} value
+	 * 
+	 * @return {@link EntryConcatMethod} enum value
+	 */
+	public IEntryConcatMethod getEntryConcatMethod() {
+		return executeForEachEntryOf != null ? executeForEachEntryOf.getConcatMethod() : null;
+	}
+
+	/**
+	 * Get the executeForEachEntryOf string value
+	 * 
+	 * @return String value
+	 */
+	public String getExecuteForEachEntryOf() {
+		return executeForEachEntryOf != null ? executeForEachEntryOf.getSource() : null;
 	}
 
 }
