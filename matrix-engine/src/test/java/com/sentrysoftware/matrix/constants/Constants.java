@@ -106,7 +106,7 @@ public class Constants {
 	public static final String VALUE_B1 = "b1";
 	public static final String VALUE_C1 = "c1";
 	public static final String URL = "my/url";
-	public static final String ENCLOSURE_COLLECT_SOURCE_1 = "enclosure.collect.source(1)";
+	public static final String ENCLOSURE_COLLECT_SOURCE_1 = "${source::enclosure.collect.sources.source1}";
 	public static final String EXPECTED_VAL_1 = "expectedVal1";
 	public static final String EXPECTED_VAL_2 = "expectedVal2";
 	public static final String EXPECTED_VAL_1_AND_2 = "expectedVal1\nexpectedVal2";

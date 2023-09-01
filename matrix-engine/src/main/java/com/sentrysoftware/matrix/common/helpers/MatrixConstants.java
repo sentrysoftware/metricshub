@@ -171,14 +171,8 @@ public class MatrixConstants {
 	public static final Pattern FILE_PATTERN = Pattern.compile("\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE);
 
 	public static final Pattern SUDO_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
-	public static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("%\\w+\\.collect\\.deviceid%", Pattern.CASE_INSENSITIVE);
-	public static final Pattern SOURCE_REFERENCE_PATTERN = Pattern.compile(
-		"%((\\w+)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))%",
-		Pattern.CASE_INSENSITIVE);
-	public static final Pattern SOURCE_PATTERN = Pattern.compile(
-		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
-		Pattern.CASE_INSENSITIVE);
-	public static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile("%entry.column\\(([1-9]\\d*)\\)%", Pattern.CASE_INSENSITIVE);
+	public static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("\\$\\{([^\\s]+)::([^\\s]+)\\}", Pattern.CASE_INSENSITIVE);
+	public static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
 	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
 
 	public static final String UNKNOWN = "unknown";

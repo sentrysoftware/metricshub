@@ -7,8 +7,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONO_INSTANCE_REPLACEMENT_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REFERENCE_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
 import java.util.ArrayList;
@@ -240,7 +239,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		final String operationType,
 		final Object operationKey) {
 
-		final Matcher matcher = SOURCE_REFERENCE_PATTERN.matcher(value);
+		final Matcher matcher = SOURCE_REF_PATTERN.matcher(value);
 
 		final StringBuffer sb = new StringBuffer();
 
@@ -379,7 +378,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	 */
 	SourceTable getSourceTable(final String key) {
 
-		if (SOURCE_PATTERN.matcher(key).matches()) {
+		if (SOURCE_REF_PATTERN.matcher(key).matches()) {
 			return telemetryManager
 				.getHostProperties()
 				.getConnectorNamespaces()
