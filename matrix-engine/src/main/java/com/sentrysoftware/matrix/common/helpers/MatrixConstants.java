@@ -165,8 +165,8 @@ public class MatrixConstants {
 	public static final String COULDNT_READ_EMBEDDED_FILE = "Could not read embedded file: ";
 
 	/**
-	 * A compiled representation of a file converter
-	 * We attempt to match input like $file("*")$
+	 * A compiled representation of a file converter<br>
+	 * We attempt to match input like ${file::path}
 	 */
 	public static final Pattern FILE_PATTERN = Pattern.compile("\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE);
 

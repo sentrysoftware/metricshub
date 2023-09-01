@@ -25,7 +25,6 @@ import com.sentrysoftware.matrix.connector.update.CompiledFilenameUpdate;
 import com.sentrysoftware.matrix.connector.update.ConnectorUpdateChain;
 import com.sentrysoftware.matrix.connector.update.MonitorTaskSourceDepUpdate;
 import com.sentrysoftware.matrix.connector.update.PreSourceDepUpdate;
-import com.sentrysoftware.matrix.strategy.utils.EmbeddedFilesResolver;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

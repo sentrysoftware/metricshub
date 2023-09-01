@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.common.http.body;
+package com.sentrysoftware.matrix.matsya.http;
 
 import java.io.Serializable;
 import java.util.function.UnaryOperator;

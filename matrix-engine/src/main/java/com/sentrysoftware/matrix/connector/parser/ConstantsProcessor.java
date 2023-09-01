@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -32,7 +33,7 @@ public class ConstantsProcessor implements NodeProcessor {
 
 			final UnaryOperator<String> transformer = value ->  performReplacements(replacements, value);
 
-			final Predicate<String> replacementPredicate = value -> value != null;
+			final Predicate<String> replacementPredicate = Objects::nonNull;
 			replacePlaceholderValues(node, transformer, replacementPredicate);
 
 			((ObjectNode) node).remove("constants");

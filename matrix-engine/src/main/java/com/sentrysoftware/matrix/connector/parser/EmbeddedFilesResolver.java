@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.strategy.utils;
+package com.sentrysoftware.matrix.connector.parser;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANT_FIND_EMBEDDED_FILE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
@@ -78,12 +78,12 @@ public class EmbeddedFilesResolver {
 		}
 
 		// Traverse the connector node and replace embedded files references
-		// E.g. ${file::file-1} becomes ${file::file-absolute-path-1}
+		// E.g. ${file::file-1} becomes ${file::file-absolute-path-1} // NOSONAR on comment
 		replacePlaceholderValues(
 			connector,
 			this::performFileRefReplacements,
 			value -> value.indexOf("${file::") != -1
-			);
+		);
 	}
 
 	/**
@@ -217,10 +217,9 @@ public class EmbeddedFilesResolver {
 	 */
 	private String replaceFileReference(final Matcher matcher, final String value) {
 		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1));
-		String res =  value.replace(
+		return value.replace(
 			matcher.group(1),
 			replacement
-			);
-		return res;
+		);
 	}
 }

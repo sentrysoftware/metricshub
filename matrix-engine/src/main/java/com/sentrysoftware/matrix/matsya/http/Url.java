@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.model.common.http.url;
+package com.sentrysoftware.matrix.matsya.http;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

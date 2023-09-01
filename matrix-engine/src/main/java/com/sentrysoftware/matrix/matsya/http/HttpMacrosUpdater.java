@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.matsya;
+package com.sentrysoftware.matrix.matsya.http;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -31,11 +31,11 @@ public class HttpMacrosUpdater {
 	 * @return String value
 	 */
 	public static String update(
-			String text,
-			String username,
-			char[] password,
-			String authenticationToken,
-			@NonNull String hostname
+		String text,
+		String username,
+		char[] password,
+		String authenticationToken,
+		@NonNull String hostname
 	) {
 
 		if (text == null || text.isEmpty()) {

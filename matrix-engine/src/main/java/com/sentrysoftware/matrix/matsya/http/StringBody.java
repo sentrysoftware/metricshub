@@ -1,6 +1,5 @@
-package com.sentrysoftware.matrix.connector.model.common.http.body;
+package com.sentrysoftware.matrix.matsya.http;
 
-import com.sentrysoftware.matrix.matsya.HttpMacrosUpdater;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
