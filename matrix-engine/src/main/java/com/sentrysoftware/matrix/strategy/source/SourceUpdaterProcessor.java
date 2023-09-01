@@ -2,17 +2,17 @@ package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTHENTICATION_TOKEN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BRACKET_PERCENT_S;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DYNAMIC_ENTRY_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_REF_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONO_INSTANCE_REPLACEMENT_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -142,15 +142,84 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	/**
 	 * Get the value of the field from the foreign source identified by <em>foreignSourceKey</em>.
-	 * 
+	 *
 	 * @param originalSourceKey The original source key used for debug purpose
 	 * @param foreignSourceKey  The foreign source key used to extract the field value
 	 * @param fieldLabel        The field label used for debug purpose
-	 * @return {@link String} value
+	 * @return
 	 */
-	String extractHttpTokenFromSource(final String originalSourceKey, String foreignSourceKey, String fieldLabel) {
-		// TODO Auto-generated method stub
-		return null;
+	public String extractHttpTokenFromSource(final String originalSourceKey, String foreignSourceKey, String fieldLabel) {
+
+		// No token to replace
+		if (foreignSourceKey == null) {
+			return null;
+		}
+
+		if (foreignSourceKey.isEmpty()) {
+			return EMPTY;
+		}
+
+		// Get the source table defining where we are going to fetch the value
+		final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(
+			foreignSourceKey,
+			connectorName,
+			telemetryManager
+		);
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		if (maybeSourceTable.isEmpty()) {
+			log.error(
+				"Hostname {} - Could not extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
+				hostname,
+				foreignSourceKey,
+				originalSourceKey,
+				fieldLabel
+			);
+			return null;
+		}
+
+		final SourceTable sourceTable = maybeSourceTable.get();
+
+		// Try the table
+		final List<List<String>> table = sourceTable.getTable();
+		String value = null;
+		if (table != null && !table.isEmpty()) {
+			log.debug(
+				"Hostname {} - Get {} defined in source {} from list table.",
+				hostname,
+				fieldLabel,
+				foreignSourceKey
+			);
+			final List<String> firstRow = table.get(0);
+			if (firstRow != null && !firstRow.isEmpty()) {
+				// First column
+				value = firstRow.get(0);
+			}
+		}
+
+		// Try raw data
+		final String rawData = sourceTable.getRawData();
+		if (value == null && rawData != null) {
+			log.debug(
+				"Hostname {} - Get {} defined in source {} from raw data.",
+				hostname,
+				fieldLabel,
+				foreignSourceKey
+			);
+			// First column
+			value = rawData.split(";")[0];
+		}
+
+		if (value == null) {
+			log.error(
+				"Hostname {} - Couldn't extract the {} defined in source {}.",
+				hostname,
+				fieldLabel,
+				originalSourceKey
+			);
+		}
+
+		return value;
 	}
 
 	/**
@@ -340,9 +409,12 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	 *         EntryConcatMethod defined in the original {@link Source}
 	 */
 	private SourceTable processExecuteForEachEntryOf(final Source source, final String sourceTableKey) {
-		final SourceTable sourceTable = getSourceTable(sourceTableKey);
+		final Optional<SourceTable> maybeSourceTable  = SourceTable.lookupSourceTable(
+			sourceTableKey,
+			connectorName,
+			telemetryManager);
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-		if (sourceTable == null) {
+		if (maybeSourceTable .isEmpty()) {
 			log.error("Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field cannot be found : {}.", 
 				hostname, sourceTableKey);
 			return SourceTable.empty();
@@ -350,7 +422,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 		final SourceTable result = SourceTable.builder().rawData(EMPTY).build();
 
-		for (List<String> row : sourceTable.getTable()) {
+		for (List<String> row : maybeSourceTable.get().getTable()) {
 			final Source copy = source.copy();
 
 			try {
@@ -371,28 +443,6 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	}
 
 	/**
-	 * Get source table based on the key
-	 * 
-	 * @param key
-	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
-	 */
-	SourceTable getSourceTable(final String key) {
-
-		if (SOURCE_REF_PATTERN.matcher(key).matches()) {
-			return telemetryManager
-				.getHostProperties()
-				.getConnectorNamespaces()
-				.get(connectorName)
-				.getSourceTables()
-				.get(key);
-		}
-
-		return SourceTable.builder()
-			.table(SourceTable.csvToTable(key, TABLE_SEP))
-			.build();
-	}
-
-	/**
 	 * Replace the dynamic parts of the key by the right column from the row.
 	 * 
 	 * @param dataValue Source's member value
@@ -404,7 +454,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			return null;
 		}
 
-		final Matcher matcher = DYNAMIC_ENTRY_PATTERN.matcher(dataValue);
+		final Matcher matcher = COLUMN_REF_PATTERN.matcher(dataValue);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {

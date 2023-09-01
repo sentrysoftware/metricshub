@@ -78,7 +78,7 @@ public abstract class Source implements Serializable {
 
 	public abstract void update(UnaryOperator<String> updater);
 
-	public abstract SourceTable accept(final ISourceProcessor sourceVisitor);
+	public abstract SourceTable accept(final ISourceProcessor sourceProcessor);
 
 	@Override
 	public String toString() {

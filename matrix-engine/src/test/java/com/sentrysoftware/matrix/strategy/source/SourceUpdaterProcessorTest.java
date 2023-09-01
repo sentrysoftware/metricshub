@@ -79,14 +79,15 @@ class SourceUpdaterProcessorTest {
 				Arrays.asList(VALUE_A1, VALUE_B1, VALUE_C1)))
 			.build();
 
-		final ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(
-			Collections.singletonMap(ENCLOSURE_COLLECT_SOURCE_1, sourceTable)).build();
-
-		telemetryManager.setHostProperties(HostProperties
+		final HostProperties hostProperties = HostProperties
 			.builder()
-			.connectorNamespaces(Collections.singletonMap(MY_CONNECTOR_1_NAME, namespace))
-			.build());
+			.build();
 
+		hostProperties
+			.getConnectorNamespace(MY_CONNECTOR_1_NAME)
+			.addSourceTable(ENCLOSURE_COLLECT_SOURCE_1, sourceTable);
+
+		telemetryManager.setHostProperties(hostProperties);
 
 		final SourceTable expected1 = SourceTable.builder().rawData(EXPECTED_VAL_1).build();
 		final SourceTable expected2 = SourceTable.builder().rawData(EXPECTED_VAL_2).build();

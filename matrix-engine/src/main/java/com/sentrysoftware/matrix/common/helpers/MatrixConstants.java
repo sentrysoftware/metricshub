@@ -172,7 +172,7 @@ public class MatrixConstants {
 
 	public static final Pattern SUDO_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
 	public static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("\\$\\{([^\\s]+)::([^\\s]+)\\}", Pattern.CASE_INSENSITIVE);
-	public static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern COLUMN_REF_PATTERN = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
 	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
 
 	public static final String UNKNOWN = "unknown";

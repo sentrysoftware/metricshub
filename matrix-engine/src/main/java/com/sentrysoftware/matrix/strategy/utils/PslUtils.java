@@ -177,11 +177,11 @@ public class PslUtils {
 
 		for (String value : row.split(",")) {
 			jsonContent
-			.append("\"Column(")
-			.append(i)
-			.append(")\":\"")
-			.append(value)
-			.append("\",\n");
+				.append("\"Column(")
+				.append(i)
+				.append(")\":\"")
+				.append(value)
+				.append("\",\n");
 			i++;
 		}
 

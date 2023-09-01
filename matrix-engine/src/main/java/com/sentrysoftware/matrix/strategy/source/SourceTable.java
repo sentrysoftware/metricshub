@@ -2,12 +2,18 @@ package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ALTERNATE_COLUMN_SEPARATOR;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +52,7 @@ public class SourceTable {
 					? line
 						.stream()
 						.map(val -> val.replace(separator, ALTERNATE_COLUMN_SEPARATOR))
-						.collect(Collectors.toList())
+						.toList()
 						: line)
 				.map(line -> String.join(separator, line) + separator)
 				.collect(Collectors.joining(NEW_LINE));
@@ -72,7 +78,7 @@ public class SourceTable {
 				.of(csvTable.split("\n"))
 				.map(line -> lineToList(line, separator))
 				.filter(line -> !line.isEmpty())
-				.collect(Collectors.toList());
+				.toList();
 		}
 		return new ArrayList<>();
 	}
@@ -94,7 +100,7 @@ public class SourceTable {
 			return Stream
 				.of(split)
 				.limit(split.length - 1L)
-				.collect(Collectors.toList());
+				.toList();
 		}
 		return new ArrayList<>();
 	}
@@ -104,5 +110,40 @@ public class SourceTable {
 	 */
 	public static SourceTable empty() {
 		return SourceTable.builder().build();
+	}
+
+	/**
+	 * Find the source table instance from the connector namespace.<br>
+	 * If we have a hard-coded source then we will create a source wrapping the
+	 * csv input.
+	 * @param sourceKey
+	 * @param connectorId
+	 * @param telemetryManager
+	 * @return {@link Optional} instance of {@link SourceTable}
+	 */
+	public static Optional<SourceTable> lookupSourceTable(
+		final String sourceKey,
+		final String connectorId,
+		final TelemetryManager telemetryManager
+	) {
+
+		final Matcher matcher = SOURCE_REF_PATTERN.matcher(sourceKey);
+
+		if (matcher.find()) {
+			return Optional.ofNullable(
+				telemetryManager
+					.getHostProperties()
+					.getConnectorNamespace(connectorId)
+					.getSourceTable(matcher.group())
+			);
+		}
+
+		// Hard-coded source
+		return Optional.of(
+			SourceTable
+				.builder()
+				.table(SourceTable.csvToTable(sourceKey, MatrixConstants.TABLE_SEP))
+				.build()
+		);
 	}
 }
