@@ -16,6 +16,8 @@ import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
+import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -106,6 +108,11 @@ public class HttpSource extends Source {
 		addNonNull(stringJoiner, "- resultContent=", resultContent != null ? resultContent.getName() : null);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public SourceTable accept(final ISourceProcessor sourceProcessor) {
+		return sourceProcessor.process(this);
 	}
 
 }

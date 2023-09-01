@@ -98,6 +98,37 @@ public class Constants {
 	public static final String Q_HOSTNAME = "(?i)\\Q%{HOSTNAME}\\E";
 	public static final String PERCENT_USERNAME = "%{UserName}";
 	public static final String HARD_DRIVE = "Hard drive";
+	public static final String ECS1_01 = "ecs1-01";
+	public static final String VALUE_VAL1 = "val1";
+	public static final String VALUE_VAL2 = "val2";
+	public static final String VALUE_VAL3 = "val3";
+	public static final String VALUE_A1 = "a1";
+	public static final String VALUE_B1 = "b1";
+	public static final String VALUE_C1 = "c1";
+	public static final String URL = "my/url";
+	public static final String ENCLOSURE_COLLECT_SOURCE_1 = "${source::monitors.enclosure.collect.sources.source1}";
+	public static final String EXPECTED_VAL_1 = "expectedVal1";
+	public static final String EXPECTED_VAL_2 = "expectedVal2";
+	public static final String EXPECTED_VAL_1_AND_2 = "expectedVal1\nexpectedVal2";
+	public static final String EXPECTED_VAL_1_AND_2_ARRAY = "[expectedVal1,\nexpectedVal2]";
+	public static final String EXPECTED_RESULT = "[{\n" +
+		"\"Entry\":{\n" +
+		"\"Full\":\"val1,val2,val3\",\n" +
+		"\"Column(1)\":\"val1\",\n" +
+		"\"Column(2)\":\"val2\",\n" +
+		"\"Column(3)\":\"val3\",\n" +
+		"\"Value\":expectedVal1\n" +
+		"}\n" +
+		"},\n" +
+		"{\n" +
+		"\"Entry\":{\n" +
+		"\"Full\":\"a1,b1,c1\",\n" +
+		"\"Column(1)\":\"a1\",\n" +
+		"\"Column(2)\":\"b1\",\n" +
+		"\"Column(3)\":\"c1\",\n" +
+		"\"Value\":expectedVal2\n" +
+		"}\n" +
+		"}]";
 
 	// Embedded files
 	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";

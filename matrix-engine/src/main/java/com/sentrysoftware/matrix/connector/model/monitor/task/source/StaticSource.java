@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
+import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -73,5 +75,10 @@ public class StaticSource  extends Source {
 		addNonNull(stringJoiner, "- value=", value);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public SourceTable accept(final ISourceProcessor sourceProcessor) {
+		return sourceProcessor.process(this);
 	}
 }

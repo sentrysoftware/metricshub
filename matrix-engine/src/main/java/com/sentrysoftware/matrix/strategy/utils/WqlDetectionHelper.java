@@ -1,20 +1,6 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
-import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.configuration.IConfiguration;
-import com.sentrysoftware.matrix.configuration.IWinConfiguration;
-import com.sentrysoftware.matrix.configuration.WbemConfiguration;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.WqlCriterion;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
-import com.sentrysoftware.matrix.telemetry.SourceTable;
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +13,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
+import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.configuration.IConfiguration;
+import com.sentrysoftware.matrix.configuration.IWinConfiguration;
+import com.sentrysoftware.matrix.configuration.WbemConfiguration;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.WqlCriterion;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class WqlDetectionHelper {
