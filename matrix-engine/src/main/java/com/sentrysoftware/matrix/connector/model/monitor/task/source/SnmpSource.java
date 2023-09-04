@@ -61,9 +61,4 @@ public abstract class SnmpSource extends Source {
 
 		return stringJoiner.toString();
 	}
-
-	@Override
-	public SourceTable accept(final ISourceProcessor sourceProcessor) {
-		return sourceProcessor.process(this);
-	}
 }

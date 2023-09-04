@@ -5,7 +5,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
@@ -23,8 +22,6 @@ public interface ISourceProcessor {
 	SourceTable process(OsCommandSource osCommandSource);
 
 	SourceTable process(SnmpGetSource snmpSource);
-
-	SourceTable process(SnmpSource snmpSource);
 
 	SourceTable process(SnmpTableSource snmpTableSource);
 
