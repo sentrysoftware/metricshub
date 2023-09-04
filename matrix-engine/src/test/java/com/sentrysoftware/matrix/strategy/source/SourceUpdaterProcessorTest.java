@@ -9,6 +9,7 @@ import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_VAL_2;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
+import static com.sentrysoftware.matrix.constants.Constants.OID;
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
@@ -32,12 +33,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
-import com.sentrysoftware.matrix.telemetry.ConnectorNamespace;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
@@ -110,5 +112,36 @@ class SourceUpdaterProcessorTest {
 		result = new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE).process(httpSource);
 
 		assertEquals(EXPECTED_RESULT, result.getRawData());
+	}
+
+	@Test
+	void testVisitSNMPGetSource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder()
+			.hostConfiguration(hostConfiguration)
+			.build();
+
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(SnmpGetSource.class));
+		assertEquals(SourceTable.empty(),
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(SnmpGetSource.builder().oid(OID).build()));
+
+		final SourceTable expected1 = SourceTable.builder().rawData(EXPECTED_VAL_1).build();
+
+		doReturn(expected1).when(sourceProcessor).process(any(SnmpGetSource.class));
+		assertEquals(expected1,
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(SnmpGetSource.builder().oid(OID).build()));
 	}
 }
