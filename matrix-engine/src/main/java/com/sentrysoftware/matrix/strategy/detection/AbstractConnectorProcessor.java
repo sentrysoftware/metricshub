@@ -41,8 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractConnectorProcessor {
 
-	protected static final int MAX_THREADS_COUNT = 50;
-	protected static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
 	protected TelemetryManager telemetryManager;
 
 	protected AbstractConnectorProcessor(@NonNull TelemetryManager telemetryManager) {

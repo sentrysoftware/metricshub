@@ -1,15 +1,15 @@
 package com.sentrysoftware.matrix.telemetry;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Data
 @Builder
@@ -32,8 +32,8 @@ public class HostProperties {
 
 	/**
 	 * 
-	 * @param connectorName
-	 * @return
+	 * @param connectorName the name of a given connector
+	 * @return ConnectorNamespace instance
 	 */
 	public ConnectorNamespace getConnectorNamespace(@NonNull final String connectorName) {
 		synchronized (connectorNamespaces) {

@@ -4,8 +4,10 @@ import com.sentrysoftware.matrix.alert.AlertRule;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +19,15 @@ import java.util.Map;
 @NoArgsConstructor
 public class Monitor {
 
-	@Builder.Default
+	@Default
 	private Map<String, AbstractMetric> metrics = new HashMap<>();
-	@Builder.Default
+	@Default
 	private Map<String, String> attributes = new HashMap<>();
-	@Builder.Default
+	@Default
+	private Map<String, String> conditionalCollection = new HashMap<>();
+	@Default
+	private Map<String, String> legacyTextParameters = new HashMap<>();
+	@Default
 	private Map<String, List<AlertRule>> alertRules = new HashMap<>();
 	private Resource resource;
 	private long discoveryTime;
@@ -44,7 +50,34 @@ public class Monitor {
 	 * @param metricName The unique name of the metric
 	 * @param metric     The metric instance to add
 	 */
-	public void addMetric(String metricName, AbstractMetric metric) {
+	public void addMetric(final String metricName, final AbstractMetric metric) {
 		metrics.put(metricName, metric);
+	}
+
+	/**
+	 * Add the given attributes to the current map of attributes
+	 * 
+	 * @param attributes Map of key-pair values to be added to the current map of attributes
+	 */
+	public void addAttributes(@NonNull final Map<String, String> attributes) {
+		this.attributes.putAll(attributes);
+	}
+
+	/**
+	 * Add the given conditionalCollection map to the current map of conditionalCollection
+	 * 
+	 * @param conditionalCollection Map of key-pair values to be added to the current map of conditionalCollection
+	 */
+	public void addConditionalCollection(Map<String, String> conditionalCollection) {
+		this.conditionalCollection.putAll(conditionalCollection);
+	}
+
+	/**
+	 * Add the given legacyTextParameters map to the current map of legacyTextParameters
+	 * 
+	 * @param legacyTextParameters Map of key-pair values to be added to the current map of legacyTextParameters
+	 */
+	public void addLegacyParameters(Map<String, String> legacyTextParameters) {
+		this.legacyTextParameters.putAll(legacyTextParameters);
 	}
 }

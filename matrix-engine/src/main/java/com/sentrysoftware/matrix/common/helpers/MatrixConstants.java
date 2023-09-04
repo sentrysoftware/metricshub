@@ -98,7 +98,7 @@ public class MatrixConstants {
 	public static final String NO_TEST_FOR_OS_MESSAGE = "Process presence check: No tests will be performed for OS: %s.";
 	public static final String RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "One or more currently running processes match the following regular expression:\n- " +
 			"Regexp (should match with the command-line): %s";
-	public static final String NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE = 
+	public static final String NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE =
 		"""
 		No currently running processes match the following regular expression:
 		- Regexp (should match with the command-line): %s
@@ -144,6 +144,8 @@ public class MatrixConstants {
 			"due to an exception. Message: %s";
 	public static final String MALFORMED_WMI_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection.";
 	public static final String HOSTNAME_EXCEPTION_MESSAGE = "Hostname {} - Exception: ";
+	public static final int MAX_THREADS_COUNT = 50;
+	public static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
 	public static final String YAML_EXTENDS_KEY = "extends";
 	public static final String MALFORMED_OSCOMMAND_CRITERION = "Malformed OSCommand criterion.";
 	public static final String COMMAND_LINE_OR_EXPECTED_RESULT_EMPTY = "CommandLine or ExpectedResult are empty. Skipping this test.";
@@ -228,6 +230,10 @@ public class MatrixConstants {
 	public static final String HOST_CREATION_MESSAGE = "Hostname {} - Created host ID: {} ";
 	public static final String MONITOR_ATTRIBUTE_DESCRIPTION = "description";
 	public static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
+	public static final String IS_ENDPOINT = "is_endpoint";
+	public static final String OTHER_MONITOR_JOB_TYPES = "otherMonitorJobTypes";
+	public static final Pattern SOURCE_VALUE_WITH_DOLLAR_PATTERN = Pattern.compile("^\\$([0-9]+)$");
+
 	public static final String AUTHENTICATION_TOKEN = "authenticationToken";
 	public static final String BRACKET_PERCENT_S = "[%s]";
 	public static final String SNMP_GET_SOURCE_NULL_ERROR_MESSAGE = "Hostname {} - SNMP Get Source cannot be null, the SNMP Get operation will return an empty result.";

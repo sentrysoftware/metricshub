@@ -3,6 +3,8 @@ package com.sentrysoftware.matrix.constants;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 
 import java.net.InetAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class Constants {
@@ -201,6 +203,7 @@ public class Constants {
 	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/SEN_Embedded_0001";
 
 	public static final String MONITOR_ID_ATTRIBUTE_VALUE = "anyMonitorId";
+
 	public static final String UNKNOWN = "unknown";
 	public static final String AGENT_HOSTNAME_VALUE = StringHelper
 			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
@@ -212,13 +215,25 @@ public class Constants {
 	public static final String OS_TYPE = "os.type";
 	public static final String HOST_NAME = "host.name";
 	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
+	public static final String HARDCODED_SOURCE = "Hardcoded Source";
+	public static final String SOURCE_REF_KEY = "${source::monitors.cpu.discovery.sources.source5}";
+	public static final String DISK_CONTROLLER_SOURCE_REF_KEY = "${source::monitors.disk_controller.discovery.sources.source(1)}";
+	public static final String PHYSICAL_DISK_SOURCE_REF_KEY = "${source::monitors.physical_disk.discovery.sources.source(1)}";
+	public static final String LOGICAL_DISK_SOURCE_REF_KEY = "${source::monitors.logical_disk.discovery.sources.source(1)}";
+	public static final String DISK_CONTROLLER = "disk_controller";
+	public static final String PHYSICAL_DISK = "physical_disk";
+	public static final String LOGICAL_DISK = "logical_disk";
+	public static final String CONNECTOR = "connector";
+	public static final List<String> SAMPLE_SOURCE_TABLE_DATA_ROW = List.of("a", "b", "c","d", "e","f", "g", "h", "i", "j", "f", "g", "h", "i", "j");
 
-	// Yaml test file name
+	// Yaml test files
 	public static final String YAML_TEST_FILE_NAME = "AAC";
+	public static final String YAML_TEST_FILE_NAME_WITH_EXTENSION = YAML_TEST_FILE_NAME + ".yaml";
 	public static final String COMMAND_FILE_ABSOLUTE_PATH = "${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
 	public static final String TXT_FILE_EXTENSION = "txt";
 	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
+	public static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "test-files", "connector", "connectorLibraryParser");
 
 	// Host information
 	public static final String LOCALHOST = "localhost";

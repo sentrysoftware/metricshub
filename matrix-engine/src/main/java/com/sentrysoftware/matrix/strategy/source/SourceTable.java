@@ -1,8 +1,12 @@
 package com.sentrysoftware.matrix.strategy.source;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ALTERNATE_COLUMN_SEPARATOR;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +16,9 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -26,9 +26,15 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SourceTable {
 
+	private static final String ALTERNATE_COLUMN_SEPARATOR = ",";
+
+
+	@Default
+	private List<List<String>> table = new ArrayList<>();
+
+	@Default
+	private List<String> headers = new ArrayList<>();
 	private String rawData;
-	private List<List<String>> table;
-	private List<String> headers;
 
 	/**
 	 * Transform the {@link List} table to a {@link String} representation
@@ -37,13 +43,16 @@ public class SourceTable {
 	 * a1,b1,c1,
 	 * a2,b2,c2,
 	 *
-	 * @param table            The table result we wish to parse
-	 * @param separator        The cells separator on each line
+	 * @param table The table result we wish to parse
+	 * @param separator The cells separator on each line
 	 * @param replaceSeparator Whether we should replace the separator by comma
 	 * @return {@link String} value
 	 */
-	public static String tableToCsv(final List<List<String>> table, final String separator,
-		final boolean replaceSeparator) {
+	public static String tableToCsv(
+		final List<List<String>> table,
+		final String separator,
+		final boolean replaceSeparator
+	) {
 		if (table != null) {
 			return table
 				.stream()
@@ -67,8 +76,8 @@ public class SourceTable {
 	 * a2,b2,c2,
 	 * =>
 	 * [[a1,b1,c2],[a1,b1,c1]]
-	 * 
-	 * @param csvTable  The CSV table we wish to parse
+	 *
+	 * @param csvTable The CSV table we wish to parse
 	 * @param separator The cells separator
 	 * @return {@link List} of {@link List} table
 	 */
@@ -86,7 +95,7 @@ public class SourceTable {
 	/**
 	 * Transform a line to a list
 	 * a1,b1,c1, => [ a1, b1, c1 ]
-	 * @param line      The CSV line we wish to parse 
+	 * @param line The CSV line we wish to parse
 	 * @param separator The cells separator
 	 * @return {@link List} of {@link String}
 	 */
@@ -113,12 +122,21 @@ public class SourceTable {
 	}
 
 	/**
+	 * Whether the current source table is empty or not
+	 *
+	 * @return boolean value
+	 */
+	public boolean isEmpty() {
+		return (rawData == null || rawData.isEmpty()) && (table == null || table.isEmpty());
+	}
+
+	/**
 	 * Find the source table instance from the connector namespace.<br>
 	 * If we have a hard-coded source then we will create a source wrapping the
 	 * csv input.
-	 * @param sourceKey
-	 * @param connectorId
-	 * @param telemetryManager
+	 * @param sourceKey The reference of the source or hard-coded source information
+	 * @param connectorId The connector identifier used to retrieve {@link SourceTable} from the connector namespace.
+	 * @param telemetryManager The instance wrapping the host properties where the connector namespace is located.
 	 * @return {@link Optional} instance of {@link SourceTable}
 	 */
 	public static Optional<SourceTable> lookupSourceTable(
