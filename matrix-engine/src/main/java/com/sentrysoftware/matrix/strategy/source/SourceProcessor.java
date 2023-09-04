@@ -1,12 +1,25 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_PERCENT_S_PERCENT_S;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_SOURCE_NULL_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_OID_NULL_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_PERCENT_S;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_SOURCE_NULL_ERROR_MESSAGE;
+
+import java.util.stream.Stream;
+
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
@@ -16,6 +29,8 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.matsya.http.HttpRequest;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,18 +48,20 @@ public class SourceProcessor implements ISourceProcessor {
 	private String connectorName;
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
+	@WithSpan("Source Copy Exec")
 	@Override
-	public SourceTable process(final CopySource copySource) {
+	public SourceTable process(@SpanAttribute("source.definition") final CopySource copySource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@WithSpan("Source HTTP Exec")
 	@Override
-	public SourceTable process(final HttpSource httpSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final HttpSource httpSource) {
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		if (httpSource == null) {
-			log.error("Hostname {} - HttpSource cannot be null, the HttpSource operation will return an empty result.", hostname);
+			log.error(HTTP_SOURCE_NULL_ERROR_MESSAGE, hostname);
 			return SourceTable.empty();
 		}
 
@@ -53,8 +70,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		if (httpConfiguration == null) {
 
-			log.debug("Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.",
-				hostname, httpSource);
+			log.debug(HTTP_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE, hostname, httpSource);
 
 			return SourceTable.empty();
 		}
@@ -83,56 +99,121 @@ public class SourceProcessor implements ISourceProcessor {
 			}
 
 		} catch (Exception e) {
-			logSourceError(connectorName, httpSource.getKey(), String.format("HTTP %s %s", httpSource.getMethod(),
+			logSourceError(connectorName, httpSource.getKey(), String.format(HTTP_PERCENT_S_PERCENT_S, httpSource.getMethod(),
 				httpSource.getUrl()) , hostname, e);
 		}
 
 		return SourceTable.empty();
 	}
 
+	@WithSpan("Source IPMI Exec")
 	@Override
-	public SourceTable process(final IpmiSource ipmiSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final IpmiSource ipmiSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@WithSpan("Source OS Command Exec")
 	@Override
-	public SourceTable process(final OsCommandSource osCommandSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final OsCommandSource osCommandSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@WithSpan("Source SNMP Get Exec")
 	@Override
-	public SourceTable process(final SnmpSource snmpSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final SnmpGetSource snmpGetSource) {
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (snmpGetSource == null) {
+			log.error(SNMP_GET_SOURCE_NULL_ERROR_MESSAGE, hostname);
+			return SourceTable.empty();
+		}
+
+		if (snmpGetSource.getOid() == null) {
+			log.error(SNMP_GET_OID_NULL_ERROR_MESSAGE, hostname, snmpGetSource);
+			return SourceTable.empty();
+		}
+
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager.getHostConfiguration()
+			.getConfigurations().get(SnmpConfiguration.class);
+
+		if (snmpConfiguration == null) {
+			log.debug(SNMP_GET_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE, hostname, snmpGetSource);
+			return SourceTable.empty();
+		}
+
+		try {
+
+			final String result = matsyaClientsExecutor.executeSNMPGet(
+				snmpGetSource.getOid(),
+				snmpConfiguration,
+				hostname,
+				true);
+
+			if (result != null) {
+
+				return SourceTable
+					.builder()
+					.table(Stream.of(Stream.of(result).toList()).toList())
+					.build();
+			}
+
+		} catch (Exception e) {
+
+			logSourceError(connectorName,
+				snmpGetSource.getKey(), String.format(SNMP_GET_PERCENT_S, snmpGetSource.getOid()),
+				hostname, e);
+		}
+
+		return SourceTable.empty();
+	}
+
+	@WithSpan("Source SNMP Exec")
+	@Override
+	public SourceTable process(@SpanAttribute("source.definition") final SnmpSource snmpSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@WithSpan("Source SNMP Table Exec")
 	@Override
-	public SourceTable process(final StaticSource staticSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final SnmpTableSource snmpTableSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@WithSpan("Source Static Exec")
 	@Override
-	public SourceTable process(final TableJoinSource tableJoinSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final StaticSource staticSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@WithSpan("Source TableJoin Exec")
 	@Override
-	public SourceTable process(final TableUnionSource tableUnionSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final TableJoinSource tableJoinSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public SourceTable process(final WbemSource wbemSource) {
+	@WithSpan("Source TableUnion Exec")
+	@Override
+	public SourceTable process(@SpanAttribute("source.definition") final TableUnionSource tableUnionSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@WithSpan("Source WBEM HTTP Exec")
+	public SourceTable process(@SpanAttribute("source.definition") final WbemSource wbemSource) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@WithSpan("Source WMI Exec")
 	@Override
-	public SourceTable process(final WmiSource wmiSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final WmiSource wmiSource) {
 		// TODO Auto-generated method stub
 		return null;
 	}

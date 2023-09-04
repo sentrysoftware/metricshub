@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.constants.Constants.ECS1_01;
+import static com.sentrysoftware.matrix.constants.Constants.OID;
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
@@ -8,8 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +22,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
@@ -76,5 +82,49 @@ class SourceProcessorTest {
 			.url("my/url")
 			.method(HttpMethod.GET)
 			.build()));
+	}
+
+	@Test
+	void testVisitSnmpGetSource() throws Exception {
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(HostConfiguration.builder().build()).build();
+		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+
+		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new SnmpGetSource()));
+
+		// no snmp protocol
+		HostConfiguration hostConfigurationNoProtocol = HostConfiguration.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.LINUX)
+			.build();
+		telemetryManager.setHostConfiguration(hostConfigurationNoProtocol);
+		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
+
+		// classic case
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		telemetryManager.setHostConfiguration(hostConfiguration);
+		doReturn(ECS1_01).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(true));
+		final SourceTable actual = sourceProcessor.process(SnmpGetSource.builder().oid(OID).build());
+		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01))).build();
+		assertEquals(expected, actual);
+
+		// test that the exception is correctly caught and still returns a result
+		when(matsyaClientsExecutorMock.executeSNMPGet(any(), any(), any(), eq(true))).thenThrow(TimeoutException.class);
+		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 	}
 }
