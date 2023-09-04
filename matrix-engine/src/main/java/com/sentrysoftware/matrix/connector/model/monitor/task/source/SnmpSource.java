@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
-import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
