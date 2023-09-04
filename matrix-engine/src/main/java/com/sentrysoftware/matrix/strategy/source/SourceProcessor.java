@@ -7,7 +7,14 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_OID_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_PERCENT_S;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_SOURCE_NULL_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_OID_NULL_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_SELECTED_COLUMNS_SPLIT_REGEX;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_TABLE_LOG;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
@@ -172,8 +179,61 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source SNMP Table Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final SnmpTableSource snmpTableSource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (snmpTableSource == null) {
+			log.error(SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE, hostname);
+			return SourceTable.empty();
+		}
+
+		if (snmpTableSource.getOid() == null) {
+			log.error(SNMP_GET_TABLE_OID_NULL_ERROR_MESSAGE, hostname, snmpTableSource);
+			return SourceTable.empty();
+		}
+
+		// run Matsya in order to execute the snmpTable
+		// receives a List structure
+		SourceTable sourceTable = new SourceTable();
+		String selectedColumns = snmpTableSource.getSelectColumns();
+
+		if (selectedColumns == null || selectedColumns.isBlank()) {
+			return SourceTable.empty();
+		}
+
+		// The selectedColumns String is like "column1, column2, column3" and we want to split it into ["column1", "column2", "column3"]
+		final String[] selectedColumnArray = selectedColumns.split(SNMP_SELECTED_COLUMNS_SPLIT_REGEX);
+
+		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager.getHostConfiguration()
+			.getConfigurations().get(SnmpConfiguration.class);
+
+		if (protocol == null) {
+			log.debug(SNMP_GET_TABLE_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE, hostname, snmpTableSource);
+			return SourceTable.empty();
+		}
+
+		try {
+
+			final List<List<String>> result = matsyaClientsExecutor.executeSNMPTable(
+				snmpTableSource.getOid(),
+				selectedColumnArray,
+				protocol,
+				hostname,
+				true);
+
+			sourceTable.setHeaders(Arrays.asList(selectedColumnArray));
+			sourceTable.setTable(result);
+
+			return sourceTable;
+
+		} catch (Exception e) {
+
+			logSourceError(connectorName, snmpTableSource.getKey(),
+				String.format(SNMP_TABLE_LOG, snmpTableSource.getOid()),
+				hostname, e);
+
+			return SourceTable.empty();
+		}
 	}
 
 	@WithSpan("Source Static Exec")

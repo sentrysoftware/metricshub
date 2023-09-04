@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.constants.Constants.ENCLOSURE_COLLECT_SOURCE_1;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_RESULT;
+import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_VAL_1;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_VAL_1_AND_2;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_VAL_1_AND_2_ARRAY;
@@ -11,6 +12,8 @@ import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.OID;
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMNS;
+import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_A1;
@@ -40,6 +43,7 @@ import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
@@ -143,5 +147,33 @@ class SourceUpdaterProcessorTest {
 		assertEquals(expected1,
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
 				.process(SnmpGetSource.builder().oid(OID).build()));
+	}
+
+	@Test
+	void testVisitSNMPGetTableSource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder()
+			.hostConfiguration(hostConfiguration)
+			.build();
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(SnmpTableSource.class));
+		assertEquals(SourceTable.empty(), new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()));
+
+		SourceTable expected = SourceTable.builder().table(EXPECTED_SNMP_TABLE_DATA)
+			.headers(SNMP_SELECTED_COLUMNS_LIST).build();
+		doReturn(expected).when(sourceProcessor).process(any(SnmpTableSource.class));
+		assertEquals(expected, new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()));
 	}
 }
