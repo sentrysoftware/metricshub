@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -29,4 +31,8 @@ public class SnmpGetCriterion extends SnmpCriterion {
 		super(type, forceSerialization, oid, expectedResult);
 	}
 
+	@Override
+	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
+		return criterionProcessor.process(this);
+	}
 }

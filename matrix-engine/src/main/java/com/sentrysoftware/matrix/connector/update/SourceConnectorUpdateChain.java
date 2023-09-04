@@ -37,7 +37,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 			return new ArrayList<>();
 		}
 
-		// Source path is a string like: ${source::monitors.enclosure.discovery.sources.Source1}
+		// Source path is a string like: ${source::monitors.enclosure.discovery.sources.Source1} // NOSONAR on comment
 		// Source identifier (id) is a string like: Source1
 
 

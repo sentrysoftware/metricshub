@@ -11,8 +11,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.strategy.source.OrderedSources;
+import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.strategy.utils.MappingProcessor;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
@@ -85,8 +86,11 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.entrySet()
 			.stream()
 			.sorted(
-				Comparator.comparing(entry -> MONITOR_JOBS_PRIORITY.containsKey(entry.getKey())? MONITOR_JOBS_PRIORITY.get(entry.getKey()) :
-				MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES))
+				Comparator.comparing(entry -> 
+					MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()) ? 
+						MONITOR_JOBS_PRIORITY.get(entry.getKey()) :
+						MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES)
+				)
 			)
 			.collect(Collectors.toMap(
 							Map.Entry::getKey,
@@ -101,10 +105,10 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.filter(entry -> MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
 			.collect(Collectors.toMap(
-							Map.Entry::getKey,
-							Map.Entry::getValue,
-							(oldValue, newValue) -> oldValue,
-							LinkedHashMap::new
+						Map.Entry::getKey,
+						Map.Entry::getValue,
+						(oldValue, newValue) -> oldValue,
+						LinkedHashMap::new
 					)
 			);
 
@@ -113,10 +117,10 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.filter(entry -> !MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
 			.collect(Collectors.toMap(
-							Map.Entry::getKey,
-							Map.Entry::getValue,
-							(oldValue, newValue) -> oldValue,
-							LinkedHashMap::new
+						Map.Entry::getKey,
+						Map.Entry::getValue,
+						(oldValue, newValue) -> oldValue,
+						LinkedHashMap::new
 					)
 			);
 
@@ -174,23 +178,41 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		if (monitorJob.getValue() instanceof StandardMonitorJob standardMoinitorJob) {
 
 			final Discovery discovery = standardMoinitorJob.getDiscovery();
+			final String monitorType = monitorJob.getKey();
+
+			final JobInfo jobInfo = JobInfo
+				.builder()
+				.hostname(hostname)
+				.connectorName(currentConnector.getCompiledFilename())
+				.jobName(discovery.getClass().getSimpleName())
+				.monitorType(monitorType)
+				.build();
+
+			// Build the ordered sources
+			final OrderedSources orderedSources = OrderedSources
+				.builder()
+				.sources(
+					discovery.getSources(),
+					discovery.getExecutionOrder().stream().toList(),
+					discovery.getSourceDep(),
+					jobInfo
+				)
+				.build();
 
 			// Create the sources and the computes for a connector
 			processSourcesAndComputes(
-					discovery.getSources(),
-					telemetryManager,
-					currentConnector,
-					hostname
+				orderedSources.getSources(),
+				jobInfo
 			);
 
 			// Create the monitors
 			final Mapping mapping = discovery.getMapping();
 
 			processSameTypeMonitors(
-					currentConnector,
-					mapping,
-					monitorJob.getKey(),
-					hostname
+				currentConnector,
+				mapping,
+				monitorType,
+				hostname
 			);
 		}
 
@@ -198,6 +220,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 	/**
 	 * This method processes same type monitors
+	 * 
 	 * @param connector
 	 * @param mapping
 	 * @param monitorType
@@ -337,22 +360,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * This method processes the sources and the computes
-	 * @param sources
-	 * @param telemetryManager
-	 * @param currentConnector
-	 * @param hostname
-	 */
-	private void processSourcesAndComputes(
-		final Map<String, Source> sources,
-		final TelemetryManager telemetryManager,
-		final Connector currentConnector,
-		final String hostname
-	) {
-		// TODO
-	}
-
-	/**
 	 * This is the main discovery method. It runs the discovery operation
 	 */
 	@Override
@@ -385,7 +392,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		}
 
 		host.setDiscoveryTime(strategyTime);
-
 
 		//Retrieve connector Monitor instances from TelemetryManager
 		final Map<String, Monitor> connectorMonitors = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());

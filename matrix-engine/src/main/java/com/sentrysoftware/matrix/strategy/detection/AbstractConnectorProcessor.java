@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.*;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_EXCEPTION_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,19 +21,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.identity.Detection;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceTypeCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.OsCommandCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.WmiCriterion;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
 import lombok.NonNull;
@@ -171,86 +161,6 @@ public abstract class AbstractConnectorProcessor {
 	}
 
 	/**
-	 * Force the serialization when processing the given object, this method tries
-	 * to acquire the connector namespace <em>lock</em> before running the
-	 * executable, if the lock cannot be acquired or there is an exception or an
-	 * interruption then the defaultValue is returned
-	 *
-	 * @param <T>          for example {@link CriterionTestResult} or a
-	 *                     {@link SourceTable}
-	 *
-	 * @param executable   the supplier executable function, e.g. visiting a criterion or a
-	 *                     source
-	 * @param connector    the connector the criterion belongs to
-	 * @param objToProcess the object to process used for debug purpose
-	 * @param description  the object to process description used in the debug messages
-	 * @param defaultValue the default value to return in case of any glitch
-	 * @return T instance
-	 */
-	protected <T> T forceSerialization(
-		@NonNull Supplier<T> executable,
-		@NonNull final Connector connector,
-		final Object objToProcess,
-		@NonNull final String description,
-		@NonNull final T defaultValue
-	) {
-
-		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		final boolean isLockAcquired;
-		try {
-			// Try to get the lock
-			isLockAcquired = forceSerializationLock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			log.error("Hostname {} - Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
-				hostname,
-				description,
-				objToProcess,
-				connector.getConnectorIdentity().getCompiledFilename()
-			);
-			log.debug(HOSTNAME_EXCEPTION_MESSAGE, hostname, e);
-
-			Thread.currentThread().interrupt();
-
-			return defaultValue;
-		}
-
-		if (isLockAcquired) {
-
-			try {
-				return executable.get();
-			} finally {
-				// Release the lock when the executable is terminated
-				forceSerializationLock.unlock();
-			}
-		} else {
-			log.error("Hostname {} - Could not acquire the force serialization lock to process {} {}. Connector: {}.",
-					hostname,
-					description,
-					objToProcess,
-					connector.getConnectorIdentity().getCompiledFilename());
-
-			return defaultValue;
-		}
-
-	}
-
-	/**
-	 * Get the Connector Namespace force serialization lock
-	 *
-	 * @param connector the connector we currently process its criteria/sources/computes/
-	 * @return {@link ReentrantLock} instance. never null.
-	 */
-	ReentrantLock getForceSerializationLock(final Connector connector) {
-		return telemetryManager.getHostProperties()
-			.getConnectorNamespaces()
-			.get(connector.getConnectorIdentity().getCompiledFilename())
-			.getForceSerializationLock();
-	}
-
-
-	/**
 	 * Run the criterion processor which implements the logic that needs to be
 	 * executed for this criterion instance.
 	 *
@@ -273,37 +183,14 @@ public abstract class AbstractConnectorProcessor {
 		final Supplier<CriterionTestResult> executable;
 
 		// Based on the type of criterion, store the call of the process method in the supplier
-		if (criterion instanceof HttpCriterion httpCriterion) {
-			executable = () -> criterionProcessor.process(httpCriterion);
-		} else if (criterion instanceof SnmpGetCriterion snmpGetCriterion) {
-			executable = () -> criterionProcessor.process(snmpGetCriterion);
-		} else if (criterion instanceof SnmpGetNextCriterion snmpGetNextCriterion) {
-			executable = () -> criterionProcessor.process(snmpGetNextCriterion);
-		} else if (criterion instanceof OsCommandCriterion osCommandCriterion) {
-			executable = () -> criterionProcessor.process(osCommandCriterion);
-		} else if (criterion instanceof WmiCriterion wmiCriterion) {
-			executable = () -> criterionProcessor.process(wmiCriterion);
-		} else if (criterion instanceof WbemCriterion wbemCriterion) {
-			executable = () -> criterionProcessor.process(wbemCriterion);
-		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
-			executable = () -> criterionProcessor.process(serviceCriterion);
-		} else if (criterion instanceof ProductRequirementsCriterion productRequirementsCriterion) {
-			executable = () -> criterionProcessor.process(productRequirementsCriterion);
-		} else if (criterion instanceof ProcessCriterion processCriterion) {
-			executable = () -> criterionProcessor.process(processCriterion);
-		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
-			executable = () -> criterionProcessor.process(ipmiCriterion);
-		} else if (criterion instanceof DeviceTypeCriterion deviceTypeCriterion) {
-			executable = () -> criterionProcessor.process(deviceTypeCriterion);
-		} else {
-			throw new IllegalStateException("Unhandled criterion instance: " + criterion.getClass().getSimpleName());
-		}
+		executable = () -> criterion.accept(criterionProcessor);
 
 		// If isForceSerialization is true, call forceSerialization
 		if (criterion.isForceSerialization()) {
-			return forceSerialization(
+			return ForceSerializationHelper.forceSerialization(
 				executable,
-				connector,
+				telemetryManager,
+				connector.getCompiledFilename(),
 				criterion,
 				"criterion",
 				CriterionTestResult.empty()

@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,5 +36,7 @@ public abstract class Criterion implements Serializable {
 
 	protected String type;
 	protected boolean forceSerialization;
+
+	public abstract CriterionTestResult accept(ICriterionProcessor criterionProcessor);
 
 }

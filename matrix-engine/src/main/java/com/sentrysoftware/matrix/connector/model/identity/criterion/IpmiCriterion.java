@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
+
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -19,5 +22,10 @@ public class IpmiCriterion extends Criterion {
 	@Override
 	public String toString() {
 		return "- IPMI";
+	}
+
+	@Override
+	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
+		return criterionProcessor.process(this);
 	}
 }
