@@ -282,8 +282,13 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param connectorName the connector file name
 	 * @param hostname      the hostname
 	 */
-	private static <T> void logBeginOperation(final String operationTag, final T execution, final String executionKey,
-			final String connectorName, final String hostname) {
+	private static <T> void logBeginOperation(
+		final String operationTag,
+		final T execution,
+		final String executionKey,
+		final String connectorName,
+		final String hostname
+	) {
 
 		if (!log.isInfoEnabled()) {
 			return;

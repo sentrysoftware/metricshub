@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AutomaticDetection extends AbstractConnectorProcessor {
 
 	public AutomaticDetection(
-		@NonNull TelemetryManager telemetryManager,
-		@NonNull MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final TelemetryManager telemetryManager,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, matsyaClientsExecutor);
 	}

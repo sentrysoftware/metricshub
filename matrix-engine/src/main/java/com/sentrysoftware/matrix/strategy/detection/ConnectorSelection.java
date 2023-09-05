@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ConnectorSelection extends AbstractConnectorProcessor {
 
 	public ConnectorSelection(
-		@NonNull TelemetryManager telemetryManager,
-		@NonNull MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final TelemetryManager telemetryManager,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, matsyaClientsExecutor);
 	}

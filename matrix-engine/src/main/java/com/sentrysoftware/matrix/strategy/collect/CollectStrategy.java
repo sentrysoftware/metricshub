@@ -13,9 +13,9 @@ import lombok.NonNull;
 public class CollectStrategy extends AbstractStrategy {
 
 	public CollectStrategy(
-		@NonNull TelemetryManager telemetryManager,
-		long strategyTime,
-		@NonNull MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final TelemetryManager telemetryManager,
+		final long strategyTime,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);
 

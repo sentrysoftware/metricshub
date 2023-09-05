@@ -41,9 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 public class DetectionStrategy extends AbstractStrategy {
 
 	public DetectionStrategy(
-		@NonNull TelemetryManager telemetryManager,
-		long strategyTime,
-		@NonNull MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final TelemetryManager telemetryManager,
+		final long strategyTime,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);
 

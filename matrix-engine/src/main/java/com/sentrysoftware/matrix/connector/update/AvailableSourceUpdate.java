@@ -82,7 +82,7 @@ public class AvailableSourceUpdate extends AbstractConnectorUpdateChain {
 	 * Process discovery job sources
 	 * 
 	 * @param sourceTypes Types of the sources to be updated
-	 * @param collect {@link Discovery} source job
+	 * @param discovery {@link Discovery} source job
 	 */
 	private void processDiscoverySources(
 		final Set<Class<? extends Source>> sourceTypes,
