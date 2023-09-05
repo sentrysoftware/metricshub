@@ -1,11 +1,12 @@
 package com.sentrysoftware.matrix.constants;
 
-import com.sentrysoftware.matrix.common.helpers.StringHelper;
-
 import java.net.InetAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 
 public class Constants {
 
@@ -131,6 +132,12 @@ public class Constants {
 		"\"Value\":expectedVal2\n" +
 		"}\n" +
 		"}]";
+	public static final String SNMP_WRONG_COLUMNS = "ID, ID9, ID11, ID49";
+	public static final List<String> SNMP_WRONG_COLUMNS_LIST = Arrays.asList("ID", "ID9", "ID11", "ID49");
+	public static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(Arrays.asList("1", "PowerEdge R630", "FSJR3N2", "34377965102"));
+	public static final String SNMP_SELECTED_COLUMNS = "ID, 9, 11, 49";
+	public static final List<String> SNMP_SELECTED_COLUMNS_LIST = Arrays.asList("ID", "9", "11", "49");
+
 
 	// Embedded files
 	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";
