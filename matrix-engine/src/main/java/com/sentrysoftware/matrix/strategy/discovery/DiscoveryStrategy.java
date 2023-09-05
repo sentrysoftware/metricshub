@@ -1,30 +1,11 @@
 package com.sentrysoftware.matrix.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.ConnectorMonitorTypeComparator;
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.matrix.connector.model.metric.MetricType;
-import com.sentrysoftware.matrix.connector.model.metric.StateSet;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.strategy.AbstractStrategy;
-import com.sentrysoftware.matrix.strategy.source.OrderedSources;
-import com.sentrysoftware.matrix.common.JobInfo;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.strategy.utils.MappingProcessor;
-import com.sentrysoftware.matrix.telemetry.MetricFactory;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
-import com.sentrysoftware.matrix.telemetry.Resource;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -38,17 +19,47 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
+import com.sentrysoftware.matrix.common.ConnectorMonitorTypeComparator;
+import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
+import com.sentrysoftware.matrix.connector.model.metric.MetricType;
+import com.sentrysoftware.matrix.connector.model.metric.StateSet;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.strategy.source.OrderedSources;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.strategy.utils.MappingProcessor;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.MonitorFactory;
+import com.sentrysoftware.matrix.telemetry.Resource;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
+
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DiscoveryStrategy extends AbstractStrategy {
+
+	public DiscoveryStrategy(
+		@NonNull TelemetryManager telemetryManager,
+		long strategyTime,
+		@NonNull MatsyaClientsExecutor matsyaClientsExecutor
+	) {
+		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+	}
 
 	private static final Map<String, Integer> MONITOR_JOBS_PRIORITY;
 	static {
@@ -61,10 +72,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			KnownMonitorType.CPU.getKey(), 5,
 			OTHER_MONITOR_JOB_TYPES, 6
 		);
-	}
-
-	public DiscoveryStrategy(final TelemetryManager telemetryManager) {
-		this.telemetryManager = telemetryManager;
 	}
 
 	@Override
@@ -178,6 +185,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		if (monitorJob.getValue() instanceof StandardMonitorJob standardMoinitorJob) {
 
 			final Discovery discovery = standardMoinitorJob.getDiscovery();
+
 			final String monitorType = monitorJob.getKey();
 
 			final JobInfo jobInfo = JobInfo
@@ -435,6 +443,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 		// Discover each connector
 		sortedConnectors.forEach(connector -> discover(connector, hostname));
+
 	}
 
 	@Override

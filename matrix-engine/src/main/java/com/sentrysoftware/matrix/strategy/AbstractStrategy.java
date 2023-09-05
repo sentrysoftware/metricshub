@@ -19,15 +19,22 @@ import com.sentrysoftware.matrix.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.matrix.strategy.utils.RetryOperation;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Slf4j
 public abstract class AbstractStrategy implements IStrategy {
 
+	@NonNull
 	protected TelemetryManager telemetryManager;
 	protected long strategyTime;
+	@NonNull
 	protected MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private static final String COMPUTE = "compute";

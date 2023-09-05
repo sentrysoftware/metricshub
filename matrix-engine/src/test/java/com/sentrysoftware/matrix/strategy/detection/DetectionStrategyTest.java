@@ -8,6 +8,7 @@ import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.matrix.connector.model.metric.MetricType;
 import com.sentrysoftware.matrix.connector.model.metric.StateSet;
 import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
@@ -65,7 +66,7 @@ class DetectionStrategyTest {
 			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
-		final DetectionStrategy detectionStrategy = new DetectionStrategy(telemetryManager, new Date().getTime());
+		final DetectionStrategy detectionStrategy = new DetectionStrategy(telemetryManager, new Date().getTime(), new MatsyaClientsExecutor(telemetryManager));
 
 		// Create a list of CriterionTestResult
 		final List<CriterionTestResult> criterionTestResultList = new ArrayList<>();
@@ -143,7 +144,11 @@ class DetectionStrategyTest {
 				.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
-		final DetectionStrategy detectionStrategy = new DetectionStrategy(telemetryManager, new Date().getTime());
+		final DetectionStrategy detectionStrategy = new DetectionStrategy(
+			telemetryManager,
+			new Date().getTime(),
+			new MatsyaClientsExecutor(telemetryManager)
+		);
 
 		// Set a NumberMetric in the connector
 		connector.setMetrics(Map.of(CONNECTOR_STATUS_METRIC_KEY, MetricDefinition.builder().type(MetricType.GAUGE).build()));
@@ -195,7 +200,11 @@ class DetectionStrategyTest {
 				.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
-		final DetectionStrategy detectionStrategy = new DetectionStrategy(telemetryManager, new Date().getTime());
+		final DetectionStrategy detectionStrategy = new DetectionStrategy(
+			telemetryManager,
+			new Date().getTime(),
+			new MatsyaClientsExecutor(telemetryManager)
+		);
 
 		// Set a StateSetMetric in the connector
 		final StateSet stateSet = new StateSet();

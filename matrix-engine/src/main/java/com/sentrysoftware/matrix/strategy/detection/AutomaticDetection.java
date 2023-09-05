@@ -13,15 +13,22 @@ import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor
 public class AutomaticDetection extends AbstractConnectorProcessor {
 
-	protected AutomaticDetection(TelemetryManager telemetryManager) {
-		super(telemetryManager);
+	public AutomaticDetection(
+		@NonNull TelemetryManager telemetryManager,
+		@NonNull MatsyaClientsExecutor matsyaClientsExecutor
+	) {
+		super(telemetryManager, matsyaClientsExecutor);
 	}
 
 	@Override

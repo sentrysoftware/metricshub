@@ -24,7 +24,6 @@ public class ConnectorStore {
 			this.connectorDirectory = connectorDirectory;
 			store = deserializeConnectors();
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.error("Error while deserializing connectors. The ConnectorStore is empty!");
 			log.debug("Error while deserializing connectors. The ConnectorStore is empty!", e);
 			store = new HashMap<>();

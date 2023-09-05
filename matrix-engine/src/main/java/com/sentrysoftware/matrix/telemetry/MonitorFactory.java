@@ -1,22 +1,5 @@
 package com.sentrysoftware.matrix.telemetry;
 
-import com.sentrysoftware.matrix.alert.AlertRule;
-import com.sentrysoftware.matrix.common.HostLocation;
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AGENT_HOSTNAME_VALUE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AGENT_HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST;
@@ -30,6 +13,23 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOI
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OS_TYPE;
+
+import java.util.List;
+import java.util.Map;
+
+import com.sentrysoftware.matrix.alert.AlertRule;
+import com.sentrysoftware.matrix.common.HostLocation;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Data
@@ -56,6 +56,7 @@ public class MonitorFactory {
 	public Monitor createOrUpdateMonitor() {
 		return createOrUpdateMonitor(attributes, resource, monitorType);
 	}
+
 	/**
 	 * This method creates or updates the monitor
 	 *
@@ -65,8 +66,8 @@ public class MonitorFactory {
 	 * @return Monitor instance
 	 */
 	Monitor createOrUpdateMonitor(final Map<String, String> attributes, final Resource resource, final String monitorType) {
-		final Monitor foundMonitor = telemetryManager.findMonitorByTypeAndId(monitorType,
-				attributes.get(MONITOR_ATTRIBUTE_ID));
+		final String id = attributes.get(MONITOR_ATTRIBUTE_ID);
+		final Monitor foundMonitor = telemetryManager.findMonitorByTypeAndId(monitorType, id);
 		if (foundMonitor != null) {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
@@ -79,14 +80,8 @@ public class MonitorFactory {
 				.attributes(attributes)
 				.type(monitorType)
 				.build();
-			Map<String, Monitor> monitorsMap = telemetryManager.getMonitors().get(monitorType);
-			if (monitorsMap != null) {
-				monitorsMap.put(newMonitor.getAttributes().get(MONITOR_ATTRIBUTE_ID), newMonitor);
-			} else {
-				monitorsMap = new HashMap<>();
-				monitorsMap.put(newMonitor.getAttributes().get(MONITOR_ATTRIBUTE_ID), newMonitor);
-				telemetryManager.getMonitors().put(monitorType, monitorsMap);
-			}
+
+			telemetryManager.addNewMonitor(newMonitor, monitorType, id);
 
 			return newMonitor;
 		}

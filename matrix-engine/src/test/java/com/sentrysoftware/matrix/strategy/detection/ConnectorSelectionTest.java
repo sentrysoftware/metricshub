@@ -21,6 +21,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.identity.Detection;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -29,13 +30,17 @@ class ConnectorSelectionTest {
 
 	@Test
 	void testRunNull() {
-		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(null));
+		final TelemetryManager telemetryManager = new TelemetryManager();
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(null, matsyaClientsExecutor));
+		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(telemetryManager, null));
 	}
 
 	@Test
 	void testRunEmptyTelemetryManager() {
 		TelemetryManager telemetryManager = new TelemetryManager();
-		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -61,7 +66,8 @@ class ConnectorSelectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -88,7 +94,8 @@ class ConnectorSelectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(Collections.emptyList(),  new ConnectorSelection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(),  new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -115,7 +122,8 @@ class ConnectorSelectionTest {
 		connectorStore.getStore().put("connector2.yaml", connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 
-		assertEquals(new ArrayList<>(), new ConnectorSelection(telemetryManager).run());
+		assertEquals(new ArrayList<>(), new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
 	}
 }
