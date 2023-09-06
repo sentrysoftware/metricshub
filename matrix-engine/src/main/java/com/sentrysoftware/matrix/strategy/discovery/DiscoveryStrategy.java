@@ -287,9 +287,9 @@ public class DiscoveryStrategy extends AbstractStrategy {
 				.build();
 
 			// Use the mapping processor to extract attributes and resource
-			final Map<String, String> noContextAttributeInterpretedValues = mappingProcessor.interpretNonContextMappingAttributes();
+			final Map<String, String> noContextAttributeInterpretedValues = mappingProcessor.interpretNonContextMappingAttributes(monitorType);
 
-			final Resource resource = mappingProcessor.interpretMappingResource();
+			final Resource resource = mappingProcessor.interpretMappingResource(monitorType);
 
 			// Init a monitor factory with the previously created attributes and resources
 
@@ -310,11 +310,11 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			monitor.addAttributes(contextAttributes);
 
 			// Collect conditional collection
-			monitor.addConditionalCollection(mappingProcessor.interpretNonContextMappingConditionalCollection());
+			monitor.addConditionalCollection(mappingProcessor.interpretNonContextMappingConditionalCollection(monitorType));
 			monitor.addConditionalCollection(mappingProcessor.interpretContextMappingConditionalCollection(monitor));
 
 			// Collect metrics
-			final Map<String, String> metrics = mappingProcessor.interpretNonContextMappingMetrics();
+			final Map<String, String> metrics = mappingProcessor.interpretNonContextMappingMetrics(monitorType);
 
 			metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
@@ -361,7 +361,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			}
 
 			// Collect legacy parameters
-			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
+			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters(monitorType));
 			monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
 		}
 

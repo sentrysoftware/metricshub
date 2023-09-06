@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_VALUE_WITH_DOLLAR_PATTERN;
 
@@ -85,32 +86,32 @@ public class MappingProcessor {
 	 * This method interprets non context mapping attributes
 	 * @return Map<String, String>
 	 */
-	public Map<String, String> interpretNonContextMappingAttributes() {
-		return interpretNonContextMapping(mapping.getAttributes());
+	public Map<String, String> interpretNonContextMappingAttributes(final String monitorType) {
+		return interpretNonContextMapping(mapping.getAttributes(), monitorType);
 	}
 
 	/**
 	 *  This method interprets non context mapping metrics
 	 * @return Map<String, String>
 	 */
-	public Map<String, String> interpretNonContextMappingMetrics() {
-		return interpretNonContextMapping(mapping.getMetrics());
+	public Map<String, String> interpretNonContextMappingMetrics(final String monitorType) {
+		return interpretNonContextMapping(mapping.getMetrics(), monitorType);
 	}
 
 	/**
 	 *  This method interprets non context mapping conditional collections
 	 * @return Map<String, String>
 	 */
-	public Map<String, String> interpretNonContextMappingConditionalCollection() {
-		return interpretNonContextMapping(mapping.getConditionalCollection());
+	public Map<String, String> interpretNonContextMappingConditionalCollection(final String monitorType) {
+		return interpretNonContextMapping(mapping.getConditionalCollection(), monitorType);
 	}
 	
 	/**
 	 * This method interprets non context mapping legacy text parameters
 	 * @return Map<String, String>
 	 */
-	public Map<String, String> interpretNonContextMappingLegacyTextParameters() {
-		return interpretNonContextMapping(mapping.getLegacyTextParameters());
+	public Map<String, String> interpretNonContextMappingLegacyTextParameters(final String monitorType) {
+		return interpretNonContextMapping(mapping.getLegacyTextParameters(), monitorType);
 	}
 
 	/**
@@ -118,7 +119,7 @@ public class MappingProcessor {
 	 * The key value pairs are filled with values depending on the column type: extraction, awk, rate, etc...
 	 * @return Map<String, String>
 	 */
-	public Map<String, String> interpretNonContextMapping(Map<String, String> keyValuePairs) { // NOSONAR on cognitive complexity of 16
+	public Map<String, String> interpretNonContextMapping(final Map<String, String> keyValuePairs, final String monitorType) { // NOSONAR on cognitive complexity of 16
 		if (keyValuePairs == null) {
 			return Collections.emptyMap();
 		}
@@ -127,7 +128,7 @@ public class MappingProcessor {
 
 		keyValuePairs.forEach((key, value) -> {
 			if (isColumnExtraction(value)) {
-				result.put(key, extractColumnValue(value));
+				result.put(key, extractColumnValue(value, key, monitorType));
 			} else if (isAwkScript(value)) {
 				result.put(key, executeAwkScript(value));
 			} else if (isMegaBit2Bit(value)) { 
@@ -336,10 +337,26 @@ public class MappingProcessor {
 	 * @param value
 	 * @return string representing the column value
 	 */
-	private String extractColumnValue(String value) {
+	private String extractColumnValue(final String value, final String key, final String monitorType) {
 		final Matcher matcher = getStringRegexMatcher(value);
 		matcher.find();
-		return row.get(Integer.parseInt(matcher.group(1)) - 1);
+		final int columnIndex = Integer.parseInt(matcher.group(1)) - 1;
+		if (columnIndex >= 0 && columnIndex < row.size()) {
+			return row.get(columnIndex);
+		} else {
+			final Optional<SourceTable> sourceKey = lookupSourceTable();
+			log.warn(
+				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
+				"Row {} - monitor type {}.",
+				hostname,
+				columnIndex,
+				sourceKey,
+				key,
+				row,
+				monitorType
+			);
+			return EMPTY;
+		}
 	}
 
 	private boolean isAwkScript(String value) {
@@ -369,17 +386,17 @@ public class MappingProcessor {
 	 * This method interprets mapping instance mapping resource field
 	 * @return Resource
 	 */
-	public Resource interpretMappingResource() {
+	public Resource interpretMappingResource(final String monitorType) {
 
 		final MappingResource mappingResource = mapping.getResource();
 
 		if (mappingResource != null && mappingResource.hasType()) {
 			return Resource.builder()
 				.type(
-					interpretNonContextMapping(Map.of("type", mappingResource.getType()))
+					interpretNonContextMapping(Map.of("type", mappingResource.getType()), monitorType)
 					.get("type")
 				)
-				.attributes(interpretNonContextMapping(mappingResource.getAttributes()))
+				.attributes(interpretNonContextMapping(mappingResource.getAttributes(), monitorType))
 				.build();
 		}
 
