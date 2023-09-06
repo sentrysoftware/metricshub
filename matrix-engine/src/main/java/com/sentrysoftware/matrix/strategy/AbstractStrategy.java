@@ -307,8 +307,6 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Log the {@link SourceTable} result.
 	 *
-	 * @param <T>
-	 *
 	 * @param operationTag   the tag of the operation. E.g. source or compute
 	 * @param executionClassName the source or the compute class name we want to log
 	 * @param executionKey   the key of the source or the compute we want to log
