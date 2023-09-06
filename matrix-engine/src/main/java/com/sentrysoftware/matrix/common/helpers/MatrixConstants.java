@@ -237,14 +237,12 @@ public class MatrixConstants {
 	public static final String AUTHENTICATION_TOKEN = "authenticationToken";
 	public static final String BRACKET_PERCENT_S = "[%s]";
 	public static final String SNMP_GET_SOURCE_NULL_ERROR_MESSAGE = "Hostname {} - SNMP Get Source cannot be null, the SNMP Get operation will return an empty result.";
-	public static final String SNMP_GET_OID_NULL_ERROR_MESSAGE = "Hostname {} - SNMP Get Source OID cannot be null. Returning an empty table for source {}.";
 	public static final String SNMP_GET_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE = "Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Source {}.";
 	public static final String SNMP_GET_PERCENT_S = "SNMP Get: %s.";
 	public static final String HTTP_SOURCE_NULL_ERROR_MESSAGE = "Hostname {} - HttpSource cannot be null, the HttpSource operation will return an empty result.";
 	public static final String HTTP_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE = "Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.";
 	public static final String HTTP_PERCENT_S_PERCENT_S = "HTTP %s %s";
 	public static final String SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE = "Hostname {} - SNMP Get Table Source cannot be null, the SNMP Get Table operation will return an empty result.";
-	public static final String SNMP_GET_TABLE_OID_NULL_ERROR_MESSAGE = "Hostname {} - SNMP Get Table Source OID cannot be null. Returning an empty table for source {}.";
 	public static final String SNMP_GET_TABLE_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE = "Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Table Source {}.";
 	public static final String SNMP_SELECTED_COLUMNS_SPLIT_REGEX = "\\s*,\\s*";
 	public static final String SNMP_TABLE_LOG = "SNMP Table: %s";

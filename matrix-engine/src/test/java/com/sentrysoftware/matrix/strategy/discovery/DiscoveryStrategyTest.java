@@ -14,7 +14,6 @@ import static com.sentrysoftware.matrix.constants.Constants.YAML_TEST_FILE_NAME_
 import static com.sentrysoftware.matrix.constants.Constants.YAML_TEST_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -23,10 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,42 +39,53 @@ import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
-
 @ExtendWith(MockitoExtension.class)
 class DiscoveryStrategyTest {
 
 	@Mock
-	private MatsyaClientsExecutor matsyaClientsExecutor;
+	private MatsyaClientsExecutor matsyaClientsExecutorMock;
 
 	@InjectMocks
 	private DiscoveryStrategy discoveryStrategy;
 
-	private static Long strategyTime = new Date().getTime();
-
-	@BeforeEach
-	void beforeEeach() {
-		discoveryStrategy.setStrategyTime(strategyTime);
-		discoveryStrategy.setTelemetryManager(null);
-	}
+	static Long strategyTime = new Date().getTime();
 
 	@Test
-	void testRun() throws InterruptedException, ExecutionException, TimeoutException {
+	void testRun() throws Exception {
+
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
-				KnownMonitorType.HOST.getKey(),
+				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
-				KnownMonitorType.CONNECTOR.getKey(),
+				CONNECTOR,
 				Map.of(YAML_TEST_FILE_NAME_WITH_EXTENSION, connectorMonitor)
 			)
 		);
 
+		final SnmpConfiguration snmpConfig = SnmpConfiguration
+			.builder()
+			.community("public")
+			.build();
+
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.monitors(monitors)
-			.hostConfiguration(HostConfiguration.builder().hostId(HOST_ID).hostname(HOST_NAME).build())
+			.hostConfiguration(HostConfiguration
+				.builder()
+				.hostId(HOST_ID)
+				.hostname(HOST_NAME)
+				.sequential(false)
+				.configurations(
+					Map.of(
+						SnmpConfiguration.class, 
+						snmpConfig
+					)
+				)
+				.build()
+			)
 			.build();
 
 		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
@@ -89,27 +96,48 @@ class DiscoveryStrategyTest {
 		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
-		// Mock source table information
-		doReturn(SourceTable
-			.builder()
-			.table(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MatrixConstants.COMMA))
-			.build()
-		)
-		.when(matsyaClientsExecutor)
-		.executeSNMPTable(
-			eq("1.3.6.1.4.1.795.10.1.1.3.1"),
-			eq(new String[] {"ID","1","3","7","8"}),
-			any(SnmpConfiguration.class),
-			anyString(),
-			anyBoolean()
-		);
+		discoveryStrategy.setTelemetryManager(telemetryManager);
+		discoveryStrategy.setStrategyTime(strategyTime);
+
+		// Mock source table information for disk controller
+		doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Mock source table information for physical_disk
+		doReturn(SourceTable.csvToTable("disk-1;1;0;vendor-1;5;500000;512", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.5.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Mock source table information for logical_disk
+		doReturn(SourceTable.csvToTable("logical-disk-1;1;500;RAID-5", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
 
 		// Call DiscoveryStrategy to discover the monitors
-		discoveryStrategy.setTelemetryManager(telemetryManager);
 		discoveryStrategy.run();
 
 		// Check discovered monitors
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
+
 		assertEquals(5, discoveredMonitors.size());
 		assertEquals(1, discoveredMonitors.get(HOST).size());
 		assertEquals(1, discoveredMonitors.get(CONNECTOR).size());

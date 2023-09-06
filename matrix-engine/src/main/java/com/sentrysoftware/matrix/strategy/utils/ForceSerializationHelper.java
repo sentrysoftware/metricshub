@@ -11,10 +11,13 @@ import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ForceSerializationHelper {
 
 	/**
@@ -26,24 +29,24 @@ public class ForceSerializationHelper {
 	 * @param <T>          for example {@link CriterionTestResult} or a
 	 *                     {@link SourceTable}
 	 *
-	 * @param executable                 the supplier executable function, e.g. visiting a criterion or a source
-	 * @param telemetryManager           Wraps the host's properties where the connector namespace holds the lock
-	 * @param connectorCompiledFilename  the connector the object (criterion, source or compute) belongs to
-	 * @param objToProcess               the object to process used for debug purpose
-	 * @param description                the object to process description used in the debug messages
-	 * @param defaultValue               the default value to return in case of any glitch
+	 * @param executable       the supplier executable function, e.g. visiting a criterion or a source
+	 * @param telemetryManager wraps the host's properties where the connector namespace holds the lock
+	 * @param connectorName    the name of the connector (criterion, source or compute) belongs to
+	 * @param objToProcess     the object to process used for debug purpose
+	 * @param description      the object to process description used in the debug messages
+	 * @param defaultValue     the default value to return in case of any glitch
 	 * @return T instance
 	 */
 	public static <T> T forceSerialization(
 		@NonNull Supplier<T> executable,
 		@NonNull TelemetryManager telemetryManager,
-		@NonNull final String connectorCompiledFilename,
+		@NonNull final String connectorName,
 		final Object objToProcess,
 		@NonNull final String description,
 		@NonNull final T defaultValue
 	) {
 
-		final ReentrantLock forceSerializationLock = getForceSerializationLock(telemetryManager, connectorCompiledFilename);
+		final ReentrantLock forceSerializationLock = getForceSerializationLock(telemetryManager, connectorName);
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		final boolean isLockAcquired;
@@ -57,7 +60,7 @@ public class ForceSerializationHelper {
 				hostname,
 				description,
 				objToProcess,
-				connectorCompiledFilename
+				connectorName
 			);
 
 			log.debug(HOSTNAME_EXCEPTION_MESSAGE, hostname, e);
@@ -81,7 +84,7 @@ public class ForceSerializationHelper {
 				hostname,
 				description,
 				objToProcess,
-				connectorCompiledFilename
+				connectorName
 			);
 
 			return defaultValue;

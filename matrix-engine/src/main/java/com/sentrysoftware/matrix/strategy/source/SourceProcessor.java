@@ -4,11 +4,9 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_CRED
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_PERCENT_S_PERCENT_S;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_SOURCE_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_OID_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_PERCENT_S;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_SOURCE_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_OID_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_SELECTED_COLUMNS_SPLIT_REGEX;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_TABLE_LOG;
@@ -137,11 +135,6 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		if (snmpGetSource.getOid() == null) {
-			log.error(SNMP_GET_OID_NULL_ERROR_MESSAGE, hostname, snmpGetSource);
-			return SourceTable.empty();
-		}
-
 		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager.getHostConfiguration()
 			.getConfigurations().get(SnmpConfiguration.class);
 
@@ -166,7 +159,7 @@ public class SourceProcessor implements ISourceProcessor {
 					.build();
 			}
 
-		} catch (Exception e) {
+		} catch (Exception e) { // NOSONAR on interruption
 
 			logSourceError(connectorName,
 				snmpGetSource.getKey(), String.format(SNMP_GET_PERCENT_S, snmpGetSource.getOid()),
@@ -187,25 +180,22 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		if (snmpTableSource.getOid() == null) {
-			log.error(SNMP_GET_TABLE_OID_NULL_ERROR_MESSAGE, hostname, snmpTableSource);
-			return SourceTable.empty();
-		}
-
 		// run Matsya in order to execute the snmpTable
 		// receives a List structure
 		SourceTable sourceTable = new SourceTable();
 		String selectedColumns = snmpTableSource.getSelectColumns();
 
-		if (selectedColumns == null || selectedColumns.isBlank()) {
+		if (selectedColumns.isBlank()) {
 			return SourceTable.empty();
 		}
 
 		// The selectedColumns String is like "column1, column2, column3" and we want to split it into ["column1", "column2", "column3"]
 		final String[] selectedColumnArray = selectedColumns.split(SNMP_SELECTED_COLUMNS_SPLIT_REGEX);
 
-		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager.getHostConfiguration()
-			.getConfigurations().get(SnmpConfiguration.class);
+		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
 
 		if (protocol == null) {
 			log.debug(SNMP_GET_TABLE_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE, hostname, snmpTableSource);
@@ -219,18 +209,23 @@ public class SourceProcessor implements ISourceProcessor {
 				selectedColumnArray,
 				protocol,
 				hostname,
-				true);
+				true
+			);
 
 			sourceTable.setHeaders(Arrays.asList(selectedColumnArray));
 			sourceTable.setTable(result);
 
 			return sourceTable;
 
-		} catch (Exception e) {
+		} catch (Exception e) { // NOSONAR on interruptino
 
-			logSourceError(connectorName, snmpTableSource.getKey(),
+			logSourceError(
+				connectorName,
+				snmpTableSource.getKey(),
 				String.format(SNMP_TABLE_LOG, snmpTableSource.getOid()),
-				hostname, e);
+				hostname,
+				e
+			);
 
 			return SourceTable.empty();
 		}
@@ -288,8 +283,8 @@ public class SourceProcessor implements ISourceProcessor {
 
 		if (log.isErrorEnabled()) {
 			log.error(
-				"Hostname {} - Source [{}] was unsuccessful due to an exception."
-				+ " Context [{}]. Connector: [{}]. Returning an empty table. Errors:\n{}\n",
+				"Hostname {} - Source [{}] was unsuccessful due to an exception." // NOSONAR on concatenation text block
+				+ " Context [{}]. Connector: [{}]. Returning an empty table. Errors:\n{}\n", 
 				hostname, sourceKey, context, connectorName, StringHelper.getStackMessages(throwable));
 		}
 

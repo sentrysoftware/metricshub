@@ -25,17 +25,20 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class AbstractConnectorProcessor {
 
+	@NonNull
 	protected TelemetryManager telemetryManager;
-
-	protected AbstractConnectorProcessor(@NonNull TelemetryManager telemetryManager) {
-		this.telemetryManager = telemetryManager;
-	}
+	@NonNull
+	protected MatsyaClientsExecutor matsyaClientsExecutor;
 
 	/**
 	 * Run the Detection job and returns the detected {@link ConnectorTestResult}
@@ -169,9 +172,6 @@ public abstract class AbstractConnectorProcessor {
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
 	protected CriterionTestResult processCriterion(final Criterion criterion, final Connector connector) {
-
-		// Instantiate matsyaClientsExecutor with the telemetryManager instance
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 
 		// Instantiate criterionProcessor with matsyaClientsExecutor, telemetryManager and connector name
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(

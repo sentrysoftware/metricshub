@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
+import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
@@ -68,7 +69,7 @@ public class MappingProcessor {
 			return Optional.ofNullable(
 				telemetryManager
 					.getHostProperties()
-					.getConnectorNamespace(jobInfo.getConnectorId())
+					.getConnectorNamespace(jobInfo.getConnectorName())
 					.getSourceTable(sourceKey)
 			);
 		}

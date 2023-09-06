@@ -49,6 +49,7 @@ import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,6 +77,7 @@ import static org.springframework.util.Assert.notNull;
 
 @Slf4j
 @AllArgsConstructor
+@NoArgsConstructor
 public class MatsyaClientsExecutor {
 
 	private static final String MASK = "*****";

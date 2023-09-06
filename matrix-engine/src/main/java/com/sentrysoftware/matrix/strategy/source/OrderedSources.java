@@ -146,11 +146,11 @@ public class OrderedSources {
 
 			if (index == -1) {
 				final String message = String.format(
-					"Hostname %s - The source listed in the %s is not defined %s."
+					"Hostname %s - The source (%s) listed in the %s is not defined."
 					+ " The sources will not be processed. Context: connector %s, monitor type: %s, job: %s.",
 					jobInfo.getHostname(),
-					orderDescription,
 					sourceName,
+					orderDescription,
 					jobInfo.getConnectorName(),
 					jobInfo.getMonitorType(),
 					jobInfo.getJobName()

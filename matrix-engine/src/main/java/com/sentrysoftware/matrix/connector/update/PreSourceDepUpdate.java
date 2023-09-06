@@ -11,19 +11,21 @@ public class PreSourceDepUpdate extends SourceConnectorUpdateChain {
 	@Override
 	void doUpdate(Connector connector) {
 		final Map<String, Source> sources = connector.getPre();
-		connector.setPreSourceDep(
-			updateSourceDependency(
-				sources,
-				Pattern.compile(
-					String.format(
-						"\\s*(\\$\\{source::((?i)pre)\\.(%s)\\})\\s*",
-						getSourceIdentifiersRegex(sources)
+		if (sources != null) {
+			connector.setPreSourceDep(
+				updateSourceDependency(
+					sources,
+					Pattern.compile(
+						String.format(
+							"\\s*(\\$\\{source::((?i)pre)\\.(%s)\\})\\s*",
+							getSourceIdentifiersRegex(sources)
+						),
+						Pattern.MULTILINE
 					),
-					Pattern.MULTILINE
-				),
-				3
-			)
-		);
+					3
+				)
+			);
+		}
 	}
 
 }

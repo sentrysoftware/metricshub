@@ -19,15 +19,22 @@ import com.sentrysoftware.matrix.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.matrix.strategy.utils.RetryOperation;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Slf4j
 public abstract class AbstractStrategy implements IStrategy {
 
+	@NonNull
 	protected TelemetryManager telemetryManager;
 	protected long strategyTime;
+	@NonNull
 	protected MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private static final String COMPUTE = "compute";
@@ -275,8 +282,13 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param connectorName the connector file name
 	 * @param hostname      the hostname
 	 */
-	private static <T> void logBeginOperation(final String operationTag, final T execution, final String executionKey,
-			final String connectorName, final String hostname) {
+	private static <T> void logBeginOperation(
+		final String operationTag,
+		final T execution,
+		final String executionKey,
+		final String connectorName,
+		final String hostname
+	) {
 
 		if (!log.isInfoEnabled()) {
 			return;

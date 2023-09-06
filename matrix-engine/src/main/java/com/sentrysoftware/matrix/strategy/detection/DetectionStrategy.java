@@ -1,27 +1,5 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.matrix.connector.model.metric.MetricType;
-import com.sentrysoftware.matrix.connector.model.metric.StateSet;
-import com.sentrysoftware.matrix.strategy.AbstractStrategy;
-import com.sentrysoftware.matrix.telemetry.HostProperties;
-import com.sentrysoftware.matrix.telemetry.MetricFactory;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
@@ -32,17 +10,43 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_A
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
+import com.sentrysoftware.matrix.connector.model.metric.MetricType;
+import com.sentrysoftware.matrix.connector.model.metric.StateSet;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.telemetry.HostProperties;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.MonitorFactory;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 public class DetectionStrategy extends AbstractStrategy {
 
 	public DetectionStrategy(
-		final TelemetryManager telemetryManager,
-		final long strategyTime
+		@NonNull final TelemetryManager telemetryManager,
+		final long strategyTime,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
-		this.telemetryManager = telemetryManager;
-		this.strategyTime = strategyTime;
+		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+
 	}
 
 	@Override
@@ -63,9 +67,9 @@ public class DetectionStrategy extends AbstractStrategy {
 		final List<ConnectorTestResult> connectorTestResults;
 		// If one or more connector are selected, we run them
 		if (selectedConnectors != null && !selectedConnectors.isEmpty()) {
-			connectorTestResults = new ConnectorSelection(telemetryManager).run();
+			connectorTestResults = new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run();
 		} else { // Else we run the automatic detection
-			connectorTestResults = new AutomaticDetection(telemetryManager).run();
+			connectorTestResults = new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run();
 		}
 
 		// Create Host monitor

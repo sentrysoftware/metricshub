@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
+import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
@@ -32,7 +33,7 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
+			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
 			.mapping(
 					Mapping
@@ -70,7 +71,7 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
+			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
 			.mapping(
 					Mapping
@@ -101,7 +102,7 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
+			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
 			.mapping(
 					Mapping
