@@ -1,29 +1,11 @@
 package com.sentrysoftware.matrix.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.ConnectorMonitorTypeComparator;
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.matrix.connector.model.metric.MetricType;
-import com.sentrysoftware.matrix.connector.model.metric.StateSet;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-import com.sentrysoftware.matrix.strategy.AbstractStrategy;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.strategy.utils.MappingProcessor;
-import com.sentrysoftware.matrix.telemetry.MetricFactory;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
-import com.sentrysoftware.matrix.telemetry.Resource;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -37,17 +19,47 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
+import com.sentrysoftware.matrix.common.ConnectorMonitorTypeComparator;
+import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
+import com.sentrysoftware.matrix.connector.model.metric.MetricType;
+import com.sentrysoftware.matrix.connector.model.metric.StateSet;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.AbstractStrategy;
+import com.sentrysoftware.matrix.strategy.source.OrderedSources;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.strategy.utils.MappingProcessor;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.MonitorFactory;
+import com.sentrysoftware.matrix.telemetry.Resource;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
+
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DiscoveryStrategy extends AbstractStrategy {
+
+	public DiscoveryStrategy(
+		@NonNull final TelemetryManager telemetryManager,
+		final long strategyTime,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+	) {
+		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+	}
 
 	private static final Map<String, Integer> MONITOR_JOBS_PRIORITY;
 	static {
@@ -60,10 +72,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			KnownMonitorType.CPU.getKey(), 5,
 			OTHER_MONITOR_JOB_TYPES, 6
 		);
-	}
-
-	public DiscoveryStrategy(final TelemetryManager telemetryManager) {
-		this.telemetryManager = telemetryManager;
 	}
 
 	@Override
@@ -85,8 +93,11 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.entrySet()
 			.stream()
 			.sorted(
-				Comparator.comparing(entry -> MONITOR_JOBS_PRIORITY.containsKey(entry.getKey())? MONITOR_JOBS_PRIORITY.get(entry.getKey()) :
-				MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES))
+				Comparator.comparing(entry -> 
+					MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()) ? 
+						MONITOR_JOBS_PRIORITY.get(entry.getKey()) :
+						MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES)
+				)
 			)
 			.collect(Collectors.toMap(
 							Map.Entry::getKey,
@@ -101,10 +112,10 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.filter(entry -> MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
 			.collect(Collectors.toMap(
-							Map.Entry::getKey,
-							Map.Entry::getValue,
-							(oldValue, newValue) -> oldValue,
-							LinkedHashMap::new
+						Map.Entry::getKey,
+						Map.Entry::getValue,
+						(oldValue, newValue) -> oldValue,
+						LinkedHashMap::new
 					)
 			);
 
@@ -113,10 +124,10 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.filter(entry -> !MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
 			.collect(Collectors.toMap(
-							Map.Entry::getKey,
-							Map.Entry::getValue,
-							(oldValue, newValue) -> oldValue,
-							LinkedHashMap::new
+						Map.Entry::getKey,
+						Map.Entry::getValue,
+						(oldValue, newValue) -> oldValue,
+						LinkedHashMap::new
 					)
 			);
 
@@ -175,22 +186,41 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 			final Discovery discovery = standardMoinitorJob.getDiscovery();
 
+			final String monitorType = monitorJob.getKey();
+
+			final JobInfo jobInfo = JobInfo
+				.builder()
+				.hostname(hostname)
+				.connectorName(currentConnector.getCompiledFilename())
+				.jobName(discovery.getClass().getSimpleName())
+				.monitorType(monitorType)
+				.build();
+
+			// Build the ordered sources
+			final OrderedSources orderedSources = OrderedSources
+				.builder()
+				.sources(
+					discovery.getSources(),
+					discovery.getExecutionOrder().stream().toList(),
+					discovery.getSourceDep(),
+					jobInfo
+				)
+				.build();
+
 			// Create the sources and the computes for a connector
 			processSourcesAndComputes(
-					discovery.getSources(),
-					telemetryManager,
-					currentConnector,
-					hostname
+				orderedSources.getSources(),
+				jobInfo
 			);
 
 			// Create the monitors
 			final Mapping mapping = discovery.getMapping();
 
 			processSameTypeMonitors(
-					currentConnector,
-					mapping,
-					monitorJob.getKey(),
-					hostname
+				currentConnector,
+				mapping,
+				monitorType,
+				hostname
 			);
 		}
 
@@ -198,6 +228,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 	/**
 	 * This method processes same type monitors
+	 * 
 	 * @param connector
 	 * @param mapping
 	 * @param monitorType
@@ -337,22 +368,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * This method processes the sources and the computes
-	 * @param sources
-	 * @param telemetryManager
-	 * @param currentConnector
-	 * @param hostname
-	 */
-	private void processSourcesAndComputes(
-		final Map<String, Source> sources,
-		final TelemetryManager telemetryManager,
-		final Connector currentConnector,
-		final String hostname
-	) {
-		// TODO
-	}
-
-	/**
 	 * This is the main discovery method. It runs the discovery operation
 	 */
 	@Override
@@ -385,7 +400,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		}
 
 		host.setDiscoveryTime(strategyTime);
-
 
 		//Retrieve connector Monitor instances from TelemetryManager
 		final Map<String, Monitor> connectorMonitors = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
@@ -429,6 +443,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 		// Discover each connector
 		sortedConnectors.forEach(connector -> discover(connector, hostname));
+
 	}
 
 	@Override

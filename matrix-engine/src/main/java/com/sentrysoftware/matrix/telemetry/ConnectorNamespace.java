@@ -22,7 +22,8 @@ public class ConnectorNamespace {
 	private Map<String, SourceTable> sourceTables = new HashMap<>();
 	private String automaticWmiNamespace;
 	private String automaticWbemNamespace;
-	private ReentrantLock forceSerializationLock;
+	@Default
+	private ReentrantLock forceSerializationLock = new ReentrantLock(true);
 
 	/**
 	 * Add a source in the current sourceTables map

@@ -43,7 +43,7 @@ public class ConnectorLibraryParser {
 			if (!isConnector(connectorNode)) {
 				return FileVisitResult.CONTINUE;
 			}
-			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessor(file.getParent());
+			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(file.getParent());
 			final String fileName = file.getFileName().toString();
 
 			final Connector connector = connectorParser.parse(file.toFile());

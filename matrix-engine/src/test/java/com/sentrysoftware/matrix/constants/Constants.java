@@ -1,12 +1,12 @@
 package com.sentrysoftware.matrix.constants;
 
-import com.sentrysoftware.matrix.common.helpers.StringHelper;
-
 import java.net.InetAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 
 public class Constants {
 
@@ -231,7 +231,6 @@ public class Constants {
 	public static final String PHYSICAL_DISK = "physical_disk";
 	public static final String LOGICAL_DISK = "logical_disk";
 	public static final String CONNECTOR = "connector";
-	public static final List<String> SAMPLE_SOURCE_TABLE_DATA_ROW = List.of("a", "b", "c","d", "e","f", "g", "h", "i", "j", "f", "g", "h", "i", "j");
 
 	// Yaml test files
 	public static final String YAML_TEST_FILE_NAME = "AAC";

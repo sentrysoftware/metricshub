@@ -10,6 +10,7 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -87,5 +88,10 @@ public class Awk extends Compute {
 		keep = updater.apply(keep);
 		separators = updater.apply(separators);
 		selectColumns = updater.apply(selectColumns);
+	}
+
+	@Override
+	public void accept(IComputeProcessor computeProcessor) {
+		computeProcessor.process(this);
 	}
 }

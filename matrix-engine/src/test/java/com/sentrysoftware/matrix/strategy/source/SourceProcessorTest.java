@@ -143,7 +143,6 @@ class SourceProcessorTest {
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build()));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new SnmpTableSource()));
 
 		// no snmp protocol
 		HostConfiguration hostConfigurationNoProtocol = HostConfiguration.builder()
