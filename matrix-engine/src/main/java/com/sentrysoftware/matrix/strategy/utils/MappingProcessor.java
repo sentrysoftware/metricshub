@@ -339,7 +339,20 @@ public class MappingProcessor {
 	private String extractColumnValue(String value) {
 		final Matcher matcher = getStringRegexMatcher(value);
 		matcher.find();
-		return row.get(Integer.parseInt(matcher.group(1)) - 1);
+		if (columnIndex >= 0 && columnIndex < row.size()) {
+			return row.get(columnIndex);
+		} else {
+			log.warn(
+				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
+				"Row {} - monitor type {}.",
+				hostname,
+				columnIndex,
+				sourceKey,
+				key,
+				row,
+				monitorType
+			);
+		}
 	}
 
 	private boolean isAwkScript(String value) {
