@@ -1,12 +1,12 @@
 package com.sentrysoftware.matrix.constants;
 
-import com.sentrysoftware.matrix.common.helpers.StringHelper;
-
 import java.net.InetAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 
 public class Constants {
 
