@@ -39,8 +39,6 @@ public class MappingProcessor {
 	private String id;
 	private long collectTime;
 	private List<String> row;
-	private String source;
-	private SourceTable sourceTable;
 	private JobInfo jobInfo;
 
 	@Default
@@ -348,10 +346,10 @@ public class MappingProcessor {
 		} else {
 			log.warn(
 				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
-				"Row {} - monitor type {}.",
+					"Row {} - monitor type {}.",
 				jobInfo.getHostname(),
 				columnIndex,
-				sourceTable,
+				mapping.getSource(),
 				key,
 				row,
 				jobInfo.getMonitorType()

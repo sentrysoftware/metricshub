@@ -282,8 +282,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 				.jobInfo(JobInfo.builder().connectorName(connectorId).hostname(hostname).monitorType(monitorType).jobName("discovery").build())
 				.collectTime(strategyTime)
 				.row(row)
-				.source(source)
-				.sourceTable(sourceTable)
 				.build();
 
 			// Use the mapping processor to extract attributes and resource
