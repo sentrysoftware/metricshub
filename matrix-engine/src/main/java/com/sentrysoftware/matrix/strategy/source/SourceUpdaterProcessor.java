@@ -94,8 +94,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final SnmpTableSource snmpTableSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(snmpTableSource.copy());
 	}
 
 	@Override
