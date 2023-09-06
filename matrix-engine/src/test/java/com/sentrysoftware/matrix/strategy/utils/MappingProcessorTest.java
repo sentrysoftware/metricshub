@@ -32,7 +32,7 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.connectorId(MY_CONNECTOR_1_NAME)
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
 			.mapping(
 					Mapping
@@ -70,7 +70,7 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.connectorId(MY_CONNECTOR_1_NAME)
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
 			.mapping(
 					Mapping
@@ -101,7 +101,7 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.connectorId(MY_CONNECTOR_1_NAME)
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
 			.mapping(
 					Mapping

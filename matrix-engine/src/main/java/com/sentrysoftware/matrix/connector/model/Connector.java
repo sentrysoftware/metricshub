@@ -85,4 +85,20 @@ public class Connector implements Serializable {
 
 		return connectorIdentity;
 	}
+
+	/**
+	 * Get the compiled filename of the connector, if the compiled filename
+	 * cannot be retrieved then the {@link IllegalStateException} is thrown
+	 * 
+	 * @return String value
+	 */
+	public String getCompiledFilename() {
+		if (connectorIdentity != null) {
+			final String compiledFilename = connectorIdentity.getCompiledFilename();
+			if (compiledFilename != null) {
+				return compiledFilename;
+			}
+		}
+		throw new IllegalStateException("No compiled file name found.");
+	}
 }

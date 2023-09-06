@@ -10,6 +10,7 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -82,5 +83,10 @@ public class Substring extends Compute {
 	public void update(UnaryOperator<String> updater) {
 		start = updater.apply(start);
 		length = updater.apply(length);
+	}
+
+	@Override
+	public void accept(IComputeProcessor computeProcessor) {
+		computeProcessor.process(this);
 	}
 }

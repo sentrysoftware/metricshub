@@ -5,6 +5,7 @@ import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -56,4 +57,7 @@ public abstract class Compute implements Serializable {
 			.append(this.getClass().getSimpleName())
 			.toString();
 	}
+
+	public abstract void accept(IComputeProcessor computeProcessor);
+
 }

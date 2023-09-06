@@ -20,7 +20,7 @@ public class RetryOperation<T> {
 	 * Time to wait in seconds before triggering a retry
 	 */
 	@Builder.Default
-	private int waitStrategy = 0;
+	private long waitStrategy = 0;
 
 	/**
 	 * Default value to return if the retry fails

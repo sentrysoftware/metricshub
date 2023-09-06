@@ -7,8 +7,6 @@ import java.util.Map;
 
 import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
 
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +24,7 @@ public class ConnectorStore {
 			this.connectorDirectory = connectorDirectory;
 			store = deserializeConnectors();
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error("Error while deserializing connectors. The ConnectorStore is empty!");
 			log.debug("Error while deserializing connectors. The ConnectorStore is empty!", e);
 			store = new HashMap<>();

@@ -123,7 +123,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @NoArgsConstructor
-public class CriterionProcessor {
+public class CriterionProcessor implements ICriterionProcessor {
 
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
