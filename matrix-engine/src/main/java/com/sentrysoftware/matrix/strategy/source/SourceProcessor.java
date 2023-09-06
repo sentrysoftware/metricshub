@@ -10,12 +10,15 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_SELECTED_COLUMNS_SPLIT_REGEX;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_TABLE_LOG;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
+import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
@@ -241,8 +244,90 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableJoin Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableJoinSource tableJoinSource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (tableJoinSource == null) {
+			log.error("Hostname {} - Table Join Source cannot be null, the Table Join will return an empty result.", hostname);
+			return SourceTable.empty();
+		}
+
+		final Map<String, SourceTable> sources = telemetryManager
+			.getHostProperties()
+			.getConnectorNamespace(connectorName)
+			.getSourceTables();
+
+		if (sources == null ) {
+			log.warn("Hostname {} - Source Table Map cannot be null, the Table Join {} will return an empty result.", hostname, tableJoinSource);
+			return SourceTable.empty();
+		}
+
+		final SourceTable leftTable = sources.get(tableJoinSource.getLeftTable());
+		if (tableJoinSource.getLeftTable() == null || leftTable == null ||  leftTable.getTable() == null) {
+			log.debug("Hostname {} - Left table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
+			return SourceTable.empty();
+		}
+
+		final SourceTable rightTable = sources.get(tableJoinSource.getRightTable());
+		if (tableJoinSource.getRightTable() == null || rightTable == null || rightTable.getTable() == null) {
+			log.debug("Hostname {} - Right table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
+			return SourceTable.empty();
+		}
+
+		if (tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
+			log.error("Hostname {} - Invalid key column number (leftKeyColumnNumber={}, rightKeyColumnNumber={}).",
+				tableJoinSource.getLeftKeyColumn(),
+				tableJoinSource.getDefaultRightLine(),
+				hostname);
+			return SourceTable.empty();
+		}
+
+		logTableJoin(tableJoinSource.getKey(), tableJoinSource.getLeftTable(), tableJoinSource.getRightTable(),
+			leftTable, rightTable, hostname);
+
+		String defaultRightLine = tableJoinSource.getDefaultRightLine();
+
+		final List<List<String>> executeTableJoin = matsyaClientsExecutor.executeTableJoin(
+			leftTable.getTable(),
+			rightTable.getTable(),
+			tableJoinSource.getLeftKeyColumn(),
+			tableJoinSource.getRightKeyColumn(),
+			defaultRightLine != null ? Arrays.asList(defaultRightLine.split(";")) : null,
+				WBEM.equalsIgnoreCase(tableJoinSource.getKeyType()),
+				true);
+
+		SourceTable sourceTable = new SourceTable();
+		if (executeTableJoin != null) {
+			sourceTable.setTable(executeTableJoin);
+		}
+
+		return sourceTable;
+	}
+
+	/**
+	 * Log the table join left and right tables
+	 *
+	 * @param sourceKey      the table join source key
+	 * @param leftSourceKey  the source key referencing the left source
+	 * @param rightSourceKey the source key referencing the right source
+	 * @param leftTable      the left table
+	 * @param rightTable     the right table
+	 */
+	private static void logTableJoin(final String sourceKey, final String leftSourceKey, final String rightSourceKey,
+			final SourceTable leftTable, final SourceTable rightTable, final String hostname) {
+
+		if (!log.isDebugEnabled()) {
+			return;
+		}
+
+		log.debug("Hostname {} - Table Join Source [{}]:\nLeft table [{}]:\n{}\nRight table [{}]:\n{}\n",
+			hostname,
+			sourceKey,
+			leftSourceKey,
+			TextTableHelper.generateTextTable(leftTable.getHeaders(), leftTable.getTable()),
+			rightSourceKey,
+			TextTableHelper.generateTextTable(rightTable.getHeaders(), rightTable.getTable()));
+
 	}
 
 	@WithSpan("Source TableUnion Exec")
