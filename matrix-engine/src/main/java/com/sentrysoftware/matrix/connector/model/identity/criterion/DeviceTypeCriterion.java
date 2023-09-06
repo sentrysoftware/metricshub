@@ -6,6 +6,8 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.DeviceKindSetDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +33,11 @@ public class DeviceTypeCriterion extends Criterion {
 		super(type, forceSerialization);
 		this.keep = keep == null ? new HashSet<>() : keep;
 		this.exclude = exclude == null ? new HashSet<>() : exclude;
+	}
+
+	@Override
+	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
+		return criterionProcessor.process(this);
 	}
 
 }

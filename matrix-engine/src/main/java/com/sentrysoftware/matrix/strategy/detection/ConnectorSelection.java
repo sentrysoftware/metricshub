@@ -8,15 +8,22 @@ import java.util.Set;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor
 public class ConnectorSelection extends AbstractConnectorProcessor {
 
-	protected ConnectorSelection(TelemetryManager telemetryManager) {
-		super(telemetryManager);
+	public ConnectorSelection(
+		@NonNull final TelemetryManager telemetryManager,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+	) {
+		super(telemetryManager, matsyaClientsExecutor);
 	}
 
 	@Override

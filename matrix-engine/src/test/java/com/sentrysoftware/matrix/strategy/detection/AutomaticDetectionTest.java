@@ -28,6 +28,7 @@ import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.identity.Detection;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpSource;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -36,13 +37,17 @@ class AutomaticDetectionTest {
 
 	@Test
 	void testRunNull() {
-		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(null));
+		final TelemetryManager telemetryManager = new TelemetryManager();
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(null, matsyaClientsExecutor));
+		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(telemetryManager, null));
 	}
 
 	@Test
 	void testRunEmptyTelemetryManager() {
-		TelemetryManager telemetryManager = new TelemetryManager();
-		assertEquals(Collections.emptyList(), new AutomaticDetection(telemetryManager).run());
+		final TelemetryManager telemetryManager = new TelemetryManager();
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -62,7 +67,8 @@ class AutomaticDetectionTest {
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
 		connectorStore.getStore().put(CONNECTOR_YAML, new Connector());
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -98,7 +104,8 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -134,7 +141,8 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -170,7 +178,8 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
 
 	@Test
@@ -206,6 +215,7 @@ class AutomaticDetectionTest {
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager).run());
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
 }

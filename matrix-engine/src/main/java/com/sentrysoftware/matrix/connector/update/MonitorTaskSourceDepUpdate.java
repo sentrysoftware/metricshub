@@ -23,58 +23,65 @@ public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 
 			if (job instanceof StandardMonitorJob standardMonitorJob) {
 				final Discovery discovery = standardMonitorJob.getDiscovery();
-				final Map<String, Source> sources = discovery.getSources();
-				discovery.setSourceDep(
-					updateSourceDependency(
-						sources,
-						Pattern.compile(
-							String.format(
-								"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)discovery\\.sources)\\.(%s)\\})\\s*",
-								Pattern.quote(jobName),
-								getSourceIdentifiersRegex(sources)
+				if (discovery != null) {
+					final Map<String, Source> sources = discovery.getSources();
+					discovery.setSourceDep(
+						updateSourceDependency(
+							sources,
+							Pattern.compile(
+								String.format(
+									"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)discovery\\.sources)\\.(%s)\\})\\s*",
+									Pattern.quote(jobName),
+									getSourceIdentifiersRegex(sources)
+								),
+								Pattern.MULTILINE
 							),
-							Pattern.MULTILINE
-						),
-						4
-					)
-				);
-
+							4
+						)
+					);
+				}
 
 				final AbstractCollect collect = standardMonitorJob.getCollect();
-				final Map<String, Source> collectSources = collect.getSources();
-				collect.setSourceDep(
-					updateSourceDependency(
-						collectSources,
-						Pattern.compile(
-							String.format(
-								"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)collect\\.sources)\\.(%s)\\})\\s*",
-								Pattern.quote(jobName),
-								getSourceIdentifiersRegex(collectSources)
+
+				if (collect != null) {
+					final Map<String, Source> collectSources = collect.getSources();
+					collect.setSourceDep(
+						updateSourceDependency(
+							collectSources,
+							Pattern.compile(
+								String.format(
+									"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)collect\\.sources)\\.(%s)\\})\\s*",
+									Pattern.quote(jobName),
+									getSourceIdentifiersRegex(collectSources)
+								),
+								Pattern.MULTILINE
 							),
-							Pattern.MULTILINE
-						),
-						4
-					)
-				);
+							4
+						)
+					);
+				}
+
 			}
 
 			if (job instanceof AllAtOnceMonitorJob allAtOnceMonitor) {
 				final AllAtOnce allAtOnce = allAtOnceMonitor.getAllAtOnce();
-				final Map<String, Source> allAtOnceSources = allAtOnce.getSources();
-				allAtOnce.setSourceDep(
-					updateSourceDependency(
-						allAtOnceSources,
-						Pattern.compile(
-							String.format(
-								"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)allatonce\\.sources)\\.(%s)\\})\\s*",
-								Pattern.quote(jobName),
-								getSourceIdentifiersRegex(allAtOnceSources)
+				if (allAtOnce != null) {
+					final Map<String, Source> allAtOnceSources = allAtOnce.getSources();
+					allAtOnce.setSourceDep(
+						updateSourceDependency(
+							allAtOnceSources,
+							Pattern.compile(
+								String.format(
+									"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)allatonce\\.sources)\\.(%s)\\})\\s*",
+									Pattern.quote(jobName),
+									getSourceIdentifiersRegex(allAtOnceSources)
+								),
+								Pattern.MULTILINE
 							),
-							Pattern.MULTILINE
-						),
-						4
-					)
-				);
+							4
+						)
+					);
+				}
 			}
 		}
 	}

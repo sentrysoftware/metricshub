@@ -10,6 +10,7 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -69,5 +70,10 @@ public class Translate extends Compute {
 	@Override
 	public void update(UnaryOperator<String> updater) {
 		translationTable = updater.apply(translationTable);
+	}
+
+	@Override
+	public void accept(IComputeProcessor computeProcessor) {
+		computeProcessor.process(this);
 	}
 }

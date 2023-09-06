@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -41,5 +42,10 @@ public class RightConcat extends AbstractConcat {
 			.column(column)
 			.value(value)
 			.build();
+	}
+
+	@Override
+	public void accept(IComputeProcessor computeProcessor) {
+		computeProcessor.process(this);
 	}
 }

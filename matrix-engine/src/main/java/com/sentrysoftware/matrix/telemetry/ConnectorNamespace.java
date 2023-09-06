@@ -1,17 +1,16 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Builder.Default;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 @Data
 @Builder
@@ -23,13 +22,14 @@ public class ConnectorNamespace {
 	private Map<String, SourceTable> sourceTables = new HashMap<>();
 	private String automaticWmiNamespace;
 	private String automaticWbemNamespace;
-	private ReentrantLock forceSerializationLock;
+	@Default
+	private ReentrantLock forceSerializationLock = new ReentrantLock(true);
 
 	/**
 	 * Add a source in the current sourceTables map
 	 * 
-	 * @param key
-	 * @param sourceTable
+	 * @param key sourceTable key
+	 * @param sourceTable sourceTable instance
 	 */
 	public void addSourceTable(@NonNull String key, @NonNull SourceTable sourceTable) {
 		sourceTables.put(key, sourceTable);
@@ -38,7 +38,7 @@ public class ConnectorNamespace {
 	/**
 	 * Get the {@link SourceTable} identified with the given key
 	 * 
-	 * @param key
+	 * @param key sourceTable key
 	 * @return return existing {@link SourceTable} object
 	 */
 	public SourceTable getSourceTable(@NonNull String key) {

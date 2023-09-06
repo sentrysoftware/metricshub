@@ -46,6 +46,9 @@ class MonitorFactoryTest {
 	@InjectMocks
 	private MonitorFactory monitorFactoryMock;
 
+	@InjectMocks
+	private MetricFactory metricFactoryMock;
+
 	@Test
 	void testCreateOrUpdateMonitorExists() {
 		// Set monitor attributes
@@ -96,7 +99,7 @@ class MonitorFactoryTest {
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call method collectNumberMetric in MonitorFactory
-		monitorFactoryMock.collectNumberMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, DEFAULT_JOB_TIMEOUT);
+		metricFactoryMock.collectNumberMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, DEFAULT_JOB_TIMEOUT);
 
 		// Retrieve the resulting number metric
 		final NumberMetric numberMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, NumberMetric.class);
@@ -125,7 +128,7 @@ class MonitorFactoryTest {
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call method collectNumberMetric in MonitorFactory
-		monitorFactoryMock.collectNumberMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, DEFAULT_JOB_TIMEOUT);
+		metricFactoryMock.collectNumberMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, DEFAULT_JOB_TIMEOUT);
 
 		// Retrieve the resulting number metric
 		final NumberMetric numberMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, NumberMetric.class);
@@ -149,7 +152,7 @@ class MonitorFactoryTest {
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
-		monitorFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET,DEFAULT_JOB_TIMEOUT);
+		metricFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET,DEFAULT_JOB_TIMEOUT);
 
 		// Retrieve the resulting stateSet metric
 		final StateSetMetric stateSetMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
@@ -178,7 +181,7 @@ class MonitorFactoryTest {
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
-		monitorFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET, DEFAULT_JOB_TIMEOUT);
+		metricFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET, DEFAULT_JOB_TIMEOUT);
 
 		// Retrieve the resulting stateSet metric
 		final StateSetMetric stateSetMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
@@ -226,7 +229,7 @@ class MonitorFactoryTest {
 	void testExtractAttributesFromMetricName() {
 		assertEquals(
 				Map.of("hw.type", "cpu"),
-				MonitorFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\"}")
+				MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\"}")
 		);
 
 		assertEquals(
@@ -234,7 +237,7 @@ class MonitorFactoryTest {
 						"hw.type", "cpu",
 						"host.id", "host"
 				),
-				MonitorFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\", host.id=\"host\"}")
+				MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\", host.id=\"host\"}")
 		);
 
 		assertEquals(
@@ -242,7 +245,7 @@ class MonitorFactoryTest {
 						"hw.type", "cpu",
 						"host.id", "host"
 				),
-				MonitorFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\",host.id=\"host\"}")
+				MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\",host.id=\"host\"}")
 		);
 	}
 }

@@ -14,6 +14,8 @@ public abstract class AbstractMetric {
 	private long collectTime;
 	private long previousCollectTime;
 	private Map<String, String> attributes = new HashMap<>();
+	private boolean resetMetricTime;
+
 	AbstractMetric(String name, long collectTime, Map<String, String> attributes) {
 		this.name = name;
 		this.collectTime = collectTime;

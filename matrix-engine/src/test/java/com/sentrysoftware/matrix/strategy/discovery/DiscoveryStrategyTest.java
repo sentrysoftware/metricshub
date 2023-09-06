@@ -1,0 +1,152 @@
+package com.sentrysoftware.matrix.strategy.discovery;
+
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
+import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR;
+import static com.sentrysoftware.matrix.constants.Constants.DISK_CONTROLLER;
+import static com.sentrysoftware.matrix.constants.Constants.HOST;
+import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
+import static com.sentrysoftware.matrix.constants.Constants.HOST_NAME;
+import static com.sentrysoftware.matrix.constants.Constants.ID;
+import static com.sentrysoftware.matrix.constants.Constants.LOGICAL_DISK;
+import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
+import static com.sentrysoftware.matrix.constants.Constants.PHYSICAL_DISK;
+import static com.sentrysoftware.matrix.constants.Constants.YAML_TEST_FILE_NAME_WITH_EXTENSION;
+import static com.sentrysoftware.matrix.constants.Constants.YAML_TEST_PATH;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+
+@ExtendWith(MockitoExtension.class)
+class DiscoveryStrategyTest {
+
+	@Mock
+	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+
+	@InjectMocks
+	private DiscoveryStrategy discoveryStrategy;
+
+	static Long strategyTime = new Date().getTime();
+
+	@Test
+	void testRun() throws Exception {
+
+		// Create host and connector monitors and set them in the telemetry manager
+		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
+		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
+			Map.of(
+				HOST,
+				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
+				CONNECTOR,
+				Map.of(YAML_TEST_FILE_NAME_WITH_EXTENSION, connectorMonitor)
+			)
+		);
+
+		final SnmpConfiguration snmpConfig = SnmpConfiguration
+			.builder()
+			.community("public")
+			.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(HostConfiguration
+				.builder()
+				.hostId(HOST_ID)
+				.hostname(HOST_NAME)
+				.sequential(false)
+				.configurations(
+					Map.of(
+						SnmpConfiguration.class, 
+						snmpConfig
+					)
+				)
+				.build()
+			)
+			.build();
+
+		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
+
+		connectorMonitor.getAttributes().put(ID, YAML_TEST_FILE_NAME_WITH_EXTENSION);
+
+		// Create the connector store
+		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);
+		telemetryManager.setConnectorStore(connectorStore);
+
+		discoveryStrategy.setTelemetryManager(telemetryManager);
+		discoveryStrategy.setStrategyTime(strategyTime);
+
+		// Mock source table information for disk controller
+		doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Mock source table information for physical_disk
+		doReturn(SourceTable.csvToTable("disk-1;1;0;vendor-1;5;500000;512", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.5.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Mock source table information for logical_disk
+		doReturn(SourceTable.csvToTable("logical-disk-1;1;500;RAID-5", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Call DiscoveryStrategy to discover the monitors
+		discoveryStrategy.run();
+
+		// Check discovered monitors
+		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
+
+		assertEquals(5, discoveredMonitors.size());
+		assertEquals(1, discoveredMonitors.get(HOST).size());
+		assertEquals(1, discoveredMonitors.get(CONNECTOR).size());
+		assertEquals(1, discoveredMonitors.get(DISK_CONTROLLER).size());
+		assertEquals(1, discoveredMonitors.get(PHYSICAL_DISK).size());
+		assertEquals(1, discoveredMonitors.get(LOGICAL_DISK).size());
+
+		// Check discovered monitors order
+		final Set<String> expectedOrder = Set.of(HOST, DISK_CONTROLLER, CONNECTOR, LOGICAL_DISK, PHYSICAL_DISK);
+		assertEquals(expectedOrder, discoveredMonitors.keySet());
+	}
+}

@@ -10,6 +10,7 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -83,6 +84,11 @@ public class ArrayTranslate extends Compute {
 		arraySeparator = updater.apply(arraySeparator);
 		resultSeparator = updater.apply(resultSeparator);
 		translationTable = updater.apply(translationTable);
+	}
+
+	@Override
+	public void accept(IComputeProcessor computeProcessor) {
+		computeProcessor.process(this);
 	}
 
 }

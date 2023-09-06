@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.BooleanDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
+import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
@@ -75,5 +77,10 @@ public class OsCommandCriterion extends Criterion {
 		}
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
+		return criterionProcessor.process(this);
 	}
 }

@@ -123,7 +123,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @NoArgsConstructor
-public class CriterionProcessor {
+public class CriterionProcessor implements ICriterionProcessor {
 
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
@@ -134,9 +134,9 @@ public class CriterionProcessor {
 	private WqlDetectionHelper wqlDetectionHelper;
 
 	public CriterionProcessor(
-		MatsyaClientsExecutor matsyaClientsExecutor,
-		TelemetryManager telemetryManager,
-		String connectorName
+		final MatsyaClientsExecutor matsyaClientsExecutor,
+		final TelemetryManager telemetryManager,
+		final String connectorName
 	) {
 		this.matsyaClientsExecutor = matsyaClientsExecutor;
 		this.telemetryManager = telemetryManager;

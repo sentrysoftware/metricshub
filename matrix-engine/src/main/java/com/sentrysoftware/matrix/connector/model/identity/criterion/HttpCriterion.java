@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
+import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
+import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -62,6 +64,11 @@ public class HttpCriterion extends Criterion {
 		this.errorMessage = errorMessage;
 		this.resultContent = resultContent == null ? ResultContent.BODY : resultContent;
 		this.authenticationToken = authenticationToken;
+	}
+
+	@Override
+	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
+		return criterionProcessor.process(this);
 	}
 
 }

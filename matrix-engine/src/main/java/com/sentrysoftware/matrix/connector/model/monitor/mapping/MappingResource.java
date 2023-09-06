@@ -20,4 +20,13 @@ public class MappingResource implements Serializable {
 	private String type;
 	@Builder.Default
 	private Map<String, String> attributes = new HashMap<>();
+
+	/**
+	 * Whether the type is defined or not
+	 * 
+	 * @return boolean value
+	 */
+	public boolean hasType() {
+		return type != null && !type.isBlank();
+	}
 }
