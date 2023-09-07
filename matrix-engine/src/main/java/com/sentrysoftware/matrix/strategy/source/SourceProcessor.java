@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.source;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_PERCENT_S_PERCENT_S;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_SOURCE_NULL_ERROR_MESSAGE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_PERCENT_S;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_SOURCE_NULL_ERROR_MESSAGE;
@@ -10,11 +11,16 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_SELECTED_COLUMNS_SPLIT_REGEX;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_TABLE_LOG;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
@@ -336,8 +342,46 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableUnion Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableUnionSource tableUnionSource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (tableUnionSource == null) {
+			log.warn("Hostname {} - Table Union Source cannot be null, the Table Union operation will return an empty result.", hostname);
+			return SourceTable.empty();
+		}
+
+		final List<String> unionTables = tableUnionSource.getTables();
+		if (unionTables == null) {
+			log.debug("Hostname {} - Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+				hostname, tableUnionSource);
+			return SourceTable.empty();
+		}
+
+		final List<SourceTable> sourceTablesToConcat = unionTables
+			.stream()
+			.map(this::getSourceTable)
+			.filter(Objects::nonNull)
+			.toList();
+
+		final SourceTable sourceTable = new SourceTable();
+		final List<List<String>> executeTableUnion = sourceTablesToConcat
+			.stream()
+			.map(SourceTable::getTable)
+			.flatMap(Collection::stream)
+			.toList();
+
+		sourceTable.setTable(executeTableUnion);
+
+		String rawData = sourceTablesToConcat
+			.stream()
+			.map(SourceTable::getRawData)
+			.filter(Objects::nonNull)
+			.collect(Collectors.joining(NEW_LINE))
+			.replace("\n\n", NEW_LINE);
+
+		sourceTable.setRawData(rawData);
+
+		return sourceTable;
 	}
 
 	@WithSpan("Source WBEM HTTP Exec")
@@ -381,5 +425,30 @@ public class SourceProcessor implements ISourceProcessor {
 				"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
 				hostname, sourceKey, context, connectorName), throwable);
 		}
+	}
+
+	/**
+	 * Get source table based on the key
+	 *
+	 * @param key	The key of the source
+	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
+	 */
+	SourceTable getSourceTable(final String key) {
+
+		if (SOURCE_REF_PATTERN.matcher(key).matches()) {
+			final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(key, connectorName, telemetryManager);
+
+			if (maybeSourceTable.isEmpty()) {
+				log.warn("Hostname {} - The following source table {} cannot be found.",
+					telemetryManager.getHostConfiguration().getHostname(), key);
+				return null;
+			}
+			return maybeSourceTable.get();
+		}
+
+		return SourceTable.builder()
+				.table(SourceTable.csvToTable(key, TABLE_SEP))
+				.rawData(key)
+				.build();
 	}
 }
