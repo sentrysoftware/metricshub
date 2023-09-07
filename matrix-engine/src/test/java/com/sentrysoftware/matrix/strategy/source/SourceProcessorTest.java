@@ -61,9 +61,6 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_C2 = "c2";
 	private static final String UPPERCASE_B2 = "B2";
 	private static final String UPPERCASE_C2 = "C2";
-	private static final String LOWERCASE_TAB1 = "tab1";
-	private static final String LOWERCASE_TAB2 = "tab2";
-	private static final String LOWERCASE_TAB3 = "tab3";
 	private static final String LOWERCASE_T = "t";
 	private static final String LOWERCASE_U = "u";
 	private static final String LOWERCASE_V = "v";
@@ -83,6 +80,9 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_X = "x";
 	private static final String LOWERCASE_Y = "y";
 	private static final String LOWERCASE_Z = "z";
+	private static final String TAB1_REF = "${source::monitors.cpu.discovery.sources.tab1}";
+	private static final String TAB2_REF = "${source::monitors.cpu.discovery.sources.tab2}";
+	private static final String TAB3_REF = "${source::monitors.cpu.discovery.sources.tab3}";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
 
@@ -135,7 +135,7 @@ class SourceProcessorTest {
 	}
 
 	@Test
-	void testVisitSnmpGetSource() throws Exception {
+	void testProcessSnmpGetSource() throws Exception {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(HostConfiguration.builder().build()).build();
 		final SourceProcessor sourceProcessor = SourceProcessor.builder()
 			.telemetryManager(telemetryManager)
@@ -179,7 +179,7 @@ class SourceProcessorTest {
 	}
 
 	@Test
-	void testVisitSnmpGetTableExpectedResultNotMatches() throws Exception {
+	void testProcessSnmpGetTableExpectedResultNotMatches() throws Exception {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(HostConfiguration.builder().build()).build();
 		final SourceProcessor sourceProcessor = SourceProcessor.builder()
 			.telemetryManager(telemetryManager)
@@ -217,7 +217,7 @@ class SourceProcessorTest {
 	}
 
 	@Test
-	void testVisitSbmpGetTableExpectedResultMatches() throws Exception {
+	void testProcessSbmpGetTableExpectedResultMatches() throws Exception {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -243,7 +243,7 @@ class SourceProcessorTest {
 	}
 
 	@Test
-	void testVisitTableJoinSource() {
+	void testProcessTableJoinSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -270,8 +270,8 @@ class SourceProcessorTest {
 			Arrays.asList(CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(LOWERCASE_T, LOWERCASE_U, LOWERCASE_V)))
 			.build();
-		mapSources.put(LOWERCASE_TAB1, tabl1 );
-		mapSources.put(LOWERCASE_TAB2, tabl2 );
+		mapSources.put(TAB1_REF, tabl1);
+		mapSources.put(TAB2_REF, tabl2);
 		ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 
 		Map<String,ConnectorNamespace> connectorNamespaces = new HashMap<>();
@@ -301,13 +301,13 @@ class SourceProcessorTest {
 			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1));
 		doReturn(matsyaReturn)
-			.when(matsyaClientsExecutorMock)
-			.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1), false, true);
+		.when(matsyaClientsExecutorMock)
+		.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1), false, true);
 
 		TableJoinSource tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(LOWERCASE_TAB1)
-			.rightTable(LOWERCASE_TAB2)
+			.leftTable(TAB1_REF)
+			.rightTable(TAB2_REF)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
 			.defaultRightLine("a1;b1;c1")
@@ -326,8 +326,8 @@ class SourceProcessorTest {
 		doReturn(expectedJoin).when(matsyaClientsExecutorMock).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, true);
 		tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(LOWERCASE_TAB1)
-			.rightTable(LOWERCASE_TAB2)
+			.leftTable(TAB1_REF)
+			.rightTable(TAB2_REF)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
 			.defaultRightLine(null)
@@ -341,15 +341,15 @@ class SourceProcessorTest {
 		SourceTable tabl3 = SourceTable.builder()
 			.table(Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C), Arrays.asList(LOWERCASE_V10, LOWERCASE_V20, LOWERCASE_V30)))
 			.build();
-		mapSources.put(LOWERCASE_TAB3, tabl3 );
+		mapSources.put(TAB3_REF, tabl3);
 		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(expectedJoin).when(matsyaClientsExecutorMock).executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, true);
 		tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(LOWERCASE_TAB1)
-			.rightTable(LOWERCASE_TAB3)
+			.leftTable(TAB1_REF)
+			.rightTable(TAB3_REF)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
 			.defaultRightLine(null)
@@ -360,12 +360,12 @@ class SourceProcessorTest {
 		tabl3 = SourceTable.builder()
 			.table(Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C), Arrays.asList(LOWERCASE_V10, LOWERCASE_V20, LOWERCASE_V30)))
 			.build();
-		mapSources.put(LOWERCASE_TAB3, tabl3 );
+		mapSources.put(TAB3_REF, tabl3 );
 		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(LOWERCASE_TAB1)
-			.rightTable(LOWERCASE_TAB3)
+			.leftTable(TAB1_REF)
+			.rightTable(TAB3_REF)
 			.leftKeyColumn(0)
 			.rightKeyColumn(1)
 			.defaultRightLine(null)
@@ -376,7 +376,7 @@ class SourceProcessorTest {
 		tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
 			.leftTable(null)
-			.rightTable(LOWERCASE_TAB3)
+			.rightTable(TAB3_REF)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
 			.defaultRightLine(null)
@@ -384,7 +384,7 @@ class SourceProcessorTest {
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableJoinExample).getTable());
 		tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(LOWERCASE_TAB1)
+			.leftTable(TAB1_REF)
 			.rightTable(null)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
@@ -394,7 +394,7 @@ class SourceProcessorTest {
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableJoinExample).getTable());
 		tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(LOWERCASE_TAB1)
+			.leftTable(TAB1_REF)
 			.rightTable("blabla")
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
@@ -404,8 +404,8 @@ class SourceProcessorTest {
 
 		tableJoinExample = TableJoinSource.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(LOWERCASE_TAB1)
-			.rightTable(LOWERCASE_TAB2)
+			.leftTable(TAB1_REF)
+			.rightTable(TAB2_REF)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
 			.defaultRightLine(null)

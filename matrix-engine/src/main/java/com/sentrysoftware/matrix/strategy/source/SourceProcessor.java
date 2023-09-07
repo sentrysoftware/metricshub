@@ -14,7 +14,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
@@ -252,25 +252,25 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		final Map<String, SourceTable> sources = telemetryManager
-			.getHostProperties()
-			.getConnectorNamespace(connectorName)
-			.getSourceTables();
-
-		if (sources == null ) {
-			log.warn("Hostname {} - Source Table Map cannot be null, the Table Join {} will return an empty result.", hostname, tableJoinSource);
-			return SourceTable.empty();
-		}
-
-		final SourceTable leftTable = sources.get(tableJoinSource.getLeftTable());
-		if (tableJoinSource.getLeftTable() == null || leftTable == null ||  leftTable.getTable() == null) {
+		if (tableJoinSource.getLeftTable() == null) {
 			log.debug("Hostname {} - Left table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
 			return SourceTable.empty();
 		}
 
-		final SourceTable rightTable = sources.get(tableJoinSource.getRightTable());
-		if (tableJoinSource.getRightTable() == null || rightTable == null || rightTable.getTable() == null) {
+		final Optional<SourceTable> maybeLeftTable = SourceTable.lookupSourceTable(tableJoinSource.getLeftTable(), connectorName, telemetryManager);
+		if (maybeLeftTable.isEmpty()) {
+			log.debug("Hostname {} - Reference to Left table cannot be found, the Join {} will return an empty result.", hostname, tableJoinSource);
+			return SourceTable.empty();
+		}
+
+		if (tableJoinSource.getRightTable() == null) {
 			log.debug("Hostname {} - Right table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
+			return SourceTable.empty();
+		}
+
+		final Optional<SourceTable> maybeRightTable = SourceTable.lookupSourceTable(tableJoinSource.getRightTable(), connectorName, telemetryManager);
+		if (maybeRightTable.isEmpty()) {
+			log.debug("Hostname {} - Reference to Right table cannot be found, the Join {} will return an empty result.", hostname, tableJoinSource);
 			return SourceTable.empty();
 		}
 
@@ -281,6 +281,9 @@ public class SourceProcessor implements ISourceProcessor {
 				hostname);
 			return SourceTable.empty();
 		}
+
+		final SourceTable leftTable = maybeLeftTable.get();
+		final SourceTable rightTable = maybeRightTable.get();;
 
 		logTableJoin(tableJoinSource.getKey(), tableJoinSource.getLeftTable(), tableJoinSource.getRightTable(),
 			leftTable, rightTable, hostname);

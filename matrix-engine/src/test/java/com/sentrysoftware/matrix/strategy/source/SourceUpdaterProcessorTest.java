@@ -120,7 +120,7 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetSource() {
+	void testProcessSNMPGetSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -151,7 +151,7 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetTableSource() {
+	void testProcessSNMPGetTableSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -179,7 +179,7 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testVisitTableJoinSource() {
+	void testProcessTableJoinSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
