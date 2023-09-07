@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.N_A;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
 
@@ -18,6 +17,8 @@ import java.util.stream.Stream;
 import org.springframework.util.Assert;
 
 public class TextTableHelper {
+
+	private static final String N_A = "N/A";
 
 	private TextTableHelper() {
 
@@ -213,8 +214,8 @@ public class TextTableHelper {
 	/**
 	 * Clean the given row based on the given <code>headersSize</code>
 	 * <ul>
-	 *  <li>Replace null cells by {@link MatrixConstants#N_A}</li>
-	 *  <li>Create missing cells with {@link MatrixConstants#N_A}</li>
+	 *  <li>Replace null cells by "N/A"</li>
+	 *  <li>Create missing cells with "N/A"</li>
 	 *  <li>Remove extra cells</li>
 	 * </ul>
 	 * @param row we wish to clean

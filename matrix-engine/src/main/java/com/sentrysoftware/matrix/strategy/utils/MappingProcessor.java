@@ -23,10 +23,10 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_VALUE_WITH_DOLLAR_PATTERN;
 
 @Data
 @AllArgsConstructor
@@ -378,7 +378,7 @@ public class MappingProcessor {
 	 * @return Matcher
 	 */
 	private Matcher getStringRegexMatcher(String value) {
-		return SOURCE_VALUE_WITH_DOLLAR_PATTERN.matcher(value);
+		return Pattern.compile("^\\$([0-9]+)$").matcher(value);
 	}
 
 	/**

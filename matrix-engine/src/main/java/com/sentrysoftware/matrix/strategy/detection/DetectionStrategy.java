@@ -3,10 +3,8 @@ package com.sentrysoftware.matrix.strategy.detection;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_DESCRIPTION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_PARENT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 
@@ -119,8 +117,8 @@ public class DetectionStrategy extends AbstractStrategy {
 		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorCompiledFileName);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_APPLIES_TO_OS, connector.getConnectorIdentity().getDetection()
 			.getAppliesTo().toString());
-		monitorAttributes.put(MONITOR_ATTRIBUTE_DESCRIPTION, connector.getConnectorIdentity().getInformation());
-		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT, hostId);
+		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
+		monitorAttributes.put("hw.parent.id", hostId);
 
 		// Create the monitor factory
 		final MonitorFactory monitorFactory = MonitorFactory

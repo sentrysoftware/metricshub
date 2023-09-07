@@ -13,12 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EQUALS_OPERATOR;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.METRIC_ATTRIBUTES_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 @Slf4j
 @Data
@@ -81,7 +80,7 @@ public class MetricFactory {
 		final Map<String, String> attributes = new HashMap<>();
 
 		// Create a Matcher object
-		final Matcher matcher = METRIC_ATTRIBUTES_PATTERN.matcher(metricName);
+		final Matcher matcher = Pattern.compile("\\{(.*?)\\}").matcher(metricName);
 
 		if (matcher.find()) {
 			final String attributeMap = matcher.group(1);
@@ -91,7 +90,7 @@ public class MetricFactory {
 
 			// Iterate through the key-value pairs
 			for (String pair : keyValuePairs) {
-				final String[] parts = pair.trim().split(EQUALS_OPERATOR);
+				final String[] parts = pair.trim().split("=");
 				if (parts.length == 2) {
 					// Set the key-value pair and remove the double quotes from the value
 					attributes.put(parts[0], parts[1].replace("\"", EMPTY));

@@ -1,16 +1,5 @@
 package com.sentrysoftware.matrix.strategy.source;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_PERCENT_S_PERCENT_S;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_SOURCE_NULL_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_PERCENT_S;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_SOURCE_NULL_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_SELECTED_COLUMNS_SPLIT_REGEX;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_TABLE_LOG;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -65,7 +54,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		if (httpSource == null) {
-			log.error(HTTP_SOURCE_NULL_ERROR_MESSAGE, hostname);
+			log.error("Hostname {} - HttpSource cannot be null, the HttpSource operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -74,7 +63,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		if (httpConfiguration == null) {
 
-			log.debug(HTTP_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE, hostname, httpSource);
+			log.debug("Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.", hostname, httpSource);
 
 			return SourceTable.empty();
 		}
@@ -103,7 +92,7 @@ public class SourceProcessor implements ISourceProcessor {
 			}
 
 		} catch (Exception e) {
-			logSourceError(connectorName, httpSource.getKey(), String.format(HTTP_PERCENT_S_PERCENT_S, httpSource.getMethod(),
+			logSourceError(connectorName, httpSource.getKey(), String.format("HTTP %s %s", httpSource.getMethod(),
 				httpSource.getUrl()) , hostname, e);
 		}
 
@@ -131,7 +120,7 @@ public class SourceProcessor implements ISourceProcessor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (snmpGetSource == null) {
-			log.error(SNMP_GET_SOURCE_NULL_ERROR_MESSAGE, hostname);
+			log.error("Hostname {} - SNMP Get Source cannot be null, the SNMP Get operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -139,7 +128,7 @@ public class SourceProcessor implements ISourceProcessor {
 			.getConfigurations().get(SnmpConfiguration.class);
 
 		if (snmpConfiguration == null) {
-			log.debug(SNMP_GET_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE, hostname, snmpGetSource);
+			log.debug("Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Source {}.", hostname, snmpGetSource);
 			return SourceTable.empty();
 		}
 
@@ -162,7 +151,7 @@ public class SourceProcessor implements ISourceProcessor {
 		} catch (Exception e) { // NOSONAR on interruption
 
 			logSourceError(connectorName,
-				snmpGetSource.getKey(), String.format(SNMP_GET_PERCENT_S, snmpGetSource.getOid()),
+				snmpGetSource.getKey(), String.format("SNMP Get: %s.", snmpGetSource.getOid()),
 				hostname, e);
 		}
 
@@ -176,7 +165,7 @@ public class SourceProcessor implements ISourceProcessor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (snmpTableSource == null) {
-			log.error(SNMP_GET_TABLE_SOURCE_NULL_ERROR_MESSAGE, hostname);
+			log.error("Hostname {} - SNMP Get Table Source cannot be null, the SNMP Get Table operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -190,7 +179,7 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		// The selectedColumns String is like "column1, column2, column3" and we want to split it into ["column1", "column2", "column3"]
-		final String[] selectedColumnArray = selectedColumns.split(SNMP_SELECTED_COLUMNS_SPLIT_REGEX);
+		final String[] selectedColumnArray = selectedColumns.split("\\s*,\\s*");
 
 		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -198,7 +187,10 @@ public class SourceProcessor implements ISourceProcessor {
 			.get(SnmpConfiguration.class);
 
 		if (protocol == null) {
-			log.debug(SNMP_GET_TABLE_CREDENTIALS_NOT_CONFIGURED_ERROR_MESSAGE, hostname, snmpTableSource);
+			log.debug("Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Table Source {}.",
+				hostname,
+				snmpTableSource
+			);
 			return SourceTable.empty();
 		}
 
@@ -222,7 +214,7 @@ public class SourceProcessor implements ISourceProcessor {
 			logSourceError(
 				connectorName,
 				snmpTableSource.getKey(),
-				String.format(SNMP_TABLE_LOG, snmpTableSource.getOid()),
+				String.format("SNMP Table: %s", snmpTableSource.getOid()),
 				hostname,
 				e
 			);

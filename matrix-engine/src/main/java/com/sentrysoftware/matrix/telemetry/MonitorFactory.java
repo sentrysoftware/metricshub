@@ -1,19 +1,12 @@
 package com.sentrysoftware.matrix.telemetry;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AGENT_HOSTNAME_VALUE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AGENT_HOST_NAME;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_CREATION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_HOST_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OS_TYPE;
 
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +14,7 @@ import com.sentrysoftware.matrix.alert.AlertRule;
 import com.sentrysoftware.matrix.common.HostLocation;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
@@ -105,7 +99,7 @@ public class MonitorFactory {
 		final Map<String, String> monitorAttributes = Map.of(
 			MONITOR_ATTRIBUTE_ID,
 			telemetryManager.getHostConfiguration().getHostId(),
-			LOCATION,
+		"location",
 			isLocalhost ? HostLocation.LOCAL.getKey() : HostLocation.REMOTE.getKey(),
 			IS_ENDPOINT,
 			"true"
@@ -126,21 +120,21 @@ public class MonitorFactory {
 		);
 
 		final Map<String, String> resourceAttributes = Map.of(
-			HOST_ID, hostConfiguration.getHostId(),
+		"host.id", hostConfiguration.getHostId(),
 			HOST_NAME,
 			NetworkHelper.getFqdn(hostname),
-			HOST_TYPE,
+		"host.type",
 			hostType,
-			OS_TYPE, osType,
-			AGENT_HOST_NAME, AGENT_HOSTNAME_VALUE
+		"os.type", osType,
+		"agent.host.name", StringHelper.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), "unknown")
 		);
-		final Resource monitorResource = Resource.builder().type(HOST).attributes(resourceAttributes).build();
+		final Resource monitorResource = Resource.builder().type("host").attributes(resourceAttributes).build();
 
 
 		// Create the monitor using createOrUpdateMonitor
 		final Monitor monitor = createOrUpdateMonitor(monitorAttributes, monitorResource, KnownMonitorType.HOST.getKey());
 
-		log.debug(HOST_CREATION_MESSAGE, hostname, hostConfiguration.getHostId());
+		log.debug("Hostname {} - Created host ID: {} ", hostname, hostConfiguration.getHostId());
 
 		return monitor;
 	}

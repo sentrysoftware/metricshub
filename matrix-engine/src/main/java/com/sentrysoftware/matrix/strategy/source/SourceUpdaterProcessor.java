@@ -1,10 +1,6 @@
 package com.sentrysoftware.matrix.strategy.source;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTHENTICATION_TOKEN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BRACKET_PERCENT_S;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_REF_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONO_INSTANCE_REPLACEMENT_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
@@ -14,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,7 +59,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			extractHttpTokenFromSource(
 				copy.getKey(),
 				copy.getAuthenticationToken(),
-				AUTHENTICATION_TOKEN
+		"authenticationToken"
 			)
 		);
 
@@ -239,7 +236,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 		if ((EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod())
 			|| EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod())) && result != null) {
-			result.setRawData(String.format(BRACKET_PERCENT_S, result.getRawData()));
+			result.setRawData(String.format("[%s]", result.getRawData()));
 		}
 
 		return result;
@@ -257,7 +254,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			return key;
 		}
 
-		final Matcher matcher = MONO_INSTANCE_REPLACEMENT_PATTERN.matcher(key);
+		final Matcher matcher = Pattern.compile("\\$\\{([^\\s]+)::([^\\s]+)\\}", Pattern.CASE_INSENSITIVE).matcher(key);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
@@ -459,7 +456,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			return null;
 		}
 
-		final Matcher matcher = COLUMN_REF_PATTERN.matcher(dataValue);
+		final Matcher matcher = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE).matcher(dataValue);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
