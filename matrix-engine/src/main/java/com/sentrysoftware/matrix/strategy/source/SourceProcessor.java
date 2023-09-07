@@ -1,8 +1,13 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
@@ -327,8 +332,47 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableUnion Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableUnionSource tableUnionSource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (tableUnionSource == null) {
+			log.warn("Hostname {} - Table Union Source cannot be null, the Table Union operation will return an empty result.", hostname);
+			return SourceTable.empty();
+		}
+
+		final List<String> unionTables = tableUnionSource.getTables();
+		if (unionTables == null) {
+			log.debug("Hostname {} - Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+				hostname, tableUnionSource);
+			return SourceTable.empty();
+		}
+
+		final List<SourceTable> sourceTablesToConcat = unionTables
+			.stream()
+			.map(key -> SourceTable.lookupSourceTable(key, connectorName, telemetryManager))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.toList();
+
+		final SourceTable sourceTable = new SourceTable();
+		final List<List<String>> executeTableUnion = sourceTablesToConcat
+			.stream()
+			.map(SourceTable::getTable)
+			.flatMap(Collection::stream)
+			.toList();
+
+		sourceTable.setTable(executeTableUnion);
+
+		String rawData = sourceTablesToConcat
+			.stream()
+			.map(SourceTable::getRawData)
+			.filter(Objects::nonNull)
+			.collect(Collectors.joining(NEW_LINE))
+			.replace("\n\n", NEW_LINE);
+
+		sourceTable.setRawData(rawData);
+
+		return sourceTable;
 	}
 
 	@WithSpan("Source WBEM HTTP Exec")
