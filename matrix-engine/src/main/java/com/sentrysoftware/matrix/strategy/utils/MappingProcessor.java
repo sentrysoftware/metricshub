@@ -34,6 +34,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_RE
 @Builder
 @Slf4j
 public class MappingProcessor {
+	private static final Pattern SOURCE_VALUE_WITH_DOLLAR_PATTERN = Pattern.compile("^\\$([0-9]+)$");
+
 	private TelemetryManager telemetryManager;
 	private Mapping mapping;
 	private String id;
@@ -378,7 +380,7 @@ public class MappingProcessor {
 	 * @return Matcher
 	 */
 	private Matcher getStringRegexMatcher(String value) {
-		return Pattern.compile("^\\$([0-9]+)$").matcher(value);
+		return SOURCE_VALUE_WITH_DOLLAR_PATTERN.matcher(value);
 	}
 
 	/**

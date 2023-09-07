@@ -120,13 +120,13 @@ public class MonitorFactory {
 		);
 
 		final Map<String, String> resourceAttributes = Map.of(
-		"host.id", hostConfiguration.getHostId(),
+			"host.id", hostConfiguration.getHostId(),
 			HOST_NAME,
 			NetworkHelper.getFqdn(hostname),
-		"host.type",
+			"host.type",
 			hostType,
-		"os.type", osType,
-		"agent.host.name", StringHelper.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), "unknown")
+			"os.type", osType,
+			"agent.host.name", StringHelper.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), "unknown")
 		);
 		final Resource monitorResource = Resource.builder().type("host").attributes(resourceAttributes).build();
 

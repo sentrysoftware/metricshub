@@ -73,6 +73,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	private static final String SNMP_GETNEXT_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.";
 	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
 	private static final String AUTOMATIC_NAMESPACE = "automatic";
+	private static final Pattern SNMP_GET_NEXT_VALUE_PATTERN = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
 
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
@@ -914,7 +915,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 													 final String result) {
 		String message;
 		boolean success = true;
-		final Matcher matcher = Pattern.compile("\\w+\\s+\\w+\\s+(.*)").matcher(result);
+		final Matcher matcher = SNMP_GET_NEXT_VALUE_PATTERN.matcher(result);
 		if (matcher.find()) {
 			final String value = matcher.group(1);
 			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);

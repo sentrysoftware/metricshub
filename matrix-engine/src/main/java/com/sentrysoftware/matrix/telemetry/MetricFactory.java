@@ -26,6 +26,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_A
 @Builder
 public class MetricFactory {
 
+	private static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
+
 	private TelemetryManager telemetryManager;
 
 	/**
@@ -80,7 +82,7 @@ public class MetricFactory {
 		final Map<String, String> attributes = new HashMap<>();
 
 		// Create a Matcher object
-		final Matcher matcher = Pattern.compile("\\{(.*?)\\}").matcher(metricName);
+		final Matcher matcher = METRIC_ATTRIBUTES_PATTERN.matcher(metricName);
 
 		if (matcher.find()) {
 			final String attributeMap = matcher.group(1);

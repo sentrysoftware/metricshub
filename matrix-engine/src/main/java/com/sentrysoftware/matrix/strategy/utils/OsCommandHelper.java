@@ -61,6 +61,7 @@ import lombok.NonNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandHelper {
 	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
+	private static final Pattern SUDO_COMMAND_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
 	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
 
 	/**
@@ -354,7 +355,7 @@ public class OsCommandHelper {
 	 * @return An Optional with The file name if found otherwise an empty optional.
 	 */
 	static Optional<String> getFileNameFromSudoCommand(@NonNull final String command) {
-		final Matcher matcher = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE).matcher(command);
+		final Matcher matcher = SUDO_COMMAND_PATTERN.matcher(command);
 		return matcher.find() ?
 			Optional.ofNullable(matcher.group(1)) :
 				Optional.empty();

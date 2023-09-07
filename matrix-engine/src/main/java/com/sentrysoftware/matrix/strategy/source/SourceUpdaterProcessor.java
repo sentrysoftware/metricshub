@@ -44,6 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SourceUpdaterProcessor implements ISourceProcessor {
 
+	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("\\$\\{([^\\s]+)::([^\\s]+)\\}", Pattern.CASE_INSENSITIVE);
+
 	private ISourceProcessor sourceProcessor;
 	private TelemetryManager telemetryManager;
 	private String connectorName;
@@ -253,7 +256,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			return key;
 		}
 
-		final Matcher matcher = Pattern.compile("\\$\\{([^\\s]+)::([^\\s]+)\\}", Pattern.CASE_INSENSITIVE).matcher(key);
+		final Matcher matcher = MONO_INSTANCE_REPLACEMENT_PATTERN.matcher(key);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
@@ -455,7 +458,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			return null;
 		}
 
-		final Matcher matcher = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE).matcher(dataValue);
+		final Matcher matcher = COLUMN_REF_PATTERN.matcher(dataValue);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
