@@ -102,8 +102,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final TableJoinSource tableJoinSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(tableJoinSource.copy());
 	}
 
 	@Override
