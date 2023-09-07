@@ -13,20 +13,17 @@ import org.springframework.util.Assert;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_QUERY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_FOR_OS_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WQL_DETECTION_HELPER_NULL_MESSAGE;
 
 @Slf4j
 @RequiredArgsConstructor
 public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
+
+	private static final String CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE = "Hostname {} - Process Criterion, {}";
 
 	@NonNull
 	private final String command;
@@ -39,7 +36,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	@Override
 	public void visit(final LocalOsHandler.Windows os) {
 
-		Assert.state(wqlDetectionHelper != null, WQL_DETECTION_HELPER_NULL_MESSAGE);
+		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper cannot be null.");
 
 		final WmiConfiguration localWmiConfiguration = WmiConfiguration
 			.builder()
@@ -145,13 +142,18 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 			.ifPresentOrElse(
 				line -> success(
 					String.format( //NOSONAR
-						RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
+						"One or more currently running processes match the following regular expression:\n- " +
+							"Regexp (should match with the command-line): %s",
 						command
 					)
 				),
 				() -> fail(
 					String.format( //NOSONAR
-						NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
+						"""
+						No currently running processes match the following regular expression:
+						- Regexp (should match with the command-line): %s
+						- Currently running process list:
+						%s""",
 						command,
 						result
 							.stream()
@@ -168,7 +170,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	 * @param os
 	 */
 	private void notImplemented(final String os) {
-		success(String.format(NO_TEST_FOR_OS_MESSAGE, os));
+		success(String.format("Process presence check: No tests will be performed for OS: %s.", os));
 	}
 
 	/**

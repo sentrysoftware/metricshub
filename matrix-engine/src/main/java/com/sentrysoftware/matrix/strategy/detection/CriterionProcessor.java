@@ -1,71 +1,8 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BMC;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMAND_LINE_OR_EXPECTED_RESULT_EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONFIGURE_OS_TYPE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_WMI_QUERY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY_PROCESS_COMMAND_LINE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.END_OF_IPMI_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EXPECTED_VALUE_RETURNED_VALUE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FAILED_OS_DETECTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_TEST_FAILED_NO_RESULT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_TEST_FAILED_UNEXPECTED_RESULT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HTTP_TEST_SUCCESS;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_DETECTION_FAILURE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_SOLARIS_VERSION_NOT_IDENTIFIED;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_TOOL_SUDO_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IPMI_VERSION;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LIPMI;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_OSCOMMAND_CRITERION;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_PROCESS_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SERVICE_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MALFORMED_WMI_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEITHER_WMI_NOR_WINRM_ERROR;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OLD_SOLARIS_VERSION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OPEN_IPMI_INTERFACE_DRIVER;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.REMOTE_PROCESS_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.RUNNING;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SERVICE_NAME_NOT_SPECIFIED;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_EMPTY_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_NULL_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_FAILED_WITH_EXCEPTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_CANNOT_EXTRACT_VALUE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_EXPECTED_RETURNED_VALUES_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_EMPTY_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_NULL_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_OID_NOT_MATCHING_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_OID_NOT_UNDER_SAME_TREE_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_RESULT_REGEX;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_RETURNED_RESULT_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_GETNEXT_SUCCESSFUL_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_OID_NOT_MATCH_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_COMMAND;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_SNMP_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNKNOWN_LOCAL_OS_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM_CREDENTIALS_NOT_CONFIGURED_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WBEM_MALFORMED_CRITERION_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_NOT_RUNNING_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WINDOWS_IS_RUNNING_MESSAGE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_QUERY;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -125,6 +62,19 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public class CriterionProcessor implements ICriterionProcessor {
 
+	private static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
+	private static final String WMI_QUERY = "SELECT Description FROM ComputerSystem";
+	private static final String WMI_NAMESPACE = "root\\hardware";
+	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
+	private static final String CONFIGURE_OS_TYPE_MESSAGE = "Configured OS type : ";
+	private static final String IPMI_SOLARIS_VERSION_NOT_IDENTIFIED = "Hostname %s - Could not identify Solaris version %s. Exception: %s";
+	private static final String SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE = "Hostname {} - The SNMP credentials are not configured. Cannot process SNMP " +
+		"detection {}.";
+	private static final String SNMP_GETNEXT_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.";
+	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
+	private static final String AUTOMATIC_NAMESPACE = "automatic";
+	private static final Pattern SNMP_GET_NEXT_VALUE_PATTERN = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
+
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private TelemetryManager telemetryManager;
@@ -154,7 +104,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") DeviceTypeCriterion deviceTypeCriterion) {
 
 		if (deviceTypeCriterion == null) {
-			log.error(MALFORMED_CRITERION_MESSAGE,
+			log.error("Hostname {} - Malformed DeviceType criterion {}. Cannot process DeviceType criterion detection.",
 					telemetryManager.getHostConfiguration().getHostname(), deviceTypeCriterion);
 			return CriterionTestResult.empty();
 		}
@@ -165,7 +115,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 				|| !DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion)) {
 			return CriterionTestResult
 				.builder()
-				.message(FAILED_OS_DETECTION_MESSAGE)
+				.message("Failed OS detection operation")
 				.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
 				.success(false)
 				.build();
@@ -281,7 +231,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 			.builder()
 			.message(
 				String.format(
-					IPMI_DETECTION_FAILURE_MESSAGE,
+					"Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.",
 					telemetryManager.getHostConfiguration().getHostname(),
 					hostType.name()
 				)
@@ -355,7 +305,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		try {
 			String result = null;
 			result = runOsCommand(ipmitoolCommand, hostname, sshConfiguration, defaultTimeout);
-			if (result != null && !result.contains(IPMI_VERSION)) {
+			if (result != null && !result.contains("IPMI Version")) {
 				// Didn't find what we expected: exit
 				return CriterionTestResult
 					.builder()
@@ -455,9 +405,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 		String ipmitoolCommand; // Sonar don't agree with modifying arguments
 		if (osCommandConfiguration.isUseSudo()
 				|| (osCommandConfiguration.getUseSudoCommands() != null && osCommandConfiguration.getUseSudoCommands().contains("ipmitool"))) {
-			ipmitoolCommand = IPMI_TOOL_SUDO_COMMAND.replace(IPMI_TOOL_SUDO_MACRO, osCommandConfiguration.getSudoCommand());
+			ipmitoolCommand = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I "
+				.replace("%{SUDO:ipmitool}", osCommandConfiguration.getSudoCommand());
 		} else {
-			ipmitoolCommand = IPMI_TOOL_COMMAND;
+			ipmitoolCommand = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 		}
 
 		// figure out the version of the Solaris OS
@@ -466,7 +417,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 			try {
 				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
 				// (Solaris)
-				solarisOsVersion = runOsCommand(SOLARIS_VERSION_COMMAND, hostname, sshConfiguration, defaultTimeout);
+				solarisOsVersion = runOsCommand("/usr/bin/uname -r", hostname, sshConfiguration, defaultTimeout);
 			} catch (final Exception e) { // NOSONAR on interruption
 				final String message = String.format(IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
 						hostname, ipmitoolCommand, e.getMessage());
@@ -491,12 +442,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 		} else {
 			// If not Solaris, then we're on Linux
 			// On Linux, the IPMI interface driver is always 'open'
-			ipmitoolCommand = ipmitoolCommand + OPEN_IPMI_INTERFACE_DRIVER;
+			ipmitoolCommand = ipmitoolCommand + "open";
 		}
 		telemetryManager.getHostProperties().setIpmitoolCommand(ipmitoolCommand);
 
 		// At the very end of the command line, the actual IPMI command
-		ipmitoolCommand = ipmitoolCommand + END_OF_IPMI_COMMAND;
+		ipmitoolCommand = ipmitoolCommand + " bmc info";
 		return ipmitoolCommand;
 	}
 
@@ -527,20 +478,20 @@ public class CriterionProcessor implements ICriterionProcessor {
 			final int versionInt = Integer.parseInt(solarisVersion);
 			if (versionInt == 9) {
 				// On Solaris 9, the IPMI interface drive is 'lipmi'
-				ipmitoolCommand = ipmitoolCommand + LIPMI;
+				ipmitoolCommand = ipmitoolCommand + "lipmi";
 			} else if (versionInt < 9) {
 
 				throw new IpmiCommandForSolarisException(String.format(
-						OLD_SOLARIS_VERSION_MESSAGE,
+						"Solaris version (%s) is too old for the host: %s IPMI cannot be executed. Returning an empty result.",
 						solarisOsVersion, hostname));
 
 			} else {
 				// On more modern versions of Solaris, the IPMI interface driver is 'bmc'
-				ipmitoolCommand = ipmitoolCommand + BMC;
+				ipmitoolCommand = ipmitoolCommand + "bmc";
 			}
 		} catch (final NumberFormatException e) {
 			throw new IpmiCommandForSolarisException(
-				SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN + solarisOsVersion + "."
+					"Could not identify Solaris version as a valid one.\nThe 'uname -r' command returned: " + solarisOsVersion + "."
 			);
 		}
 
@@ -582,12 +533,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 	@WithSpan("Criterion OS Command Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") OsCommandCriterion osCommandCriterion) {
 		if (osCommandCriterion == null) {
-			return CriterionTestResult.error(osCommandCriterion, MALFORMED_OSCOMMAND_CRITERION);
+			return CriterionTestResult.error(osCommandCriterion, "Malformed OSCommand criterion.");
 		}
 
 		if (osCommandCriterion.getCommandLine().isEmpty() ||
 				osCommandCriterion.getExpectedResult() == null || osCommandCriterion.getExpectedResult().isEmpty()) {
-			return CriterionTestResult.success(osCommandCriterion, COMMAND_LINE_OR_EXPECTED_RESULT_EMPTY);
+			return CriterionTestResult.success(osCommandCriterion, "CommandLine or ExpectedResult are empty. Skipping this test.");
 		}
 
 		try {
@@ -635,34 +586,34 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (processCriterion == null) {
-			log.error(MALFORMED_PROCESS_CRITERION_MESSAGE, hostname, processCriterion);
+			log.error("Hostname {} - Malformed process criterion {}. Cannot process process detection.", hostname, processCriterion);
 			return CriterionTestResult.empty();
 		}
 
 		if (processCriterion.getCommandLine().isEmpty()) {
-			log.debug(EMPTY_PROCESS_COMMAND_LINE_MESSAGE, hostname);
+			log.debug("Hostname {} - Process Criterion, Process Command Line is empty.", hostname);
 			return CriterionTestResult.builder()
 				.success(true)
-				.message(NO_TEST_WILL_BE_PERFORMED_MESSAGE)
+				.message("Process presence check: No test will be performed.")
 				.result(null)
 				.build();
 		}
 
 		if (!telemetryManager.getHostProperties().isLocalhost()) {
-			log.debug(REMOTE_PROCESS_MESSAGE, hostname);
+			log.debug("Hostname {} - Process criterion, not localhost.", hostname);
 			return CriterionTestResult.builder()
 				.success(true)
-				.message(NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE)
+				.message("Process presence check: No test will be performed remotely.")
 				.result(null)
 				.build();
 		}
 
 		final Optional<LocalOsHandler.ILocalOs> maybeLocalOS = LocalOsHandler.getOs();
 		if (maybeLocalOS.isEmpty()) {
-			log.debug(UNKNOWN_LOCAL_OS_MESSAGE, hostname);
+			log.debug("Hostname {} - Process criterion, unknown local OS.", hostname);
 			return CriterionTestResult.builder()
 				.success(true)
-				.message(NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE)
+				.message("Process presence check: OS unknown, no test will be performed.")
 				.result(null)
 				.build();
 		}
@@ -712,7 +663,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") ServiceCriterion serviceCriterion) {
 		// Sanity checks
 		if (serviceCriterion == null) {
-			return CriterionTestResult.error(serviceCriterion, MALFORMED_SERVICE_CRITERION_MESSAGE);
+			return CriterionTestResult.error(serviceCriterion, "Malformed Service criterion.");
 		}
 
 		// Find the configured protocol (WinRM or WMI)
@@ -724,19 +675,19 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		// The host system must be Windows
 		if (!DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
-			return CriterionTestResult.error(serviceCriterion, HOST_OS_IS_NOT_WINDOWS_SKIP_MESSAGE);
+			return CriterionTestResult.error(serviceCriterion, "Host OS is not Windows. Skipping this test.");
 		}
 
 		// Our local system must be Windows
 		if (!LocalOsHandler.isWindows()) {
-			return CriterionTestResult.success(serviceCriterion, LOCAL_OS_IS_NOT_WINDOWS_SKIP_MESSAGE);
+			return CriterionTestResult.success(serviceCriterion, "Local OS is not Windows. Skipping this test.");
 
 		}
 
 		// Check the service name
 		final String serviceName = serviceCriterion.getName();
 		if (serviceName.isBlank()) {
-			return CriterionTestResult.success(serviceCriterion, SERVICE_NAME_NOT_SPECIFIED);
+			return CriterionTestResult.success(serviceCriterion, "Service name is not specified. Skipping this test.");
 		}
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
@@ -744,8 +695,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// Build a new WMI criterion to check the service existence
 		WmiCriterion serviceWmiCriterion = WmiCriterion
 			.builder()
-			.query(String.format(CRITERION_WMI_QUERY, serviceName))
-			.namespace(CRITERION_WMI_NAMESPACE)
+			.query(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
+			.namespace(CRITERION_PROCESSOR_VISITOR_NAMESPACE)
 			.build();
 
 		// Perform this WMI test
@@ -758,14 +709,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final String result = wmiTestResult.getResult();
 
 		// Check whether the reported state is "Running"
-		if (result != null && result.toLowerCase().contains(TABLE_SEP + RUNNING)) {
-			return CriterionTestResult.success(serviceCriterion, String.format(WINDOWS_IS_RUNNING_MESSAGE, serviceName));
+		if (result != null && result.toLowerCase().contains(TABLE_SEP + "running")) {
+			return CriterionTestResult.success(serviceCriterion, String.format("The %s Windows Service is currently running.", serviceName));
 		}
 
 		// We're here: no good!
 		return CriterionTestResult.failure(
 			serviceWmiCriterion,
-			String.format(WINDOWS_IS_NOT_RUNNING_MESSAGE, serviceName, result) //NOSONAR
+			String.format("The %s Windows Service is not reported as running:\n%s", serviceName, result) //NOSONAR
 		);
 	}
 
@@ -790,13 +741,21 @@ public class CriterionProcessor implements ICriterionProcessor {
 		String message;
 		boolean success = false;
 		if (result == null) {
-			message = String.format(SNMP_FAILED_NULL_RESULT_MESSAGE,
-					hostname, oid);
+			message = String.format(
+				"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to a null result",
+				hostname,
+				oid);
 		} else if (result.isBlank()) {
-			message = String.format(SNMP_FAILED_EMPTY_RESULT_MESSAGE,
-					hostname, oid);
+			message = String.format(
+				"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an empty result.",
+				hostname,
+				oid);
 		} else {
-			message = String.format(SNMP_VALUE_CHECK_SUCCESSFUL_MESSAGE, hostname, oid, result);
+			message = String.format(
+				"Hostname %s - Successful SNMP Get of %s. Returned result: %s.",
+				hostname,
+				oid,
+				result);
 			success = true;
 		}
 
@@ -840,10 +799,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 		if (result == null || !pattern.matcher(result).find()) {
-			message = String.format(SNMP_OID_NOT_MATCH_MESSAGE, hostname, oid);
+			message = String.format(
+				"Hostname %s - SNMP test failed - SNMP Get of %s was successful but the value of the returned OID did not match with the" +
+				" expected result. ",
+				hostname,
+				oid);
 			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
 		} else {
-			message = String.format(SUCCESSFUL_SNMP_MESSAGE, hostname, oid, result);
+			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned result: %s", hostname, oid, result);
 			success = true;
 		}
 
@@ -863,7 +826,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetCriterion snmpGetCriterion) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		if (snmpGetCriterion == null) {
-			log.error(MALFORMED_SNMP_GET_CRITERION_MESSAGE, hostname, snmpGetCriterion);
+			log.error("Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection.", hostname, snmpGetCriterion);
 			return CriterionTestResult.empty();
 		}
 
@@ -899,7 +862,11 @@ public class CriterionProcessor implements ICriterionProcessor {
 				.build();
 
 		} catch (final Exception e) { // NOSONAR on interruption
-			final String message = String.format(SNMP_FAILED_WITH_EXCEPTION_MESSAGE, hostname, snmpGetCriterion.getOid(), e.getMessage());
+			final String message = String.format(
+				"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an exception. Message: %s",
+				hostname,
+				snmpGetCriterion.getOid(),
+				e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
@@ -919,11 +886,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 		String message;
 		boolean success = false;
 		if (result == null) {
-			message = String.format(SNMP_GETNEXT_FAILED_NULL_RESULT_MESSAGE, hostname, oid);
+			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to a null result.", hostname, oid);
 		} else if (result.isBlank()) {
-			message = String.format(SNMP_GETNEXT_FAILED_EMPTY_RESULT_MESSAGE, hostname, oid);
+			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an empty result.", hostname, oid);
 		} else if (!result.startsWith(oid)) {
-			message = String.format(SNMP_GETNEXT_FAILED_OID_NOT_UNDER_SAME_TREE_MESSAGE, hostname, oid, result.split("\\s")[0]);
+			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the returned OID is not under the same tree." +
+				" Returned OID: %s.", hostname, oid, result.split("\\s")[0]);
 		} else {
 			message = String.format(SNMP_GETNEXT_SUCCESSFUL_MESSAGE, hostname, oid, result);
 			success = true;
@@ -947,20 +915,21 @@ public class CriterionProcessor implements ICriterionProcessor {
 													 final String result) {
 		String message;
 		boolean success = true;
-		final Matcher matcher = SNMP_GETNEXT_RESULT_REGEX.matcher(result);
+		final Matcher matcher = SNMP_GET_NEXT_VALUE_PATTERN.matcher(result);
 		if (matcher.find()) {
 			final String value = matcher.group(1);
 			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 			if (!pattern.matcher(value).find()) {
-				message = String.format(SNMP_GETNEXT_FAILED_OID_NOT_MATCHING_MESSAGE, hostname, oid);
-				message += String.format(SNMP_GETNEXT_EXPECTED_RETURNED_VALUES_MESSAGE, expected, value);
+				message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value of the returned OID did not match" +
+					" with the expected result. ", hostname, oid);
+				message += String.format("Expected value: %s - returned value %s.", expected, value);
 				success = false;
 			} else {
 				message = String.format(SNMP_GETNEXT_SUCCESSFUL_MESSAGE, hostname, oid, result);
 			}
 		} else {
-			message = String.format(SNMP_GETNEXT_CANNOT_EXTRACT_VALUE_MESSAGE, hostname, oid);
-			message += String.format(SNMP_GETNEXT_RETURNED_RESULT_MESSAGE, result);
+			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value cannot be extracted. ", hostname, oid);
+			message += String.format("Returned result: %s.", result);
 			success = false;
 		}
 
@@ -1000,7 +969,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (snmpGetNextCriterion == null) {
-			log.error(MALFORMED_SNMP_GET_NEXT_CRITERION_MESSAGE, hostname, snmpGetNextCriterion);
+			log.error("Hostname {} - Malformed SNMP GetNext criterion {}. Cannot process SNMP GetNext detection.", hostname, snmpGetNextCriterion);
 			return CriterionTestResult.empty();
 		}
 
@@ -1035,7 +1004,11 @@ public class CriterionProcessor implements ICriterionProcessor {
 				.build();
 
 		} catch (final Exception e) { // NOSONAR on interruption
-			final String message = String.format(SNMP_GETNEXT_FAILED_WITH_EXCEPTION_MESSAGE, hostname, snmpGetNextCriterion.getOid(), e.getMessage());
+			final String message = String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an exception. Message: %s",
+					hostname,
+					snmpGetNextCriterion.getOid(),
+					e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
@@ -1051,7 +1024,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WmiCriterion wmiCriterion) {
 		// Sanity check
 		if (wmiCriterion == null) {
-			return CriterionTestResult.error(wmiCriterion, MALFORMED_WMI_CRITERION_MESSAGE);
+			return CriterionTestResult.error(wmiCriterion, "Malformed criterion. Cannot perform detection.");
 		}
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
@@ -1210,7 +1183,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WbemCriterion wbemCriterion) {
 		// Sanity check
 		if (wbemCriterion == null) {
-			return CriterionTestResult.error(wbemCriterion, WBEM_MALFORMED_CRITERION_MESSAGE);
+			return CriterionTestResult.error(wbemCriterion, "Malformed criterion. Cannot perform detection.");
 		}
 
 		// Gather the necessary info on the test that needs to be performed
@@ -1219,7 +1192,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final WbemConfiguration wbemConfiguration =
 				(WbemConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(WbemConfiguration.class);
 		if (wbemConfiguration == null) {
-			return CriterionTestResult.error(wbemCriterion, WBEM_CREDENTIALS_NOT_CONFIGURED_MESSAGE);
+			return CriterionTestResult.error(wbemCriterion, "The WBEM credentials are not configured for this host.");
 		}
 
 		// If namespace is specified as "Automatic"
@@ -1262,7 +1235,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		if (expectedResult == null) {
 			if (result == null || result.isEmpty()) {
-				message = String.format(HTTP_TEST_FAILED_NO_RESULT, hostname);
+				message = String.format("Hostname %s - HTTP test failed - The HTTP test did not return any result.", hostname);
 			} else {
 				message = String.format(HTTP_TEST_SUCCESS, hostname, result);
 				success = true;
@@ -1276,7 +1249,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 				success = true;
 			} else {
 				message = String
-						.format(HTTP_TEST_FAILED_UNEXPECTED_RESULT, hostname, result, expectedResult);
+					.format("Hostname %s - HTTP test failed - The result (%s) returned by the HTTP test did not match the expected result (%s).",
+					hostname,
+					result,
+					expectedResult);
 				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
 			}
 		}

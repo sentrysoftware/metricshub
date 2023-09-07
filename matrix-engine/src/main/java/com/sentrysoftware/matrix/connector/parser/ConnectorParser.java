@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.connector.parser;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.YAML_EXTENDS_KEY;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -129,7 +127,7 @@ public class ConnectorParser {
 	private void resolveParents(final JsonNode connector, final Path connectorDir, final Map<Path, JsonNode> parents)
 		throws IOException {
 
-		final ArrayNode extended = (ArrayNode) connector.get(YAML_EXTENDS_KEY);
+		final ArrayNode extended = (ArrayNode) connector.get("extends");
 		if (extended == null || extended.isNull() || extended.isEmpty()) {
 			return;
 		}

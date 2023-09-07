@@ -13,12 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EQUALS_OPERATOR;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.METRIC_ATTRIBUTES_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 @Slf4j
 @Data
@@ -26,6 +25,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_A
 @NoArgsConstructor
 @Builder
 public class MetricFactory {
+
+	private static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
 
 	private TelemetryManager telemetryManager;
 
@@ -91,7 +92,7 @@ public class MetricFactory {
 
 			// Iterate through the key-value pairs
 			for (String pair : keyValuePairs) {
-				final String[] parts = pair.trim().split(EQUALS_OPERATOR);
+				final String[] parts = pair.trim().split("=");
 				if (parts.length == 2) {
 					// Set the key-value pair and remove the double quotes from the value
 					attributes.put(parts[0], parts[1].replace("\"", EMPTY));

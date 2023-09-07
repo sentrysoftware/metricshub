@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANT_FIND_EMBEDDED_FILE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COULDNT_READ_EMBEDDED_FILE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
 
 import java.io.IOException;
@@ -98,7 +97,7 @@ public class EmbeddedFileHelper {
 				.stream()
 				.collect(Collectors.joining("\n"));
 		} catch (Exception e) {
-			throw new IOException(COULDNT_READ_EMBEDDED_FILE + filePath);
+			throw new IOException("Could not read embedded file: " + filePath);
 		}
 	}
 }

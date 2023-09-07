@@ -44,13 +44,14 @@ import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DiscoveryStrategy extends AbstractStrategy {
+
+	private static final String OTHER_MONITOR_JOB_TYPES = "otherMonitorJobTypes";
 
 	public DiscoveryStrategy(
 			@NonNull final TelemetryManager telemetryManager,
