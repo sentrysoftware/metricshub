@@ -9,11 +9,12 @@ import java.util.Properties;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_PROPERTIES_FILE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_VERSION_PROPERTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERSION_REGEX_DELIMITER;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERSION_REGEX_REPLACEMENT;
 
 @Slf4j
 public class VersionHelper {
+
+	private static final String VERSION_REGEX_DELIMITER = "\\.";
+
 
 	private VersionHelper() {
 	}
@@ -92,7 +93,7 @@ public class VersionHelper {
 			return "0";
 		}
 
-		final String normalized = version.replaceAll(VERSION_REGEX_REPLACEMENT, "");
+		final String normalized = version.replaceAll("[^\\d\\.]", "");
 
 		return normalized.trim().isEmpty() ? "0" : normalized;
 	}

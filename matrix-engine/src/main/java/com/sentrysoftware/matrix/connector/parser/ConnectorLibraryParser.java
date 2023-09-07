@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.connector.parser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,9 +59,9 @@ public class ConnectorLibraryParser {
 		 */
 		private boolean isConnector(final JsonNode connector) {
 
-			final JsonNode connectorNode = connector.get(MatrixConstants.YAML_CONNECTOR_KEY);
+			final JsonNode connectorNode = connector.get("connector");
 			if (connectorNode != null && !connectorNode.isNull()) {
-				final JsonNode displayName = connectorNode.get(MatrixConstants.YAML_DISPLAY_NAME_KEY);
+				final JsonNode displayName = connectorNode.get("displayName");
 				return displayName != null && !displayName.isNull();
 			}
 
