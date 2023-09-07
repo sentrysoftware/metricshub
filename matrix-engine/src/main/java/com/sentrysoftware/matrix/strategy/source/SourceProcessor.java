@@ -1,8 +1,6 @@
 package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -351,8 +349,9 @@ public class SourceProcessor implements ISourceProcessor {
 
 		final List<SourceTable> sourceTablesToConcat = unionTables
 			.stream()
-			.map(this::getSourceTable)
-			.filter(Objects::nonNull)
+			.map(key -> SourceTable.lookupSourceTable(key, connectorName, telemetryManager))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.toList();
 
 		final SourceTable sourceTable = new SourceTable();
@@ -417,30 +416,5 @@ public class SourceProcessor implements ISourceProcessor {
 				"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
 				hostname, sourceKey, context, connectorName), throwable);
 		}
-	}
-
-	/**
-	 * Get source table based on the key
-	 *
-	 * @param key	The key of the source
-	 * @return A {@link SourceTable} already defined in the current {@link IHostMonitoring} or a hard-coded CSV sourceTable
-	 */
-	SourceTable getSourceTable(final String key) {
-
-		if (SOURCE_REF_PATTERN.matcher(key).matches()) {
-			final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(key, connectorName, telemetryManager);
-
-			if (maybeSourceTable.isEmpty()) {
-				log.warn("Hostname {} - The following source table {} cannot be found.",
-					telemetryManager.getHostConfiguration().getHostname(), key);
-				return null;
-			}
-			return maybeSourceTable.get();
-		}
-
-		return SourceTable.builder()
-				.table(SourceTable.csvToTable(key, TABLE_SEP))
-				.rawData(key)
-				.build();
 	}
 }
