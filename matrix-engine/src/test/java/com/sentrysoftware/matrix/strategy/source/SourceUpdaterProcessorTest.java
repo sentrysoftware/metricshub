@@ -44,6 +44,7 @@ import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
@@ -119,7 +120,7 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetSource() {
+	void testProcessSNMPGetSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -150,7 +151,7 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetTableSource() {
+	void testProcessSNMPGetTableSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -175,5 +176,26 @@ class SourceUpdaterProcessorTest {
 		doReturn(expected).when(sourceProcessor).process(any(SnmpTableSource.class));
 		assertEquals(expected, new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
 			.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()));
+	}
+
+	@Test
+	void testProcessTableJoinSource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder()
+			.hostConfiguration(hostConfiguration)
+			.build();
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableJoinSource.class));
+		assertEquals(SourceTable.empty(), new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE).process(TableJoinSource.builder().build()));
 	}
 }

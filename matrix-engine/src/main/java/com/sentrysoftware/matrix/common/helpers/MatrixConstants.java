@@ -165,6 +165,7 @@ public class MatrixConstants {
 	public static final String HOST_NULL_OR_EMPTY = "host cannot be null nor empty.";
 	public static final String HIDDEN_PASSWORD = "********";
 	public static final String COULDNT_READ_EMBEDDED_FILE = "Could not read embedded file: ";
+	public static final String WBEM = "wbem";
 
 	/**
 	 * A compiled representation of a file converter<br>
