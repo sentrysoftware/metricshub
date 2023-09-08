@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -82,6 +83,8 @@ public class SourceProcessor implements ISourceProcessor {
 		final List<List<String>> table =
 			origin.getTable()
 			.stream()
+			// Creating a new ArrayList and casting it into a List is necessary to avoid UnsupportedOperationExceptions
+			.map(row -> (List<String>) new ArrayList<>(row.stream().toList()))
 			.filter(row -> !row.isEmpty())
 			.toList();
 

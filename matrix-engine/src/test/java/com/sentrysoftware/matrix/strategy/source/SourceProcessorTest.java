@@ -497,9 +497,12 @@ class SourceProcessorTest {
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
 
-		List<List<String>> expectedTable = Arrays.asList(
-			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
-			Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3));
+		final List<List<String>> expectedTable = new ArrayList<>(
+			Arrays.asList(
+				new ArrayList<>(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)),
+				new ArrayList<>(Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3))
+			)
+		);
 
 		SourceTable table = SourceTable.builder()
 			.table(expectedTable)
@@ -532,6 +535,18 @@ class SourceProcessorTest {
 
 		copySource = CopySource.builder().from(TAB1_REF).build();
 
-		assertEquals(expectedTable, sourceProcessor.process(copySource).getTable());
+		final List<List<String>> tableResult = sourceProcessor.process(copySource).getTable();
+
+		assertEquals(expectedTable, tableResult);
+
+		tableResult.get(0).add(LOWERCASE_VAL3);
+
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
+				Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3)
+			),
+			expectedTable
+		);
 	}
 }
