@@ -71,8 +71,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final CopySource copySource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(copySource.copy());
 	}
 
 	@Override

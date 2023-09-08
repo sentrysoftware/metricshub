@@ -9,6 +9,7 @@ import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMN
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_WRONG_COLUMNS;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_WRONG_COLUMNS_LIST;
+import static com.sentrysoftware.matrix.constants.Constants.TAB1_REF;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,6 +37,7 @@ import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
@@ -81,7 +83,6 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_X = "x";
 	private static final String LOWERCASE_Y = "y";
 	private static final String LOWERCASE_Z = "z";
-	private static final String TAB1_REF = "${source::monitors.cpu.discovery.sources.tab1}";
 	private static final String TAB2_REF = "${source::monitors.cpu.discovery.sources.tab2}";
 	private static final String TAB3_REF = "${source::monitors.cpu.discovery.sources.tab3}";
 
@@ -479,5 +480,73 @@ class SourceProcessorTest {
 		assertEquals(expectedUnion, sourceProcessor.process(tableUnionExample).getTable());
 		assertEquals(LOWERCASE_A1 +"\n"+ TAB1_REF, sourceProcessor.process(tableUnionExample).getRawData());
 
+	}
+
+	@Test
+	void testProcessCopySource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+
+		final List<List<String>> expectedTable = new ArrayList<>(
+			Arrays.asList(
+				new ArrayList<>(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)),
+				new ArrayList<>(Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3))
+			)
+		);
+
+		SourceTable table = SourceTable.builder()
+			.table(expectedTable)
+			.rawData("rawData")
+			.build();
+
+		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(Map.of(TAB1_REF, table)).build();
+		Map<String,ConnectorNamespace> connectorNamespaces = new HashMap<>();
+		connectorNamespaces.put(MY_CONNECTOR_1_NAME, namespace);
+		HostProperties hostProperties = HostProperties.builder().connectorNamespaces(connectorNamespaces).build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(MY_CONNECTOR_1_NAME)
+			.build();
+
+		CopySource copySource = null;
+		assertEquals(SourceTable.empty(), sourceProcessor.process(copySource));
+		copySource = new CopySource();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(copySource));
+
+		copySource = CopySource.builder().from("").build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(copySource));
+
+		copySource = CopySource.builder().from(TAB1_REF).build();
+
+		final List<List<String>> tableResult = sourceProcessor.process(copySource).getTable();
+
+		assertEquals(expectedTable, tableResult);
+
+		tableResult.get(0).add(LOWERCASE_VAL3);
+
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
+				Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3)
+			),
+			expectedTable
+		);
 	}
 }
