@@ -111,7 +111,7 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
-		final String connectorCompiledFileName = connector.getConnectorIdentity().getCompiledFilename();
+		final String connectorCompiledFileName = connector.getCompiledFilename();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, hostId + "@" + connectorCompiledFileName);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorCompiledFileName);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorCompiledFileName);
@@ -126,10 +126,18 @@ public class DetectionStrategy extends AbstractStrategy {
 			.telemetryManager(telemetryManager)
 			.monitorType(KnownMonitorType.CONNECTOR.getKey())
 			.attributes(monitorAttributes)
+			.connectorId(connectorCompiledFileName)
 			.build();
 
 		// Create or update the monitor by calling monitor factory
-		final Monitor monitor = monitorFactory.createOrUpdateMonitor();
+		final Monitor monitor = monitorFactory.createOrUpdateMonitor(
+			MonitorFactory.buildMonitorId(
+				connectorCompiledFileName,
+				KnownMonitorType.CONNECTOR.getKey(),
+				hostId,
+				connectorCompiledFileName
+			)
+		);
 
 		// Get monitor metrics from connector
 		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();

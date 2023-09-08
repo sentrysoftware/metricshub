@@ -298,6 +298,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 				.telemetryManager(telemetryManager)
 				.attributes(noContextAttributeInterpretedValues)
 				.resource(resource)
+				.connectorId(connectorId)
 				.build();
 
 			// Create or update the monitor

@@ -33,6 +33,8 @@ public class Monitor {
 	private long discoveryTime;
 	private String type;
 
+	private String id;
+
 	/**
 	 * Get a metric by type
 	 *
