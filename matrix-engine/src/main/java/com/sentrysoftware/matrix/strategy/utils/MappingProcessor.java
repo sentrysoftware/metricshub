@@ -1,19 +1,8 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
-import com.sentrysoftware.matrix.common.JobInfo;
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
-import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.Resource;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_VALUE_WITH_DOLLAR_PATTERN;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,10 +12,25 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_VALUE_WITH_DOLLAR_PATTERN;
+import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.Resource;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @AllArgsConstructor
@@ -34,6 +38,17 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_VA
 @Builder
 @Slf4j
 public class MappingProcessor {
+
+	private static final double PERCENT_2_RATIO_FACTOR = 0.01;
+	private static final double MEGAHERTZ_2_HERTZ_FACTOR = 1_000_000.0;
+	private static final double MEBIBYTE_2_BYTE_FACTOR = 1_048_576.0;
+	private static final double MEGABIT_2_BIT_FACTOR = 1_000_000.0;
+
+	private static final String ZERO = "0";
+	private static final String ONE = "1";
+
+	private static final Pattern DECIMAL_PATTERN = Pattern.compile("\\d+");
+
 	private TelemetryManager telemetryManager;
 	private Mapping mapping;
 	private String id;
@@ -134,7 +149,7 @@ public class MappingProcessor {
 			} else if (isMegaBit2Bit(value)) { 
 				result.put(key, megaBit2bit(value));
 			} else if (isPercentToRatioFunction(value)) {
-				result.put(key, percent2Ration(value));
+				result.put(key, percent2Ratio(value));
 			} else if (isMegaHertz2HertzFunction(value)) {
 				result.put(key, megaHertz2Hertz(value));
 			} else if (isMebiByte2ByteFunction(value)) {
@@ -172,7 +187,27 @@ public class MappingProcessor {
 	}
 
 	private String lookup(final String value) {
-		return null;
+		final Pattern lookupValuePattern = Pattern.compile("(?<=^lookup\\().+(?=\\)$)");
+		final Matcher matcher = lookupValuePattern.matcher(value.trim());
+		matcher.find();
+
+		final String[] lookupValues = matcher.group(1).split(",");
+		final Map<String, Monitor> typedMonitors = telemetryManager.getMonitors().get(lookupValues[0]);
+
+		if (typedMonitors == null) {
+			log.error("No monitors found of type {}.", lookupValues[0]);
+			return null;
+		}
+
+		final Stream<Monitor> monitors = typedMonitors.values().stream().filter(x -> x.getAttributes().get(lookupValues[2]).equals(lookupValues[3]));
+		Monitor monitor = monitors.findFirst().orElse(null);
+
+		if (monitor == null) {
+			log.error("No monitors found matching attribute {} with value {}.", lookupValues[2], lookupValues[3]);
+			return null;
+		}
+
+		return monitor.getAttributes().get(lookupValues[1]);
 	}
 
 	private String legacyPowerSupplyUtilization(final String value, final Monitor monitor) {
@@ -208,8 +243,7 @@ public class MappingProcessor {
 	}
 
 	private String megaBit2bit(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		return multiplyValueByFactor(value, MEGABIT_2_BIT_FACTOR);
 	}
 
 	private boolean isMegaBit2Bit(String value) {
@@ -218,8 +252,11 @@ public class MappingProcessor {
 	}
 
 	private String legacyFullDuplex(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		if ("legacyFullDuplex(ok)".equals(value)) {
+			return ONE;
+		}
+
+		return ZERO;
 	}
 
 	private boolean isLegacyFullDuplex(String value) {
@@ -228,8 +265,11 @@ public class MappingProcessor {
 	}
 
 	private String legacyLinkStatusFunction(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		if ("legacyLinkStatusFunction(1)".equals(value) || "legacyLinkStatusFunction(ok)".equals(value)) {
+			return ONE;
+		}
+
+		return ZERO;
 	}
 
 	private boolean isLegacyLinkStatusFunction(String value) {
@@ -248,8 +288,11 @@ public class MappingProcessor {
 	}
 
 	private String legacyNeedsCleaning(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		if ("legacyNeedsCleaning(0)".equals(value)) {
+			return ZERO;
+		}
+
+		return ONE;
 	}
 
 	private boolean islegacyNeedsCleaningFucntion(String value) {
@@ -258,8 +301,11 @@ public class MappingProcessor {
 	}
 
 	private String legacyPredictedFailure(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		if ("legacyPredictedFailure(0)".equals(value) || "legacyPredictedFailure(false)".equals(value)) {
+			return ZERO;
+		}
+
+		return ONE;
 	}
 
 	private boolean isLegacyPredictedFailureFunction(String value) {
@@ -268,8 +314,11 @@ public class MappingProcessor {
 	}
 
 	private String legacyIntrusionStatus(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		if ("legacyIntrusionStatus(0)".equals(value) || "legacyIntrusionStatus(false)".equals(value)) {
+			return ZERO;
+		}
+
+		return ONE;
 	}
 
 	private boolean isLegacyIntrusionStatusFunction(String value) {
@@ -288,8 +337,11 @@ public class MappingProcessor {
 	}
 
 	private String booleanFunction(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		if ("boolean(1)".equals(value) || "boolean(true)".equals(value)) {
+			return ONE;
+		}
+
+		return ZERO;
 	}
 
 	private boolean isBooleanFunction(String value) {
@@ -298,8 +350,7 @@ public class MappingProcessor {
 	}
 
 	private String mebiByte2Byte(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		return multiplyValueByFactor(value, MEBIBYTE_2_BYTE_FACTOR);
 	}
 
 	private boolean isMebiByte2ByteFunction(String value) {
@@ -308,8 +359,7 @@ public class MappingProcessor {
 	}
 
 	private String megaHertz2Hertz(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		return multiplyValueByFactor(value, MEGAHERTZ_2_HERTZ_FACTOR);
 	}
 
 	private boolean isMegaHertz2HertzFunction(String value) {
@@ -317,9 +367,8 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String percent2Ration(String value) {
-		// TODO Auto-generated method stub
-		return null;
+	private String percent2Ratio(String value) {
+		return multiplyValueByFactor(value, PERCENT_2_RATIO_FACTOR);
 	}
 
 	private boolean isPercentToRatioFunction(String value) {
@@ -330,6 +379,20 @@ public class MappingProcessor {
 	private String executeAwkScript(String value) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * We multiply the value by a predetermined factor, usually for unit conversion
+	 * 
+	 * @param value		A string with the context function and the value
+	 * @param factor	Double value to be multiplied to the value
+	 * @return			A String containing only the new value
+	 */
+	private String multiplyValueByFactor(String value, double factor) {
+		final Matcher matcher = DECIMAL_PATTERN.matcher(value);
+		matcher.find();
+		double doubleValue = Double.parseDouble(matcher.group(1));
+		return Double.toString(doubleValue * factor);
 	}
 
 	/**
