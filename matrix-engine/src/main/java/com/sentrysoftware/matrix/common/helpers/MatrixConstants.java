@@ -232,7 +232,7 @@ public class MatrixConstants {
 	public static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
 	public static final String IS_ENDPOINT = "is_endpoint";
 	public static final String OTHER_MONITOR_JOB_TYPES = "otherMonitorJobTypes";
-	public static final Pattern SOURCE_VALUE_WITH_DOLLAR_PATTERN = Pattern.compile("^\\$([0-9]+)$");
+	public static final Pattern SOURCE_VALUE_WITH_DOLLAR_PATTERN = Pattern.compile("^\\$(\\d+)$");
 
 	public static final String AUTHENTICATION_TOKEN = "authenticationToken";
 	public static final String BRACKET_PERCENT_S = "[%s]";

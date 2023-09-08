@@ -17,13 +17,13 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.common.helpers.state.LinkStatus;
 import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MappingProcessor {
 
+	private static final Pattern MEBIBYTE_2_BYTE_PATTERN = Pattern.compile("mebibyte2byte\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LEGACY_LINK_STATUS_PATTERN = Pattern.compile("legacylinkstatus\\((.+)\\)", Pattern.CASE_INSENSITIVE);
 	private static final double PERCENT_2_RATIO_FACTOR = 0.01;
 	private static final double MEGAHERTZ_2_HERTZ_FACTOR = 1_000_000.0;
 	private static final double MEBIBYTE_2_BYTE_FACTOR = 1_048_576.0;
@@ -46,8 +48,6 @@ public class MappingProcessor {
 
 	private static final String ZERO = "0";
 	private static final String ONE = "1";
-
-	private static final Pattern DECIMAL_PATTERN = Pattern.compile("\\d+");
 
 	private TelemetryManager telemetryManager;
 	private Mapping mapping;
@@ -147,13 +147,13 @@ public class MappingProcessor {
 			} else if (isAwkScript(value)) {
 				result.put(key, executeAwkScript(value));
 			} else if (isMegaBit2Bit(value)) { 
-				result.put(key, megaBit2bit(value));
+				result.put(key, megaBit2bit(value, key));
 			} else if (isPercentToRatioFunction(value)) {
-				result.put(key, percent2Ratio(value));
+				result.put(key, percent2Ratio(value, key));
 			} else if (isMegaHertz2HertzFunction(value)) {
-				result.put(key, megaHertz2Hertz(value));
+				result.put(key, megaHertz2Hertz(value, key));
 			} else if (isMebiByte2ByteFunction(value)) {
-				result.put(key, mebiByte2Byte(value));
+				result.put(key, mebiByte2Byte(value, key)); // Implemented REMOVE_ME For God's Sake
 			} else if (isBooleanFunction(value)) {
 				result.put(key, booleanFunction(value));
 			} else if (isLegacyLedStatusFunction(value)) {
@@ -167,7 +167,7 @@ public class MappingProcessor {
 			} else if (isComputePowerShareRatioFunction(value)) {
 				result.put(String.format("%s.raw", key), computePowerShareRatio(value));
 			} else if (isLegacyLinkStatusFunction(value)) {
-				result.put(key, legacyLinkStatusFunction(value));
+				result.put(key, legacyLinkStatusFunction(value, key));
 			} else if (isLegacyFullDuplex(value)) {
 				result.put(key, legacyFullDuplex(value));
 			} else if (isLookupFunction(value)) {
@@ -242,8 +242,8 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String megaBit2bit(String value) {
-		return multiplyValueByFactor(value, MEGABIT_2_BIT_FACTOR);
+	private String megaBit2bit(String value, String key) {
+		return multiplyValueByFactor(value, key, MEGABIT_2_BIT_FACTOR);
 	}
 
 	private boolean isMegaBit2Bit(String value) {
@@ -264,12 +264,24 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String legacyLinkStatusFunction(String value) {
-		if ("legacyLinkStatusFunction(1)".equals(value) || "legacyLinkStatusFunction(ok)".equals(value)) {
-			return ONE;
+	private String legacyLinkStatusFunction(String value, String key) {
+		final Matcher matcher = LEGACY_LINK_STATUS_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+		String extractedValue = extracted;
+		if (isColumnExtraction(extracted)) {
+			extractedValue = extractColumnValue(extracted, key);
 		}
 
-		return ZERO;
+		final Optional<LinkStatus> maybeLinkStatus = LinkStatus.interpret(extractedValue);
+
+		if (maybeLinkStatus.isPresent()) {
+			return String.valueOf(maybeLinkStatus.get().getNumericValue());
+		}
+
+		// TODO add log
+		return null;
 	}
 
 	private boolean isLegacyLinkStatusFunction(String value) {
@@ -349,8 +361,17 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String mebiByte2Byte(String value) {
-		return multiplyValueByFactor(value, MEBIBYTE_2_BYTE_FACTOR);
+	private String mebiByte2Byte(String value, String key) {
+		final Matcher matcher = MEBIBYTE_2_BYTE_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+
+		if (isColumnExtraction(extracted)) {
+			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEBIBYTE_2_BYTE_FACTOR);
+		} else {
+			return multiplyValueByFactor(extracted, key, MEBIBYTE_2_BYTE_FACTOR);
+		}
 	}
 
 	private boolean isMebiByte2ByteFunction(String value) {
@@ -358,8 +379,8 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String megaHertz2Hertz(String value) {
-		return multiplyValueByFactor(value, MEGAHERTZ_2_HERTZ_FACTOR);
+	private String megaHertz2Hertz(String value, String key) {
+		return multiplyValueByFactor(value, key, MEGAHERTZ_2_HERTZ_FACTOR);
 	}
 
 	private boolean isMegaHertz2HertzFunction(String value) {
@@ -367,8 +388,8 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String percent2Ratio(String value) {
-		return multiplyValueByFactor(value, PERCENT_2_RATIO_FACTOR);
+	private String percent2Ratio(String value, String key) {
+		return multiplyValueByFactor(value, key, PERCENT_2_RATIO_FACTOR);
 	}
 
 	private boolean isPercentToRatioFunction(String value) {
@@ -384,20 +405,28 @@ public class MappingProcessor {
 	/**
 	 * We multiply the value by a predetermined factor, usually for unit conversion
 	 * 
-	 * @param value		A string with the context function and the value
+	 * @param value		A string with an already extracted value
+	 * @param key 
 	 * @param factor	Double value to be multiplied to the value
 	 * @return			A String containing only the new value
 	 */
-	private String multiplyValueByFactor(String value, double factor) {
-		final Matcher matcher = DECIMAL_PATTERN.matcher(value);
-		matcher.find();
-		double doubleValue = Double.parseDouble(matcher.group(1));
-		return Double.toString(doubleValue * factor);
+	private String multiplyValueByFactor(final String value, String key, final double factor) {
+
+		try {
+			double doubleValue = Double.parseDouble(value);
+			return Double.toString(doubleValue * factor);
+		} catch (Exception e) {
+			log.error("Hostname {} - ....", jobInfo.getHostname());
+			log.debug("Hostname {} - Exception: ", jobInfo.getHostname(), e);
+			return null;
+		}
+
 	}
 
 	/**
 	 * This method extracts column value using a Regex
 	 * @param value
+	 * @param key
 	 * @return string representing the column value
 	 */
 	private String extractColumnValue(final String value, final String key) {
