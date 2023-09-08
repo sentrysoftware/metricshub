@@ -38,7 +38,6 @@ import com.sentrysoftware.matrix.connector.model.metric.StateSet;
 import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
@@ -95,16 +94,15 @@ class DetectionStrategyTest {
 		final String compiledFilename = connector.getCompiledFilename();
 		
 		// Check monitor attributes
-		final String monitorId = MonitorFactory.buildMonitorId(
-			compiledFilename ,
+		final String monitorId = String.format(
+			"%s_%s",
 			KnownMonitorType.CONNECTOR.getKey(),
-			HOST_ID,
 			compiledFilename
 		);
 
 		assertEquals(1, telemetryManager.getMonitors().size());
 		assertEquals(1, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).size());
-		assertEquals("PC-120@AAC", telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
+		assertEquals("AAC", telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
 			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_ID));
 		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
 			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_NAME));
@@ -168,10 +166,9 @@ class DetectionStrategyTest {
 		final Map<String, Monitor> connectorMonitorMap = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
 		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
 		final Monitor monitor = connectorMonitorMap.get(
-			MonitorFactory.buildMonitorId(
-				compiledFilename,
+			String.format(
+				DetectionStrategy.CONNECTOR_ID_FORMAT,
 				KnownMonitorType.CONNECTOR.getKey(),
-				HOST_ID,
 				compiledFilename
 			)
 		);
@@ -234,10 +231,9 @@ class DetectionStrategyTest {
 		final Map<String, Monitor> connectorMonitorMap = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
 		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
 		final Monitor monitor = connectorMonitorMap.get(
-			MonitorFactory.buildMonitorId(
-				compiledFilename,
+			String.format(
+				DetectionStrategy.CONNECTOR_ID_FORMAT,
 				KnownMonitorType.CONNECTOR.getKey(),
-				HOST_ID,
 				compiledFilename
 			)
 		);

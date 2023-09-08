@@ -70,7 +70,6 @@ public class MonitorFactory {
 		final String id =  buildMonitorId(
 			connectorId,
 			monitorType,
-			telemetryManager.getHostConfiguration().getHostId(),
 			attributes.get(MONITOR_ATTRIBUTE_ID)
 		);
 
@@ -180,25 +179,21 @@ public class MonitorFactory {
 	}
 
 	/**
-	 * Build the monitor unique identifier [connectorName]_[monitorType]_[hostId]_[id]
+	 * Build the monitor unique identifier [connectorName]_[monitorType]_[id]
 	 * @param connectorName  The connector compiled file name
 	 * @param monitorType    The type of the monitor. See {@link MonitorType}
-	 * @param hostId       The unique identifier of the main monitor called host
 	 * @param id             The id of the monitor we wish to build its identifier
 	 * @return {@link String} value containing the key of the monitor
 	 */
 	public static String buildMonitorId(
 		@NonNull final String connectorName,
 		@NonNull final String monitorType,
-		@NonNull final String hostId,
 		@NonNull final String id
 	) {
 		return new StringBuilder()
 			.append(connectorName)
 			.append(UNDERSCORE)
 			.append(monitorType)
-			.append(UNDERSCORE)
-			.append(hostId)
 			.append(UNDERSCORE)
 			.append(id.replaceAll("\\s*", EMPTY))
 			.toString();
