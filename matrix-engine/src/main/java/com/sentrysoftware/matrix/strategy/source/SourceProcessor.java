@@ -83,10 +83,10 @@ public class SourceProcessor implements ISourceProcessor {
 		final List<List<String>> table =
 			origin.getTable()
 			.stream()
-			// Creating a new ArrayList and casting it into a List is necessary to avoid UnsupportedOperationExceptions
-			.map(row -> (List<String>) new ArrayList<>(row.stream().toList()))
+			// Map each row in the table to a new ArrayList, effectively performing a deep copy of each row.
+			.map(ArrayList::new)
 			.filter(row -> !row.isEmpty())
-			.toList();
+			.collect(Collectors.toList()); // NOSONAR
 
 		sourceTable.setTable(table);
 
@@ -195,7 +195,12 @@ public class SourceProcessor implements ISourceProcessor {
 
 				return SourceTable
 					.builder()
-					.table(Stream.of(Stream.of(result).toList()).toList())
+					.table(
+						Stream.of(
+							Stream.of(result).collect(Collectors.toList()) // NOSONAR
+						)
+						.collect(Collectors.toList()) // NOSONAR
+					)
 					.build();
 			}
 
@@ -396,14 +401,14 @@ public class SourceProcessor implements ISourceProcessor {
 			.map(key -> SourceTable.lookupSourceTable(key, connectorName, telemetryManager))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		final SourceTable sourceTable = new SourceTable();
 		final List<List<String>> executeTableUnion = sourceTablesToConcat
 			.stream()
 			.map(SourceTable::getTable)
 			.flatMap(Collection::stream)
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		sourceTable.setTable(executeTableUnion);
 

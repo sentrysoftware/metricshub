@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
@@ -577,7 +578,7 @@ public class OsCommandHelper {
 						.values()
 						.stream()
 						.map(File::getAbsolutePath)
-						.toList()
+						.collect(Collectors.toList()) // NOSONAR
 				);
 				// Case others (Linux) Remote
 			} else {

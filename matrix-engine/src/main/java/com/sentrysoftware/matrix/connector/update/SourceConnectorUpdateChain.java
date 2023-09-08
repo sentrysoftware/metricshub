@@ -131,7 +131,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 			.values()
 			.stream()
 			.map(Function.identity())
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR;
 	}
 
 
