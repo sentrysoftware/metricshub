@@ -14,6 +14,7 @@ import static com.sentrysoftware.matrix.constants.Constants.OID;
 import static com.sentrysoftware.matrix.constants.Constants.PASSWORD;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMNS;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
+import static com.sentrysoftware.matrix.constants.Constants.TAB1_REF;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_A1;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.doReturn;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +43,7 @@ import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
@@ -197,5 +200,46 @@ class SourceUpdaterProcessorTest {
 			.build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableJoinSource.class));
 		assertEquals(SourceTable.empty(), new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE).process(TableJoinSource.builder().build()));
+	}
+
+	@Test
+	void testProcessCopySource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder()
+			.hostConfiguration(hostConfiguration)
+			.build();
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(CopySource.class));
+		assertEquals(SourceTable.empty(),
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(CopySource.builder().from(TAB1_REF).build()));
+
+		CopySource copySource = CopySource.builder().from(TAB1_REF).build();
+		final List<List<String>> result = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
+		final SourceTable expected = SourceTable.builder().table(result).build();
+
+		final SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid(OID).build();
+
+		final List<List<String>> resultSnmp = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
+		final SourceTable expectedSnmp = SourceTable.builder().table(resultSnmp).build();
+		doReturn(expectedSnmp).when(sourceProcessor).process(any(SnmpGetSource.class));
+		assertEquals(expectedSnmp,
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(snmpGetSource));
+
+		doReturn(expected).when(sourceProcessor).process(any(CopySource.class));
+		assertEquals(expected,
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(copySource));
 	}
 }
