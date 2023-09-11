@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -80,7 +81,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			.filter(connector -> connectionTypesFiltering(connector, isLocalhost))
 			// Accepted Sources Filtering
 			.filter(connector -> anyMatch(connector.getSourceTypes(), acceptedSources))
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		final Set<String> supersedes = new HashSet<>();
 		List<ConnectorTestResult> connectorTestResults = 
@@ -90,7 +91,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			)
 			// Keep Only Success Connectors
 			.filter(ConnectorTestResult::isSuccess)
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		// Find all Superseded connectors
 		connectorTestResults.forEach(connectorTestResult -> updateSupersedes(supersedes, connectorTestResult));
@@ -107,7 +108,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 						.toLowerCase()
 				)
 			)
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		// Filter onLastResort Connectors
 		return filterLastResort(connectorTestResults);

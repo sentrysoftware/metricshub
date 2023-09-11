@@ -111,7 +111,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 		return ProcessHandle
 			.allProcesses()
 			.map(CriterionProcessVisitor::getProcessDetails)
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 	}
 
 	/**
