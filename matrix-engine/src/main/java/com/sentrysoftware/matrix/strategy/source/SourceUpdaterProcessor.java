@@ -71,8 +71,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final CopySource copySource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(copySource.copy());
 	}
 
 	@Override
@@ -110,8 +109,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final TableUnionSource tableUnionSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(tableUnionSource.copy());
 	}
 
 	@Override

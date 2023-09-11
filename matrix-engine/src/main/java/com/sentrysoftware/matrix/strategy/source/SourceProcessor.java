@@ -1,8 +1,14 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
@@ -46,8 +52,51 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Copy Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final CopySource copySource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (copySource == null) {
+			log.error("Hostname {} - CopySource cannot be null, the CopySource operation will return an empty result.",
+				hostname);
+			return SourceTable.empty();
+		}
+
+		final String copyFrom = copySource.getFrom();
+
+		if (copyFrom == null || copyFrom.isEmpty()) {
+			log.error("Hostname {} - CopySource reference cannot be null. Returning an empty table for source {}.",
+				hostname,
+				copySource);
+			return SourceTable.empty();
+		}
+
+		final SourceTable sourceTable = new SourceTable();
+
+		final Optional<SourceTable> maybeOrigin = SourceTable.lookupSourceTable(copyFrom, connectorName, telemetryManager);
+
+		if (maybeOrigin.isEmpty()) {
+			return SourceTable.empty();
+		}
+
+		final SourceTable origin = maybeOrigin.get();
+
+		final List<List<String>> table =
+			origin.getTable()
+			.stream()
+			// Map each row in the table to a new ArrayList, effectively performing a deep copy of each row.
+			.map(ArrayList::new)
+			.filter(row -> !row.isEmpty())
+			.collect(Collectors.toList()); // NOSONAR
+
+		sourceTable.setTable(table);
+
+		if (origin.getRawData() != null) {
+			sourceTable.setRawData(origin.getRawData());
+		}
+
+		logSourceCopy(connectorName, copyFrom, copySource.getKey(), sourceTable, hostname);
+
+		return sourceTable;
 	}
 
 	@WithSpan("Source HTTP Exec")
@@ -146,7 +195,12 @@ public class SourceProcessor implements ISourceProcessor {
 
 				return SourceTable
 					.builder()
-					.table(Stream.of(Stream.of(result).toList()).toList())
+					.table(
+						Stream.of(
+							Stream.of(result).collect(Collectors.toList()) // NOSONAR
+						)
+						.collect(Collectors.toList()) // NOSONAR
+					)
 					.build();
 			}
 
@@ -327,8 +381,47 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableUnion Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableUnionSource tableUnionSource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (tableUnionSource == null) {
+			log.warn("Hostname {} - Table Union Source cannot be null, the Table Union operation will return an empty result.", hostname);
+			return SourceTable.empty();
+		}
+
+		final List<String> unionTables = tableUnionSource.getTables();
+		if (unionTables == null) {
+			log.debug("Hostname {} - Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+				hostname, tableUnionSource);
+			return SourceTable.empty();
+		}
+
+		final List<SourceTable> sourceTablesToConcat = unionTables
+			.stream()
+			.map(key -> SourceTable.lookupSourceTable(key, connectorName, telemetryManager))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toList()); //NOSONAR
+
+		final SourceTable sourceTable = new SourceTable();
+		final List<List<String>> executeTableUnion = sourceTablesToConcat
+			.stream()
+			.map(SourceTable::getTable)
+			.flatMap(Collection::stream)
+			.collect(Collectors.toList()); //NOSONAR
+
+		sourceTable.setTable(executeTableUnion);
+
+		String rawData = sourceTablesToConcat
+			.stream()
+			.map(SourceTable::getRawData)
+			.filter(Objects::nonNull)
+			.collect(Collectors.joining(NEW_LINE))
+			.replace("\n\n", NEW_LINE);
+
+		sourceTable.setRawData(rawData);
+
+		return sourceTable;
 	}
 
 	@WithSpan("Source WBEM HTTP Exec")
@@ -372,5 +465,55 @@ public class SourceProcessor implements ISourceProcessor {
 				"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
 				hostname, sourceKey, context, connectorName), throwable);
 		}
+	}
+
+	/**
+	 * Log the source copy data
+	 *
+	 * @param connectorName   the name of the connector defining the source
+	 * @param parentSourceKey the parent source key referenced in the source copy
+	 * @param childSourceKey  the source key referencing the parent source
+	 * @param sourceTable     the source's result we wish to log
+	 * @param hostname        the host's name
+	 */
+	private static void logSourceCopy(
+		final String connectorName,
+		final String parentSourceKey,
+		final String childSourceKey,
+		final SourceTable sourceTable,
+		final String hostname) {
+
+		if (!log.isDebugEnabled()) {
+			return;
+		}
+
+		// Is there any raw data to log?
+		if (sourceTable.getRawData() != null && (sourceTable.getTable() == null || sourceTable.getTable().isEmpty())) {
+			log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\n",
+				hostname,
+				parentSourceKey,
+				childSourceKey,
+				connectorName,
+				sourceTable.getRawData());
+			return;
+		}
+
+		if (sourceTable.getRawData() == null) {
+			log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nTable result:\n{}\n",
+				hostname,
+				parentSourceKey,
+				childSourceKey,
+				connectorName,
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+			return;
+		}
+
+		log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+			hostname,
+			parentSourceKey,
+			childSourceKey,
+			connectorName,
+			sourceTable.getRawData(),
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 }

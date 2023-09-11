@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -63,6 +64,6 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 			),
 			hostConfiguration
 		)
-		.toList();
+		.collect(Collectors.toList()); //NOSONAR
 	}
 }

@@ -61,7 +61,7 @@ public class SourceTable {
 					? line
 						.stream()
 						.map(val -> val.replace(separator, ALTERNATE_COLUMN_SEPARATOR))
-						.toList()
+						.collect(Collectors.toList()) // NOSONAR
 						: line)
 				.map(line -> String.join(separator, line) + separator)
 				.collect(Collectors.joining(NEW_LINE));
@@ -87,7 +87,7 @@ public class SourceTable {
 				.of(csvTable.split("\n"))
 				.map(line -> lineToList(line, separator))
 				.filter(line -> !line.isEmpty())
-				.toList();
+				.collect(Collectors.toList()); //NOSONAR
 		}
 		return new ArrayList<>();
 	}
@@ -109,7 +109,7 @@ public class SourceTable {
 			return Stream
 				.of(split)
 				.limit(split.length - 1L)
-				.toList();
+				.collect(Collectors.toList()); //NOSONAR
 		}
 		return new ArrayList<>();
 	}

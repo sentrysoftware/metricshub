@@ -34,6 +34,8 @@ public class Monitor {
 	private String type;
 	private String connectorId;
 
+	private String id;
+
 	/**
 	 * Get a metric by type
 	 *
