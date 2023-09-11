@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,9 +65,7 @@ public class SourceProcessor implements ISourceProcessor {
 		final String copyFrom = copySource.getFrom();
 
 		if (copyFrom == null || copyFrom.isEmpty()) {
-			log.error("Hostname {} - CopySource reference cannot be null. Returning an empty table for source {}.",
-				hostname,
-				copySource);
+			log.error("Hostname {} - CopySource reference cannot be null. Returning an empty table for source {}.", hostname, copySource);
 			return SourceTable.empty();
 		}
 
@@ -282,8 +281,47 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Static Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final StaticSource staticSource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (staticSource == null) {
+			log.error("Hostname {} - Static Source cannot be null, the StaticSource operation will return an empty result.", hostname);
+			return SourceTable.empty();
+		}
+
+		final String staticValue = staticSource.getValue();
+
+		if (staticValue == null || staticValue.isEmpty()) {
+			log.error("Hostname {} - Static Source reference cannot be null. Returning an empty table for source {}.", hostname, staticSource);
+			return SourceTable.empty();
+		}
+
+		log.debug("Hostname {} - Got Static Source value [{}] referenced in source [{}].",
+			hostname,
+			staticValue,
+			staticSource.getKey());
+
+		final SourceTable sourceTable = new SourceTable();
+
+		final Optional<SourceTable> maybeStaticTable = SourceTable.lookupSourceTable(staticValue, connectorName, telemetryManager);
+
+		if (maybeStaticTable.isEmpty()) {
+			return SourceTable.empty();
+		}
+
+		// Note: In case of the static source getSourceTable never returns null
+		final List<List<String>> table = maybeStaticTable.get()
+			.getTable()
+			.stream()
+			// Map each row in the table to a new ArrayList, effectively performing a deep copy of each row.
+			.map(ArrayList::new)
+			.filter(row -> !row.isEmpty())
+			.collect(Collectors.toList());
+
+		sourceTable.setTable(table);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), SEMICOLON, false));
+
+		return sourceTable;
 	}
 
 	@WithSpan("Source TableJoin Exec")

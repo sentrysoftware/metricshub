@@ -48,6 +48,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
@@ -224,7 +225,8 @@ class SourceUpdaterProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableUnionSource.class));
-		assertEquals(SourceTable.empty(),
+		assertEquals(
+			SourceTable.empty(),
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
 				.process(TableUnionSource.builder().tables(new ArrayList<>()).build()));
 	}
@@ -268,5 +270,32 @@ class SourceUpdaterProcessorTest {
 		assertEquals(expected,
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
 				.process(copySource));
+	}
+
+	@Test
+	void testProcessStaticSource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder()
+			.hostConfiguration(hostConfiguration)
+			.build();
+
+		StaticSource staticSource = StaticSource.builder().value(VALUE_VAL1).build();
+		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
+		final SourceTable expected = SourceTable.builder().table(resultTable).build();
+		doReturn(expected).when(sourceProcessor).process(any(StaticSource.class));
+		assertEquals(expected,
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(staticSource));
 	}
 }
