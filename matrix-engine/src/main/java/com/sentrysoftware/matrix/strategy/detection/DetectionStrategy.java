@@ -38,6 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DetectionStrategy extends AbstractStrategy {
 
+	/**
+	 * Format for string value like: <em>connector_connector-id</em>
+	 */
+	static final String CONNECTOR_ID_FORMAT = "%s_%s";
+
 	public DetectionStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
@@ -111,10 +116,10 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
-		final String connectorCompiledFileName = connector.getConnectorIdentity().getCompiledFilename();
-		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, hostId + "@" + connectorCompiledFileName);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorCompiledFileName);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorCompiledFileName);
+		final String connectorId = connector.getCompiledFilename();
+		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_APPLIES_TO_OS, connector.getConnectorIdentity().getDetection()
 			.getAppliesTo().toString());
 		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
@@ -126,10 +131,13 @@ public class DetectionStrategy extends AbstractStrategy {
 			.telemetryManager(telemetryManager)
 			.monitorType(KnownMonitorType.CONNECTOR.getKey())
 			.attributes(monitorAttributes)
+			.connectorId(connectorId)
 			.build();
 
 		// Create or update the monitor by calling monitor factory
-		final Monitor monitor = monitorFactory.createOrUpdateMonitor();
+		final Monitor monitor = monitorFactory.createOrUpdateMonitor(
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
+		);
 
 		// Get monitor metrics from connector
 		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();

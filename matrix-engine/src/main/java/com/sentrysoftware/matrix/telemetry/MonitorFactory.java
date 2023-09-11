@@ -1,10 +1,12 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_HOST_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNDERSCORE;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -23,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,11 +47,34 @@ public class MonitorFactory {
 
 	private String monitorType;
 
+	private String connectorId;
+
 	/**
 	 * This method creates or updates the monitor
+	 * 
+	 * @param unique identifier of the monitor
+	 * @return created or updated {@link Monitor} instance
+	 */
+	public Monitor createOrUpdateMonitor(final String id) {
+		return createOrUpdateMonitor(attributes, resource, monitorType, id);
+	}
+
+	/**
+	 * This method creates or updates the monitor
+	 * 
+	 * @return created or updated {@link Monitor} instance
 	 */
 	public Monitor createOrUpdateMonitor() {
-		return createOrUpdateMonitor(attributes, resource, monitorType);
+
+		// Build the monitor unique identifier
+		final String id =  buildMonitorId(
+			connectorId,
+			monitorType,
+			attributes.get(MONITOR_ATTRIBUTE_ID)
+		);
+
+		return createOrUpdateMonitor(attributes, resource, monitorType, id);
+
 	}
 
 	/**
@@ -57,11 +83,18 @@ public class MonitorFactory {
 	 * @param attributes  monitor attributes
 	 * @param resource    monitor resource
 	 * @param monitorType the type of the monitor
+	 * @param id          unique identifier of the monitor
 	 * @return Monitor instance
 	 */
-	Monitor createOrUpdateMonitor(final Map<String, String> attributes, final Resource resource, final String monitorType) {
-		final String id = attributes.get(MONITOR_ATTRIBUTE_ID);
+	Monitor createOrUpdateMonitor(
+		final Map<String, String> attributes,
+		final Resource resource,
+		final String monitorType,
+		final String id
+	) {
+
 		final Monitor foundMonitor = telemetryManager.findMonitorByTypeAndId(monitorType, id);
+
 		if (foundMonitor != null) {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
@@ -73,6 +106,7 @@ public class MonitorFactory {
 				.resource(resource)
 				.attributes(attributes)
 				.type(monitorType)
+				.id(id)
 				.build();
 
 			telemetryManager.addNewMonitor(newMonitor, monitorType, id);
@@ -99,7 +133,7 @@ public class MonitorFactory {
 		final Map<String, String> monitorAttributes = Map.of(
 			MONITOR_ATTRIBUTE_ID,
 			telemetryManager.getHostConfiguration().getHostId(),
-		"location",
+			"location",
 			isLocalhost ? HostLocation.LOCAL.getKey() : HostLocation.REMOTE.getKey(),
 			IS_ENDPOINT,
 			"true"
@@ -132,12 +166,37 @@ public class MonitorFactory {
 
 
 		// Create the monitor using createOrUpdateMonitor
-		final Monitor monitor = createOrUpdateMonitor(monitorAttributes, monitorResource, KnownMonitorType.HOST.getKey());
+		final Monitor monitor = createOrUpdateMonitor(
+			monitorAttributes,
+			monitorResource,
+			KnownMonitorType.HOST.getKey(),
+			telemetryManager.getHostConfiguration().getHostId()
+		);
 
 		log.debug("Hostname {} - Created host ID: {} ", hostname, hostConfiguration.getHostId());
 
 		return monitor;
 	}
 
+	/**
+	 * Build the monitor unique identifier [connectorName]_[monitorType]_[id]
+	 * @param connectorName  The connector compiled file name
+	 * @param monitorType    The type of the monitor. See {@link MonitorType}
+	 * @param id             The id of the monitor we wish to build its identifier
+	 * @return {@link String} value containing the key of the monitor
+	 */
+	public static String buildMonitorId(
+		@NonNull final String connectorName,
+		@NonNull final String monitorType,
+		@NonNull final String id
+	) {
+		return new StringBuilder()
+			.append(connectorName)
+			.append(UNDERSCORE)
+			.append(monitorType)
+			.append(UNDERSCORE)
+			.append(id.replaceAll("\\s*", EMPTY))
+			.toString();
+	}
 
 }

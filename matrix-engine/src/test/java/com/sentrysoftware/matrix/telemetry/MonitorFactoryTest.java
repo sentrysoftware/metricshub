@@ -44,7 +44,7 @@ class MonitorFactoryTest {
 	private TelemetryManager telemetryManagerMock;
 
 	@InjectMocks
-	private MonitorFactory monitorFactoryMock;
+	private MonitorFactory monitorFactory;
 
 	@InjectMocks
 	private MetricFactory metricFactoryMock;
@@ -62,7 +62,7 @@ class MonitorFactoryTest {
 		doReturn(monitor).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Call method createOrUpdateMonitor in MonitorFactory
-		assertEquals(monitor, monitorFactoryMock.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey()));
+		assertEquals(monitor, monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE));
 
 		// Check the found monitor
 		assertEquals(KnownMonitorType.CONNECTOR.getKey(), monitor.getType());
@@ -78,7 +78,7 @@ class MonitorFactoryTest {
 		doReturn(null).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Call method createOrUpdateMonitor in MonitorFactory and retrieve the created monitor
-		final Monitor createdMonitor = monitorFactoryMock.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey());
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Check the created monitor
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
@@ -95,7 +95,7 @@ class MonitorFactoryTest {
 		doReturn(null).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Create the monitor and check its attributes
-		final Monitor createdMonitor = monitorFactoryMock.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey());
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call method collectNumberMetric in MonitorFactory
@@ -124,7 +124,7 @@ class MonitorFactoryTest {
 		doReturn(monitor).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Call method createOrUpdateMonitor in MonitorFactory, retrieve the created monitor then check its attributes
-		final Monitor createdMonitor = monitorFactoryMock.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey());
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call method collectNumberMetric in MonitorFactory
@@ -148,7 +148,7 @@ class MonitorFactoryTest {
 		doReturn(null).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Create the monitor and check its attributes
-		final Monitor createdMonitor = monitorFactoryMock.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey());
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
@@ -177,7 +177,7 @@ class MonitorFactoryTest {
 		doReturn(monitor).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Create the monitor and check its attributes
-		final Monitor createdMonitor = monitorFactoryMock.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey());
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
@@ -202,7 +202,7 @@ class MonitorFactoryTest {
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
 		// Call create host monitor
-		final Monitor hostMonitor = monitorFactoryMock.createHostMonitor(Boolean.TRUE);
+		final Monitor hostMonitor = monitorFactory.createHostMonitor(Boolean.TRUE);
 
 		// Check that the created monitor is not null
 		assertNotNull(hostMonitor);

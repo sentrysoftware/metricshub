@@ -29,6 +29,7 @@ public class MatrixConstants {
 	public static final String WHITE_SPACE = " ";
 	public static final String NEW_LINE = "\n";
 	public static final String TAB = "\t";
+	public static final String UNDERSCORE = "_";
 
 	/**
 	 * Monitors information
@@ -120,7 +121,7 @@ public class MatrixConstants {
 	 **/
 	public static final String CANT_FIND_EMBEDDED_FILE = "Can't find embedded file: ";
 
-	//A compiled representation of a file converter. We attempt to match input like ${file::path}
+	//A compiled representation of a file converter. We attempt to match input like ${file::path} // NOSONAR on comment
 	public static final Pattern FILE_PATTERN = Pattern.compile("\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE);
 	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
 }

@@ -1,31 +1,5 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.matrix.connector.model.metric.MetricType;
-import com.sentrysoftware.matrix.connector.model.metric.StateSet;
-import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
@@ -41,6 +15,33 @@ import static com.sentrysoftware.matrix.constants.Constants.WINDOWS;
 import static com.sentrysoftware.matrix.constants.Constants.YAML_TEST_FILE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
+import com.sentrysoftware.matrix.connector.model.metric.MetricType;
+import com.sentrysoftware.matrix.connector.model.metric.StateSet;
+import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
 
 class DetectionStrategyTest {
 
@@ -90,11 +91,18 @@ class DetectionStrategyTest {
 		// Call DetectionStrategy and invoke create monitors with the previously created connectorTestResultList instance
 		detectionStrategy.createMonitors(connectorTestResultList);
 
+		final String compiledFilename = connector.getCompiledFilename();
+		
 		// Check monitor attributes
-		final String monitorId = HOST_ID + "@" + YAML_TEST_FILE_NAME;
+		final String monitorId = String.format(
+			"%s_%s",
+			KnownMonitorType.CONNECTOR.getKey(),
+			compiledFilename
+		);
+
 		assertEquals(1, telemetryManager.getMonitors().size());
 		assertEquals(1, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).size());
-		assertEquals(monitorId, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
+		assertEquals("AAC", telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
 			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_ID));
 		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
 			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_NAME));
@@ -156,7 +164,14 @@ class DetectionStrategyTest {
 
 		// Retrieve the created monitor
 		final Map<String, Monitor> connectorMonitorMap = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
-		final Monitor monitor = connectorMonitorMap.get(HOST_ID + "@" + connector.getConnectorIdentity().getCompiledFilename());
+		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
+		final Monitor monitor = connectorMonitorMap.get(
+			String.format(
+				DetectionStrategy.CONNECTOR_ID_FORMAT,
+				KnownMonitorType.CONNECTOR.getKey(),
+				compiledFilename
+			)
+		);
 
 		// Retrieve monitor's metric value (ConnectorResult is successful)
 		AbstractMetric metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
@@ -214,8 +229,14 @@ class DetectionStrategyTest {
 
 		// Retrieve the created monitor
 		final Map<String, Monitor> connectorMonitorMap = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
-		final Monitor monitor = connectorMonitorMap.get(HOST_ID + "@" + connector.getConnectorIdentity().getCompiledFilename());
-
+		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
+		final Monitor monitor = connectorMonitorMap.get(
+			String.format(
+				DetectionStrategy.CONNECTOR_ID_FORMAT,
+				KnownMonitorType.CONNECTOR.getKey(),
+				compiledFilename
+			)
+		);
 		// Retrieve monitor's metric value (ConnectorResult is successful)
 		AbstractMetric metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
 		assertTrue(metric instanceof StateSetMetric);
