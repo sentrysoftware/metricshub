@@ -39,6 +39,7 @@ import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
@@ -84,6 +85,7 @@ class SourceProcessorTest {
 	private static final String TAB1_REF = "${source::monitors.cpu.discovery.sources.tab1}";
 	private static final String TAB2_REF = "${source::monitors.cpu.discovery.sources.tab2}";
 	private static final String TAB3_REF = "${source::monitors.cpu.discovery.sources.tab3}";
+	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
 
@@ -311,7 +313,7 @@ class SourceProcessorTest {
 			.rightTable(TAB2_REF)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
-			.defaultRightLine("a1;b1;c1")
+			.defaultRightLine(VALUE_LIST)
 			.build();
 		assertEquals(expectedJoin, sourceProcessor.process(tableJoinExample).getTable());
 		assertTrue(expectedJoin.size() == sourceProcessor.process(tableJoinExample).getTable().size()
@@ -479,5 +481,45 @@ class SourceProcessorTest {
 		assertEquals(expectedUnion, sourceProcessor.process(tableUnionExample).getTable());
 		assertEquals(LOWERCASE_A1 +"\n"+ TAB1_REF, sourceProcessor.process(tableUnionExample).getRawData());
 
+	}
+
+	@Test
+	void testProcessStaticSource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+
+		StaticSource staticSource = null;
+		assertEquals(SourceTable.empty(), sourceProcessor.process(staticSource));
+		staticSource = new StaticSource();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(staticSource));
+
+		List<List<String>> expectedTable = Arrays.asList(
+			Arrays.asList(LOWERCASE_A1));
+
+		staticSource = StaticSource.builder().value(LOWERCASE_A1).build();
+
+		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new StaticSource()));
+
+		expectedTable = Arrays.asList(new ArrayList<>(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)));
+
+		staticSource = StaticSource.builder().value(VALUE_LIST).build();
+
+		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
 	}
 }

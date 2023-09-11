@@ -99,8 +99,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final StaticSource staticSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(staticSource.copy());
 	}
 
 	@Override

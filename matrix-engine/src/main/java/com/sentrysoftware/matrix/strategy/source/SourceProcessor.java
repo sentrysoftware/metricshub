@@ -1,7 +1,9 @@
 package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -233,8 +235,48 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Static Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final StaticSource staticSource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (staticSource == null) {
+			log.error("Hostname {} - Static Source cannot be null, the StaticSource operation will return an empty result.", hostname);
+			return SourceTable.empty();
+		}
+
+		final String staticValue = staticSource.getValue();
+
+		if (staticValue == null || staticValue.isEmpty()) {
+			log.error("Hostname {} - Static Source reference cannot be null. Returning an empty table for source {}.", hostname, staticSource);
+			return SourceTable.empty();
+		}
+
+		log.debug("Hostname {} - Got Static Source value [{}] referenced in source [{}].",
+			hostname,
+			staticValue,
+			staticSource.getKey());
+
+		final SourceTable sourceTable = new SourceTable();
+
+		final Optional<SourceTable> maybeStaticTable = SourceTable.lookupSourceTable(staticValue, connectorName, telemetryManager);
+
+		if (maybeStaticTable.isEmpty()) {
+			return SourceTable.empty();
+		}
+
+		// Call getSourceTable, in case there are ';' in the static source and it's needed to be separated into multiple columns
+		// Note: In case of the static source getSourceTable never returns null
+		final List<List<String>> table = maybeStaticTable.get()
+			.getTable()
+			.stream()
+			// Creating a new ArrayList and casting it into a List is necessary to avoid UnsupportedOperationExceptions
+			.map(ArrayList::new)
+			.filter(row -> !row.isEmpty())
+			.collect(Collectors.toList());
+
+		sourceTable.setTable(table);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), SEMICOLON, false));
+
+		return sourceTable;
 	}
 
 	@WithSpan("Source TableJoin Exec")
