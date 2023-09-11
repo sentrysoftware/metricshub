@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
@@ -68,13 +69,13 @@ public class OrderedSources {
 					sourceDepTree
 						.stream()
 						.flatMap(Collection::stream)
-						.toList(),
+						.collect(Collectors.toList()), // NOSONAR
 					"dependency tree",
 					jobInfo
 				);
 			}
 
-			this.sources$value = sources.values().stream().toList();
+			this.sources$value = sources.values().stream().collect(Collectors.toList()); // NOSONAR
 			this.sources$set = true;
 			return this;
 		}
@@ -120,7 +121,7 @@ public class OrderedSources {
 					)
 				)
 				.map(Entry::getValue)
-				.toList();
+				.collect(Collectors.toList()); // NOSONAR
 
 			this.sources$set = true;
 			return this;

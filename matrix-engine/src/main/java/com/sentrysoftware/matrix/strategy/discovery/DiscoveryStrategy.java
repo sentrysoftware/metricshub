@@ -201,7 +201,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 				.builder()
 				.sources(
 					discovery.getSources(),
-					discovery.getExecutionOrder().stream().toList(),
+					discovery.getExecutionOrder().stream().collect(Collectors.toList()), // NOSONAR
 					discovery.getSourceDep(),
 					jobInfo
 				)
@@ -427,18 +427,18 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.filter(entry -> detectedConnectorFileNames.contains(entry.getKey()))
 			.map(Map.Entry::getValue)
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		// Get only connectors that define monitors
 		final List<Connector> connectorsWithMonitorJobs = detectedConnectors
 			.stream()
 			.filter(connector -> !connector.getMonitors().isEmpty())
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		// Sort connectors by monitor job type: first put hosts then enclosures. If two connectors have the same type of monitor job, sort them by name
 		final List<Connector> sortedConnectors = connectorsWithMonitorJobs.stream()
 			.sorted(new ConnectorMonitorTypeComparator())
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		// Discover each connector
 		sortedConnectors.forEach(connector -> discover(connector, hostname));
