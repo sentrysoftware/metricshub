@@ -40,6 +40,18 @@ public class MatrixConstants {
 	public static final String MONITOR_ATTRIBUTE_APPLIES_TO_OS = "applies_to_os";
 	public static final String IS_ENDPOINT = "is_endpoint";
 
+	public static final String OTHER_MONITOR_JOB_TYPES = "otherMonitorJobTypes";
+
+	// Map monitor job types to their priorities
+	public static final Map<String, Integer> MONITOR_JOBS_PRIORITY = Map.of(
+		KnownMonitorType.HOST.getKey(), 1,
+		KnownMonitorType.ENCLOSURE.getKey(), 2,
+		KnownMonitorType.BLADE.getKey(), 3,
+		KnownMonitorType.DISK_CONTROLLER.getKey(), 4,
+		KnownMonitorType.CPU.getKey(), 5,
+		OTHER_MONITOR_JOB_TYPES, 6
+	);
+
 	/**
 	 * Macros
 	 **/

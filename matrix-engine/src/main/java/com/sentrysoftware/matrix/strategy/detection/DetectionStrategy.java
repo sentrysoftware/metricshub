@@ -119,7 +119,6 @@ public class DetectionStrategy extends AbstractStrategy {
 		final String connectorId = connector.getCompiledFilename();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_APPLIES_TO_OS, connector.getConnectorIdentity().getDetection()
 			.getAppliesTo().toString());
 		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());

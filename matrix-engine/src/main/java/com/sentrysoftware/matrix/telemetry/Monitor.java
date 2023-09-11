@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.telemetry;
 
 import com.sentrysoftware.matrix.alert.AlertRule;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,8 +33,6 @@ public class Monitor {
 	private Resource resource;
 	private long discoveryTime;
 	private String type;
-	private String connectorId;
-
 	private String id;
 
 	/**
@@ -82,5 +81,17 @@ public class Monitor {
 	 */
 	public void addLegacyParameters(Map<String, String> legacyTextParameters) {
 		this.legacyTextParameters.putAll(legacyTextParameters);
+	}
+
+	public void addAttribute(final String key, final String value){
+		attributes.put(key, value);
+	}
+
+	public String getAttribute(final String key){
+		return attributes.get(key);
+	}
+
+	public boolean isMetricDeactivated(final String key){
+		return MatrixConstants.EMPTY.equals(conditionalCollection.get(key));
 	}
 }

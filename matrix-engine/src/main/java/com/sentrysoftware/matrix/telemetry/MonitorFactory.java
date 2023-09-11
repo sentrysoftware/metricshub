@@ -15,6 +15,7 @@ import java.util.Map;
 import com.sentrysoftware.matrix.alert.AlertRule;
 import com.sentrysoftware.matrix.common.HostLocation;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
@@ -108,6 +109,9 @@ public class MonitorFactory {
 				.type(monitorType)
 				.id(id)
 				.build();
+			if (connectorId != null) {
+				newMonitor.addAttribute(MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
+			}
 
 			telemetryManager.addNewMonitor(newMonitor, monitorType, id);
 
