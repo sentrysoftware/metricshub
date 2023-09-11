@@ -227,7 +227,7 @@ class SourceUpdaterProcessorTest {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableUnionSource.class));
 		assertEquals(SourceTable.empty(),
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-			.process(TableUnionSource.builder().tables(new ArrayList<>()).build()));
+				.process(TableUnionSource.builder().tables(new ArrayList<>()).build()));
 	}
 
 	@Test
