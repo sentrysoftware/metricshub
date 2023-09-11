@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
@@ -298,6 +299,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 				.telemetryManager(telemetryManager)
 				.attributes(noContextAttributeInterpretedValues)
 				.resource(resource)
+				.connectorId(connectorId)
 				.build();
 
 			// Create or update the monitor

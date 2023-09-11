@@ -43,12 +43,13 @@ public class MonitorFactory {
 	private TelemetryManager telemetryManager;
 
 	private String monitorType;
+	private String connectorId;
 
 	/**
 	 * This method creates or updates the monitor
 	 */
 	public Monitor createOrUpdateMonitor() {
-		return createOrUpdateMonitor(attributes, resource, monitorType);
+		return createOrUpdateMonitor(attributes, resource, monitorType, connectorId);
 	}
 
 	/**
@@ -57,15 +58,20 @@ public class MonitorFactory {
 	 * @param attributes  monitor attributes
 	 * @param resource    monitor resource
 	 * @param monitorType the type of the monitor
+	 * @param connectorId connector id
 	 * @return Monitor instance
 	 */
-	Monitor createOrUpdateMonitor(final Map<String, String> attributes, final Resource resource, final String monitorType) {
+	Monitor createOrUpdateMonitor(
+		final Map<String, String> attributes,
+		final Resource resource,
+		final String monitorType,
+		final String connectorId
+	) {
 		final String id = attributes.get(MONITOR_ATTRIBUTE_ID);
 		final Monitor foundMonitor = telemetryManager.findMonitorByTypeAndId(monitorType, id);
 		if (foundMonitor != null) {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
-			foundMonitor.setType(monitorType);
 			return foundMonitor;
 		} else {
 			final Monitor newMonitor = Monitor
@@ -73,6 +79,7 @@ public class MonitorFactory {
 				.resource(resource)
 				.attributes(attributes)
 				.type(monitorType)
+				.connectorId(connectorId)
 				.build();
 
 			telemetryManager.addNewMonitor(newMonitor, monitorType, id);
@@ -132,7 +139,7 @@ public class MonitorFactory {
 
 
 		// Create the monitor using createOrUpdateMonitor
-		final Monitor monitor = createOrUpdateMonitor(monitorAttributes, monitorResource, KnownMonitorType.HOST.getKey());
+		final Monitor monitor = createOrUpdateMonitor(monitorAttributes, monitorResource, KnownMonitorType.HOST.getKey(), connectorId);
 
 		log.debug("Hostname {} - Created host ID: {} ", hostname, hostConfiguration.getHostId());
 

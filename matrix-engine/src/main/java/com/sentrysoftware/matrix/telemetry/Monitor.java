@@ -32,6 +32,7 @@ public class Monitor {
 	private Resource resource;
 	private long discoveryTime;
 	private String type;
+	private String connectorId;
 
 	/**
 	 * Get a metric by type
