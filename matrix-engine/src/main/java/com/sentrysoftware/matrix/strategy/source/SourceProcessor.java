@@ -53,8 +53,51 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Copy Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final CopySource copySource) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (copySource == null) {
+			log.error("Hostname {} - CopySource cannot be null, the CopySource operation will return an empty result.",
+				hostname);
+			return SourceTable.empty();
+		}
+
+		final String copyFrom = copySource.getFrom();
+
+		if (copyFrom == null || copyFrom.isEmpty()) {
+			log.error("Hostname {} - CopySource reference cannot be null. Returning an empty table for source {}.",
+				hostname,
+				copySource);
+			return SourceTable.empty();
+		}
+
+		final SourceTable sourceTable = new SourceTable();
+
+		final Optional<SourceTable> maybeOrigin = SourceTable.lookupSourceTable(copyFrom, connectorName, telemetryManager);
+
+		if (maybeOrigin.isEmpty()) {
+			return SourceTable.empty();
+		}
+
+		final SourceTable origin = maybeOrigin.get();
+
+		final List<List<String>> table =
+			origin.getTable()
+			.stream()
+			// Creating a new ArrayList and casting it into a List is necessary to avoid UnsupportedOperationExceptions
+			.map(row -> (List<String>) new ArrayList<>(row.stream().toList()))
+			.filter(row -> !row.isEmpty())
+			.toList();
+
+		sourceTable.setTable(table);
+
+		if (origin.getRawData() != null) {
+			sourceTable.setRawData(origin.getRawData());
+		}
+
+		logSourceCopy(connectorName, copyFrom, copySource.getKey(), sourceTable, hostname);
+
+		return sourceTable;
 	}
 
 	@WithSpan("Source HTTP Exec")
@@ -458,5 +501,55 @@ public class SourceProcessor implements ISourceProcessor {
 				"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
 				hostname, sourceKey, context, connectorName), throwable);
 		}
+	}
+
+	/**
+	 * Log the source copy data
+	 *
+	 * @param connectorName   the name of the connector defining the source
+	 * @param parentSourceKey the parent source key referenced in the source copy
+	 * @param childSourceKey  the source key referencing the parent source
+	 * @param sourceTable     the source's result we wish to log
+	 * @param hostname        the host's name
+	 */
+	private static void logSourceCopy(
+		final String connectorName,
+		final String parentSourceKey,
+		final String childSourceKey,
+		final SourceTable sourceTable,
+		final String hostname) {
+
+		if (!log.isDebugEnabled()) {
+			return;
+		}
+
+		// Is there any raw data to log?
+		if (sourceTable.getRawData() != null && (sourceTable.getTable() == null || sourceTable.getTable().isEmpty())) {
+			log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\n",
+				hostname,
+				parentSourceKey,
+				childSourceKey,
+				connectorName,
+				sourceTable.getRawData());
+			return;
+		}
+
+		if (sourceTable.getRawData() == null) {
+			log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nTable result:\n{}\n",
+				hostname,
+				parentSourceKey,
+				childSourceKey,
+				connectorName,
+				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
+			return;
+		}
+
+		log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+			hostname,
+			parentSourceKey,
+			childSourceKey,
+			connectorName,
+			sourceTable.getRawData(),
+			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable()));
 	}
 }
