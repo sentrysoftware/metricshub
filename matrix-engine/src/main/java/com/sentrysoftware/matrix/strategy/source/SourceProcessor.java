@@ -65,9 +65,7 @@ public class SourceProcessor implements ISourceProcessor {
 		final String copyFrom = copySource.getFrom();
 
 		if (copyFrom == null || copyFrom.isEmpty()) {
-			log.error("Hostname {} - CopySource reference cannot be null. Returning an empty table for source {}.",
-				hostname,
-				copySource);
+			log.error("Hostname {} - CopySource reference cannot be null. Returning an empty table for source {}.", hostname, copySource);
 			return SourceTable.empty();
 		}
 
@@ -306,12 +304,11 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		// Call getSourceTable, in case there are ';' in the static source and it's needed to be separated into multiple columns
 		// Note: In case of the static source getSourceTable never returns null
 		final List<List<String>> table = maybeStaticTable.get()
 			.getTable()
 			.stream()
-			// Creating a new ArrayList and casting it into a List is necessary to avoid UnsupportedOperationExceptions
+			// Map each row in the table to a new ArrayList, effectively performing a deep copy of each row.
 			.map(ArrayList::new)
 			.filter(row -> !row.isEmpty())
 			.collect(Collectors.toList());
