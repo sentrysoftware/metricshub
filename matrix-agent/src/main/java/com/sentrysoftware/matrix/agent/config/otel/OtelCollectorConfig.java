@@ -86,7 +86,7 @@ public class OtelCollectorConfig {
 		// Configuration path
 		commandLine.add("--config");
 
-		//  Get the default configuration file path located under the otel directory
+		// Get the default configuration file path located under the otel directory
 		final String defaultConfigFilePath = ConfigHelper.getDefaultConfigFilePath(OTEL_DIRECTORY_NAME, DEFAULT_OTEL_CONFIG_FILENAME).toString();
 
 		commandLine.add(LocalOsHandler.isWindows() ? String.format("\"%s\"", defaultConfigFilePath) : defaultConfigFilePath);
