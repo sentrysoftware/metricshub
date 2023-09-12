@@ -11,7 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.AllAtOnceMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
@@ -152,13 +152,13 @@ class ConnectorParserTest {
 	void testMonitorTaskSourceDepUpdateUseCase6() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase6").parse("sourceDep");
 
-		final AllAtOnceMonitorJob monitorJob = (AllAtOnceMonitorJob) connector
+		final SimpleMonitorJob monitorJob = (SimpleMonitorJob) connector
 			.getMonitors()
 			.get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase6Dependency();
 
-		assertEquals(expected,  monitorJob.getAllAtOnce().getSourceDep());
+		assertEquals(expected,  monitorJob.getSimple().getSourceDep());
 
 	}
 

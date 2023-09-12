@@ -15,12 +15,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class AllAtOnce extends AbstractMonitorTask {
+public class Simple extends AbstractMonitorTask {
 
 	private static final long serialVersionUID = 1L;
 
 	@Builder
-	public AllAtOnce(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
+	public Simple(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
 		super(sources, mapping, executionOrder);
 	}
 }
