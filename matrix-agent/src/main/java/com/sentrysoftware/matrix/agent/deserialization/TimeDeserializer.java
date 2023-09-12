@@ -40,7 +40,7 @@ public class TimeDeserializer extends JsonDeserializer<Long> {
 			return longValue;
 		}
 
-		final Matcher m = Pattern.compile(
+		final Matcher matcher = Pattern.compile(
 			"\\s*(?:(\\d+)\\s*(?:years?|yrs?|y))?" + 
 				"\\s*(?:(\\d+)\\s*(?:weeks?|wks?|w))?" +
 				"\\s*(?:(\\d+)\\s*(?:days?|d))?" +
@@ -53,24 +53,24 @@ public class TimeDeserializer extends JsonDeserializer<Long> {
 		)
 		.matcher(value);
 
-		if (!m.matches()) {
+		if (!matcher.matches()) {
 			throw new IllegalArgumentException("Not valid duration: " + value);
 		}
 
-		long years = (m.start(1) == -1 ? 0 : Integer.parseInt(m.group(1)));
-		long weeks = (m.start(2) == -1 ? 0 : Integer.parseInt(m.group(2)));
-		long days = (m.start(3) == -1 ? 0 : Integer.parseInt(m.group(3)));
-		long hours = (m.start(4) == -1 ? 0 : Integer.parseInt(m.group(4)));
-		long mins = (m.start(5) == -1 ? 0 : Integer.parseInt(m.group(5)));
-		long secs = (m.start(6) == -1 ? 0 : Integer.parseInt(m.group(6)));
-		long millisecs = (m.start(7) == -1 ? 0 : Integer.parseInt(m.group(7)));
+		final long years = (matcher.start(1) == -1 ? 0 : Integer.parseInt(matcher.group(1)));
+		final long weeks = (matcher.start(2) == -1 ? 0 : Integer.parseInt(matcher.group(2)));
+		final long days = (matcher.start(3) == -1 ? 0 : Integer.parseInt(matcher.group(3)));
+		final long hours = (matcher.start(4) == -1 ? 0 : Integer.parseInt(matcher.group(4)));
+		final long minutes = (matcher.start(5) == -1 ? 0 : Integer.parseInt(matcher.group(5)));
+		final long seconds = (matcher.start(6) == -1 ? 0 : Integer.parseInt(matcher.group(6)));
+		final long milliseconds = (matcher.start(7) == -1 ? 0 : Integer.parseInt(matcher.group(7)));
 
 		return years * 60 * 60 * 24 * 365
 			+ weeks * 60 * 60 * 24 * 7
 			+ days * 60 * 60 * 24
 			+ hours * 60 * 60
-			+ mins * 60
-			+ secs
-			+ millisecs / 1000;
+			+ minutes * 60
+			+ seconds
+			+ milliseconds / 1000;
 	}
 }

@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.configuration.SnmpConfiguration.Privacy;
 class SnmpPrivacyDeserializerTest {
 
 	@Mock
-	private YAMLParser yamlParser;
+	private YAMLParser yamlParserMock;
 
 	@Test
 	void testNull() throws IOException {
@@ -31,41 +31,41 @@ class SnmpPrivacyDeserializerTest {
 	void testBadValue() throws IOException {
 
 		{
-			doReturn(null).when(yamlParser).getValueAsString();
-			assertThrows(IOException.class, () -> new SnmpPrivacyDeserializer().deserialize(yamlParser, null));
+			doReturn(null).when(yamlParserMock).getValueAsString();
+			assertThrows(IOException.class, () -> new SnmpPrivacyDeserializer().deserialize(yamlParserMock, null));
 		}
 
 		{
-			doReturn("unknown").when(yamlParser).getValueAsString();
-			assertThrows(IOException.class, () -> new SnmpPrivacyDeserializer().deserialize(yamlParser, null));
+			doReturn("unknown").when(yamlParserMock).getValueAsString();
+			assertThrows(IOException.class, () -> new SnmpPrivacyDeserializer().deserialize(yamlParserMock, null));
 		}
 
 		{
-			doReturn("").when(yamlParser).getValueAsString();
-			assertThrows(IOException.class, () -> new SnmpPrivacyDeserializer().deserialize(yamlParser, null));
+			doReturn("").when(yamlParserMock).getValueAsString();
+			assertThrows(IOException.class, () -> new SnmpPrivacyDeserializer().deserialize(yamlParserMock, null));
 		}
 
 	}
 
 	@Test
 	void testAes() throws IOException {
-		doReturn("aes").when(yamlParser).getValueAsString();
-		assertEquals(Privacy.AES, new SnmpPrivacyDeserializer().deserialize(yamlParser, null));
+		doReturn("aes").when(yamlParserMock).getValueAsString();
+		assertEquals(Privacy.AES, new SnmpPrivacyDeserializer().deserialize(yamlParserMock, null));
 	}
 
 	@Test
 	void testDes() throws IOException {
-		doReturn("des").when(yamlParser).getValueAsString();
-		assertEquals(Privacy.DES, new SnmpPrivacyDeserializer().deserialize(yamlParser, null));
+		doReturn("des").when(yamlParserMock).getValueAsString();
+		assertEquals(Privacy.DES, new SnmpPrivacyDeserializer().deserialize(yamlParserMock, null));
 	}
 
 	@Test
 	void testNoEncryption() throws IOException {
 
-		doReturn("no").when(yamlParser).getValueAsString();
-		assertEquals(Privacy.NO_ENCRYPTION, new SnmpPrivacyDeserializer().deserialize(yamlParser, null));
+		doReturn("no").when(yamlParserMock).getValueAsString();
+		assertEquals(Privacy.NO_ENCRYPTION, new SnmpPrivacyDeserializer().deserialize(yamlParserMock, null));
 
-		doReturn("none").when(yamlParser).getValueAsString();
-		assertEquals(Privacy.NO_ENCRYPTION, new SnmpPrivacyDeserializer().deserialize(yamlParser, null));
+		doReturn("none").when(yamlParserMock).getValueAsString();
+		assertEquals(Privacy.NO_ENCRYPTION, new SnmpPrivacyDeserializer().deserialize(yamlParserMock, null));
 	}
 }

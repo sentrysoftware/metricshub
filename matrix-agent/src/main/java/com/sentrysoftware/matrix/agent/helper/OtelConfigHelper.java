@@ -24,26 +24,27 @@ public class OtelConfigHelper {
 	/**
 	 * Get security file path. E.g certificate or key file path
 	 * 
-	 * @param fileDir         The directory of the security file
-	 * @param defaultFilename the default security filename
-	 * @param file            Defines the security file
-	 * @param otlpEndpoint    OpenTelemetry gRPC OTLP receiver endpoint
+	 * @param securityFileDir         The directory of the security file
+	 * @param defaultSecurityFilename The default security filename
+	 * @param securityFile            Defines the security file
+	 * @param otlpEndpoint            OpenTelemetry gRPC OTLP receiver endpoint
 	 * @return Optional of {@link Path}
 	 */
 	static Optional<String> getSecurityFilePath(
-		@NonNull final String fileDir,
-		@NonNull final String defaultFilename,
-		final String file,
+		@NonNull final String securityFileDir,
+		@NonNull final String defaultSecurityFilename,
+		final String securityFile,
 		@NonNull final String otlpEndpoint
 	) {
 
 		final Path securityFilePath;
 		// No security file path? we will use the default one
-		if (file == null || file.isBlank()) {
-			securityFilePath = ConfigHelper
-				.getSubPath(String.format(AgentConstants.FILE_PATH_FORMAT, fileDir, defaultFilename));
+		if (securityFile == null || securityFile.isBlank()) {
+			securityFilePath = ConfigHelper.getSubPath(
+				String.format(AgentConstants.FILE_PATH_FORMAT, securityFileDir, defaultSecurityFilename)
+			);
 		} else {
-			securityFilePath = Path.of(file);
+			securityFilePath = Path.of(securityFile);
 		}
 
 		// No security for HTTP
@@ -67,7 +68,7 @@ public class OtelConfigHelper {
 	/**
 	 * Build OpenTelemetry configuration properties from the given agent configuration
 	 * 
-	 * @param agentConfig
+	 * @param agentConfig The agent's configuration where the exporter's configuration can be overridden
 	 * @return Map of key-value pair used to configure the OpenTelemetry Java SDK exporter
 	 */
 	public static Map<String, String> buildOtelSdkConfiguration(final AgentConfig agentConfig) {

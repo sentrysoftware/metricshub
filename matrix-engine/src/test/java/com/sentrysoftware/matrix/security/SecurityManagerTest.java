@@ -24,17 +24,17 @@ class SecurityManagerTest {
 		assertNull(SecurityManager.decrypt(null, securityPath));
 		assertNull(SecurityManager.encrypt(null, securityPath));
 
-		char[] passwd = {};
-		char[] res = SecurityManager.encrypt(passwd, securityPath);
-		assertArrayEquals(passwd, SecurityManager.decrypt(res, securityPath));
+		char[] password = {};
+		char[] encryptedPassword = SecurityManager.encrypt(password, securityPath);
+		assertArrayEquals(password, SecurityManager.decrypt(encryptedPassword, securityPath));
 
-		passwd = "password".toCharArray();
-		res = SecurityManager.encrypt(passwd, securityPath);
-		assertArrayEquals(passwd, SecurityManager.decrypt(res, securityPath));
+		password = "password".toCharArray();
+		encryptedPassword = SecurityManager.encrypt(password, securityPath);
+		assertArrayEquals(password, SecurityManager.decrypt(encryptedPassword, securityPath));
 
-		passwd = "password2".toCharArray();
-		res = SecurityManager.encrypt(passwd, securityPath);
-		assertArrayEquals(passwd, SecurityManager.decrypt(res, securityPath));
+		password = "password2".toCharArray();
+		encryptedPassword = SecurityManager.encrypt(password, securityPath);
+		assertArrayEquals(password, SecurityManager.decrypt(encryptedPassword, securityPath));
 	}
 
 }

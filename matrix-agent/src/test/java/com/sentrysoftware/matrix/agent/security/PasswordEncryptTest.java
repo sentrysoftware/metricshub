@@ -1,9 +1,7 @@
 package com.sentrysoftware.matrix.agent.security;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
@@ -14,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -29,32 +26,6 @@ class PasswordEncryptTest {
 
 	@TempDir
 	static Path tempDir;
-
-	private static File securityPath;
-
-	@BeforeAll
-	static void beforeEeach() throws Exception {
-		securityPath = new File("src/test/resources/security/matrix-keystore.p12");
-	}
-
-	@Test
-	void testEncryptDecrypt() throws Exception {
-		// null password
-		assertNull(SecurityManager.decrypt(null, securityPath));
-		assertNull(SecurityManager.encrypt(null, securityPath));
-
-		char[] passwd = {};
-		char[] res = SecurityManager.encrypt(passwd, securityPath);
-		assertArrayEquals(passwd, SecurityManager.decrypt(res, securityPath));
-
-		passwd = "password".toCharArray();
-		res = SecurityManager.encrypt(passwd, securityPath);
-		assertArrayEquals(passwd, SecurityManager.decrypt(res, securityPath));
-
-		passwd = "password2".toCharArray();
-		res = SecurityManager.encrypt(passwd, securityPath);
-		assertArrayEquals(passwd, SecurityManager.decrypt(res, securityPath));
-	}
 
 	@Test
 	@EnabledOnOs(OS.WINDOWS)
@@ -95,7 +66,7 @@ class PasswordEncryptTest {
 		{
 			try (final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)) {
 				mockedResourceHelper
-					.when(() -> ResourceHelper.findSource(PasswordEncrypt.class))
+					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
 					.thenAnswer((invocation) -> Files.createDirectories(tempDir.resolve("matrix/lib/app/jar")).toFile());
 
 				final File actual = PasswordEncrypt.getKeyStoreFile(true);
@@ -107,7 +78,7 @@ class PasswordEncryptTest {
 		{
 			try (final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)) {
 				mockedResourceHelper
-					.when(() -> ResourceHelper.findSource(PasswordEncrypt.class))
+					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
 					.thenAnswer((invocation) -> tempDir.resolve("matrix/lib/app/jar").toFile());
 
 				final File keyStoreFile = PasswordEncrypt.getKeyStoreFile(false);
@@ -128,7 +99,7 @@ class PasswordEncryptTest {
 					final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)	
 				) {
 					mockedResourceHelper
-						.when(() -> ResourceHelper.findSource(PasswordEncrypt.class))
+						.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
 						.thenAnswer((invocation) -> tempDir.resolve("matrix/app/jar").toFile());
 
 					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.empty());

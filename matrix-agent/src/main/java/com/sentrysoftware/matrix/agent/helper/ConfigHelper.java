@@ -98,9 +98,9 @@ public class ConfigHelper {
 	 * @return {@link Path} instance
 	 */
 	public static Path getSubPath(@NonNull final String subPath) {
-		File me = getExecutableDir();
+		final File sourceDirectory = getSourceDirectory();
 
-		final Path path = me.getAbsoluteFile().toPath();
+		final Path path = sourceDirectory.getAbsoluteFile().toPath();
 
 		Path parentLibPath = path.getParent();
 
@@ -113,22 +113,28 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Get the directory of the current executable jar.
+	 * Retrieves the directory containing the current source file, whether it's located
+	 * within a JAR file or a regular directory.<br>
 	 *
-	 * @return {@link File} instance
+	 * This method attempts to locate the source directory associated with the calling class, which can be
+	 * helpful for accessing resources and configuration files.
+	 *
+	 * @return A {@link File} instance representing the source directory.
+	 *
+	 * @throws IllegalStateException if the source directory cannot be determined.
 	 */
-	public static File getExecutableDir() {
-		final File me;
+	public static File getSourceDirectory() {
+		final File sourceDirectory;
 		try {
-			me = ResourceHelper.findSource(ConfigHelper.class);
+			sourceDirectory = ResourceHelper.findSourceDirectory(ConfigHelper.class);
 		} catch (Exception e) {
 			throw new IllegalStateException("Error detected when getting local source file: ", e);
 		}
 
-		if (me == null) {
+		if (sourceDirectory == null) {
 			throw new IllegalStateException("Could not get the local source file.");
 		}
-		return me;
+		return sourceDirectory;
 	}
 
 	/**

@@ -41,10 +41,10 @@ class ConfigHelperTest {
 					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.empty());
 					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataConfigFile(anyString(), anyString())).thenCallRealMethod();
 					mockedConfigHelper.when(() -> ConfigHelper.getSubPath(anyString())).thenCallRealMethod();
-					mockedConfigHelper.when(() -> ConfigHelper.getExecutableDir()).thenCallRealMethod();
+					mockedConfigHelper.when(() -> ConfigHelper.getSourceDirectory()).thenCallRealMethod();
 
 					mockedResourceHelper
-						.when(() -> ResourceHelper.findSource(ConfigHelper.class))
+						.when(() -> ResourceHelper.findSourceDirectory(ConfigHelper.class))
 						.thenAnswer((invocation) -> tempDir.resolve("matrix/app/jar").toFile());
 
 					final Path configFileOnWindows = ConfigHelper.getProgramDataConfigFile("config", DEFAULT_CONFIG_FILENAME);

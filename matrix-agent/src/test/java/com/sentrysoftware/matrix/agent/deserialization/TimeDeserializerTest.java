@@ -17,12 +17,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 class TimeDeserializerTest {
 
 	@Mock
-	private YAMLParser yamlParser;
+	private YAMLParser yamlParserMock;
 
 	@Test
 	void testDeserialize()  throws IOException {
-		doReturn("5s").when(yamlParser).getValueAsString();
-		assertEquals(5L, new TimeDeserializer().deserialize(yamlParser, null));
+		doReturn("5s").when(yamlParserMock).getValueAsString();
+		assertEquals(5L, new TimeDeserializer().deserialize(yamlParserMock, null));
 	}
 
 	@Test

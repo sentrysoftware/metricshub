@@ -21,11 +21,11 @@ public class ReaderProcessor extends AbstractReaderProcessor {
 	public void run() {
 		try {
 			int read;
-			char[] buf = new char[CHAR_BUFFER_LENGTH];
+			char[] buffer = new char[CHAR_BUFFER_LENGTH];
 			// Try to read a block
-			while ((read = reader.read(buf)) != -1) {
+			while ((read = reader.read(buffer)) != -1) {
 				// Process the block
-				streamProcessor.process(new String(buf, 0, read));
+				streamProcessor.process(new String(buffer, 0, read));
 			}
 		} catch (Exception e) {
 			// Error for any unknown error

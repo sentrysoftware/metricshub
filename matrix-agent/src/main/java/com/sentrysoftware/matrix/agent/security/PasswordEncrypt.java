@@ -61,19 +61,19 @@ public class PasswordEncrypt {
 	 * @return {@link Path} instance
 	 */
 	static Path getSecurityFolderFromInstallDir() {
-		File me;
+		File sourceDirectory;
 		try {
-			me = ResourceHelper.findSource(PasswordEncrypt.class);
+			sourceDirectory = ResourceHelper.findSourceDirectory(PasswordEncrypt.class);
 		} catch (Exception e) {
 			throw new IllegalStateException(
 					"Error detected when getting local source file to get the keyStore.", e);
 		}
 
-		if (me == null) {
+		if (sourceDirectory == null) {
 			throw new IllegalStateException("Could not get the local source file to get the keyStore.");
 		}
 
-		final Path path = me.getAbsoluteFile().toPath();
+		final Path path = sourceDirectory.getAbsoluteFile().toPath();
 
 		Path parentLibPath = path.getParent();
 
