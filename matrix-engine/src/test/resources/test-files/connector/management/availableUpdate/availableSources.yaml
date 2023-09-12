@@ -35,8 +35,8 @@ monitors:
         source(4):
           type: tableUnion
           tables: 
-            - $monitors.enclosure.discovery.source(1)$
-            - $monitors.enclosure.discovery.source(2)$
+            - ${source::monitors.enclosure.discovery.sources.source(1)}
+            - ${source::monitors.enclosure.discovery.sources.source(2)}
         source(5):
           type: wbem
           query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem
