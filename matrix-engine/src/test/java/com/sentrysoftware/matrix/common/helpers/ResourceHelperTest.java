@@ -43,7 +43,7 @@ class ResourceHelperTest {
 
 	@Test
 	void testFindSource() throws IOException, URISyntaxException {
-		assertNotNull(ResourceHelper.findSource(ResourceHelper.class));
+		assertNotNull(ResourceHelper.findSourceDirectory(ResourceHelper.class));
 	}
 
 }
