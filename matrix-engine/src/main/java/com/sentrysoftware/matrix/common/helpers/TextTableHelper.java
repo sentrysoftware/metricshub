@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.N_A;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
 
@@ -12,12 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.springframework.util.Assert;
 
 public class TextTableHelper {
+
+	private static final String N_A = "N/A";
 
 	private TextTableHelper() {
 
@@ -60,7 +62,7 @@ public class TextTableHelper {
 		List<TableHeader> headers = IntStream
 			.range(1, longestRow.size() + 1)
 			.mapToObj(index -> new TableHeader(String.format("Column %d", index), TextDataType.STRING))
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		return generateTextTable(headers, rows);
 	}
@@ -103,7 +105,7 @@ public class TextTableHelper {
 		List<TableHeader> headers = Arrays
 			.stream(columns)
 			.map(columnName -> new TableHeader(columnName, TextDataType.STRING))
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		return generateTextTable(headers, rows);
 	}
@@ -128,7 +130,7 @@ public class TextTableHelper {
 		List<TableHeader> headers = columns
 			.stream()
 			.map(columnName -> new TableHeader(columnName, TextDataType.STRING))
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 
 		return generateTextTable(headers, rows);
 	}
@@ -207,14 +209,14 @@ public class TextTableHelper {
 			.stream()
 			.filter(Objects::nonNull)
 			.map(row -> cleanRow(row, headersSize))
-			.toList();
+			.collect(Collectors.toList()); //NOSONAR
 	}
 
 	/**
 	 * Clean the given row based on the given <code>headersSize</code>
 	 * <ul>
-	 *  <li>Replace null cells by {@link MatrixConstants#N_A}</li>
-	 *  <li>Create missing cells with {@link MatrixConstants#N_A}</li>
+	 *  <li>Replace null cells by "N/A"</li>
+	 *  <li>Create missing cells with "N/A"</li>
 	 *  <li>Remove extra cells</li>
 	 * </ul>
 	 * @param row we wish to clean
@@ -235,7 +237,7 @@ public class TextTableHelper {
 
 			return Stream
 				.concat(result.stream(), Stream.generate(() -> N_A).limit((long) headersSize - result.size()))
-				.toList();
+				.collect(Collectors.toList()); //NOSONAR
 
 		} else if (result.size() > headersSize) {
 
@@ -243,7 +245,7 @@ public class TextTableHelper {
 			return result
 				.stream()
 				.limit(headersSize)
-				.toList();
+				.collect(Collectors.toList()); //NOSONAR
 		}
 
 		return result;

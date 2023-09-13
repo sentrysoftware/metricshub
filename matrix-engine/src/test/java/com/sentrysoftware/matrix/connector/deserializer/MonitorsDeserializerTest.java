@@ -13,10 +13,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.AllAtOnceMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.task.AllAtOnce;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.matrix.connector.model.monitor.task.MonoInstanceCollect;
@@ -83,8 +83,8 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.tables(
 						new ArrayList<>(
 							List.of(
-								"$monitors.enclosure.discovery.source(1)$",
-								"$monitors.enclosure.discovery.source(2)$"
+								"${source::monitors.enclosure.discovery.sources.source(1)}",
+								"${source::monitors.enclosure.discovery.sources.source(2)}"
 							)
 						)
 					)
@@ -238,21 +238,21 @@ class MonitorsDeserializerTest extends DeserializerTest {
 	}
 
 	@Test
-	void testMonitorsAllAtOnce() throws IOException {
+	void testMonitorsSimple() throws IOException {
 
-		final Connector connector = getConnector("monitorsAllAtOnce");
+		final Connector connector = getConnector("monitorsSimple");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
 
 		MonitorJob job = monitors.get("enclosure");
 
-		assertTrue(job instanceof AllAtOnceMonitorJob, () -> "MonitorJob is expected to be a AllAtOnceMonitorJob");
+		assertTrue(job instanceof SimpleMonitorJob, () -> "MonitorJob is expected to be a SimpleMonitorJob");
 
-		final AllAtOnceMonitorJob allAtOnceMonitorJob = (AllAtOnceMonitorJob) job;
+		final SimpleMonitorJob simpleMonitorJob = (SimpleMonitorJob) job;
 
-		AllAtOnce allAtOnce = allAtOnceMonitorJob.getAllAtOnce();
+		Simple simple = simpleMonitorJob.getSimple();
 
-		assertNotNull(allAtOnce);
+		assertNotNull(simple);
 
 		final Map<String, Source> expectedSources = new HashMap<>(
 			Map.of(
@@ -262,7 +262,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis")
 					.namespace("root/emc")
-					.key("${source::monitors.enclosure.allAtOnce.sources.source(1)}")
+					.key("${source::monitors.enclosure.simple.sources.source(1)}")
 					.build(),
 				"source(2)",
 				WbemSource
@@ -270,7 +270,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage")
 					.namespace("root/emc")
-					.key("${source::monitors.enclosure.allAtOnce.sources.source(2)}")
+					.key("${source::monitors.enclosure.simple.sources.source(2)}")
 					.build(),
 				"source(3)",
 				WbemSource
@@ -278,7 +278,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT Antecedent,Dependent FROM EMC_SystemPackaging")
 					.namespace("root/emc")
-					.key("${source::monitors.enclosure.allAtOnce.sources.source(3)}")
+					.key("${source::monitors.enclosure.simple.sources.source(3)}")
 					.build(),
 				"source(4)",
 				TableUnionSource
@@ -287,12 +287,12 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.tables(
 						new ArrayList<>(
 							List.of(
-								"$monitors.enclosure.discovery.source(1)$",
-								"$monitors.enclosure.discovery.source(2)$"
+								"${source::monitors.enclosure.simple.sources.source(1)}",
+								"${source::monitors.enclosure.simple.sources.source(2)}"
 							)
 						)
 					)
-					.key("${source::monitors.enclosure.allAtOnce.sources.source(4)}")
+					.key("${source::monitors.enclosure.simple.sources.source(4)}")
 					.build(),
 				"source(5)",
 				WbemSource
@@ -300,42 +300,42 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem")
 					.namespace("root/emc")
-					.key("${source::monitors.enclosure.allAtOnce.sources.source(5)}")
+					.key("${source::monitors.enclosure.simple.sources.source(5)}")
 					.build(),
 				"source(6)",
 				TableJoinSource
 					.builder()
 					.type("tableJoin")
-					.leftTable("${source::monitors.enclosure.discovery.sources.source(1)}")
-					.rightTable("${source::monitors.enclosure.discovery.sources.source(4)}")
+					.leftTable("${source::monitors.enclosure.simple.sources.source(1)}")
+					.rightTable("${source::monitors.enclosure.simple.sources.source(4)}")
 					.leftKeyColumn(1)
 					.rightKeyColumn(1)
 					.keyType("WBEM")
 					.defaultRightLine(";;")
-					.key("${source::monitors.enclosure.allAtOnce.sources.source(6)}")
+					.key("${source::monitors.enclosure.simple.sources.source(6)}")
 					.build(),
 				"source(7)",
 				TableJoinSource
 					.builder()
 					.type("tableJoin")
-					.leftTable("${source::monitors.enclosure.discovery.sources.source(6)}")
-					.rightTable("${source::monitors.enclosure.discovery.sources.source(5)}")
+					.leftTable("${source::monitors.enclosure.simple.sources.source(6)}")
+					.rightTable("${source::monitors.enclosure.simple.sources.source(5)}")
 					.leftKeyColumn(5)
 					.rightKeyColumn(1)
 					.keyType("WBEM")
 					.defaultRightLine(";;;;")
-					.key("${source::monitors.enclosure.allAtOnce.sources.source(7)}")
+					.key("${source::monitors.enclosure.simple.sources.source(7)}")
 					.build()
 			)
 		);
 
-		assertEquals(expectedSources, allAtOnce.getSources());
+		assertEquals(expectedSources, simple.getSources());
 
-		final Mapping mapping = allAtOnce.getMapping();
+		final Mapping mapping = simple.getMapping();
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.source("${source::monitors.enclosure.discovery.sources.Source(7)}")
+			.source("${source::monitors.enclosure.simple.sources.Source(7)}")
 			.attributes(
 				Map.of(
 					"id", "buildId($column(6))",

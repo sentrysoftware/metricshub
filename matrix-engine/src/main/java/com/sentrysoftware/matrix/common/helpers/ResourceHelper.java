@@ -46,20 +46,24 @@ public class ResourceHelper {
 	}
 
 	/**
-	 * Find the source file for the given sourceClass
+	 * Retrieves the directory containing the given source class, whether it's
+	 * located within a JAR file or a regular directory.
 	 * 
-	 * @param sourceClass The sourceClass we wish to get its file, this class could
-	 *                    be located under a jar or for example under
+	 * @param sourceClass The sourceClass we wish to get its directory, 
+	 *                    this class could be located under a JAR or a regular folder such as
 	 *                    <em>\target\classes</em>
-	 * @return File instance
-	 * @throws URISyntaxException
-	 * @throws IOException
+	 * @return {@link File} instance representing the source directory.
+	 * @throws IOException        If the {@link URLConnection} cannot be opened or an
+	 *                            error occurs while trying to connect to the JAR file using the
+	 *                            {@link JarURLConnection}
+	 * @throws URISyntaxException If the {@link URLConnection} is not formatted strictly according
+	 *                            to RFC2396 and cannot be converted to a URI.
 	 */
-	public static File findSource(@NonNull final Class<?> sourceClass) throws IOException, URISyntaxException {
+	public static File findSourceDirectory(@NonNull final Class<?> sourceClass) throws IOException, URISyntaxException {
 		ProtectionDomain domain = sourceClass.getProtectionDomain();
 		CodeSource codeSource = domain != null ? domain.getCodeSource() : null;
 		URL location = codeSource != null ? codeSource.getLocation() : null;
-		File source = location != null ? findSource(location) : null;
+		File source = location != null ? findSourceDirectory(location) : null;
 		if (source != null && source.exists()) {
 			return source.getAbsoluteFile();
 		}
@@ -68,14 +72,17 @@ public class ResourceHelper {
 	}
 
 	/**
-	 * Find source file for the given URL location
+	 * Find source directory for the given URL location
 	 * 
 	 * @param location {@link URL} instance
-	 * @return File instance
-	 * @throws IOException
-	 * @throws URISyntaxException
+	 * @return {@link File} instance representing the source directory.
+	 * @throws IOException        If the {@link URLConnection} cannot be opened or an
+	 *                            error occurs while trying to connect to the JAR file using the
+	 *                            {@link JarURLConnection}
+	 * @throws URISyntaxException If the {@link URLConnection} is not formatted strictly according
+	 *                            to RFC2396 and cannot be converted to a URI.
 	 */
-	static File findSource(@NonNull final URL location) throws IOException, URISyntaxException {
+	static File findSourceDirectory(@NonNull final URL location) throws IOException, URISyntaxException {
 		URLConnection connection = location.openConnection();
 		if (connection instanceof JarURLConnection jarUrlConnection) {
 			return getRootJarFile(jarUrlConnection.getJarFile());

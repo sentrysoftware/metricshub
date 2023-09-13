@@ -160,7 +160,7 @@ public abstract class AbstractConnectorProcessor {
 			.filter(ctr ->
 				monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort())
 			)
-			.toList();
+			.collect(Collectors.toList()); // NOSONAR
 	}
 
 	/**

@@ -6,18 +6,19 @@ import lombok.NonNull;
 
 import java.util.Base64;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTHENTICATION_TOKEN_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.BASIC_AUTH_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PASSWORD_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SHA256_AUTH_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.USERNAME_MACRO;
 import static com.sentrysoftware.matsya.jutils.JUtils.encodeSha256;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpMacrosUpdater {
+
+	private static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
+	private static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
+	private static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
+
 
 	/**
 	 * Replaces each known HTTP macro in the given text with the literal target sequences:<br>
@@ -52,7 +53,7 @@ public class HttpMacrosUpdater {
 			.replace(USERNAME_MACRO, username)
 			.replace(HOSTNAME_MACRO, hostname)
 			.replace(PASSWORD_MACRO, passwordAsString)
-			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken);
+			.replace("%{AUTHENTICATIONTOKEN}", authenticationToken);
 
 		// Encode the password into a base64 string
 		// then replace the macro with the resulting value

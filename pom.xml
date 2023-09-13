@@ -28,8 +28,8 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		<lombok.version>1.18.24</lombok.version>
 		<slf4j.version>2.0.6</slf4j.version>
-		<jupiter.version>5.10.0</jupiter.version>
-		<mockito.version>5.2.0</mockito.version>
+		<jupiter.version>5.9.2</jupiter.version>
+		<mockito.version>5.0.0</mockito.version>
 		<groovy.version>3.0.13</groovy.version>
 		<hardware-connectors.version>31-SNAPSHOT</hardware-connectors.version>
 		<spring.version>6.0.3</spring.version>
@@ -58,6 +58,7 @@
 		<module>matrix-engine</module>
 		<module>hdf-to-yaml-converter</module>
 		<module>connector-serializer</module>
+		<module>matrix-agent</module>
 	</modules>
 
 	<dependencyManagement>
@@ -115,6 +116,12 @@
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-engine</artifactId>
+				<version>${jupiter.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-api</artifactId>
 				<version>${jupiter.version}</version>
 				<scope>test</scope>
 			</dependency>

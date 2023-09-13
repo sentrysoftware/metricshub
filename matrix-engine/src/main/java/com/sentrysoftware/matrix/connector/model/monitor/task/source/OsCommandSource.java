@@ -2,9 +2,9 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE_TAB;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TAB;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -34,6 +34,7 @@ import lombok.NonNull;
 @EqualsAndHashCode(callSuper = true)
 public class OsCommandSource extends Source {
 
+	private static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
 	private static final long serialVersionUID = 1L;
 
 	@NonNull

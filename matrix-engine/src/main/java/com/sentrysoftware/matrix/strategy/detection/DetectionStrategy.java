@@ -3,10 +3,8 @@ package com.sentrysoftware.matrix.strategy.detection;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_DESCRIPTION;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_PARENT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 
@@ -39,6 +37,11 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 public class DetectionStrategy extends AbstractStrategy {
+
+	/**
+	 * Format for string value like: <em>connector_connector-id</em>
+	 */
+	static final String CONNECTOR_ID_FORMAT = "%s_%s";
 
 	public DetectionStrategy(
 		@NonNull final TelemetryManager telemetryManager,
@@ -113,14 +116,14 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
-		final String connectorCompiledFileName = connector.getConnectorIdentity().getCompiledFilename();
-		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, hostId + "@" + connectorCompiledFileName);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorCompiledFileName);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorCompiledFileName);
+		final String connectorId = connector.getCompiledFilename();
+		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_APPLIES_TO_OS, connector.getConnectorIdentity().getDetection()
 			.getAppliesTo().toString());
-		monitorAttributes.put(MONITOR_ATTRIBUTE_DESCRIPTION, connector.getConnectorIdentity().getInformation());
-		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT, hostId);
+		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
+		monitorAttributes.put("hw.parent.id", hostId);
 
 		// Create the monitor factory
 		final MonitorFactory monitorFactory = MonitorFactory
@@ -128,10 +131,13 @@ public class DetectionStrategy extends AbstractStrategy {
 			.telemetryManager(telemetryManager)
 			.monitorType(KnownMonitorType.CONNECTOR.getKey())
 			.attributes(monitorAttributes)
+			.connectorId(connectorId)
 			.build();
 
 		// Create or update the monitor by calling monitor factory
-		final Monitor monitor = monitorFactory.createOrUpdateMonitor();
+		final Monitor monitor = monitorFactory.createOrUpdateMonitor(
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
+		);
 
 		// Get monitor metrics from connector
 		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();

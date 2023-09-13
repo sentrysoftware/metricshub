@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -174,7 +175,7 @@ public class ConnectorLibrarySerializer {
 					.filter(ConnectorLibrarySerializer::isConnectorSource)
 					.map(path -> path.getFileName().toString())
 					.sorted(String::compareToIgnoreCase)
-					.toList();
+					.collect(Collectors.toList()); //NOSONAR
 		}
 	}
 

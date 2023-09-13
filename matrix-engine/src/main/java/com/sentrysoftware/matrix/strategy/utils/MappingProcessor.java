@@ -1,8 +1,8 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_VALUE_WITH_DOLLAR_PATTERN;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.common.helpers.FunctionArgumentsExtractor;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.common.helpers.state.DuplexMode;
 import com.sentrysoftware.matrix.common.helpers.state.IntrusionStatus;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MappingProcessor {
 
+	private static final String RESULT_MESSAGE = "As a result, {} cannot be updated.";
 	private static final double MEBIBYTE_2_BYTE_FACTOR = 1_048_576.0;
 	private static final double MEGABIT_2_BIT_FACTOR = 1_000_000.0;
 	private static final double MEGAHERTZ_2_HERTZ_FACTOR = 1_000_000.0;
@@ -202,48 +204,110 @@ public class MappingProcessor {
 		return result;
 	}
 
-	private String lookup(final String value, String key) {
-		final Matcher matcher = LOOKUP_PATTERN.matcher(value);
-		matcher.find();
-		String extracted = matcher.group(1);
+	/**
+	 * Performs a lookup operation based on the provided function code and key.
+	 *
+	 * @param functionCode lookup function code definition.
+	 * @param key          A key associated with the lookup operation.
+	 * @return The result of the lookup operation, or null if an error occurs during the lookup process.
+	 */
+	private String lookup(final String functionCode, String key) {
 
-		String extractedValue = extracted;
-		if (isColumnExtraction(extracted)) {
-			extractedValue = extractColumnValue(extracted, key);
-		}
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(functionCode);
 
-		final String[] lookupValues = extractedValue.split(",");
-
-		if (lookupValues.length != 4) {
-			log.error("Hostname {} - Lookup should contain exactly 4 arguments (detected {}) in lookup function {}.",
+		if (functionArguments.size() != 4) {
+			log.error(
+				"Hostname {} - Lookup should contain exactly 4 arguments (detected {}) in lookup function {}. "
+					+ RESULT_MESSAGE,
 				jobInfo.getHostname(),
-				lookupValues.length,
-				value);
+				functionArguments.size(),
+				functionCode,
+				key
+			);
 
 			return null;
 		}
 
-		final String monitorType = lookupValues[0];
-		final String lookupValue = lookupValues[1];
-		final String attributeKey = lookupValues[2];
-		final String attributeValue = lookupValues[3];
-		
-		final Map<String, Monitor> typedMonitors = telemetryManager.getMonitors().get(monitorType);
+		final String monitorType = extractColumnValueOrTextValue(functionArguments.get(0), key);
+
+		if (monitorType == null) {
+			log.error(
+				"Hostname {} - Unable to extract the 1st argument value passed to the lookup function. "
+					+ RESULT_MESSAGE,
+				jobInfo.getHostname(),
+				key
+			);
+			return null;
+		}
+
+		final String attributeValueToExtract = extractColumnValueOrTextValue(functionArguments.get(1), key);
+
+		if (attributeValueToExtract == null) {
+			log.error(
+				"Hostname {} - Unable to extract the 2nd argument value passed to the lookup function. "
+					+ RESULT_MESSAGE,
+				jobInfo.getHostname(),
+				key
+			);
+			return null;
+		}
+
+		final String lookupAttributeKey = extractColumnValueOrTextValue(functionArguments.get(2), key);
+
+		if (lookupAttributeKey == null) {
+			log.error(
+				"Hostname {} - Unable to extract the 3rd argument value passed to the lookup function. "
+					+ RESULT_MESSAGE,
+				jobInfo.getHostname(),
+				key
+			);
+			return null;
+		}
+
+		final String lookupAttributeValue = extractColumnValueOrTextValue(functionArguments.get(3), key);
+
+		if (lookupAttributeValue == null) {
+			log.error(
+				"Hostname {} - Unable to extract the 4th argument value passed to the lookup function. "
+					+ RESULT_MESSAGE,
+				jobInfo.getHostname(),
+				key
+			);
+			return null;
+		}
+
+		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorByType(monitorType);
 
 		if (typedMonitors == null) {
-			log.error("Hostname {} - No monitors found of type {}.",jobInfo.getHostname(), monitorType);
+			log.error(
+				"Hostname {} - No monitors found of type {}. Cannot set {}.",
+				jobInfo.getHostname(),
+				monitorType,
+				key
+			);
 			return null;
 		}
 
-		final Stream<Monitor> monitors = typedMonitors.values().stream().filter(x -> x.getAttributes().get(attributeKey).equals(attributeValue));
-		Monitor monitor = monitors.findFirst().orElse(null);
+		final Stream<Monitor> monitors = typedMonitors
+			.values()
+			.stream()
+			.filter(monitor -> lookupAttributeValue.equals(monitor.getAttributes().get(lookupAttributeKey)));
+
+		final Monitor monitor = monitors.findFirst().orElse(null);
 
 		if (monitor == null) {
-			log.error("Hostname {} - No monitors found matching attribute {} with value {}.", jobInfo.getHostname(), attributeKey, attributeValue);
+			log.error(
+				"Hostname {} - No monitor found matching attribute {} with value {}."
+					+ RESULT_MESSAGE,
+				jobInfo.getHostname(),
+				lookupAttributeKey,
+				lookupAttributeValue,
+				key
+			);
 			return null;
 		}
 
-		return monitor.getAttributes().get(lookupValue);
+		return monitor.getAttributes().get(attributeValueToExtract);
 	}
 
 	private String legacyPowerSupplyUtilization(final String value, final Monitor monitor) {
@@ -578,7 +642,22 @@ public class MappingProcessor {
 	 * @return Matcher
 	 */
 	private Matcher getStringRegexMatcher(String value) {
-		return SOURCE_VALUE_WITH_DOLLAR_PATTERN.matcher(value);
+		return COLUMN_PATTERN.matcher(value);
+	}
+
+	/**
+	 * Extracts a column value or returns the input string as is, based on the provided arguments.
+	 *
+	 * @param columnRefOrValue The input string that may represent a column reference or a text value.
+	 * @param key              A key used for column extraction, if applicable.
+	 * @return The extracted column value if 'columnRefOrValue' represents a column reference,
+	 *         or the input 'columnRefOrValue' string if it does not.
+	 */
+	private String extractColumnValueOrTextValue(final String columnRefOrValue, final String key) {
+		if (isColumnExtraction(columnRefOrValue)) {
+			return extractColumnValue(columnRefOrValue, key);
+		}
+		return columnRefOrValue;
 	}
 
 	/**

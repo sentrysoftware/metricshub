@@ -1,23 +1,11 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANNOT_GET_EMBEDDED_FILE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CMD_EXE_C;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMAND_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_LOCK_TIMEOUT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMBEDDED_FILE_CONTENT_NULL;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMBEDDED_TEMP_FILE_PREFIX;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HIDDEN_PASSWORD;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NULL_OR_EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCAL_COMMAND_PROCESS_NULL;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEGATIVE_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PASSWORD_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUDO_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUDO_REGEX;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TIMEOUT_SSH_SEMAPHORE_PERMIT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.USERNAME_MACRO;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.state;
@@ -48,6 +36,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
@@ -72,7 +61,8 @@ import lombok.NonNull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandHelper {
-
+	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
+	private static final Pattern SUDO_COMMAND_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
 	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
 
 	/**
@@ -109,11 +99,11 @@ public class OsCommandHelper {
 						final EmbeddedFile embeddedFile = commandLineEmbeddedFiles.get(fileNameRef);
 
 						// This means there is a design problem or the HDF developer indicated a wrong embedded file
-						state(embeddedFile != null, () -> CANNOT_GET_EMBEDDED_FILE + fileName);
+						state(embeddedFile != null, () -> "Cannot get the EmbeddedFile from the Connector. File name: " + fileName);
 						final String content = embeddedFile.getContent();
 
 						// This means there is a design problem, the content can never be null
-						state(content != null, () -> EMBEDDED_FILE_CONTENT_NULL + fileName);
+						state(content != null, () -> "EmbeddedFile content is null. File name: " + fileName);
 
 						try {
 							return createTempFileWithEmbeddedFileContent(embeddedFile, osCommandConfiguration, tempFileCreator);
@@ -167,14 +157,14 @@ public class OsCommandHelper {
 
 	/**
 	 * Create a temporary file with the given extension.<br>
-	 * The temporary file name is prefixed with {@value #EMBEDDED_TEMP_FILE_PREFIX}
+	 * The temporary file name is prefixed with "SEN_Embedded_"
 	 *
 	 * @param extension File's name suffix (e.g. .bat)
 	 * @return {@link File} instance
 	 */
 	static File createEmbeddedTempFile(final String extension) {
 		try {
-			return File.createTempFile(EMBEDDED_TEMP_FILE_PREFIX, extension);
+			return File.createTempFile("SEN_Embedded_", extension);
 		} catch (IOException e) {
 			throw new TempFileCreationException(e);
 		}
@@ -203,7 +193,7 @@ public class OsCommandHelper {
 
 		return maybeSudoFile
 			.map(fileName -> text.replaceAll(
-				toCaseInsensitiveRegex(String.format(SUDO_REGEX, fileName)),
+				toCaseInsensitiveRegex(String.format("%%{SUDO:%s}", fileName)),
 				sudoReplace))
 			.orElse(text);
 	}
@@ -227,11 +217,11 @@ public class OsCommandHelper {
 			throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
-		final String cmd = LocalOsHandler.isWindows() ? CMD_EXE_C + command : command;
+		final String cmd = LocalOsHandler.isWindows() ? "CMD.EXE /C " + command : command;
 
 		final Process process = Runtime.getRuntime().exec(cmd);
 		if (process == null) {
-			throw new IllegalStateException(LOCAL_COMMAND_PROCESS_NULL);
+			throw new IllegalStateException("Local command Process is null.");
 		}
 
 		final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -258,7 +248,10 @@ public class OsCommandHelper {
 		} catch (final TimeoutException exception) {
 			future.cancel(true);
 
-			throw new TimeoutException(String.format(COMMAND_TIMEOUT, noPasswordCommand != null ? noPasswordCommand : command, timeout));
+			throw new TimeoutException(String.format(
+				"Command \"%s\" execution has timed out after %d s",
+				noPasswordCommand != null ? noPasswordCommand : command, timeout)
+			);
 
 		} catch (final ExecutionException exception) {
 			if (exception.getCause() instanceof IOException ioException) {
@@ -346,7 +339,7 @@ public class OsCommandHelper {
 
 			}
 
-			final String message = String.format(TIMEOUT_SSH_SEMAPHORE_PERMIT, hostname);
+			final String message = String.format("Failed to run SSH command on %s. Timed out trying to get ssh semaphore permit.", hostname);
 
 			throw new ControlledSshException(message);
 
@@ -363,7 +356,7 @@ public class OsCommandHelper {
 	 * @return An Optional with The file name if found otherwise an empty optional.
 	 */
 	static Optional<String> getFileNameFromSudoCommand(@NonNull final String command) {
-		final Matcher matcher = SUDO_PATTERN.matcher(command);
+		final Matcher matcher = SUDO_COMMAND_PATTERN.matcher(command);
 		return matcher.find() ?
 			Optional.ofNullable(matcher.group(1)) :
 				Optional.empty();
@@ -376,7 +369,7 @@ public class OsCommandHelper {
 	 * @return The case insensitive regex for this string.
 	 */
 	public static String toCaseInsensitiveRegex(final String host) {
-		isTrue(host != null && !host.isEmpty(), HOST_NULL_OR_EMPTY);
+		isTrue(host != null && !host.isEmpty(), "host cannot be null nor empty.");
 		return host.isBlank() ? host : "(?i)" + Pattern.quote(host);
 	}
 
@@ -465,7 +458,6 @@ public class OsCommandHelper {
 	 *
 	 * @param commandLine The command Line. (mandatory)
 	 * @param telemetryManager The engine configuration and host properties. (mandatory)
-	 * @param embeddedFiles Embedded files.
 	 * @param commandTimeout The OS command parameter for the timeout.
 	 * @param isExecuteLocally The OS command parameter to indicate if the command should be execute locally.
 	 * @param isLocalhost The parameter in Host Monitoring to indicate if the command is execute locally.
@@ -554,7 +546,7 @@ public class OsCommandHelper {
 
 		final String noPasswordCommand = maybePassword
 			.map(password -> updatedEmbeddedFilesCommand.replaceAll(
-				toCaseInsensitiveRegex(PASSWORD_MACRO), HIDDEN_PASSWORD))
+				toCaseInsensitiveRegex(PASSWORD_MACRO), "********"))
 			.orElse(updatedEmbeddedFilesCommand);
 
 		try {
@@ -586,7 +578,7 @@ public class OsCommandHelper {
 						.values()
 						.stream()
 						.map(File::getAbsolutePath)
-						.toList()
+						.collect(Collectors.toList()) // NOSONAR
 				);
 				// Case others (Linux) Remote
 			} else {
