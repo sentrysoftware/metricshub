@@ -23,9 +23,9 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
 
 @Data
@@ -34,8 +34,6 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_RE
 @Builder
 @Slf4j
 public class MappingProcessor {
-	private static final Pattern SOURCE_VALUE_WITH_DOLLAR_PATTERN = Pattern.compile("^\\$([0-9]+)$");
-
 	private TelemetryManager telemetryManager;
 	private Mapping mapping;
 	private String id;
@@ -380,7 +378,7 @@ public class MappingProcessor {
 	 * @return Matcher
 	 */
 	private Matcher getStringRegexMatcher(String value) {
-		return SOURCE_VALUE_WITH_DOLLAR_PATTERN.matcher(value);
+		return COLUMN_PATTERN.matcher(value);
 	}
 
 	/**
