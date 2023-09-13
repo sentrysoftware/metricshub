@@ -78,11 +78,11 @@ public class CollectStrategy extends AbstractStrategy {
 				.entrySet()
 				.stream()
 				.sorted(
-						Comparator.comparing(entry ->
-							MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()) ?
-								MONITOR_JOBS_PRIORITY.get(entry.getKey()) :
-								MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES)
-						)
+					Comparator.comparing(entry ->
+						MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()) ?
+							MONITOR_JOBS_PRIORITY.get(entry.getKey()) :
+							MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES)
+					)
 				)
 				.collect(Collectors.toMap(
 					Map.Entry::getKey,
@@ -128,7 +128,7 @@ public class CollectStrategy extends AbstractStrategy {
 
 		} else {
 			// Execute monitor jobs in parallel
-			log.info("Hostname {} - Running discovery in parallel mode. Connector: {}.", hostname, currentConnector.getConnectorIdentity()
+			log.info("Hostname {} - Running collect in parallel mode. Connector: {}.", hostname, currentConnector.getConnectorIdentity()
 				.getCompiledFilename());
 
 			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
@@ -167,7 +167,11 @@ public class CollectStrategy extends AbstractStrategy {
 
 			if (monitorJob.getValue() instanceof StandardMonitorJob standardMonitorJob) {
 				final AbstractCollect collect = standardMonitorJob.getCollect();
-				//TODO collect null check
+
+				// Check whether collect is null
+				if (collect == null){
+					return;
+				}
 
 				final String monitorType = monitorJob.getKey();
 
@@ -268,6 +272,9 @@ public class CollectStrategy extends AbstractStrategy {
 
 			// If we process single monitor (monoInstance), we loop until first row.
 			// Otherwise, (in case of multi-instance processing), we loop over all the source table rows
+			if(table.isEmpty()){
+				return;
+			}
 			final int rowCountLimit = monitor == null ? table.size() : 1;
 
 			for (int i= 0; i< rowCountLimit; i ++) {
@@ -353,8 +360,7 @@ public class CollectStrategy extends AbstractStrategy {
 						}
 					}
 
-					// Tell the collect that the refresh time of the discovered
-					// metric must be refreshed
+					// Tell the collect that the refresh time of the discovered metric must be refreshed
 					if (metric != null) {
 						metric.setResetMetricTime(true);
 					}
@@ -380,7 +386,7 @@ public class CollectStrategy extends AbstractStrategy {
 				.get(HOST.getKey());
 
 		if (hostMonitors == null) {
-			log.error("Hostname {} - No host found. Stopping discovery strategy.", hostname);
+			log.error("Hostname {} - No host found. Stopping collect strategy.", hostname);
 			return;
 		}
 
@@ -393,7 +399,7 @@ public class CollectStrategy extends AbstractStrategy {
 			.orElse(null);
 
 		if (host == null) {
-			log.error("Hostname {} - No host found. Stopping discovery strategy.", hostname);
+			log.error("Hostname {} - No host found. Stopping collect strategy.", hostname);
 			return;
 		}
 
@@ -439,7 +445,7 @@ public class CollectStrategy extends AbstractStrategy {
 			.sorted(new ConnectorMonitorTypeComparator())
 			.toList();
 
-		// Discover each connector
+		// Collect each connector
 		sortedConnectors.forEach(connector -> collect(connector, hostname));
 	}
 

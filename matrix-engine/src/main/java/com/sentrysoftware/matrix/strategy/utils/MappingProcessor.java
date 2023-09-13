@@ -53,37 +53,6 @@ public class MappingProcessor {
 	private Map<String, BiFunction<KeyValuePair, Monitor, String>> computationFunctions = new HashMap<>();
 
 	/**
-	 * Find the source table instance from the connector namespace.<br>
-	 * If we have a hard-coded source then we will create a source wrapping the
-	 * csv input.
-	 * 
-	 * @return {@link Optional} instance of {@link SourceTable}
-	 */
-	public Optional<SourceTable> lookupSourceTable() {
-		final String source = mapping.getSource();
-
-		final Matcher matcher = SOURCE_REF_PATTERN.matcher(source);
-
-		if (matcher.find()) {
-			final String sourceKey = matcher.group();
-			return Optional.ofNullable(
-				telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(jobInfo.getConnectorName())
-					.getSourceTable(sourceKey)
-			);
-		}
-
-		// Hard-coded source
-		return Optional.of(
-			SourceTable
-				.builder()
-				.table(SourceTable.csvToTable(source, MatrixConstants.SEMICOLON))
-				.build()
-		);
-	}
-
-	/**
 	 * This method interprets non context mapping attributes
 	 * @return Map<String, String>
 	 */

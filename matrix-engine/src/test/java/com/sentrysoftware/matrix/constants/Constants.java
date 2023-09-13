@@ -223,19 +223,16 @@ public class Constants {
 	public static final String OS_TYPE = "os.type";
 	public static final String HOST_NAME = "host.name";
 	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
-	public static final String HARDCODED_SOURCE = "Hardcoded Source";
-	public static final String SOURCE_REF_KEY = "${source::monitors.cpu.discovery.sources.source5}";
-	public static final String DISK_CONTROLLER_SOURCE_REF_KEY = "${source::monitors.disk_controller.discovery.sources.source(1)}";
-	public static final String PHYSICAL_DISK_SOURCE_REF_KEY = "${source::monitors.physical_disk.discovery.sources.source(1)}";
-	public static final String LOGICAL_DISK_SOURCE_REF_KEY = "${source::monitors.logical_disk.discovery.sources.source(1)}";
 	public static final String DISK_CONTROLLER = "disk_controller";
 	public static final String PHYSICAL_DISK = "physical_disk";
 	public static final String LOGICAL_DISK = "logical_disk";
 	public static final String CONNECTOR = "connector";
+	public static final String ENCLOSURE = "enclosure";
 
 	// Yaml test files
 	public static final String YAML_TEST_FILE_NAME = "AAC";
 	public static final String YAML_TEST_FILE_NAME_WITH_EXTENSION = YAML_TEST_FILE_NAME + ".yaml";
+	public static final String TEST_CONNECTOR_FILE_NAME = "TestConnector.yaml";
 	public static final String COMMAND_FILE_ABSOLUTE_PATH = "${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
 	public static final String TXT_FILE_EXTENSION = "txt";
