@@ -17,7 +17,11 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.common.helpers.state.DuplexMode;
+import com.sentrysoftware.matrix.common.helpers.state.IntrusionStatus;
 import com.sentrysoftware.matrix.common.helpers.state.LinkStatus;
+import com.sentrysoftware.matrix.common.helpers.state.NeedsCleaning;
+import com.sentrysoftware.matrix.common.helpers.state.PredictedFailure;
 import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
@@ -39,15 +43,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MappingProcessor {
 
-	private static final Pattern MEBIBYTE_2_BYTE_PATTERN = Pattern.compile("mebibyte2byte\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern LEGACY_LINK_STATUS_PATTERN = Pattern.compile("legacylinkstatus\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final double PERCENT_2_RATIO_FACTOR = 0.01;
-	private static final double MEGAHERTZ_2_HERTZ_FACTOR = 1_000_000.0;
 	private static final double MEBIBYTE_2_BYTE_FACTOR = 1_048_576.0;
 	private static final double MEGABIT_2_BIT_FACTOR = 1_000_000.0;
+	private static final double MEGAHERTZ_2_HERTZ_FACTOR = 1_000_000.0;
+	private static final double PERCENT_2_RATIO_FACTOR = 0.01;
 
 	private static final String ZERO = "0";
 	private static final String ONE = "1";
+	private static final String TRUE = "true";
+	private static final String INVALID_VALUE = "Hostname {} - Value {} is invalid for {}.";
+
+	private static final Pattern MEBIBYTE_2_BYTE_PATTERN = Pattern.compile("mebibyte2byte\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern MEGABIT_2_BIT_PATTERN = Pattern.compile("megabit2bit\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern MEGAHERTZ_2_HERTZ_PATTERN = Pattern.compile("megahertz2hertz\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PERCENT_2_RATIO_PATTERN = Pattern.compile("percent2ratio\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LEGACY_FULL_DUPLEX_PATTERN = Pattern.compile("legacyfullduplex\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LEGACY_LINK_STATUS_PATTERN = Pattern.compile("legacylinkstatus\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LEGACY_PREDICTED_FAILURE_PATTERN = Pattern.compile("legacypredictedfailure\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LEGACY_NEEDS_CLEANING_PATTERN = Pattern.compile("legacyneedscleaning\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LEGACY_INTRUSION_STATUS_PATTERN = Pattern.compile("legacyintrusionstatus\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern LOOKUP_PATTERN = Pattern.compile("lookup\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern BOOLEAN_PATTERN = Pattern.compile("boolean\\((.+)\\)", Pattern.CASE_INSENSITIVE);
 
 	private TelemetryManager telemetryManager;
 	private Mapping mapping;
@@ -153,25 +169,25 @@ public class MappingProcessor {
 			} else if (isMegaHertz2HertzFunction(value)) {
 				result.put(key, megaHertz2Hertz(value, key));
 			} else if (isMebiByte2ByteFunction(value)) {
-				result.put(key, mebiByte2Byte(value, key)); // Implemented REMOVE_ME For God's Sake
+				result.put(key, mebiByte2Byte(value, key));
 			} else if (isBooleanFunction(value)) {
-				result.put(key, booleanFunction(value));
+				result.put(key, booleanFunction(value, key));
 			} else if (isLegacyLedStatusFunction(value)) {
 				result.put(key, legacyLedStatus(value));
 			} else if (isLegacyIntrusionStatusFunction(value)) {
-				result.put(key, legacyIntrusionStatus(value));
+				result.put(key, legacyIntrusionStatus(value, key));
 			} else if (isLegacyPredictedFailureFunction(value)) {
-				result.put(key, legacyPredictedFailure(value));
-			} else if (islegacyNeedsCleaningFucntion(value)) {
-				result.put(key, legacyNeedsCleaning(value));
+				result.put(key, legacyPredictedFailure(value, key));
+			} else if (islegacyNeedsCleaningFunction(value)) {
+				result.put(key, legacyNeedsCleaning(value, key));
 			} else if (isComputePowerShareRatioFunction(value)) {
 				result.put(String.format("%s.raw", key), computePowerShareRatio(value));
 			} else if (isLegacyLinkStatusFunction(value)) {
 				result.put(key, legacyLinkStatusFunction(value, key));
 			} else if (isLegacyFullDuplex(value)) {
-				result.put(key, legacyFullDuplex(value));
+				result.put(key, legacyFullDuplex(value, key));
 			} else if (isLookupFunction(value)) {
-				lookupFunctions.put(key, this::lookup);
+				lookupFunctions.put(key, lookupValue -> lookup(value, key));
 			} else if (isLegacyPowerSupplyUtilization(value)) {
 				legacyPowerSupplyFunctions.put(key, this::legacyPowerSupplyUtilization);
 			} else if (isFakeCounterFunction(value)) {
@@ -186,28 +202,48 @@ public class MappingProcessor {
 		return result;
 	}
 
-	private String lookup(final String value) {
-		final Pattern lookupValuePattern = Pattern.compile("(?<=^lookup\\().+(?=\\)$)");
-		final Matcher matcher = lookupValuePattern.matcher(value.trim());
+	private String lookup(final String value, String key) {
+		final Matcher matcher = LOOKUP_PATTERN.matcher(value);
 		matcher.find();
+		String extracted = matcher.group(1);
 
-		final String[] lookupValues = matcher.group(1).split(",");
-		final Map<String, Monitor> typedMonitors = telemetryManager.getMonitors().get(lookupValues[0]);
+		String extractedValue = extracted;
+		if (isColumnExtraction(extracted)) {
+			extractedValue = extractColumnValue(extracted, key);
+		}
 
-		if (typedMonitors == null) {
-			log.error("No monitors found of type {}.", lookupValues[0]);
+		final String[] lookupValues = extractedValue.split(",");
+
+		if (lookupValues.length != 4) {
+			log.error("Hostname {} - Lookup should contain exactly 4 arguments (detected {}) in lookup function {}.",
+				jobInfo.getHostname(),
+				lookupValues.length,
+				value);
+
 			return null;
 		}
 
-		final Stream<Monitor> monitors = typedMonitors.values().stream().filter(x -> x.getAttributes().get(lookupValues[2]).equals(lookupValues[3]));
+		final String monitorType = lookupValues[0];
+		final String lookupValue = lookupValues[1];
+		final String attributeKey = lookupValues[2];
+		final String attributeValue = lookupValues[3];
+		
+		final Map<String, Monitor> typedMonitors = telemetryManager.getMonitors().get(monitorType);
+
+		if (typedMonitors == null) {
+			log.error("Hostname {} - No monitors found of type {}.",jobInfo.getHostname(), monitorType);
+			return null;
+		}
+
+		final Stream<Monitor> monitors = typedMonitors.values().stream().filter(x -> x.getAttributes().get(attributeKey).equals(attributeValue));
 		Monitor monitor = monitors.findFirst().orElse(null);
 
 		if (monitor == null) {
-			log.error("No monitors found matching attribute {} with value {}.", lookupValues[2], lookupValues[3]);
+			log.error("Hostname {} - No monitors found matching attribute {} with value {}.", jobInfo.getHostname(), attributeKey, attributeValue);
 			return null;
 		}
 
-		return monitor.getAttributes().get(lookupValues[1]);
+		return monitor.getAttributes().get(lookupValue);
 	}
 
 	private String legacyPowerSupplyUtilization(final String value, final Monitor monitor) {
@@ -233,8 +269,7 @@ public class MappingProcessor {
 	}
 
 	private boolean isLookupFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return LOOKUP_PATTERN.matcher(value).find();
 	}
 
 	private boolean isRateFunction(String value) {
@@ -243,25 +278,44 @@ public class MappingProcessor {
 	}
 
 	private String megaBit2bit(String value, String key) {
-		return multiplyValueByFactor(value, key, MEGABIT_2_BIT_FACTOR);
+		final Matcher matcher = MEGABIT_2_BIT_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+
+		if (isColumnExtraction(extracted)) {
+			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGABIT_2_BIT_FACTOR);
+		} else {
+			return multiplyValueByFactor(extracted, key, MEGABIT_2_BIT_FACTOR);
+		}
 	}
 
 	private boolean isMegaBit2Bit(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return MEGABIT_2_BIT_PATTERN.matcher(value).find();
 	}
 
-	private String legacyFullDuplex(String value) {
-		if ("legacyFullDuplex(ok)".equals(value)) {
-			return ONE;
+	private String legacyFullDuplex(String value, String key) {
+		final Matcher matcher = LEGACY_FULL_DUPLEX_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+		String extractedValue = extracted;
+		if (isColumnExtraction(extracted)) {
+			extractedValue = extractColumnValue(extracted, key);
 		}
 
-		return ZERO;
+		final Optional<DuplexMode> maybeDuplexMode = DuplexMode.interpret(extractedValue);
+
+		if (maybeDuplexMode.isPresent()) {
+			return String.valueOf(maybeDuplexMode.get().getNumericValue());
+		}
+
+		log.debug(INVALID_VALUE, jobInfo.getHostname(), extractedValue, key);
+		return null;
 	}
 
 	private boolean isLegacyFullDuplex(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return LEGACY_FULL_DUPLEX_PATTERN.matcher(value).find();
 	}
 
 	private String legacyLinkStatusFunction(String value, String key) {
@@ -280,13 +334,12 @@ public class MappingProcessor {
 			return String.valueOf(maybeLinkStatus.get().getNumericValue());
 		}
 
-		// TODO add log
+		log.debug(INVALID_VALUE, jobInfo.getHostname(), extractedValue, key);
 		return null;
 	}
 
 	private boolean isLegacyLinkStatusFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return LEGACY_LINK_STATUS_PATTERN.matcher(value).find();
 	}
 
 	private String computePowerShareRatio(String value) {
@@ -299,43 +352,76 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String legacyNeedsCleaning(String value) {
-		if ("legacyNeedsCleaning(0)".equals(value)) {
-			return ZERO;
+	private String legacyNeedsCleaning(String value, String key) {
+		final Matcher matcher = LEGACY_NEEDS_CLEANING_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+		String extractedValue = extracted;
+		if (isColumnExtraction(extracted)) {
+			extractedValue = extractColumnValue(extracted, key);
 		}
 
-		return ONE;
-	}
+		final Optional<NeedsCleaning> maybeNeedsCleaning = NeedsCleaning.interpret(extractedValue);
 
-	private boolean islegacyNeedsCleaningFucntion(String value) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	private String legacyPredictedFailure(String value) {
-		if ("legacyPredictedFailure(0)".equals(value) || "legacyPredictedFailure(false)".equals(value)) {
-			return ZERO;
+		if (maybeNeedsCleaning.isPresent()) {
+			return String.valueOf(maybeNeedsCleaning.get().getNumericValue());
 		}
 
-		return ONE;
+		log.debug(INVALID_VALUE, jobInfo.getHostname(), extractedValue, key);
+		return null;
+	}
+
+	private boolean islegacyNeedsCleaningFunction(String value) {
+		return LEGACY_NEEDS_CLEANING_PATTERN.matcher(value).find();
+	}
+
+	private String legacyPredictedFailure(String value, String key) {
+		final Matcher matcher = LEGACY_PREDICTED_FAILURE_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+		String extractedValue = extracted;
+		if (isColumnExtraction(extracted)) {
+			extractedValue = extractColumnValue(extracted, key);
+		}
+
+		final Optional<PredictedFailure> maybePredictedFailure = PredictedFailure.interpret(extractedValue);
+
+		if (maybePredictedFailure.isPresent()) {
+			return String.valueOf(maybePredictedFailure.get().getNumericValue());
+		}
+
+		log.debug(INVALID_VALUE, jobInfo.getHostname(), extractedValue, key);
+		return null;
 	}
 
 	private boolean isLegacyPredictedFailureFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return LEGACY_PREDICTED_FAILURE_PATTERN.matcher(value).find();
 	}
 
-	private String legacyIntrusionStatus(String value) {
-		if ("legacyIntrusionStatus(0)".equals(value) || "legacyIntrusionStatus(false)".equals(value)) {
-			return ZERO;
+	private String legacyIntrusionStatus(String value, String key) {
+		final Matcher matcher = LEGACY_INTRUSION_STATUS_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+		String extractedValue = extracted;
+		if (isColumnExtraction(extracted)) {
+			extractedValue = extractColumnValue(extracted, key);
 		}
 
-		return ONE;
+		final Optional<IntrusionStatus> maybeIntrusionStatus = IntrusionStatus.interpret(extractedValue);
+
+		if (maybeIntrusionStatus.isPresent()) {
+			return String.valueOf(maybeIntrusionStatus.get().getNumericValue());
+		}
+
+		log.debug(INVALID_VALUE, jobInfo.getHostname(), extractedValue, key);
+		return null;
 	}
 
 	private boolean isLegacyIntrusionStatusFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return LEGACY_INTRUSION_STATUS_PATTERN.matcher(value).find();
 	}
 
 	private String legacyLedStatus(String value) {
@@ -348,8 +434,17 @@ public class MappingProcessor {
 		return false;
 	}
 
-	private String booleanFunction(String value) {
-		if ("boolean(1)".equals(value) || "boolean(true)".equals(value)) {
+	private String booleanFunction(String value, String key) {
+		final Matcher matcher = BOOLEAN_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+		String extractedValue = extracted;
+		if (isColumnExtraction(extracted)) {
+			extractedValue = extractColumnValue(extracted, key);
+		}
+
+		if (ONE.equals(extractedValue) || TRUE.equals(extractedValue)) {
 			return ONE;
 		}
 
@@ -357,8 +452,7 @@ public class MappingProcessor {
 	}
 
 	private boolean isBooleanFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return BOOLEAN_PATTERN.matcher(value).find();
 	}
 
 	private String mebiByte2Byte(String value, String key) {
@@ -375,26 +469,41 @@ public class MappingProcessor {
 	}
 
 	private boolean isMebiByte2ByteFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return MEBIBYTE_2_BYTE_PATTERN.matcher(value).find();
 	}
 
 	private String megaHertz2Hertz(String value, String key) {
-		return multiplyValueByFactor(value, key, MEGAHERTZ_2_HERTZ_FACTOR);
+		final Matcher matcher = MEGAHERTZ_2_HERTZ_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+
+		if (isColumnExtraction(extracted)) {
+			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGAHERTZ_2_HERTZ_FACTOR);
+		} else {
+			return multiplyValueByFactor(extracted, key, MEGAHERTZ_2_HERTZ_FACTOR);
+		}
 	}
 
 	private boolean isMegaHertz2HertzFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return MEGAHERTZ_2_HERTZ_PATTERN.matcher(value).find();
 	}
 
 	private String percent2Ratio(String value, String key) {
-		return multiplyValueByFactor(value, key, PERCENT_2_RATIO_FACTOR);
+		final Matcher matcher = PERCENT_2_RATIO_PATTERN.matcher(value);
+		matcher.find();
+
+		final String extracted = matcher.group(1);
+
+		if (isColumnExtraction(extracted)) {
+			return multiplyValueByFactor(extractColumnValue(extracted, key), key, PERCENT_2_RATIO_FACTOR);
+		} else {
+			return multiplyValueByFactor(extracted, key, PERCENT_2_RATIO_FACTOR);
+		}
 	}
 
 	private boolean isPercentToRatioFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return PERCENT_2_RATIO_PATTERN.matcher(value).find();
 	}
 
 	private String executeAwkScript(String value) {
@@ -416,11 +525,10 @@ public class MappingProcessor {
 			double doubleValue = Double.parseDouble(value);
 			return Double.toString(doubleValue * factor);
 		} catch (Exception e) {
-			log.error("Hostname {} - ....", jobInfo.getHostname());
-			log.debug("Hostname {} - Exception: ", jobInfo.getHostname(), e);
+			log.error("Hostname {} - Value expected, but got {} for parameter {}.", jobInfo.getHostname(), value, key);
+			log.debug("Hostname {} - Exception: {}", jobInfo.getHostname(), e);
 			return null;
 		}
-
 	}
 
 	/**
