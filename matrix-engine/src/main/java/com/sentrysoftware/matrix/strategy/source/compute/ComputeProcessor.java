@@ -35,6 +35,7 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -74,19 +75,19 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	@Override
 	@WithSpan("Compute ArrayTranslate Exec")
-	public void process(final ArrayTranslate arrayTranslate) {
+	public void process(@SpanAttribute("compute.definition") final ArrayTranslate arrayTranslate) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute And Exec")
-	public void process(final And and) {
+	public void process(@SpanAttribute("compute.definition") final And and) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Add Exec")
-	public void process(final Add add) {
+	public void process(@SpanAttribute("compute.definition") final Add add) {
 
 		if (add == null) {
 			log.warn("Hostname {} - Compute Operation (Add) is null, the table remains unchanged.", hostname);
@@ -111,19 +112,19 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	@Override
 	@WithSpan("Compute Awk Exec")
-	public void process(final Awk awk) {
+	public void process(@SpanAttribute("compute.definition") final Awk awk) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Convert Exec")
-	public void process(final Convert convert) {
+	public void process(@SpanAttribute("compute.definition") final Convert convert) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Divide Exec")
-	public void process(final Divide divide) {
+	public void process(@SpanAttribute("compute.definition") final Divide divide) {
 
 		if (divide == null) {
 			log.warn("Hostname {} - Compute Operation (Divide) is null, the table remains unchanged.", hostname);
@@ -148,55 +149,55 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	@Override
 	@WithSpan("Compute DuplicateColumn Exec")
-	public void process(final DuplicateColumn duplicateColumn) {
+	public void process(@SpanAttribute("compute.definition") final DuplicateColumn duplicateColumn) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute ExcludeMatchingLines Exec")
-	public void process(final ExcludeMatchingLines excludeMatchingLines) {
+	public void process(@SpanAttribute("compute.definition") final ExcludeMatchingLines excludeMatchingLines) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Extract Exec")
-	public void process(final Extract extract) {
+	public void process(@SpanAttribute("compute.definition") final Extract extract) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute ExtractPropertyFromWbemPath Exec")
-	public void process(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
+	public void process(@SpanAttribute("compute.definition") final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Json2Csv Exec")
-	public void process(final Json2Csv json2csv) {
+	public void process(@SpanAttribute("compute.definition") final Json2Csv json2csv) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute KeepColumns Exec")
-	public void process(final KeepColumns keepColumns) {
+	public void process(@SpanAttribute("compute.definition") final KeepColumns keepColumns) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute KeepOnlyMatchingLines Exec")
-	public void process(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
+	public void process(@SpanAttribute("compute.definition") final KeepOnlyMatchingLines keepOnlyMatchingLines) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute LeftConcat Exec")
-	public void process(final LeftConcat leftConcat) {
+	public void process(@SpanAttribute("compute.definition") final LeftConcat leftConcat) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Multiply Exec")
-	public void process(final Multiply multiply) {
+	public void process(@SpanAttribute("compute.definition") final Multiply multiply) {
 
 		if (multiply == null) {
 			log.warn("Hostname {} - Compute Operation (Multiply) is null, the table remains unchanged.", hostname);
@@ -221,25 +222,25 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	@Override
 	@WithSpan("Compute PerBitTranslation Exec")
-	public void process(final PerBitTranslation perBitTranslation) {
+	public void process(@SpanAttribute("compute.definition") final PerBitTranslation perBitTranslation) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Replace Exec")
-	public void process(final Replace replace) {
+	public void process(@SpanAttribute("compute.definition") final Replace replace) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute RightConcat Exec")
-	public void process(final RightConcat rightConcat) {
+	public void process(@SpanAttribute("compute.definition") final RightConcat rightConcat) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Subtract Exec")
-	public void process(final Subtract subtract) {
+	public void process(@SpanAttribute("compute.definition") final Subtract subtract) {
 
 		if (subtract == null) {
 			log.warn("Hostname {} - Compute Operation (Subtract) is null, the table remains unchanged.", hostname);
@@ -264,19 +265,19 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	@Override
 	@WithSpan("Compute Substring Exec")
-	public void process(final Substring substring) {
+	public void process(@SpanAttribute("compute.definition") final Substring substring) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Translate Exec")
-	public void process(final Translate translate) {
+	public void process(@SpanAttribute("compute.definition") final Translate translate) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	@WithSpan("Compute Xml2Csv Exec")
-	public void process(final Xml2Csv xml2csv) {
+	public void process(@SpanAttribute("compute.definition") final Xml2Csv xml2csv) {
 		// TODO Auto-generated method stub
 	}
 

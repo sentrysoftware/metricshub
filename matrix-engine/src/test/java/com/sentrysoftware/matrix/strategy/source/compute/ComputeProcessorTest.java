@@ -21,10 +21,10 @@ import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
 class ComputeProcessorTest {
 
-	private static final String COLUMN_1 = "column(1)";
-	private static final String COLUMN_3 = "column(3)";
-	private static final String COLUMN_4 = "column(4)";
-	private static final String COLUMN_13 = "column(13)";
+	private static final String DOLLAR_1 = "$1";
+	private static final String DOLLAR_3 = "$3";
+	private static final String DOLLAR_4 = "$4";
+	private static final String DOLLAR_13 = "$13";
 	private static final String ZERO = "0";
 	private static final String ZERO_POINT_ZERO = "0.0";
 	private static final String ONE = "1";
@@ -59,7 +59,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(addition);
 		assertEquals(table, sourceTable.getTable());
 
-		addition = Add.builder().column(1).value(COLUMN_13).build();
+		addition = Add.builder().column(1).value(DOLLAR_13).build();
 		computeProcessor.process(addition);
 		assertEquals(table, sourceTable.getTable());
 
@@ -72,11 +72,11 @@ class ComputeProcessorTest {
 			Arrays.asList(ID2, "1505.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "202.0", TWO, VALUE_VAL3));
 
-		Add addColumn = Add.builder().column(2).value(COLUMN_3).build();
+		Add addColumn = Add.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(addColumn);
 		assertEquals(result, sourceTable.getTable());
 
-		addColumn = Add.builder().column(2).value(COLUMN_1).build();
+		addColumn = Add.builder().column(2).value(DOLLAR_1).build();
 		computeProcessor.process(addColumn);
 		assertEquals(result, sourceTable.getTable());
 
@@ -101,7 +101,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(emptyAdd);
 		assertEquals(table, sourceTable.getTable());
 
-		emptyAdd = Add.builder().column(2).value(COLUMN_4).build();
+		emptyAdd = Add.builder().column(2).value(DOLLAR_4).build();
 		computeProcessor.process(emptyAdd);
 		assertEquals(table, sourceTable.getTable());
 	}
@@ -130,7 +130,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(divide);
 		assertEquals(table, sourceTable.getTable());
 
-		divide = Divide.builder().column(2).value(COLUMN_13).build();
+		divide = Divide.builder().column(2).value(DOLLAR_13).build();
 		computeProcessor.process(divide);
 		assertEquals(table, sourceTable.getTable());
 
@@ -143,11 +143,11 @@ class ComputeProcessorTest {
 			Arrays.asList(ID2, "300.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "100.0", TWO, VALUE_VAL3));
 
-		Divide valueColumn = Divide.builder().column(2).value(COLUMN_3).build();
+		Divide valueColumn = Divide.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(valueColumn);
 		assertEquals(result1, sourceTable.getTable());
 
-		valueColumn = Divide.builder().column(2).value(COLUMN_1).build();
+		valueColumn = Divide.builder().column(2).value(DOLLAR_1).build();
 		computeProcessor.process(valueColumn);
 		assertEquals(result1, sourceTable.getTable());
 
@@ -193,7 +193,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(multiply);
 		assertEquals(table, sourceTable.getTable());
 
-		multiply = Multiply.builder().column(2).value(COLUMN_13).build();
+		multiply = Multiply.builder().column(2).value(DOLLAR_13).build();
 		computeProcessor.process(multiply);
 		assertEquals(table, sourceTable.getTable());
 
@@ -202,11 +202,11 @@ class ComputeProcessorTest {
 			Arrays.asList(ID2, "7500.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "400.0", TWO, VALUE_VAL3));
 
-		Multiply multiByColumn = Multiply.builder().column(2).value(COLUMN_3).build();
+		Multiply multiByColumn = Multiply.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(multiByColumn);
 		assertEquals(result, sourceTable.getTable());
 
-		multiByColumn = Multiply.builder().column(2).value(COLUMN_1).build();
+		multiByColumn = Multiply.builder().column(2).value(DOLLAR_1).build();
 		computeProcessor.process(multiByColumn);
 		assertEquals(result, sourceTable.getTable());
 
@@ -251,7 +251,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(substract);
 		assertEquals(table, sourceTable.getTable());
 
-		substract = Subtract.builder().column(1).value(COLUMN_13).build();
+		substract = Subtract.builder().column(1).value(DOLLAR_13).build();
 		computeProcessor.process(substract);
 		assertEquals(table, sourceTable.getTable());
 
@@ -264,11 +264,11 @@ class ComputeProcessorTest {
 			Arrays.asList(ID2, "1495.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "198.0", TWO, VALUE_VAL3));
 
-		Subtract substractColumn = Subtract.builder().column(2).value(COLUMN_3).build();
+		Subtract substractColumn = Subtract.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(substractColumn);
 		assertEquals(result, sourceTable.getTable());
 
-		substractColumn = Subtract.builder().column(2).value(COLUMN_1).build();
+		substractColumn = Subtract.builder().column(2).value(DOLLAR_1).build();
 		computeProcessor.process(substractColumn);
 		assertEquals(result, sourceTable.getTable());
 
@@ -316,12 +316,12 @@ class ComputeProcessorTest {
 		assertEquals(result, sourceTable.getTable());
 
 		// column index <= row size, op1 is not blank, op2Index != -1, op2Index >= row size
-		divide.setValue(COLUMN_4);
+		divide.setValue(DOLLAR_4);
 		computeProcessor.process(divide);
 		assertEquals(result, sourceTable.getTable());
 
 		// column index <= row size, op1 is not blank, op2Index != -1, op2Index < row size
-		divide.setValue(COLUMN_3);
+		divide.setValue(DOLLAR_3);
 		result = Collections.singletonList(Arrays.asList("1.0", FOO, FOUR_POINT_ZERO));
 		computeProcessor.process(divide);
 		assertEquals(result, sourceTable.getTable());
