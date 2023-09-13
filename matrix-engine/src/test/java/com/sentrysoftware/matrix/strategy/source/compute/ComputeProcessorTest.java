@@ -14,8 +14,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.PerBitTranslation;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 
@@ -32,12 +34,25 @@ class ComputeProcessorTest {
 	private static final String FOUR_POINT_ZERO = "4.0";
 	private static final String FIVE = "5";
 	private static final String TEN = "10";
+	private static final String FOURTEEN = "14";
+	private static final String THIRTY = "30";
+	private static final String THIRTY_SIX = "36";
+	private static final String FORTY_ONE = "41";
 	private static final String TWO_HUNDRED = "200";
+	private static final String TWO_HUNDRED_AND_FIFTY_FOUR = "254";
+	private static final String TWO_HUNDRED_AND_FIFTY_FIVE = "255";
 	private static final String FIVE_HUNDRED = "500";
 	private static final String ONE_THOUSAND_FIVE_HUNDRED = "1500";
 	private static final String ID1 = "ID1";
 	private static final String ID2 = "ID2";
+	private static final String ID3 = "ID3";
 	private static final String FOO = "FOO";
+	private static final String MANUFACTURER1 = "MANUFACTURER1";
+	private static final String MANUFACTURER2 = "MANUFACTURER2";
+	private static final String MANUFACTURER3 = "MANUFACTURER3";
+	private static final String NAME1 = "NAME1";
+	private static final String NAME2 = "NAME2";
+	private static final String NAME3 = "NAME3";
 
 	@Test
 	void testProcessAdd() {
@@ -170,7 +185,7 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testMultiply() {
+	void testProcessMultiply() {
 		SourceTable sourceTable = new SourceTable();
 		ComputeProcessor computeProcessor = new ComputeProcessor();
 		computeProcessor.setSourceTable(sourceTable);
@@ -325,5 +340,79 @@ class ComputeProcessorTest {
 		result = Collections.singletonList(Arrays.asList("1.0", FOO, FOUR_POINT_ZERO));
 		computeProcessor.process(divide);
 		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testProcessAnd() {
+
+		SourceTable sourceTable = new SourceTable();
+		ComputeProcessor computeProcessor = new ComputeProcessor();
+		computeProcessor.setSourceTable(sourceTable);
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),	// 0000 0001
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),	// 0000 1110
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE));	// 1111 1110
+
+		List<List<String>> tableResult = Arrays.asList(
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE));
+
+		sourceTable.setTable(table);
+
+		// test null source to visit
+		computeProcessor.process((And) null);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// test TranslationTable is null
+		And and = And.builder().column(0).value(ONE).build();	// and : 0000 0001
+		computeProcessor.process(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// test column value is not an integer
+		and.setColumn(3);
+		computeProcessor.process(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// tests OK
+		and.setColumn(4);
+		tableResult = Arrays.asList(
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, ZERO),
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, ONE));
+		computeProcessor.process(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		table = Arrays.asList(
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),	// 0000 0001
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),	// 0000 1110
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE));	// 1111 1110
+		and.setValue(THIRTY);											// and:0001 1110
+
+		sourceTable.setTable(table);
+
+		tableResult = Arrays.asList(
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ZERO),	// 0000 0001
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),	// 0000 1110
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, THIRTY));	// 0001 1110
+		computeProcessor.process(and);
+		assertEquals(tableResult, sourceTable.getTable());
+
+		// test with column
+		table = Arrays.asList(
+			Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ONE),		// 1111 1110 & 0000 0001
+			Arrays.asList(ID2, NAME2, THIRTY_SIX, FOURTEEN),		// 0010 0100 & 0000 1110
+			Arrays.asList(ID3, NAME3, FORTY_ONE, TWO_HUNDRED_AND_FIFTY_FIVE));	// 0010 1001 & 1111 1111
+		and.setValue(DOLLAR_3);
+
+		sourceTable.setTable(table);
+
+		tableResult = Arrays.asList(
+			Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ZERO),	// 0000 0000
+			Arrays.asList(ID2, NAME2, THIRTY_SIX, "4"),	// 0000 0100
+			Arrays.asList(ID3, NAME3, FORTY_ONE, FORTY_ONE));	// 0010 1001
+		computeProcessor.process(and);
+		assertEquals(tableResult, sourceTable.getTable());
 	}
 }

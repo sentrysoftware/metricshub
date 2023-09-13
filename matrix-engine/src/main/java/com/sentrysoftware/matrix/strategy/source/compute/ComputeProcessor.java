@@ -82,7 +82,41 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute And Exec")
 	public void process(@SpanAttribute("compute.definition") final And and) {
-		// TODO Auto-generated method stub
+
+		if (and == null) {
+			log.warn("Hostname {} - Compute Operation (And) is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		String operand2 = and.getValue();
+
+		if (and.getColumn() == null || operand2 == null) {
+			log.warn("Hostname {} - Arguments in Compute Operation (And) : {} are wrong, the table remains unchanged.", hostname, and);
+			return;
+		}
+
+		int columnIndex = and.getColumn() - 1;
+
+		if (columnIndex < 0) {
+			log.warn("Hostname {} - The index of the column to which apply the And operation cannot be < 1, the And computation cannot be performed.", hostname);
+			return;
+		}
+
+		int colOperand2 = getColumnIndex(operand2);
+
+		for (List<String> line : sourceTable.getTable()) {
+			try {
+				if (columnIndex < line.size()) {
+					line.set(columnIndex, String.valueOf((long) Double.parseDouble(line.get(columnIndex))
+						& (colOperand2 == -1 ? (long) Double.parseDouble(operand2) : (long) Double.parseDouble(line.get(colOperand2)))
+						));
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Hostname {} - Data is not correctly formatted.", hostname);
+			}
+		}
+
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -403,5 +437,16 @@ public class ComputeProcessor implements IComputeProcessor {
 			log.warn("Hostname {} - There is a NumberFormatException on operand 1: {} or the operand 2: {}.", hostname, operand1, operand2);
 			log.debug("Hostname {} - Stack trace:", hostname, e);
 		}
+	}
+
+	/**
+	 * Get the column index for the given value
+	 *
+	 * @param value The value we wish to parse
+	 * @return {@link Integer} value or -1 if value is not in the column pattern format
+	 */
+	static Integer getColumnIndex(final String value) {
+		final Matcher matcher = COLUMN_PATTERN.matcher(value);
+		return matcher.matches() ? Integer.parseInt(matcher.group(1)) - 1 : -1;
 	}
 }
