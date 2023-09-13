@@ -226,7 +226,7 @@ public class MappingProcessor {
 
 		final String monitorType = extractColumnValueOrTextValue(functionArguments.get(0), key);
 
-		if (monitorType == null) {
+		if (monitorType.isEmpty()) {
 			log.error(
 				"Hostname {} - Unable to extract the 1st argument value passed to the lookup function. "
 					+ RESULT_MESSAGE,
@@ -238,7 +238,7 @@ public class MappingProcessor {
 
 		final String attributeValueToExtract = extractColumnValueOrTextValue(functionArguments.get(1), key);
 
-		if (attributeValueToExtract == null) {
+		if (attributeValueToExtract.isEmpty()) {
 			log.error(
 				"Hostname {} - Unable to extract the 2nd argument value passed to the lookup function. "
 					+ RESULT_MESSAGE,
@@ -250,7 +250,7 @@ public class MappingProcessor {
 
 		final String lookupAttributeKey = extractColumnValueOrTextValue(functionArguments.get(2), key);
 
-		if (lookupAttributeKey == null) {
+		if (lookupAttributeKey.isEmpty()) {
 			log.error(
 				"Hostname {} - Unable to extract the 3rd argument value passed to the lookup function. "
 					+ RESULT_MESSAGE,
@@ -262,7 +262,7 @@ public class MappingProcessor {
 
 		final String lookupAttributeValue = extractColumnValueOrTextValue(functionArguments.get(3), key);
 
-		if (lookupAttributeValue == null) {
+		if (lookupAttributeValue.isEmpty()) {
 			log.error(
 				"Hostname {} - Unable to extract the 4th argument value passed to the lookup function. "
 					+ RESULT_MESSAGE,
@@ -338,10 +338,8 @@ public class MappingProcessor {
 	}
 
 	private String megaBit2bit(String value, String key) {
-		final Matcher matcher = MEGABIT_2_BIT_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGABIT_2_BIT_FACTOR);
@@ -355,11 +353,10 @@ public class MappingProcessor {
 	}
 
 	private String legacyFullDuplex(String value, String key) {
-		final Matcher matcher = LEGACY_FULL_DUPLEX_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 		String extractedValue = extracted;
+
 		if (isColumnExtraction(extracted)) {
 			extractedValue = extractColumnValue(extracted, key);
 		}
@@ -379,11 +376,10 @@ public class MappingProcessor {
 	}
 
 	private String legacyLinkStatusFunction(String value, String key) {
-		final Matcher matcher = LEGACY_LINK_STATUS_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 		String extractedValue = extracted;
+
 		if (isColumnExtraction(extracted)) {
 			extractedValue = extractColumnValue(extracted, key);
 		}
@@ -413,11 +409,10 @@ public class MappingProcessor {
 	}
 
 	private String legacyNeedsCleaning(String value, String key) {
-		final Matcher matcher = LEGACY_NEEDS_CLEANING_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 		String extractedValue = extracted;
+
 		if (isColumnExtraction(extracted)) {
 			extractedValue = extractColumnValue(extracted, key);
 		}
@@ -437,11 +432,10 @@ public class MappingProcessor {
 	}
 
 	private String legacyPredictedFailure(String value, String key) {
-		final Matcher matcher = LEGACY_PREDICTED_FAILURE_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 		String extractedValue = extracted;
+
 		if (isColumnExtraction(extracted)) {
 			extractedValue = extractColumnValue(extracted, key);
 		}
@@ -461,11 +455,10 @@ public class MappingProcessor {
 	}
 
 	private String legacyIntrusionStatus(String value, String key) {
-		final Matcher matcher = LEGACY_INTRUSION_STATUS_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 		String extractedValue = extracted;
+
 		if (isColumnExtraction(extracted)) {
 			extractedValue = extractColumnValue(extracted, key);
 		}
@@ -495,11 +488,10 @@ public class MappingProcessor {
 	}
 
 	private String booleanFunction(String value, String key) {
-		final Matcher matcher = BOOLEAN_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 		String extractedValue = extracted;
+
 		if (isColumnExtraction(extracted)) {
 			extractedValue = extractColumnValue(extracted, key);
 		}
@@ -516,10 +508,8 @@ public class MappingProcessor {
 	}
 
 	private String mebiByte2Byte(String value, String key) {
-		final Matcher matcher = MEBIBYTE_2_BYTE_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEBIBYTE_2_BYTE_FACTOR);
@@ -533,10 +523,8 @@ public class MappingProcessor {
 	}
 
 	private String megaHertz2Hertz(String value, String key) {
-		final Matcher matcher = MEGAHERTZ_2_HERTZ_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGAHERTZ_2_HERTZ_FACTOR);
@@ -550,10 +538,8 @@ public class MappingProcessor {
 	}
 
 	private String percent2Ratio(String value, String key) {
-		final Matcher matcher = PERCENT_2_RATIO_PATTERN.matcher(value);
-		matcher.find();
-
-		final String extracted = matcher.group(1);
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, PERCENT_2_RATIO_FACTOR);
