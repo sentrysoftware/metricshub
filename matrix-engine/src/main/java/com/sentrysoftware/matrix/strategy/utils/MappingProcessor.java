@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -73,9 +72,6 @@ public class MappingProcessor {
 	private long collectTime;
 	private List<String> row;
 	private JobInfo jobInfo;
-
-	@Default
-	private Map<String, UnaryOperator<String>> lookupFunctions = new HashMap<>();
 
 	@Default
 	private Map<String, BiFunction<String, Monitor, String>> legacyPowerSupplyFunctions = new HashMap<>();
@@ -189,7 +185,7 @@ public class MappingProcessor {
 			} else if (isLegacyFullDuplex(value)) {
 				result.put(key, legacyFullDuplex(value, key));
 			} else if (isLookupFunction(value)) {
-				lookupFunctions.put(key, lookupValue -> lookup(value, key));
+				result.put(key, lookup(value, key));
 			} else if (isLegacyPowerSupplyUtilization(value)) {
 				legacyPowerSupplyFunctions.put(key, this::legacyPowerSupplyUtilization);
 			} else if (isFakeCounterFunction(value)) {
@@ -731,15 +727,6 @@ public class MappingProcessor {
 		}
 
 		final Map<String, String> result = new HashMap<>();
-		lookupFunctions
-			.entrySet()
-			.forEach(entry -> {
-				final String attributeKey = entry.getKey();
-				result.put(
-					attributeKey,
-					entry.getValue().apply(keyValuePairs.get(attributeKey))
-				);
-			});
 
 		legacyPowerSupplyFunctions
 			.entrySet()
@@ -761,7 +748,6 @@ public class MappingProcessor {
 				);
 			});
 
-		lookupFunctions.clear();
 		legacyPowerSupplyFunctions.clear();
 		computationFunctions.clear();
 
