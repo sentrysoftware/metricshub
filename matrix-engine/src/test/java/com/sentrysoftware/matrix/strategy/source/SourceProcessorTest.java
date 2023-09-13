@@ -12,6 +12,9 @@ import static com.sentrysoftware.matrix.constants.Constants.SNMP_WRONG_COLUMNS_L
 import static com.sentrysoftware.matrix.constants.Constants.TAB1_REF;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
+import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
+import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
+import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,6 +44,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
@@ -68,9 +72,6 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_U = "u";
 	private static final String LOWERCASE_V = "v";
 	private static final String CAMELCASE_VAL1 = "VaL1";
-	private static final String LOWERCASE_VAL1 = "val1";
-	private static final String LOWERCASE_VAL2 = "val2";
-	private static final String LOWERCASE_VAL3 = "val3";
 	private static final String LOWERCASE_V1 = "v1";
 	private static final String LOWERCASE_V2 = "v2";
 	private static final String LOWERCASE_V3 = "v3";
@@ -85,6 +86,7 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_Z = "z";
 	private static final String TAB2_REF = "${source::monitors.cpu.discovery.sources.tab2}";
 	private static final String TAB3_REF = "${source::monitors.cpu.discovery.sources.tab3}";
+	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
 
@@ -262,7 +264,7 @@ class SourceProcessorTest {
 		final Map<String, SourceTable> mapSources = new HashMap<>();
 		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
-			Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3),
+			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3),
 			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3),
 			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z)))
 			.build();
@@ -292,14 +294,14 @@ class SourceProcessorTest {
 
 		// standard
 		List<List<String>> expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
-			Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
+			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1));
 		SourceTable expectedResult = SourceTable.builder().table(expectedJoin).build();
 
 		List<List<String>> matsyaReturn = Arrays.asList(
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
-			Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2,LOWERCASE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
+			Arrays.asList(VALUE_VAL1, VALUE_VAL2,VALUE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1));
 		doReturn(matsyaReturn)
@@ -312,7 +314,7 @@ class SourceProcessorTest {
 			.rightTable(TAB2_REF)
 			.leftKeyColumn(1)
 			.rightKeyColumn(1)
-			.defaultRightLine("a1;b1;c1")
+			.defaultRightLine(VALUE_LIST)
 			.build();
 		assertEquals(expectedJoin, sourceProcessor.process(tableJoinExample).getTable());
 		assertTrue(expectedJoin.size() == sourceProcessor.process(tableJoinExample).getTable().size()
@@ -421,7 +423,7 @@ class SourceProcessorTest {
 		SourceTable tabl1 = SourceTable.builder()
 			.table(Arrays.asList(
 				Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
-				Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3)))
+				Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3)))
 			.rawData(LOWERCASE_A1)
 			.build();
 		SourceTable tabl2 = SourceTable.builder()
@@ -438,7 +440,7 @@ class SourceProcessorTest {
 		// standard
 		List<List<String>> expectedUnion = Arrays.asList(
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
-			Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3),
+			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3),
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
 			Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3));
 
@@ -500,7 +502,7 @@ class SourceProcessorTest {
 		final List<List<String>> expectedTable = new ArrayList<>(
 			Arrays.asList(
 				new ArrayList<>(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)),
-				new ArrayList<>(Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3))
+				new ArrayList<>(Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3))
 			)
 		);
 
@@ -539,14 +541,54 @@ class SourceProcessorTest {
 
 		assertEquals(expectedTable, tableResult);
 
-		tableResult.get(0).add(LOWERCASE_VAL3);
+		tableResult.get(0).add(VALUE_VAL3);
 
 		assertEquals(
 			Arrays.asList(
 				Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
-				Arrays.asList(LOWERCASE_VAL1, LOWERCASE_VAL2, LOWERCASE_VAL3)
+				Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3)
 			),
 			expectedTable
 		);
+	}
+
+	@Test
+	void testProcessStaticSource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+
+		StaticSource staticSource = null;
+		assertEquals(SourceTable.empty(), sourceProcessor.process(staticSource));
+		staticSource = new StaticSource();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(staticSource));
+
+		List<List<String>> expectedTable = Arrays.asList(
+			Arrays.asList(LOWERCASE_A1));
+
+		staticSource = StaticSource.builder().value(LOWERCASE_A1).build();
+
+		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new StaticSource()));
+
+		expectedTable = Arrays.asList(new ArrayList<>(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)));
+
+		staticSource = StaticSource.builder().value(VALUE_LIST).build();
+
+		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
 	}
 }

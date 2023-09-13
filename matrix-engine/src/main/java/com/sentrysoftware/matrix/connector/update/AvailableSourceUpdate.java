@@ -5,11 +5,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.AllAtOnceMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractCollect;
-import com.sentrysoftware.matrix.connector.model.monitor.task.AllAtOnce;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
@@ -27,10 +27,9 @@ public class AvailableSourceUpdate extends AbstractConnectorUpdateChain {
 
 			}
 
-			if (monitor instanceof AllAtOnceMonitorJob allAtOnceMonitorJob) {
-				final AllAtOnce allAtOnce = allAtOnceMonitorJob.getAllAtOnce();
-				processAllAtOnceSources(sourceTypes, allAtOnce);
-
+			if (monitor instanceof SimpleMonitorJob simpleMonitorJob) {
+				final Simple simple = simpleMonitorJob.getSimple();
+				processSimpleSources(sourceTypes, simple);
 			}
 
 			final Map<String, Source> pre = connector.getPre();
@@ -46,14 +45,14 @@ public class AvailableSourceUpdate extends AbstractConnectorUpdateChain {
 	 * Process all at once job sources
 	 * 
 	 * @param sourceTypes Types of the sources to be updated
-	 * @param allAtOnce {@link AllAtOnce} source job
+	 * @param simple {@link Simple} source job
 	 */
-	private void processAllAtOnceSources(
+	private void processSimpleSources(
 		final Set<Class<? extends Source>> sourceTypes,
-		final AllAtOnce allAtOnce
+		final Simple simple
 	) {
-		if (allAtOnce != null) {
-			allAtOnce
+		if (simple != null) {
+			simple
 				.getSources()
 				.values()
 				.forEach(source -> sourceTypes.add(source.getClass()));

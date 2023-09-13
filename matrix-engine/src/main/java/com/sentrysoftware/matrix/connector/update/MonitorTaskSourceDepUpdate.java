@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.AllAtOnceMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractCollect;
-import com.sentrysoftware.matrix.connector.model.monitor.task.AllAtOnce;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
@@ -63,18 +63,18 @@ public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 
 			}
 
-			if (job instanceof AllAtOnceMonitorJob allAtOnceMonitor) {
-				final AllAtOnce allAtOnce = allAtOnceMonitor.getAllAtOnce();
-				if (allAtOnce != null) {
-					final Map<String, Source> allAtOnceSources = allAtOnce.getSources();
-					allAtOnce.setSourceDep(
+			if (job instanceof SimpleMonitorJob simpleMonitorJob) {
+				final Simple simple = simpleMonitorJob.getSimple();
+				if (simple != null) {
+					final Map<String, Source> simpleSources = simple.getSources();
+					simple.setSourceDep(
 						updateSourceDependency(
-							allAtOnceSources,
+							simpleSources,
 							Pattern.compile(
 								String.format(
-									"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)allatonce\\.sources)\\.(%s)\\})\\s*",
+									"\\s*(\\$\\{source::((?i)monitors)\\.%s\\.((?i)simple\\.sources)\\.(%s)\\})\\s*",
 									Pattern.quote(jobName),
-									getSourceIdentifiersRegex(allAtOnceSources)
+									getSourceIdentifiersRegex(simpleSources)
 								),
 								Pattern.MULTILINE
 							),
