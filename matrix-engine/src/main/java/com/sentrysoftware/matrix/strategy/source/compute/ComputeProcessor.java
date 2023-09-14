@@ -107,9 +107,21 @@ public class ComputeProcessor implements IComputeProcessor {
 		for (List<String> line : sourceTable.getTable()) {
 			try {
 				if (columnIndex < line.size()) {
-					line.set(columnIndex, String.valueOf((long) Double.parseDouble(line.get(columnIndex))
-						& (colOperand2 == -1 ? (long) Double.parseDouble(operand2) : (long) Double.parseDouble(line.get(colOperand2)))
-						));
+					// Set the column value of the 'line' at 'columnIndex' to the result of a bitwise 'AND' operation
+					// between the long representation of the value located at column index retrieved through 'line.get(columnIndex)' and either
+					// 'operand2' or the value at another column index 'colOperand2' retrieved through 'line.get(colOperand2)' based on the condition.
+					line.set(
+						columnIndex,
+						String.valueOf(
+							(long) Double.parseDouble(line.get(columnIndex))
+							&
+							(
+								colOperand2 == -1 ?
+									(long) Double.parseDouble(operand2)
+									: (long) Double.parseDouble(line.get(colOperand2))
+							)
+						)
+					);
 				}
 			} catch (NumberFormatException e) {
 				log.warn("Hostname {} - Data is not correctly formatted.", hostname);
