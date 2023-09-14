@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.common.helpers.state;
 
-
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,17 +21,19 @@ public enum LinkStatus implements IState {
 	private static final Map<String, LinkStatus> LINK_STATUS_MAP = Map.of(
 		"0", PLUGGED,
 		"ok", PLUGGED,
+		"plugged", PLUGGED,
 		"1", UNPLUGGED,
 		"degraded", UNPLUGGED,
 		"2", UNPLUGGED,
-		"failed", UNPLUGGED
+		"failed", UNPLUGGED,
+		"unplugged", UNPLUGGED
 	);
 
 	/**
 	 * Interpret the specified state value:
 	 *  <ul>
-	 *  	<li>{0, ok, OK, plugged, PLUGGED} as Plugged</li>
-	 *  	<li>{1, degraded, DEGRADED, failed, FAILED, 2, unplugged, UNPLUGGED} as Unplugged</li>
+	 *  	<li>{0, ok, plugged} as Plugged</li>
+	 *  	<li>{1, degraded, failed, 2, unplugged} as Unplugged</li>
 	 *  </ul>
 	 * @param state String to be interpreted
 	 * @return {@link Optional} of {@link LinkStatus}

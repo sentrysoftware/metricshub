@@ -19,21 +19,21 @@ public enum IntrusionStatus implements IState {
 	 * Map each state value to a {@link IntrusionStatus}
 	 */
 	private static final Map<String, IntrusionStatus> INTRUSION_STATUS_MAP = Map.of(
-			"0", CLOSED,
-			"ok", CLOSED,
-			"closed", CLOSED,
-			"1", OPEN,
-			"warn", OPEN,
-			"warning", OPEN,
-			"2", OPEN,
-			"alarm", OPEN,
-			"open", OPEN);
+		"0", CLOSED,
+		"ok", CLOSED,
+		"closed", CLOSED,
+		"1", OPEN,
+		"degraded", OPEN,
+		"2", OPEN,
+		"failed", OPEN,
+		"open", OPEN
+	);
 
 	/**
 	 * Interpret the specified state value:
 	 *  <ul>
-	 *  	<li>{0, ok, OK, closed, CLOSED} as CLOSED</li>
-	 *  	<li>{1, warn, WARN, warning, WARNING, alarm, ALARM, 2, open, OPEN} as OPEN</li>
+	 *  	<li>{0, ok, closed} as CLOSED</li>
+	 *  	<li>{1, degraded, 2, failed, open} as OPEN</li>
 	 *  </ul>
 	 * @param state String to be interpreted
 	 * @return {@link Optional} of {@link IntrusionStatus}

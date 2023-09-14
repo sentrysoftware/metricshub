@@ -26,11 +26,13 @@ public interface IState {
 	 * @param type              The type used to cast the result
 	 * @return {@link Optional} of <code>T extends IState</code>
 	 */
-	static <T extends IState> Optional<T> interpret(final String state, final @NonNull Map<String, T> stateTranslations,
+	static <T extends IState> Optional<T> interpret(
+			final String state,
+			final @NonNull Map<String, T> stateTranslations,
 			final @NonNull Class<T> type) {
-		if (state == null || state.isBlank()) {
-			return Optional.empty();
-		}
+				if (state == null || state.isBlank()) {
+					return Optional.empty();
+			}
 
 		final IState status = stateTranslations.get(NumberHelper.cleanUpEnumInput(state));
 

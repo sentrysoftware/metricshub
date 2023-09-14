@@ -328,6 +328,12 @@ public class MappingProcessor {
 		return false;
 	}
 
+	/**
+	 * Checks to see if the value contains a lookup function "lookup()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isLookupFunction(String value) {
 		return LOOKUP_PATTERN.matcher(value).find();
 	}
@@ -337,21 +343,42 @@ public class MappingProcessor {
 		return false;
 	}
 
+	
+	/**
+	 * Converts megabit values to bit values
+	 * 
+	 * @param value		String representing a megabit2bit function with a value in megabits
+	 * @param key		The attribute key
+	 * @return			String representing a double value in bits
+	 */
 	private String megaBit2bit(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGABIT_2_BIT_FACTOR);
-		} else {
-			return multiplyValueByFactor(extracted, key, MEGABIT_2_BIT_FACTOR);
 		}
+
+		return multiplyValueByFactor(extracted, key, MEGABIT_2_BIT_FACTOR);
 	}
 
+	/**
+	 * Checks to see if the value contains a megabit2bit function "megabit2bit()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isMegaBit2Bit(String value) {
 		return MEGABIT_2_BIT_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts legacyfullduplex status into a current status
+	 * 
+	 * @param value		String representing a legacyfullduplex function with a legacy status
+	 * @param key		The attribute key
+	 * @return			String representing a current status
+	 */
 	private String legacyFullDuplex(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
@@ -371,10 +398,23 @@ public class MappingProcessor {
 		return null;
 	}
 
+	/**
+	 * Checks to see if the value contains a legacyfullduplex function "legacyfullduplex()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isLegacyFullDuplex(String value) {
 		return LEGACY_FULL_DUPLEX_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts legacylinkstatus status into a current status
+	 * 
+	 * @param value		String representing a legacylinkstatus function with a legacy status
+	 * @param key		The attribute key
+	 * @return			String representing a current status
+	 */
 	private String legacyLinkStatusFunction(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
@@ -394,6 +434,12 @@ public class MappingProcessor {
 		return null;
 	}
 
+	/**
+	 * Checks to see if the value contains a legacylinkstatus function "legacylinkstatus()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isLegacyLinkStatusFunction(String value) {
 		return LEGACY_LINK_STATUS_PATTERN.matcher(value).find();
 	}
@@ -408,6 +454,13 @@ public class MappingProcessor {
 		return false;
 	}
 
+	/**
+	 * Converts legacyneedscleaning status into a current status
+	 * 
+	 * @param value		String representing a legacyneedscleaning function with a legacy status
+	 * @param key		The attribute key
+	 * @return			String representing a current a current status
+	 */
 	private String legacyNeedsCleaning(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
@@ -427,10 +480,23 @@ public class MappingProcessor {
 		return null;
 	}
 
+	/**
+	 * Checks to see if the value contains a legacyneedscleaning function "legacyneedscleaning()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean islegacyNeedsCleaningFunction(String value) {
 		return LEGACY_NEEDS_CLEANING_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts legacyneedscleaning status into a current status
+	 * 
+	 * @param value		String representing a legacyneedscleaning function with a legacy status
+	 * @param key		The attribute key
+	 * @return			String representing a current a current status
+	 */
 	private String legacyPredictedFailure(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
@@ -450,10 +516,23 @@ public class MappingProcessor {
 		return null;
 	}
 
+	/**
+	 * Checks to see if the value contains a legacypredictedfailure function "legacypredictedfailure()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isLegacyPredictedFailureFunction(String value) {
 		return LEGACY_PREDICTED_FAILURE_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts legacyintrusionstatus status into a current status
+	 * 
+	 * @param value		String representing a legacyintrusionstatus function with a legacy status
+	 * @param key		The attribute key
+	 * @return			String representing a current a current status
+	 */
 	private String legacyIntrusionStatus(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
@@ -473,6 +552,12 @@ public class MappingProcessor {
 		return null;
 	}
 
+	/**
+	 * Checks to see if the value contains a legacyintrusionstatus function "legacyintrusionstatus()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isLegacyIntrusionStatusFunction(String value) {
 		return LEGACY_INTRUSION_STATUS_PATTERN.matcher(value).find();
 	}
@@ -487,6 +572,13 @@ public class MappingProcessor {
 		return false;
 	}
 
+	/**
+	 * Converts a boolean status into a current status
+	 * 
+	 * @param value		String representing a boolean function with a legacy status
+	 * @param key		The attribute key
+	 * @return			String representing a current a current status
+	 */
 	private String booleanFunction(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
@@ -503,51 +595,96 @@ public class MappingProcessor {
 		return ZERO;
 	}
 
+	/**
+	 * Checks to see if the value contains a boolean function "boolean()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isBooleanFunction(String value) {
 		return BOOLEAN_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts megabyte values to byte values
+	 * 
+	 * @param value		String representing a megabit2bit function with a value in megabytes
+	 * @param key		The attribute key
+	 * @return			String representing a double value in bytes
+	 */
 	private String mebiByte2Byte(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEBIBYTE_2_BYTE_FACTOR);
-		} else {
-			return multiplyValueByFactor(extracted, key, MEBIBYTE_2_BYTE_FACTOR);
 		}
+
+		return multiplyValueByFactor(extracted, key, MEBIBYTE_2_BYTE_FACTOR);
 	}
 
+	/**
+	 * Checks to see if the value contains a mebibyte2byte function "mebibyte2byte()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isMebiByte2ByteFunction(String value) {
 		return MEBIBYTE_2_BYTE_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts megahertz values to hertz values
+	 * 
+	 * @param value		String representing a megabit2bit function with a value in megahertz
+	 * @param key		The attribute key
+	 * @return			String representing a double value in hertz
+	 */
 	private String megaHertz2Hertz(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGAHERTZ_2_HERTZ_FACTOR);
-		} else {
-			return multiplyValueByFactor(extracted, key, MEGAHERTZ_2_HERTZ_FACTOR);
 		}
+
+		return multiplyValueByFactor(extracted, key, MEGAHERTZ_2_HERTZ_FACTOR);
 	}
 
+	/**
+	 * Checks to see if the value contains a megahertz2hertz function "megahertz2hertz()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isMegaHertz2HertzFunction(String value) {
 		return MEGAHERTZ_2_HERTZ_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts percent values to ratio values
+	 * 
+	 * @param value		String representing a megabit2bit function with a value in percent
+	 * @param key		The attribute key
+	 * @return			String representing a double value as a ratio
+	 */
 	private String percent2Ratio(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
 
 		if (isColumnExtraction(extracted)) {
 			return multiplyValueByFactor(extractColumnValue(extracted, key), key, PERCENT_2_RATIO_FACTOR);
-		} else {
-			return multiplyValueByFactor(extracted, key, PERCENT_2_RATIO_FACTOR);
 		}
+
+		return multiplyValueByFactor(extracted, key, PERCENT_2_RATIO_FACTOR);
 	}
 
+	/**
+	 * Checks to see if the value contains a percent2ration function "percent2ration()"
+	 * 
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isPercentToRatioFunction(String value) {
 		return PERCENT_2_RATIO_PATTERN.matcher(value).find();
 	}
