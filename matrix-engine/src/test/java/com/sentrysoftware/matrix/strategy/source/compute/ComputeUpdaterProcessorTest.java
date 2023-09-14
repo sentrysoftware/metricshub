@@ -14,7 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,5 +54,19 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(Subtract.class));
 		computeUpdaterProcessor.process(Subtract.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(Subtract.class));
+	}
+
+	@Test
+	void testProcessLeftConcat() {
+		doNothing().when(computeProcessor).process(any(LeftConcat.class));
+		computeUpdaterProcessor.process(LeftConcat.builder().column(1).value(EMPTY).build());
+		verify(computeProcessor, times(1)).process(any(LeftConcat.class));
+	}
+
+	@Test
+	void testProcessRightConcat() {
+		doNothing().when(computeProcessor).process(any(RightConcat.class));
+		computeUpdaterProcessor.process(RightConcat.builder().column(1).value(EMPTY).build());
+		verify(computeProcessor, times(1)).process(any(RightConcat.class));
 	}
 }

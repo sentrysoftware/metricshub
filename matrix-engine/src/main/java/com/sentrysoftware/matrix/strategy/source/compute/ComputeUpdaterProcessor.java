@@ -109,7 +109,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final LeftConcat leftConcat) {
-		// TODO Auto-generated method stub
+		processCompute(leftConcat);
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final RightConcat rightConcat) {
-		// TODO Auto-generated method stub
+		processCompute(rightConcat);
 	}
 
 	@Override
