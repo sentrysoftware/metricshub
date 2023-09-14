@@ -311,8 +311,9 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			for (final Entry<String, String> metricEntry : metrics.entrySet()) {
 
 				final String name = metricEntry.getKey();
+
 				// Check if the conditional collection tells that the metric shouldn't be collected
-				if(monitor.isMetricDeactivated(name)){
+				if (monitor.isMetricDeactivated(name)){
 					continue;
 				}
 				final String value = metricEntry.getValue();
@@ -327,25 +328,10 @@ public class DiscoveryStrategy extends AbstractStrategy {
 					continue;
 				}
 
-				// Get monitor metrics from connector
-				final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
-
-				AbstractMetric metric = null;
+				// Set the metrics in the monitor using the connector metrics
 				final MetricFactory metricFactory = new MetricFactory(telemetryManager);
-				if (metricDefinitionMap == null) {
-					metric = metricFactory.collectNumberMetric(monitor, name, value, strategyTime);
-				} else {
-					final MetricDefinition metricDefinition = metricDefinitionMap.get(name);
 
-					// Check whether metric type is Enum
-					if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
-						metric = metricFactory.collectNumberMetric(monitor, name, value, strategyTime);
-					} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
-						// When metric type is stateSet
-						final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
-						metric = metricFactory.collectStateSetMetric(monitor, name, value, stateSet, strategyTime);
-					}
-				}
+				final AbstractMetric metric = metricFactory.collectMetricUsingConnector(connector, monitor, strategyTime, name, value);
 
 				// Tell the collect that the refresh time of the discovered
 				// metric must be refreshed

@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.strategy.detection;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
@@ -149,10 +148,10 @@ public class DetectionStrategy extends AbstractStrategy {
 			return;
 		}
 
-		final MetricDefinition metricDefinition = metricDefinitionMap.get(CONNECTOR_STATUS_METRIC_KEY);
+		final MetricDefinition metricDefinition = metricFactory.getMetricDefinitionFromExtractedMetricName(connector, monitor, CONNECTOR_STATUS_METRIC_KEY);
 
 		// Check whether metric type is Enum
-		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
+		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType) || metricFactory.checkForStateAttribute(monitor.getAttributes())) {
 			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitorFactory, monitor, strategyTime);
 		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
 			// When metric type is stateSet

@@ -64,27 +64,6 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
 	 * When the {@link SourceTable} is ready it is added to {@link TelemetryManager}
 	 *
-	 * @param sources The {@link List} of {@link Source} instances we wish to execute
-	 * @param jobInfo Information about the job such as hostname, monitorType, job name and connectorName.
-	 * @param monitorId the id of the monitor to process
-	 */
-	protected void processSourcesAndComputesWithMonitorId(
-			final List<Source> sources,
-			final JobInfo jobInfo,
-			final String monitorId
-	) {
-
-		processSourcesAndComputes(
-				sources,
-				monitorId,
-				jobInfo
-		);
-	}
-
-	/**
-	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
-	 * When the {@link SourceTable} is ready it is added to {@link TelemetryManager}
-	 *
 	 * @param sources   The {@link List} of {@link Source} instances we wish to execute
 	 * @param monitorId The monitor identifier used in the mono instance processing
 	 * @param jobInfo   Information about the job such as hostname, monitorType, job name and connectorName.

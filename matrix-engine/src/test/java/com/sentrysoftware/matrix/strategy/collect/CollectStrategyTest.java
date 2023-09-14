@@ -96,7 +96,7 @@ public class CollectStrategyTest {
 		MonitorFactory monitorFactory = MonitorFactory.builder().monitorType("enclosure").telemetryManager(telemetryManager)
 			.connectorId(connectorId)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
-				.build();
+			.build();
 		final Monitor enclosure = monitorFactory.createOrUpdateMonitor();
 
 		monitorFactory = MonitorFactory.builder().monitorType("disk_controller").telemetryManager(telemetryManager)
@@ -126,7 +126,6 @@ public class CollectStrategyTest {
 				anyString(),
 				eq(true)
 			);
-
 
 		// Mock source table information for disk_controller
 		doReturn(SourceTable.csvToTable("1;1;healthy", MatrixConstants.TABLE_SEP))

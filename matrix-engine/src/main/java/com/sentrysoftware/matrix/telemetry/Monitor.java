@@ -83,14 +83,29 @@ public class Monitor {
 		this.legacyTextParameters.putAll(legacyTextParameters);
 	}
 
+	/**
+	 * This method adds a new attribute to the current monitor
+	 * @param key attribute key
+	 * @param value attribute value
+	 */
 	public void addAttribute(final String key, final String value){
 		attributes.put(key, value);
 	}
 
+	/**
+	 * This method gets an attribute from the current monitor using its key
+	 * @param key attribute key
+	 * @return attribute value
+	 */
 	public String getAttribute(final String key){
 		return attributes.get(key);
 	}
 
+	/**
+	 * This method returns whether a metric is deactivated
+	 * @param key metric key
+	 * @return boolean
+	 */
 	public boolean isMetricDeactivated(final String key){
 		return MatrixConstants.EMPTY.equals(conditionalCollection.get(key));
 	}

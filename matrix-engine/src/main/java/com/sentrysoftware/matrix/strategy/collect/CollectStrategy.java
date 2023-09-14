@@ -5,9 +5,6 @@ import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.matrix.connector.model.metric.MetricType;
-import com.sentrysoftware.matrix.connector.model.metric.StateSet;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractCollect;
@@ -51,7 +48,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TI
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class CollectStrategy extends AbstractStrategy {
-	private static final String NO_SOURCE_TABLE_CREATE_MSG = "Hostname {} - Collect - No source table created with source key {} for connector {}.";
+
 	public CollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
@@ -63,7 +60,30 @@ public class CollectStrategy extends AbstractStrategy {
 
 	@Override
 	public void prepare() {
-		// TODO Auto-generated method stub
+		final Map<String, Map<String, Monitor>> monitors = telemetryManager.getMonitors();
+
+		if (monitors == null) {
+			return;
+		}
+
+		for (final Map.Entry<String,  Map<String, Monitor>> monitorsEntry : monitors.entrySet()) {
+			final Map<String, Monitor> sameTypeMonitors = monitorsEntry.getValue();
+
+			if (sameTypeMonitors == null) {
+				continue;
+			}
+
+			// Loop over the metrics and if the metric time should be reset, set it to current system time
+			for (final Map.Entry<String,Monitor> sameTypeMonitorsEntry : sameTypeMonitors.entrySet()) {
+				for (final Map.Entry<String, AbstractMetric> metricEntry : sameTypeMonitorsEntry.getValue().getMetrics().entrySet()){
+					final AbstractMetric metric = metricEntry.getValue();
+					if (metric.isResetMetricTime()) {
+						metric.setCollectTime(System.currentTimeMillis());
+						metric.save();
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -92,26 +112,30 @@ public class CollectStrategy extends AbstractStrategy {
 				));
 
 		final Map<String, MonitorJob> sequentialMonitorJobs = connectorMonitorJobs
-				.entrySet()
-				.stream()
-				.filter(entry -> MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
-				.collect(Collectors.toMap(
+			.entrySet()
+			.stream()
+			.filter(entry -> MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
+			.collect(
+				Collectors.toMap(
 					Map.Entry::getKey,
 					Map.Entry::getValue,
 					(oldValue, newValue) -> oldValue,
 					LinkedHashMap::new
-				));
+				)
+			);
 
 		final Map<String, MonitorJob> otherMonitorJobs = connectorMonitorJobs
-				.entrySet()
-				.stream()
-				.filter(entry -> !MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
-				.collect(Collectors.toMap(
+			.entrySet()
+			.stream()
+			.filter(entry -> !MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
+			.collect(
+				Collectors.toMap(
 					Map.Entry::getKey,
 					Map.Entry::getValue,
 					(oldValue, newValue) -> oldValue,
 					LinkedHashMap::new
-				));
+				)
+			);
 
 		// Run monitor jobs defined in monitor jobs priority map (host, enclosure, blade, disk_controller and cpu)  in sequential mode
 		sequentialMonitorJobs
@@ -193,7 +217,8 @@ public class CollectStrategy extends AbstractStrategy {
 						jobInfo
 					)
 					.build();
-				if(collect instanceof MultiInstanceCollect){
+
+				if (collect instanceof MultiInstanceCollect){
 					final Map<String, Monitor> monitors = telemetryManager.findMonitorByType(monitorType);
 					if(monitors == null) {
 						return;
@@ -205,30 +230,34 @@ public class CollectStrategy extends AbstractStrategy {
 						jobInfo
 					);
 
-					processMonitors(monitorType, collect, currentConnector, hostname, null);
+					processMonitors(monitorType, collect.getMapping(), currentConnector, hostname, null);
 
 				} else {
-					// Get monitors by type and connectorId (connector id attr)
+					// Get monitors by type and connectorId (connector id attribute)
 					final  Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorType);
+
 					final Map<String, Monitor> sameTypeSameConnectorMonitors =  sameTypeMonitors.values()
 						.stream()
 						.filter(monitor -> currentConnector.getCompiledFilename().equals(monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID)))
-						.collect(Collectors.toMap(
-							monitorEntry -> monitorEntry.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID),
-							monitorEntry -> monitorEntry,
-							(oldValue, newValue) -> oldValue,
-							LinkedHashMap::new
-						));
+						.collect(
+							Collectors.toMap(
+								monitorEntry -> monitorEntry.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID),
+								monitorEntry -> monitorEntry,
+								(oldValue, newValue) -> oldValue,
+								LinkedHashMap::new
+							)
+						);
+
 					// Loop on each monitor
 					sameTypeSameConnectorMonitors.values()
 						.stream()
 						.forEach(monitor -> {
-							processSourcesAndComputesWithMonitorId(
+							processSourcesAndComputes(
 								orderedSources.getSources(),
-								jobInfo,
-								monitor.getAttribute(MONITOR_ATTRIBUTE_ID)
+								monitor.getAttribute(MONITOR_ATTRIBUTE_ID),
+								jobInfo
 							);
-							processMonitors(monitorType, collect, currentConnector, hostname, monitor);
+							processMonitors(monitorType, collect.getMapping(), currentConnector, hostname, monitor);
 						});
 				}
 			}
@@ -237,24 +266,25 @@ public class CollectStrategy extends AbstractStrategy {
 	/**
 	 * This method processes multi instances (all at once) or mono instance monitors
 	 * @param monitorType type of the monitor
-	 * @param collect an abstract collect
+	 * @param mapping the collect mapping
 	 * @param connector a given connector
 	 * @param hostname the host name
 	 * @param monitor to process : null in case of multi-instance processing
 	 */
 		private void processMonitors(
 			final String monitorType,
-			final AbstractCollect collect,
+			final Mapping mapping,
 			final Connector connector,
 			final String hostname,
 			Monitor monitor
-		){
+		) {
 
-			final Mapping mapping = collect.getMapping();
-			final String connectorId = connector.getCompiledFilename();
-			if(mapping == null) {
+			if (mapping == null) {
 				return;
 			}
+
+			final String connectorId = connector.getCompiledFilename();
+
 			final String mappingSource = mapping.getSource();
 
 			final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(
@@ -265,18 +295,27 @@ public class CollectStrategy extends AbstractStrategy {
 
 			// No sourceTable no monitor
 			if (maybeSourceTable.isEmpty()) {
-				log.debug(NO_SOURCE_TABLE_CREATE_MSG, hostname, mappingSource,connectorId);
+				log.debug(
+					"Hostname {} - Collect - No source table created with source key {} for connector {}.",
+					hostname,
+					mappingSource,
+					connectorId);
 				return;
 			}
+
 			final List<List<String>> table = maybeSourceTable.get().getTable();
+
+			if (table.isEmpty()){
+				return;
+			}
 
 			// If we process single monitor (monoInstance), we loop until first row.
 			// Otherwise, (in case of multi-instance processing), we loop over all the source table rows
-			if(table.isEmpty()){
-				return;
-			}
 			final int rowCountLimit = monitor == null ? table.size() : 1;
 
+			final  Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorType);
+
+			// Loop over the source table rows
 			for (int i= 0; i< rowCountLimit; i ++) {
 				final List<String> row = table.get(i);
 
@@ -291,24 +330,30 @@ public class CollectStrategy extends AbstractStrategy {
 					.build();
 
 				// In case of multi-instance, this method argument "monitor" is null. So, we try to find it by type and connector
-				if(monitor == null){
+				if (monitor == null){
 					// Use the mapping processor to extract attributes and resource
 					final Map<String, String> noContextAttributeInterpretedValues = mappingProcessor.interpretNonContextMappingAttributes();
 
 					final String monitorId = noContextAttributeInterpretedValues.get(MONITOR_ATTRIBUTE_ID);
-					if(monitorId == null){
-						continue;
-					}
-					final  Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorType);
-					if(sameTypeMonitors == null){
+					if (monitorId == null){
 						continue;
 					}
 
-					final Optional<Monitor> maybeMonitor = sameTypeMonitors.values().stream()
-						.filter(currentMonitor -> monitorId.equals(currentMonitor.getAttribute(MONITOR_ATTRIBUTE_ID))
-							&& connectorId.equals(currentMonitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID)))
+					if (sameTypeMonitors == null){
+						continue;
+					}
+
+					final Optional<Monitor> maybeMonitor = sameTypeMonitors
+						.values()
+						.stream()
+						.filter(currentMonitor ->
+							monitorId.equals(currentMonitor.getAttribute(MONITOR_ATTRIBUTE_ID))
+								&& connectorId.equals(currentMonitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID))
+						)
 						.findFirst();
-					if(maybeMonitor.isEmpty()){
+
+					// If no monitor matches the search criteria, continue
+					if (maybeMonitor.isEmpty()){
 						continue;
 					}
 					monitor = maybeMonitor.get();
@@ -320,57 +365,60 @@ public class CollectStrategy extends AbstractStrategy {
 
 				metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-				for (final Map.Entry<String, String> metricEntry : metrics.entrySet()) {
-
-					final String name = metricEntry.getKey();
-
-					// Check if the conditional collection tells that the metric shouldn't be collected
-					if(monitor.isMetricDeactivated(name)){
-						continue;
-					}
-					final String value = metricEntry.getValue();
-
-					if (value == null) {
-						log.warn("Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
-							hostname,
-							name,
-							monitorType,
-							connectorId
-						);
-						continue;
-					}
-
-					// Get monitor metrics from connector
-					final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
-
-					AbstractMetric metric = null;
-					final MetricFactory metricFactory = new MetricFactory(telemetryManager);
-					if (metricDefinitionMap == null) {
-						metric = metricFactory.collectNumberMetric(monitor, name, value, strategyTime);
-					} else {
-						final MetricDefinition metricDefinition = metricDefinitionMap.get(name);
-
-						// Check whether metric type is Enum
-						if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
-							metric = metricFactory.collectNumberMetric(monitor, name, value, strategyTime);
-						} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
-							// When metric type is stateSet
-							final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
-							metric = metricFactory.collectStateSetMetric(monitor, name, value, stateSet, strategyTime);
-						}
-					}
-
-					// Tell the collect that the refresh time of the discovered metric must be refreshed
-					if (metric != null) {
-						metric.setResetMetricTime(true);
-					}
-				}
+				collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics);
 
 				// Collect legacy parameters
 				monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
 				monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
 			}
 		}
+
+	/**
+	 * This method collects monitor metrics
+	 * @param monitorType the monitor's type
+	 * @param connector connector
+	 * @param hostname host name
+	 * @param monitor a given monitor
+	 * @param connectorId connector id
+	 * @param metrics metrics
+	 */
+	private void collectMonitorMetrics(
+		final String monitorType,
+		final Connector connector,
+		final String hostname,
+		final Monitor monitor,
+		final String connectorId,
+		final Map<String, String> metrics
+	) {
+		for (final Map.Entry<String, String> metricEntry : metrics.entrySet()) {
+
+			final String name = metricEntry.getKey();
+
+			// Check if the conditional collection tells that the metric shouldn't be collected
+			if (monitor.isMetricDeactivated(name)){
+				continue;
+			}
+
+			final String value = metricEntry.getValue();
+
+			if (value == null) {
+				log.warn(
+					"Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
+					hostname,
+					name,
+					monitorType,
+					connectorId
+				);
+
+				continue;
+			}
+
+			// Set the metrics in the monitor using the connector metrics
+			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+
+			metricFactory.collectMetricUsingConnector(connector, monitor, strategyTime, name, value);
+		}
+	}
 
 	/**
 	 *  This method is the main collection step method

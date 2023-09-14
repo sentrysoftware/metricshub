@@ -1,6 +1,11 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
+import com.sentrysoftware.matrix.connector.model.metric.MetricType;
+import com.sentrysoftware.matrix.connector.model.metric.StateSet;
 import com.sentrysoftware.matrix.strategy.detection.ConnectorTestResult;
+import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
 import lombok.AllArgsConstructor;
@@ -179,14 +184,95 @@ public class MetricFactory {
 	 * @param monitorFactory is responsible for metric collections
 	 * @param monitor the monitor we currently collect its status metric
 	 */
-	public void collectConnectorStatusNumberMetric(final ConnectorTestResult connectorTestResult,
-													final MonitorFactory monitorFactory, final Monitor monitor, final long strategyTime) {
+	public void collectConnectorStatusNumberMetric(
+			final ConnectorTestResult connectorTestResult,
+			final MonitorFactory monitorFactory,
+			final Monitor monitor,
+			final long strategyTime) {
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 		if (connectorTestResult.isSuccess()) {
 			metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, strategyTime);
 		} else {
 			metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 0.0, strategyTime);
 		}
+	}
+
+	/**
+	 * This method returns a metric definition based on the extracted metric name (metric name without attributes)
+	 * @param connector a given connector
+	 * @param monitor a given monitor
+	 * @param metricName a given metric name
+	 * @return MetricDefinition instance
+	 */
+	public MetricDefinition getMetricDefinitionFromExtractedMetricName(final Connector connector, final Monitor monitor, final String metricName) {
+
+		// Get monitor metrics from connector
+		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
+
+		// Remove attribute parts from the metric name
+		String extractedName = extractName(metricName);
+
+		// Retrieve the metric definition using the extracted name
+		return metricDefinitionMap.get(extractedName);
+	}
+
+	/**
+	 * This method collects a metric using the connector metrics
+	 *
+	 * @param connector    a given connector
+	 * @param monitor      a given monitor
+	 * @param strategyTime strategy time
+	 * @param metricName   metric's name
+	 * @param metricValue  metric's value
+	 * @return AbstractMetric instance
+	 */
+	public AbstractMetric collectMetricUsingConnector(
+			final Connector connector,
+			final Monitor monitor,
+			final long strategyTime,
+			final String metricName,
+			final String metricValue
+	) {
+
+		AbstractMetric metric = null;
+
+		// Retrieve the metric definition using the extracted metric name
+		final MetricDefinition metricDefinition = getMetricDefinitionFromExtractedMetricName(connector, monitor, metricName);
+
+		// Create a boolean flag to check for the state attribute
+		boolean hasStateAttribute = checkForStateAttribute(monitor.getAttributes());
+
+		// Update the Number metric check
+		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType) || hasStateAttribute) {
+			metric = collectNumberMetric(monitor, metricName, metricValue, strategyTime);
+		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
+			// When metric type is stateSet
+			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
+			metric = collectStateSetMetric(monitor, metricName, metricValue, stateSet, strategyTime);
+		}
+		return metric;
+	}
+
+	/**
+	 * This method removes attribute parts from the metric name
+	 * @param name metric name with or without attributes
+	 * @return metric name without attributes
+	 */
+	private String extractName(final String name) {
+		final int openBracketPosition = name.indexOf("{");
+		if (openBracketPosition >= 0) {
+			return name.substring(0, openBracketPosition);
+		}
+		return name;
+	}
+
+	/**
+	 * This method returns a boolean flag to check whether the state attribute exists
+	 * @param attributes
+	 * @return
+	 */
+	public boolean checkForStateAttribute(final Map<String, String> attributes) {
+		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("hw.status"));
 	}
 
 }
