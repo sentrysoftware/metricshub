@@ -83,7 +83,53 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute And Exec")
 	public void process(@SpanAttribute("compute.definition") final And and) {
-		// TODO Auto-generated method stub
+
+		if (and == null) {
+			log.warn("Hostname {} - Compute Operation (And) is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		String operand2 = and.getValue();
+
+		if (and.getColumn() == null || operand2 == null) {
+			log.warn("Hostname {} - Arguments in Compute Operation (And) : {} are wrong, the table remains unchanged.", hostname, and);
+			return;
+		}
+
+		int columnIndex = and.getColumn() - 1;
+
+		if (columnIndex < 0) {
+			log.warn("Hostname {} - The index of the column to which apply the And operation cannot be < 1, the And computation cannot be performed.", hostname);
+			return;
+		}
+
+		int colOperand2 = getColumnIndex(operand2);
+
+		for (List<String> line : sourceTable.getTable()) {
+			try {
+				if (columnIndex < line.size()) {
+					// Set the column value of the 'line' at 'columnIndex' to the result of a bitwise 'AND' operation
+					// between the long representation of the value located at column index retrieved through 'line.get(columnIndex)' and either
+					// 'operand2' or the value at another column index 'colOperand2' retrieved through 'line.get(colOperand2)' based on the condition.
+					line.set(
+						columnIndex,
+						String.valueOf(
+							(long) Double.parseDouble(line.get(columnIndex))
+							&
+							(
+								colOperand2 == -1 ?
+									(long) Double.parseDouble(operand2)
+									: (long) Double.parseDouble(line.get(colOperand2))
+							)
+						)
+					);
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Hostname {} - Data is not correctly formatted.", hostname);
+			}
+		}
+
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
