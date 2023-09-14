@@ -138,7 +138,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(addition);
 		assertEquals(table, sourceTable.getTable());
 
-		List<List<String>> result = Arrays.asList(
+		final List<List<String>> result = Arrays.asList(
 			Arrays.asList(ID1, "502.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "1505.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "202.0", TWO, VALUE_VAL3));
@@ -155,7 +155,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(addColumn);
 		assertEquals(result, sourceTable.getTable());
 
-		Add addValue = Add.builder().column(2).value(TEN).build();
+		final Add addValue = Add.builder().column(2).value(TEN).build();
 		computeProcessor.process(addValue);
 		assertEquals(Arrays.asList(
 			Arrays.asList(ID1, "512.0", TWO, VALUE_VAL1),
@@ -179,7 +179,7 @@ class ComputeProcessorTest {
 
 	@Test
 	void testProcessDivide() {
-		List<List<String>> table = Arrays.asList(
+		final List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
 			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED,FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3));
@@ -205,7 +205,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(divide);
 		assertEquals(table, sourceTable.getTable());
 
-		List<List<String>> result1 = Arrays.asList(
+		final List<List<String>> result1 = Arrays.asList(
 			Arrays.asList(ID1, "250.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "300.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "100.0", TWO, VALUE_VAL3));
@@ -222,7 +222,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(valueColumn);
 		assertEquals(result1, sourceTable.getTable());
 
-		List<List<String>> result2 = Arrays.asList(
+		final List<List<String>> result2 = Arrays.asList(
 			Arrays.asList(ID1, "25.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "30.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "10.0", TWO, VALUE_VAL3));
@@ -238,11 +238,7 @@ class ComputeProcessorTest {
 
 	@Test
 	void testProcessMultiply() {
-		SourceTable sourceTable = new SourceTable();
-		ComputeProcessor computeProcessor = new ComputeProcessor();
-		computeProcessor.setSourceTable(sourceTable);
-
-		List<List<String>> table = Arrays.asList(
+		final List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
 			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED,FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3));
@@ -264,7 +260,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(multiply);
 		assertEquals(table, sourceTable.getTable());
 
-		List<List<String>> result = Arrays.asList(
+		final List<List<String>> result = Arrays.asList(
 			Arrays.asList(ID1, "1000.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "7500.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "400.0", TWO, VALUE_VAL3));
@@ -300,7 +296,7 @@ class ComputeProcessorTest {
 
 	@Test
 	void testProcessSubtract() {
-		List<List<String>> table = Arrays.asList(
+		final List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
 			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED,FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3));
@@ -322,7 +318,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(substract);
 		assertEquals(table, sourceTable.getTable());
 
-		List<List<String>> result = Arrays.asList(
+		final List<List<String>> result = Arrays.asList(
 			Arrays.asList(ID1, "498.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "1495.0", FIVE, VALUE_VAL2),
 			Arrays.asList(ID1, "198.0", TWO, VALUE_VAL3));
@@ -339,7 +335,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(substractColumn);
 		assertEquals(result, sourceTable.getTable());
 
-		Subtract substractValue = Subtract.builder().column(2).value(TEN).build();
+		final Subtract substractValue = Subtract.builder().column(2).value(TEN).build();
 		computeProcessor.process(substractValue);
 		assertEquals(Arrays.asList(
 			Arrays.asList(ID1, "488.0", TWO, VALUE_VAL1),
@@ -350,11 +346,11 @@ class ComputeProcessorTest {
 
 	@Test
 	void testPerformMathComputeOnLine() {
-		List<List<String>> table = Collections.singletonList(Arrays.asList(SINGLE_SPACE, FOO, FOUR_POINT_ZERO));
+		final List<List<String>> table = Collections.singletonList(Arrays.asList(SINGLE_SPACE, FOO, FOUR_POINT_ZERO));
 		sourceTable.setTable(table);
 
 		// column index > row size
-		Divide divide = Divide
+		final Divide divide = Divide
 			.builder()
 			.value(TWO)
 			.column(4)
@@ -388,10 +384,6 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessAnd() {
 
-		SourceTable sourceTable = new SourceTable();
-		ComputeProcessor computeProcessor = new ComputeProcessor();
-		computeProcessor.setSourceTable(sourceTable);
-
 		List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),	// 0000 0001
 			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),	// 0000 1110
@@ -409,7 +401,7 @@ class ComputeProcessorTest {
 		assertEquals(tableResult, sourceTable.getTable());
 
 		// test TranslationTable is null
-		And and = And.builder().column(0).value(ONE).build();	// and : 0000 0001
+		final And and = And.builder().column(0).value(ONE).build();	// and : 0000 0001
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 
@@ -464,11 +456,11 @@ class ComputeProcessorTest {
 		initializeSourceTable();
 
 		// Test with empty LeftConcat
-		LeftConcat leftConcat = new LeftConcat();
+		final LeftConcat leftConcat = new LeftConcat();
 
 		computeProcessor.process(leftConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(LINE_1, table.get(0));
 		assertEquals(LINE_2, table.get(1));
@@ -512,11 +504,11 @@ class ComputeProcessorTest {
 		sourceTable.getTable().add(new ArrayList<>(LINE_2_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_3_ONE_COLUMN));
 
-		LeftConcat leftConcat = LeftConcat.builder().column(1).value(PREFIX).build();
+		final LeftConcat leftConcat = LeftConcat.builder().column(1).value(PREFIX).build();
 
 		computeProcessor.process(leftConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Collections.singletonList(PREFIX_ID1)), table.get(0));
 		assertEquals(new ArrayList<>(Collections.singletonList(PREFIX_ID2)), table.get(1));
@@ -527,11 +519,11 @@ class ComputeProcessorTest {
 	void testProcessLeftConcatColumn() {
 		initializeSourceTable();
 
-		LeftConcat leftConcat = LeftConcat.builder().column(3).value(DOLLAR_1).build();
+		final LeftConcat leftConcat = LeftConcat.builder().column(3).value(DOLLAR_1).build();
 
 		computeProcessor.process(leftConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "ID1MANUFACTURER1", NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "ID2MANUFACTURER2", NUMBER_OF_DISKS2)), table.get(1));
@@ -542,11 +534,11 @@ class ComputeProcessorTest {
 	void testProcessLeftConcatNotColumn1() {
 		initializeSourceTable();
 
-		LeftConcat leftConcat = LeftConcat.builder().column(3).value("$1_").build();
+		final LeftConcat leftConcat = LeftConcat.builder().column(3).value("$1_").build();
 
 		computeProcessor.process(leftConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "$1_MANUFACTURER1", NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "$1_MANUFACTURER2", NUMBER_OF_DISKS2)), table.get(1));
@@ -557,11 +549,11 @@ class ComputeProcessorTest {
 	void testProcessLeftConcatNotColumn2() {
 		initializeSourceTable();
 
-		LeftConcat leftConcat = LeftConcat.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
+		final LeftConcat leftConcat = LeftConcat.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
 
 		computeProcessor.process(leftConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "_$1MANUFACTURER1", NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "_$1MANUFACTURER2", NUMBER_OF_DISKS2)), table.get(1));
@@ -572,11 +564,11 @@ class ComputeProcessorTest {
 	void testProcessLeftConcatNewColumn() {
 		initializeSourceTable();
 
-		LeftConcat leftConcat = LeftConcat.builder().column(3).value("new,Column;prefix_").build();
+		final LeftConcat leftConcat = LeftConcat.builder().column(3).value("new,Column;prefix_").build();
 
 		computeProcessor.process(leftConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)), table.get(1));
@@ -587,11 +579,11 @@ class ComputeProcessorTest {
 	void testProcessLeftConcatTwoNewColumns() {
 		initializeSourceTable();
 
-		LeftConcat leftConcat = LeftConcat.builder().column(1).value("new,$4;AnotherNew.Column;prefix_").build();
+		final LeftConcat leftConcat = LeftConcat.builder().column(1).value("new,$4;AnotherNew.Column;prefix_").build();
 
 		computeProcessor.process(leftConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID1, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)), table.get(1));
@@ -603,11 +595,11 @@ class ComputeProcessorTest {
 		initializeSourceTable();
 
 		// Test with empty RightConcat
-		RightConcat rightConcat = new RightConcat();
+		final RightConcat rightConcat = new RightConcat();
 
 		computeProcessor.process(rightConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(LINE_1, table.get(0));
 		assertEquals(LINE_2, table.get(1));
@@ -634,7 +626,7 @@ class ComputeProcessorTest {
 		rightConcat.setColumn(5);
 		rightConcat.setValue(FOO);
 		computeProcessor.process(rightConcat);
-		List<List<String>> expected = Arrays.asList(LINE_1_RESULT_RIGHT, LINE_2_RESULT_RIGHT, LINE_3_RESULT_RIGHT);
+		final List<List<String>> expected = Arrays.asList(LINE_1_RESULT_RIGHT, LINE_2_RESULT_RIGHT, LINE_3_RESULT_RIGHT);
 		expected.get(0).add(FOO);
 		expected.get(1).add(FOO);
 		expected.get(2).add(FOO);
@@ -653,11 +645,11 @@ class ComputeProcessorTest {
 		sourceTable.getTable().add(new ArrayList<>(LINE_2_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_3_ONE_COLUMN));
 
-		RightConcat rightConcat = RightConcat.builder().column(1).value(SUFFIX).build();
+		final RightConcat rightConcat = RightConcat.builder().column(1).value(SUFFIX).build();
 
 		computeProcessor.process(rightConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Collections.singletonList(ID1_SUFFIX)), table.get(0));
 		assertEquals(new ArrayList<>(Collections.singletonList(ID2_SUFFIX)), table.get(1));
@@ -668,11 +660,11 @@ class ComputeProcessorTest {
 	void testProcessRightConcatColumn() {
 		initializeSourceTable();
 
-		RightConcat rightConcat = RightConcat.builder().column(3).value(DOLLAR_1).build();
+		final RightConcat rightConcat = RightConcat.builder().column(3).value(DOLLAR_1).build();
 
 		computeProcessor.process(rightConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "MANUFACTURER1ID1", NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "MANUFACTURER2ID2", NUMBER_OF_DISKS2)), table.get(1));
@@ -683,11 +675,11 @@ class ComputeProcessorTest {
 	void testProcessRightConcatNotColumn1() {
 		initializeSourceTable();
 
-		RightConcat rightConcat = RightConcat.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
+		final RightConcat rightConcat = RightConcat.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
 
 		computeProcessor.process(rightConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "MANUFACTURER1_$1", NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "MANUFACTURER2_$1", NUMBER_OF_DISKS2)), table.get(1));
@@ -698,11 +690,11 @@ class ComputeProcessorTest {
 	void testProcessRightConcatNewColumn() {
 		initializeSourceTable();
 
-		RightConcat rightConcat = RightConcat.builder().column(3).value("_suffix;new,Column").build();
+		final RightConcat rightConcat = RightConcat.builder().column(3).value("_suffix;new,Column").build();
 
 		computeProcessor.process(rightConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS2)), table.get(1));
@@ -713,11 +705,11 @@ class ComputeProcessorTest {
 	void testProcessRightConcatTwoNewColumns() {
 		initializeSourceTable();
 
-		RightConcat rightConcat = RightConcat.builder().column(1).value("_suffix;new,$4;AnotherNew.Column").build();
+		final RightConcat rightConcat = RightConcat.builder().column(1).value("_suffix;new,$4;AnotherNew.Column").build();
 
 		computeProcessor.process(rightConcat);
 
-		List<List<String>> table = sourceTable.getTable();
+		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(new ArrayList<>(Arrays.asList(ID1_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(ID2_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)), table.get(1));
@@ -736,7 +728,7 @@ class ComputeProcessorTest {
 
 		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getValue() is not null,
 		// RightConcat.getColumn() <= 0
-		RightConcat rightConcat = RightConcat.builder().value(SUFFIX).column(0).build();
+		final RightConcat rightConcat = RightConcat.builder().value(SUFFIX).column(0).build();
 		computeProcessor.process(rightConcat);
 		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
 
