@@ -49,7 +49,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final And and) {
-		// TODO Auto-generated method stub
+		processCompute(and);
 	}
 
 	@Override
