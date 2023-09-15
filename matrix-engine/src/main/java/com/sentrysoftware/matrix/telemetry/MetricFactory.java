@@ -295,7 +295,7 @@ public class MetricFactory {
 		final String connectorId,
 		final Map<String, String> metrics,
 		final long strategyTime,
-		final String operation
+		final boolean isDiscovery
 	) {
 		for (final Map.Entry<String, String> metricEntry : metrics.entrySet()) {
 
@@ -325,7 +325,7 @@ public class MetricFactory {
 
 			// Tell the collect that the refresh time of the discovered
 			// metric must be refreshed
-			if (operation.equals("discovery") && metric != null) {
+			if (isDiscovery && metric != null) {
 				metric.setResetMetricTime(true);
 			}
 		}

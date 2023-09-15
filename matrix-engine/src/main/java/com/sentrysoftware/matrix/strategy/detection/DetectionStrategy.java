@@ -148,10 +148,10 @@ public class DetectionStrategy extends AbstractStrategy {
 			return;
 		}
 
-		final MetricDefinition metricDefinition = metricFactory.getMetricDefinitionFromExtractedMetricName(connector, monitor, CONNECTOR_STATUS_METRIC_KEY);
+		final MetricDefinition metricDefinition = metricDefinitionMap.get(CONNECTOR_STATUS_METRIC_KEY);
 
 		// Check whether metric type is Enum
-		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType) || metricFactory.checkForStateAttribute(monitor.getAttributes())) {
+		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
 			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
 		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
 			// When metric type is stateSet

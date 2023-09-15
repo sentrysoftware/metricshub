@@ -358,7 +358,7 @@ public class CollectStrategy extends AbstractStrategy {
 
 				final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
-				metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, "collect");
+				metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, false);
 
 				// Collect legacy parameters
 				monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());

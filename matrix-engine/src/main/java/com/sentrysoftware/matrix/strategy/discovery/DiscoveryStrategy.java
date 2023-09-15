@@ -306,7 +306,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
-			metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, "discovery");
+			metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, true);
 
 			// Collect legacy parameters
 			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
