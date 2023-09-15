@@ -481,7 +481,7 @@ public class ComputeProcessor implements IComputeProcessor {
 					int columnIndex = abstractConcat.getColumn() - 1;
 					String concatString = abstractConcat.getValue();
 
-					// If abstractConcat.getString() is like "Column(n)",
+					// If abstractConcat.getValue() is like "$n",
 					// we concat the column n instead of abstractConcat.getString()
 					Matcher matcher = COLUMN_PATTERN.matcher(concatString);
 					if (matcher.matches()) {
@@ -536,7 +536,8 @@ public class ComputeProcessor implements IComputeProcessor {
 		final List<String> line,
 		final int columnIndex,
 		final int concatColumnIndex,
-		final AbstractConcat abstractConcat) {
+		final AbstractConcat abstractConcat
+	) {
 
 		String result = abstractConcat instanceof LeftConcat
 			? line.get(concatColumnIndex).concat(line.get(columnIndex))
