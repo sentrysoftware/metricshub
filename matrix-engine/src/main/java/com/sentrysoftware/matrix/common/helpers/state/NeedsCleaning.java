@@ -11,7 +11,7 @@ public enum NeedsCleaning implements IState {
 
 	OK(0),
 	NEEDED(1),
-	NEEDED_IMMEDIATELY(2);
+	NEEDED_IMMEDIATELY(1);
 
 	@Getter
 	private int numericValue;

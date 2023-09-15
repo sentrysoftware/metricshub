@@ -48,10 +48,10 @@ class MappingProcessorTest {
 			)
 			.build();
 
-		final Optional<SourceTable> sourceTableOpt = mappingProcessor.lookupSourceTable();
-		assertTrue(sourceTableOpt.isPresent());
+		final Optional<SourceTable> maybeSourceTable = mappingProcessor.lookupSourceTable();
+		assertTrue(maybeSourceTable.isPresent());
 
-		assertEquals(HARDCODED_SOURCE, sourceTableOpt.get().getTable().get(0).get(0));
+		assertEquals(HARDCODED_SOURCE, maybeSourceTable.get().getTable().get(0).get(0));
 	}
 
 	@Test
@@ -86,10 +86,10 @@ class MappingProcessorTest {
 			)
 			.build();
 
-		final Optional<SourceTable> sourceTableOpt = mappingProcessor.lookupSourceTable();
-		assertTrue(sourceTableOpt.isPresent());
+		final Optional<SourceTable> maybeSourceTable = mappingProcessor.lookupSourceTable();
+		assertTrue(maybeSourceTable.isPresent());
 
-		assertEquals(expected, sourceTableOpt.get());
+		assertEquals(expected, maybeSourceTable.get());
 	}
 
 	@Test
@@ -136,7 +136,7 @@ class MappingProcessorTest {
 			"1",
 			"2",
 			"1"
-       );
+		);
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
@@ -173,7 +173,7 @@ class MappingProcessorTest {
 				"testPercent2Ratio", "percent2ratio(10)",
 				"testValue", "10",
 				"testInvalidValue", "percent2ratio(ten)"
-           );
+			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 		}

@@ -12,7 +12,6 @@ public enum DuplexMode implements IState {
 	HALF(0),
 	FULL(1);
 
-
 	@Getter
 	private int numericValue;
 

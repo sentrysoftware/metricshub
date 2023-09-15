@@ -30,7 +30,7 @@ public interface IState {
 		final String state,
 		final @NonNull Map<String, T> stateTranslations,
 		final @NonNull Class<T> type
-     ) {
+	) {
  
 		if (state == null || state.isBlank()) {
 			return Optional.empty();
