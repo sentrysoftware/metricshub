@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.strategy.detection;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
@@ -119,7 +118,6 @@ public class DetectionStrategy extends AbstractStrategy {
 		final String connectorId = connector.getCompiledFilename();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_APPLIES_TO_OS, connector.getConnectorIdentity().getDetection()
 			.getAppliesTo().toString());
 		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
@@ -146,7 +144,7 @@ public class DetectionStrategy extends AbstractStrategy {
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
 		if (metricDefinitionMap == null) {
-			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitorFactory, monitor, strategyTime);
+			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
 			return;
 		}
 
@@ -154,7 +152,7 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Check whether metric type is Enum
 		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
-			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitorFactory, monitor, strategyTime);
+			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
 		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
 			// When metric type is stateSet
 			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);

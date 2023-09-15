@@ -1,154 +1,51 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
-import static com.sentrysoftware.matrix.constants.Constants.HARDCODED_SOURCE;
-import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
-import static com.sentrysoftware.matrix.constants.Constants.SOURCE_REF_KEY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.common.JobInfo;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.telemetry.HostProperties;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import static com.sentrysoftware.matrix.constants.Constants.HARDCODED_SOURCE;
+import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MappingProcessorTest {
-
-	@Test
-	void testLookupSourceTableFromHardcodedSource() {
-		final HostProperties hostProperties = HostProperties
-			.builder()
-			.build();
-
-		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME);
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.build();
-
-		final MappingProcessor mappingProcessor = MappingProcessor
-			.builder()
-			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
-			.telemetryManager(telemetryManager)
-			.mapping(
-				Mapping
-					.builder()
-					.source(HARDCODED_SOURCE)
-					.build()
-			)
-			.build();
-
-		final Optional<SourceTable> maybeSourceTable = mappingProcessor.lookupSourceTable();
-		assertTrue(maybeSourceTable.isPresent());
-
-		assertEquals(HARDCODED_SOURCE, maybeSourceTable.get().getTable().get(0).get(0));
-	}
-
-	@Test
-	void testLookupSourceTableFromReferencedSource() {
-		final HostProperties hostProperties = HostProperties
-			.builder()
-			.build();
-
-		final SourceTable expected = SourceTable
-			.builder()
-			.table(List.of(List.of("value")))
-			.build();
-
-		hostProperties
-			.getConnectorNamespace(MY_CONNECTOR_1_NAME)
-			.addSourceTable(SOURCE_REF_KEY, expected);
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.build();
-
-		final MappingProcessor mappingProcessor = MappingProcessor
-			.builder()
-			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
-			.telemetryManager(telemetryManager)
-			.mapping(
-				Mapping
-					.builder()
-					.source(SOURCE_REF_KEY)
-					.build()
-			)
-			.build();
-
-		final Optional<SourceTable> maybeSourceTable = mappingProcessor.lookupSourceTable();
-		assertTrue(maybeSourceTable.isPresent());
-
-		assertEquals(expected, maybeSourceTable.get());
-	}
-
-	@Test
-	void testLookupSourceTableFromReferencedSourceNotFound() {
-		final HostProperties hostProperties = HostProperties
-			.builder()
-			.build();
-
-		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME);
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.build();
-
-		final MappingProcessor mappingProcessor = MappingProcessor
-			.builder()
-			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
-			.telemetryManager(telemetryManager)
-			.mapping(
-				Mapping
-					.builder()
-					.source(SOURCE_REF_KEY)
-					.build()
-			)
-			.build();
-
-		assertTrue(mappingProcessor.lookupSourceTable().isEmpty());
-	}
 
 	@Test
 	void testInterpretNonContextMapping() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
 
 		final List<String> row = List.of(
-			"1",
-			"1",
-			"1",
-			"10",
-			"10",
-			"1",
-			"1",
-			"1",
-			"1",
-			"2",
-			"1"
+				"1",
+				"1",
+				"1",
+				"10",
+				"10",
+				"1",
+				"1",
+				"1",
+				"1",
+				"2",
+				"1"
 		);
 
 		final MappingProcessor mappingProcessor = MappingProcessor
-			.builder()
-			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
-			.telemetryManager(telemetryManager)
-			.mapping(Mapping
 				.builder()
-				.source(HARDCODED_SOURCE)
-				.build()
-			)
-			.row(row)
-			.build();
+				.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
+				.telemetryManager(telemetryManager)
+				.mapping(Mapping
+						.builder()
+						.source(HARDCODED_SOURCE)
+						.build()
+				)
+				.row(row)
+				.build();
 
 		// Value conversion tests, basic value and invalid value
 		{
@@ -167,12 +64,12 @@ class MappingProcessorTest {
 			expected.put("testInvalidValue", null);
 
 			final Map<String, String> keyValuePairs = Map.of(
-				"testMebiByte2Byte", "mebibyte2byte(1)",
-				"testMegaHertz2Hertz", "megahertz2hertz(1)",
-				"testMegaBit2Bit", "megabit2bit(1)",
-				"testPercent2Ratio", "percent2ratio(10)",
-				"testValue", "10",
-				"testInvalidValue", "percent2ratio(ten)"
+					"testMebiByte2Byte", "mebibyte2byte(1)",
+					"testMegaHertz2Hertz", "megahertz2hertz(1)",
+					"testMegaBit2Bit", "megabit2bit(1)",
+					"testPercent2Ratio", "percent2ratio(10)",
+					"testValue", "10",
+					"testInvalidValue", "percent2ratio(ten)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -181,19 +78,19 @@ class MappingProcessorTest {
 		// Value conversion tests and basic value
 		{
 			final Map<String, String> expected = Map.of(
-				"testMebiByte2Byte", "1048576.0",
-				"testMegaHertz2Hertz", "1000000.0",
-				"testMegaBit2Bit", "1000000.0",
-				"testPercent2Ratio", "0.1",
-				"testValue", "10"
+					"testMebiByte2Byte", "1048576.0",
+					"testMegaHertz2Hertz", "1000000.0",
+					"testMegaBit2Bit", "1000000.0",
+					"testPercent2Ratio", "0.1",
+					"testValue", "10"
 			);
 
 			final Map<String, String> keyValuePairs = Map.of(
-				"testMebiByte2Byte", "mebibyte2byte($1)",
-				"testMegaHertz2Hertz", "megahertz2hertz($2)",
-				"testMegaBit2Bit", "megabit2bit($3)",
-				"testPercent2Ratio", "percent2ratio($4)",
-				"testValue", "$5"
+					"testMebiByte2Byte", "mebibyte2byte($1)",
+					"testMegaHertz2Hertz", "megahertz2hertz($2)",
+					"testMegaBit2Bit", "megabit2bit($3)",
+					"testPercent2Ratio", "percent2ratio($4)",
+					"testValue", "$5"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -202,21 +99,21 @@ class MappingProcessorTest {
 		// Legacy conversion tests with correct values
 		{
 			final Map<String, String> expected = Map.of(
-				"testLegacyFullDuplex", "1",
-				"testLegacyPredictedFailure", "1",
-				"testLegacyIntrusionStatus", "1",
-				"testLegacyNeedsCleaning", "1",
-				"testLegacyLinkStatus", "0",
-				"testBoolean", "1"
+					"testLegacyFullDuplex", "1",
+					"testLegacyPredictedFailure", "1",
+					"testLegacyIntrusionStatus", "1",
+					"testLegacyNeedsCleaning", "1",
+					"testLegacyLinkStatus", "0",
+					"testBoolean", "1"
 			);
-			
+
 			final Map<String, String> keyValuePairs = Map.of(
-				"testLegacyFullDuplex", "legacyfullduplex(1)",
-				"testLegacyPredictedFailure", "legacypredictedfailure(1)",
-				"testLegacyIntrusionStatus", "legacyintrusionstatus(1)",
-				"testLegacyNeedsCleaning", "legacyneedscleaning(1)",
-				"testLegacyLinkStatus", "legacylinkstatus(2)",
-				"testBoolean", "boolean(true)"
+					"testLegacyFullDuplex", "legacyfullduplex(1)",
+					"testLegacyPredictedFailure", "legacypredictedfailure(1)",
+					"testLegacyIntrusionStatus", "legacyintrusionstatus(1)",
+					"testLegacyNeedsCleaning", "legacyneedscleaning(1)",
+					"testLegacyLinkStatus", "legacylinkstatus(2)",
+					"testBoolean", "boolean(true)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -225,21 +122,21 @@ class MappingProcessorTest {
 		// Legacy conversion tests with column references
 		{
 			final Map<String, String> expected = Map.of(
-				"testLegacyFullDuplex", "1",
-				"testLegacyPredictedFailure", "1",
-				"testLegacyIntrusionStatus", "1",
-				"testLegacyNeedsCleaning", "1",
-				"testLegacyLinkStatus", "0",
-				"testBoolean", "1"
+					"testLegacyFullDuplex", "1",
+					"testLegacyPredictedFailure", "1",
+					"testLegacyIntrusionStatus", "1",
+					"testLegacyNeedsCleaning", "1",
+					"testLegacyLinkStatus", "0",
+					"testBoolean", "1"
 			);
 
 			final Map<String, String> keyValuePairs = Map.of(
-				"testLegacyFullDuplex", "legacyfullduplex($6)",
-				"testLegacyPredictedFailure", "legacypredictedfailure($7)",
-				"testLegacyIntrusionStatus", "legacyintrusionstatus($8)",
-				"testLegacyNeedsCleaning", "legacyneedscleaning($9)",
-				"testLegacyLinkStatus", "legacylinkstatus($10)",
-				"testBoolean", "boolean($11)"
+					"testLegacyFullDuplex", "legacyfullduplex($6)",
+					"testLegacyPredictedFailure", "legacypredictedfailure($7)",
+					"testLegacyIntrusionStatus", "legacyintrusionstatus($8)",
+					"testLegacyNeedsCleaning", "legacyneedscleaning($9)",
+					"testLegacyLinkStatus", "legacylinkstatus($10)",
+					"testBoolean", "boolean($11)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -256,12 +153,12 @@ class MappingProcessorTest {
 			expected.put("testBoolean", "0");
 
 			final Map<String, String> keyValuePairs = Map.of(
-				"testLegacyFullDuplex", "legacyfullduplex(invalid)",
-				"testLegacyPredictedFailure", "legacypredictedfailure(invalid)",
-				"testLegacyIntrusionStatus", "legacyintrusionstatus(invalid)",
-				"testLegacyNeedsCleaning", "legacyneedscleaning(invalid)",
-				"testLegacyLinkStatus", "legacylinkstatus(invalid)",
-				"testBoolean", "boolean(invalid)"
+					"testLegacyFullDuplex", "legacyfullduplex(invalid)",
+					"testLegacyPredictedFailure", "legacypredictedfailure(invalid)",
+					"testLegacyIntrusionStatus", "legacyintrusionstatus(invalid)",
+					"testLegacyNeedsCleaning", "legacyneedscleaning(invalid)",
+					"testLegacyLinkStatus", "legacylinkstatus(invalid)",
+					"testBoolean", "boolean(invalid)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -272,33 +169,33 @@ class MappingProcessorTest {
 	void testInterpretNonContextMappingLookup() {
 
 		Monitor monitor = Monitor
-			.builder()
-			.attributes(
-				Map.of(
-					"id", "3",
-					"controller_number", "2"
+				.builder()
+				.attributes(
+						Map.of(
+								"id", "3",
+								"controller_number", "2"
+						)
 				)
-			)
-			.build();
+				.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.monitors(Map.of("disk_controller", Map.of("monitor", monitor)))
-			.build();
+				.builder()
+				.monitors(Map.of("disk_controller", Map.of("monitor", monitor)))
+				.build();
 
 		final List<String> row = List.of("randomValue", "2");
 
 		final MappingProcessor mappingProcessor = MappingProcessor
-			.builder()
-			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
-			.telemetryManager(telemetryManager)
-			.mapping(Mapping
 				.builder()
-				.source(HARDCODED_SOURCE)
-				.build()
-			)
-			.row(row)
-			.build();
+				.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
+				.telemetryManager(telemetryManager)
+				.mapping(Mapping
+						.builder()
+						.source(HARDCODED_SOURCE)
+						.build()
+				)
+				.row(row)
+				.build();
 
 		final Map<String, String> expected = Map.of("hw.parent.id", "3");
 

@@ -5,9 +5,6 @@ import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.matrix.connector.model.metric.MetricType;
-import com.sentrysoftware.matrix.connector.model.metric.StateSet;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
@@ -22,7 +19,6 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -44,14 +40,14 @@ import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_JOBS_PRIORITY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DiscoveryStrategy extends AbstractStrategy {
-
-	private static final String OTHER_MONITOR_JOB_TYPES = "otherMonitorJobTypes";
 
 	public DiscoveryStrategy(
 			@NonNull final TelemetryManager telemetryManager,
@@ -61,19 +57,9 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);
 	}
 
-	private static final Map<String, Integer> MONITOR_JOBS_PRIORITY;
 
-	static {
-		// Map monitor job types to their priorities
-		MONITOR_JOBS_PRIORITY = Map.of(
-			KnownMonitorType.HOST.getKey(), 1,
-			KnownMonitorType.ENCLOSURE.getKey(), 2,
-			KnownMonitorType.BLADE.getKey(), 3,
-			KnownMonitorType.DISK_CONTROLLER.getKey(), 4,
-			KnownMonitorType.CPU.getKey(), 5,
-			OTHER_MONITOR_JOB_TYPES, 6
-		);
-	}
+
+
 
 	@Override
 	public void prepare() {
@@ -318,47 +304,9 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 			metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-			for (final Entry<String, String> metricEntry : metrics.entrySet()) {
+			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
-				final String name = metricEntry.getKey();
-				final String value = metricEntry.getValue();
-
-				if (value == null) {
-					log.warn("Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
-						hostname,
-						name,
-						monitorType,
-						connectorId
-					);
-					continue;
-				}
-
-				// Get monitor metrics from connector
-				final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
-
-				AbstractMetric metric = null;
-				final MetricFactory metricFactory = new MetricFactory(telemetryManager);
-				if (metricDefinitionMap == null) {
-					metric = metricFactory.collectNumberMetric(monitor, name, value, strategyTime);
-				} else {
-					final MetricDefinition metricDefinition = metricDefinitionMap.get(name);
-
-					// Check whether metric type is Enum
-					if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
-						metric = metricFactory.collectNumberMetric(monitor, name, value, strategyTime);
-					} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
-						// When metric type is stateSet
-						final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
-						metric = metricFactory.collectStateSetMetric(monitor, name, value, stateSet, strategyTime);
-					}
-				}
-
-				// Tell the collect that the refresh time of the discovered
-				// metric must be refreshed
-				if (metric != null) {
-					metric.setResetMetricTime(true);
-				}
-			}
+			metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, true);
 
 			// Collect legacy parameters
 			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());

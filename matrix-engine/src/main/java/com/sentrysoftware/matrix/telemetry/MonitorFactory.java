@@ -15,6 +15,7 @@ import java.util.Map;
 import com.sentrysoftware.matrix.alert.AlertRule;
 import com.sentrysoftware.matrix.common.HostLocation;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
@@ -52,7 +53,7 @@ public class MonitorFactory {
 	/**
 	 * This method creates or updates the monitor
 	 * 
-	 * @param unique identifier of the monitor
+	 * @param id identifier of the monitor
 	 * @return created or updated {@link Monitor} instance
 	 */
 	public Monitor createOrUpdateMonitor(final String id) {
@@ -108,6 +109,9 @@ public class MonitorFactory {
 				.type(monitorType)
 				.id(id)
 				.build();
+			if (connectorId != null) {
+				newMonitor.addAttribute(MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
+			}
 
 			telemetryManager.addNewMonitor(newMonitor, monitorType, id);
 
@@ -181,7 +185,7 @@ public class MonitorFactory {
 	/**
 	 * Build the monitor unique identifier [connectorName]_[monitorType]_[id]
 	 * @param connectorName  The connector compiled file name
-	 * @param monitorType    The type of the monitor. See {@link MonitorType}
+	 * @param monitorType    The type of the monitor.
 	 * @param id             The id of the monitor we wish to build its identifier
 	 * @return {@link String} value containing the key of the monitor
 	 */

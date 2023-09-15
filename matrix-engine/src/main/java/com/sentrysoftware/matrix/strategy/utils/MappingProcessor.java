@@ -1,8 +1,23 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
+import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.common.helpers.FunctionArgumentsExtractor;
+import com.sentrysoftware.matrix.common.helpers.state.DuplexMode;
+import com.sentrysoftware.matrix.common.helpers.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.helpers.state.LinkStatus;
+import com.sentrysoftware.matrix.common.helpers.state.NeedsCleaning;
+import com.sentrysoftware.matrix.common.helpers.state.PredictedFailure;
+import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.Resource;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,27 +29,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.common.JobInfo;
-import com.sentrysoftware.matrix.common.helpers.FunctionArgumentsExtractor;
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
-import com.sentrysoftware.matrix.common.helpers.state.DuplexMode;
-import com.sentrysoftware.matrix.common.helpers.state.IntrusionStatus;
-import com.sentrysoftware.matrix.common.helpers.state.LinkStatus;
-import com.sentrysoftware.matrix.common.helpers.state.NeedsCleaning;
-import com.sentrysoftware.matrix.common.helpers.state.PredictedFailure;
-import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.Resource;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
 @Data
 @AllArgsConstructor
@@ -78,37 +74,6 @@ public class MappingProcessor {
 
 	@Default
 	private Map<String, BiFunction<KeyValuePair, Monitor, String>> computationFunctions = new HashMap<>();
-
-	/**
-	 * Find the source table instance from the connector namespace.<br>
-	 * If we have a hard-coded source then we will create a source wrapping the
-	 * csv input.
-	 * 
-	 * @return {@link Optional} instance of {@link SourceTable}
-	 */
-	public Optional<SourceTable> lookupSourceTable() {
-		final String source = mapping.getSource();
-
-		final Matcher matcher = SOURCE_REF_PATTERN.matcher(source);
-
-		if (matcher.find()) {
-			final String sourceKey = matcher.group();
-			return Optional.ofNullable(
-				telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(jobInfo.getConnectorName())
-					.getSourceTable(sourceKey)
-			);
-		}
-
-		// Hard-coded source
-		return Optional.of(
-			SourceTable
-				.builder()
-				.table(SourceTable.csvToTable(source, MatrixConstants.SEMICOLON))
-				.build()
-		);
-	}
 
 	/**
 	 * This method interprets non context mapping attributes

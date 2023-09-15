@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.telemetry;
 
 import com.sentrysoftware.matrix.alert.AlertRule;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +33,6 @@ public class Monitor {
 	private Resource resource;
 	private long discoveryTime;
 	private String type;
-
 	private String id;
 
 	/**
@@ -81,5 +81,32 @@ public class Monitor {
 	 */
 	public void addLegacyParameters(Map<String, String> legacyTextParameters) {
 		this.legacyTextParameters.putAll(legacyTextParameters);
+	}
+
+	/**
+	 * This method adds a new attribute to the current monitor
+	 * @param key attribute key
+	 * @param value attribute value
+	 */
+	public void addAttribute(final String key, final String value){
+		attributes.put(key, value);
+	}
+
+	/**
+	 * This method gets an attribute from the current monitor using its key
+	 * @param key attribute key
+	 * @return attribute value
+	 */
+	public String getAttribute(final String key){
+		return attributes.get(key);
+	}
+
+	/**
+	 * This method returns whether a metric is deactivated
+	 * @param key metric key
+	 * @return boolean
+	 */
+	public boolean isMetricDeactivated(final String key){
+		return MatrixConstants.EMPTY.equals(conditionalCollection.get(key));
 	}
 }
