@@ -5,9 +5,6 @@ import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.matrix.connector.model.metric.MetricType;
-import com.sentrysoftware.matrix.connector.model.metric.StateSet;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
@@ -22,7 +19,6 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -308,37 +304,9 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 			metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-			for (final Entry<String, String> metricEntry : metrics.entrySet()) {
+			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
-				final String name = metricEntry.getKey();
-
-				// Check if the conditional collection tells that the metric shouldn't be collected
-				if (monitor.isMetricDeactivated(name)){
-					continue;
-				}
-				final String value = metricEntry.getValue();
-
-				if (value == null) {
-					log.warn("Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
-						hostname,
-						name,
-						monitorType,
-						connectorId
-					);
-					continue;
-				}
-
-				// Set the metrics in the monitor using the connector metrics
-				final MetricFactory metricFactory = new MetricFactory(telemetryManager);
-
-				final AbstractMetric metric = metricFactory.collectMetricUsingConnector(connector, monitor, strategyTime, name, value);
-
-				// Tell the collect that the refresh time of the discovered
-				// metric must be refreshed
-				if (metric != null) {
-					metric.setResetMetricTime(true);
-				}
-			}
+			metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, "discovery");
 
 			// Collect legacy parameters
 			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());

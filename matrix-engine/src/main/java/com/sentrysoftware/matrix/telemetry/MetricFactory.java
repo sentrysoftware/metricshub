@@ -181,14 +181,14 @@ public class MetricFactory {
 	 * Collect the connector status metric as a number
 	 *
 	 * @param connectorTestResult contains information about connector tests
-	 * @param monitorFactory is responsible for metric collections
 	 * @param monitor the monitor we currently collect its status metric
+	 * @param strategyTime strategy time
 	 */
 	public void collectConnectorStatusNumberMetric(
-			final ConnectorTestResult connectorTestResult,
-			final MonitorFactory monitorFactory,
-			final Monitor monitor,
-			final long strategyTime) {
+		final ConnectorTestResult connectorTestResult,
+		final Monitor monitor,
+		final long strategyTime
+	) {
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 		if (connectorTestResult.isSuccess()) {
 			metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, strategyTime);
@@ -227,11 +227,11 @@ public class MetricFactory {
 	 * @return AbstractMetric instance
 	 */
 	public AbstractMetric collectMetricUsingConnector(
-			final Connector connector,
-			final Monitor monitor,
-			final long strategyTime,
-			final String metricName,
-			final String metricValue
+		final Connector connector,
+		final Monitor monitor,
+		final long strategyTime,
+		final String metricName,
+		final String metricValue
 	) {
 
 		AbstractMetric metric = null;
@@ -239,8 +239,11 @@ public class MetricFactory {
 		// Retrieve the metric definition using the extracted metric name
 		final MetricDefinition metricDefinition = getMetricDefinitionFromExtractedMetricName(connector, monitor, metricName);
 
+		// Retrieve metric attributes from metric's name
+		final Map<String, String> metricAttributes = extractAttributesFromMetricName(metricName);
+
 		// Create a boolean flag to check for the state attribute
-		boolean hasStateAttribute = checkForStateAttribute(monitor.getAttributes());
+		boolean hasStateAttribute = checkForStateAttribute(metricAttributes);
 
 		// Update the Number metric check
 		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType) || hasStateAttribute) {
@@ -269,10 +272,63 @@ public class MetricFactory {
 	/**
 	 * This method returns a boolean flag to check whether the state attribute exists
 	 * @param attributes
-	 * @return
+	 * @return boolean whether metric attributes contain state attribute
 	 */
 	public boolean checkForStateAttribute(final Map<String, String> attributes) {
 		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("hw.status"));
+	}
+
+	/**
+	 * This method collects monitor metrics
+	 * @param monitorType the monitor's type
+	 * @param connector connector
+	 * @param hostname host name
+	 * @param monitor a given monitor
+	 * @param connectorId connector id
+	 * @param metrics metrics
+	 */
+	public void collectMonitorMetrics(
+		final String monitorType,
+		final Connector connector,
+		final String hostname,
+		final Monitor monitor,
+		final String connectorId,
+		final Map<String, String> metrics,
+		final long strategyTime,
+		final String operation
+	) {
+		for (final Map.Entry<String, String> metricEntry : metrics.entrySet()) {
+
+			final String name = metricEntry.getKey();
+
+			// Check if the conditional collection tells that the metric shouldn't be collected
+			if (monitor.isMetricDeactivated(name)){
+				continue;
+			}
+
+			final String value = metricEntry.getValue();
+
+			if (value == null) {
+				log.warn(
+						"Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
+						hostname,
+						name,
+						monitorType,
+						connectorId
+				);
+
+				continue;
+			}
+
+			// Set the metrics in the monitor using the connector metrics
+			final AbstractMetric metric = collectMetricUsingConnector(connector, monitor, strategyTime, name, value);
+
+			// Tell the collect that the refresh time of the discovered
+			// metric must be refreshed
+			if (operation.equals("discovery") && metric != null) {
+				metric.setResetMetricTime(true);
+			}
+		}
 	}
 
 }

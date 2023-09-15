@@ -144,7 +144,7 @@ public class DetectionStrategy extends AbstractStrategy {
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
 		if (metricDefinitionMap == null) {
-			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitorFactory, monitor, strategyTime);
+			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
 			return;
 		}
 
@@ -152,7 +152,7 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Check whether metric type is Enum
 		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType) || metricFactory.checkForStateAttribute(monitor.getAttributes())) {
-			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitorFactory, monitor, strategyTime);
+			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
 		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
 			// When metric type is stateSet
 			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);

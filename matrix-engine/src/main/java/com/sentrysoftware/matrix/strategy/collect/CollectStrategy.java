@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,30 +61,20 @@ public class CollectStrategy extends AbstractStrategy {
 
 	@Override
 	public void prepare() {
-		final Map<String, Map<String, Monitor>> monitors = telemetryManager.getMonitors();
-
-		if (monitors == null) {
-			return;
-		}
-
-		for (final Map.Entry<String,  Map<String, Monitor>> monitorsEntry : monitors.entrySet()) {
-			final Map<String, Monitor> sameTypeMonitors = monitorsEntry.getValue();
-
-			if (sameTypeMonitors == null) {
-				continue;
-			}
-
-			// Loop over the metrics and if the metric time should be reset, set it to current system time
-			for (final Map.Entry<String,Monitor> sameTypeMonitorsEntry : sameTypeMonitors.entrySet()) {
-				for (final Map.Entry<String, AbstractMetric> metricEntry : sameTypeMonitorsEntry.getValue().getMetrics().entrySet()){
-					final AbstractMetric metric = metricEntry.getValue();
-					if (metric.isResetMetricTime()) {
-						metric.setCollectTime(System.currentTimeMillis());
-						metric.save();
-					}
-				}
-			}
-		}
+		telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.forEach(monitor ->
+				monitor
+					.getMetrics()
+					.values()
+					.stream()
+					.filter(AbstractMetric::isResetMetricTime)
+					.forEach(metric -> metric.setCollectTime(strategyTime))
+			);
 	}
 
 	/**
@@ -365,60 +356,15 @@ public class CollectStrategy extends AbstractStrategy {
 
 				metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-				collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics);
+				final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+
+				metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, "collect");
 
 				// Collect legacy parameters
 				monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
 				monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
 			}
 		}
-
-	/**
-	 * This method collects monitor metrics
-	 * @param monitorType the monitor's type
-	 * @param connector connector
-	 * @param hostname host name
-	 * @param monitor a given monitor
-	 * @param connectorId connector id
-	 * @param metrics metrics
-	 */
-	private void collectMonitorMetrics(
-		final String monitorType,
-		final Connector connector,
-		final String hostname,
-		final Monitor monitor,
-		final String connectorId,
-		final Map<String, String> metrics
-	) {
-		for (final Map.Entry<String, String> metricEntry : metrics.entrySet()) {
-
-			final String name = metricEntry.getKey();
-
-			// Check if the conditional collection tells that the metric shouldn't be collected
-			if (monitor.isMetricDeactivated(name)){
-				continue;
-			}
-
-			final String value = metricEntry.getValue();
-
-			if (value == null) {
-				log.warn(
-					"Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
-					hostname,
-					name,
-					monitorType,
-					connectorId
-				);
-
-				continue;
-			}
-
-			// Set the metrics in the monitor using the connector metrics
-			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
-
-			metricFactory.collectMetricUsingConnector(connector, monitor, strategyTime, name, value);
-		}
-	}
 
 	/**
 	 *  This method is the main collection step method
