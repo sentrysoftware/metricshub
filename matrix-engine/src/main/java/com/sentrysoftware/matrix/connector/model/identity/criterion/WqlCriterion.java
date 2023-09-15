@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
-import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -23,9 +22,11 @@ public abstract class WqlCriterion extends Criterion {
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String query;
+
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String namespace = "root/cimv2";
+
 	private String expectedResult;
 	private String errorMessage;
 
@@ -37,20 +38,16 @@ public abstract class WqlCriterion extends Criterion {
 		String expectedResult,
 		String errorMessage
 	) {
-
 		super(type, forceSerialization);
 		this.query = query;
-		this.namespace = namespace == null ? "root/cimv2": namespace;
+		this.namespace = namespace == null ? "root/cimv2" : namespace;
 		this.expectedResult = expectedResult;
 		this.errorMessage = errorMessage;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("- WQL Query: ")
-				.append(query)
-				.append("\n- Namespace: ")
-				.append(namespace);
+		StringBuilder sb = new StringBuilder("- WQL Query: ").append(query).append("\n- Namespace: ").append(namespace);
 		if (expectedResult != null && !expectedResult.isBlank()) {
 			sb.append("\n- Expected Result: ").append(expectedResult);
 		}

@@ -1,16 +1,15 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class BooleanDeserializer extends JsonDeserializer<Boolean> {
+
 	private static final Map<String, Boolean> BOOLEAN_MAP = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	static {
@@ -21,9 +20,10 @@ public class BooleanDeserializer extends JsonDeserializer<Boolean> {
 	}
 
 	@Override
-	public Boolean deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-		if (jsonParser == null)
+	public Boolean deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+		if (jsonParser == null) {
 			return null;
+		}
 
 		final String key = jsonParser.getCurrentName();
 

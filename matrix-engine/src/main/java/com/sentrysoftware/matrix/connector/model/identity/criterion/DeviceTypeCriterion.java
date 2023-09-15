@@ -1,14 +1,12 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.DeviceKindSetDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,6 +23,7 @@ public class DeviceTypeCriterion extends Criterion {
 
 	@JsonDeserialize(using = DeviceKindSetDeserializer.class)
 	private Set<DeviceKind> keep = new HashSet<>();
+
 	@JsonDeserialize(using = DeviceKindSetDeserializer.class)
 	private Set<DeviceKind> exclude = new HashSet<>();
 
@@ -39,5 +38,4 @@ public class DeviceTypeCriterion extends Criterion {
 	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
 		return criterionProcessor.process(this);
 	}
-
 }

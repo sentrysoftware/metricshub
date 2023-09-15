@@ -18,17 +18,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
@@ -38,6 +27,15 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryStrategyTest {
@@ -52,7 +50,6 @@ class DiscoveryStrategyTest {
 
 	@Test
 	void testRun() throws Exception {
-
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
@@ -65,26 +62,19 @@ class DiscoveryStrategyTest {
 			)
 		);
 
-		final SnmpConfiguration snmpConfig = SnmpConfiguration
-			.builder()
-			.community("public")
-			.build();
+		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.monitors(monitors)
-			.hostConfiguration(HostConfiguration
-				.builder()
-				.hostId(HOST_ID)
-				.hostname(HOST_NAME)
-				.sequential(false)
-				.configurations(
-					Map.of(
-						SnmpConfiguration.class, 
-						snmpConfig
-					)
-				)
-				.build()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOST_ID)
+					.hostname(HOST_NAME)
+					.sequential(false)
+					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
+					.build()
 			)
 			.build();
 

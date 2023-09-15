@@ -50,6 +50,9 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,13 +63,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class NetworkConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -85,20 +85,29 @@ public class NetworkConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_NETWORK_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_LINK_STATUS, IMappingKey.of(METRICS, YAML_NETWORK_UP, AbstractMappingConverter::buildLegacyLinkFunction));
-		metricsMap.put(HDF_DUPLEX_MODE, IMappingKey.of(METRICS, YAML_NETWORK_FULL_DUPLEX, AbstractMappingConverter::buildLegacyFullDuplexFunction));
+		metricsMap.put(
+			HDF_LINK_STATUS,
+			IMappingKey.of(METRICS, YAML_NETWORK_UP, AbstractMappingConverter::buildLegacyLinkFunction)
+		);
+		metricsMap.put(
+			HDF_DUPLEX_MODE,
+			IMappingKey.of(METRICS, YAML_NETWORK_FULL_DUPLEX, AbstractMappingConverter::buildLegacyFullDuplexFunction)
+		);
 		metricsMap.put(HDF_ZERO_BUFFER_CREDIT_COUNT, IMappingKey.of(METRICS, YAML_NETWORK_ERROR_ZERO_BUFFER_CREDIT));
 		metricsMap.put(HDF_ERROR_COUNT, IMappingKey.of(METRICS, YAML_NETWORK_ERRORS));
 		metricsMap.put(HDF_RECEIVED_BYTES, IMappingKey.of(METRICS, YAML_NETWORK_RECEIVED_BYTES));
 		metricsMap.put(HDF_TRANSMITTED_BYTES, IMappingKey.of(METRICS, YAML_NETWORK_TRANSMITTED_BYTES));
 		metricsMap.put(HDF_RECEIVED_PACKETS, IMappingKey.of(METRICS, YAML_NETWORK_RECEIVED_PACKETS));
 		metricsMap.put(HDF_TRANSMITTED_PACKETS, IMappingKey.of(METRICS, YAML_NETWORK_TRANSMITTED_PACKETS));
-		metricsMap.put(HDF_LINK_SPEED, IMappingKey.of(METRICS, YAML_NETWORK_BANDWIDTH_LIMIT, AbstractMappingConverter::buildMegaBit2BitFunction));
+		metricsMap.put(
+			HDF_LINK_SPEED,
+			IMappingKey.of(METRICS, YAML_NETWORK_BANDWIDTH_LIMIT, AbstractMappingConverter::buildMegaBit2BitFunction)
+		);
 
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
@@ -144,12 +153,11 @@ public class NetworkConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the network name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param info   {@link JsonNode} array of device type, vendor and model to be joined 
+	 * @param info   {@link JsonNode} array of device type, vendor and model to be joined
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] info) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (Stream.of(info).allMatch(Objects::isNull)) {
 			return firstArg;
@@ -160,39 +168,22 @@ public class NetworkConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(info)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
+		sprintfArgs.addAll(Stream.of(info).filter(Objects::nonNull).map(JsonNode::asText).toList());
 
 		if (!sprintfArgs.isEmpty()) {
-			format.append(
-				sprintfArgs
-				.stream()
-				.map(v -> "%s")
-				.collect(Collectors.joining(" - "," (",")"))
-			);
+			format.append(sprintfArgs.stream().map(v -> "%s").collect(Collectors.joining(" - ", " (", ")")));
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
+		// Join the arguments: $column(1), $column(2), $column(3), $column(4))
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s - %s)", $column(1), $column(2), $column(3), $column(4)) 
+		// sprint("%s (%s - %s - %s)", $column(1), $column(2), $column(3), $column(4))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override
@@ -206,5 +197,4 @@ public class NetworkConverter extends AbstractMappingConverter {
 
 		convertOneToOneMetrics(key, value, mapping);
 	}
-
 }

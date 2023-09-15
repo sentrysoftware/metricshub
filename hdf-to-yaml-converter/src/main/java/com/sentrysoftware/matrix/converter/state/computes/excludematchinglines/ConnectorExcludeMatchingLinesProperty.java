@@ -1,13 +1,11 @@
 package com.sentrysoftware.matrix.converter.state.computes.excludematchinglines;
 
-import java.util.Set;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.computes.common.ColumnProcessor;
 import com.sentrysoftware.matrix.converter.state.computes.common.ComputeTypeProcessor;
 import com.sentrysoftware.matrix.converter.state.computes.common.RegexpProcessor;
 import com.sentrysoftware.matrix.converter.state.computes.common.ValueListProcessor;
-
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

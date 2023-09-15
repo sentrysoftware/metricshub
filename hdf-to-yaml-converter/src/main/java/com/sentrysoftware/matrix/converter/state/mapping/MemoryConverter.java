@@ -26,8 +26,11 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,13 +41,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class MemoryConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -52,18 +52,24 @@ public class MemoryConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
 		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
-		attributesMap.put(HDF_SIZE, IMappingKey.of(METRICS, YAML_MEMORY_LIMIT, AbstractMappingConverter::buildMebiByte2ByteFunction));
+		attributesMap.put(
+			HDF_SIZE,
+			IMappingKey.of(METRICS, YAML_MEMORY_LIMIT, AbstractMappingConverter::buildMebiByte2ByteFunction)
+		);
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_MEMORY_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_PREDICTED_FAILURE, IMappingKey.of(METRICS, YAML_MEMORY_PREDICTED_FAILURE, AbstractMappingConverter::buildBooleanFunction));
+		metricsMap.put(
+			HDF_PREDICTED_FAILURE,
+			IMappingKey.of(METRICS, YAML_MEMORY_PREDICTED_FAILURE, AbstractMappingConverter::buildBooleanFunction)
+		);
 		metricsMap.put(HDF_ERROR_COUNT, IMappingKey.of(METRICS, YAML_MEMORY_ERRORS));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
@@ -98,9 +104,7 @@ public class MemoryConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, type }, size)
-				)
+				wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, new JsonNode[] { vendor, type }, size))
 			)
 		);
 	}
@@ -119,7 +123,6 @@ public class MemoryConverter extends AbstractMappingConverter {
 		final JsonNode[] vendorAndType,
 		final JsonNode sizeNode
 	) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (sizeNode == null && Stream.of(vendorAndType).allMatch(Objects::isNull)) {
 			return firstArg;
@@ -130,48 +133,36 @@ public class MemoryConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(vendorAndType)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
+		sprintfArgs.addAll(Stream.of(vendorAndType).filter(Objects::nonNull).map(JsonNode::asText).toList());
 
 		// Means vendor, type or size is not null
 		if (!sprintfArgs.isEmpty() || sizeNode != null) {
 			format.append(
-				Stream.concat(
-					sprintfArgs
-						.stream()
-						.map(v -> "%s"),
-					Stream.of(sizeNode)
-						.filter(Objects::nonNull)
-						.map(v -> {
-							sprintfArgs.add(v.asText());
-							return "%s MB";
-						})
-				)
-				.collect(Collectors.joining(" - "," (",")"))
+				Stream
+					.concat(
+						sprintfArgs.stream().map(v -> "%s"),
+						Stream
+							.of(sizeNode)
+							.filter(Objects::nonNull)
+							.map(v -> {
+								sprintfArgs.add(v.asText());
+								return "%s MB";
+							})
+					)
+					.collect(Collectors.joining(" - ", " (", ")"))
 			);
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $column(1), $column(2), $column(3))
 		// append the result to our format variable in order to get something like
 		// sprintf("%s (%s - %s - %s MB)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s MB)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s MB)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override
@@ -183,5 +174,4 @@ public class MemoryConverter extends AbstractMappingConverter {
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
 		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
-
 }

@@ -2,15 +2,13 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.deserializer.PostDeserializeHelper;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class SourceTest {
 
@@ -18,12 +16,14 @@ class SourceTest {
 	private static final String SOURCE_REF1 = "${source::monitors.cpu.discovery.sources.source1}";
 	private static final String SOURCE_REF2 = "${source::monitors.cpu.discovery.sources.source2}";
 
-	private static final  ObjectMapper MAPPER = PostDeserializeHelper
-		.addPostDeserializeSupport(JsonHelper.buildYamlMapper());
+	private static final ObjectMapper MAPPER = PostDeserializeHelper.addPostDeserializeSupport(
+		JsonHelper.buildYamlMapper()
+	);
 
 	@Test
 	void testReferencesCopy() throws IOException {
-		final String copyYaml = """
+		final String copyYaml =
+			"""
 			type: copy
 			from: ${source::monitors.cpu.discovery.sources.source1}
 			forceSerialization: false
@@ -34,7 +34,8 @@ class SourceTest {
 
 	@Test
 	void testReferencesHttp() throws IOException {
-		final String httpYaml = """
+		final String httpYaml =
+			"""
 			type: http
 			url: url/$entry.column(1)$
 			header: ${source::pre.source1}
@@ -48,82 +49,71 @@ class SourceTest {
 			""";
 
 		final Source source = MAPPER.readValue(httpYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF0, SOURCE_REF1),
-			source.getReferences()
-		);
+		assertEquals(Set.of(SOURCE_REF0, SOURCE_REF1), source.getReferences());
 	}
 
 	@Test
 	void testReferencesIpmi() throws IOException {
-		final String ipmiYaml = """
-				type: ipmi
-				forceSerialization: false
-				""";
+		final String ipmiYaml =
+			"""
+			type: ipmi
+			forceSerialization: false
+			""";
 
 		final Source source = MAPPER.readValue(ipmiYaml, Source.class);
-		assertEquals(
-			Collections.emptySet(),
-			source.getReferences()
-		);
+		assertEquals(Collections.emptySet(), source.getReferences());
 	}
 
 	@Test
 	void testReferencesOsCommand() throws IOException {
-		final String osCommandYaml = """
-				type: osCommand
-				forceSerialization: false
-				commandLine: ${source::monitors.cpu.discovery.sources.source1}
-				exclude: exclude
-				keep: keep
-				beginAtLineNumber: 1
-				endAtLineNumber: 10
-				separators: "\t"
-				selectColumns: 1,2,3
-				""";
+		final String osCommandYaml =
+			"""
+			type: osCommand
+			forceSerialization: false
+			commandLine: ${source::monitors.cpu.discovery.sources.source1}
+			exclude: exclude
+			keep: keep
+			beginAtLineNumber: 1
+			endAtLineNumber: 10
+			separators: "\t"
+			selectColumns: 1,2,3
+			""";
 
 		final Source source = MAPPER.readValue(osCommandYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF1),
-			source.getReferences()
-		);
-
+		assertEquals(Set.of(SOURCE_REF1), source.getReferences());
 	}
 
 	@Test
 	void testReferencesSnmpGet() throws IOException {
-		final String snmpGetYaml = """
-				type: snmpGet
-				forceSerialization: false
-				oid: ${source::monitors.cpu.discovery.sources.source1}
-				""";
+		final String snmpGetYaml =
+			"""
+			type: snmpGet
+			forceSerialization: false
+			oid: ${source::monitors.cpu.discovery.sources.source1}
+			""";
 
 		final Source source = MAPPER.readValue(snmpGetYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF1),
-			source.getReferences()
-		);
+		assertEquals(Set.of(SOURCE_REF1), source.getReferences());
 	}
 
 	@Test
 	void testReferencesSnmpTable() throws IOException {
-		final String snmpTableYaml = """
-				type: snmpTable
-				forceSerialization: false
-				oid: ${source::monitors.cpu.discovery.sources.source1}
-				selectColumns: ID,1,2,3
-				""";
+		final String snmpTableYaml =
+			"""
+			type: snmpTable
+			forceSerialization: false
+			oid: ${source::monitors.cpu.discovery.sources.source1}
+			selectColumns: ID,1,2,3
+			""";
 
 		final Source source = MAPPER.readValue(snmpTableYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF1),
-			source.getReferences()
-		);
+		assertEquals(Set.of(SOURCE_REF1), source.getReferences());
 	}
 
 	@Test
 	void testReferencesStatic() throws IOException {
-		final String staticSourceYaml = """
+		final String staticSourceYaml =
+			"""
 			type: static
 			value: ${source::monitors.cpu.discovery.sources.source1}
 			""";
@@ -133,71 +123,62 @@ class SourceTest {
 
 	@Test
 	void testReferencesTableJoin() throws IOException {
-		final String tableJoinYaml = """
-				type: tableJoin
-				forceSerialization: false
-				leftTable: ${source::monitors.cpu.discovery.sources.source1}
-				rightTable: ${source::monitors.cpu.discovery.sources.source2}
-				defaultRightLine: ;;;;;;
-				keyType: WBEM
-				leftKeyColumn: 1
-				rightKeyColumn: 2
-				""";
+		final String tableJoinYaml =
+			"""
+			type: tableJoin
+			forceSerialization: false
+			leftTable: ${source::monitors.cpu.discovery.sources.source1}
+			rightTable: ${source::monitors.cpu.discovery.sources.source2}
+			defaultRightLine: ;;;;;;
+			keyType: WBEM
+			leftKeyColumn: 1
+			rightKeyColumn: 2
+			""";
 
 		final Source source = MAPPER.readValue(tableJoinYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF1, SOURCE_REF2),
-			source.getReferences()
-		);
-
+		assertEquals(Set.of(SOURCE_REF1, SOURCE_REF2), source.getReferences());
 	}
 
 	@Test
 	void testReferencesTableUnion() throws IOException {
-		final String tableUnionYaml = """
-				type: tableUnion
-				forceSerialization: false
-				tables: 
-				- ${source::monitors.cpu.discovery.sources.source1}
-				- ${source::monitors.cpu.discovery.sources.source2}
-				""";
+		final String tableUnionYaml =
+			"""
+			type: tableUnion
+			forceSerialization: false
+			tables:
+			- ${source::monitors.cpu.discovery.sources.source1}
+			- ${source::monitors.cpu.discovery.sources.source2}
+			""";
 
 		final Source source = MAPPER.readValue(tableUnionYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF1, SOURCE_REF2),
-			source.getReferences()
-		);
+		assertEquals(Set.of(SOURCE_REF1, SOURCE_REF2), source.getReferences());
 	}
 
 	@Test
 	void testReferencesWbem() throws IOException {
-		final String wbemYaml = """
-				type: wbem
-				forceSerialization: false
-				query: ${source::monitors.cpu.discovery.sources.source1}
-				namespace: ${source::monitors.cpu.discovery.sources.source2}
-				""";
+		final String wbemYaml =
+			"""
+			type: wbem
+			forceSerialization: false
+			query: ${source::monitors.cpu.discovery.sources.source1}
+			namespace: ${source::monitors.cpu.discovery.sources.source2}
+			""";
 
 		final Source source = MAPPER.readValue(wbemYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF1, SOURCE_REF2),
-			source.getReferences()
-		);
+		assertEquals(Set.of(SOURCE_REF1, SOURCE_REF2), source.getReferences());
 	}
 
 	@Test
 	void testReferencesWmi() throws IOException {
-		final String wmiYaml = """
-				type: wmi
-				forceSerialization: false
-				query: ${source::monitors.cpu.discovery.sources.source1}
-				namespace: ${source::monitors.cpu.discovery.sources.source2}
-				""";
+		final String wmiYaml =
+			"""
+			type: wmi
+			forceSerialization: false
+			query: ${source::monitors.cpu.discovery.sources.source1}
+			namespace: ${source::monitors.cpu.discovery.sources.source2}
+			""";
 
 		final Source source = MAPPER.readValue(wmiYaml, Source.class);
-		assertEquals(
-			Set.of(SOURCE_REF1, SOURCE_REF2),
-			source.getReferences()
-		);
+		assertEquals(Set.of(SOURCE_REF1, SOURCE_REF2), source.getReferences());
 	}
 }

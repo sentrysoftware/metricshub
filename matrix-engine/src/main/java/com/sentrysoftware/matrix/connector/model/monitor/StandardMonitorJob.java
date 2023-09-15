@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.connector.model.monitor;
 
 import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractCollect;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +17,4 @@ public class StandardMonitorJob implements MonitorJob {
 
 	private Discovery discovery;
 	private AbstractCollect collect;
-
 }

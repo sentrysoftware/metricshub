@@ -8,5 +8,4 @@ public class MappingKey implements IMappingKey {
 
 	@Getter
 	private final String key;
-
 }

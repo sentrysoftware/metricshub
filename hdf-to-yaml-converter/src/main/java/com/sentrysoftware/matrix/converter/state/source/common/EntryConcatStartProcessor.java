@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.converter.state.source.common;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EntryConcatStartProcessor extends AbstractExecuteForEach {
 
@@ -25,5 +24,4 @@ public class EntryConcatStartProcessor extends AbstractExecuteForEach {
 		final ObjectNode concatMethod = getOrCreateCustomConcatMethod(key, connector);
 		createTextNode("concatStart", value, concatMethod);
 	}
-
 }

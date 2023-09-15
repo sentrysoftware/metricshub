@@ -8,16 +8,14 @@ import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.Mockito.mockStatic;
 
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.mockito.MockedStatic;
-
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBsd;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBsd;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBsd;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.mockito.MockedStatic;
 
 class LocalOsHandlerTest {
 

@@ -19,5 +19,4 @@ public class ConnectorSerializationException extends RuntimeException {
 	public ConnectorSerializationException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
 }

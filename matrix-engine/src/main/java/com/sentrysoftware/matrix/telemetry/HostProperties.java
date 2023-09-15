@@ -1,15 +1,14 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 @Data
 @Builder
@@ -26,12 +25,14 @@ public class HostProperties {
 	private boolean osCommandExecutesLocally;
 	private boolean osCommandExecutesRemotely;
 	private boolean mustCheckSshStatus;
+
 	@Default
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
+
 	private PowerMeter powerMeter;
 
 	/**
-	 * 
+	 *
 	 * @param connectorName the name of a given connector
 	 * @return ConnectorNamespace instance
 	 */
@@ -40,5 +41,4 @@ public class HostProperties {
 			return connectorNamespaces.computeIfAbsent(connectorName, cn -> ConnectorNamespace.builder().build());
 		}
 	}
-
 }

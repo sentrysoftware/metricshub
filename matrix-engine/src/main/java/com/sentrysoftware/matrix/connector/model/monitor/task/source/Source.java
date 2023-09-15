@@ -5,14 +5,6 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -23,7 +15,13 @@ import com.sentrysoftware.matrix.connector.model.common.IEntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
-
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -40,7 +38,7 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = TableJoinSource.class, name = "tableJoin"),
 		@JsonSubTypes.Type(value = TableUnionSource.class, name = "tableUnion"),
 		@JsonSubTypes.Type(value = WbemSource.class, name = "wbem"),
-		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi"),
+		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi")
 	}
 )
 @Data
@@ -50,11 +48,15 @@ public abstract class Source implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	protected String type;
+
 	@JsonSetter(nulls = SKIP)
 	private List<Compute> computes = new ArrayList<>();
+
 	protected boolean forceSerialization;
+
 	@JsonIgnore
 	protected String key;
+
 	protected ExecuteForEachEntryOf executeForEachEntryOf;
 	private Set<String> references = new HashSet<>();
 
@@ -65,7 +67,6 @@ public abstract class Source implements Serializable {
 		String key,
 		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
-
 		this.type = type;
 		this.computes = computes == null ? new ArrayList<>() : computes;
 		this.forceSerialization = forceSerialization;
@@ -78,11 +79,10 @@ public abstract class Source implements Serializable {
 
 	public abstract void update(UnaryOperator<String> updater);
 
-	public abstract SourceTable accept(final ISourceProcessor sourceProcessor);
+	public abstract SourceTable accept(ISourceProcessor sourceProcessor);
 
 	@Override
 	public String toString() {
-
 		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
 
 		stringJoiner.add(new StringBuilder("- ").append(key).append(".type=").append(this.getClass().getSimpleName()));
@@ -93,24 +93,26 @@ public abstract class Source implements Serializable {
 		addNonNull(stringJoiner, EMPTY, executeForEachEntryOf != null ? executeForEachEntryOf.toString() : null);
 
 		return stringJoiner.toString();
-
 	}
 
 	/**
 	 * Whether the {@link ExecuteForEachEntryOf} is present in the {@link Source} or
 	 * not
-	 * 
+	 *
 	 * @return <code>true</code> if {@link ExecuteForEachEntryOf} is present otherwise
 	 *         <code>false</code>
 	 */
 	public boolean isExecuteForEachEntryOf() {
-		return executeForEachEntryOf != null && executeForEachEntryOf.getSource() != null
-				&& !executeForEachEntryOf.getSource().isBlank();
+		return (
+			executeForEachEntryOf != null &&
+			executeForEachEntryOf.getSource() != null &&
+			!executeForEachEntryOf.getSource().isBlank()
+		);
 	}
 
 	/**
 	 * Get the {@link EntryConcatMethod} value
-	 * 
+	 *
 	 * @return {@link EntryConcatMethod} enum value
 	 */
 	public IEntryConcatMethod getEntryConcatMethod() {
@@ -119,11 +121,10 @@ public abstract class Source implements Serializable {
 
 	/**
 	 * Get the executeForEachEntryOf string value
-	 * 
+	 *
 	 * @return String value
 	 */
 	public String getExecuteForEachEntryOf() {
 		return executeForEachEntryOf != null ? executeForEachEntryOf.getSource() : null;
 	}
-
 }

@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.agent.helper;
 
 import java.nio.file.Path;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

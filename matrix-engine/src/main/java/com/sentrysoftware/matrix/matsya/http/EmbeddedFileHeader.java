@@ -1,15 +1,14 @@
 package com.sentrysoftware.matrix.matsya.http;
 
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.UnaryOperator;
 
 @Data
 @AllArgsConstructor
@@ -22,19 +21,17 @@ public class EmbeddedFileHeader implements Header {
 	private EmbeddedFile header;
 
 	@Override
-	public Map<String, String> getContent(String username, char[] password, String authenticationToken, @NonNull String hostname) {
-
+	public Map<String, String> getContent(
+		String username,
+		char[] password,
+		String authenticationToken,
+		@NonNull String hostname
+	) {
 		if (header == null) {
 			return new HashMap<>();
 		}
 
-		return Header.resolveAndParseHeader(
-			header.getContent(),
-			username,
-			password,
-			authenticationToken,
-			hostname
-		);
+		return Header.resolveAndParseHeader(header.getContent(), username, password, authenticationToken, hostname);
 	}
 
 	@Override
@@ -53,5 +50,4 @@ public class EmbeddedFileHeader implements Header {
 			header.update(updater);
 		}
 	}
-
 }

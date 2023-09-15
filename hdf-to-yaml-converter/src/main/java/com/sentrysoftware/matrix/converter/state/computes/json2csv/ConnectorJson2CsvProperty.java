@@ -1,11 +1,10 @@
 package com.sentrysoftware.matrix.converter.state.computes.json2csv;
 
-import java.util.Set;
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.computes.common.ComputeTypeProcessor;
 import com.sentrysoftware.matrix.converter.state.computes.common.PropertiesProcessor;
 import com.sentrysoftware.matrix.converter.state.computes.common.SeparatorProcessor;
-
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

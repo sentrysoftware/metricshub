@@ -4,7 +4,6 @@ import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.IpmiCriterion;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

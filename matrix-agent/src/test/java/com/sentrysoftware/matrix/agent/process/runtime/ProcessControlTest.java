@@ -3,17 +3,15 @@ package com.sentrysoftware.matrix.agent.process.runtime;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
+import com.sentrysoftware.matrix.agent.process.io.CustomInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import com.sentrysoftware.matrix.agent.process.io.CustomInputStream;
 
 class ProcessControlTest {
 
@@ -23,7 +21,10 @@ class ProcessControlTest {
 		final List<String> emptyList = Collections.emptyList();
 		final List<String> cmdLine = List.of("cmd");
 		assertThrows(IllegalArgumentException.class, () -> ProcessControl.newProcessBuilder(null, emptyMap, null, false));
-		assertThrows(IllegalArgumentException.class, () -> ProcessControl.newProcessBuilder(emptyList, emptyMap, null, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> ProcessControl.newProcessBuilder(emptyList, emptyMap, null, false)
+		);
 		assertThrows(IllegalArgumentException.class, () -> ProcessControl.newProcessBuilder(cmdLine, null, null, false));
 		assertDoesNotThrow(() -> ProcessControl.newProcessBuilder(cmdLine, emptyMap, null, false));
 		assertDoesNotThrow(() -> ProcessControl.newProcessBuilder(cmdLine, emptyMap, new File(""), false));
@@ -38,17 +39,14 @@ class ProcessControlTest {
 		assertDoesNotThrow(() -> pc.stop());
 
 		final OutputStream outputStream = new OutputStream() {
-
 			@Override
-			public void write(int b) throws IOException {
-
-			}
+			public void write(int b) throws IOException {}
 
 			@Override
 			public void close() throws IOException {
 				// Throw the IO Exception
 				throw new IOException("exception");
-			};
+			}
 		};
 
 		doReturn(outputStream).when(process).getOutputStream();

@@ -3,10 +3,8 @@ package com.sentrysoftware.matrix.connector.model.metric;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonSetter;
-
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -32,5 +30,4 @@ public class MetricDefinition implements Serializable {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private IMetricType type = MetricType.GAUGE;
-
 }

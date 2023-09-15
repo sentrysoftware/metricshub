@@ -1,11 +1,10 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class CaseInsensitiveTreeMapDeserializer extends AbstractMapDeserializer<String> {
 
@@ -38,15 +37,11 @@ public class CaseInsensitiveTreeMapDeserializer extends AbstractMapDeserializer<
 
 	@Override
 	protected boolean isValidMap(Map<String, String> map) {
-		return map
-			.keySet()
-			.stream()
-			.noneMatch(key -> key == null || key.isBlank());
+		return map.keySet().stream().noneMatch(key -> key == null || key.isBlank());
 	}
 
 	@Override
 	protected TypeReference<Map<String, String>> getTypeReference() {
 		return new TypeReference<Map<String, String>>() {};
 	}
-
 }

@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.converter.state.computes.add;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AddProcessor extends AbstractStateConverter {
 
@@ -24,5 +23,4 @@ public class AddProcessor extends AbstractStateConverter {
 	protected Matcher getMatcher(String key) {
 		return PATTERN.matcher(key);
 	}
-
 }

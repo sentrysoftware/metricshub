@@ -13,7 +13,6 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.WbemCriterio
 import com.sentrysoftware.matrix.connector.model.identity.criterion.WmiCriterion;
 
 public interface ICriterionProcessor {
-
 	CriterionTestResult process(WmiCriterion wmiCriterion);
 
 	CriterionTestResult process(WbemCriterion wbemCriterion);
@@ -35,5 +34,4 @@ public interface ICriterionProcessor {
 	CriterionTestResult process(HttpCriterion httpCriterion);
 
 	CriterionTestResult process(DeviceTypeCriterion deviceTypeCriterion);
-
 }

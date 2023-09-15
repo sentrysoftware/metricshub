@@ -27,16 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
@@ -53,6 +43,14 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSo
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SourceUpdaterProcessorTest {
@@ -62,196 +60,239 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessHTTPSource() {
-		final HttpConfiguration httpConfiguration = HttpConfiguration.builder()
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(HttpSource.class));
-		assertEquals(SourceTable.empty(),
+		assertEquals(
+			SourceTable.empty(),
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(HttpSource.builder().url(URL).method(HttpMethod.GET).build()));
+				.process(HttpSource.builder().url(URL).method(HttpMethod.GET).build())
+		);
 
 		final HttpSource httpSource = HttpSource.builder().url(URL).build();
 		httpSource.setExecuteForEachEntryOf(ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).build());
 
-		final SourceTable sourceTable = SourceTable.builder()
-			.table(Arrays.asList(
-				Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3),
-				Arrays.asList(VALUE_A1, VALUE_B1, VALUE_C1)))
-			.build();
-
-		final HostProperties hostProperties = HostProperties
+		final SourceTable sourceTable = SourceTable
 			.builder()
+			.table(
+				Arrays.asList(Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3), Arrays.asList(VALUE_A1, VALUE_B1, VALUE_C1))
+			)
 			.build();
 
-		hostProperties
-			.getConnectorNamespace(MY_CONNECTOR_1_NAME)
-			.addSourceTable(ENCLOSURE_COLLECT_SOURCE_1, sourceTable);
+		final HostProperties hostProperties = HostProperties.builder().build();
+
+		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME).addSourceTable(ENCLOSURE_COLLECT_SOURCE_1, sourceTable);
 
 		telemetryManager.setHostProperties(hostProperties);
 
 		final SourceTable expected1 = SourceTable.builder().rawData(EXPECTED_VAL_1).build();
 		final SourceTable expected2 = SourceTable.builder().rawData(EXPECTED_VAL_2).build();
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
-		SourceTable result = new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE).process(httpSource);
+		SourceTable result = new SourceUpdaterProcessor(
+			sourceProcessor,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			MONITOR_ID_ATTRIBUTE_VALUE
+		)
+			.process(httpSource);
 		assertEquals(EXPECTED_VAL_1_AND_2, result.getRawData());
 
-		httpSource.setExecuteForEachEntryOf(ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.LIST).build());
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.LIST).build()
+		);
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
-		result = new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE).process(httpSource);
+		result =
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(httpSource);
 		assertEquals(EXPECTED_VAL_1_AND_2, result.getRawData());
 
-		httpSource.setExecuteForEachEntryOf(ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.JSON_ARRAY).build());
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
+				.concatMethod(EntryConcatMethod.JSON_ARRAY)
+				.build()
+		);
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
-		result = new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE).process(httpSource);
+		result =
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(httpSource);
 		assertEquals(EXPECTED_VAL_1_AND_2_ARRAY, result.getRawData());
 
-		httpSource.setExecuteForEachEntryOf(ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED).build());
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
+				.concatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED)
+				.build()
+		);
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
-		result = new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE).process(httpSource);
+		result =
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(httpSource);
 
 		assertEquals(EXPECTED_RESULT, result.getRawData());
 	}
 
 	@Test
 	void testProcessSNMPGetSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(SnmpGetSource.class));
-		assertEquals(SourceTable.empty(),
+		assertEquals(
+			SourceTable.empty(),
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(SnmpGetSource.builder().oid(OID).build()));
+				.process(SnmpGetSource.builder().oid(OID).build())
+		);
 
 		final SourceTable expected1 = SourceTable.builder().rawData(EXPECTED_VAL_1).build();
 
 		doReturn(expected1).when(sourceProcessor).process(any(SnmpGetSource.class));
-		assertEquals(expected1,
+		assertEquals(
+			expected1,
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(SnmpGetSource.builder().oid(OID).build()));
+				.process(SnmpGetSource.builder().oid(OID).build())
+		);
 	}
 
 	@Test
 	void testProcessSNMPGetTableSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(SnmpTableSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-			.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()));
+		assertEquals(
+			SourceTable.empty(),
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build())
+		);
 
-		SourceTable expected = SourceTable.builder().table(EXPECTED_SNMP_TABLE_DATA)
-			.headers(SNMP_SELECTED_COLUMNS_LIST).build();
+		SourceTable expected = SourceTable
+			.builder()
+			.table(EXPECTED_SNMP_TABLE_DATA)
+			.headers(SNMP_SELECTED_COLUMNS_LIST)
+			.build();
 		doReturn(expected).when(sourceProcessor).process(any(SnmpTableSource.class));
-		assertEquals(expected, new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-			.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()));
+		assertEquals(
+			expected,
+			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+				.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build())
+		);
 	}
 
 	@Test
 	void testProcessTableJoinSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableJoinSource.class));
-		assertEquals(SourceTable.empty(),
+		assertEquals(
+			SourceTable.empty(),
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(TableJoinSource.builder().build()));
+				.process(TableJoinSource.builder().build())
+		);
 	}
 
 	@Test
 	void testProcessTableUnionSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableUnionSource.class));
 		assertEquals(
 			SourceTable.empty(),
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(TableUnionSource.builder().tables(new ArrayList<>()).build()));
+				.process(TableUnionSource.builder().tables(new ArrayList<>()).build())
+		);
 	}
 
 	@Test
 	void testProcessCopySource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(CopySource.class));
-		assertEquals(SourceTable.empty(),
+		assertEquals(
+			SourceTable.empty(),
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(CopySource.builder().from(TAB1_REF).build()));
+				.process(CopySource.builder().from(TAB1_REF).build())
+		);
 
 		CopySource copySource = CopySource.builder().from(TAB1_REF).build();
 		final List<List<String>> result = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
@@ -262,40 +303,46 @@ class SourceUpdaterProcessorTest {
 		final List<List<String>> resultSnmp = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expectedSnmp = SourceTable.builder().table(resultSnmp).build();
 		doReturn(expectedSnmp).when(sourceProcessor).process(any(SnmpGetSource.class));
-		assertEquals(expectedSnmp,
+		assertEquals(
+			expectedSnmp,
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(snmpGetSource));
+				.process(snmpGetSource)
+		);
 
 		doReturn(expected).when(sourceProcessor).process(any(CopySource.class));
-		assertEquals(expected,
+		assertEquals(
+			expected,
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(copySource));
+				.process(copySource)
+		);
 	}
 
 	@Test
 	void testProcessStaticSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		StaticSource staticSource = StaticSource.builder().value(VALUE_VAL1).build();
 		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expected = SourceTable.builder().table(resultTable).build();
 		doReturn(expected).when(sourceProcessor).process(any(StaticSource.class));
-		assertEquals(expected,
+		assertEquals(
+			expected,
 			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
-				.process(staticSource));
+				.process(staticSource)
+		);
 	}
 }

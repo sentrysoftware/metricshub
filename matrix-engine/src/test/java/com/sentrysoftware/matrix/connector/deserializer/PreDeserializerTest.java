@@ -4,18 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 class PreDeserializerTest extends DeserializerTest {
 
@@ -32,10 +30,7 @@ class PreDeserializerTest extends DeserializerTest {
 
 		var pre = connector.getPre();
 
-		assertTrue(
-			pre instanceof LinkedHashMap,
-			"pre are expected to be a LinkedHashMap."
-		);
+		assertTrue(pre instanceof LinkedHashMap, "pre are expected to be a LinkedHashMap.");
 
 		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
 			Map.of("ipmiSource", new IpmiSource("ipmi", Collections.emptyList(), false, "${source::pre.ipmiSource}", null))

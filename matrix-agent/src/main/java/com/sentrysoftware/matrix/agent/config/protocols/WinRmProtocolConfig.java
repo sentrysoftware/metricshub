@@ -2,8 +2,6 @@ package com.sentrysoftware.matrix.agent.config.protocols;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
@@ -11,7 +9,7 @@ import com.sentrysoftware.matrix.configuration.IConfiguration;
 import com.sentrysoftware.matrix.configuration.TransportProtocols;
 import com.sentrysoftware.matrix.configuration.WinRmConfiguration;
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
-
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -72,5 +70,4 @@ public class WinRmProtocolConfig extends AbstractProtocolConfig {
 		}
 		return desc;
 	}
-
 }

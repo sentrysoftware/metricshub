@@ -20,6 +20,5 @@ class NamedStreamProcessorTest {
 		public void process(String block) {
 			assertTrue(block.startsWith(TAG));
 		}
-
 	}
 }

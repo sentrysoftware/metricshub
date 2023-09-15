@@ -31,14 +31,12 @@ public class OtelCollectorProcessService extends AbstractProcess {
 
 		// Is there an output configuration defining output processors?
 		if (outputConfig != null) {
-
 			// Connect the reader to the output processor
 			ProcessorHelper.connect(getReader(), outputConfig.getOutputProcessor(), LineReaderProcessor::new);
 
 			// Connect the error reader to the error processor
 			// If the error processor is not present then the error stream is redirected to output stream
 			ProcessorHelper.connect(getError(), outputConfig.getErrorProcessor(), LineReaderProcessor::new);
-
 		}
 	}
 
@@ -56,5 +54,4 @@ public class OtelCollectorProcessService extends AbstractProcess {
 	protected void onAfterProcessStop() {
 		// Not implemented
 	}
-
 }

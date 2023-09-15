@@ -1,14 +1,12 @@
 package com.sentrysoftware.matrix.matsya.http;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.strategy.utils.EmbeddedFileHelper;
-
+import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Slf4j
 public class HttpRequest {
+
 	@NonNull
 	private HttpConfiguration httpConfiguration;
 
@@ -46,18 +45,15 @@ public class HttpRequest {
 
 		/**
 		 * Set the {@link Header} object
-		 * 
+		 *
 		 * @param value string value that can reference an embedded file
 		 * @param connectorName the name of the connector
 		 * @param hostname the hostname of the host we currently monitor
 		 * @return this builder
 		 * @throws IOException
 		 */
-		public HttpRequestBuilder header(
-			final String value,
-			final String connectorName,
-			final String hostname
-		) throws IOException {
+		public HttpRequestBuilder header(final String value, final String connectorName, final String hostname)
+			throws IOException {
 			if (value != null) {
 				final Optional<EmbeddedFile> maybeEmbeddedFile = getHttpEmbeddedFile(value, "header", connectorName, hostname);
 				if (maybeEmbeddedFile.isPresent()) {
@@ -71,18 +67,15 @@ public class HttpRequest {
 
 		/**
 		 * Set the {@link Body} object
-		 * 
+		 *
 		 * @param value string value that can reference an embedded file
 		 * @param connectorName the name of the connector
 		 * @param hostname the hostname of the host we currently monitor
 		 * @return this builder
 		 * @throws IOException
 		 */
-		public HttpRequestBuilder body(
-			final String value,
-			final String connectorName,
-			final String hostname
-		) throws IOException {
+		public HttpRequestBuilder body(final String value, final String connectorName, final String hostname)
+			throws IOException {
 			if (value != null) {
 				final Optional<EmbeddedFile> maybeEmbeddedFile = getHttpEmbeddedFile(value, "body", connectorName, hostname);
 				if (maybeEmbeddedFile.isPresent()) {
@@ -97,7 +90,7 @@ public class HttpRequest {
 
 		/**
 		 * Get the HTTP embedded file
-		 * 
+		 *
 		 * @param value         value from which we want to extract the embedded file
 		 * @param context       operation context (header or body) used for logging
 		 * @param connectorName the name of the connector used for logging
@@ -112,7 +105,6 @@ public class HttpRequest {
 			final String connectorName,
 			final String hostname
 		) throws IOException {
-
 			final Map<String, EmbeddedFile> embeddedFiles = EmbeddedFileHelper.findEmbeddedFiles(value);
 
 			if (embeddedFiles.size() > 1) {
@@ -128,8 +120,6 @@ public class HttpRequest {
 			}
 
 			return embeddedFiles.values().stream().findAny();
-
 		}
 	}
-
 }

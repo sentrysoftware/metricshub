@@ -26,5 +26,4 @@ public class SupersedesDeserializer extends AbstractNonBlankNonNullInCollectionD
 	protected Collection<String> fromCollection(Collection<String> collection) {
 		return new HashSet<>(collection);
 	}
-
 }

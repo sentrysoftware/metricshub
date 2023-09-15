@@ -29,5 +29,4 @@ class IpmiConfigurationTest {
 		ipmiConfiguration.setUsername(null);
 		assertEquals(IPMI, ipmiConfiguration.toString());
 	}
-
 }

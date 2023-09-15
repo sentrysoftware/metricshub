@@ -1,11 +1,10 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import java.util.Map;
 
 public class SourcesDeserializer extends AbstractLinkedHashMapDeserializer<Source> {
 
@@ -26,7 +25,6 @@ public class SourcesDeserializer extends AbstractLinkedHashMapDeserializer<Sourc
 
 	@Override
 	protected TypeReference<Map<String, Source>> getTypeReference() {
-		 return new TypeReference<Map<String, Source>>() {};
+		return new TypeReference<Map<String, Source>>() {};
 	}
-
 }

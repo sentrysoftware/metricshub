@@ -1,15 +1,13 @@
 package com.sentrysoftware.matrix.connector.parser;
 
-public class ConnectorParserUpdateManagement extends AbstractConnectorParserManagement{
+public class ConnectorParserUpdateManagement extends AbstractConnectorParserManagement {
 
 	public ConnectorParserUpdateManagement(String relativePath) {
-		super(relativePath, (dir) -> ConnectorParser.withNodeProcessorAndUpdateChain(dir));
-
+		super(relativePath, dir -> ConnectorParser.withNodeProcessorAndUpdateChain(dir));
 	}
 
 	@Override
 	public String getResourcePath() {
 		return String.format("src/test/resources/test-files/%s/", relativePath);
 	}
-
 }

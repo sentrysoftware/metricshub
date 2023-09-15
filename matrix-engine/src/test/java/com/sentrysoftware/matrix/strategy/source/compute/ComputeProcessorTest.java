@@ -10,14 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
@@ -26,6 +18,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Mul
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class ComputeProcessorTest {
 
@@ -88,13 +86,25 @@ class ComputeProcessorTest {
 	private static final List<String> LINE_2 = Arrays.asList(ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2);
 	private static final List<String> LINE_3 = Arrays.asList(ID3, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3);
 
-	private static final List<String> LINE_1_RESULT_LEFT = new ArrayList<>(Arrays.asList(ID1, NAME1, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1));
-	private static final List<String> LINE_2_RESULT_LEFT = new ArrayList<>(Arrays.asList(ID2, NAME2, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2));
-	private static final List<String> LINE_3_RESULT_LEFT = new ArrayList<>(Arrays.asList(ID3, NAME3, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3));
+	private static final List<String> LINE_1_RESULT_LEFT = new ArrayList<>(
+		Arrays.asList(ID1, NAME1, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)
+	);
+	private static final List<String> LINE_2_RESULT_LEFT = new ArrayList<>(
+		Arrays.asList(ID2, NAME2, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)
+	);
+	private static final List<String> LINE_3_RESULT_LEFT = new ArrayList<>(
+		Arrays.asList(ID3, NAME3, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3)
+	);
 
-	private static final List<String> LINE_1_RESULT_RIGHT = new ArrayList<>(Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NUMBER_OF_DISKS1));
-	private static final List<String> LINE_2_RESULT_RIGHT = new ArrayList<>(Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NUMBER_OF_DISKS2));
-	private static final List<String> LINE_3_RESULT_RIGHT = new ArrayList<>(Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NUMBER_OF_DISKS3));
+	private static final List<String> LINE_1_RESULT_RIGHT = new ArrayList<>(
+		Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NUMBER_OF_DISKS1)
+	);
+	private static final List<String> LINE_2_RESULT_RIGHT = new ArrayList<>(
+		Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NUMBER_OF_DISKS2)
+	);
+	private static final List<String> LINE_3_RESULT_RIGHT = new ArrayList<>(
+		Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NUMBER_OF_DISKS3)
+	);
 
 	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID1));
 	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID2));
@@ -119,7 +129,8 @@ class ComputeProcessorTest {
 		List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
 			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3));
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+		);
 
 		sourceTable.setTable(table);
 
@@ -141,7 +152,8 @@ class ComputeProcessorTest {
 		final List<List<String>> result = Arrays.asList(
 			Arrays.asList(ID1, "502.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "1505.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "202.0", TWO, VALUE_VAL3));
+			Arrays.asList(ID1, "202.0", TWO, VALUE_VAL3)
+		);
 
 		Add addColumn = Add.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(addColumn);
@@ -157,17 +169,22 @@ class ComputeProcessorTest {
 
 		final Add addValue = Add.builder().column(2).value(TEN).build();
 		computeProcessor.process(addValue);
-		assertEquals(Arrays.asList(
-			Arrays.asList(ID1, "512.0", TWO, VALUE_VAL1),
-			Arrays.asList(ID2, "1515.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "212.0", TWO, VALUE_VAL3)),
-			sourceTable.getTable());
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList(ID1, "512.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "1515.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "212.0", TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
+		);
 
 		Add emptyAdd = Add.builder().column(4).value(FIVE).build();
-		table = Arrays.asList(
-			Arrays.asList(ID1, FIVE_HUNDRED, TWO, EMPTY),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, EMPTY),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, EMPTY));
+		table =
+			Arrays.asList(
+				Arrays.asList(ID1, FIVE_HUNDRED, TWO, EMPTY),
+				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, EMPTY),
+				Arrays.asList(ID1, TWO_HUNDRED, TWO, EMPTY)
+			);
 		sourceTable.setTable(table);
 		computeProcessor.process(emptyAdd);
 		assertEquals(table, sourceTable.getTable());
@@ -181,8 +198,9 @@ class ComputeProcessorTest {
 	void testProcessDivide() {
 		final List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED,FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3));
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+		);
 
 		sourceTable.setTable(table);
 
@@ -208,7 +226,8 @@ class ComputeProcessorTest {
 		final List<List<String>> result1 = Arrays.asList(
 			Arrays.asList(ID1, "250.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "300.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "100.0", TWO, VALUE_VAL3));
+			Arrays.asList(ID1, "100.0", TWO, VALUE_VAL3)
+		);
 
 		Divide valueColumn = Divide.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(valueColumn);
@@ -225,7 +244,8 @@ class ComputeProcessorTest {
 		final List<List<String>> result2 = Arrays.asList(
 			Arrays.asList(ID1, "25.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "30.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "10.0", TWO, VALUE_VAL3));
+			Arrays.asList(ID1, "10.0", TWO, VALUE_VAL3)
+		);
 
 		Divide valueValue = Divide.builder().column(2).value(TEN).build();
 		computeProcessor.process(valueValue);
@@ -240,8 +260,9 @@ class ComputeProcessorTest {
 	void testProcessMultiply() {
 		final List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED,FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3));
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+		);
 
 		sourceTable.setTable(table);
 
@@ -263,7 +284,8 @@ class ComputeProcessorTest {
 		final List<List<String>> result = Arrays.asList(
 			Arrays.asList(ID1, "1000.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "7500.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "400.0", TWO, VALUE_VAL3));
+			Arrays.asList(ID1, "400.0", TWO, VALUE_VAL3)
+		);
 
 		Multiply multiByColumn = Multiply.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(multiByColumn);
@@ -279,27 +301,34 @@ class ComputeProcessorTest {
 
 		Multiply valueValue = Multiply.builder().column(2).value(TEN).build();
 		computeProcessor.process(valueValue);
-		assertEquals(Arrays.asList(
-			Arrays.asList(ID1, "10000.0", TWO, VALUE_VAL1),
-			Arrays.asList(ID2, "75000.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "4000.0", TWO, VALUE_VAL3)),
-			sourceTable.getTable());
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList(ID1, "10000.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "75000.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "4000.0", TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
+		);
 
 		valueValue = Multiply.builder().column(2).value(ZERO).build();
 		computeProcessor.process(valueValue);
-		assertEquals(Arrays.asList(
-			Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL1),
-			Arrays.asList(ID2, ZERO_POINT_ZERO, FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL3)),
-			sourceTable.getTable());
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL1),
+				Arrays.asList(ID2, ZERO_POINT_ZERO, FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
+		);
 	}
 
 	@Test
 	void testProcessSubtract() {
 		final List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED,FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3));
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+		);
 
 		sourceTable.setTable(table);
 
@@ -321,7 +350,8 @@ class ComputeProcessorTest {
 		final List<List<String>> result = Arrays.asList(
 			Arrays.asList(ID1, "498.0", TWO, VALUE_VAL1),
 			Arrays.asList(ID2, "1495.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "198.0", TWO, VALUE_VAL3));
+			Arrays.asList(ID1, "198.0", TWO, VALUE_VAL3)
+		);
 
 		Subtract substractColumn = Subtract.builder().column(2).value(DOLLAR_3).build();
 		computeProcessor.process(substractColumn);
@@ -337,11 +367,14 @@ class ComputeProcessorTest {
 
 		final Subtract substractValue = Subtract.builder().column(2).value(TEN).build();
 		computeProcessor.process(substractValue);
-		assertEquals(Arrays.asList(
-			Arrays.asList(ID1, "488.0", TWO, VALUE_VAL1),
-			Arrays.asList(ID2, "1485.0", FIVE, VALUE_VAL2),
-			Arrays.asList(ID1, "188.0", TWO, VALUE_VAL3)),
-			sourceTable.getTable());
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList(ID1, "488.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "1485.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "188.0", TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
+		);
 	}
 
 	@Test
@@ -350,11 +383,7 @@ class ComputeProcessorTest {
 		sourceTable.setTable(table);
 
 		// column index > row size
-		final Divide divide = Divide
-			.builder()
-			.value(TWO)
-			.column(4)
-			.build();
+		final Divide divide = Divide.builder().value(TWO).column(4).build();
 		computeProcessor.process(divide);
 		assertEquals(table, sourceTable.getTable());
 
@@ -383,16 +412,17 @@ class ComputeProcessorTest {
 
 	@Test
 	void testProcessAnd() {
-
 		List<List<String>> table = Arrays.asList(
-			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),	// 0000 0001
-			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),	// 0000 1110
-			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE));	// 1111 1110
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE), // 0000 0001
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
+		); // 1111 1110
 
 		List<List<String>> tableResult = Arrays.asList(
 			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
 			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),
-			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE));
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
+		);
 
 		sourceTable.setTable(table);
 
@@ -401,7 +431,7 @@ class ComputeProcessorTest {
 		assertEquals(tableResult, sourceTable.getTable());
 
 		// test TranslationTable is null
-		final And and = And.builder().column(0).value(ONE).build();	// and : 0000 0001
+		final And and = And.builder().column(0).value(ONE).build(); // and : 0000 0001
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 
@@ -412,41 +442,51 @@ class ComputeProcessorTest {
 
 		// tests OK
 		and.setColumn(4);
-		tableResult = Arrays.asList(
-			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
-			Arrays.asList(ID2, NAME2, MANUFACTURER2, ZERO),
-			Arrays.asList(ID3, NAME3, MANUFACTURER3, ONE));
+		tableResult =
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
+				Arrays.asList(ID2, NAME2, MANUFACTURER2, ZERO),
+				Arrays.asList(ID3, NAME3, MANUFACTURER3, ONE)
+			);
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 
-		table = Arrays.asList(
-			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),	// 0000 0001
-			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),	// 0000 1110
-			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE));	// 1111 1110
-		and.setValue(THIRTY);											// and:0001 1110
+		table =
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE), // 0000 0001
+				Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
+				Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
+			); // 1111 1110
+		and.setValue(THIRTY); // and:0001 1110
 
 		sourceTable.setTable(table);
 
-		tableResult = Arrays.asList(
-			Arrays.asList(ID1, NAME1, MANUFACTURER1, ZERO),	// 0000 0001
-			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),	// 0000 1110
-			Arrays.asList(ID3, NAME3, MANUFACTURER3, THIRTY));	// 0001 1110
+		tableResult =
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, MANUFACTURER1, ZERO), // 0000 0001
+				Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
+				Arrays.asList(ID3, NAME3, MANUFACTURER3, THIRTY)
+			); // 0001 1110
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 
 		// test with column
-		table = Arrays.asList(
-			Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ONE),		// 1111 1110 & 0000 0001
-			Arrays.asList(ID2, NAME2, THIRTY_SIX, FOURTEEN),		// 0010 0100 & 0000 1110
-			Arrays.asList(ID3, NAME3, FORTY_ONE, TWO_HUNDRED_AND_FIFTY_FIVE));	// 0010 1001 & 1111 1111
+		table =
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ONE), // 1111 1110 & 0000 0001
+				Arrays.asList(ID2, NAME2, THIRTY_SIX, FOURTEEN), // 0010 0100 & 0000 1110
+				Arrays.asList(ID3, NAME3, FORTY_ONE, TWO_HUNDRED_AND_FIFTY_FIVE)
+			); // 0010 1001 & 1111 1111
 		and.setValue(DOLLAR_3);
 
 		sourceTable.setTable(table);
 
-		tableResult = Arrays.asList(
-			Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ZERO),	// 0000 0000
-			Arrays.asList(ID2, NAME2, THIRTY_SIX, "4"),	// 0000 0100
-			Arrays.asList(ID3, NAME3, FORTY_ONE, FORTY_ONE));	// 0010 1001
+		tableResult =
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ZERO), // 0000 0000
+				Arrays.asList(ID2, NAME2, THIRTY_SIX, "4"), // 0000 0100
+				Arrays.asList(ID3, NAME3, FORTY_ONE, FORTY_ONE)
+			); // 0010 1001
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 	}
@@ -495,7 +535,6 @@ class ComputeProcessorTest {
 		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(1));
 		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(2));
-
 	}
 
 	@Test
@@ -570,9 +609,18 @@ class ComputeProcessorTest {
 
 		final List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)), table.get(0));
-		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)), table.get(1));
-		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3)), table.get(2));
+		assertEquals(
+			new ArrayList<>(Arrays.asList(ID1, NAME1, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)),
+			table.get(0)
+		);
+		assertEquals(
+			new ArrayList<>(Arrays.asList(ID2, NAME2, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)),
+			table.get(1)
+		);
+		assertEquals(
+			new ArrayList<>(Arrays.asList(ID3, NAME3, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3)),
+			table.get(2)
+		);
 	}
 
 	@Test
@@ -585,9 +633,24 @@ class ComputeProcessorTest {
 
 		final List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(new ArrayList<>(Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID1, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)), table.get(0));
-		assertEquals(new ArrayList<>(Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)), table.get(1));
-		assertEquals(new ArrayList<>(Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID3, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)), table.get(2));
+		assertEquals(
+			new ArrayList<>(
+				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID1, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
+			),
+			table.get(0)
+		);
+		assertEquals(
+			new ArrayList<>(
+				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
+			),
+			table.get(1)
+		);
+		assertEquals(
+			new ArrayList<>(
+				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID3, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
+			),
+			table.get(2)
+		);
 	}
 
 	@Test
@@ -696,9 +759,18 @@ class ComputeProcessorTest {
 
 		final List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS1)), table.get(0));
-		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS2)), table.get(1));
-		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS3)), table.get(2));
+		assertEquals(
+			new ArrayList<>(Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS1)),
+			table.get(0)
+		);
+		assertEquals(
+			new ArrayList<>(Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS2)),
+			table.get(1)
+		);
+		assertEquals(
+			new ArrayList<>(Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS3)),
+			table.get(2)
+		);
 	}
 
 	@Test
@@ -711,9 +783,24 @@ class ComputeProcessorTest {
 
 		final List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(new ArrayList<>(Arrays.asList(ID1_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)), table.get(0));
-		assertEquals(new ArrayList<>(Arrays.asList(ID2_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)), table.get(1));
-		assertEquals(new ArrayList<>(Arrays.asList(ID3_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)), table.get(2));
+		assertEquals(
+			new ArrayList<>(
+				Arrays.asList(ID1_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
+			),
+			table.get(0)
+		);
+		assertEquals(
+			new ArrayList<>(
+				Arrays.asList(ID2_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
+			),
+			table.get(1)
+		);
+		assertEquals(
+			new ArrayList<>(
+				Arrays.asList(ID3_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
+			),
+			table.get(2)
+		);
 	}
 
 	@Test
@@ -761,14 +848,8 @@ class ComputeProcessorTest {
 		// computeProcessor.getSourceTable().getTable() is not empty,
 		// RightConcat.getColumn() > sourceTable.getTable().get(0).size()
 		computeProcessor.setSourceTable(
-			SourceTable
-			.builder()
-			.table(
-				Collections.singletonList(
-					Collections.singletonList(FOO)
-					)
-				)
-			.build());
+			SourceTable.builder().table(Collections.singletonList(Collections.singletonList(FOO))).build()
+		);
 		rightConcat.setColumn(5);
 		computeProcessor.process(rightConcat);
 		assertEquals(1, computeProcessor.getSourceTable().getTable().size());

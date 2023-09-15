@@ -7,6 +7,10 @@ import static com.sentrysoftware.matrix.agent.helper.AgentConstants.FILE_PATH_FO
 import static com.sentrysoftware.matrix.agent.helper.AgentConstants.LOG_DIRECTORY_NAME;
 import static com.sentrysoftware.matrix.agent.helper.AgentConstants.PRODUCT_CODE;
 
+import com.sentrysoftware.matrix.agent.security.PasswordEncrypt;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.security.SecurityManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,12 +24,6 @@ import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
 import java.util.List;
 import java.util.Optional;
-
-import com.sentrysoftware.matrix.agent.security.PasswordEncrypt;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
-import com.sentrysoftware.matrix.security.SecurityManager;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -40,7 +38,7 @@ public class ConfigHelper {
 	 * On Windows, if the LOCALAPPDATA path is not valid then the output directory will be located
 	 * under the install directory.<br>
 	 * On Linux, the output directory is located under the install directory.
-	 * 
+	 *
 	 * @return {@link Path} instance
 	 */
 	public static Path getDefaultOutputDirectory() {
@@ -51,7 +49,6 @@ public class ConfigHelper {
 			if (localAppDataPath != null && !localAppDataPath.isBlank()) {
 				return createDirectories(Paths.get(localAppDataPath, PRODUCT_CODE, "logs"));
 			}
-
 		}
 
 		return getSubDirectory(LOG_DIRECTORY_NAME, true);
@@ -59,14 +56,13 @@ public class ConfigHelper {
 
 	/**
 	 * Get a sub directory under the install directory
-	 * 
+	 *
 	 * @param dir    the directory assumed under the product directory. E.g. logs
 	 *               assumed under /opt/PRODUCT_CODE
 	 * @param create indicate if we should create the sub directory or not
 	 * @return The absolute path of the sub directory
 	 */
 	public static Path getSubDirectory(@NonNull final String dir, boolean create) {
-
 		Path subDirectory = getSubPath(dir);
 		if (!create) {
 			return subDirectory;
@@ -75,10 +71,9 @@ public class ConfigHelper {
 		return createDirectories(subDirectory);
 	}
 
-
 	/**
 	 * Create directories of the given path
-	 * 
+	 *
 	 * @param path Directories path
 	 * @return {@link Path} instance
 	 */
@@ -140,7 +135,7 @@ public class ConfigHelper {
 	/**
 	 * Get the default configuration file path either in the Windows <em>ProgramData\PRODUCT_CODE</em>
 	 * directory or under the install directory <em>/opt/PRODUCT_CODE</em> on Linux systems.
-	 * 
+	 *
 	 * @param directory      Directory of the configuration file. (e.g. config or otel)
 	 * @param configFilename Configuration file name (e.g. PRODUCT-CODE-config.yaml or otel-config.yaml)
 	 * @return new {@link Path} instance
@@ -156,7 +151,7 @@ public class ConfigHelper {
 	 * Get the configuration file under the ProgramData windows directory.<br>
 	 * If the ProgramData path is not valid then the configuration file will be located
 	 * under the install directory.
-	 * 
+	 *
 	 * @param directory      Directory of the configuration file. (e.g. config or otel)
 	 * @param configFilename Configuration file name (e.g. PRODUCT-CODE-config.yaml or otel-config.yaml)
 	 * @return new {@link Path} instance
@@ -164,7 +159,7 @@ public class ConfigHelper {
 	static Path getProgramDataConfigFile(final String directory, final String configFilename) {
 		return getProgramDataPath()
 			.stream()
-			.map(path -> 
+			.map(path ->
 				Paths.get(
 					createDirectories(Paths.get(path, PRODUCT_CODE, directory)).toAbsolutePath().toString(),
 					configFilename
@@ -177,7 +172,7 @@ public class ConfigHelper {
 	/**
 	 * Get the <em>%PROGRAMDATA%</em> path. If the ProgramData path is not valid
 	 * then <code>Optional.empty()</code> is returned.
-	 * 
+	 *
 	 * @return {@link Optional} containing a string value (path)
 	 */
 	public static Optional<String> getProgramDataPath() {
@@ -192,7 +187,7 @@ public class ConfigHelper {
 	/**
 	 * Decrypt the given encrypted password.
 	 *
-	 * @param encrypted 
+	 * @param encrypted
 	 * @return char array
 	 */
 	public static char[] decrypt(final char[] encrypted) {
@@ -206,7 +201,6 @@ public class ConfigHelper {
 		}
 	}
 
-
 	/**
 	 * Find the application's configuration file (PRODUCT-CODE-config.yaml).<br>
 	 * <ol>
@@ -214,14 +208,14 @@ public class ConfigHelper {
 	 *   <li>Else if <em>config/PRODUCT-CODE-config.yaml</em> path exists, the resulting File is the one representing this path</li>
 	 *   <li>Else we copy <em>config/PRODUCT-CODE-config-example.yaml</em> to the host file <em>config/PRODUCT-CODE-config.yaml</em> then we return the resulting host file</li>
 	 * </ol>
-	 * 
+	 *
 	 * The program fails if
 	 * <ul>
 	 *   <li>The configured file path doesn't exist</li>
 	 *   <li>config/PRODUCT-CODE-config-example.yaml is not present</li>
 	 *   <li>If an I/O error occurs</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param configFilePath The configuration file passed by the user. E.g. --config=/opt/PRODUCT-CODE/config/my-PRODUCT-CODE-config.yaml
 	 * @return {@link File} instance
 	 * @throws IOException
@@ -239,21 +233,23 @@ public class ConfigHelper {
 		}
 
 		// Get the configuration file config/PRODUCT-CODE-config.yaml
-		return getDefaultConfigFile(CONFIG_DIRECTORY_NAME , DEFAULT_CONFIG_FILENAME, CONFIG_EXAMPLE_FILENAME);
-
+		return getDefaultConfigFile(CONFIG_DIRECTORY_NAME, DEFAULT_CONFIG_FILENAME, CONFIG_EXAMPLE_FILENAME);
 	}
 
 	/**
 	 * Get the default configuration file.
-	 * 
+	 *
 	 * @param directory             Directory of the configuration file. (e.g. config or otel)
 	 * @param configFilename        Configuration file name (e.g. PRODUCT-CODE-config.yaml or otel-config.yaml)
 	 * @param configFilenameExample Configuration file name example (e.g. PRODUCT-CODE-config-example.yaml)
 	 * @return {@link File} instance
 	 * @throws IOException if the copy fails
 	 */
-	public static File getDefaultConfigFile(final String directory, final String configFilename, final String configFilenameExample) throws IOException {
-
+	public static File getDefaultConfigFile(
+		final String directory,
+		final String configFilename,
+		final String configFilenameExample
+	) throws IOException {
 		// Get the the configuration file absolute path
 		final Path configPath = getDefaultConfigFilePath(directory, configFilename);
 
@@ -268,7 +264,9 @@ public class ConfigHelper {
 		}
 
 		// Now we will proceed with a copy of the example file (e.g. PRODUCT-CODE-config-example.yaml to config/PRODUCT-CODE-config.yaml)
-		final Path exampleConfigPath = ConfigHelper.getSubPath(String.format(FILE_PATH_FORMAT, directory, configFilenameExample));
+		final Path exampleConfigPath = ConfigHelper.getSubPath(
+			String.format(FILE_PATH_FORMAT, directory, configFilenameExample)
+		);
 
 		// Bad configuration
 		if (!Files.exists(exampleConfigPath)) {
@@ -290,7 +288,7 @@ public class ConfigHelper {
 
 	/**
 	 * Set write permissions for PRODUCT-CODE-config.yaml deployed on a Windows machine running the agent
-	 * 
+	 *
 	 * @param configPath  the configuration file absolute path
 	 * @param logError    whether we should log the error or not. If logError is false, an info message is logged.
 	 */
@@ -302,18 +300,20 @@ public class ConfigHelper {
 
 	/**
 	 * Set write permission for PRODUCT-CODE-config.yaml
-	 * 
+	 *
 	 * @param configPath the configuration file absolute path
 	 * @param logError   whether we should log the error or not. If logError is false, an info message is logged.
 	 */
 	private static void setUserPermissions(final Path configPath, boolean logError) {
 		try {
-			final GroupPrincipal users = configPath.getFileSystem().getUserPrincipalLookupService()
-					.lookupPrincipalByGroupName("Users");
-	
+			final GroupPrincipal users = configPath
+				.getFileSystem()
+				.getUserPrincipalLookupService()
+				.lookupPrincipalByGroupName("Users");
+
 			// get view
 			final AclFileAttributeView view = Files.getFileAttributeView(configPath, AclFileAttributeView.class);
-	
+
 			// create ACE to give "Users" access
 			final AclEntry entry = AclEntry
 				.newBuilder()
@@ -331,12 +331,13 @@ public class ConfigHelper {
 					AclEntryPermission.READ_NAMED_ATTRS,
 					AclEntryPermission.DELETE,
 					AclEntryPermission.APPEND_DATA,
-					AclEntryPermission.DELETE)
+					AclEntryPermission.DELETE
+				)
 				.build();
-	
+
 			// read ACL, insert ACE, re-write ACL
 			final List<AclEntry> acl = view.getAcl();
-	
+
 			// insert before any DENY entries
 			acl.add(0, entry);
 			view.setAcl(acl);
@@ -347,7 +348,6 @@ public class ConfigHelper {
 			} else {
 				log.info("Could not set write permissions to file: {}. Message: {}", configPath.toString(), e.getMessage());
 			}
-
 		}
 	}
 }

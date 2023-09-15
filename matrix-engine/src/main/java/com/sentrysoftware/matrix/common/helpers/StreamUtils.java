@@ -19,5 +19,4 @@ public class StreamUtils {
 		stream.forEach(deque::push);
 		return deque.stream();
 	}
-
 }

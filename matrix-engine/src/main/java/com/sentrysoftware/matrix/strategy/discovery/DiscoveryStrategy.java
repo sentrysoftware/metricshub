@@ -1,5 +1,13 @@
 package com.sentrysoftware.matrix.strategy.discovery;
 
+import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_JOBS_PRIORITY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
+
 import com.sentrysoftware.matrix.common.ConnectorMonitorTypeComparator;
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
@@ -19,11 +27,6 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,14 +38,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_JOBS_PRIORITY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor
@@ -50,16 +49,12 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TI
 public class DiscoveryStrategy extends AbstractStrategy {
 
 	public DiscoveryStrategy(
-			@NonNull final TelemetryManager telemetryManager,
-			final long strategyTime,
-			@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final TelemetryManager telemetryManager,
+		final long strategyTime,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);
 	}
-
-
-
-
 
 	@Override
 	public void prepare() {
@@ -73,8 +68,6 @@ public class DiscoveryStrategy extends AbstractStrategy {
 	 * @param hostname
 	 */
 	private void discover(final Connector currentConnector, final String hostname) {
-
-
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
 			.getMonitors()
@@ -82,57 +75,44 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.sorted(
 				Comparator.comparing(entry ->
-						MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()) ?
-							MONITOR_JOBS_PRIORITY.get(entry.getKey()) :
-							MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES)
+					MONITOR_JOBS_PRIORITY.containsKey(entry.getKey())
+						? MONITOR_JOBS_PRIORITY.get(entry.getKey())
+						: MONITOR_JOBS_PRIORITY.get(OTHER_MONITOR_JOB_TYPES)
 				)
 			)
-				.collect(Collectors.toMap(
-						Map.Entry::getKey,
-						Map.Entry::getValue,
-						(oldValue, newValue) -> oldValue,
-						LinkedHashMap::new
-				));
+			.collect(
+				Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new)
+			);
 
 		final Map<String, MonitorJob> sequentialMonitorJobs = connectorMonitorJobs
 			.entrySet()
 			.stream()
 			.filter(entry -> MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
-			.collect(Collectors.toMap(
-				Map.Entry::getKey,
-				Map.Entry::getValue,
-				(oldValue, newValue) -> oldValue,
-				LinkedHashMap::new
-			));
+			.collect(
+				Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new)
+			);
 
 		final Map<String, MonitorJob> otherMonitorJobs = connectorMonitorJobs
 			.entrySet()
 			.stream()
 			.filter(entry -> !MONITOR_JOBS_PRIORITY.containsKey(entry.getKey()))
-			.collect(Collectors.toMap(
-				Map.Entry::getKey,
-				Map.Entry::getValue,
-				(oldValue, newValue) -> oldValue,
-				LinkedHashMap::new
-			));
+			.collect(
+				Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new)
+			);
 
 		// Run monitor jobs defined in monitor jobs priority map (host, enclosure, blade, disk_controller and cpu)  in sequential mode
-		sequentialMonitorJobs
-			.entrySet()
-			.forEach(entry -> processMonitorJob(currentConnector, hostname, entry));
+		sequentialMonitorJobs.entrySet().forEach(entry -> processMonitorJob(currentConnector, hostname, entry));
 
 		// If monitor jobs execution is set to "sequential", execute monitor jobs one by one
 		if (telemetryManager.getHostConfiguration().isSequential()) {
-
-			otherMonitorJobs
-				.entrySet()
-				.forEach(entry -> processMonitorJob(currentConnector, hostname, entry));
-
-
+			otherMonitorJobs.entrySet().forEach(entry -> processMonitorJob(currentConnector, hostname, entry));
 		} else {
 			// Execute monitor jobs in parallel
-			log.info("Hostname {} - Running discovery in parallel mode. Connector: {}.", hostname, currentConnector.getConnectorIdentity()
-				.getCompiledFilename());
+			log.info(
+				"Hostname {} - Running discovery in parallel mode. Connector: {}.",
+				hostname,
+				currentConnector.getConnectorIdentity().getCompiledFilename()
+			);
 
 			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 
@@ -163,13 +143,11 @@ public class DiscoveryStrategy extends AbstractStrategy {
 	 * @param monitorJob
 	 */
 	private void processMonitorJob(
-			final Connector currentConnector,
-			final String hostname,
-			final Entry<String, MonitorJob> monitorJob
+		final Connector currentConnector,
+		final String hostname,
+		final Entry<String, MonitorJob> monitorJob
 	) {
-
 		if (monitorJob.getValue() instanceof StandardMonitorJob standardMoinitorJob) {
-
 			final Discovery discovery = standardMoinitorJob.getDiscovery();
 
 			final String monitorType = monitorJob.getKey();
@@ -194,22 +172,13 @@ public class DiscoveryStrategy extends AbstractStrategy {
 				.build();
 
 			// Create the sources and the computes for a connector
-			processSourcesAndComputes(
-				orderedSources.getSources(),
-				jobInfo
-			);
+			processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
 			// Create the monitors
 			final Mapping mapping = discovery.getMapping();
 
-			processSameTypeMonitors(
-				currentConnector,
-				mapping,
-				monitorType,
-				hostname
-			);
+			processSameTypeMonitors(currentConnector, mapping, monitorType, hostname);
 		}
-
 	}
 
 	/**
@@ -221,18 +190,18 @@ public class DiscoveryStrategy extends AbstractStrategy {
 	 * @param hostname
 	 */
 	private void processSameTypeMonitors(
-			final Connector connector,
-			final Mapping mapping,
-			final String monitorType,
-			final String hostname
+		final Connector connector,
+		final Mapping mapping,
+		final String monitorType,
+		final String hostname
 	) {
-
 		final String connectorId = connector.getConnectorIdentity().getCompiledFilename();
 
 		// Check the source, so that, we can create the monitor later
 		final String source = mapping.getSource();
 		if (source == null) {
-			log.warn("Hostname {} - No instance tables found with {} during the discovery for the connector {}.",
+			log.warn(
+				"Hostname {} - No instance tables found with {} during the discovery for the connector {}.",
 				hostname,
 				monitorType,
 				connectorId
@@ -241,14 +210,11 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		}
 
 		// Call lookupSourceTable to find the source table
-		final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(
-			source,
-			connectorId,
-			telemetryManager
-		);
+		final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(source, connectorId, telemetryManager);
 
 		if (maybeSourceTable.isEmpty()) {
-			log.warn("Hostname {} - The source table {} is not found during the discovery for the connector {}.",
+			log.warn(
+				"Hostname {} - The source table {} is not found during the discovery for the connector {}.",
 				hostname,
 				source,
 				connectorId
@@ -260,19 +226,27 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		final SourceTable sourceTable = maybeSourceTable.get();
 
 		for (final List<String> row : sourceTable.getTable()) {
-
 			// Init mapping processor
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
 				.telemetryManager(telemetryManager)
 				.mapping(mapping)
-				.jobInfo(JobInfo.builder().connectorName(connectorId).hostname(hostname).monitorType(monitorType).jobName("discovery").build())
+				.jobInfo(
+					JobInfo
+						.builder()
+						.connectorName(connectorId)
+						.hostname(hostname)
+						.monitorType(monitorType)
+						.jobName("discovery")
+						.build()
+				)
 				.collectTime(strategyTime)
 				.row(row)
 				.build();
 
 			// Use the mapping processor to extract attributes and resource
-			final Map<String, String> noContextAttributeInterpretedValues = mappingProcessor.interpretNonContextMappingAttributes();
+			final Map<String, String> noContextAttributeInterpretedValues =
+				mappingProcessor.interpretNonContextMappingAttributes();
 
 			final Resource resource = mappingProcessor.interpretMappingResource();
 
@@ -306,13 +280,21 @@ public class DiscoveryStrategy extends AbstractStrategy {
 
 			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
-			metricFactory.collectMonitorMetrics(monitorType, connector, hostname, monitor, connectorId, metrics, strategyTime, true);
+			metricFactory.collectMonitorMetrics(
+				monitorType,
+				connector,
+				hostname,
+				monitor,
+				connectorId,
+				metrics,
+				strategyTime,
+				true
+			);
 
 			// Collect legacy parameters
 			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
 			monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
 		}
-
 	}
 
 	/**
@@ -320,14 +302,11 @@ public class DiscoveryStrategy extends AbstractStrategy {
 	 */
 	@Override
 	public void run() {
-
 		// Get the host name from telemetry manager
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		// Get host monitors
-		final Map<String, Monitor> hostMonitors = telemetryManager
-			.getMonitors()
-			.get(HOST.getKey());
+		final Map<String, Monitor> hostMonitors = telemetryManager.getMonitors().get(HOST.getKey());
 
 		if (hostMonitors == null) {
 			log.error("Hostname {} - No host found. Stopping discovery strategy.", hostname);
@@ -350,11 +329,16 @@ public class DiscoveryStrategy extends AbstractStrategy {
 		host.setDiscoveryTime(strategyTime);
 
 		//Retrieve connector Monitor instances from TelemetryManager
-		final Map<String, Monitor> connectorMonitors = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
+		final Map<String, Monitor> connectorMonitors = telemetryManager
+			.getMonitors()
+			.get(KnownMonitorType.CONNECTOR.getKey());
 
 		// Check whether the resulting map is null or empty
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("Hostname {} - Collect - No connectors detected in the detection operation. Collect operation will now be stopped.", hostname);
+			log.error(
+				"Hostname {} - Collect - No connectors detected in the detection operation. Collect operation will now be stopped.",
+				hostname
+			);
 			return;
 		}
 
@@ -385,13 +369,13 @@ public class DiscoveryStrategy extends AbstractStrategy {
 			.collect(Collectors.toList()); //NOSONAR
 
 		// Sort connectors by monitor job type: first put hosts then enclosures. If two connectors have the same type of monitor job, sort them by name
-		final List<Connector> sortedConnectors = connectorsWithMonitorJobs.stream()
+		final List<Connector> sortedConnectors = connectorsWithMonitorJobs
+			.stream()
 			.sorted(new ConnectorMonitorTypeComparator())
 			.collect(Collectors.toList()); //NOSONAR
 
 		// Discover each connector
 		sortedConnectors.forEach(connector -> discover(connector, hostname));
-
 	}
 
 	@Override

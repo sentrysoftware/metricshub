@@ -25,7 +25,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Tra
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.strategy.source.SourceUpdaterProcessor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -159,7 +158,6 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	 * @param origin original compute instance
 	 */
 	private void processCompute(final Compute origin) {
-
 		// Deep copy
 		final Compute copy = origin.copy();
 
@@ -181,7 +179,6 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	 * @return String value
 	 */
 	private String replaceSourceReference(final String value, final Compute compute) {
-
 		// Null check
 		if (value == null) {
 			return value;
@@ -194,6 +191,5 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 			compute.getClass().getSimpleName(),
 			compute.getType()
 		);
-
 	}
 }

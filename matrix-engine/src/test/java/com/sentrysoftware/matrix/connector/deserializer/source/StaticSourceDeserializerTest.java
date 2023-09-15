@@ -2,16 +2,14 @@ package com.sentrysoftware.matrix.connector.deserializer.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 class StaticSourceDeserializerTest extends DeserializerTest {
 
@@ -26,13 +24,9 @@ class StaticSourceDeserializerTest extends DeserializerTest {
 		final Connector connector = getConnector(testResource);
 
 		final Map<String, Source> expected = new LinkedHashMap<>(
-			Map.of("testStaticSource", 
-				StaticSource
-					.builder()
-					.key("${source::pre.testStaticSource}")
-					.type("static")
-					.value("testValue")
-					.build()
+			Map.of(
+				"testStaticSource",
+				StaticSource.builder().key("${source::pre.testStaticSource}").type("static").value("testValue").build()
 			)
 		);
 

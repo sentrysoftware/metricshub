@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,12 +38,10 @@ public class And extends Compute {
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "value", required = true) @NonNull String value
 	) {
-
 		super(type);
 		this.column = column;
 		this.value = value;
 	}
-
 
 	@Override
 	public String toString() {
@@ -61,19 +57,13 @@ public class And extends Compute {
 
 	@Override
 	public And copy() {
-		return And
-			.builder()
-			.type(type)
-			.column(column)
-			.value(value)
-			.build();
+		return And.builder().type(type).column(column).value(value).build();
 	}
 
 	@Override
 	public void update(UnaryOperator<String> updater) {
 		value = updater.apply(value);
 	}
-
 
 	@Override
 	public void accept(IComputeProcessor computeProcessor) {

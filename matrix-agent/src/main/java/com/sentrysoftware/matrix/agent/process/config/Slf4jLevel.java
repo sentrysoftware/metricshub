@@ -1,10 +1,8 @@
 package com.sentrysoftware.matrix.agent.process.config;
 
-import org.slf4j.Logger;
-
-import lombok.AllArgsConstructor;
-
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
 
 /**
  * Motivation: There is no way to automatically load a logging method from Slf4j
@@ -14,7 +12,6 @@ import java.util.function.Function;
  */
 @AllArgsConstructor
 public enum Slf4jLevel {
-
 	TRACE(l -> l::trace, Logger::isTraceEnabled),
 	DEBUG(l -> l::debug, Logger::isDebugEnabled),
 	INFO(l -> l::info, Logger::isInfoEnabled),
@@ -32,7 +29,7 @@ public enum Slf4jLevel {
 	 * Access the log method using the given logger.<br>
 	 * Example: call <code>DEBUG.withLogger(Logger).log(String, Object...)</code> to
 	 * log your debug message.
-	 * 
+	 *
 	 * @param logger Slf4j logger
 	 * @return The {@link LogMethod} implementation.
 	 */

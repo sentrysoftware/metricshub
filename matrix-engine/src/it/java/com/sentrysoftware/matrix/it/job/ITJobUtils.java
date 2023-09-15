@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 public class ITJobUtils {
 
-	private ITJobUtils() {	}
+	private ITJobUtils() {}
 
 	/**
 	 * Initialize the InputStream on the actual IT resource file path
@@ -26,5 +26,4 @@ public class ITJobUtils {
 	public static String getItResourcePath(final String itResourcePath) {
 		return "src/it/resources/" + itResourcePath;
 	}
-
 }

@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,10 +30,9 @@ public class KeepColumns extends Compute {
 	@Builder
 	@JsonCreator
 	public KeepColumns(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "columnNumbers", required = true) @NonNull String columnNumbers
 	) {
-
 		super(type);
 		this.columnNumbers = columnNumbers;
 	}
@@ -53,11 +50,7 @@ public class KeepColumns extends Compute {
 
 	@Override
 	public KeepColumns copy() {
-		return KeepColumns
-			.builder()
-			.type(type)
-			.columnNumbers(columnNumbers)
-			.build();
+		return KeepColumns.builder().type(type).columnNumbers(columnNumbers).build();
 	}
 
 	@Override

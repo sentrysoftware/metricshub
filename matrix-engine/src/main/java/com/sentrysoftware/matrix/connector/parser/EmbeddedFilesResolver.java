@@ -3,6 +3,12 @@ package com.sentrysoftware.matrix.connector.parser;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANT_FIND_EMBEDDED_FILE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -14,13 +20,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 
 public class EmbeddedFilesResolver {
 
@@ -43,7 +42,6 @@ public class EmbeddedFilesResolver {
 	 * @throws IOException
 	 */
 	public void internalize() throws IOException {
-
 		final JsonParser jsonParser = connector.traverse();
 		JsonToken token = jsonParser.nextToken();
 
@@ -79,11 +77,7 @@ public class EmbeddedFilesResolver {
 
 		// Traverse the connector node and replace embedded files references
 		// E.g. ${file::file-1} becomes ${file::file-absolute-path-1} // NOSONAR on comment
-		replacePlaceholderValues(
-			connector,
-			this::performFileRefReplacements,
-			value -> value.indexOf("${file::") != -1
-		);
+		replacePlaceholderValues(connector, this::performFileRefReplacements, value -> value.indexOf("${file::") != -1);
 	}
 
 	/**
@@ -115,7 +109,7 @@ public class EmbeddedFilesResolver {
 
 	/**
 	 * Traverse the given node and replace values
-	 * 
+	 *
 	 * @param node {@link JsonNode} instance
 	 * @param transformer value transformer function
 	 * @param replacementPredicate replacement predicate
@@ -124,16 +118,14 @@ public class EmbeddedFilesResolver {
 		final JsonNode node,
 		final UnaryOperator<String> transformer,
 		final Predicate<String> replacementPredicate
-		) {
+	) {
 		if (node.isObject()) {
-
 			// Get JsonNode fields
 			final List<String> fieldNames = new ArrayList<>(node.size());
 			node.fieldNames().forEachRemaining(fieldNames::add);
 
 			// Get the corresponding JsonNode for each field
 			for (final String fieldName : fieldNames) {
-
 				final JsonNode child = node.get(fieldName);
 
 				// Means it wrap sub JsonNode(s)
@@ -151,10 +143,8 @@ public class EmbeddedFilesResolver {
 				}
 			}
 		} else if (node.isArray()) {
-
-			// Loop over the array and get each JsonNode element 
+			// Loop over the array and get each JsonNode element
 			for (int i = 0; i < node.size(); i++) {
-
 				final JsonNode child = node.get(i);
 
 				// Means this node is a JsonNode element
@@ -177,7 +167,7 @@ public class EmbeddedFilesResolver {
 
 	/**
 	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the replacement predicate
-	 * 
+	 *
 	 * @param replacer
 	 * @param oldValue
 	 * @param replacementPredicate
@@ -191,7 +181,7 @@ public class EmbeddedFilesResolver {
 	/**
 	 * Perform replacements on the given value using the key-value pairs
 	 * provided in the replacements {@link Map}
-	 * 
+	 *
 	 * @param value to replace
 	 * @return new {@link String} value
 	 */
@@ -210,16 +200,13 @@ public class EmbeddedFilesResolver {
 	}
 
 	/**
-	 * Replace the file reference with the corresponding reference located in 
+	 * Replace the file reference with the corresponding reference located in
 	 * @param matcher
 	 * @param value
 	 * @return String value
 	 */
 	private String replaceFileReference(final Matcher matcher, final String value) {
 		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1));
-		return value.replace(
-			matcher.group(1),
-			replacement
-		);
+		return value.replace(matcher.group(1), replacement);
 	}
 }

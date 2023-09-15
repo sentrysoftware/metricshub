@@ -26,5 +26,4 @@ public class TablesDeserializer extends AbstractNonBlankNonNullInCollectionDeser
 	protected Collection<String> fromCollection(Collection<String> collection) {
 		return new ArrayList<>(collection);
 	}
-
 }

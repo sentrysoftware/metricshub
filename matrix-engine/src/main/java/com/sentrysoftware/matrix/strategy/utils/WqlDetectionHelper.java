@@ -2,17 +2,6 @@ package com.sentrysoftware.matrix.strategy.utils;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
@@ -24,7 +13,16 @@ import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
-
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -32,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class WqlDetectionHelper {
-
 
 	private static final String INTEROP_LOWER_CASE = "interop";
 
@@ -64,12 +61,12 @@ public class WqlDetectionHelper {
 	);
 
 	private static final List<WqlQuery> WBEM_INTEROP_QUERIES = List.of(
-			new WqlQuery("SELECT Name FROM __NAMESPACE", "root"),
-			new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "Interop"),
-			new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "PG_Interop"),
-			new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "root/Interop"),
-			new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "root/PG_Interop"),
-			new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, INTEROP_LOWER_CASE)
+		new WqlQuery("SELECT Name FROM __NAMESPACE", "root"),
+		new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "Interop"),
+		new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "PG_Interop"),
+		new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "root/Interop"),
+		new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, "root/PG_Interop"),
+		new WqlQuery(SELECT_NAME_FROM_CIM_NAMESPACE, INTEROP_LOWER_CASE)
 	);
 
 	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
@@ -86,8 +83,7 @@ public class WqlDetectionHelper {
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
-	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WbemConfiguration configuration) { // NOSONAR
-
+	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WbemConfiguration configuration) {
 		// If the user specified a namespace, we return it as if it was the only namespace available
 		// and for which we're going to test our connector
 		if (configuration.getNamespace() != null && !configuration.getNamespace().isBlank()) {
@@ -103,58 +99,46 @@ public class WqlDetectionHelper {
 
 		// Try all "interop" queries that could retrieve a list of namespaces in this CIM server
 		for (WqlQuery interopQuery : WBEM_INTEROP_QUERIES) {
-
 			try {
-
-				matsyaClientsExecutor.executeWbem(
-							hostname,
-							configuration,
-							interopQuery.getWql(),
-							interopQuery.getNamespace()
-						).stream()
-						.filter(row -> !row.isEmpty())
-						.map(row -> row.get(0))
-						.filter(Objects::nonNull)
-						.filter(namespace -> !namespace.isBlank())
-						.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_LOWER_CASE))
-						.filter(namespace -> !IGNORED_WBEM_NAMESPACES.contains(namespace))
-						.map(namespace -> ROOT_SLASH + namespace)
-						.forEach(namespace -> possibleWbemNamespaces.add(namespace));
-
+				matsyaClientsExecutor
+					.executeWbem(hostname, configuration, interopQuery.getWql(), interopQuery.getNamespace())
+					.stream()
+					.filter(row -> !row.isEmpty())
+					.map(row -> row.get(0))
+					.filter(Objects::nonNull)
+					.filter(namespace -> !namespace.isBlank())
+					.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_LOWER_CASE))
+					.filter(namespace -> !IGNORED_WBEM_NAMESPACES.contains(namespace))
+					.map(namespace -> ROOT_SLASH + namespace)
+					.forEach(namespace -> possibleWbemNamespaces.add(namespace));
 			} catch (final MatsyaException e) {
-
 				// If the CIM server doesn't know the requested class, we will get a WBEM exception
 				// saying so. Such exceptions are okay and will not fail the detection.
 				// That's why we return in failure if and only if the error type is neither "invalid namespace",
 				// nor "invalid class", nor "not found".
 
 				if (!isAcceptableException(e)) {
-
 					// This error indicates that the CIM server will probably never respond to anything
 					// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
 					Throwable cause = e.getCause();
-					String message = String.format( // NOSONAR on \n
-							"Hostname %s - Does not respond to WBEM requests. %s: %s\nCancelling namespace detection.",
-							hostname,
-							cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
-							cause != null ? cause.getMessage() : e.getMessage()
+					final String messageFormat =
+						"Hostname %s - Does not respond to WBEM requests. %s: %s\nCancelling namespace detection.";
+					String message = String.format(
+						messageFormat,
+						hostname,
+						cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
+						cause != null ? cause.getMessage() : e.getMessage()
 					);
 
 					log.debug(message);
 
-					return PossibleNamespacesResult
-						.builder()
-						.errorMessage(message)
-						.success(false)
-						.build();
+					return PossibleNamespacesResult.builder().errorMessage(message).success(false).build();
 				}
-
 			}
 		}
 
 		// No namespace love?
 		if (possibleWbemNamespaces.isEmpty()) {
-
 			return PossibleNamespacesResult
 				.builder()
 				.errorMessage("No suitable namespace could be found to query host " + hostname + ".")
@@ -163,13 +147,8 @@ public class WqlDetectionHelper {
 		}
 
 		// Yay!
-		return PossibleNamespacesResult
-			.builder()
-			.possibleNamespaces(possibleWbemNamespaces)
-			.success(true)
-			.build();
+		return PossibleNamespacesResult.builder().possibleNamespaces(possibleWbemNamespaces).success(true).build();
 	}
-
 
 	/**
 	 * Find the possible WMI namespaces on specified hostname with specified credentials.
@@ -180,7 +159,6 @@ public class WqlDetectionHelper {
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
 	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final IWinConfiguration configuration) {
-
 		// If the user specified a namespace, we return it as if it was the only namespace available
 		// and for which we're going to test our connector
 		if (configuration.getNamespace() != null && !configuration.getNamespace().isBlank()) {
@@ -195,13 +173,8 @@ public class WqlDetectionHelper {
 		Set<String> possibleWmiNamespaces = new TreeSet<>();
 
 		try {
-
-			matsyaClientsExecutor.executeWql(
-					hostname,
-					configuration,
-					"SELECT Name FROM __NAMESPACE",
-					"root"
-				)
+			matsyaClientsExecutor
+				.executeWql(hostname, configuration, "SELECT Name FROM __NAMESPACE", "root")
 				.stream()
 				.filter(row -> !row.isEmpty())
 				.map(row -> row.get(0))
@@ -209,17 +182,23 @@ public class WqlDetectionHelper {
 				.filter(namespace -> !namespace.isBlank())
 				.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_LOWER_CASE))
 				.filter(namespace -> !IGNORED_WMI_NAMESPACES.contains(namespace))
-				.filter(namespace -> IGNORED_WMI_NAMESPACES.stream().noneMatch(ignoredNamespace -> (ROOT_SLASH + ignoredNamespace).equalsIgnoreCase(namespace)))
-				.filter(namespace -> IGNORED_WMI_NAMESPACES.stream().noneMatch(ignoredNamespace -> ("root\\" + ignoredNamespace).equalsIgnoreCase(namespace)))
+				.filter(namespace ->
+					IGNORED_WMI_NAMESPACES
+						.stream()
+						.noneMatch(ignoredNamespace -> (ROOT_SLASH + ignoredNamespace).equalsIgnoreCase(namespace))
+				)
+				.filter(namespace ->
+					IGNORED_WMI_NAMESPACES
+						.stream()
+						.noneMatch(ignoredNamespace -> ("root\\" + ignoredNamespace).equalsIgnoreCase(namespace))
+				)
 				.map(namespace -> ROOT_SLASH + namespace)
 				.forEach(possibleWmiNamespaces::add);
-
 		} catch (final MatsyaException e) {
-
 			// Get the cause in the exception
 			Throwable cause = e.getCause();
 
-			String message = String.format( // NOSONAR on \n
+			String message = String.format(
 				"Hostname %s - Does not respond to WMI requests. %s: %s\nCancelling namespace detection.",
 				hostname,
 				cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
@@ -228,16 +207,10 @@ public class WqlDetectionHelper {
 
 			log.debug(message);
 
-			return PossibleNamespacesResult
-				.builder()
-				.errorMessage(message)
-				.success(false)
-				.build();
-
+			return PossibleNamespacesResult.builder().errorMessage(message).success(false).build();
 		}
 
 		if (possibleWmiNamespaces.isEmpty()) {
-
 			return PossibleNamespacesResult
 				.builder()
 				.errorMessage("No suitable namespace could be found to query host " + hostname + ".")
@@ -245,13 +218,8 @@ public class WqlDetectionHelper {
 				.build();
 		}
 
-		return PossibleNamespacesResult
-			.builder()
-			.possibleNamespaces(possibleWmiNamespaces)
-			.success(true)
-			.build();
+		return PossibleNamespacesResult.builder().possibleNamespaces(possibleWmiNamespaces).success(true).build();
 	}
-
 
 	/**
 	 * Detect the WBEM/WMI namespace applicable to the specified WBEM/WMI criterion.
@@ -272,14 +240,12 @@ public class WqlDetectionHelper {
 		final WqlCriterion criterion,
 		final Set<String> possibleNamespaces
 	) {
-
 		// Run the query on each namespace and check if the result match the criterion
 		final Map<String, CriterionTestResult> namespaces = new TreeMap<>();
 		final WqlCriterion tentativeCriterion = criterion.copy();
 
 		// Loop over each namespace and run the WBEM query and check if the result matches
 		for (final String namespace : possibleNamespaces) {
-
 			// Update the criterion with the current namespace that needs to be tested
 			tentativeCriterion.setNamespace(namespace);
 
@@ -288,15 +254,11 @@ public class WqlDetectionHelper {
 
 			// If the result matched then the namespace is selected
 			if (testResult.isSuccess()) {
-
 				namespaces.put(namespace, testResult);
-
 			} else {
-
 				// If the test failed with an exception, we probably don't need to go further
 				Throwable e = testResult.getException();
 				if (e != null && !isAcceptableException(e)) {
-
 					// This error indicates that the CIM server will probably never respond to anything
 					// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
 					log.debug(
@@ -339,13 +301,8 @@ public class WqlDetectionHelper {
 		// Okay, so even if we have several, select a single one
 		final String detectedNamespace = namespaces.keySet().stream().findFirst().orElseThrow();
 
-		return NamespaceResult
-			.builder()
-			.namespace(detectedNamespace)
-			.result(namespaces.get(detectedNamespace))
-			.build();
+		return NamespaceResult.builder().namespace(detectedNamespace).result(namespaces.get(detectedNamespace)).build();
 	}
-
 
 	/**
 	 * Perform the specified WQL detection test, on the specified WBEM/WMI protocol configuration.
@@ -359,20 +316,15 @@ public class WqlDetectionHelper {
 	 * @return {@link CriterionTestResult} which indicates if the check has succeeded or not.
 	 */
 	public CriterionTestResult performDetectionTest(
-			final String hostname,
-			@NonNull final IConfiguration configuration,
-			@NonNull final WqlCriterion criterion
+		final String hostname,
+		@NonNull final IConfiguration configuration,
+		@NonNull final WqlCriterion criterion
 	) {
-
 		// Make the WBEM query
 		final List<List<String>> queryResult;
 		try {
-			queryResult = matsyaClientsExecutor.executeWql(
-				hostname,
-				configuration,
-				criterion.getQuery(),
-				criterion.getNamespace()
-			);
+			queryResult =
+				matsyaClientsExecutor.executeWql(hostname, configuration, criterion.getQuery(), criterion.getNamespace());
 		} catch (MatsyaException e) {
 			return CriterionTestResult.error(criterion, e);
 		}
@@ -404,7 +356,6 @@ public class WqlDetectionHelper {
 		return CriterionTestResult.failure(criterion, actualResult);
 	}
 
-
 	/**
 	 * Assess whether an exception (or any of its causes) is simply an error saying that the
 	 * requested namespace of class doesn't exist, which is considered okay.
@@ -414,22 +365,24 @@ public class WqlDetectionHelper {
 	 * @return whether specified exception is acceptable while performing namespace detection
 	 */
 	public static boolean isAcceptableException(Throwable t) {
-
 		if (t == null) {
 			return false;
 		}
 
 		if (t instanceof WBEMException wbemException) {
 			final int cimErrorType = wbemException.getID();
-			return cimErrorType == WBEMException.CIM_ERR_INVALID_NAMESPACE
-					|| cimErrorType == WBEMException.CIM_ERR_INVALID_CLASS
-					|| cimErrorType == WBEMException.CIM_ERR_NOT_FOUND;
+			return (
+				cimErrorType == WBEMException.CIM_ERR_INVALID_NAMESPACE ||
+				cimErrorType == WBEMException.CIM_ERR_INVALID_CLASS ||
+				cimErrorType == WBEMException.CIM_ERR_NOT_FOUND
+			);
 		} else if (t instanceof WmiComException) {
 			final String message = t.getMessage();
-			return message != null && (
-					message.contains("WBEM_E_NOT_FOUND")
-							|| message.contains("WBEM_E_INVALID_NAMESPACE")
-							|| message.contains("WBEM_E_INVALID_CLASS")
+			return (
+				message != null &&
+				(message.contains("WBEM_E_NOT_FOUND") ||
+					message.contains("WBEM_E_INVALID_NAMESPACE") ||
+					message.contains("WBEM_E_INVALID_CLASS"))
 			);
 		} else if (t instanceof WqlQuerySyntaxException) {
 			return true;
@@ -439,10 +392,10 @@ public class WqlDetectionHelper {
 		return isAcceptableException(t.getCause());
 	}
 
-
 	@Data
 	@Builder
 	public static class PossibleNamespacesResult {
+
 		private Set<String> possibleNamespaces;
 		private boolean success;
 		private String errorMessage;
@@ -451,6 +404,7 @@ public class WqlDetectionHelper {
 	@Data
 	@Builder
 	public static class NamespaceResult {
+
 		private String namespace;
 		private CriterionTestResult result;
 	}
@@ -460,13 +414,13 @@ public class WqlDetectionHelper {
 	 */
 	@Data
 	private static class WqlQuery {
+
 		private String wql;
 		private String namespace;
 
-		public WqlQuery(final String wql, final String namespace) {
+		WqlQuery(final String wql, final String namespace) {
 			this.wql = wql;
 			this.namespace = namespace;
 		}
 	}
-
 }

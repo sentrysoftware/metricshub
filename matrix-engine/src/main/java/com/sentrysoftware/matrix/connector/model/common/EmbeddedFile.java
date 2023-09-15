@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
+import java.io.Serializable;
+import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
-import java.util.function.UnaryOperator;
 
 @Data
 @Builder
@@ -25,12 +24,7 @@ public class EmbeddedFile implements Serializable {
 	 * @return EmbeddedFile instance
 	 */
 	public EmbeddedFile copy() {
-		return EmbeddedFile
-				.builder()
-				.content(content)
-				.type(type)
-				.reference(reference)
-				.build();
+		return EmbeddedFile.builder().content(content).type(type).reference(reference).build();
 	}
 
 	/**

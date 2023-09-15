@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.converter.state.computes;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.computes.add.ConnectorAddProperty;
 import com.sentrysoftware.matrix.converter.state.computes.and.ConnectorAndProperty;
@@ -27,7 +23,9 @@ import com.sentrysoftware.matrix.converter.state.computes.substring.ConnectorSub
 import com.sentrysoftware.matrix.converter.state.computes.subtract.ConnectorSubtractProperty;
 import com.sentrysoftware.matrix.converter.state.computes.translate.ConnectorTranslateProperty;
 import com.sentrysoftware.matrix.converter.state.computes.xml2csv.ConnectorXml2CsvProperty;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -35,32 +33,32 @@ import lombok.NoArgsConstructor;
 public class ConnectorComputeProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-
-		return Stream.of(
-			ConnectorAddProperty.getConnectorProperties(),
-			ConnectorAndProperty.getConnectorProperties(),
-			ConnectorArrayTranslateProperty.getConnectorProperties(),
-			ConnectorAwkProperty.getConnectorProperties(),
-			ConnectorConvertProperty.getConnectorProperties(),
-			ConnectorDivideProperty.getConnectorProperties(),
-			ConnectorDuplicateColumnProperty.getConnectorProperties(),
-			ConnectorExcludeMatchingLinesProperty.getConnectorProperties(),
-			ConnectorExtractProperty.getConnectorProperties(),
-			ConnectorExtractPropertyFromWbemPathProperty.getConnectorProperties(),
-			ConnectorJson2CsvProperty.getConnectorProperties(),
-			ConnectorKeepColumnsProperty.getConnectorProperties(),
-			ConnectorKeepOnlyMatchingLinesProperty.getConnectorProperties(),
-			ConnectorLeftConcatProperty.getConnectorProperties(),
-			ConnectorMultiplyProperty.getConnectorProperties(),
-			ConnectorPerBitTranslationProperty.getConnectorProperties(),
-			ConnectorReplaceProperty.getConnectorProperties(),
-			ConnectorRightConcatProperty.getConnectorProperties(),
-			ConnectorSubtractProperty.getConnectorProperties(),
-			ConnectorSubstringProperty.getConnectorProperties(),
-			ConnectorTranslateProperty.getConnectorProperties(),
-			ConnectorXml2CsvProperty.getConnectorProperties()
-		)
-		.flatMap(Set::stream)
-		.collect(Collectors.toSet());
+		return Stream
+			.of(
+				ConnectorAddProperty.getConnectorProperties(),
+				ConnectorAndProperty.getConnectorProperties(),
+				ConnectorArrayTranslateProperty.getConnectorProperties(),
+				ConnectorAwkProperty.getConnectorProperties(),
+				ConnectorConvertProperty.getConnectorProperties(),
+				ConnectorDivideProperty.getConnectorProperties(),
+				ConnectorDuplicateColumnProperty.getConnectorProperties(),
+				ConnectorExcludeMatchingLinesProperty.getConnectorProperties(),
+				ConnectorExtractProperty.getConnectorProperties(),
+				ConnectorExtractPropertyFromWbemPathProperty.getConnectorProperties(),
+				ConnectorJson2CsvProperty.getConnectorProperties(),
+				ConnectorKeepColumnsProperty.getConnectorProperties(),
+				ConnectorKeepOnlyMatchingLinesProperty.getConnectorProperties(),
+				ConnectorLeftConcatProperty.getConnectorProperties(),
+				ConnectorMultiplyProperty.getConnectorProperties(),
+				ConnectorPerBitTranslationProperty.getConnectorProperties(),
+				ConnectorReplaceProperty.getConnectorProperties(),
+				ConnectorRightConcatProperty.getConnectorProperties(),
+				ConnectorSubtractProperty.getConnectorProperties(),
+				ConnectorSubstringProperty.getConnectorProperties(),
+				ConnectorTranslateProperty.getConnectorProperties(),
+				ConnectorXml2CsvProperty.getConnectorProperties()
+			)
+			.flatMap(Set::stream)
+			.collect(Collectors.toSet());
 	}
 }

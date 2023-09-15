@@ -2,9 +2,6 @@ package com.sentrysoftware.matrix.agent.config;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.agent.config.exporter.ExporterConfig;
@@ -12,7 +9,8 @@ import com.sentrysoftware.matrix.agent.config.otel.OtelCollectorConfig;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.agent.helper.AgentConstants;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
-
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -25,7 +23,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AgentConfig {
 
-	public static final String PROBLEM_DEFAULT_TEMPLATE = "Problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}";
+	public static final String PROBLEM_DEFAULT_TEMPLATE =
+		"Problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}";
 	public static final int DEFAULT_JOB_POOL_SIZE = 20;
 	public static final long DEFAULT_COLLECT_PERIOD = 120;
 	public static final int DEFAULT_DISCOVERY_CYCLE = 30;
@@ -75,7 +74,7 @@ public class AgentConfig {
 
 	/**
 	 * Whether the {@link OtlpExporterConfig} is present or not
-	 * 
+	 *
 	 * @return boolean value
 	 */
 	public boolean hasOtlpExporterConfig() {
@@ -84,7 +83,7 @@ public class AgentConfig {
 
 	/**
 	 * Whether the {@link ExporterConfig} is present or not
-	 * 
+	 *
 	 * @return boolean value
 	 */
 	public boolean hasExporterConfig() {
@@ -93,11 +92,10 @@ public class AgentConfig {
 
 	/**
 	 * Build a new empty instance
-	 * 
+	 *
 	 * @return {@link AgentConfig} object
 	 */
 	public static AgentConfig empty() {
 		return AgentConfig.builder().build();
 	}
-
 }

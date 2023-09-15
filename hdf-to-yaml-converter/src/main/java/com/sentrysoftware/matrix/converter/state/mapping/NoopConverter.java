@@ -13,5 +13,4 @@ public class NoopConverter implements IMappingConverter {
 	public void postConvertDiscoveryProperties(JsonNode mapping) {
 		// Not implemented
 	}
-
 }

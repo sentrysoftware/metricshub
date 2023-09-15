@@ -1,16 +1,14 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,13 +24,12 @@ public class IpmiSource extends Source {
 	@Builder
 	@JsonCreator
 	public IpmiSource(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty("computes") List<Compute> computes,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
 		@JsonProperty("key") String key,
 		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
-
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 	}
 
@@ -61,5 +58,4 @@ public class IpmiSource extends Source {
 	public SourceTable accept(final ISourceProcessor sourceProcessor) {
 		return sourceProcessor.process(this);
 	}
-
 }

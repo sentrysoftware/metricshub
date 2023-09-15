@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,10 +30,10 @@ public class ServiceCriterion extends Criterion {
 	@Builder
 	@JsonCreator
 	public ServiceCriterion(
-			@JsonProperty("type") String type,
-			@JsonProperty("forceSerialization") boolean forceSerialization,
-			@JsonProperty(value = "name", required = true) @NonNull String name) {
-
+		@JsonProperty("type") String type,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "name", required = true) @NonNull String name
+	) {
 		super(type, forceSerialization);
 		this.name = name;
 	}

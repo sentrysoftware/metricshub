@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-
 /**
  * Test of {@link SnmpConfiguration}
  */
@@ -28,44 +27,38 @@ class SnmpConfigurationTest {
 	@Test
 	void testToString() {
 		// Privacy is not NULL, version is V3_MD5 and username is NULL
-		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.version(SnmpConfiguration.SnmpVersion.V3_MD5)
 			.privacy(SnmpConfiguration.Privacy.AES)
 			.build();
 		assertEquals(SNMP_CONFIGURATION_ENCRYPTED_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V3_MD5 and username is NULL
-		snmpConfiguration = SnmpConfiguration.builder()
-			.privacy(null)
-			.version(SnmpConfiguration.SnmpVersion.V3_MD5)
-			.build();
+		snmpConfiguration = SnmpConfiguration.builder().privacy(null).version(SnmpConfiguration.SnmpVersion.V3_MD5).build();
 		assertEquals(SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V3_MD5 and username is not NULL
-		snmpConfiguration = SnmpConfiguration.builder()
-			.username(USERNAME)
-			.version(SnmpConfiguration.SnmpVersion.V3_MD5)
-			.build();
+		snmpConfiguration =
+			SnmpConfiguration.builder().username(USERNAME).version(SnmpConfiguration.SnmpVersion.V3_MD5).build();
 		assertEquals(SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V1 and username is NULL
-		snmpConfiguration = SnmpConfiguration.builder()
-			.version(SnmpConfiguration.SnmpVersion.V1)
-			.build();
+		snmpConfiguration = SnmpConfiguration.builder().version(SnmpConfiguration.SnmpVersion.V1).build();
 		assertEquals(SNMP_CONFIGURATION_V1_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V2C and username is NULL
-		snmpConfiguration = SnmpConfiguration.builder()
-			.version(SnmpConfiguration.SnmpVersion.V2C)
-			.build();
+		snmpConfiguration = SnmpConfiguration.builder().version(SnmpConfiguration.SnmpVersion.V2C).build();
 		assertEquals(SNMP_CONFIGURATION_V2C_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is not NULL, version is V3_MD5 and username is not NULL
-		snmpConfiguration = SnmpConfiguration.builder()
-			.version(SnmpConfiguration.SnmpVersion.V3_MD5)
-			.privacy(SnmpConfiguration.Privacy.NO_ENCRYPTION)
-			.username(USERNAME)
-			.build();
+		snmpConfiguration =
+			SnmpConfiguration
+				.builder()
+				.version(SnmpConfiguration.SnmpVersion.V3_MD5)
+				.privacy(SnmpConfiguration.Privacy.NO_ENCRYPTION)
+				.username(USERNAME)
+				.build();
 		assertEquals(SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING, snmpConfiguration.toString());
 	}
 
@@ -82,19 +75,32 @@ class SnmpConfigurationTest {
 
 		// Version 3
 		assertEquals(SnmpConfiguration.SnmpVersion.V3_MD5, SnmpConfiguration.SnmpVersion.interpretValueOf("3 md5"));
-		assertEquals(SnmpConfiguration.SnmpVersion.V3_NO_AUTH, SnmpConfiguration.SnmpVersion.interpretValueOf("v3_no_auth"));
-		assertEquals(SnmpConfiguration.SnmpVersion.V3_SHA, SnmpConfiguration.SnmpVersion.interpretValueOf("v3 with sha auth"));
+		assertEquals(
+			SnmpConfiguration.SnmpVersion.V3_NO_AUTH,
+			SnmpConfiguration.SnmpVersion.interpretValueOf("v3_no_auth")
+		);
+		assertEquals(
+			SnmpConfiguration.SnmpVersion.V3_SHA,
+			SnmpConfiguration.SnmpVersion.interpretValueOf("v3 with sha auth")
+		);
 
 		// Invalid version, exception is thrown
-		Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-			SnmpConfiguration.SnmpVersion.interpretValueOf("4");
-		});
+		Exception exception = assertThrows(
+			IllegalArgumentException.class,
+			() -> {
+				SnmpConfiguration.SnmpVersion.interpretValueOf("4");
+			}
+		);
 		String actualMessage = exception.getMessage();
 		assertTrue(actualMessage.contains(INVALID_SNMP_VERSION));
 
-		exception = assertThrows(IllegalArgumentException.class, () -> {
-			SnmpConfiguration.SnmpVersion.interpretValueOf(NO);
-		});
+		exception =
+			assertThrows(
+				IllegalArgumentException.class,
+				() -> {
+					SnmpConfiguration.SnmpVersion.interpretValueOf(NO);
+				}
+			);
 		actualMessage = exception.getMessage();
 		assertTrue(actualMessage.contains(INVALID_SNMP_VERSION));
 	}
@@ -110,9 +116,12 @@ class SnmpConfigurationTest {
 		assertEquals(SnmpConfiguration.Privacy.NO_ENCRYPTION, SnmpConfiguration.Privacy.interpretValueOf(NONE));
 
 		// Invalid privacy value
-		final Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-			SnmpConfiguration.Privacy.interpretValueOf(INVALID_PRIVACY_VALUE);
-		});
+		final Exception exception = assertThrows(
+			IllegalArgumentException.class,
+			() -> {
+				SnmpConfiguration.Privacy.interpretValueOf(INVALID_PRIVACY_VALUE);
+			}
+		);
 		final String actualMessage = exception.getMessage();
 		assertTrue(actualMessage.contains(INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE));
 	}

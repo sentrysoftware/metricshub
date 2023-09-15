@@ -24,7 +24,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Tra
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 
 public interface IComputeProcessor {
-
 	void process(Add add);
 
 	void process(And and);
@@ -68,5 +67,4 @@ public interface IComputeProcessor {
 	void process(Translate translate);
 
 	void process(Xml2Csv xml2Csv);
-
 }

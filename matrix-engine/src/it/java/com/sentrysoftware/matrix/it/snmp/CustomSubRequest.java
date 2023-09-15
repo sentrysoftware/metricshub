@@ -11,10 +11,10 @@ import org.snmp4j.smi.VariableBinding;
 
 /**
  * Custom sub request used to register the SNMP Agent configuration
- * 
+ *
  * @param <S>
  */
-public class CustomSubRequest<S extends CustomSubRequest<S>>  implements SubRequest<S> {
+public class CustomSubRequest<S extends CustomSubRequest<S>> implements SubRequest<S> {
 
 	private boolean completed;
 	private MOQuery query;
@@ -108,5 +108,4 @@ public class CustomSubRequest<S extends CustomSubRequest<S>>  implements SubRequ
 	public void setUserObject(Object userObject) {
 		// Not implemented
 	}
-
 }

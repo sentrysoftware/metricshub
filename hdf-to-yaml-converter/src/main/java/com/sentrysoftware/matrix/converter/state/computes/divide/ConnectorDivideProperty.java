@@ -1,11 +1,9 @@
 package com.sentrysoftware.matrix.converter.state.computes.divide;
 
-import java.util.Set;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.computes.common.ColumnProcessor;
 import com.sentrysoftware.matrix.converter.state.computes.common.ComputeTypeProcessor;
-
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

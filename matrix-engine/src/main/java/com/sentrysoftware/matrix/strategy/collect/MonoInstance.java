@@ -14,11 +14,10 @@ import lombok.NoArgsConstructor;
 public class MonoInstance extends AbstractCollect {
 
 	private String monitorId;
-	
+
 	@Override
 	public void collect() {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 }

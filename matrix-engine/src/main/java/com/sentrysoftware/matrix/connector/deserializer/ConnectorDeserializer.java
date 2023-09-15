@@ -1,19 +1,17 @@
 package com.sentrysoftware.matrix.connector.deserializer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import lombok.Getter;
 
 /**
- * This class deserializes YAML connector files 
+ * This class deserializes YAML connector files
  *
  */
 public class ConnectorDeserializer {
@@ -27,7 +25,7 @@ public class ConnectorDeserializer {
 
 	/**
 	 * Deserialize the given YAML connector input stream
-	 * 
+	 *
 	 * @param input YAML as {@link InputStream}
 	 * @return {@link Connector} instance
 	 * @throws IOException
@@ -38,7 +36,7 @@ public class ConnectorDeserializer {
 
 	/**
 	 * Deserialize the given YAML connector file
-	 * 
+	 *
 	 * @param src YAML file
 	 * @return {@link Connector} instance
 	 * @throws IOException
@@ -49,7 +47,7 @@ public class ConnectorDeserializer {
 
 	/**
 	 * Deserialize the given YAML connector node
-	 * 
+	 *
 	 * @param node     YAML as {@link TreeNode}
 	 * @param fileName connector file name
 	 * @return {@link Connector} instance
@@ -58,5 +56,4 @@ public class ConnectorDeserializer {
 	public Connector deserialize(final TreeNode node) throws IOException {
 		return JsonHelper.deserialize(mapper, node, Connector.class);
 	}
-
 }

@@ -14,7 +14,7 @@ class ArrayHelperTest {
 
 	@Test
 	void getValueAtIndexTest() {
-		Integer[] array = {1, 2, 3, 4};
+		Integer[] array = { 1, 2, 3, 4 };
 		assertEquals(3, getValueAtIndex(array, 2, 6));
 		assertEquals(6, getValueAtIndex(array, 5, 6));
 	}
@@ -24,7 +24,7 @@ class ArrayHelperTest {
 		assertArrayEquals(new byte[] {}, hexToByteArray(null));
 		assertThrows(IllegalArgumentException.class, () -> hexToByteArray("illegal"));
 		assertArrayEquals(new byte[] { 0x01, 0x02 }, hexToByteArray("0x0102"));
-		assertArrayEquals(new byte[] { (byte)0xab, (byte)0xcd, (byte)0xef }, hexToByteArray(" abCdEF    "));
+		assertArrayEquals(new byte[] { (byte) 0xab, (byte) 0xcd, (byte) 0xef }, hexToByteArray(" abCdEF    "));
 		assertThrows(IllegalArgumentException.class, () -> hexToByteArray("123"));
 		assertArrayEquals(new byte[] {}, hexToByteArray("   "));
 	}
@@ -32,25 +32,11 @@ class ArrayHelperTest {
 	@Test
 	void testAnyMatchLowerCase() {
 		assertTrue(
-			ArrayHelper.anyMatchLowerCase(
-				str -> str.contains("value"),
-				"value", "VALUE1", "val", "Value2", null,""
-			)
+			ArrayHelper.anyMatchLowerCase(str -> str.contains("value"), "value", "VALUE1", "val", "Value2", null, "")
 		);
 
-		assertFalse(
-			ArrayHelper.anyMatchLowerCase(
-				str -> str.contains("value"),
-				(String) null, (String) null
-			)
-		);
+		assertFalse(ArrayHelper.anyMatchLowerCase(str -> str.contains("value"), (String) null, (String) null));
 
-		assertFalse(
-			ArrayHelper.anyMatchLowerCase(
-				str -> str.contains("value"),
-				"notMatch"
-			)
-		);
+		assertFalse(ArrayHelper.anyMatchLowerCase(str -> str.contains("value"), "notMatch"));
 	}
 }
-

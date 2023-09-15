@@ -1,12 +1,10 @@
 package com.sentrysoftware.matrix.connector.model;
 
+import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.sentrysoftware.matrix.connector.parser.ConnectorLibraryParser;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +26,6 @@ public class ConnectorStore {
 			log.debug("Error while deserializing connectors. The ConnectorStore is empty!", e);
 			store = new HashMap<>();
 		}
-
 	}
 
 	/**

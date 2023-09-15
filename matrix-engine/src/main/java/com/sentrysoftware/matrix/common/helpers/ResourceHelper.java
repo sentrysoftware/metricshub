@@ -12,34 +12,37 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-
-import org.springframework.util.Assert;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.springframework.util.Assert;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResourceHelper {
 
 	/**
 	 * Get resource file content as String for the given class.
-	 * 
+	 *
 	 * @param path  path of the file in the resources directory
 	 * @param clazz class used to load the resource as stream
 	 * @return Resource file as {@link String}
 	 */
 	public static String getResourceAsString(final String path, @NonNull final Class<?> clazz) {
-
 		Assert.isTrue(path != null && !path.isEmpty(), "path cannot be null or empty");
 
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(clazz.getResourceAsStream(path)))) {
-
 			return reader.lines().collect(Collectors.joining("\n"));
-
 		} catch (Exception e) {
-			Assert.state(false, () -> String.format("Cannot load resource file '%s' for class '%s'. Message: %s", path,
-					clazz.getName(), e.getMessage()));
+			Assert.state(
+				false,
+				() ->
+					String.format(
+						"Cannot load resource file '%s' for class '%s'. Message: %s",
+						path,
+						clazz.getName(),
+						e.getMessage()
+					)
+			);
 		}
 
 		return "";
@@ -48,8 +51,8 @@ public class ResourceHelper {
 	/**
 	 * Retrieves the directory containing the given source class, whether it's
 	 * located within a JAR file or a regular directory.
-	 * 
-	 * @param sourceClass The sourceClass we wish to get its directory, 
+	 *
+	 * @param sourceClass The sourceClass we wish to get its directory,
 	 *                    this class could be located under a JAR or a regular folder such as
 	 *                    <em>\target\classes</em>
 	 * @return {@link File} instance representing the source directory.
@@ -73,7 +76,7 @@ public class ResourceHelper {
 
 	/**
 	 * Find source directory for the given URL location
-	 * 
+	 *
 	 * @param location {@link URL} instance
 	 * @return {@link File} instance representing the source directory.
 	 * @throws IOException        If the {@link URLConnection} cannot be opened or an
@@ -93,7 +96,7 @@ public class ResourceHelper {
 	/**
 	 * Since jars can be embedded in other jars, this method will get the root jar
 	 * file instance
-	 * 
+	 *
 	 * @param jarFile
 	 * @return File instance
 	 */

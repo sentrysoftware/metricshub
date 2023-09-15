@@ -8,5 +8,6 @@ import lombok.Getter;
 public enum HostLocation {
 	LOCAL("local"),
 	REMOTE("remote");
+
 	private String key;
 }

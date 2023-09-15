@@ -6,17 +6,6 @@ import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
@@ -32,6 +21,15 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class AutomaticDetectionTest {
 
@@ -60,13 +58,29 @@ class AutomaticDetectionTest {
 		connectors.add(CONNECTOR_YAML);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		HostConfiguration hostConfiguration = new HostConfiguration(
-				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, connectors, true, null, 0, null, configurations);
+			LOCALHOST,
+			"hostId",
+			DeviceKind.WINDOWS,
+			0,
+			null,
+			connectors,
+			true,
+			null,
+			0,
+			null,
+			configurations
+		);
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
 		connectorStore.getStore().put(CONNECTOR_YAML, new Connector());
-		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(
+			monitors,
+			hostProperties,
+			hostConfiguration,
+			connectorStore
+		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
@@ -82,7 +96,18 @@ class AutomaticDetectionTest {
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
-				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+			LOCALHOST,
+			"hostId",
+			DeviceKind.WINDOWS,
+			0,
+			null,
+			null,
+			true,
+			null,
+			0,
+			null,
+			configurations
+		);
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
@@ -103,7 +128,12 @@ class AutomaticDetectionTest {
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(
+			monitors,
+			hostProperties,
+			hostConfiguration,
+			connectorStore
+		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
@@ -119,7 +149,18 @@ class AutomaticDetectionTest {
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
-				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+			LOCALHOST,
+			"hostId",
+			DeviceKind.WINDOWS,
+			0,
+			null,
+			null,
+			true,
+			null,
+			0,
+			null,
+			configurations
+		);
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
@@ -140,7 +181,12 @@ class AutomaticDetectionTest {
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(
+			monitors,
+			hostProperties,
+			hostConfiguration,
+			connectorStore
+		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
@@ -156,7 +202,18 @@ class AutomaticDetectionTest {
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
-				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+			LOCALHOST,
+			"hostId",
+			DeviceKind.WINDOWS,
+			0,
+			null,
+			null,
+			true,
+			null,
+			0,
+			null,
+			configurations
+		);
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
@@ -177,7 +234,12 @@ class AutomaticDetectionTest {
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(
+			monitors,
+			hostProperties,
+			hostConfiguration,
+			connectorStore
+		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}
@@ -193,7 +255,18 @@ class AutomaticDetectionTest {
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
-				LOCALHOST, "hostId", DeviceKind.WINDOWS, 0, null, null, true, null, 0, null, configurations);
+			LOCALHOST,
+			"hostId",
+			DeviceKind.WINDOWS,
+			0,
+			null,
+			null,
+			true,
+			null,
+			0,
+			null,
+			configurations
+		);
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
@@ -214,7 +287,12 @@ class AutomaticDetectionTest {
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
 		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
-		final TelemetryManager telemetryManager = new TelemetryManager(monitors, hostProperties, hostConfiguration, connectorStore);
+		final TelemetryManager telemetryManager = new TelemetryManager(
+			monitors,
+			hostProperties,
+			hostConfiguration,
+			connectorStore
+		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
 	}

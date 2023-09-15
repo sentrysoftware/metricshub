@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,12 +19,11 @@ public class ExcludeMatchingLines extends AbstractMatchingLines {
 	@Builder
 	@JsonCreator
 	public ExcludeMatchingLines(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty("regExp") String regExp,
 		@JsonProperty("valueList") String valueList
 	) {
-
 		super(type, column, regExp, valueList);
 	}
 
@@ -36,13 +34,7 @@ public class ExcludeMatchingLines extends AbstractMatchingLines {
 
 	@Override
 	public ExcludeMatchingLines copy() {
-		return ExcludeMatchingLines
-			.builder()
-			.type(type)
-			.column(column)
-			.regExp(regExp)
-			.valueList(valueList)
-			.build();
+		return ExcludeMatchingLines.builder().type(type).column(column).regExp(regExp).valueList(valueList).build();
 	}
 
 	@Override

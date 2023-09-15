@@ -3,16 +3,6 @@ package com.sentrysoftware.matrix.strategy.detection;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.sentrysoftware.matrix.common.exception.ControlledSshException;
 import com.sentrysoftware.matrix.common.exception.IpmiCommandForSolarisException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
@@ -48,9 +38,17 @@ import com.sentrysoftware.matrix.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -61,15 +59,18 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public class CriterionProcessor implements ICriterionProcessor {
 
-	private static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
+	private static final String NEITHER_WMI_NOR_WINRM_ERROR =
+		"Neither WMI nor WinRM credentials are configured for this host.";
 	private static final String WMI_QUERY = "SELECT Description FROM ComputerSystem";
 	private static final String WMI_NAMESPACE = "root\\hardware";
 	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 	private static final String CONFIGURE_OS_TYPE_MESSAGE = "Configured OS type : ";
-	private static final String IPMI_SOLARIS_VERSION_NOT_IDENTIFIED = "Hostname %s - Could not identify Solaris version %s. Exception: %s";
-	private static final String SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE = "Hostname {} - The SNMP credentials are not configured. Cannot process SNMP " +
-		"detection {}.";
-	private static final String SNMP_GETNEXT_SUCCESSFUL_MESSAGE = "Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.";
+	private static final String IPMI_SOLARIS_VERSION_NOT_IDENTIFIED =
+		"Hostname %s - Could not identify Solaris version %s. Exception: %s";
+	private static final String SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE =
+		"Hostname {} - The SNMP credentials are not configured. Cannot process SNMP " + "detection {}.";
+	private static final String SNMP_GETNEXT_SUCCESSFUL_MESSAGE =
+		"Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.";
 	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
 	private static final String AUTOMATIC_NAMESPACE = "automatic";
 	private static final Pattern SNMP_GET_NEXT_VALUE_PATTERN = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
@@ -101,17 +102,23 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion DeviceType Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") DeviceTypeCriterion deviceTypeCriterion) {
-
 		if (deviceTypeCriterion == null) {
-			log.error("Hostname {} - Malformed DeviceType criterion {}. Cannot process DeviceType criterion detection.",
-					telemetryManager.getHostConfiguration().getHostname(), deviceTypeCriterion);
+			log.error(
+				"Hostname {} - Malformed DeviceType criterion {}. Cannot process DeviceType criterion detection.",
+				telemetryManager.getHostConfiguration().getHostname(),
+				deviceTypeCriterion
+			);
 			return CriterionTestResult.empty();
 		}
 
 		final DeviceKind deviceKind = telemetryManager.getHostConfiguration().getHostType();
 
-		if (DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Arrays.asList(DeviceKind.SOLARIS, DeviceKind.SOLARIS), deviceTypeCriterion)
-				|| !DeviceKind.SOLARIS.equals(deviceKind) && !isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion)) {
+		if (
+			(DeviceKind.SOLARIS.equals(deviceKind) &&
+				!isDeviceKindIncluded(Arrays.asList(DeviceKind.SOLARIS, DeviceKind.SOLARIS), deviceTypeCriterion)) ||
+			(!DeviceKind.SOLARIS.equals(deviceKind) &&
+				!isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion))
+		) {
 			return CriterionTestResult
 				.builder()
 				.message("Failed OS detection operation")
@@ -135,8 +142,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param deviceTypeCriterion
 	 * @return new {@link CriterionTestResult} instance
 	 */
-	public boolean isDeviceKindIncluded(final List<DeviceKind> deviceKindList, final DeviceTypeCriterion deviceTypeCriterion) {
-
+	public boolean isDeviceKindIncluded(
+		final List<DeviceKind> deviceKindList,
+		final DeviceTypeCriterion deviceTypeCriterion
+	) {
 		final Set<DeviceKind> keepOnly = deviceTypeCriterion.getKeep();
 		final Set<DeviceKind> exclude = deviceTypeCriterion.getExclude();
 
@@ -160,7 +169,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion HTTP Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") HttpCriterion httpCriterion) {
-
 		if (httpCriterion == null) {
 			return CriterionTestResult.empty();
 		}
@@ -179,9 +187,11 @@ public class CriterionProcessor implements ICriterionProcessor {
 			.get(HttpConfiguration.class);
 
 		if (httpConfiguration == null) {
-			log.debug("Hostname {} - The HTTP credentials are not configured for this host. Cannot process HTTP detection {}.",
-					hostname,
-					httpCriterion);
+			log.debug(
+				"Hostname {} - The HTTP credentials are not configured for this host. Cannot process HTTP detection {}.",
+				hostname,
+				httpCriterion
+			);
 			return CriterionTestResult.empty();
 		}
 
@@ -205,7 +215,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 		} catch (Exception e) {
 			return CriterionTestResult.error(httpCriterion, e);
 		}
-
 	}
 
 	/**
@@ -246,7 +255,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @return new {@link CriterionTestResult} instance
 	 */
 	private CriterionTestResult processWindowsIpmiDetection(final IpmiCriterion ipmiCriterion) {
-
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		// Find the configured protocol (WinRM or WMI)
@@ -256,11 +264,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 			return CriterionTestResult.error(ipmiCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
 		}
 
-		WmiCriterion ipmiWmiCriterion = WmiCriterion
-			.builder()
-			.query(WMI_QUERY)
-			.namespace(WMI_NAMESPACE)
-			.build();
+		WmiCriterion ipmiWmiCriterion = WmiCriterion.builder().query(WMI_QUERY).namespace(WMI_NAMESPACE).build();
 
 		return wqlDetectionHelper.performDetectionTest(hostname, configuration, ipmiWmiCriterion);
 	}
@@ -281,11 +285,17 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
 		final OsCommandConfiguration osCommandConfiguration = telemetryManager.getHostProperties().isLocalhost()
-				? (OsCommandConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(OsCommandConfiguration.class)
-				: sshConfiguration;
+			? (OsCommandConfiguration) telemetryManager
+				.getHostConfiguration()
+				.getConfigurations()
+				.get(OsCommandConfiguration.class)
+			: sshConfiguration;
 
 		if (osCommandConfiguration == null) {
-			final String message = String.format("Hostname %s - No OS command configuration for this host. Returning an empty result", hostname);
+			final String message = String.format(
+				"Hostname %s - No OS command configuration for this host. Returning an empty result",
+				hostname
+			);
 			log.warn(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
@@ -314,7 +324,9 @@ public class CriterionProcessor implements ICriterionProcessor {
 					.build();
 			} else {
 				// everything goes well
-				telemetryManager.getHostProperties().setIpmiExecutionCount(telemetryManager.getHostProperties().getIpmiExecutionCount() + 1);
+				telemetryManager
+					.getHostProperties()
+					.setIpmiExecutionCount(telemetryManager.getHostProperties().getIpmiExecutionCount() + 1);
 				return CriterionTestResult
 					.builder()
 					.success(true)
@@ -322,7 +334,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.")
 					.build();
 			}
-
 		} catch (final Exception e) { // NOSONAR on interruption
 			final String message = String.format(
 				"Hostname %s - Cannot execute the IPMI tool command %s. Exception: %s.",
@@ -333,7 +344,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 			log.debug(message, e);
 			return CriterionTestResult.builder().success(false).message(message).build();
 		}
-
 	}
 
 	/**
@@ -342,7 +352,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @return {@link CriterionTestResult} wrapping the status of the criterion execution
 	 */
 	private CriterionTestResult processOutOfBandIpmiDetection() {
-
 		final IpmiConfiguration configuration = (IpmiConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
@@ -351,7 +360,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (configuration == null) {
-			log.debug("Hostname {} - The IPMI credentials are not configured for this host. Cannot process IPMI-over-LAN detection.", hostname);
+			log.debug(
+				"Hostname {} - The IPMI credentials are not configured for this host. Cannot process IPMI-over-LAN detection.",
+				hostname
+			);
 			return CriterionTestResult.empty();
 		}
 
@@ -370,17 +382,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 				.message("Successfully connected to the IPMI BMC chip with the IPMI-over-LAN interface.")
 				.success(true)
 				.build();
-
 		} catch (final Exception e) { // NOSONAR on interruption
 			final String message = String.format(
 				"Hostname %s - Cannot execute IPMI-over-LAN command to get the chassis status. Exception: %s",
-				hostname, e.getMessage()
+				hostname,
+				e.getMessage()
 			);
 			log.debug(message, e);
-			return CriterionTestResult
-				.builder()
-				.message(message)
-				.build();
+			return CriterionTestResult.builder().message(message).build();
 		}
 	}
 
@@ -395,17 +404,28 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param defaultTimeout
 	 * @return String : the ipmi Command
 	 */
-	public String buildIpmiCommand(final DeviceKind hostType, final String hostname, final SshConfiguration sshConfiguration,
-								   final OsCommandConfiguration osCommandConfiguration, final int defaultTimeout) {
+	public String buildIpmiCommand(
+		final DeviceKind hostType,
+		final String hostname,
+		final SshConfiguration sshConfiguration,
+		final OsCommandConfiguration osCommandConfiguration,
+		final int defaultTimeout
+	) {
 		// do we need to use sudo or not?
 		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
 		// Or if the command is listed in useSudoCommandList (possible only in classic
 		// wizard) --> yes
 		String ipmitoolCommand; // Sonar don't agree with modifying arguments
-		if (osCommandConfiguration.isUseSudo()
-				|| (osCommandConfiguration.getUseSudoCommands() != null && osCommandConfiguration.getUseSudoCommands().contains("ipmitool"))) {
-			ipmitoolCommand = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I "
-				.replace("%{SUDO:ipmitool}", osCommandConfiguration.getSudoCommand());
+		if (
+			osCommandConfiguration.isUseSudo() ||
+			(osCommandConfiguration.getUseSudoCommands() != null &&
+				osCommandConfiguration.getUseSudoCommands().contains("ipmitool"))
+		) {
+			ipmitoolCommand =
+				"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ".replace(
+						"%{SUDO:ipmitool}",
+						osCommandConfiguration.getSudoCommand()
+					);
 		} else {
 			ipmitoolCommand = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
 		}
@@ -418,8 +438,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 				// (Solaris)
 				solarisOsVersion = runOsCommand("/usr/bin/uname -r", hostname, sshConfiguration, defaultTimeout);
 			} catch (final Exception e) { // NOSONAR on interruption
-				final String message = String.format(IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
-						hostname, ipmitoolCommand, e.getMessage());
+				final String message = String.format(
+					IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
+					hostname,
+					ipmitoolCommand,
+					e.getMessage()
+				);
 				log.debug(message, e);
 				return message;
 			}
@@ -461,13 +485,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @throws IpmiCommandForSolarisException
 	 */
 	public String getIpmiCommandForSolaris(String ipmitoolCommand, final String hostname, final String solarisOsVersion)
-			throws IpmiCommandForSolarisException {
+		throws IpmiCommandForSolarisException {
 		final String[] split = solarisOsVersion.split("\\.");
 		if (split.length < 2) {
 			throw new IpmiCommandForSolarisException(
 				String.format(
 					"Unknown Solaris version (%s) for host: %s IPMI cannot be executed. Returning an empty result.",
-					solarisOsVersion, hostname
+					solarisOsVersion,
+					hostname
 				)
 			);
 		}
@@ -479,18 +504,20 @@ public class CriterionProcessor implements ICriterionProcessor {
 				// On Solaris 9, the IPMI interface drive is 'lipmi'
 				ipmitoolCommand = ipmitoolCommand + "lipmi";
 			} else if (versionInt < 9) {
-
-				throw new IpmiCommandForSolarisException(String.format(
+				throw new IpmiCommandForSolarisException(
+					String.format(
 						"Solaris version (%s) is too old for the host: %s IPMI cannot be executed. Returning an empty result.",
-						solarisOsVersion, hostname));
-
+						solarisOsVersion,
+						hostname
+					)
+				);
 			} else {
 				// On more modern versions of Solaris, the IPMI interface driver is 'bmc'
 				ipmitoolCommand = ipmitoolCommand + "bmc";
 			}
 		} catch (final NumberFormatException e) {
 			throw new IpmiCommandForSolarisException(
-					"Could not identify Solaris version as a valid one.\nThe 'uname -r' command returned: " + solarisOsVersion + "."
+				"Could not identify Solaris version as a valid one.\nThe 'uname -r' command returned: " + solarisOsVersion + "."
 			);
 		}
 
@@ -512,15 +539,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @throws ControlledSshException
 	 */
 	String runOsCommand(
-			final String ipmitoolCommand,
-			final String hostname,
-			final SshConfiguration sshConfiguration,
-			final int timeout
+		final String ipmitoolCommand,
+		final String hostname,
+		final SshConfiguration sshConfiguration,
+		final int timeout
 	) throws InterruptedException, IOException, TimeoutException, MatsyaException, ControlledSshException {
-
-		return telemetryManager.getHostProperties().isLocalhost() ? // or we can use NetworkHelper.isLocalhost(hostname)
-			OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) :
-			OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
+		return telemetryManager.getHostProperties().isLocalhost()
+			? OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) // or we can use NetworkHelper.isLocalhost(hostname)
+			: OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
 	}
 
 	/**
@@ -535,9 +561,15 @@ public class CriterionProcessor implements ICriterionProcessor {
 			return CriterionTestResult.error(osCommandCriterion, "Malformed OSCommand criterion.");
 		}
 
-		if (osCommandCriterion.getCommandLine().isEmpty() ||
-				osCommandCriterion.getExpectedResult() == null || osCommandCriterion.getExpectedResult().isEmpty()) {
-			return CriterionTestResult.success(osCommandCriterion, "CommandLine or ExpectedResult are empty. Skipping this test.");
+		if (
+			osCommandCriterion.getCommandLine().isEmpty() ||
+			osCommandCriterion.getExpectedResult() == null ||
+			osCommandCriterion.getExpectedResult().isEmpty()
+		) {
+			return CriterionTestResult.success(
+				osCommandCriterion,
+				"CommandLine or ExpectedResult are empty. Skipping this test."
+			);
 		}
 
 		try {
@@ -549,7 +581,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 				telemetryManager.getHostProperties().isLocalhost()
 			);
 
-			final OsCommandCriterion osCommandNoPassword = OsCommandCriterion.builder()
+			final OsCommandCriterion osCommandNoPassword = OsCommandCriterion
+				.builder()
 				.commandLine(osCommandResult.getNoPasswordCommand())
 				.executeLocally(osCommandCriterion.getExecuteLocally())
 				.timeout(osCommandCriterion.getTimeout())
@@ -563,10 +596,9 @@ public class CriterionProcessor implements ICriterionProcessor {
 				)
 				.matcher(osCommandResult.getResult());
 
-			return matcher.find() ?
-				CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult())
-					: CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
-
+			return matcher.find()
+				? CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult())
+				: CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
 		} catch (NoCredentialProvidedException noCredentialProvidedException) {
 			return CriterionTestResult.error(osCommandCriterion, noCredentialProvidedException.getMessage());
 		} catch (Exception exception) { // NOSONAR on interruption
@@ -585,13 +617,18 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (processCriterion == null) {
-			log.error("Hostname {} - Malformed process criterion {}. Cannot process process detection.", hostname, processCriterion);
+			log.error(
+				"Hostname {} - Malformed process criterion {}. Cannot process process detection.",
+				hostname,
+				processCriterion
+			);
 			return CriterionTestResult.empty();
 		}
 
 		if (processCriterion.getCommandLine().isEmpty()) {
 			log.debug("Hostname {} - Process Criterion, Process Command Line is empty.", hostname);
-			return CriterionTestResult.builder()
+			return CriterionTestResult
+				.builder()
 				.success(true)
 				.message("Process presence check: No test will be performed.")
 				.result(null)
@@ -600,17 +637,19 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		if (!telemetryManager.getHostProperties().isLocalhost()) {
 			log.debug("Hostname {} - Process criterion, not localhost.", hostname);
-			return CriterionTestResult.builder()
+			return CriterionTestResult
+				.builder()
 				.success(true)
 				.message("Process presence check: No test will be performed remotely.")
 				.result(null)
 				.build();
 		}
 
-		final Optional<LocalOsHandler.ILocalOs> maybeLocalOS = LocalOsHandler.getOs();
+		final Optional<LocalOsHandler.ILocalOs> maybeLocalOS = LocalOsHandler.getOS();
 		if (maybeLocalOS.isEmpty()) {
 			log.debug("Hostname {} - Process criterion, unknown local OS.", hostname);
-			return CriterionTestResult.builder()
+			return CriterionTestResult
+				.builder()
 				.success(true)
 				.message("Process presence check: OS unknown, no test will be performed.")
 				.result(null)
@@ -634,15 +673,20 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @return {@link CriterionTestResult} instance
 	 */
 	@WithSpan("Criterion ProductRequirements Exec")
-	public CriterionTestResult process(@SpanAttribute("criterion.definition") ProductRequirementsCriterion productRequirementsCriterion) {
+	public CriterionTestResult process(
+		@SpanAttribute("criterion.definition") ProductRequirementsCriterion productRequirementsCriterion
+	) {
 		// If there is no requirement, then no check is needed
-		if (productRequirementsCriterion == null
-				|| productRequirementsCriterion.getEngineVersion() == null
-				|| productRequirementsCriterion.getEngineVersion().isBlank()) {
+		if (
+			productRequirementsCriterion == null ||
+			productRequirementsCriterion.getEngineVersion() == null ||
+			productRequirementsCriterion.getEngineVersion().isBlank()
+		) {
 			return CriterionTestResult.builder().success(true).build();
 		}
 
-		return CriterionTestResult.builder()
+		return CriterionTestResult
+			.builder()
 			.success(
 				VersionHelper.isVersionLessThanOtherVersion(
 					productRequirementsCriterion.getEngineVersion(),
@@ -680,7 +724,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// Our local system must be Windows
 		if (!LocalOsHandler.isWindows()) {
 			return CriterionTestResult.success(serviceCriterion, "Local OS is not Windows. Skipping this test.");
-
 		}
 
 		// Check the service name
@@ -699,7 +742,11 @@ public class CriterionProcessor implements ICriterionProcessor {
 			.build();
 
 		// Perform this WMI test
-		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, serviceWmiCriterion);
+		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(
+			hostname,
+			winConfiguration,
+			serviceWmiCriterion
+		);
 		if (!wmiTestResult.isSuccess()) {
 			return wmiTestResult;
 		}
@@ -709,7 +756,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		// Check whether the reported state is "Running"
 		if (result != null && result.toLowerCase().contains(TABLE_SEP + "running")) {
-			return CriterionTestResult.success(serviceCriterion, String.format("The %s Windows Service is currently running.", serviceName));
+			return CriterionTestResult.success(
+				serviceCriterion,
+				String.format("The %s Windows Service is currently running.", serviceName)
+			);
 		}
 
 		// We're here: no good!
@@ -722,6 +772,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	@Data
 	@Builder
 	public static class TestResult {
+
 		private String message;
 		private boolean success;
 		private String csvTable;
@@ -740,21 +791,21 @@ public class CriterionProcessor implements ICriterionProcessor {
 		String message;
 		boolean success = false;
 		if (result == null) {
-			message = String.format(
-				"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to a null result",
-				hostname,
-				oid);
+			message =
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to a null result",
+					hostname,
+					oid
+				);
 		} else if (result.isBlank()) {
-			message = String.format(
-				"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an empty result.",
-				hostname,
-				oid);
+			message =
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an empty result.",
+					hostname,
+					oid
+				);
 		} else {
-			message = String.format(
-				"Hostname %s - Successful SNMP Get of %s. Returned result: %s.",
-				hostname,
-				oid,
-				result);
+			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned result: %s.", hostname, oid, result);
 			success = true;
 		}
 
@@ -774,7 +825,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param result
 	 * @return {@link TestResult} wrapping the success status and the message
 	 */
-	private TestResult checkSNMPGetResult(final String hostname, final String oid, final String expected, final String result) {
+	private TestResult checkSNMPGetResult(
+		final String hostname,
+		final String oid,
+		final String expected,
+		final String result
+	) {
 		if (expected == null) {
 			return checkSNMPGetValue(hostname, oid, result);
 		}
@@ -790,19 +846,27 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param result
 	 * @return {@link TestResult} wrapping the message and the success status
 	 */
-	private TestResult checkSNMPGetExpectedValue(final String hostname, final String oid, final String expected,
-												 final String result) {
-
+	private TestResult checkSNMPGetExpectedValue(
+		final String hostname,
+		final String oid,
+		final String expected,
+		final String result
+	) {
 		String message;
 		boolean success = false;
 
-		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+		final Pattern pattern = Pattern.compile(
+			PslUtils.psl2JavaRegex(expected),
+			Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+		);
 		if (result == null || !pattern.matcher(result).find()) {
-			message = String.format(
-				"Hostname %s - SNMP test failed - SNMP Get of %s was successful but the value of the returned OID did not match with the" +
-				" expected result. ",
-				hostname,
-				oid);
+			message =
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP Get of %s was successful but the value of the returned OID did not match with the" +
+					" expected result. ",
+					hostname,
+					oid
+				);
 			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
 		} else {
 			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned result: %s", hostname, oid, result);
@@ -814,7 +878,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 		return TestResult.builder().message(message).success(success).build();
 	}
 
-
 	/**
 	 * Process the given {@link SnmpGetCriterion} through Matsya and return the {@link CriterionTestResult}
 	 *
@@ -825,12 +888,18 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetCriterion snmpGetCriterion) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		if (snmpGetCriterion == null) {
-			log.error("Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection.", hostname, snmpGetCriterion);
+			log.error(
+				"Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection.",
+				hostname,
+				snmpGetCriterion
+			);
 			return CriterionTestResult.empty();
 		}
 
-		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager.getHostConfiguration()
-				.getConfigurations().get(SnmpConfiguration.class);
+		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
 
 		if (protocol == null) {
 			log.debug(SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE, hostname, snmpGetCriterion);
@@ -838,13 +907,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		try {
-
-			final String result = matsyaClientsExecutor.executeSNMPGet(
-				snmpGetCriterion.getOid(),
-				protocol,
-				hostname,
-				false
-			);
+			final String result = matsyaClientsExecutor.executeSNMPGet(snmpGetCriterion.getOid(), protocol, hostname, false);
 
 			final TestResult testResult = checkSNMPGetResult(
 				hostname,
@@ -859,18 +922,17 @@ public class CriterionProcessor implements ICriterionProcessor {
 				.success(testResult.isSuccess())
 				.message(testResult.getMessage())
 				.build();
-
 		} catch (final Exception e) { // NOSONAR on interruption
 			final String message = String.format(
 				"Hostname %s - SNMP test failed - SNMP Get of %s was unsuccessful due to an exception. Message: %s",
 				hostname,
 				snmpGetCriterion.getOid(),
-				e.getMessage());
+				e.getMessage()
+			);
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
 	}
-
 
 	/**
 	 * Simply check the value consistency and verify whether the returned OID is
@@ -885,12 +947,28 @@ public class CriterionProcessor implements ICriterionProcessor {
 		String message;
 		boolean success = false;
 		if (result == null) {
-			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to a null result.", hostname, oid);
+			message =
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to a null result.",
+					hostname,
+					oid
+				);
 		} else if (result.isBlank()) {
-			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an empty result.", hostname, oid);
+			message =
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an empty result.",
+					hostname,
+					oid
+				);
 		} else if (!result.startsWith(oid)) {
-			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the returned OID is not under the same tree." +
-				" Returned OID: %s.", hostname, oid, result.split("\\s")[0]);
+			message =
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the returned OID is not under the same tree." +
+					" Returned OID: %s.",
+					hostname,
+					oid,
+					result.split("\\s")[0]
+				);
 		} else {
 			message = String.format(SNMP_GETNEXT_SUCCESSFUL_MESSAGE, hostname, oid, result);
 			success = true;
@@ -910,24 +988,41 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param result
 	 * @return {@link TestResult} wrapping the message and the success status
 	 */
-	private TestResult checkSNMPGetNextExpectedValue(final String hostname, final String oid, final String expected,
-													 final String result) {
+	private TestResult checkSNMPGetNextExpectedValue(
+		final String hostname,
+		final String oid,
+		final String expected,
+		final String result
+	) {
 		String message;
 		boolean success = true;
 		final Matcher matcher = SNMP_GET_NEXT_VALUE_PATTERN.matcher(result);
 		if (matcher.find()) {
 			final String value = matcher.group(1);
-			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+			final Pattern pattern = Pattern.compile(
+				PslUtils.psl2JavaRegex(expected),
+				Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+			);
 			if (!pattern.matcher(value).find()) {
-				message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value of the returned OID did not match" +
-					" with the expected result. ", hostname, oid);
+				message =
+					String.format(
+						"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value of the returned OID did not match" +
+						" with the expected result. ",
+						hostname,
+						oid
+					);
 				message += String.format("Expected value: %s - returned value %s.", expected, value);
 				success = false;
 			} else {
 				message = String.format(SNMP_GETNEXT_SUCCESSFUL_MESSAGE, hostname, oid, result);
 			}
 		} else {
-			message = String.format("Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value cannot be extracted. ", hostname, oid);
+			message =
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value cannot be extracted. ",
+					hostname,
+					oid
+				);
 			message += String.format("Returned result: %s.", result);
 			success = false;
 		}
@@ -948,8 +1043,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param result
 	 * @return {@link TestResult} wrapping the success status and the message
 	 */
-	private TestResult checkSNMPGetNextResult(final String hostname, final String oid, final String expected,
-											  final String result) {
+	private TestResult checkSNMPGetNextResult(
+		final String hostname,
+		final String oid,
+		final String expected,
+		final String result
+	) {
 		if (expected == null) {
 			return checkSNMPGetNextValue(hostname, oid, result);
 		}
@@ -968,12 +1067,18 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (snmpGetNextCriterion == null) {
-			log.error("Hostname {} - Malformed SNMP GetNext criterion {}. Cannot process SNMP GetNext detection.", hostname, snmpGetNextCriterion);
+			log.error(
+				"Hostname {} - Malformed SNMP GetNext criterion {}. Cannot process SNMP GetNext detection.",
+				hostname,
+				snmpGetNextCriterion
+			);
 			return CriterionTestResult.empty();
 		}
 
-		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager.getHostConfiguration()
-				.getConfigurations().get(SnmpConfiguration.class);
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
 
 		if (snmpConfiguration == null) {
 			log.debug(SNMP_CREDENTIALS_NOT_CONFIGURED_MESSAGE, hostname, snmpGetNextCriterion);
@@ -981,7 +1086,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		try {
-
 			final String result = matsyaClientsExecutor.executeSNMPGetNext(
 				snmpGetNextCriterion.getOid(),
 				snmpConfiguration,
@@ -996,18 +1100,19 @@ public class CriterionProcessor implements ICriterionProcessor {
 				result
 			);
 
-			return CriterionTestResult.builder()
+			return CriterionTestResult
+				.builder()
 				.result(result)
 				.success(testResult.isSuccess())
 				.message(testResult.getMessage())
 				.build();
-
 		} catch (final Exception e) { // NOSONAR on interruption
 			final String message = String.format(
-					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an exception. Message: %s",
-					hostname,
-					snmpGetNextCriterion.getOid(),
-					e.getMessage());
+				"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an exception. Message: %s",
+				hostname,
+				snmpGetNextCriterion.getOid(),
+				e.getMessage()
+			);
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
@@ -1037,7 +1142,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		// If namespace is specified as "Automatic"
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wmiCriterion.getNamespace())) {
-
 			final String cachedNamespace = telemetryManager
 				.getHostProperties()
 				.getConnectorNamespaces()
@@ -1069,19 +1173,20 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param wqlCriterion     The WQL criterion with an "Automatic" namespace
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	CriterionTestResult findNamespace(final String hostname, final IWinConfiguration winConfiguration, final WqlCriterion wqlCriterion) {
-
+	CriterionTestResult findNamespace(
+		final String hostname,
+		final IWinConfiguration winConfiguration,
+		final WqlCriterion wqlCriterion
+	) {
 		// Get the list of possible namespaces on this host
 		Set<String> possibleWmiNamespaces = telemetryManager.getHostProperties().getPossibleWmiNamespaces();
 
 		// Only one thread at a time must be figuring out the possible namespaces on a given host
 		synchronized (possibleWmiNamespaces) {
-
 			if (possibleWmiNamespaces.isEmpty()) {
-
 				// If we don't have this list already, figure it out now
 				final WqlDetectionHelper.PossibleNamespacesResult possibleWmiNamespacesResult =
-						wqlDetectionHelper.findPossibleNamespaces(hostname, winConfiguration);
+					wqlDetectionHelper.findPossibleNamespaces(hostname, winConfiguration);
 
 				// If we can't detect the namespace then we must stop
 				if (!possibleWmiNamespacesResult.isSuccess()) {
@@ -1091,13 +1196,16 @@ public class CriterionProcessor implements ICriterionProcessor {
 				// Store the list of possible namespaces in HostMonitoring, for next time we need it
 				possibleWmiNamespaces.clear();
 				possibleWmiNamespaces.addAll(possibleWmiNamespacesResult.getPossibleNamespaces());
-
 			}
 		}
 
 		// Perform a namespace detection
-		WqlDetectionHelper.NamespaceResult namespaceResult =
-				wqlDetectionHelper.detectNamespace(hostname, winConfiguration, wqlCriterion, Collections.unmodifiableSet(possibleWmiNamespaces));
+		WqlDetectionHelper.NamespaceResult namespaceResult = wqlDetectionHelper.detectNamespace(
+			hostname,
+			winConfiguration,
+			wqlCriterion,
+			Collections.unmodifiableSet(possibleWmiNamespaces)
+		);
 
 		// If that was successful, remember it in HostMonitoring, so we don't perform this
 		// (costly) detection again
@@ -1115,12 +1223,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 					.get(namespaceResult.getNamespace())
 					.setAutomaticWbemNamespace(namespaceResult.getNamespace());
 			}
-
 		}
 
 		return namespaceResult.getResult();
 	}
-
 
 	/**
 	 * Find the namespace to use for the execution of the given {@link WbemCriterion}.
@@ -1130,18 +1236,20 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param wbemCriterion     The WQL criterion with an "Automatic" namespace
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	private CriterionTestResult findNamespace(final String hostname, final WbemConfiguration wbemConfiguration, final WbemCriterion wbemCriterion) {
+	private CriterionTestResult findNamespace(
+		final String hostname,
+		final WbemConfiguration wbemConfiguration,
+		final WbemCriterion wbemCriterion
+	) {
 		// Get the list of possible namespaces on this host
 		Set<String> possibleWbemNamespaces = telemetryManager.getHostProperties().getPossibleWbemNamespaces();
 
 		// Only one thread at a time must be figuring out the possible namespaces on a given host
 		synchronized (possibleWbemNamespaces) {
-
 			if (possibleWbemNamespaces.isEmpty()) {
-
 				// If we don't have this list already, figure it out now
 				final WqlDetectionHelper.PossibleNamespacesResult possibleWbemNamespacesResult =
-						wqlDetectionHelper.findPossibleNamespaces(hostname, wbemConfiguration);
+					wqlDetectionHelper.findPossibleNamespaces(hostname, wbemConfiguration);
 
 				// If we can't detect the namespace then we must stop
 				if (!possibleWbemNamespacesResult.isSuccess()) {
@@ -1151,13 +1259,16 @@ public class CriterionProcessor implements ICriterionProcessor {
 				// Store the list of possible namespaces in HostMonitoring, for next time we need it
 				possibleWbemNamespaces.clear();
 				possibleWbemNamespaces.addAll(possibleWbemNamespacesResult.getPossibleNamespaces());
-
 			}
 		}
 
 		// Perform a namespace detection
-		WqlDetectionHelper.NamespaceResult namespaceResult =
-				wqlDetectionHelper.detectNamespace(hostname, wbemConfiguration, wbemCriterion, Collections.unmodifiableSet(possibleWbemNamespaces));
+		WqlDetectionHelper.NamespaceResult namespaceResult = wqlDetectionHelper.detectNamespace(
+			hostname,
+			wbemConfiguration,
+			wbemCriterion,
+			Collections.unmodifiableSet(possibleWbemNamespaces)
+		);
 
 		// If that was successful, remember it in HostMonitoring, so we don't perform this
 		// (costly) detection again
@@ -1188,15 +1299,16 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// Gather the necessary info on the test that needs to be performed
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		final WbemConfiguration wbemConfiguration =
-				(WbemConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(WbemConfiguration.class);
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WbemConfiguration.class);
 		if (wbemConfiguration == null) {
 			return CriterionTestResult.error(wbemCriterion, "The WBEM credentials are not configured for this host.");
 		}
 
 		// If namespace is specified as "Automatic"
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getNamespace())) {
-
 			final String cachedNamespace = telemetryManager
 				.getHostProperties()
 				.getConnectorNamespaces()
@@ -1226,9 +1338,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param expectedResult The expected result of the HTTP test.
 	 * @return A {@link TestResult} summarizing the outcome of the HTTP test.
 	 */
-	private CriterionTestResult checkHttpResult(final String hostname, final String result,
-												final String expectedResult) {
-
+	private CriterionTestResult checkHttpResult(final String hostname, final String result, final String expectedResult) {
 		String message;
 		boolean success = false;
 
@@ -1239,7 +1349,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 				message = String.format(HTTP_TEST_SUCCESS, hostname, result);
 				success = true;
 			}
-
 		} else {
 			// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
 			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
@@ -1247,23 +1356,19 @@ public class CriterionProcessor implements ICriterionProcessor {
 				message = String.format(HTTP_TEST_SUCCESS, hostname, result);
 				success = true;
 			} else {
-				message = String
-					.format("Hostname %s - HTTP test failed - The result (%s) returned by the HTTP test did not match the expected result (%s).",
-					hostname,
-					result,
-					expectedResult);
+				message =
+					String.format(
+						"Hostname %s - HTTP test failed - The result (%s) returned by the HTTP test did not match the expected result (%s).",
+						hostname,
+						result,
+						expectedResult
+					);
 				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
 			}
 		}
 
 		log.debug(message);
 
-		return CriterionTestResult
-			.builder()
-			.result(result)
-			.message(message)
-			.success(success)
-			.build();
+		return CriterionTestResult.builder().result(result).message(message).success(success).build();
 	}
-
 }

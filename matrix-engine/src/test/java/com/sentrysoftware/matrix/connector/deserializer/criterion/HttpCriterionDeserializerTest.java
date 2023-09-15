@@ -3,12 +3,6 @@ package com.sentrysoftware.matrix.connector.deserializer.criterion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
@@ -17,6 +11,10 @@ import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.HttpCriterion;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 class HttpCriterionDeserializerTest extends DeserializerTest {
 
@@ -36,39 +34,42 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 
 		final List<Criterion> expected = new ArrayList<>();
 
-		final HttpCriterion http1 = HttpCriterion.builder()
-				.type("http")
-				.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
-				.url("test")
-				.header("$embedded.http-header")
-				.authenticationToken("$embedded.authenticationToken")
-				.body("test-body")
-				.resultContent(ResultContent.ALL)
-				.expectedResult("result")
-				.errorMessage("error")
-				.build();
-		final HttpCriterion http2 = HttpCriterion.builder()
-				.type("http")
-				.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
-				.url("test/path1")
-				.header("$embedded.http-header")
-				.authenticationToken("$embedded.authenticationToken")
-				.body("test-body")
-				.resultContent(ResultContent.BODY) // The connector doesn't define the resultConent
-				.expectedResult("result")
-				.errorMessage("error")
-				.build();
-		final HttpCriterion http3 = HttpCriterion.builder()
-				.type("http")
-				.method(HttpMethod.POST)
-				.url("test/path2")
-				.header("$embedded.http-header")
-				.authenticationToken("$embedded.authenticationToken")
-				.body("test-body")
-				.resultContent(ResultContent.BODY) // The Connector defines a null resultContent
-				.expectedResult("result")
-				.errorMessage("error")
-				.build();
+		final HttpCriterion http1 = HttpCriterion
+			.builder()
+			.type("http")
+			.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
+			.url("test")
+			.header("$embedded.http-header")
+			.authenticationToken("$embedded.authenticationToken")
+			.body("test-body")
+			.resultContent(ResultContent.ALL)
+			.expectedResult("result")
+			.errorMessage("error")
+			.build();
+		final HttpCriterion http2 = HttpCriterion
+			.builder()
+			.type("http")
+			.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
+			.url("test/path1")
+			.header("$embedded.http-header")
+			.authenticationToken("$embedded.authenticationToken")
+			.body("test-body")
+			.resultContent(ResultContent.BODY) // The connector doesn't define the resultConent
+			.expectedResult("result")
+			.errorMessage("error")
+			.build();
+		final HttpCriterion http3 = HttpCriterion
+			.builder()
+			.type("http")
+			.method(HttpMethod.POST)
+			.url("test/path2")
+			.header("$embedded.http-header")
+			.authenticationToken("$embedded.authenticationToken")
+			.body("test-body")
+			.resultContent(ResultContent.BODY) // The Connector defines a null resultContent
+			.expectedResult("result")
+			.errorMessage("error")
+			.build();
 
 		expected.addAll(List.of(http1, http2, http3));
 
@@ -78,7 +79,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 	@Test
 	/**
 	 * Checks that fields that cannot be null throw an error when they are null
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	void testDeserializeNonNull() throws Exception {
@@ -94,7 +95,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 	@Test
 	/**
 	 * Checks that httpMethod if defined is GET, POST or DELETE
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	void testDeserializeHttpMethodEnum() throws Exception {
@@ -120,8 +121,10 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());
 
-				assertEquals(method,
-						((HttpCriterion) connector.getConnectorIdentity().getDetection().getCriteria().get(0)).getMethod());
+				assertEquals(
+					method,
+					((HttpCriterion) connector.getConnectorIdentity().getDetection().getCriteria().get(0)).getMethod()
+				);
 			}
 		}
 	}
@@ -129,7 +132,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 	@Test
 	/**
 	 * Checks that resultContent if defined is httpStatus, header, body, or all
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	void testDeserializeResultContentEnum() throws Exception {
@@ -139,7 +142,8 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				getConnector("httpCriterionResultContentEnum");
 				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
-				String message = "not one of the values accepted for Enum class: [all, body, HTTP_STATUS, httpStatus, header, ALL, BODY, http_status, HEADER]";
+				String message =
+					"not one of the values accepted for Enum class: [all, body, HTTP_STATUS, httpStatus, header, ALL, BODY, http_status, HEADER]";
 				checkMessage(e, message);
 			}
 		}
@@ -155,9 +159,10 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());
 
-				assertEquals(resultContent,
-						((HttpCriterion) connector.getConnectorIdentity().getDetection().getCriteria().get(0))
-								.getResultContent());
+				assertEquals(
+					resultContent,
+					((HttpCriterion) connector.getConnectorIdentity().getDetection().getCriteria().get(0)).getResultContent()
+				);
 			}
 		}
 	}

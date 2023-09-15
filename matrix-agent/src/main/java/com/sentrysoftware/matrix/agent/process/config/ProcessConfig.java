@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
@@ -39,7 +38,7 @@ public class ProcessConfig {
 
 	/**
 	 * Update the current ProcessConfig
-	 * 
+	 *
 	 * @param processConfig the new process configuration
 	 */
 	public void update(@NonNull final ProcessConfig processConfig) {
@@ -48,5 +47,4 @@ public class ProcessConfig {
 		setOutput(processConfig.getOutput());
 		setWorkingDir(processConfig.getWorkingDir());
 	}
-
 }

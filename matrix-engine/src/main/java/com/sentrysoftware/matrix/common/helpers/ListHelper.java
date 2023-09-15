@@ -9,7 +9,7 @@ public class ListHelper {
 	/**
 	 * Returns the element at the specified position in this list.
 	 * @param <T>
-	 * 
+	 *
 	 * @param list         The list from which we want to get the element at the specified position.
 	 * @param index        Index of the element to return
 	 * @param defaultValue The default value to return if the element cannot be extracted.

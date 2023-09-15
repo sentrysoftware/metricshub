@@ -7,11 +7,6 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_A
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
@@ -26,7 +21,10 @@ import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -48,7 +46,6 @@ public class DetectionStrategy extends AbstractStrategy {
 		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);
-
 	}
 
 	@Override
@@ -118,8 +115,10 @@ public class DetectionStrategy extends AbstractStrategy {
 		final String connectorId = connector.getCompiledFilename();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_APPLIES_TO_OS, connector.getConnectorIdentity().getDetection()
-			.getAppliesTo().toString());
+		monitorAttributes.put(
+			MONITOR_ATTRIBUTE_APPLIES_TO_OS,
+			connector.getConnectorIdentity().getDetection().getAppliesTo().toString()
+		);
 		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
 		monitorAttributes.put("hw.parent.id", hostId);
 
@@ -157,12 +156,22 @@ public class DetectionStrategy extends AbstractStrategy {
 			// When metric type is stateSet
 			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
 			if (connectorTestResult.isSuccess()) {
-				metricFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, stateSet, strategyTime);
+				metricFactory.collectStateSetMetric(
+					monitor,
+					CONNECTOR_STATUS_METRIC_KEY,
+					STATE_SET_METRIC_OK,
+					stateSet,
+					strategyTime
+				);
 			} else {
-				metricFactory.collectStateSetMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_FAILED, stateSet, strategyTime);
+				metricFactory.collectStateSetMetric(
+					monitor,
+					CONNECTOR_STATUS_METRIC_KEY,
+					STATE_SET_METRIC_FAILED,
+					stateSet,
+					strategyTime
+				);
 			}
 		}
 	}
-
-
 }

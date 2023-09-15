@@ -1,15 +1,14 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+
 import com.sentrysoftware.matrix.common.exception.RetryableException;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
 @AllArgsConstructor
 @Builder(setterPrefix = "with")
@@ -56,11 +55,7 @@ public class RetryOperation<T> {
 			return function.get();
 		} catch (RetryableException e) {
 			if (maxRetries <= 0) {
-				log.info(
-					"Hostname {} - {} failed and will not be retried.",
-					hostname,
-					description
-				);
+				log.info("Hostname {} - {} failed and will not be retried.", hostname, description);
 				return defaultValue;
 			}
 
@@ -75,7 +70,6 @@ public class RetryOperation<T> {
 	 * @return The value returned by the function or default value if all retries fail
 	 */
 	private T retry(final Supplier<T> function) {
-
 		log.info(
 			"Hostname {} - {} failed and will be retried {} time{}.",
 			hostname,
@@ -87,42 +81,22 @@ public class RetryOperation<T> {
 		int retryCounter = 0;
 		while (retryCounter < maxRetries) {
 			try {
-
 				if (waitStrategy > 0) {
-
-					log.info(
-						"Hostname {} - {} retry will be performed after {} seconds.",
-						hostname,
-						description,
-						waitStrategy
-					);
+					log.info("Hostname {} - {} retry will be performed after {} seconds.", hostname, description, waitStrategy);
 
 					pauseRetry();
 				}
 
 				return function.get();
-
 			} catch (RetryableException ex) {
-
 				retryCounter++;
 
-				log.info(
-					"Hostname {} - {} failed on retry {} / {}.",
-					hostname,
-					description,
-					retryCounter,
-					maxRetries
-				);
+				log.info("Hostname {} - {} failed on retry {} / {}.", hostname, description, retryCounter, maxRetries);
 
 				if (retryCounter >= maxRetries) {
-					log.warn(
-						"Hostname {} - Max retries exceeded for {}.",
-						hostname,
-						description
-					);
+					log.warn("Hostname {} - Max retries exceeded for {}.", hostname, description);
 					break;
 				}
-
 			}
 		}
 
@@ -133,22 +107,13 @@ public class RetryOperation<T> {
 	 * Performs a Thread.sleep using the wait strategy value expressed in seconds.
 	 */
 	private void pauseRetry() {
-
 		try {
 			TimeUnit.SECONDS.sleep(waitStrategy);
 		} catch (InterruptedException e) {
-			log.warn(
-				"Hostname {} - {} retry interrupted while sleeping.",
-				hostname,
-				description
-			);
+			log.warn("Hostname {} - {} retry interrupted while sleeping.", hostname, description);
 
 			log.debug(
-				String.format(
-					"Hostname %s - %s retry interrupted while sleeping. Exception: ",
-					hostname,
-					description
-				),
+				String.format("Hostname %s - %s retry interrupted while sleeping. Exception: ", hostname, description),
 				e
 			);
 

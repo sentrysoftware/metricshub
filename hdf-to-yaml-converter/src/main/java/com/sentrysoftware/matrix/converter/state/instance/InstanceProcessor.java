@@ -1,14 +1,13 @@
 package com.sentrysoftware.matrix.converter.state.instance;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class InstanceProcessor extends AbstractStateConverter {
 
@@ -19,9 +18,7 @@ public class InstanceProcessor extends AbstractStateConverter {
 
 	@Override
 	public boolean detect(String key, String value, JsonNode connector) {
-		return value != null
-				&& key != null
-				&& PATTERN.matcher(key).matches();
+		return value != null && key != null && PATTERN.matcher(key).matches();
 	}
 
 	@Override

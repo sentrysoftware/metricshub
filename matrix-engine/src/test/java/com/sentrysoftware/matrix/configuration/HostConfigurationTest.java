@@ -6,9 +6,8 @@ import static com.sentrysoftware.matrix.constants.Constants.RETRY_DELAY;
 import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test of {@link HostConfiguration}

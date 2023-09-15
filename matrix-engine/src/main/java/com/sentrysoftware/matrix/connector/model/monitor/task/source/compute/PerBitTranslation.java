@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,18 +38,16 @@ public class PerBitTranslation extends Compute {
 	@Builder
 	@JsonCreator
 	public PerBitTranslation(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "bitList", required = true) @NonNull String bitList,
 		@JsonProperty(value = "translationTable", required = true) @NonNull String translationTable
 	) {
-
 		super(type);
 		this.column = column;
 		this.bitList = bitList;
 		this.translationTable = translationTable;
 	}
-
 
 	@Override
 	public String toString() {
@@ -64,7 +60,6 @@ public class PerBitTranslation extends Compute {
 		addNonNull(stringJoiner, "- translationTable=", translationTable);
 
 		return stringJoiner.toString();
-
 	}
 
 	@Override

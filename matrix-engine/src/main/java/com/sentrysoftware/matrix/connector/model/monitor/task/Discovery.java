@@ -1,10 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task;
 
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import java.util.Map;
 import java.util.Set;
-
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,5 +21,4 @@ public class Discovery extends AbstractMonitorTask {
 	public Discovery(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder) {
 		super(sources, mapping, executionOrder);
 	}
-
 }

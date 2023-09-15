@@ -33,7 +33,7 @@ public class CriterionTestResult {
 	 * @return a new {@link CriterionTestResult} instance
 	 */
 	public static CriterionTestResult failure(final Criterion criterion, final String result) {
-		final String message = String.format( //NOSONAR
+		final String message = String.format(
 			"%s test ran but failed:\n%s\n\nActual result:\n%s",
 			criterion.getClass().getSimpleName(),
 			criterion.toString(),
@@ -52,17 +52,17 @@ public class CriterionTestResult {
 	 * @return a new {@link CriterionTestResult} instance
 	 */
 	public static CriterionTestResult error(Criterion criterion, String reason, Throwable t) {
-
 		String message;
 		if (criterion == null) {
 			message = "Error with a <null> Criterion: " + reason;
 		} else {
-			message = String.format( //NOSONAR
-				"Error in %s test:\n%s\n\n%s",
-				criterion.getClass().getSimpleName(),
-				criterion.toString(),
-				reason
-			);
+			message =
+				String.format(
+					"Error in %s test:\n%s\n\n%s",
+					criterion.getClass().getSimpleName(),
+					criterion.toString(),
+					reason
+				);
 		}
 		return CriterionTestResult.builder().success(false).message(message).exception(t).build();
 	}
@@ -89,10 +89,7 @@ public class CriterionTestResult {
 	 */
 	public static CriterionTestResult error(final Criterion criterion, final Throwable t) {
 		final StringBuilder messageBuilder = new StringBuilder();
-		messageBuilder
-			.append(t.getClass().getSimpleName())
-			.append(": ")
-			.append(t.getMessage());
+		messageBuilder.append(t.getClass().getSimpleName()).append(": ").append(t.getMessage());
 		Throwable cause = t.getCause();
 		if (cause != null) {
 			messageBuilder
@@ -115,20 +112,13 @@ public class CriterionTestResult {
 	 * @return a new {@link CriterionTestResult} instance
 	 */
 	public static CriterionTestResult success(final Criterion criterion, final String result) {
-		final String message = String.format( //NOSONAR
+		final String message = String.format(
 			"%s test succeeded:\n%s\n\nResult: %s",
 			criterion.getClass().getSimpleName(),
 			criterion.toString(),
 			result
 		);
 
-		return CriterionTestResult
-			.builder()
-			.success(true)
-			.message(message)
-			.result(result)
-			.build();
+		return CriterionTestResult.builder().success(true).message(message).result(result).build();
 	}
-
-
 }

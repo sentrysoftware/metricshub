@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,18 +29,16 @@ public class Replace extends Compute {
 
 	private String existingValue;
 
-
 	private String newValue;
 
 	@Builder
 	@JsonCreator
 	public Replace(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "existingValue") String existingValue,
 		@JsonProperty(value = "newValue") String newValue
 	) {
-
 		super(type);
 		this.column = column;
 		this.existingValue = existingValue;
@@ -64,13 +60,7 @@ public class Replace extends Compute {
 
 	@Override
 	public Replace copy() {
-		return Replace
-			.builder()
-			.type(type)
-			.column(column)
-			.existingValue(existingValue)
-			.newValue(newValue)
-			.build();
+		return Replace.builder().type(type).column(column).existingValue(existingValue).newValue(newValue).build();
 	}
 
 	@Override

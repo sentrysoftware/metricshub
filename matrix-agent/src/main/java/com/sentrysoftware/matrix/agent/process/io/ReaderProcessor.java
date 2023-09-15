@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.agent.process.io;
 
 import java.io.Reader;
-
 import lombok.NonNull;
 
 /**
@@ -30,7 +29,5 @@ public class ReaderProcessor extends AbstractReaderProcessor {
 		} catch (Exception e) {
 			// Error for any unknown error
 		}
-
 	}
-
 }

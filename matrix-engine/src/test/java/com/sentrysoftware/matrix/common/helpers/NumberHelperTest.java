@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.math.RoundingMode;
-
 import org.junit.jupiter.api.Test;
 
 class NumberHelperTest {
+
 	@Test
 	void testParseDouble() {
 		assertEquals(5.0, NumberHelper.parseDouble("not a number", 5.0));
@@ -24,7 +24,6 @@ class NumberHelperTest {
 
 	@Test
 	void testRound() {
-
 		assertEquals(20D, NumberHelper.round(20.000001, 2, RoundingMode.HALF_UP));
 		assertEquals(20, NumberHelper.round(20.000001, 0, RoundingMode.HALF_UP));
 		assertEquals(20D, NumberHelper.round(20.00, 1, RoundingMode.HALF_UP));

@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.agent.config.protocols;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,5 +37,4 @@ public class ProtocolsConfig {
 
 	@JsonSetter(nulls = SKIP)
 	private WinRmProtocolConfig winRm;
-
 }

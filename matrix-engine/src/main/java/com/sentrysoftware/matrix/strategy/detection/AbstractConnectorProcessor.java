@@ -4,6 +4,14 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
+import com.sentrysoftware.matrix.connector.model.identity.Detection;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.utils.ForceSerializationHelper;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,16 +23,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
-import com.sentrysoftware.matrix.connector.model.identity.Detection;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.strategy.utils.ForceSerializationHelper;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -37,12 +35,13 @@ public abstract class AbstractConnectorProcessor {
 
 	@NonNull
 	protected TelemetryManager telemetryManager;
+
 	@NonNull
 	protected MatsyaClientsExecutor matsyaClientsExecutor;
 
 	/**
 	 * Run the Detection job and returns the detected {@link ConnectorTestResult}
-	 * 
+	 *
 	 * @return The {@link List} of {@link ConnectorTestResult}
 	 */
 	public abstract List<ConnectorTestResult> run();
@@ -54,17 +53,16 @@ public abstract class AbstractConnectorProcessor {
 	 * @return
 	 */
 	public Stream<ConnectorTestResult> runAllConnectorsDetectionCriteria(
-			@NonNull Stream<Connector> connectors,
-			@NonNull HostConfiguration hostConfiguration) {
-
+		@NonNull Stream<Connector> connectors,
+		@NonNull HostConfiguration hostConfiguration
+	) {
 		final String hostname = hostConfiguration.getHostname();
 
 		return (
-			hostConfiguration.isSequential() ?
-				runConnectorsSequentially(connectors, hostname) : runConnectorsSimultaneously(connectors, hostname)
-		)
-		.stream();
-
+			hostConfiguration.isSequential()
+				? runConnectorsSequentially(connectors, hostname)
+				: runConnectorsSimultaneously(connectors, hostname)
+		).stream();
 	}
 
 	/**
@@ -74,13 +72,12 @@ public abstract class AbstractConnectorProcessor {
 	 * @return The result of each connector
 	 */
 	private List<ConnectorTestResult> runConnectorsSequentially(
-			@NonNull Stream<Connector> connectors,
-			@NonNull String hostname) {
+		@NonNull Stream<Connector> connectors,
+		@NonNull String hostname
+	) {
 		final List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
 
-		connectors.forEach(
-			connector -> connectorTestResults.add(runConnectorDetectionCriteria(connector, hostname))
-		);
+		connectors.forEach(connector -> connectorTestResults.add(runConnectorDetectionCriteria(connector, hostname)));
 
 		return connectorTestResults;
 	}
@@ -96,15 +93,14 @@ public abstract class AbstractConnectorProcessor {
 		@NonNull String hostname
 	) {
 		final List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
-		final List<ConnectorTestResult> connectorTestResultsSynchronized = Collections.synchronizedList(connectorTestResults);
+		final List<ConnectorTestResult> connectorTestResultsSynchronized = Collections.synchronizedList(
+			connectorTestResults
+		);
 
 		final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 
-		connectors.forEach(
-			connector -> threadsPool.execute(
-				() -> connectorTestResultsSynchronized.add(
-					runConnectorDetectionCriteria(connector, hostname)
-				)
+		connectors.forEach(connector ->
+			threadsPool.execute(() -> connectorTestResultsSynchronized.add(runConnectorDetectionCriteria(connector, hostname))
 			)
 		);
 
@@ -132,17 +128,16 @@ public abstract class AbstractConnectorProcessor {
 	 * @param connectorTestResult
 	 */
 	void updateSupersedes(@NonNull final Set<String> supersedes, @NonNull final ConnectorTestResult connectorTestResult) {
-		final Set<String> connectorSupersedes = connectorTestResult.getConnector().getConnectorIdentity().getDetection().getSupersedes();
+		final Set<String> connectorSupersedes = connectorTestResult
+			.getConnector()
+			.getConnectorIdentity()
+			.getDetection()
+			.getSupersedes();
 		if (connectorSupersedes == null || connectorSupersedes.isEmpty()) {
 			return;
 		}
 
-		supersedes.addAll(
-			connectorSupersedes
-				.stream()
-				.map(String::toLowerCase)
-				.collect(Collectors.toSet())
-		);
+		supersedes.addAll(connectorSupersedes.stream().map(String::toLowerCase).collect(Collectors.toSet()));
 	}
 
 	/**
@@ -157,9 +152,7 @@ public abstract class AbstractConnectorProcessor {
 		connectorTestResults.forEach(ctr -> monitorsSet.addAll(ctr.getConnector().getMonitors().keySet()));
 		return connectorTestResults
 			.stream()
-			.filter(ctr ->
-				monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort())
-			)
+			.filter(ctr -> monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort()))
 			.collect(Collectors.toList()); // NOSONAR
 	}
 
@@ -172,7 +165,6 @@ public abstract class AbstractConnectorProcessor {
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
 	protected CriterionTestResult processCriterion(final Criterion criterion, final Connector connector) {
-
 		// Instantiate criterionProcessor with matsyaClientsExecutor, telemetryManager and connector name
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			matsyaClientsExecutor,
@@ -210,7 +202,6 @@ public abstract class AbstractConnectorProcessor {
 		@NonNull final Connector connector,
 		@NonNull final Set<String> connectorNameSet
 	) {
-
 		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
 		if (connectorIdentity == null) {
 			return false;
@@ -231,10 +222,7 @@ public abstract class AbstractConnectorProcessor {
 	private ConnectorTestResult runConnectorDetectionCriteria(Connector connector, String hostname) {
 		final Detection detection = connector.getConnectorIdentity().getDetection();
 
-		final ConnectorTestResult connectorTestResult = ConnectorTestResult
-			.builder()
-			.connector(connector)
-			.build();
+		final ConnectorTestResult connectorTestResult = ConnectorTestResult.builder().connector(connector).build();
 
 		if (detection == null) {
 			log.warn(

@@ -1,18 +1,16 @@
 package com.sentrysoftware.matrix.connector.deserializer.criterion;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetCriterion;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 class SnmpGetCriterionDeserializerTest extends DeserializerTest {
 
@@ -67,7 +65,6 @@ class SnmpGetCriterionDeserializerTest extends DeserializerTest {
 			checkMessage(e, message);
 		}
 	}
-
 
 	@Test
 	/**

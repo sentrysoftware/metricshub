@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.update;
 
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,13 +16,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-
 public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdateChain {
 
 	/**
 	 * Get the adjacency collection of the sources in a job or under pre section
-	 * 
+	 *
 	 * @param sources       The sources map defined in the monitor's task or under the pre section.
 	 * @param context       Context pattern
 	 * @param sourceGroup  The index of a capturing source identifier group in the matcher's context pattern
@@ -32,7 +31,6 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		final Pattern context,
 		final int sourceGroup
 	) {
-
 		if (sources.isEmpty()) {
 			return new ArrayList<>();
 		}
@@ -40,8 +38,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		// Source path is a string like: ${source::monitors.enclosure.discovery.sources.Source1} // NOSONAR on comment
 		// Source identifier (id) is a string like: Source1
 
-
-		// mapLevels is key-value pairs where the key is the source level integer value and 
+		// mapLevels is key-value pairs where the key is the source level integer value and
 		// the value contains a set of source identifiers for the corresponding level
 		final Map<Integer, Set<String>> mapLevels = new LinkedHashMap<>();
 
@@ -56,36 +53,20 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 			.entrySet()
 			.stream()
 			.map(entry -> buildDependencyEntry(entry, context, sourceGroup))
-			.collect(
-				Collectors.toMap(
-					Entry::getKey,
-					Entry::getValue,
-					(v1, v2) -> v1
-				)
-			);
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (v1, v2) -> v1));
 
 		// All the source identifiers are pending
-		final Set<String> pendingSourceIds = sources
-			.entrySet()
-			.stream()
-			.map(Entry::getKey)
-			.collect(Collectors.toSet());
+		final Set<String> pendingSourceIds = sources.entrySet().stream().map(Entry::getKey).collect(Collectors.toSet());
 
 		// Initialize the Map of found dependencies
-		// With this map we will avoid looping over all the dependencies each time if all the 
+		// With this map we will avoid looping over all the dependencies each time if all the
 		// levels are not computed yet.
 		final Map<String, Map<String, Integer>> foundDependencies = sourceIdToDependencyIds
 			.entrySet()
 			.stream()
 			.filter(entry -> !entry.getValue().isEmpty())
 			.map(entry -> Map.entry(entry.getKey(), new HashMap<String, Integer>()))
-			.collect(
-				Collectors.toMap(
-					Entry::getKey,
-					Entry::getValue,
-					(v1, v2) -> v1
-				)
-			);
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (v1, v2) -> v1));
 
 		// Loop until all the pending source identifiers are processed
 		do {
@@ -93,13 +74,11 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 			// Loop over pending source identifiers
 			for (final String sourceId : pendingSourceIds) {
-
 				// Get dependency identifiers
 				final Set<String> dependencyIds = sourceIdToDependencyIds.get(sourceId);
 
 				// Does the current source depend on one or more sources from the current job context?
 				if (!dependencyIds.isEmpty()) {
-
 					// Dependencies already found
 					final Map<String, Integer> found = foundDependencies.get(sourceId);
 
@@ -109,7 +88,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 					// It means that all the dependencies are found
 					// In that case, let's add the source in the next level
 					if (found.size() == dependencyIds.size()) {
-						addSourceIdToLevel(mapLevels, sourceId, Collections.max(found.values()) + 1 , processedSourceIds);
+						addSourceIdToLevel(mapLevels, sourceId, Collections.max(found.values()) + 1, processedSourceIds);
 					}
 				} else {
 					// There is no dependency or the source depends on external dependencies.
@@ -121,24 +100,17 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 			// Remove processed sources, so that we continue the loop on the pending source identifiers
 			// to find next levels
 			pendingSourceIds.removeAll(processedSourceIds);
-
 		} while (!pendingSourceIds.isEmpty());
-
 
 		// Build the final result
 		// A result like: [ [Source1, Source2], [Source3] ]
-		return mapLevels
-			.values()
-			.stream()
-			.map(Function.identity())
-			.collect(Collectors.toList()); //NOSONAR;
+		return mapLevels.values().stream().map(Function.identity()).collect(Collectors.toList()); //NOSONAR;
 	}
-
 
 	/**
 	 * Loop over remaining dependencies in dependencyIds then for each dependency id try to find its
 	 * level.
-	 * 
+	 *
 	 * @param mapLevels Map of integer level to source identifiers
 	 * @param dependencyIds dependency source identifiers
 	 * @param found The dependencies that have already been found and removed from dependencyIds
@@ -148,10 +120,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		final Set<String> dependencyIds,
 		final Map<String, Integer> found
 	) {
-
-		final Set<String> remaining = dependencyIds
-			.stream()
-			.collect(Collectors.toSet());
+		final Set<String> remaining = dependencyIds.stream().collect(Collectors.toSet());
 		remaining.removeAll(found.keySet());
 
 		for (String depId : remaining) {
@@ -162,13 +131,12 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 				.findFirst()
 				.ifPresent(entry -> found.put(depId, entry.getKey()));
 		}
-
 	}
 
 	/**
 	 * Get the dependency of the given source. Use the context pattern to
 	 * extract all the dependency identifiers belonging to the current monitor task or pre section.
-	 * 
+	 *
 	 * @param sourceEntry The source entry (key-value) we want to extract its dependencies
 	 * @param context The context pattern which helps extracting a dependency identifier from a path reference
 	 * that only belongs to the current monitor task.
@@ -183,22 +151,16 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		final Pattern context,
 		final int sourceGroup
 	) {
-
 		final Source source = sourceEntry.getValue();
 		final String sourceId = sourceEntry.getKey();
 		final Set<String> references = source.getReferences();
-		return getContextDependencies(
-			sourceId,
-			context,
-			sourceGroup,
-			references.toArray(new String[references.size()])
-		);
+		return getContextDependencies(sourceId, context, sourceGroup, references.toArray(new String[references.size()]));
 	}
 
 	/**
 	 * Get the dependency of the given source identifier. Use the context pattern to
 	 * extract all the dependency identifiers belonging to the current monitor task or pre section.
-	 * 
+	 *
 	 * @param sourceId      The source identifier we want to extract its dependencies
 	 * @param context       The context pattern which helps extracting dependency identifier
 	 * that only belongs to the current monitor task.
@@ -210,14 +172,12 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		final String sourceId,
 		final Pattern context,
 		final int sourceGroup,
-		final String ...refs
+		final String... refs
 	) {
-
 		final Set<String> dependencies = new HashSet<>();
 
 		// Loop over the references and extract sources
 		for (String ref : refs) {
-
 			final Matcher includeMatcher = context.matcher(ref);
 
 			while (includeMatcher.find()) {
@@ -232,13 +192,13 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	/**
 	 * Add the given source identifier to the map levels and update the processed
 	 * sources set.
-	 * 
+	 *
 	 * @param mapLevels key-value pairs where the key is the source level and
 	 * the value contains a set of source identifiers for the corresponding level
 	 * @param sourceId the source id to be inserted in processedSources
 	 * @param level the level we wish to insert (integer value)
 	 * @param processedSources processed sources which we want to add the source to.
-	 * 
+	 *
 	 */
 	private static void addSourceIdToLevel(
 		final Map<Integer, Set<String>> mapLevels,
@@ -247,9 +207,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		final Set<String> processedSources
 	) {
 		// If the level is not yet available create it then add the key
-		mapLevels
-			.computeIfAbsent(level, k -> new LinkedHashSet<>())
-			.add(sourceId);
+		mapLevels.computeIfAbsent(level, k -> new LinkedHashSet<>()).add(sourceId);
 
 		// Add the source in the processedSources
 		processedSources.add(sourceId);
@@ -257,7 +215,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 	/**
 	 * Return the source identifiers REGEX such as source1|source2|source3
-	 * 
+	 *
 	 * @param sources monitor task sources or pre sources
 	 * @return String value
 	 */

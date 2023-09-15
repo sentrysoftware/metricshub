@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.converter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access =  AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConverterConstants {
 
 	public static final String EMPTY_STRING = "";
@@ -199,10 +199,14 @@ public class ConverterConstants {
 	public static final String YAML_SIZE = "size";
 	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
 	public static final String YAML_ADDITIONAL_LABEL = "additional_label";
-	public static final String YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD = "hw.other_device.value.limit{limit_type=\"degraded\"}";
-	public static final String YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD = "hw.other_device.value.limit{limit_type=\"critical\"}";
-	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"degraded\"}";
-	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"critical\"}";
+	public static final String YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD =
+		"hw.other_device.value.limit{limit_type=\"degraded\"}";
+	public static final String YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD =
+		"hw.other_device.value.limit{limit_type=\"critical\"}";
+	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD =
+		"hw.other_device.uses.limit{limit_type=\"degraded\"}";
+	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD =
+		"hw.other_device.uses.limit{limit_type=\"critical\"}";
 	public static final String YAML_DEVICE_TYPE = "device_type";
 	public static final String YAML_REMOTE_DEVICE_NAME = "remote_device_name";
 	public static final String YAML_LOCAL_DEVICE_NAME = "local_device_name";
@@ -294,8 +298,10 @@ public class ConverterConstants {
 	public static final String YAML_BLADE_POWER_STATE = "hw.blade.power_state";
 	public static final String YAML_CPU_POWER_LIMIT = "hw.power.limit{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_SPEED_LIMIT = "hw.cpu.speed.limit{limit_type=\"max\"}";
-	public static final String YAML_CPU_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"cpu\", limit_type=\"degraded\"}";
-	public static final String YAML_CPU_ERRORS_LIMIT_CRITICAL = "hw.errors.limit{hw.type=\"cpu\", limit_type=\"critical\"}";
+	public static final String YAML_CPU_ERRORS_LIMIT_DEGRADED =
+		"hw.errors.limit{hw.type=\"cpu\", limit_type=\"degraded\"}";
+	public static final String YAML_CPU_ERRORS_LIMIT_CRITICAL =
+		"hw.errors.limit{hw.type=\"cpu\", limit_type=\"critical\"}";
 	public static final String YAML_CPU_STATUS = "hw.status{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_PREDICTED_FAILURE = "hw.status{hw.type=\"cpu\", state=\"predicted_failure\"}";
 	public static final String YAML_CPU_SPEED = "hw.cpu.speed";
@@ -315,7 +321,8 @@ public class ConverterConstants {
 	public static final String YAML_ENCLOSURE_ENERGY = "hw.enclosure.energy";
 	public static final String YAML_ENCLOSURE_POWER = "hw.enclosure.power";
 	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
-	public static final String YAML_MEMORY_PREDICTED_FAILURE = "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
+	public static final String YAML_MEMORY_PREDICTED_FAILURE =
+		"hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
 	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
 	public static final String YAML_OTHER_DEVICE_STATUS = "hw.status{hw.type=\"other_device\"}";
 	public static final String YAML_OTHER_DEVICE_POWER = "hw.power{hw.type=\"other_device\"}";
@@ -324,8 +331,10 @@ public class ConverterConstants {
 	public static final String YAML_OTHER_DEVICE_VALUE = "hw.other_device.value";
 	public static final String YAML_FAN_SPEED_LIMIT_DEGRADED = "hw.fan.speed.limit{limit_type=\"low.degraded\"}";
 	public static final String YAML_FAN_SPEED_LIMIT_CRITICAL = "hw.fan.speed.limit{limit_type=\"low.critical\"}";
-	public static final String YAML_FAN_SPEED_RATIO_LIMIT_DEGRADED = "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}";
-	public static final String YAML_FAN_SPEED_RATIO_LIMIT_CRITICAL = "hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}";
+	public static final String YAML_FAN_SPEED_RATIO_LIMIT_DEGRADED =
+		"hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}";
+	public static final String YAML_FAN_SPEED_RATIO_LIMIT_CRITICAL =
+		"hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}";
 	public static final String YAML_FAN_STATUS = "hw.status{hw.type=\"fan\"}";
 	public static final String YAML_FAN_SPEED = "hw.fan.speed";
 	public static final String YAML_FAN_SPEED_RATIO = "hw.fan.speed_ratio";
@@ -344,24 +353,35 @@ public class ConverterConstants {
 	public static final String YAML_GPU_MEMORY_LIMIT = "hw.gpu.memory.limit";
 	public static final String YAML_GPU_UTILIZATION_LIMIT_DEGRADED = "hw.gpu.utilization.limit{limit_type=\"degraded\"}";
 	public static final String YAML_GPU_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.utilization.limit{limit_type=\"critical\"}";
-	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_DEGRADED = "hw.gpu.memory.utilization.limit{limit_type=\"degraded\"}";
-	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.memory.utilization.limit{limit_type=\"critical\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_DEGRADED =
+		"hw.gpu.memory.utilization.limit{limit_type=\"degraded\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_CRITICAL =
+		"hw.gpu.memory.utilization.limit{limit_type=\"critical\"}";
 	public static final String YAML_LUN_STATUS = "hw.status{hw.type=\"lun\"}";
 	public static final String YAML_LUN_PATHS = "hw.lun.paths";
 	public static final String YAML_LUN_PATHS_LIMIT_LOW_DEGRADED = "hw.lun.paths.limit{limit_type=\"low.degraded\"}";
 	public static final String YAML_AVAILABLE_PATH_INFORMATION = "AvailablePathInformation";
 	public static final String YAML_PHYSICAL_DISK_SIZE = "hw.physical_disk.size";
 	public static final String YAML_PHYSICAL_DISK_STATUS = "hw.status{hw.type=\"physical_disk\"}";
-	public static final String YAML_PHYSICAL_DISK_STATUS_PREDICTED_FAILURE = "hw.status{hw.type=\"physical_disk\", state=\"predicted_failure\"}";
+	public static final String YAML_PHYSICAL_DISK_STATUS_PREDICTED_FAILURE =
+		"hw.status{hw.type=\"physical_disk\", state=\"predicted_failure\"}";
 	public static final String YAML_PHYSICAL_DISK_ERRORS = "hw.errors{hw.type=\"physical_disk\"}";
-	public static final String YAML_PHYSICAL_DISK_ERRORS_TRANSPORT = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"transport\"}";
-	public static final String YAML_PHYSICAL_DISK_ERRORS_ILLEGAL_REQUEST = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"illegal_request\"}";
-	public static final String YAML_PHYSICAL_DISK_ERRORS_NO_DEVICE = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"no_device\"}";
-	public static final String YAML_PHYSICAL_DISK_ERRORS_DEVICE_NOT_READY = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"device_not_ready\"}";
-	public static final String YAML_PHYSICAL_DISK_ERRORS_RECOVERABLE = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"recoverable\"}";
-	public static final String YAML_PHYSICAL_DISK_ERRORS_HARD = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"hard\"}";
-	public static final String YAML_PHYSICAL_DISK_ERRORS_MEDIA = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"media\"}";
-	public static final String YAML_PHYSICAL_DISK_ENDURANCE_UTILIZATION_REMAINING = "hw.physical_disk.endurance_utilization{state=\"remaining\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_TRANSPORT =
+		"hw.errors{hw.type=\"physical_disk\", hw.error.type=\"transport\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_ILLEGAL_REQUEST =
+		"hw.errors{hw.type=\"physical_disk\", hw.error.type=\"illegal_request\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_NO_DEVICE =
+		"hw.errors{hw.type=\"physical_disk\", hw.error.type=\"no_device\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_DEVICE_NOT_READY =
+		"hw.errors{hw.type=\"physical_disk\", hw.error.type=\"device_not_ready\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_RECOVERABLE =
+		"hw.errors{hw.type=\"physical_disk\", hw.error.type=\"recoverable\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_HARD =
+		"hw.errors{hw.type=\"physical_disk\", hw.error.type=\"hard\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_MEDIA =
+		"hw.errors{hw.type=\"physical_disk\", hw.error.type=\"media\"}";
+	public static final String YAML_PHYSICAL_DISK_ENDURANCE_UTILIZATION_REMAINING =
+		"hw.physical_disk.endurance_utilization{state=\"remaining\"}";
 	public static final String YAML_VM_POWER_STATE = "hw.vm.power_state";
 	public static final String YAML_VM_POWER_RATIO = "hw.vm.power_ratio";
 	public static final String YAML_VM_POWER = "hw.power{hw.type=\"vm\"}";
@@ -372,16 +392,21 @@ public class ConverterConstants {
 	public static final String YAML_POWER_SUPPLY_LIMIT = "hw.power_supply.limit";
 	public static final String YAML_ROBOTICS_STATUS = "hw.status{hw.type=\"robotics\"}";
 	public static final String YAML_ROBOTICS_MOVES = "hw.robotics.moves";
-	public static final String YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"robotics\", limit_type=\"degraded\"}";
-	public static final String YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL = "hw.errors.limit{hw.type=\"robotics\", limit_type=\"critical\"}";
+	public static final String YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED =
+		"hw.errors.limit{hw.type=\"robotics\", limit_type=\"degraded\"}";
+	public static final String YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL =
+		"hw.errors.limit{hw.type=\"robotics\", limit_type=\"critical\"}";
 	public static final String YAML_ROBOTICS_ERRORS = "hw.errors{hw.type=\"robotics\"}";
-	public static final String YAML_TAPE_DRIVE_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"tape_drive\", limit_type=\"degraded\"}";
-	public static final String YAML_TAPE_DRIVE_ERRORS_LIMIT_CRITICAL = "hw.errors.limit{hw.type=\"tape_drive\", limit_type=\"critical\"}";
+	public static final String YAML_TAPE_DRIVE_ERRORS_LIMIT_DEGRADED =
+		"hw.errors.limit{hw.type=\"tape_drive\", limit_type=\"degraded\"}";
+	public static final String YAML_TAPE_DRIVE_ERRORS_LIMIT_CRITICAL =
+		"hw.errors.limit{hw.type=\"tape_drive\", limit_type=\"critical\"}";
 	public static final String YAML_TAPE_DRIVE_STATUS = "hw.status{hw.type=\"tape_drive\"}";
 	public static final String YAML_TAPE_DRIVE_ERRORS = "hw.errors{hw.type=\"tape_drive\"}";
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_MOUNT = "hw.tape_drive.operations{type=\"mount\"}";
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT = "hw.tape_drive.operations{type=\"unmount\"}";
-	public static final String YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING = "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}";
+	public static final String YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING =
+		"hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}";
 	public static final String YAML_VOLTAGE_STATUS = "hw.status{hw.type=\"voltage\"}";
 	public static final String YAML_VOLTAGE_VALUE = "hw.voltage";
 	public static final String YAML_TEMPERATURE_VALUE = "hw.temperature";
@@ -389,7 +414,8 @@ public class ConverterConstants {
 	public static final String YAML_NETWORK_STATUS = "hw.status{hw.type=\"network\"}";
 	public static final String YAML_NETWORK_UP = "hw.network.up";
 	public static final String YAML_NETWORK_FULL_DUPLEX = "hw.network.full_duplex";
-	public static final String YAML_NETWORK_ERROR_ZERO_BUFFER_CREDIT = "hw.errors{hw.type=\"network\", hw.error.type=\"zero_buffer_credit\"}";
+	public static final String YAML_NETWORK_ERROR_ZERO_BUFFER_CREDIT =
+		"hw.errors{hw.type=\"network\", hw.error.type=\"zero_buffer_credit\"}";
 	public static final String YAML_NETWORK_ERRORS = "hw.errors{hw.type=\"network\"}";
 	public static final String YAML_NETWORK_RECEIVED_BYTES = "hw.network.io{direction=\"receive\"}";
 	public static final String YAML_NETWORK_TRANSMITTED_BYTES = "hw.network.io{direction=\"transmit\"}";

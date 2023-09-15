@@ -4,27 +4,25 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.connector.model.monitor.task.MonoInstanceCollect;
+import com.sentrysoftware.matrix.connector.model.monitor.task.MultiInstanceCollect;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.connector.model.monitor.task.MonoInstanceCollect;
-import com.sentrysoftware.matrix.connector.model.monitor.task.MultiInstanceCollect;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 
 class MonitorsDeserializerTest extends DeserializerTest {
 
@@ -35,7 +33,6 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testMonitorsDiscovery() throws IOException {
-
 		final Connector connector = getConnector("monitorsDiscovery");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
@@ -134,13 +131,20 @@ class MonitorsDeserializerTest extends DeserializerTest {
 			.source("${source::monitors.enclosure.discovery.sources.source(7)}")
 			.attributes(
 				Map.of(
-					"id", "buildId($column(6))",
-					"parent", "",
-					"name", "buildName(Storage, EMC, $column(2), (, $column(7), ))",
-					"model", "$column(2)",
-					"vendor", "EMC",
-					"serial_number", "$column(3)",
-					"type", "Storage"
+					"id",
+					"buildId($column(6))",
+					"parent",
+					"",
+					"name",
+					"buildName(Storage, EMC, $column(2), (, $column(7), ))",
+					"model",
+					"$column(2)",
+					"vendor",
+					"EMC",
+					"serial_number",
+					"$column(3)",
+					"type",
+					"Storage"
 				)
 			)
 			.conditionalCollection(Map.of("hw.status", "$column(10)"))
@@ -151,7 +155,6 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testMonitorsMultiInstanceCollect() throws IOException {
-
 		final Connector connector = getConnector("monitorsMultiInstanceCollect");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
@@ -196,7 +199,6 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testMonitorsMonoInstanceCollect() throws IOException {
-
 		final Connector connector = getConnector("monitorsMonoInstanceCollect");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
@@ -239,7 +241,6 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testMonitorsSimple() throws IOException {
-
 		final Connector connector = getConnector("monitorsSimple");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
@@ -338,13 +339,20 @@ class MonitorsDeserializerTest extends DeserializerTest {
 			.source("${source::monitors.enclosure.simple.sources.Source(7)}")
 			.attributes(
 				Map.of(
-					"id", "buildId($column(6))",
-					"parent", "",
-					"name", "buildName(Storage, EMC, $column(2), (, $column(7), ))",
-					"model", "$column(2)",
-					"vendor", "EMC",
-					"serial_number", "$column(3)",
-					"type", "Storage"
+					"id",
+					"buildId($column(6))",
+					"parent",
+					"",
+					"name",
+					"buildName(Storage, EMC, $column(2), (, $column(7), ))",
+					"model",
+					"$column(2)",
+					"vendor",
+					"EMC",
+					"serial_number",
+					"$column(3)",
+					"type",
+					"Storage"
 				)
 			)
 			.conditionalCollection(Map.of("hw.status", "$column(10)"))

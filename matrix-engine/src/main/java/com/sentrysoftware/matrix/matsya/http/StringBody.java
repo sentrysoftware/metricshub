@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.matsya.http;
 
+import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.function.UnaryOperator;
 
 @Data
 @AllArgsConstructor
@@ -20,14 +19,7 @@ public class StringBody implements Body {
 
 	@Override
 	public String getContent(String username, char[] password, String authenticationToken, @NonNull String hostname) {
-
-		return HttpMacrosUpdater.update(
-			body,
-			username,
-			password,
-			authenticationToken,
-			hostname
-		);
+		return HttpMacrosUpdater.update(body, username, password, authenticationToken, hostname);
 	}
 
 	@Override

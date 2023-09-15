@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,11 +19,11 @@ public class KeepOnlyMatchingLines extends AbstractMatchingLines {
 	@Builder
 	@JsonCreator
 	public KeepOnlyMatchingLines(
-			@JsonProperty("type") String type, 
-			@JsonProperty(value = "column", required = true) @NonNull Integer column,
-			@JsonProperty("regExp") String regExp,
-			@JsonProperty("valueList") String valueList
-		) {
+		@JsonProperty("type") String type,
+		@JsonProperty(value = "column", required = true) @NonNull Integer column,
+		@JsonProperty("regExp") String regExp,
+		@JsonProperty("valueList") String valueList
+	) {
 		super(type, column, regExp, valueList);
 	}
 
@@ -35,13 +34,7 @@ public class KeepOnlyMatchingLines extends AbstractMatchingLines {
 
 	@Override
 	public KeepOnlyMatchingLines copy() {
-		return KeepOnlyMatchingLines
-			.builder()
-			.type(type)
-			.column(column)
-			.regExp(regExp)
-			.valueList(valueList)
-			.build();
+		return KeepOnlyMatchingLines.builder().type(type).column(column).regExp(regExp).valueList(valueList).build();
 	}
 
 	@Override

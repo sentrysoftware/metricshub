@@ -13,7 +13,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -22,7 +21,6 @@ class NetworkHelperTest {
 
 	@Test
 	void testIsLocalhost() throws Exception {
-
 		assertTrue(NetworkHelper.isLocalhost("localhost"));
 		assertTrue(NetworkHelper.isLocalhost("127.0.0.1"));
 		assertTrue(NetworkHelper.isLocalhost("0:0:0:0:0:0:0:1"));
@@ -44,7 +42,9 @@ class NetworkHelperTest {
 			final InetAddress mockedInetAddress = Mockito.mock(InetAddress.class);
 			try (MockedStatic<InetAddress> inetAddressMock = mockStatic(InetAddress.class)) {
 				inetAddressMock.when(() -> InetAddress.getByName(eq(randomHost))).thenReturn(mockedInetAddress);
-				networkInterface.when(() -> NetworkInterface.getByInetAddress(mockedInetAddress)).thenThrow(new SocketException());
+				networkInterface
+					.when(() -> NetworkInterface.getByInetAddress(mockedInetAddress))
+					.thenThrow(new SocketException());
 				assertFalse(NetworkHelper.isLocalhost(randomHost));
 			}
 		}
@@ -52,7 +52,6 @@ class NetworkHelperTest {
 
 	@Test
 	void testGetFqdn() throws Exception {
-
 		// hostname is null
 		assertNull(NetworkHelper.getFqdn(null));
 
@@ -70,22 +69,21 @@ class NetworkHelperTest {
 
 	@Test
 	void testResolveDns() throws Exception {
-
 		// hostname is null
 		assertNull(NetworkHelper.resolveDns(null));
 
 		// hostname is blank
 		String hostname = "   ";
 		assertNull(NetworkHelper.resolveDns(hostname));
-		
+
 		// hostname is empty
 		hostname = "";
 		assertNull(NetworkHelper.resolveDns(hostname));
-		
+
 		// hostname is an illegal hostname
 		hostname = "-host";
 		assertNull(NetworkHelper.resolveDns(hostname));
-		
+
 		// hostname can be resolved
 		hostname = "localhost";
 		assertNotNull(NetworkHelper.resolveDns(hostname));

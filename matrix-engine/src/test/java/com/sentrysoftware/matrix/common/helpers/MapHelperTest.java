@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.junit.jupiter.api.Test;
 
 class MapHelperTest {
@@ -31,7 +30,5 @@ class MapHelperTest {
 		final Map<String, String> concurrentHashMap = new ConcurrentHashMap<>();
 		concurrentHashMap.put("key", "value");
 		assertTrue(MapHelper.areEqual(Map.of("key", "value"), concurrentHashMap));
-
 	}
-
 }

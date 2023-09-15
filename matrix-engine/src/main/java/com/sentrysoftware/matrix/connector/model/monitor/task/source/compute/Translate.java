@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,7 +34,7 @@ public class Translate extends Compute {
 	@Builder
 	@JsonCreator
 	public Translate(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "translationTable", required = true) @NonNull String translationTable
 	) {
@@ -59,12 +57,7 @@ public class Translate extends Compute {
 
 	@Override
 	public Translate copy() {
-		return Translate
-			.builder()
-			.type(type)
-			.column(column)
-			.translationTable(translationTable)
-			.build();
+		return Translate.builder().type(type).column(column).translationTable(translationTable).build();
 	}
 
 	@Override

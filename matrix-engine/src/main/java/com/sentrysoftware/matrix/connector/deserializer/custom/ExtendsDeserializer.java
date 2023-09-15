@@ -26,5 +26,4 @@ public class ExtendsDeserializer extends AbstractNonBlankNonNullInCollectionDese
 	protected Collection<String> fromCollection(Collection<String> collection) {
 		return new LinkedHashSet<>(collection);
 	}
-
 }

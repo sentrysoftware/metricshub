@@ -1,17 +1,15 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -52,18 +50,17 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 
 		final Set<String> selectedConnectors = hostConfiguration.getSelectedConnectors();
 		if (selectedConnectors == null || selectedConnectors.isEmpty()) {
-			log.error("Hostname {} - No connectors have been selected for the detection. Stopping discovery operation.", hostname);
+			log.error(
+				"Hostname {} - No connectors have been selected for the detection. Stopping discovery operation.",
+				hostname
+			);
 			return Collections.emptyList();
 		}
 
-		return runAllConnectorsDetectionCriteria(connectorStore
-			.values()
-			.stream()
-			.filter(connector ->
-				isConnectorContainedInSet(connector, selectedConnectors)
-			),
+		return runAllConnectorsDetectionCriteria(
+			connectorStore.values().stream().filter(connector -> isConnectorContainedInSet(connector, selectedConnectors)),
 			hostConfiguration
 		)
-		.collect(Collectors.toList()); //NOSONAR
+			.collect(Collectors.toList()); //NOSONAR
 	}
 }

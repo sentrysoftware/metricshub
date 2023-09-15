@@ -10,7 +10,6 @@ public class TableHeader {
 	private final TextDataType type;
 
 	public TableHeader(String title, TextDataType type) {
-
 		Assert.notNull(title, "title cannot be null.");
 		Assert.notNull(type, "type cannot be null.");
 

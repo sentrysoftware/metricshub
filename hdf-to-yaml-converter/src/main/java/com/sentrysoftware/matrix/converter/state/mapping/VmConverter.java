@@ -16,20 +16,20 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_HOS
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER_RATIO;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM_POWER_STATE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class VmConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -39,11 +39,14 @@ public class VmConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_VM_POWER_STATE, IMappingKey.of(METRICS, YAML_VM_POWER_STATE));
-		metricsMap.put(HDF_VM_POWER_RATIO, IMappingKey.of(METRICS, YAML_VM_POWER_RATIO, AbstractMappingConverter::buildComputePowerShareRatio));
+		metricsMap.put(
+			HDF_VM_POWER_RATIO,
+			IMappingKey.of(METRICS, YAML_VM_POWER_RATIO, AbstractMappingConverter::buildComputePowerShareRatio)
+		);
 		metricsMap.put(HDF_POWER_CONSUMPTION, IMappingKey.of(METRICS, YAML_VM_POWER));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
@@ -71,10 +74,7 @@ public class VmConverter extends AbstractMappingConverter {
 			YAML_NAME,
 			new TextNode(
 				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(
-						displayId != null ? displayId : deviceId,
-						existingAttributes.get(HDF_HOSTNAME)
-					)
+					buildNameValue(displayId != null ? displayId : deviceId, existingAttributes.get(HDF_HOSTNAME))
 				)
 			)
 		);
@@ -89,7 +89,6 @@ public class VmConverter extends AbstractMappingConverter {
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode hostnameNode) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (hostnameNode == null) {
 			return firstArg;
@@ -120,17 +119,10 @@ public class VmConverter extends AbstractMappingConverter {
 			final JsonNode powerConsumption = metrics.get(YAML_VM_POWER);
 			if (powerConsumption != null) {
 				((ObjectNode) metrics).set(
-					YAML_VM_ENERGY,
-					new TextNode(
-						buildFakeCounterFunction(
-							getFunctionArgument(
-								powerConsumption.asText()
-							)
-						)
-					)
-				);
+						YAML_VM_ENERGY,
+						new TextNode(buildFakeCounterFunction(getFunctionArgument(powerConsumption.asText())))
+					);
 			}
 		}
 	}
-
 }

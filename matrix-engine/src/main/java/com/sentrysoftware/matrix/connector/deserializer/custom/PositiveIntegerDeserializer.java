@@ -10,8 +10,9 @@ public class PositiveIntegerDeserializer extends JsonDeserializer<Integer> {
 
 	@Override
 	public Integer deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
-		if (parser == null)
+		if (parser == null) {
 			return null;
+		}
 
 		final String key = parser.getCurrentName();
 
