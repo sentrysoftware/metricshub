@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_QUERY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_PROCESS_QUERY;
 import static com.sentrysoftware.matrix.constants.Constants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -588,7 +588,7 @@ class CriterionProcessorTest {
 				.executeWql(
 					LOCALHOST,
 					localWmiConfiguration,
-					CRITERION_PROCESSOR_VISITOR_QUERY,
+					WMI_PROCESS_QUERY,
 					CRITERION_WMI_NAMESPACE
 				);
 

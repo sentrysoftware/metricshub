@@ -81,7 +81,7 @@ public class TelemetryManager {
 	 * @param type
 	 * @return Monitor instance
 	 */
-	private Map<String, Monitor> findMonitorByType(final String type) {
+	public Map<String, Monitor> findMonitorByType(final String type) {
 		return this.getMonitors() == null ? null : this.getMonitors().get(type);
 	}
 
