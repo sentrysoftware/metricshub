@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
@@ -696,7 +695,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		WmiCriterion serviceWmiCriterion = WmiCriterion
 			.builder()
 			.query(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
-			.namespace(CRITERION_PROCESSOR_VISITOR_NAMESPACE)
+			.namespace(WMI_NAMESPACE)
 			.build();
 
 		// Perform this WMI test

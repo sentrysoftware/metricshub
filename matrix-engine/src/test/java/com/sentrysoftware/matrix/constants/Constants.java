@@ -223,6 +223,8 @@ public class Constants {
 	public static final String OS_TYPE = "os.type";
 	public static final String HOST_NAME = "host.name";
 	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
+	public static final String HARDCODED_SOURCE = "Hardcoded Source";
+	public static final String SOURCE_REF_KEY = "${source::monitors.cpu.discovery.sources.source5}";
 	public static final String DISK_CONTROLLER = "disk_controller";
 	public static final String PHYSICAL_DISK = "physical_disk";
 	public static final String LOGICAL_DISK = "logical_disk";

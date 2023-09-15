@@ -13,8 +13,8 @@ import org.springframework.util.Assert;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_NAMESPACE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CRITERION_PROCESSOR_VISITOR_QUERY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_DEFAULT_NAMESPACE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_PROCESS_QUERY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
@@ -47,8 +47,8 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 		final WmiCriterion criterion = WmiCriterion
 			.builder()
-			.query(CRITERION_PROCESSOR_VISITOR_QUERY)
-			.namespace(CRITERION_PROCESSOR_VISITOR_NAMESPACE)
+			.query(WMI_PROCESS_QUERY)
+			.namespace(WMI_DEFAULT_NAMESPACE)
 			.expectedResult(command)
 			.build();
 

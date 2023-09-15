@@ -121,12 +121,12 @@ public class MatrixConstants {
 	public static final String ENGINE_VERSION_PROPERTY = "engine.version";
 
 	/**
-	 * Criterions and detection
+	 * Criteria and detection
 	 **/
 	public static final String SUCCESSFUL_OS_DETECTION_MESSAGE = "Successful OS detection operation";
 
-	public static final String CRITERION_PROCESSOR_VISITOR_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
-	public static final String CRITERION_PROCESSOR_VISITOR_NAMESPACE = "root\\cimv2";
+	public static final String WMI_PROCESS_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
+	public static final String WMI_DEFAULT_NAMESPACE = "root\\cimv2";
 
 	/**
 	 * Files
