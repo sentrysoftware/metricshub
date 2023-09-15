@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
@@ -238,7 +239,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute LeftConcat Exec")
 	public void process(@SpanAttribute("compute.definition") final LeftConcat leftConcat) {
-		// TODO Auto-generated method stub
+		processAbstractConcat(leftConcat);
 	}
 
 	@Override
@@ -281,7 +282,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute RightConcat Exec")
 	public void process(@SpanAttribute("compute.definition") final RightConcat rightConcat) {
-		// TODO Auto-generated method stub
+		processAbstractConcat(rightConcat);
 	}
 
 	@Override
@@ -460,5 +461,112 @@ public class ComputeProcessor implements IComputeProcessor {
 	static Integer getColumnIndex(final String value) {
 		final Matcher matcher = COLUMN_PATTERN.matcher(value);
 		return matcher.matches() ? Integer.parseInt(matcher.group(1)) - 1 : -1;
+	}
+
+	/**
+	 * Process the LeftConcat and RightConcat Computes
+	 * @param abstractConcat
+	 */
+	private void processAbstractConcat(final AbstractConcat abstractConcat) {
+
+		boolean firstChecks = abstractConcat != null && abstractConcat.getValue() != null
+			&& abstractConcat.getColumn() != null && abstractConcat.getColumn() > 0 && sourceTable != null
+			&& sourceTable.getTable() != null && !sourceTable.getTable().isEmpty();
+
+			if (firstChecks) {
+
+				// Case 1 : concatenation with an exiting column
+				if (abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
+
+					int columnIndex = abstractConcat.getColumn() - 1;
+					String concatString = abstractConcat.getValue();
+
+					// If abstractConcat.getValue() is like "$n",
+					// we concat the column n instead of abstractConcat.getString()
+					Matcher matcher = COLUMN_PATTERN.matcher(concatString);
+					if (matcher.matches()) {
+
+						int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
+						if (concatColumnIndex < sourceTable.getTable().get(0).size()) {
+
+							sourceTable.getTable().forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
+						}
+
+					} else {
+
+						sourceTable.getTable().forEach(line -> concatString(line, columnIndex, abstractConcat));
+
+						// Serialize and deserialize
+						// in case the String to concat contains a ';'
+						// so that a new column is created.
+						if (concatString.contains(TABLE_SEP)) {
+
+							sourceTable.setTable(SourceTable.csvToTable(
+								SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP));
+						}
+					}
+				}
+
+				// Case 2 : concatenation with non existing column
+				else if (abstractConcat.getColumn() == sourceTable.getTable().get(0).size() + 1) {
+					// add at the end of the list (or at the beginning if the list is empty)
+					sourceTable.getTable().forEach(line -> line.add(abstractConcat.getValue()));
+				}
+				sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+			}
+	}
+
+	/**
+	 * Concatenates the values at <i>columnIndex</i> and <i>concatColumnIndex</i> on the given line,
+	 * and stores the result at <i>columnIndex</i>.<br>
+	 *
+	 * Whether the value at <i>concatColumnIndex</i> goes to the left or to the right of the value at <i>columnIndex</i>
+	 * depends on the type of the given {@link AbstractConcat}.
+	 *
+	 * @param line				The line on which the concatenation will be performed.
+	 * @param columnIndex		The index of the column
+	 *                          holding the value that should be concatenated to the value at <i>concatColumnIndex</i>.
+	 *                          The result will be stored at <i>columnIndex</i>.
+	 * @param concatColumnIndex	The index of the column
+	 *                          holding the value that should be concatenated to the value at <i>columnIndex</i>.
+	 * @param abstractConcat	The {@link AbstractConcat} used to determine
+	 *                          whether the concatenation should be a left concatenation or a right concatenation.
+	 */
+	private void concatColumns(
+		final List<String> line,
+		final int columnIndex,
+		final int concatColumnIndex,
+		final AbstractConcat abstractConcat
+	) {
+
+		String result = abstractConcat instanceof LeftConcat
+			? line.get(concatColumnIndex).concat(line.get(columnIndex))
+			: line.get(columnIndex).concat(line.get(concatColumnIndex));
+
+		line.set(columnIndex, result);
+	}
+
+	/**
+	 * Concatenates the value at <i>columnIndex</i> on the given line
+	 * with the given {@link AbstractConcat}'s <i>getString()</i> value,
+	 * and stores the result at <i>columnIndex</i>.<br>
+	 *
+	 * Whether {@link AbstractConcat#getString()} goes to the left or to the right of the value at <i>columnIndex</i>
+	 * depends on the type of {@link AbstractConcat}.
+	 *
+	 * @param line				The line on which the concatenation will be performed.
+	 * @param columnIndex		The index of the column
+	 *                          holding the value that should be concatenated to {@link AbstractConcat#getString()}.
+	 *                          The result will be stored at <i>columnIndex</i>.
+	 * @param abstractConcat	The {@link AbstractConcat} used to determine
+	 *                          whether the concatenation should be a left concatenation or a right concatenation.
+	 */
+	private void concatString(final List<String> line, final int columnIndex, final AbstractConcat abstractConcat) {
+
+		String result = abstractConcat instanceof LeftConcat
+			? abstractConcat.getValue().concat(line.get(columnIndex))
+			: line.get(columnIndex).concat(abstractConcat.getValue());
+
+		line.set(columnIndex, result);
 	}
 }
