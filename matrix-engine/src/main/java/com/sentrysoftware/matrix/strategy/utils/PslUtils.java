@@ -55,11 +55,13 @@ public class PslUtils {
 			if (c == BACKSLASH_CHAR && i < pslRegex.length() - 1) {
 				i = handleBackSlash(pslRegex, inRange, i, javaRegex);
 			} else if (
+				// CHECKSTYLE:OFF
 				c == OPENING_PARENTHESIS_CHAR ||
 				c == CLOSING_PARENTHESIS_CHAR ||
 				c == PIPE_CHAR ||
 				c == OPENING_CURLY_BRACKET_CHAR ||
 				c == CLOSING_CURLY_BRACKET_CHAR
+				// CHECKSTYLE:ON
 			) {
 				javaRegex.append(BACKSLASH_CHAR).append(c);
 			} else if (c == OPENING_SQUARE_BRACKET_CHAR) {

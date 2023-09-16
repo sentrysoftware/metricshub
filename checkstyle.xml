@@ -30,6 +30,15 @@
 
   <module name="TreeWalker">
 
+    <module name="Indentation">
+      <property name="basicOffset" value="8"/>
+      <property name="braceAdjustment" value="0"/>
+      <property name="caseIndent" value="8"/>
+      <property name="throwsIndent" value="8"/>
+      <property name="lineWrappingIndentation" value="8"/>
+      <property name="arrayInitIndent" value="8"/>
+    </module>
+  
 		<!-- Checks for Naming Conventions.                  -->
 		<!-- See http://checkstyle.sf.net/config_naming.html -->
 		<module name="ConstantName"/>
@@ -157,6 +166,8 @@
       <property name="allowSamelineSingleParameterlessAnnotation" value="false"/>
       <property name="allowSamelineParameterizedAnnotation" value="false"/>
     </module>
+
+    <module name="SuppressionCommentFilter"/>
 
   </module>
 </module>

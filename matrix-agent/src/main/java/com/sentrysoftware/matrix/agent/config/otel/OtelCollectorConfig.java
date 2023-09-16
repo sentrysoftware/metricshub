@@ -112,6 +112,7 @@ public class OtelCollectorConfig {
 			return false;
 		}
 		OtelCollectorConfig other = (OtelCollectorConfig) obj;
+		// CHECKSTYLE:OFF
 		return (
 			Objects.equals(commandLine, other.commandLine) &&
 			disabled == other.disabled &&
@@ -119,6 +120,7 @@ public class OtelCollectorConfig {
 			output == other.output &&
 			Objects.equals(workingDir, other.workingDir)
 		);
+		// CHECKSTYLE:ON
 	}
 
 	@Override

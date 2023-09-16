@@ -41,7 +41,6 @@ import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -113,12 +112,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		final DeviceKind deviceKind = telemetryManager.getHostConfiguration().getHostType();
 
-		if (
-			(DeviceKind.SOLARIS.equals(deviceKind) &&
-				!isDeviceKindIncluded(Arrays.asList(DeviceKind.SOLARIS, DeviceKind.SOLARIS), deviceTypeCriterion)) ||
-			(!DeviceKind.SOLARIS.equals(deviceKind) &&
-				!isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion))
-		) {
+		if (!isDeviceKindIncluded(Collections.singletonList(deviceKind), deviceTypeCriterion)) {
 			return CriterionTestResult
 				.builder()
 				.message("Failed OS detection operation")
@@ -416,11 +410,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// Or if the command is listed in useSudoCommandList (possible only in classic
 		// wizard) --> yes
 		String ipmitoolCommand; // Sonar don't agree with modifying arguments
-		if (
-			osCommandConfiguration.isUseSudo() ||
-			(osCommandConfiguration.getUseSudoCommands() != null &&
-				osCommandConfiguration.getUseSudoCommands().contains("ipmitool"))
-		) {
+		if (doesIpmitoolRequireSudo(osCommandConfiguration)) {
 			ipmitoolCommand =
 				"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ".replace(
 						"%{SUDO:ipmitool}",
@@ -472,6 +462,22 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// At the very end of the command line, the actual IPMI command
 		ipmitoolCommand = ipmitoolCommand + " bmc info";
 		return ipmitoolCommand;
+	}
+
+	/**
+	 * Whether the ipmitool command requires sudo
+	 *
+	 * @param osCommandConfiguration User's configuration
+	 * @return boolean value
+	 */
+	private boolean doesIpmitoolRequireSudo(final OsCommandConfiguration osCommandConfiguration) {
+		// CHECKSTYLE:OFF
+		return (
+			osCommandConfiguration.isUseSudo() ||
+			(osCommandConfiguration.getUseSudoCommands() != null &&
+				osCommandConfiguration.getUseSudoCommands().contains("ipmitool"))
+		);
+		// CHECKSTYLE:ON
 	}
 
 	/**

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 public interface IMappingConverter {
-
 	/**
 	 * Convert the HDF collect property into a connector YAML collect property
 	 *

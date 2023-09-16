@@ -213,15 +213,26 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	private SourceTable runExecuteForEachEntryOf(final Source copy) {
 		final SourceTable result = processExecuteForEachEntryOf(copy, copy.getExecuteForEachEntryOf());
 
-		if (
-			(EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod()) ||
-				EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod())) &&
-			result != null
-		) {
+		if (result != null && isEntryConcatMethodJsonArrayOrExtended(copy)) {
 			result.setRawData(String.format("[%s]", result.getRawData()));
 		}
 
 		return result;
+	}
+
+	/**
+	 * Whether this source copy indicates and entry concatenation method for JSON array or JSON array extended
+	 *
+	 * @param copy {@link Source} instance copy
+	 * @return boolean value
+	 */
+	private boolean isEntryConcatMethodJsonArrayOrExtended(final Source copy) {
+		// CHECKSTYLE:OFF
+		return (
+			EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod()) ||
+			EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod())
+		);
+		// CHECKSTYLE:ON
 	}
 
 	/**
@@ -257,13 +268,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	String replaceSourceReference(final String value, final Source source) {
 		// Source shouldn't be replaced when it is an instance of TableJoinSource, TableUnionSource and ReferenceSource
 		// All these sources need the reference to perform the job correctly. See SourceVisitor implementation.
-		if (
-			value == null ||
-			source instanceof CopySource ||
-			source instanceof StaticSource ||
-			source instanceof TableUnionSource ||
-			source instanceof TableJoinSource
-		) {
+		if (value == null || isSourceWithProtectedReferences(source)) {
 			return value;
 		}
 
@@ -274,6 +279,23 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			source.getClass().getSimpleName(),
 			source.getKey()
 		);
+	}
+
+	/**
+	 * Whether this source must have protected references that shouldn't be replaced by the current updater
+	 *
+	 * @param source {@link Source} instance
+	 * @return boolean value
+	 */
+	private boolean isSourceWithProtectedReferences(final Source source) {
+		// CHECKSTYLE:OFF
+		return (
+			source instanceof CopySource ||
+			source instanceof StaticSource ||
+			source instanceof TableUnionSource ||
+			source instanceof TableJoinSource
+		);
+		// CHECKSTYLE:ON
 	}
 
 	/**

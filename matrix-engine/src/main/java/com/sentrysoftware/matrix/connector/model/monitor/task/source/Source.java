@@ -103,11 +103,13 @@ public abstract class Source implements Serializable {
 	 *         <code>false</code>
 	 */
 	public boolean isExecuteForEachEntryOf() {
+		// CHECKSTYLE:OFF
 		return (
 			executeForEachEntryOf != null &&
 			executeForEachEntryOf.getSource() != null &&
 			!executeForEachEntryOf.getSource().isBlank()
 		);
+		// CHECKSTYLE:ON
 	}
 
 	/**

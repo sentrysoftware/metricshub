@@ -7,6 +7,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 public enum AlertOperator {
+	// CHECKSTYLE:OFF
 	EQ(
 		(paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() == threshold.doubleValue(),
 		"=="
@@ -31,6 +32,8 @@ public enum AlertOperator {
 		(paramValue, threshold) -> nonNull(paramValue, threshold) && paramValue.doubleValue() != threshold.doubleValue(),
 		"!="
 	);
+
+	// CHECKSTYLE:ON
 
 	@Getter
 	private BiPredicate<Double, Double> function;

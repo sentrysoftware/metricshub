@@ -371,25 +371,49 @@ public class WqlDetectionHelper {
 
 		if (t instanceof WBEMException wbemException) {
 			final int cimErrorType = wbemException.getID();
-			return (
-				cimErrorType == WBEMException.CIM_ERR_INVALID_NAMESPACE ||
-				cimErrorType == WBEMException.CIM_ERR_INVALID_CLASS ||
-				cimErrorType == WBEMException.CIM_ERR_NOT_FOUND
-			);
+			return isAcceptableWbemError(cimErrorType);
 		} else if (t instanceof WmiComException) {
 			final String message = t.getMessage();
-			return (
-				message != null &&
-				(message.contains("WBEM_E_NOT_FOUND") ||
-					message.contains("WBEM_E_INVALID_NAMESPACE") ||
-					message.contains("WBEM_E_INVALID_CLASS"))
-			);
+			return isAcceptableWmiComError(message);
 		} else if (t instanceof WqlQuerySyntaxException) {
 			return true;
 		}
 
 		// Now check recursively the cause
 		return isAcceptableException(t.getCause());
+	}
+
+	/**
+	 * Whether this error message is an acceptable WMI COM error.
+	 *
+	 * @param errorMessage string value representing the message of the WMI COM exception
+	 * @return boolean value
+	 */
+	private static boolean isAcceptableWmiComError(final String errorMessage) {
+		// CHECKSTYLE:OFF
+		return (
+			errorMessage != null &&
+			(errorMessage.contains("WBEM_E_NOT_FOUND") ||
+				errorMessage.contains("WBEM_E_INVALID_NAMESPACE") ||
+				errorMessage.contains("WBEM_E_INVALID_CLASS"))
+		);
+		// CHECKSTYLE:ON
+	}
+
+	/**
+	 * Whether this error id is an acceptable WBEM error.
+	 *
+	 * @param errorId integer value representing the id of the WBEM exception
+	 * @return boolean value
+	 */
+	private static boolean isAcceptableWbemError(final int errorId) {
+		// CHECKSTYLE:OFF
+		return (
+			errorId == WBEMException.CIM_ERR_INVALID_NAMESPACE ||
+			errorId == WBEMException.CIM_ERR_INVALID_CLASS ||
+			errorId == WBEMException.CIM_ERR_NOT_FOUND
+		);
+		// CHECKSTYLE:ON
 	}
 
 	@Data
