@@ -52,7 +52,7 @@
 		<ddog.version>1.0.00</ddog.version>
 		<hwgraf.version>4</hwgraf.version>
 		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
-		<prettier-maven-plugin.version>0.16</prettier-maven-plugin.version>
+		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>1.5.0</prettierJava.version>
 	</properties>
 
