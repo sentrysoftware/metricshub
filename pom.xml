@@ -52,6 +52,8 @@
 		<ddog.version>1.0.00</ddog.version>
 		<hwgraf.version>4</hwgraf.version>
 		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
+		<prettier-maven-plugin.version>0.16</prettier-maven-plugin.version>
+		<prettierJava.version>1.5.0</prettierJava.version>
 	</properties>
 
 	<modules>
@@ -395,6 +397,25 @@
 					<artifactId>hdf-maven-plugin</artifactId>
 					<version>5.0</version>
 				</plugin>
+				<plugin>
+					<groupId>com.hubspot.maven.plugins</groupId>
+					<artifactId>prettier-maven-plugin</artifactId>
+					<version>${prettier-maven-plugin.version}</version>
+					<configuration>
+						<prettierJavaVersion>${prettierJava.version}</prettierJavaVersion>
+						<printWidth>120</printWidth>
+						<tabWidth>2</tabWidth>
+						<useTabs>true</useTabs>
+						<ignoreConfigFile>false</ignoreConfigFile>
+						<ignoreEditorConfig>false</ignoreEditorConfig>
+						<disableGenericsLinebreaks>true</disableGenericsLinebreaks>
+						<endOfLine>lf</endOfLine>
+						<inputGlobs>
+							<inputGlob>src/main/java/**/*.java</inputGlob>
+							<inputGlob>src/test/java/**/*.java</inputGlob>
+						</inputGlobs>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -550,6 +571,19 @@
 						<phase>validate</phase>
 						<goals>
 							<goal>checkstyle</goal>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.hubspot.maven.plugins</groupId>
+				<artifactId>prettier-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
 							<goal>check</goal>
 						</goals>
 					</execution>

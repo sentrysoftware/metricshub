@@ -302,8 +302,7 @@ public class CollectStrategy extends AbstractStrategy {
 			// In case of multi-instance, this method argument "monitor" is null. So, we try to find it by type and connector
 			if (monitor == null) {
 				// Use the mapping processor to extract attributes and resource
-				final Map<String, String> noContextAttributeInterpretedValues =
-					mappingProcessor.interpretNonContextMappingAttributes();
+				final Map<String, String> noContextAttributeInterpretedValues = mappingProcessor.interpretNonContextMappingAttributes();
 
 				final String monitorId = noContextAttributeInterpretedValues.get(MONITOR_ATTRIBUTE_ID);
 				if (monitorId == null) {

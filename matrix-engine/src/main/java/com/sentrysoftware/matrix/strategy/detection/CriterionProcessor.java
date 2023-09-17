@@ -474,8 +474,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// CHECKSTYLE:OFF
 		return (
 			osCommandConfiguration.isUseSudo() ||
-			(osCommandConfiguration.getUseSudoCommands() != null &&
-				osCommandConfiguration.getUseSudoCommands().contains("ipmitool"))
+			(
+				osCommandConfiguration.getUseSudoCommands() != null &&
+				osCommandConfiguration.getUseSudoCommands().contains("ipmitool")
+			)
 		);
 		// CHECKSTYLE:ON
 	}
@@ -1191,8 +1193,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 		synchronized (possibleWmiNamespaces) {
 			if (possibleWmiNamespaces.isEmpty()) {
 				// If we don't have this list already, figure it out now
-				final WqlDetectionHelper.PossibleNamespacesResult possibleWmiNamespacesResult =
-					wqlDetectionHelper.findPossibleNamespaces(hostname, winConfiguration);
+				final WqlDetectionHelper.PossibleNamespacesResult possibleWmiNamespacesResult = wqlDetectionHelper.findPossibleNamespaces(
+					hostname,
+					winConfiguration
+				);
 
 				// If we can't detect the namespace then we must stop
 				if (!possibleWmiNamespacesResult.isSuccess()) {
@@ -1254,8 +1258,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 		synchronized (possibleWbemNamespaces) {
 			if (possibleWbemNamespaces.isEmpty()) {
 				// If we don't have this list already, figure it out now
-				final WqlDetectionHelper.PossibleNamespacesResult possibleWbemNamespacesResult =
-					wqlDetectionHelper.findPossibleNamespaces(hostname, wbemConfiguration);
+				final WqlDetectionHelper.PossibleNamespacesResult possibleWbemNamespacesResult = wqlDetectionHelper.findPossibleNamespaces(
+					hostname,
+					wbemConfiguration
+				);
 
 				// If we can't detect the namespace then we must stop
 				if (!possibleWbemNamespacesResult.isSuccess()) {

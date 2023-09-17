@@ -245,8 +245,7 @@ public class DiscoveryStrategy extends AbstractStrategy {
 				.build();
 
 			// Use the mapping processor to extract attributes and resource
-			final Map<String, String> noContextAttributeInterpretedValues =
-				mappingProcessor.interpretNonContextMappingAttributes();
+			final Map<String, String> noContextAttributeInterpretedValues = mappingProcessor.interpretNonContextMappingAttributes();
 
 			final Resource resource = mappingProcessor.interpretMappingResource();
 

@@ -54,8 +54,7 @@ class SourceTest {
 
 	@Test
 	void testReferencesIpmi() throws IOException {
-		final String ipmiYaml =
-			"""
+		final String ipmiYaml = """
 			type: ipmi
 			forceSerialization: false
 			""";
@@ -112,8 +111,7 @@ class SourceTest {
 
 	@Test
 	void testReferencesStatic() throws IOException {
-		final String staticSourceYaml =
-			"""
+		final String staticSourceYaml = """
 			type: static
 			value: ${source::monitors.cpu.discovery.sources.source1}
 			""";

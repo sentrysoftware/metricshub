@@ -52,71 +52,40 @@ The Checkstyle rules that govern our code quality and style are defined in the `
 
 The build will fail if one or more Checkstyle rules are violated.
 
+To perform Checkstyle analysis and generate a report on violations, navigate to the directory of the Maven project you wish check and run the following `mvn` command:
+
+```bash
+mvn checkstyle:checkstyle
+```
+
 All the encountered Checkstyle issues are reported under the `target/site` directory.
 
-### Code Formatting
+To perform Checkstyle analysis and output violations to the console, navigate to the directory of the Maven project you wish check and run the following `mvn` command:
+
+```bash
+mvn checkstyle:check
+```
+
+## Code Formatting
 
 In this project, we maintain code formatting using `prettier-java`, a tool that helps ensure clean and consistent Java code. It automatically formats your code according to a predefined set of rules.
 
-#### Prerequisites
+### Prettier Maven Plugin
 
-- [Node version](https://nodejs.org/en/download/releases/) 10+
-- [Prettier](https://github.com/prettier/prettier)
-
-#### Installation
-
-Before you start contributing to this project, it's essential to set up `prettier-java` on your local machine. Follow these steps to install it:
-
-1. Visit the GitHub repository: [https://github.com/jhipster/prettier-java](https://github.com/jhipster/prettier-java)
-
-2. Follow the installation guidelines provided in the repository's README.
+To automatically format the Java code in a specific Maven module, navigate to the directory of the Maven project you wish to format and run the following `mvn` command:
 
 ```bash
-# Local installation
-npm install prettier-plugin-java --save-dev
-
-# Or globally
-npm install -g prettier prettier-plugin-java
+mvn prettier:write
 ```
 
-#### Configuration
-
-To ensure a consistent code formatting experience, we provide a `.prettierrc.yaml` configuration file in the root directory of the project. This configuration file defines the formatting rules and options used by 'prettier-java'. You don't need to modify this file unless you have specific formatting preferences.
-
-#### Command Line Execution
-
-Once `prettier-java` is installed, you can format your Java code effortlessly.
-Simply navigate to your project directory and run the command on the files or directories you want to format. Examples:
+To validate the formatted code, navigate to the directory of the Maven project you wish to check and run the following `mvn` command:
 
 ```bash
-# If you have installed the package locally
-npx prettier --write "**/*.java"
+mvn prettier:check
 ```
 
-To format specific java files you can run:
+The build will fail if you forgot to run Prettier.
 
-```bash
-# Format a single file
-npx prettier --write path/to/YourJavaFile.java
+## Submitting a PR
 
-# Format all Java files in a directory
-npx prettier --write path/to/YourJavaDirectory
-````
-
-#### Eclipse Setup
-
-##### Configuration
-
-1. Go to External Tools > External Tools Configurations...
-
-2. Create a new External Tools Configuration.
-
-3. Configure the following settings in your External Tools Configuration:
-   * **Name**: Give your configuration a descriptive name, e.g., `Prettier-on-Java`.
-   * **Location (Command)**: Set this to the full path of the `npx.cmd` executable, which is `C:\Program Files\nodejs\npx.cmd`.
-   * **Arguments**: Enter the arguments you want to pass to `npx.cmd`, in this case, `prettier --write "**/*.java"`.
-   * **Working Directory**: Set this to `${workspace_loc:/matrix-reloaded}` to ensure the command runs in the correct directory. Thus, `.prettierrc.yaml` is correctly loaded.
-
-##### Execution
-
-Go to External Tools > click `Prettier-on-Java` to format the code.
+Before you submit a PR, make sure to use the available tools for code formatting, and ensure that the style checks and unit tests pass.

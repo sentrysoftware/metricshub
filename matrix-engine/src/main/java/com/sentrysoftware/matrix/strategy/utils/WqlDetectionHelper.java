@@ -393,9 +393,11 @@ public class WqlDetectionHelper {
 		// CHECKSTYLE:OFF
 		return (
 			errorMessage != null &&
-			(errorMessage.contains("WBEM_E_NOT_FOUND") ||
+			(
+				errorMessage.contains("WBEM_E_NOT_FOUND") ||
 				errorMessage.contains("WBEM_E_INVALID_NAMESPACE") ||
-				errorMessage.contains("WBEM_E_INVALID_CLASS"))
+				errorMessage.contains("WBEM_E_INVALID_CLASS")
+			)
 		);
 		// CHECKSTYLE:ON
 	}

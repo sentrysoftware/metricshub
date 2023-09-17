@@ -126,9 +126,11 @@ public class ComputeProcessor implements IComputeProcessor {
 						columnIndex,
 						String.valueOf(
 							(long) Double.parseDouble(line.get(columnIndex)) &
-							(colOperand2 == -1
+							(
+								colOperand2 == -1
 									? (long) Double.parseDouble(operand2)
-									: (long) Double.parseDouble(line.get(colOperand2)))
+									: (long) Double.parseDouble(line.get(colOperand2))
+							)
 						)
 					);
 				}

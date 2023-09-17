@@ -36,8 +36,7 @@ class EntryConcatMethodDeserializerTest {
 
 	@Test
 	void testCustomConcatMethodValue() throws IOException {
-		final String yaml =
-			"""
+		final String yaml = """
 
 			  concatStart: "<tag>"
 			  concatEnd: "</tag>"

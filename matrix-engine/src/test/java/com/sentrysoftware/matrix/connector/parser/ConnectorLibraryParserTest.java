@@ -94,10 +94,9 @@ class ConnectorLibraryParserTest {
 		assertEquals(3, connectors.get(YAML_CONNECTOR_TEST_FILE_NAME).getMonitors().size());
 
 		//Retrieve the disk controller monitor
-		StandardMonitorJob monitorJob = (StandardMonitorJob) (connectors
-				.get(YAML_CONNECTOR_TEST_FILE_NAME)
-				.getMonitors()
-				.get(DISK_CONTROLLER));
+		StandardMonitorJob monitorJob = (StandardMonitorJob) (
+			connectors.get(YAML_CONNECTOR_TEST_FILE_NAME).getMonitors().get(DISK_CONTROLLER)
+		);
 
 		//Check disk controller discovery sources
 		assertEquals(1, monitorJob.getDiscovery().getSources().size());
