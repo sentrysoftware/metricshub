@@ -19,14 +19,20 @@
     <property name="max" value="200"/>
   </module>
 
-	<!-- Miscellaneous other checks.                   -->
-	<!-- See http://checkstyle.sf.net/config_misc.html -->
+  <!-- Miscellaneous other checks.                   -->
+  <!-- See http://checkstyle.sf.net/config_misc.html -->
   <module name="RegexpSingleline">
     <property name="format" value="\s+$"/>
     <property name="minimum" value="0"/>
     <property name="maximum" value="0"/>
     <property name="message" value="Line has trailing spaces."/>
-	</module>
+  </module>
+
+  <!-- Checks for tab indentation -->
+  <module name="RegexpSingleline">
+    <property name="format" value="^\s* +\s*[^*]" />
+    <property name="message" value="Indentation must use tab characters" />
+  </module>
 
   <module name="TreeWalker">
 
@@ -51,7 +57,7 @@
     <module name="StaticVariableName"/>
     <module name="TypeName"/>
 
-  	<module name="AvoidStarImport"/>
+    <module name="AvoidStarImport"/>
     <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
     <module name="RedundantImport"/>
     <module name="UnusedImports"/>

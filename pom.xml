@@ -403,13 +403,8 @@
 					<version>${prettier-maven-plugin.version}</version>
 					<configuration>
 						<prettierJavaVersion>${prettierJava.version}</prettierJavaVersion>
-						<printWidth>120</printWidth>
-						<tabWidth>2</tabWidth>
-						<useTabs>true</useTabs>
 						<ignoreConfigFile>false</ignoreConfigFile>
 						<ignoreEditorConfig>false</ignoreEditorConfig>
-						<disableGenericsLinebreaks>true</disableGenericsLinebreaks>
-						<endOfLine>lf</endOfLine>
 						<inputGlobs>
 							<inputGlob>src/main/java/**/*.java</inputGlob>
 							<inputGlob>src/test/java/**/*.java</inputGlob>
