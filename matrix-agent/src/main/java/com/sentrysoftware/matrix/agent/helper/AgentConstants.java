@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AgentConstants {
 
-	public static final String PRODUCT_CODE = "matrix";
-	public static final String CONFIG_EXAMPLE_FILENAME = PRODUCT_CODE + "-config-example.yaml";
-	public static final String DEFAULT_CONFIG_FILENAME = PRODUCT_CODE + "-config.yaml";
+	// Configuration file
+	public static final String PRODUCT_CODE = "metricshub";
+	public static final String CONFIG_EXAMPLE_FILENAME = PRODUCT_CODE + "-example.yaml";
+	public static final String DEFAULT_CONFIG_FILENAME = PRODUCT_CODE + ".yaml";
 	public static final String DEFAULT_OTEL_CONFIG_FILENAME = "otel-config.yaml";
 	public static final String DEFAULT_OTEL_CRT_FILENAME = "otel.crt";
 	public static final String LOG_DIRECTORY_NAME = "logs";

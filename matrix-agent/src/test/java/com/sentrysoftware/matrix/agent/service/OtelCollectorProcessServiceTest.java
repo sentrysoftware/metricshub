@@ -47,7 +47,7 @@ class OtelCollectorProcessServiceTest {
 			final OtelCollectorProcessService otelProcess = new OtelCollectorProcessService(
 				ProcessConfig
 					.builder()
-					.commandLine(List.of("otelcol-contrib", "--config", "/opt/matrix/otel/otel-config.yaml"))
+					.commandLine(List.of("otelcol-contrib", "--config", "/opt/metricshub/otel/otel-config.yaml"))
 					.output(ProcessOutput.builder().outputProcessor(outputProcessor).errorProcessor(errorProcessor).build())
 					.workingDir(new File("."))
 					.build()
@@ -88,7 +88,7 @@ class OtelCollectorProcessServiceTest {
 			final OtelCollectorProcessService otelProcess = new OtelCollectorProcessService(
 				ProcessConfig
 					.builder()
-					.commandLine(List.of("otelcol-contrib", "--config", "/opt/matrix/otel/otel-config.yaml"))
+					.commandLine(List.of("otelcol-contrib", "--config", "/opt/metricshub/otel/otel-config.yaml"))
 					.output(null) // No output
 					.workingDir(new File("."))
 					.build()
@@ -122,7 +122,7 @@ class OtelCollectorProcessServiceTest {
 			final OtelCollectorProcessService otelProcess = new OtelCollectorProcessService(
 				ProcessConfig
 					.builder()
-					.commandLine(List.of("otelcol-contrib", "--config", "/opt/matrix/otel/otel-config.yaml"))
+					.commandLine(List.of("otelcol-contrib", "--config", "/opt/metricshub/otel/otel-config.yaml"))
 					.output(ProcessOutput.builder().outputProcessor(outputProcessor).build())
 					.workingDir(new File("."))
 					.build()

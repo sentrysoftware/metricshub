@@ -7,12 +7,15 @@ import static com.sentrysoftware.matrix.agent.helper.AgentConstants.FILE_PATH_FO
 import static com.sentrysoftware.matrix.agent.helper.AgentConstants.LOG_DIRECTORY_NAME;
 import static com.sentrysoftware.matrix.agent.helper.AgentConstants.PRODUCT_CODE;
 
+import com.sentrysoftware.matrix.agent.context.AgentContext;
 import com.sentrysoftware.matrix.agent.security.PasswordEncrypt;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.security.SecurityManager;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +35,23 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class ConfigHelper {
+
+	/**
+	 * Deserialize YAML configuration file
+	 *
+	 * @param <T>
+	 *
+	 * @param inputStream YAML file as {@link InputStream}
+	 * @param type        The value type to return
+	 *
+	 * @return new instance of type T
+	 *
+	 * @throws IOException
+	 *
+	 */
+	public static <T> T deserializeYamlFile(final InputStream inputStream, final Class<T> type) throws IOException {
+		return JsonHelper.deserialize(AgentContext.OBJECT_MAPPER, inputStream, type);
+	}
 
 	/**
 	 * Get the default output directory for logging.<br>
@@ -58,7 +78,7 @@ public class ConfigHelper {
 	 * Get a sub directory under the install directory
 	 *
 	 * @param dir    the directory assumed under the product directory. E.g. logs
-	 *               assumed under /opt/PRODUCT_CODE
+	 *               assumed under /opt/metricshub
 	 * @param create indicate if we should create the sub directory or not
 	 * @return The absolute path of the sub directory
 	 */
@@ -87,7 +107,7 @@ public class ConfigHelper {
 
 	/**
 	 * Get the sub path under the home directory. E.g.
-	 * <em>/opt/PRODUCT_CODE/lib/app/../config</em> on linux install
+	 * <em>/opt/metricshub/lib/app/../config</em> on linux install
 	 *
 	 * @param subPath sub path to the directory or the file
 	 * @return {@link Path} instance
@@ -133,11 +153,11 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Get the default configuration file path either in the Windows <em>ProgramData\PRODUCT_CODE</em>
-	 * directory or under the install directory <em>/opt/PRODUCT_CODE</em> on Linux systems.
+	 * Get the default configuration file path either in the Windows <em>ProgramData\metricshub</em>
+	 * directory or under the install directory <em>/opt/metricshub</em> on Linux systems.
 	 *
 	 * @param directory      Directory of the configuration file. (e.g. config or otel)
-	 * @param configFilename Configuration file name (e.g. PRODUCT-CODE-config.yaml or otel-config.yaml)
+	 * @param configFilename Configuration file name (e.g. metricshub.yaml or otel-config.yaml)
 	 * @return new {@link Path} instance
 	 */
 	public static Path getDefaultConfigFilePath(final String directory, final String configFilename) {
@@ -153,7 +173,7 @@ public class ConfigHelper {
 	 * under the install directory.
 	 *
 	 * @param directory      Directory of the configuration file. (e.g. config or otel)
-	 * @param configFilename Configuration file name (e.g. PRODUCT-CODE-config.yaml or otel-config.yaml)
+	 * @param configFilename Configuration file name (e.g. metricshub.yaml or otel-config.yaml)
 	 * @return new {@link Path} instance
 	 */
 	static Path getProgramDataConfigFile(final String directory, final String configFilename) {
@@ -202,21 +222,21 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Find the application's configuration file (PRODUCT-CODE-config.yaml).<br>
+	 * Find the application's configuration file (metricshub.yaml).<br>
 	 * <ol>
 	 *   <li>If the user has configured the configFilePath via <em>--config=$filePath</em> then it is the chosen file</li>
-	 *   <li>Else if <em>config/PRODUCT-CODE-config.yaml</em> path exists, the resulting File is the one representing this path</li>
-	 *   <li>Else we copy <em>config/PRODUCT-CODE-config-example.yaml</em> to the host file <em>config/PRODUCT-CODE-config.yaml</em> then we return the resulting host file</li>
+	 *   <li>Else if <em>config/metricshub.yaml</em> path exists, the resulting File is the one representing this path</li>
+	 *   <li>Else we copy <em>config/metricshub-example.yaml</em> to the host file <em>config/metricshub.yaml</em> then we return the resulting host file</li>
 	 * </ol>
 	 *
 	 * The program fails if
 	 * <ul>
 	 *   <li>The configured file path doesn't exist</li>
-	 *   <li>config/PRODUCT-CODE-config-example.yaml is not present</li>
+	 *   <li>config/metricshub-example.yaml is not present</li>
 	 *   <li>If an I/O error occurs</li>
 	 * </ul>
 	 *
-	 * @param configFilePath The configuration file passed by the user. E.g. --config=/opt/PRODUCT-CODE/config/my-PRODUCT-CODE-config.yaml
+	 * @param configFilePath The configuration file passed by the user. E.g. --config=/opt/PRODUCT-CODE/config/my-metricshub.yaml
 	 * @return {@link File} instance
 	 * @throws IOException
 	 */
@@ -232,7 +252,7 @@ public class ConfigHelper {
 			);
 		}
 
-		// Get the configuration file config/PRODUCT-CODE-config.yaml
+		// Get the configuration file config/metricshub.yaml
 		return getDefaultConfigFile(CONFIG_DIRECTORY_NAME, DEFAULT_CONFIG_FILENAME, CONFIG_EXAMPLE_FILENAME);
 	}
 
@@ -240,8 +260,8 @@ public class ConfigHelper {
 	 * Get the default configuration file.
 	 *
 	 * @param directory             Directory of the configuration file. (e.g. config or otel)
-	 * @param configFilename        Configuration file name (e.g. PRODUCT-CODE-config.yaml or otel-config.yaml)
-	 * @param configFilenameExample Configuration file name example (e.g. PRODUCT-CODE-config-example.yaml)
+	 * @param configFilename        Configuration file name (e.g. metricshub.yaml or otel-config.yaml)
+	 * @param configFilenameExample Configuration file name example (e.g. metricshub-example.yaml)
 	 * @return {@link File} instance
 	 * @throws IOException if the copy fails
 	 */
@@ -263,7 +283,7 @@ public class ConfigHelper {
 			return configPath.toFile();
 		}
 
-		// Now we will proceed with a copy of the example file (e.g. PRODUCT-CODE-config-example.yaml to config/PRODUCT-CODE-config.yaml)
+		// Now we will proceed with a copy of the example file (e.g. metricshub-example.yaml to config/metricshub.yaml)
 		final Path exampleConfigPath = ConfigHelper.getSubPath(
 			String.format(FILE_PATH_FORMAT, directory, configFilenameExample)
 		);
@@ -287,7 +307,7 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Set write permissions for PRODUCT-CODE-config.yaml deployed on a Windows machine running the agent
+	 * Set write permissions for metricshub.yaml deployed on a Windows machine running the agent
 	 *
 	 * @param configPath  the configuration file absolute path
 	 * @param logError    whether we should log the error or not. If logError is false, an info message is logged.
@@ -299,7 +319,7 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Set write permission for PRODUCT-CODE-config.yaml
+	 * Set write permission for metricshub.yaml
 	 *
 	 * @param configPath the configuration file absolute path
 	 * @param logError   whether we should log the error or not. If logError is false, an info message is logged.
