@@ -52,7 +52,7 @@ class TimeoutDeserializerTest {
 
 	/**
 	 * Test unexpected value (negative or zero)
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void testUnexpectedValue() throws IOException {

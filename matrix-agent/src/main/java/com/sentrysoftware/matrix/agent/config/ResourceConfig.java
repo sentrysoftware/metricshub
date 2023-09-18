@@ -2,17 +2,15 @@ package com.sentrysoftware.matrix.agent.config;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.agent.config.protocols.ProtocolsConfig;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.connector.model.Connector;
-
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -27,8 +25,10 @@ public class ResourceConfig {
 
 	private String loggerLevel;
 	private String outputDirectory;
+
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private long collectPeriod;
+
 	private int discoveryCycle;
 	private AlertingSystemConfig alertingSystemConfig;
 	private Boolean sequential;

@@ -1,10 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.metric;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -21,6 +19,7 @@ public class StateSet implements IMetricType {
 
 	@Default
 	private MetricType output = MetricType.UP_DOWN_COUNTER;
+
 	@Default
 	@JsonProperty("stateSet")
 	private Set<String> set = new HashSet<>(); // NOSONAR

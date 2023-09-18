@@ -6,21 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 
+import com.sentrysoftware.matrix.agent.helper.ConfigHelper;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.security.SecurityManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
-
-import com.sentrysoftware.matrix.agent.helper.ConfigHelper;
-import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
-import com.sentrysoftware.matrix.security.SecurityManager;
 
 class PasswordEncryptTest {
 
@@ -30,20 +28,17 @@ class PasswordEncryptTest {
 	@Test
 	@EnabledOnOs(OS.WINDOWS)
 	void testGetKeyStoreFileWindows() throws IOException {
-
 		{
 			try (final MockedStatic<PasswordEncrypt> mockedPasswordEncrypt = mockStatic(PasswordEncrypt.class)) {
 				mockedPasswordEncrypt
 					.when(() -> PasswordEncrypt.getSecurityFolderOnWindows())
-					.thenAnswer((invocation) ->  Files.createDirectories(tempDir.resolve("matrix/security")));
+					.thenAnswer(invocation -> Files.createDirectories(tempDir.resolve("matrix/security")));
 
 				mockedPasswordEncrypt
 					.when(() -> PasswordEncrypt.resolveKeyStoreFile(any(Path.class), any(Boolean.class)))
 					.thenCallRealMethod();
 
-				mockedPasswordEncrypt
-					.when(() -> PasswordEncrypt.getKeyStoreFile(true))
-					.thenCallRealMethod();
+				mockedPasswordEncrypt.when(() -> PasswordEncrypt.getKeyStoreFile(true)).thenCallRealMethod();
 
 				final File actual = PasswordEncrypt.getKeyStoreFile(true);
 				assertNotNull(actual);
@@ -56,18 +51,16 @@ class PasswordEncryptTest {
 			assertNotNull(keyStoreFile);
 			assertEquals(SecurityManager.MATRIX_KEY_STORE_FILE_NAME, keyStoreFile.getName());
 		}
-
 	}
 
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testGetKeyStoreFileLinux() {
-
 		{
 			try (final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)) {
 				mockedResourceHelper
 					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
-					.thenAnswer((invocation) -> Files.createDirectories(tempDir.resolve("matrix/lib/app/jar")).toFile());
+					.thenAnswer(invocation -> Files.createDirectories(tempDir.resolve("matrix/lib/app/jar")).toFile());
 
 				final File actual = PasswordEncrypt.getKeyStoreFile(true);
 				assertNotNull(actual);
@@ -79,14 +72,13 @@ class PasswordEncryptTest {
 			try (final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)) {
 				mockedResourceHelper
 					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
-					.thenAnswer((invocation) -> tempDir.resolve("matrix/lib/app/jar").toFile());
+					.thenAnswer(invocation -> tempDir.resolve("matrix/lib/app/jar").toFile());
 
 				final File keyStoreFile = PasswordEncrypt.getKeyStoreFile(false);
 				assertNotNull(keyStoreFile);
 				assertEquals(SecurityManager.MATRIX_KEY_STORE_FILE_NAME, keyStoreFile.getName());
 			}
 		}
-
 	}
 
 	@Test
@@ -95,54 +87,41 @@ class PasswordEncryptTest {
 		// ProgramData invalid
 		{
 			try (
-					final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class);
-					final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)	
-				) {
-					mockedResourceHelper
-						.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
-						.thenAnswer((invocation) -> tempDir.resolve("matrix/app/jar").toFile());
+				final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class);
+				final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)
+			) {
+				mockedResourceHelper
+					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
+					.thenAnswer(invocation -> tempDir.resolve("matrix/app/jar").toFile());
 
-					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.empty());
+				mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.empty());
 
-					final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
+				final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
 
-					final String expectedPath = "matrix\\app\\..\\security";
+				final String expectedPath = "matrix\\app\\..\\security";
 
-					assertNotNull(securityFolderOnWindows);
-					assertTrue(
-						() -> securityFolderOnWindows.endsWith(expectedPath),
-						String
-							.format(
-								"Found path %s. Expected path ends with %s.",
-								securityFolderOnWindows.toString(),
-								expectedPath
-							)
-					);
-				}
+				assertNotNull(securityFolderOnWindows);
+				assertTrue(
+					() -> securityFolderOnWindows.endsWith(expectedPath),
+					String.format("Found path %s. Expected path ends with %s.", securityFolderOnWindows.toString(), expectedPath)
+				);
+			}
 		}
 
 		// ProgramData valid
 		{
 			try (final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class)) {
+				mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.of(tempDir.toString()));
 
-					mockedConfigHelper
-						.when(() -> ConfigHelper.getProgramDataPath())
-						.thenReturn(Optional.of(tempDir.toString()));
+				final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
 
-					final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
+				final String expectedPath = "matrix\\security";
 
-					final String expectedPath = "matrix\\security";
-
-					assertNotNull(securityFolderOnWindows);
-					assertTrue(
-						() -> securityFolderOnWindows.endsWith(expectedPath),
-						String
-							.format(
-								"Found path %s. Expected path ends with %s.",
-								securityFolderOnWindows.toString(),
-								expectedPath
-							)
-					);
+				assertNotNull(securityFolderOnWindows);
+				assertTrue(
+					() -> securityFolderOnWindows.endsWith(expectedPath),
+					String.format("Found path %s. Expected path ends with %s.", securityFolderOnWindows.toString(), expectedPath)
+				);
 			}
 		}
 	}

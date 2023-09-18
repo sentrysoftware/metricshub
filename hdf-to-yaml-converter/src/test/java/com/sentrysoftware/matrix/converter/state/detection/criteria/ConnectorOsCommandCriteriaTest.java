@@ -1,10 +1,8 @@
 package com.sentrysoftware.matrix.converter.state.detection.criteria;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 class ConnectorOsCommandCriteriaTest extends AbstractConnectorPropertyConverterTest {
 
@@ -12,7 +10,7 @@ class ConnectorOsCommandCriteriaTest extends AbstractConnectorPropertyConverterT
 	void test() throws IOException {
 		testConversion("test");
 		testConversion("testMany");
-		
+
 		testAll();
 	}
 

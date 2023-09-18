@@ -8,7 +8,6 @@ import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
 import com.sentrysoftware.matrix.configuration.TransportProtocols;
 import com.sentrysoftware.matrix.configuration.WbemConfiguration;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -39,7 +38,7 @@ public class WbemProtocolConfig extends AbstractProtocolConfig {
 	String username;
 
 	char[] password;
-	
+
 	String vCenter;
 
 	/**
@@ -49,7 +48,6 @@ public class WbemProtocolConfig extends AbstractProtocolConfig {
 	 */
 	@Override
 	public IConfiguration toProtocol() {
-
 		return WbemConfiguration
 			.builder()
 			.namespace(namespace)

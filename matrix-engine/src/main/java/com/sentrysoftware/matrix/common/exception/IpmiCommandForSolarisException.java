@@ -7,5 +7,4 @@ public class IpmiCommandForSolarisException extends Exception {
 	public IpmiCommandForSolarisException(final String message) {
 		super(message);
 	}
-
 }

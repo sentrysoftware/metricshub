@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,14 +19,12 @@ public class LeftConcat extends AbstractConcat {
 	@Builder
 	@JsonCreator
 	public LeftConcat(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "value", required = true) @NonNull String value
 	) {
-
 		super(type, column, value);
 	}
-
 
 	@Override
 	public String toString() {
@@ -36,12 +33,7 @@ public class LeftConcat extends AbstractConcat {
 
 	@Override
 	public LeftConcat copy() {
-		return LeftConcat
-			.builder()
-			.type(type)
-			.column(column)
-			.value(value)
-			.build();
+		return LeftConcat.builder().type(type).column(column).value(value).build();
 	}
 
 	@Override

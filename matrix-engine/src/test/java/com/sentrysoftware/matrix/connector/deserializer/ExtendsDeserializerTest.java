@@ -4,18 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.matrix.connector.model.Connector;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-
 class ExtendsDeserializerTest extends DeserializerTest {
-
 
 	@Override
 	public String getResourcePath() {
@@ -29,10 +26,7 @@ class ExtendsDeserializerTest extends DeserializerTest {
 
 		var extendsConnectors = connector.getExtendsConnectors();
 
-		assertTrue(
-			extendsConnectors instanceof LinkedHashSet,
-			"extends are expected to be a LinkedHashSet."
-		);
+		assertTrue(extendsConnectors instanceof LinkedHashSet, "extends are expected to be a LinkedHashSet.");
 
 		// We want to keep the order declared in the YAML file
 		// Later in the post parser code, we must keep the same order to perform merge operations
@@ -41,7 +35,6 @@ class ExtendsDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializeExtendsEmptyConnectorRefNotAccepted() {
-
 		try {
 			getConnector("extendsEmptyConnectorRef");
 			Assert.fail(IO_EXCEPTION_MSG);
@@ -49,7 +42,6 @@ class ExtendsDeserializerTest extends DeserializerTest {
 			String message = "The connector referenced by 'extends' cannot be empty.";
 			checkMessage(e, message);
 		}
-
 	}
 
 	@Test
@@ -97,5 +89,4 @@ class ExtendsDeserializerTest extends DeserializerTest {
 
 		assertEquals(Collections.emptySet(), extendsConnectors);
 	}
-
 }

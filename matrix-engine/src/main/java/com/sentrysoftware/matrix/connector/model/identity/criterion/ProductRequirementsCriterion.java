@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,12 +20,7 @@ public class ProductRequirementsCriterion extends Criterion {
 	private String kmVersion;
 
 	@Builder
-	public ProductRequirementsCriterion(
-		String type,
-		boolean forceSerialization,
-		String engineVersion,
-		String kmVersion
-	) {
+	public ProductRequirementsCriterion(String type, boolean forceSerialization, String engineVersion, String kmVersion) {
 		super(type, forceSerialization);
 		this.engineVersion = engineVersion;
 		this.kmVersion = kmVersion;
@@ -36,5 +30,4 @@ public class ProductRequirementsCriterion extends Criterion {
 	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
 		return criterionProcessor.process(this);
 	}
-
 }

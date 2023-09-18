@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.strategy.utils;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +25,7 @@ public class PslUtils {
 	private static final char GREATER_THAN_CHAR = '>';
 
 	// Private constructor to prevent instantiation of PslUtils
-	private PslUtils() { }
+	private PslUtils() {}
 
 	/**
 	 * Converts a PSL regex into its Java equivalent.
@@ -36,7 +35,6 @@ public class PslUtils {
 	 * @return Regular expression that can be used in Java's Pattern.compile.
 	 */
 	public static String psl2JavaRegex(final String pslRegex) {
-
 		if (pslRegex == null || pslRegex.isEmpty()) {
 			return "";
 		}
@@ -52,33 +50,30 @@ public class PslUtils {
 		int i;
 		boolean inRange = false;
 		for (i = 0; i < pslRegex.length(); i++) {
-
 			char c = pslRegex.charAt(i);
 
 			if (c == BACKSLASH_CHAR && i < pslRegex.length() - 1) {
-
 				i = handleBackSlash(pslRegex, inRange, i, javaRegex);
-
-			} else if (c == OPENING_PARENTHESIS_CHAR || c == CLOSING_PARENTHESIS_CHAR || c == PIPE_CHAR
-					|| c == OPENING_CURLY_BRACKET_CHAR || c == CLOSING_CURLY_BRACKET_CHAR) {
-
+			} else if (
+				// CHECKSTYLE:OFF
+				c == OPENING_PARENTHESIS_CHAR ||
+				c == CLOSING_PARENTHESIS_CHAR ||
+				c == PIPE_CHAR ||
+				c == OPENING_CURLY_BRACKET_CHAR ||
+				c == CLOSING_CURLY_BRACKET_CHAR
+				// CHECKSTYLE:ON
+			) {
 				javaRegex.append(BACKSLASH_CHAR).append(c);
-
 			} else if (c == OPENING_SQUARE_BRACKET_CHAR) {
-
 				// Regex ranges have a different escaping system, so we need to
 				// know when we're inside a [a-z] range or not
 				javaRegex.append(c);
 				inRange = true;
-
 			} else if (c == CLOSING_SQUARE_BRACKET_CHAR) {
-
 				// Getting out of a [] range
 				javaRegex.append(c);
 				inRange = false;
-
 			} else {
-
 				// Other cases
 				javaRegex.append(c);
 			}
@@ -99,35 +94,31 @@ public class PslUtils {
 	 *
 	 * @return			The new value of the index
 	 */
-	private static int handleBackSlash(final String pslRegex, final boolean inRange, final int index, final StringBuilder javaRegex) {
-
+	private static int handleBackSlash(
+		final String pslRegex,
+		final boolean inRange,
+		final int index,
+		final StringBuilder javaRegex
+	) {
 		int result = index;
 
 		if (inRange) {
-
 			// Escape works differently in [] ranges
 			// We simply need to double backslashes
 			javaRegex.append("\\\\");
-
 		} else {
-
 			// Backslashes in PSL regex are utterly broken
 			// We need to handle all cases here to convert to proper regex in Java
 			char nextChar = pslRegex.charAt(index + 1);
 			if (nextChar == LOWER_THAN_CHAR || nextChar == GREATER_THAN_CHAR) {
-
 				// Replace \< and \> with \b
 				javaRegex.append(BACKSLASH_B);
 				result++;
-
 			} else if (SPECIAL_CHARACTERS.indexOf(nextChar) > -1) {
-
 				// Append the backslash and what it's protecting, as is
 				javaRegex.append(BACKSLASH_CHAR).append(nextChar);
 				result++;
-
 			} else {
-
 				// Append the next character
 				javaRegex.append(nextChar);
 				result++;
@@ -154,8 +145,7 @@ public class PslUtils {
 	 * @return String value
 	 */
 	public static String formatExtendedJSON(@NonNull String row, @NonNull SourceTable tableResult)
-			throws IllegalArgumentException{
-		
+		throws IllegalArgumentException {
 		if (row.isEmpty()) {
 			log.error("formatExtendedJSON received Empty row of values. Returning empty string.");
 			return EMPTY;
@@ -163,25 +153,17 @@ public class PslUtils {
 
 		String rawData = tableResult.getRawData();
 		if (rawData == null || rawData.isEmpty()) {
-			log.error("formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", 
-					tableResult);
+			log.error("formatExtendedJSON received Empty SourceTable data {}. Returning empty string.", tableResult);
 			return EMPTY;
 		}
 
 		StringBuilder jsonContent = new StringBuilder();
-		jsonContent.append("{\n\"Entry\":{\n\"Full\":\"")
-		.append(row)
-		.append("\",\n");
+		jsonContent.append("{\n\"Entry\":{\n\"Full\":\"").append(row).append("\",\n");
 
 		int i = 1;
 
 		for (String value : row.split(",")) {
-			jsonContent
-				.append("\"Column(")
-				.append(i)
-				.append(")\":\"")
-				.append(value)
-				.append("\",\n");
+			jsonContent.append("\"Column(").append(i).append(")\":\"").append(value).append("\",\n");
 			i++;
 		}
 

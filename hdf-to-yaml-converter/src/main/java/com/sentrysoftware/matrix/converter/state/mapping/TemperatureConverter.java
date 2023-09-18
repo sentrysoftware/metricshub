@@ -20,20 +20,20 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPER
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_LIMIT_DEGRADED;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_VALUE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class TemperatureConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -45,6 +45,7 @@ public class TemperatureConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_TEMPERATURE_STATUS));
@@ -80,11 +81,7 @@ public class TemperatureConverter extends AbstractMappingConverter {
 
 		newAttributes.set(
 			YAML_NAME,
-			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, temperatureType)
-				)
-			)
+			new TextNode(wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, temperatureType)))
 		);
 	}
 
@@ -97,7 +94,6 @@ public class TemperatureConverter extends AbstractMappingConverter {
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode temperatureTypeNode) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (temperatureTypeNode == null) {
 			return firstArg;
@@ -120,5 +116,4 @@ public class TemperatureConverter extends AbstractMappingConverter {
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
 		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
-
 }

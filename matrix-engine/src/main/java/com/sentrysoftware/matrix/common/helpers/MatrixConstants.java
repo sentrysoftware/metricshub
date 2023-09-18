@@ -1,12 +1,5 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.AIX;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.HPUX;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.LINUX;
@@ -15,6 +8,12 @@ import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.SOLARI
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.TRU64;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.VMS;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.WINDOWS;
+
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import java.util.Map;
+import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MatrixConstants {
@@ -44,12 +43,18 @@ public class MatrixConstants {
 
 	// Map monitor job types to their priorities
 	public static final Map<String, Integer> MONITOR_JOBS_PRIORITY = Map.of(
-		KnownMonitorType.HOST.getKey(), 1,
-		KnownMonitorType.ENCLOSURE.getKey(), 2,
-		KnownMonitorType.BLADE.getKey(), 3,
-		KnownMonitorType.DISK_CONTROLLER.getKey(), 4,
-		KnownMonitorType.CPU.getKey(), 5,
-		OTHER_MONITOR_JOB_TYPES, 6
+		KnownMonitorType.HOST.getKey(),
+		1,
+		KnownMonitorType.ENCLOSURE.getKey(),
+		2,
+		KnownMonitorType.BLADE.getKey(),
+		3,
+		KnownMonitorType.DISK_CONTROLLER.getKey(),
+		4,
+		KnownMonitorType.CPU.getKey(),
+		5,
+		OTHER_MONITOR_JOB_TYPES,
+		6
 	);
 
 	/**
@@ -77,28 +82,50 @@ public class MatrixConstants {
 	public static final String NETWORK = "network";
 
 	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_HOST_TYPE = Map.of(
-			VMS, HOST_TYPE_COMPUTE,
-			TRU64, HOST_TYPE_COMPUTE,
-			HPUX, HOST_TYPE_COMPUTE,
-			AIX, HOST_TYPE_COMPUTE,
-			LINUX, HOST_TYPE_COMPUTE,
-			OOB, HOST_TYPE_COMPUTE,
-			WINDOWS, HOST_TYPE_COMPUTE,
-			DeviceKind.NETWORK, NETWORK,
-			DeviceKind.STORAGE, STORAGE,
-			SOLARIS, HOST_TYPE_COMPUTE);
+		VMS,
+		HOST_TYPE_COMPUTE,
+		TRU64,
+		HOST_TYPE_COMPUTE,
+		HPUX,
+		HOST_TYPE_COMPUTE,
+		AIX,
+		HOST_TYPE_COMPUTE,
+		LINUX,
+		HOST_TYPE_COMPUTE,
+		OOB,
+		HOST_TYPE_COMPUTE,
+		WINDOWS,
+		HOST_TYPE_COMPUTE,
+		DeviceKind.NETWORK,
+		NETWORK,
+		DeviceKind.STORAGE,
+		STORAGE,
+		SOLARIS,
+		HOST_TYPE_COMPUTE
+	);
 
 	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_OS_TYPE = Map.of(
-			VMS, "openvms",
-			TRU64, "true64",
-			HPUX, "hpux",
-			AIX, "aix",
-			LINUX, "linux",
-			OOB, "management",
-			WINDOWS, "windows",
-			DeviceKind.NETWORK, NETWORK,
-			DeviceKind.STORAGE, STORAGE,
-			SOLARIS, "solaris");
+		VMS,
+		"openvms",
+		TRU64,
+		"true64",
+		HPUX,
+		"hpux",
+		AIX,
+		"aix",
+		LINUX,
+		"linux",
+		OOB,
+		"management",
+		WINDOWS,
+		"windows",
+		DeviceKind.NETWORK,
+		NETWORK,
+		DeviceKind.STORAGE,
+		STORAGE,
+		SOLARIS,
+		"solaris"
+	);
 
 	/**
 	 * Metrics
@@ -138,5 +165,4 @@ public class MatrixConstants {
 	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
 	public static final Pattern COLUMN_PATTERN = Pattern.compile("^\\s*\\$(\\d+)\\s*$");
 	public static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");
-
 }

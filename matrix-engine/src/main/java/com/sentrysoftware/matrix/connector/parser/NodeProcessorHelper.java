@@ -1,9 +1,7 @@
 package com.sentrysoftware.matrix.connector.parser;
 
-import java.nio.file.Path;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +10,7 @@ public class NodeProcessorHelper {
 
 	/**
 	 * Creates a new {@link ConstantsProcessor}
-	 * 
+	 *
 	 * @return new {@link ConstantsProcessor}
 	 */
 	private static NodeProcessor constantsProcessor() {
@@ -21,13 +19,17 @@ public class NodeProcessorHelper {
 
 	/**
 	 * Create a {@link ExtendsProcessor} with {@link ConstantsProcessor} destination
-	 * 
+	 *
 	 * @param connectorDirectory
-	 * @param mapper 
+	 * @param mapper
 	 * @return new {@link ExtendsProcessor} instance
 	 */
-	public static NodeProcessor withExtendsAndConstantsProcessor(final Path connectorDirectory, final ObjectMapper mapper) {
-		return ExtendsProcessor.builder()
+	public static NodeProcessor withExtendsAndConstantsProcessor(
+		final Path connectorDirectory,
+		final ObjectMapper mapper
+	) {
+		return ExtendsProcessor
+			.builder()
 			.connectorDirectory(connectorDirectory)
 			.destination(constantsProcessor())
 			.mapper(mapper)

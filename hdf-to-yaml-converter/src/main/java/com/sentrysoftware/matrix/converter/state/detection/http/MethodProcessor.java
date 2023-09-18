@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.converter.state.detection.http;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 import com.sentrysoftware.matrix.converter.state.common.AbstractHttpConverter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MethodProcessor extends AbstractHttpConverter {
 

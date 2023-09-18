@@ -1,23 +1,21 @@
 package com.sentrysoftware.matrix.converter.state.common;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AbstractHttpConverter extends AbstractStateConverter {
 
-	protected static final Set<String> HTTP_METHODS = HttpMethod
-		.HTTP_METHODS
+	protected static final Set<String> HTTP_METHODS = HttpMethod.HTTP_METHODS
 		.stream()
 		.map(method -> method.name().toUpperCase())
 		.collect(Collectors.toSet());
 
 	/**
 	 * Extract the ResultContent value
-	 * 
+	 *
 	 * @param key HDF key
 	 * @param value HDF value
 	 * @return String value
@@ -32,7 +30,7 @@ public abstract class AbstractHttpConverter extends AbstractStateConverter {
 
 	/**
 	 * Extract the HTTP method.
-	 * 
+	 *
 	 * @param key   HDF key
 	 * @param value HDF value
 	 * @return String value
@@ -45,5 +43,4 @@ public abstract class AbstractHttpConverter extends AbstractStateConverter {
 			throw new IllegalArgumentException(String.format("Unknown HTTP method %s encounterd for HDF key %s", value, key));
 		}
 	}
-
 }

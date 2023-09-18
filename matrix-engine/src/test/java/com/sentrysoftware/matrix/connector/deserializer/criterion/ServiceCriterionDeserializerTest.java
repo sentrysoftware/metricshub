@@ -1,17 +1,15 @@
 package com.sentrysoftware.matrix.connector.deserializer.criterion;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ServiceCriterion;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 class ServiceCriterionDeserializerTest extends DeserializerTest {
 
@@ -22,7 +20,6 @@ class ServiceCriterionDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializeService() throws IOException { // NOSONAR compareCriterion performs assertion
-
 		final Connector service = getConnector("serviceCriterion");
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new ServiceCriterion("service", false, "TWGIPC"));

@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.common.exception;
 
-public class NoCredentialProvidedException  extends Exception {
+public class NoCredentialProvidedException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
@@ -8,4 +8,3 @@ public class NoCredentialProvidedException  extends Exception {
 		super("No credentials provided.");
 	}
 }
-

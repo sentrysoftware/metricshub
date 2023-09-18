@@ -7,17 +7,16 @@ import com.sentrysoftware.matrix.connector.model.Connector;
  *
  */
 public interface ConnectorUpdateChain {
-
 	/**
 	 * Set the next update chain
-	 * 
+	 *
 	 * @param nextChain
 	 */
 	void setNextUpdateChain(ConnectorUpdateChain nextChain);
 
 	/**
 	 * Update the given connector
-	 * 
+	 *
 	 * @param connector
 	 */
 	void update(Connector connector);

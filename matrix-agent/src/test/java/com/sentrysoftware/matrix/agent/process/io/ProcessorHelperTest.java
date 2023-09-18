@@ -2,19 +2,17 @@ package com.sentrysoftware.matrix.agent.process.io;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.sentrysoftware.matrix.agent.process.config.Slf4jLevel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Optional;
-
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sentrysoftware.matrix.agent.process.config.Slf4jLevel;
 
 class ProcessorHelperTest {
 
@@ -31,12 +29,12 @@ class ProcessorHelperTest {
 
 	@Test
 	void testConnectLineReader() {
-		final CustomInputStream in = new CustomInputStream(PROCESS_OUTPUT) ;
+		final CustomInputStream in = new CustomInputStream(PROCESS_OUTPUT);
 		final Reader reader = new InputStreamReader(in);
 		final GobblerStreamProcessor processor = new GobblerStreamProcessor();
 
 		// Connect the reader to the process
-		final Optional<Thread> readerProcessorOpt = ProcessorHelper.connect(reader , processor, LineReaderProcessor::new);
+		final Optional<Thread> readerProcessorOpt = ProcessorHelper.connect(reader, processor, LineReaderProcessor::new);
 
 		assertTrue(readerProcessorOpt.isPresent());
 
@@ -51,17 +49,17 @@ class ProcessorHelperTest {
 		assertEquals(PROCESS_OUTPUT, processor.getBlocks());
 
 		assertEquals(Optional.empty(), ProcessorHelper.connect(null, processor, LineReaderProcessor::new));
-		assertEquals(Optional.empty(),  ProcessorHelper.connect(reader, null, LineReaderProcessor::new));
+		assertEquals(Optional.empty(), ProcessorHelper.connect(reader, null, LineReaderProcessor::new));
 	}
 
 	@Test
 	void testConnectReader() {
-		final CustomInputStream in = new CustomInputStream(PROCESS_OUTPUT) ;
+		final CustomInputStream in = new CustomInputStream(PROCESS_OUTPUT);
 		final Reader reader = new InputStreamReader(in);
 		final GobblerStreamProcessor processor = new GobblerStreamProcessor();
 
 		// Connect the reader to the process
-		final Optional<Thread> readerProcessorOpt = ProcessorHelper.connect(reader , processor, ReaderProcessor::new);
+		final Optional<Thread> readerProcessorOpt = ProcessorHelper.connect(reader, processor, ReaderProcessor::new);
 
 		assertTrue(readerProcessorOpt.isPresent());
 
@@ -76,17 +74,17 @@ class ProcessorHelperTest {
 		assertEquals(PROCESS_OUTPUT, processor.getBlocks());
 
 		assertEquals(Optional.empty(), ProcessorHelper.connect(null, processor, ReaderProcessor::new));
-		assertEquals(Optional.empty(),  ProcessorHelper.connect(reader, null, ReaderProcessor::new));
+		assertEquals(Optional.empty(), ProcessorHelper.connect(reader, null, ReaderProcessor::new));
 	}
 
 	@Test
 	void testConnectWithThrowingReader() {
-		final TestThrowingInputStream in = new TestThrowingInputStream() ;
+		final TestThrowingInputStream in = new TestThrowingInputStream();
 		final Reader reader = new InputStreamReader(in);
 		final GobblerStreamProcessor processor = new GobblerStreamProcessor();
 
 		// Connect the reader to the process
-		final Optional<Thread> readerProcessorOpt = ProcessorHelper.connect(reader , processor, LineReaderProcessor::new);
+		final Optional<Thread> readerProcessorOpt = ProcessorHelper.connect(reader, processor, LineReaderProcessor::new);
 
 		assertTrue(readerProcessorOpt.isPresent());
 
@@ -101,8 +99,6 @@ class ProcessorHelperTest {
 		assertTrue(processor.getBlocks().isEmpty());
 	}
 
-
-
 	/**
 	 * Throws an exception when read is called
 	 */
@@ -113,5 +109,4 @@ class ProcessorHelperTest {
 			throw new IOException();
 		}
 	}
-
 }

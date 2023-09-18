@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.sentrysoftware.matrix.connector.deserializer.custom.CustomDeserializer;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +16,7 @@ public class PostDeserializeHelper {
 	/**
 	 * Add the {@link CustomDeserializer} as Post deserializer to the given
 	 * {@link ObjectMapper}
-	 * 
+	 *
 	 * @param objectMapper provides functionality for reading and writing JSON
 	 * @return the updated {@link ObjectMapper}
 	 */
@@ -26,8 +25,11 @@ public class PostDeserializeHelper {
 		module.setDeserializerModifier(
 			new BeanDeserializerModifier() {
 				@Override
-				public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDescription,
-						JsonDeserializer<?> originalDeserializer) {
+				public JsonDeserializer<?> modifyDeserializer(
+					DeserializationConfig config,
+					BeanDescription beanDescription,
+					JsonDeserializer<?> originalDeserializer
+				) {
 					return new CustomDeserializer(originalDeserializer);
 				}
 			}

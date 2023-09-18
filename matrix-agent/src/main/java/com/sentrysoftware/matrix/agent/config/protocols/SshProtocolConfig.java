@@ -1,14 +1,12 @@
 package com.sentrysoftware.matrix.agent.config.protocols;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
 import com.sentrysoftware.matrix.configuration.SshConfiguration;
-
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;

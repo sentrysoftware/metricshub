@@ -1,13 +1,12 @@
 package com.sentrysoftware.matrix.converter.state.detection.devicetype;
 
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ExcludeProcessor extends AbstractStateConverter {
 
@@ -19,11 +18,8 @@ public class ExcludeProcessor extends AbstractStateConverter {
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 		createCriterionStringArrayNode(
-			key, 
-			Arrays
-				.stream(value.split(","))
-				.map(String::trim).
-				toArray(String[]::new),
+			key,
+			Arrays.stream(value.split(",")).map(String::trim).toArray(String[]::new),
 			connector,
 			"exclude"
 		);

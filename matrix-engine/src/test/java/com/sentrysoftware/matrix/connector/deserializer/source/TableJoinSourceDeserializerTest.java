@@ -1,17 +1,15 @@
 package com.sentrysoftware.matrix.connector.deserializer.source;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 class TableJoinSourceDeserializerTest extends DeserializerTest {
 
@@ -27,8 +25,10 @@ class TableJoinSourceDeserializerTest extends DeserializerTest {
 		try {
 			final Connector connector = getConnector(testResource);
 			Map<String, Source> expected = new LinkedHashMap<>();
-			expected.put("testTableJoinSource",
-				TableJoinSource.builder()
+			expected.put(
+				"testTableJoinSource",
+				TableJoinSource
+					.builder()
 					.type("tableJoin")
 					.forceSerialization(false)
 					.leftTable("testLeft")

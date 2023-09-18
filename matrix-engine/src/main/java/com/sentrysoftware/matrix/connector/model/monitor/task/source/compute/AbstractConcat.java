@@ -4,11 +4,9 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
-
-import com.fasterxml.jackson.annotation.JsonSetter;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,22 +24,19 @@ public abstract class AbstractConcat extends Compute {
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	protected Integer column;
-	
+
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	protected String value;
 
 	protected AbstractConcat(String type, Integer column, String value) {
-
 		super(type);
-
 		this.column = column;
 		this.value = value;
 	}
 
 	@Override
 	public String toString() {
-
 		final StringJoiner valueJoiner = new StringJoiner(NEW_LINE);
 
 		valueJoiner.add(super.toString());

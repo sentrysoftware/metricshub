@@ -52,6 +52,8 @@
 		<ddog.version>1.0.00</ddog.version>
 		<hwgraf.version>4</hwgraf.version>
 		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
+		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
+		<prettierJava.version>2.0.0</prettierJava.version>
 	</properties>
 
 	<modules>
@@ -395,6 +397,20 @@
 					<artifactId>hdf-maven-plugin</artifactId>
 					<version>5.0</version>
 				</plugin>
+				<plugin>
+					<groupId>com.hubspot.maven.plugins</groupId>
+					<artifactId>prettier-maven-plugin</artifactId>
+					<version>${prettier-maven-plugin.version}</version>
+					<configuration>
+						<prettierJavaVersion>${prettierJava.version}</prettierJavaVersion>
+						<ignoreConfigFile>false</ignoreConfigFile>
+						<ignoreEditorConfig>false</ignoreEditorConfig>
+						<inputGlobs>
+							<inputGlob>src/main/java/**/*.java</inputGlob>
+							<inputGlob>src/test/java/**/*.java</inputGlob>
+						</inputGlobs>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -535,6 +551,38 @@
 					<formatMinor>%d</formatMinor>
 					<formatIncremental>%02d</formatIncremental>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
+					<configLocation>checkstyle.xml</configLocation>
+				</configuration>
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>checkstyle</goal>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.hubspot.maven.plugins</groupId>
+				<artifactId>prettier-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>

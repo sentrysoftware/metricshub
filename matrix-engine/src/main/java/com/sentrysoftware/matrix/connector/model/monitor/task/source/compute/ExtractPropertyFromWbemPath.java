@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,11 +34,10 @@ public class ExtractPropertyFromWbemPath extends Compute {
 	@Builder
 	@JsonCreator
 	public ExtractPropertyFromWbemPath(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "property", required = true) @NonNull String property
 	) {
-
 		super(type);
 		this.property = property;
 		this.column = column;
@@ -60,12 +57,7 @@ public class ExtractPropertyFromWbemPath extends Compute {
 
 	@Override
 	public ExtractPropertyFromWbemPath copy() {
-		return ExtractPropertyFromWbemPath
-			.builder()
-			.type(type)
-			.property(property)
-			.column(column)
-			.build();
+		return ExtractPropertyFromWbemPath.builder().type(type).property(property).column(column).build();
 	}
 
 	@Override

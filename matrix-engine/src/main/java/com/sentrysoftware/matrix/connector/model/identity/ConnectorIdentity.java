@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.identity;
 
 import java.io.Serializable;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

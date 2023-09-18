@@ -18,7 +18,5 @@ class ConsoleStreamProcessorTest {
 			final ConsoleStreamProcessor processor = new ConsoleStreamProcessor(true);
 			assertDoesNotThrow(() -> processor.process(block));
 		}
-
 	}
-
 }

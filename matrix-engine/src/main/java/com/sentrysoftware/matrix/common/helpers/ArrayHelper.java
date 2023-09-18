@@ -35,16 +35,16 @@ public class ArrayHelper {
 	 * @return <code>true</code> if one of the data matched otherwise <code>false</code>
 	 */
 	public static boolean anyMatchLowerCase(final Predicate<String> predicate, final String... data) {
-		return Arrays.stream(data)
-				.filter(Objects::nonNull)
-				.map(String::toLowerCase)
-				.anyMatch(predicate);
+		return Arrays.stream(data).filter(Objects::nonNull).map(String::toLowerCase).anyMatch(predicate);
 	}
 
 	/**
 	 * Regular expression that extracts in group(1) the hexadecimal data (trimming white spaces and 0x or # prefix)
 	 */
-	private static final Pattern HEX_PATTERN = Pattern.compile("^\\s*(?:0x|#)?([0-9a-f]*)\\s*$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern HEX_PATTERN = Pattern.compile(
+		"^\\s*(?:0x|#)?([0-9a-f]*)\\s*$",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	/**
 	 * Convert the specified hexadecimal string into a byte array.
@@ -57,7 +57,6 @@ public class ArrayHelper {
 	 * @return the corresponding byte array
 	 */
 	public static byte[] hexToByteArray(String hexString) {
-
 		// Null => null
 		if (hexString == null) {
 			return new byte[] {};
@@ -82,5 +81,4 @@ public class ArrayHelper {
 
 		return data;
 	}
-
 }

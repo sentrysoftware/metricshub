@@ -19,5 +19,4 @@ public class ConnectorConverterException extends RuntimeException {
 	public ConnectorConverterException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
 }

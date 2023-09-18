@@ -1,5 +1,10 @@
 package com.sentrysoftware.matrix.matsya;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
+
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.RetryableException;
@@ -48,11 +53,6 @@ import com.sentrysoftware.matsya.xflat.XFlat;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -69,11 +69,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
@@ -93,7 +92,6 @@ public class MatsyaClientsExecutor {
 	private static final String SSH_FILE_MODE = "0700";
 	private static final String SSH_REMOTE_DIRECTORY = "/var/tmp/";
 
-
 	private TelemetryManager telemetryManager;
 
 	/**
@@ -108,7 +106,7 @@ public class MatsyaClientsExecutor {
 	 * @throws TimeoutException
 	 */
 	<T> T execute(final Callable<T> callable, final long timeout)
-			throws InterruptedException, ExecutionException, TimeoutException {
+		throws InterruptedException, ExecutionException, TimeoutException {
 		final ExecutorService executorService = Executors.newSingleThreadExecutor();
 		try {
 			final Future<T> handler = executorService.submit(callable);
@@ -133,15 +131,12 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("SNMP Get Next")
 	public String executeSNMPGetNext(
-			@NonNull @SpanAttribute("snmp.oid") final String oid,
-			@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
-			@NonNull @SpanAttribute("host.hostname") final String hostname,
-			final boolean logMode
+		@NonNull @SpanAttribute("snmp.oid") final String oid,
+		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("host.hostname") final String hostname,
+		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
-
-		trace(() ->
-			log.trace("Executing SNMP GetNext request:\n- OID: {}\n", oid)
-		);
+		trace(() -> log.trace("Executing SNMP GetNext request:\n- OID: {}\n", oid));
 
 		final long startTime = System.currentTimeMillis();
 
@@ -150,7 +145,12 @@ public class MatsyaClientsExecutor {
 		final long responseTime = System.currentTimeMillis() - startTime;
 
 		trace(() ->
-			log.trace("Executed SNMP GetNext request:\n- OID: {}\n- Result: {}\n- response-time: {}\n", oid, result, responseTime)
+			log.trace(
+				"Executed SNMP GetNext request:\n- OID: {}\n- Result: {}\n- response-time: {}\n",
+				oid,
+				result,
+				responseTime
+			)
 		);
 
 		return result;
@@ -170,15 +170,12 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("SNMP Get")
 	public String executeSNMPGet(
-			@NonNull @SpanAttribute("snmp.oid") final String oid,
-			@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
-			@NonNull @SpanAttribute("host.hostname") final String hostname,
-			final boolean logMode
+		@NonNull @SpanAttribute("snmp.oid") final String oid,
+		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("host.hostname") final String hostname,
+		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
-
-		trace(() ->
-			log.trace("Executing SNMP Get request:\n- OID: {}\n", oid)
-		);
+		trace(() -> log.trace("Executing SNMP Get request:\n- OID: {}\n", oid));
 
 		final long startTime = System.currentTimeMillis();
 
@@ -208,25 +205,26 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("SNMP Get Table")
 	public List<List<String>> executeSNMPTable(
-			@NonNull @SpanAttribute("snmp.oid") final String oid,
-			@NonNull @SpanAttribute("snmp.columns") String[] selectColumnArray,
-			@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
-			@NonNull @SpanAttribute("host.hostname") final String hostname,
-			final boolean logMode
+		@NonNull @SpanAttribute("snmp.oid") final String oid,
+		@NonNull @SpanAttribute("snmp.columns") String[] selectColumnArray,
+		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("host.hostname") final String hostname,
+		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
-
 		trace(() ->
-			log.trace(
-				"Executing SNMP Table request:\n- OID: {}\n- Columns: {}\n",
-				oid,
-				Arrays.toString(selectColumnArray)
-			)
+			log.trace("Executing SNMP Table request:\n- OID: {}\n- Columns: {}\n", oid, Arrays.toString(selectColumnArray))
 		);
 
 		final long startTime = System.currentTimeMillis();
 
-		List<List<String>> result = executeSNMPGetRequest(SnmpGetRequest.TABLE, oid, configuration,
-				hostname, selectColumnArray, logMode);
+		List<List<String>> result = executeSNMPGetRequest(
+			SnmpGetRequest.TABLE,
+			oid,
+			configuration,
+			hostname,
+			selectColumnArray,
+			logMode
+		);
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
@@ -245,70 +243,70 @@ public class MatsyaClientsExecutor {
 
 	@SuppressWarnings("unchecked")
 	private <T> T executeSNMPGetRequest(
-			final SnmpGetRequest request,
-			final String oid,
-			final SnmpConfiguration protocol,
-			final String hostname,
-			final String[] selectColumnArray,
-			final boolean logMode
+		final SnmpGetRequest request,
+		final String oid,
+		final SnmpConfiguration protocol,
+		final String hostname,
+		final String[] selectColumnArray,
+		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
-
-		final String privacyType =
-				protocol.getPrivacy() != SnmpConfiguration.Privacy.NO_ENCRYPTION && protocol.getPrivacy() != null
-						? protocol.getPrivacy().name()
-						: null;
+		final String privacyType = protocol.getPrivacy() != SnmpConfiguration.Privacy.NO_ENCRYPTION &&
+			protocol.getPrivacy() != null
+			? protocol.getPrivacy().name()
+			: null;
 
 		// Create the Matsya SNMPClient and run the GetNext request
-		return (T) execute(() -> {
+		return (T) execute(
+			() -> {
+				final SNMPClient snmpClient = new SNMPClient(
+					hostname,
+					protocol.getPort(),
+					protocol.getVersion().getIntVersion(),
+					null,
+					protocol.getCommunity(),
+					protocol.getVersion().getAuthType(),
+					protocol.getUsername(),
+					protocol.getPassword() != null ? new String(protocol.getPassword()) : null,
+					privacyType,
+					protocol.getPrivacyPassword() != null ? new String(protocol.getPrivacyPassword()) : null,
+					null,
+					null
+				);
 
-			final SNMPClient snmpClient = new SNMPClient(
-				hostname,
-				protocol.getPort(),
-				protocol.getVersion().getIntVersion(),
-				null,
-				protocol.getCommunity(),
-				protocol.getVersion().getAuthType(),
-				protocol.getUsername(),
-				protocol.getPassword() != null ? new String(protocol.getPassword()) : null,
-				privacyType,
-				protocol.getPrivacyPassword() != null ? new String(protocol.getPrivacyPassword()) : null,
-				null,
-				null
-			);
-
-			try {
-				switch (request) {
-
-					case GET:
-						return snmpClient.get(oid);
-
-					case GETNEXT:
-						return snmpClient.getNext(oid);
-
-					case TABLE:
-						return snmpClient.table(oid, selectColumnArray);
-
-					default:
-						throw new IllegalArgumentException("Not implemented.");
+				try {
+					switch (request) {
+						case GET:
+							return snmpClient.get(oid);
+						case GETNEXT:
+							return snmpClient.getNext(oid);
+						case TABLE:
+							return snmpClient.table(oid, selectColumnArray);
+						default:
+							throw new IllegalArgumentException("Not implemented.");
+					}
+				} catch (Exception e) {
+					if (logMode) {
+						log.warn(
+							"Hostname {} - Error detected when running SNMP {} Query OID: {}. Error message: {}.",
+							hostname,
+							request,
+							oid,
+							e.getMessage()
+						);
+					}
+					return null;
+				} finally {
+					snmpClient.freeResources();
 				}
-
-			} catch (Exception e) {
-
-				if (logMode) {
-					log.warn("Hostname {} - Error detected when running SNMP {} Query OID: {}. Error message: {}.",
-							hostname, request, oid, e.getMessage());
-				}
-				return null;
-
-			} finally {
-				snmpClient.freeResources();
-			}
-
-		}, protocol.getTimeout());
+			},
+			protocol.getTimeout()
+		);
 	}
 
 	public enum SnmpGetRequest {
-		GET, GETNEXT, TABLE
+		GET,
+		GETNEXT,
+		TABLE
 	}
 
 	/**
@@ -332,7 +330,6 @@ public class MatsyaClientsExecutor {
 		final boolean wbemKeyType,
 		boolean caseInsensitive
 	) {
-
 		trace(() ->
 			log.trace(
 				"Executing Table Join request:\n- Left-table:\n{}\n- Right-table:\n{}\n",
@@ -341,8 +338,15 @@ public class MatsyaClientsExecutor {
 			)
 		);
 
-		List<List<String>> result = TableJoin.join(leftTable, rightTable, leftKeyColumnNumber, rightKeyColumnNumber,
-				defaultRightLine, wbemKeyType, caseInsensitive);
+		List<List<String>> result = TableJoin.join(
+			leftTable,
+			rightTable,
+			leftKeyColumnNumber,
+			rightKeyColumnNumber,
+			defaultRightLine,
+			wbemKeyType,
+			caseInsensitive
+		);
 
 		trace(() ->
 			log.trace(
@@ -365,9 +369,10 @@ public class MatsyaClientsExecutor {
 	 * @throws AwkException
 	 */
 	@WithSpan("AWK")
-	public String executeAwkScript(@SpanAttribute("awk.script") String embeddedFileScript,
-								   @SpanAttribute("awk.input") String input) throws AwkException {
-
+	public String executeAwkScript(
+		@SpanAttribute("awk.script") String embeddedFileScript,
+		@SpanAttribute("awk.input") String input
+	) throws AwkException {
 		if (embeddedFileScript == null || input == null) {
 			return null;
 		}
@@ -387,12 +392,12 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator) throws InterruptedException, ExecutionException, TimeoutException {
-
+	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator)
+		throws InterruptedException, ExecutionException, TimeoutException {
 		trace(() ->
 			log.trace(
-				"Executing JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" // NOSONAR on text block
-						+ "- Property-list: {}\n- Separator: {}\n",
+				"Executing JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" +
+				"- Property-list: {}\n- Separator: {}\n",
 				jsonSource,
 				jsonEntryKey,
 				propertyList,
@@ -403,7 +408,6 @@ public class MatsyaClientsExecutor {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		final Callable<String> jflatToCSV = () -> {
-
 			try {
 				JFlat jsonFlat = new JFlat(jsonSource);
 
@@ -412,7 +416,10 @@ public class MatsyaClientsExecutor {
 				// Get the CSV
 				return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[0]), separator).toString();
 			} catch (IllegalArgumentException e) {
-				log.error("Hostname {} - Error detected in the arguments when translating the JSON structure into CSV.", hostname);
+				log.error(
+					"Hostname {} - Error detected in the arguments when translating the JSON structure into CSV.",
+					hostname
+				);
 			} catch (Exception e) {
 				log.warn("Hostname {} - Error detected when running jsonFlat parsing:\n{}", hostname, jsonSource);
 				log.debug("Hostname {} - Exception detected when running jsonFlat parsing: ", hostname, e);
@@ -425,8 +432,8 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executed JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" // NOSONAR on text block
-						+ "- Property-list: {}\n- Separator: {}\n- Result:\n{}\n",
+				"Executed JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" +
+				"- Property-list: {}\n- Separator: {}\n- Result:\n{}\n",
 				jsonSource,
 				jsonEntryKey,
 				propertyList,
@@ -442,17 +449,14 @@ public class MatsyaClientsExecutor {
 	 * Parse a XML with the argument properties into a list of values list.
 	 *
 	 * @param xml        The XML.
-	 * @param properties A string containing the paths to properties to retrieve separated by a semi-colon character. If the property comes from an attribute, it will be preceded by a superior character: '>'.
+	 * @param properties A string containing the paths to properties to retrieve separated by a semi-colon character.<br>
+	 *                   If the property comes from an attribute, it will be preceded by a superior character: '>'.
 	 * @param recordTag  A string containing the first element xml tags path to convert. example: /rootTag/tag2
 	 * @return The list of values list.
 	 * @throws XFlatException if an error occurred in the XML parsing.
 	 */
-	public List<List<String>> executeXmlParsing(
-			final String xml,
-			final String properties,
-			final String recordTag
-	) throws XFlatException {
-
+	public List<List<String>> executeXmlParsing(final String xml, final String properties, final String recordTag)
+		throws XFlatException {
 		trace(() ->
 			log.trace(
 				"Executing XML parsing:\n- Xml-source:\n{}\n- Properties: {}\n- Record-tag: {}\n",
@@ -490,12 +494,11 @@ public class MatsyaClientsExecutor {
 	 * @throws MatsyaException when anything wrong happens with the Matsya library
 	 */
 	public List<List<String>> executeWql(
-			final String hostname,
-			final IConfiguration configuration,
-			final String query,
-			final String namespace
+		final String hostname,
+		final IConfiguration configuration,
+		final String query,
+		final String namespace
 	) throws MatsyaException {
-
 		if (configuration instanceof WbemConfiguration wbemConfiguration) {
 			return executeWbem(hostname, wbemConfiguration, query, namespace);
 		} else if (configuration instanceof WmiConfiguration wmiConfiguration) {
@@ -520,20 +523,20 @@ public class MatsyaClientsExecutor {
 	 * @throws MatsyaException when anything wrong happens with the Matsya library
 	 */
 	public static String executeWinRemoteCommand(
-			final String hostname,
-			final IConfiguration configuration,
-			final String command,
-			final List<String> embeddedFiles
+		final String hostname,
+		final IConfiguration configuration,
+		final String command,
+		final List<String> embeddedFiles
 	) throws MatsyaException {
-
 		if (configuration instanceof WmiConfiguration wmiConfiguration) {
 			return executeWmiRemoteCommand(
-					command,
-					hostname,
-					wmiConfiguration.getUsername(),
-					wmiConfiguration.getPassword(),
-					wmiConfiguration.getTimeout().intValue(),
-					embeddedFiles);
+				command,
+				hostname,
+				wmiConfiguration.getUsername(),
+				wmiConfiguration.getPassword(),
+				wmiConfiguration.getTimeout().intValue(),
+				embeddedFiles
+			);
 		} else if (configuration instanceof WinRmConfiguration winRmConfiguration) {
 			return executeRemoteWinRmCommand(hostname, winRmConfiguration, command);
 		}
@@ -555,12 +558,11 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("WBEM")
 	public List<List<String>> executeWbem(
-			@NonNull @SpanAttribute("host.hostname") final String hostname,
-			@NonNull @SpanAttribute("wbem.config") final WbemConfiguration wbemConfig,
-			@NonNull @SpanAttribute("wbem.query") final String query,
-			@NonNull @SpanAttribute("wbem.namespace") final String namespace
+		@NonNull @SpanAttribute("host.hostname") final String hostname,
+		@NonNull @SpanAttribute("wbem.config") final WbemConfiguration wbemConfig,
+		@NonNull @SpanAttribute("wbem.query") final String query,
+		@NonNull @SpanAttribute("wbem.namespace") final String namespace
 	) throws MatsyaException {
-
 		// handle vCenter case
 		if (wbemConfig.getVCenter() != null) {
 			return doVCenterQuery(hostname, wbemConfig, query, namespace);
@@ -587,28 +589,41 @@ public class MatsyaClientsExecutor {
 		@NonNull final String query,
 		@NonNull final String namespace
 	) throws MatsyaException {
-
 		String ticket = telemetryManager.getHostProperties().getVCenterTicket();
 
 		if (ticket == null) {
-			ticket = refreshVCenterTicket(wbemConfig.getVCenter(), wbemConfig.getUsername(), wbemConfig.getPassword(), hostname, wbemConfig.getTimeout());
+			ticket =
+				refreshVCenterTicket(
+					wbemConfig.getVCenter(),
+					wbemConfig.getUsername(),
+					wbemConfig.getPassword(),
+					hostname,
+					wbemConfig.getTimeout()
+				);
 		}
 
 		final WbemConfiguration vCenterWbemConfig = WbemConfiguration
-				.builder()
-				.username(ticket)
-				.password(ticket.toCharArray())
-				.namespace(wbemConfig.getNamespace())
-				.port(wbemConfig.getPort())
-				.protocol(wbemConfig.getProtocol())
-				.timeout(wbemConfig.getTimeout())
-				.build();
+			.builder()
+			.username(ticket)
+			.password(ticket.toCharArray())
+			.namespace(wbemConfig.getNamespace())
+			.port(wbemConfig.getPort())
+			.protocol(wbemConfig.getProtocol())
+			.timeout(wbemConfig.getTimeout())
+			.build();
 
 		try {
 			return doWbemQuery(hostname, vCenterWbemConfig, query, namespace);
 		} catch (MatsyaException e) {
 			if (isRefreshTicketNeeded(e.getCause())) {
-				ticket = refreshVCenterTicket(wbemConfig.getVCenter(), wbemConfig.getUsername(), wbemConfig.getPassword(), hostname, wbemConfig.getTimeout());
+				ticket =
+					refreshVCenterTicket(
+						wbemConfig.getVCenter(),
+						wbemConfig.getUsername(),
+						wbemConfig.getPassword(),
+						hostname,
+						wbemConfig.getTimeout()
+					);
 				vCenterWbemConfig.setUsername(ticket);
 				vCenterWbemConfig.setPassword(ticket.toCharArray());
 				return doWbemQuery(hostname, vCenterWbemConfig, query, namespace);
@@ -639,7 +654,6 @@ public class MatsyaClientsExecutor {
 		@NonNull String hostname,
 		@NonNull Long timeout
 	) throws MatsyaException {
-
 		VCenterClient.setDebug(() -> true, log::debug);
 		try {
 			String ticket = execute(
@@ -667,7 +681,6 @@ public class MatsyaClientsExecutor {
 	 * @return whether specified exception tells us that the ticket needs to be refreshed
 	 */
 	private static boolean isRefreshTicketNeeded(Throwable t) {
-
 		if (t == null) {
 			return false;
 		}
@@ -693,22 +706,21 @@ public class MatsyaClientsExecutor {
 	 * resulting from the execution of the query.
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
-	private List<List<String>> doWbemQuery(final String hostname, final WbemConfiguration wbemConfig, final String query,
-										   final String namespace) throws MatsyaException {
+	private List<List<String>> doWbemQuery(
+		final String hostname,
+		final WbemConfiguration wbemConfig,
+		final String query,
+		final String namespace
+	) throws MatsyaException {
 		try {
-			String urlSpec = String.format(
-				"%s://%s:%d",
-				wbemConfig.getProtocol().toString(),
-				hostname,
-				wbemConfig.getPort()
-			);
+			String urlSpec = String.format("%s://%s:%d", wbemConfig.getProtocol().toString(), hostname, wbemConfig.getPort());
 
 			final URL url = new URL(urlSpec);
 
 			trace(() ->
 				log.trace(
-					"Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" // NOSONAR on text block
-						+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n",
+					"Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" +
+					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n",
 					hostname,
 					wbemConfig.getPort(),
 					wbemConfig.getProtocol().toString(),
@@ -723,13 +735,13 @@ public class MatsyaClientsExecutor {
 			final long startTime = System.currentTimeMillis();
 
 			WbemQueryResult wbemQueryResult = WbemExecutor.executeWql(
-					url,
-					namespace,
-					wbemConfig.getUsername(),
-					wbemConfig.getPassword(),
-					query,
-					wbemConfig.getTimeout().intValue() * 1000,
-					null
+				url,
+				namespace,
+				wbemConfig.getUsername(),
+				wbemConfig.getPassword(),
+				query,
+				wbemConfig.getTimeout().intValue() * 1000,
+				null
 			);
 
 			final long responseTime = System.currentTimeMillis() - startTime;
@@ -738,8 +750,8 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" // NOSONAR on text block
-						+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
+					"Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" +
+					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					wbemConfig.getPort(),
 					wbemConfig.getProtocol().toString(),
@@ -754,12 +766,10 @@ public class MatsyaClientsExecutor {
 			);
 
 			return result;
-
 		} catch (Exception e) { // NOSONAR an exception is already thrown
 			throw new MatsyaException("WBEM query failed on " + hostname + ".", e);
 		}
 	}
-
 
 	/**
 	 * Execute a WMI query through Matsya
@@ -772,23 +782,22 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("WMI")
 	public List<List<String>> executeWmi(
-			@SpanAttribute("host.hostname") final String hostname,
-			@SpanAttribute("wmi.config") @NonNull final WmiConfiguration wmiConfig,
-			@SpanAttribute("wmi.query") @NonNull final String wbemQuery,
-			@SpanAttribute("wmi.namespace") @NonNull final String namespace
+		@SpanAttribute("host.hostname") final String hostname,
+		@SpanAttribute("wmi.config") @NonNull final WmiConfiguration wmiConfig,
+		@SpanAttribute("wmi.query") @NonNull final String wbemQuery,
+		@SpanAttribute("wmi.namespace") @NonNull final String namespace
 	) throws MatsyaException {
-
 		// Where to connect to?
 		// Local: namespace
 		// Remote: hostname\namespace
-		final String networkResource =
-				NetworkHelper.isLocalhost(hostname) ?
-						namespace : String.format("\\\\%s\\%s", hostname, namespace);
+		final String networkResource = NetworkHelper.isLocalhost(hostname)
+			? namespace
+			: String.format("\\\\%s\\%s", hostname, namespace);
 
 		trace(() ->
 			log.trace(
-				"Executing WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" // NOSONAR on text block
-					+ "- Namespace: {}\n- Timeout: {} s\n",
+				"Executing WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" +
+				"- Namespace: {}\n- Timeout: {} s\n",
 				hostname,
 				networkResource,
 				wmiConfig.getUsername(),
@@ -799,12 +808,13 @@ public class MatsyaClientsExecutor {
 		);
 
 		// Go!
-		try (final WmiWbemServices wbemServices = WmiWbemServices.getInstance(
+		try (
+			WmiWbemServices wbemServices = WmiWbemServices.getInstance(
 				networkResource,
 				wmiConfig.getUsername(),
 				wmiConfig.getPassword()
-		)) {
-
+			)
+		) {
 			final long startTime = System.currentTimeMillis();
 
 			// Execute the WQL and get the result
@@ -820,8 +830,8 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" // NOSONAR on text block
-						+ "- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
+					"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" +
+					"- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					networkResource,
 					wmiConfig.getUsername(),
@@ -834,7 +844,6 @@ public class MatsyaClientsExecutor {
 			);
 
 			return resultTable;
-
 		} catch (Exception e) {
 			throw new MatsyaException("WMI query failed on " + hostname + ".", e);
 		}
@@ -855,19 +864,18 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("Remote Command WMI")
 	public static String executeWmiRemoteCommand(
-			@SpanAttribute("wmi.command") final String command,
-			@SpanAttribute("host.hostname") final String hostname,
-			@SpanAttribute("wmi.username") final String username,
-			final char[] password,
-			@SpanAttribute("wmi.timeout") final int timeout,
-			@SpanAttribute("wmi.local_files") final List<String> localFiles
+		@SpanAttribute("wmi.command") final String command,
+		@SpanAttribute("host.hostname") final String hostname,
+		@SpanAttribute("wmi.username") final String username,
+		final char[] password,
+		@SpanAttribute("wmi.timeout") final int timeout,
+		@SpanAttribute("wmi.local_files") final List<String> localFiles
 	) throws MatsyaException {
 		try {
-
 			trace(() ->
 				log.trace(
-					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" // NOSONAR on text block
-						+ "- Timeout: {} s\n- Local-files: {}\n",
+					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" +
+					"- Timeout: {} s\n- Local-files: {}\n",
 					command,
 					hostname,
 					username,
@@ -879,14 +887,15 @@ public class MatsyaClientsExecutor {
 			final long startTime = System.currentTimeMillis();
 
 			final WinRemoteCommandExecutor result = WinRemoteCommandExecutor.execute(
-					command,
-					hostname,
-					username,
-					password,
-					null,
-					timeout * 1000L,
-					localFiles,
-					true);
+				command,
+				hostname,
+				username,
+				password,
+				null,
+				timeout * 1000L,
+				localFiles,
+				true
+			);
 
 			String resultStdout = result.getStdout();
 
@@ -894,8 +903,8 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" // NOSONAR on text block
-							+ "- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
+					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" +
+					"- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
 					command,
 					hostname,
 					username,
@@ -907,7 +916,6 @@ public class MatsyaClientsExecutor {
 			);
 
 			return resultStdout;
-
 		} catch (Exception e) {
 			throw new MatsyaException((Exception) e.getCause());
 		}
@@ -948,7 +956,6 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("HTTP")
 	public String executeHttp(@SpanAttribute("http.config") @NonNull HttpRequest httpRequest, boolean logMode) {
-
 		final HttpConfiguration httpConfiguration = httpRequest.getHttpConfiguration();
 		notNull(httpConfiguration, PROTOCOL_CANNOT_BE_NULL);
 
@@ -977,38 +984,36 @@ public class MatsyaClientsExecutor {
 		final Header header = httpRequest.getHeader();
 
 		// This will get the header content as a new map by updating all the known macros
-		final Map<String, String> headerContent = header == null ?
-				Collections.emptyMap() : header.getContent(username, password, authenticationToken, hostname);
+		final Map<String, String> headerContent = header == null
+			? Collections.emptyMap()
+			: header.getContent(username, password, authenticationToken, hostname);
 
 		// This will get the header content as a new map by updating all the known macros
 		// except sensitive data such as password and authentication token
-		final Map<String, String> headerContentProtected = header == null ?
-				Collections.emptyMap() : header.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
+		final Map<String, String> headerContentProtected = header == null
+			? Collections.emptyMap()
+			: header.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
 		// Get the body to send
 		final Body body = httpRequest.getBody();
 
 		// This will get the body content as map by updating all the known macros
-		final String bodyContent = body == null ?
-				EMPTY : body.getContent(username, password, authenticationToken, hostname);
+		final String bodyContent = body == null
+			? EMPTY
+			: body.getContent(username, password, authenticationToken, hostname);
 
 		// This will get the body content as map by updating all the known macros
 		// except sensitive data such as password and authentication token
-		final String bodyContentProtected = body == null ?
-				EMPTY : body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
+		final String bodyContentProtected = body == null
+			? EMPTY
+			: body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
 		// Get the HTTP request URL
 		final String httpRequestUrl = httpRequest.getUrl();
 		notNull(httpRequestUrl, "HTTP request URL cannot be null.");
 
 		// Update the known HTTP macros
-		final String url = HttpMacrosUpdater.update(
-				httpRequestUrl,
-				username,
-				password,
-				authenticationToken,
-				hostname
-		);
+		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
 
 		// Set the protocol http or https
 		final String protocol = Boolean.TRUE.equals(httpConfiguration.getHttps()) ? "https" : "http";
@@ -1018,8 +1023,8 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n" // NOSONAR on text block
-						+ "- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
+				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n" +
+				"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
 				method,
 				fullUrl,
 				hostname,
@@ -1034,32 +1039,31 @@ public class MatsyaClientsExecutor {
 		);
 
 		return RetryOperation
-				.<String>builder()
-				.withDescription(String.format("%s %s", method, fullUrl))
-				.withWaitStrategy((int) telemetryManager.getHostConfiguration().getRetryDelay())
-				.withMaxRetries(1)
-				.withHostname(hostname)
-				.withDefaultValue(EMPTY)
-				.build()
-				.run(() ->
-					doHttpRequest(
-						httpRequest.getResultContent(),
-						logMode,
-						httpConfiguration,
-						hostname,
-						method,
-						username,
-						password,
-						headerContent,
-						headerContentProtected,
-						bodyContent,
-						bodyContentProtected,
-						url,
-						protocol,
-						fullUrl
-					)
-				);
-
+			.<String>builder()
+			.withDescription(String.format("%s %s", method, fullUrl))
+			.withWaitStrategy((int) telemetryManager.getHostConfiguration().getRetryDelay())
+			.withMaxRetries(1)
+			.withHostname(hostname)
+			.withDefaultValue(EMPTY)
+			.build()
+			.run(() ->
+				doHttpRequest(
+					httpRequest.getResultContent(),
+					logMode,
+					httpConfiguration,
+					hostname,
+					method,
+					username,
+					password,
+					headerContent,
+					headerContentProtected,
+					bodyContent,
+					bodyContentProtected,
+					url,
+					protocol,
+					fullUrl
+				)
+			);
 	}
 
 	/**
@@ -1081,7 +1085,7 @@ public class MatsyaClientsExecutor {
 	 * @param fullUrl                The full HTTP URL. E.g. <pre>http://www.example.com:1080/api/v1/examples</pre>
 	 * @return String value
 	 */
-	private String doHttpRequest( // NOSONAR on HTTP arguments
+	private String doHttpRequest(
 		final ResultContent resultContent,
 		final boolean logMode,
 		final HttpConfiguration httpConfiguration,
@@ -1098,7 +1102,6 @@ public class MatsyaClientsExecutor {
 		final String fullUrl
 	) {
 		try {
-
 			final long startTime = System.currentTimeMillis();
 
 			// Sending the request
@@ -1153,10 +1156,10 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n" // NOSONAR on text block
-						+ "- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n"
-						+ "- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n"
-						+ "- response-body:\n{}\n- response-time: {}\n",
+					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n" +
+					"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n" +
+					"- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n" +
+					"- response-body:\n{}\n- response-time: {}\n",
 					method,
 					fullUrl,
 					hostname,
@@ -1175,11 +1178,8 @@ public class MatsyaClientsExecutor {
 			);
 
 			return result;
-
 		} catch (IOException e) {
-
 			if (logMode) {
-
 				log.error(
 					"Hostname {} - Error detected when running HTTP request {} {}: {}\nReturning null.",
 					hostname,
@@ -1188,13 +1188,7 @@ public class MatsyaClientsExecutor {
 					e.getMessage()
 				);
 
-				log.debug(
-					"Hostname {} - Exception detected when running HTTP request {} {}:",
-					hostname,
-					method,
-					fullUrl,
-					e
-				);
+				log.debug("Hostname {} - Exception detected when running HTTP request {} {}:", hostname, method, fullUrl, e);
 			}
 		}
 
@@ -1221,7 +1215,6 @@ public class MatsyaClientsExecutor {
 		String bodyContent,
 		int timeout
 	) throws IOException {
-
 		return HttpClient.sendRequest(
 			url,
 			method,
@@ -1255,7 +1248,7 @@ public class MatsyaClientsExecutor {
 	 * @throws IOException
 	 */
 	@WithSpan("SSH")
-	public static String runRemoteSshCommand( // NOSONAR on arguments
+	public static String runRemoteSshCommand(
 		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		@NonNull @SpanAttribute("ssh.username") final String username,
 		final char[] password,
@@ -1265,11 +1258,10 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("ssh.local_files") final List<File> localFiles,
 		@SpanAttribute("ssh.command") final String noPasswordCommand
 	) throws MatsyaException {
-
 		trace(() ->
 			log.trace(
-				"Executing Remote SSH command:\n- hostname: {}\n- username: {}\n- key-file-path: {}\n" // NOSONAR on text block
-					+ "- command: {}\n- timeout: {} s\n- local-files: {}\n",
+				"Executing Remote SSH command:\n- hostname: {}\n- username: {}\n- key-file-path: {}\n" +
+				"- command: {}\n- timeout: {} s\n- local-files: {}\n",
 				hostname,
 				username,
 				keyFilePath,
@@ -1285,12 +1277,12 @@ public class MatsyaClientsExecutor {
 
 		final String updatedCommand = updateCommandWithLocalList(command, localFiles);
 
-		final String noPasswordUpdatedCommand = noPasswordCommand == null ?
-				updatedCommand :
-				updateCommandWithLocalList(noPasswordCommand, localFiles);
+		final String noPasswordUpdatedCommand = noPasswordCommand == null
+			? updatedCommand
+			: updateCommandWithLocalList(noPasswordCommand, localFiles);
 
 		// We have a command: execute it
-		try (final SSHClient sshClient = createSshClientInstance(hostname)) {
+		try (SSHClient sshClient = createSshClientInstance(hostname)) {
 			sshClient.connect((int) timeoutInMilliseconds);
 
 			if (password == null) {
@@ -1302,20 +1294,16 @@ public class MatsyaClientsExecutor {
 			if (localFiles != null && !localFiles.isEmpty()) {
 				// copy all local files using SCP
 				for (final File file : localFiles) {
-					sshClient.scp(
-						file.getAbsolutePath(),
-						file.getName(),
-						SSH_REMOTE_DIRECTORY,
-						SSH_FILE_MODE
-					);
+					sshClient.scp(file.getAbsolutePath(), file.getName(), SSH_REMOTE_DIRECTORY, SSH_FILE_MODE);
 				}
 			}
 
 			final long startTime = System.currentTimeMillis();
 
 			final SSHClient.CommandResult commandResult = sshClient.executeCommand(
-					updatedCommand,
-					(int) timeoutInMilliseconds);
+				updatedCommand,
+				(int) timeoutInMilliseconds
+			);
 
 			final long responseTime = System.currentTimeMillis() - startTime;
 
@@ -1334,8 +1322,8 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed Remote SSH command:\n- Hostname: {}\n- Username: {}\n- Key-file-path: {}\n" // NOSONAR on text block
-						+ "- Command: {}\n- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
+					"Executed Remote SSH command:\n- Hostname: {}\n- Username: {}\n- Key-file-path: {}\n" +
+					"- Command: {}\n- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					username,
 					keyFilePath,
@@ -1347,7 +1335,6 @@ public class MatsyaClientsExecutor {
 				)
 			);
 			return result;
-
 		} catch (final MatsyaException e) {
 			throw e;
 		} catch (final Exception e) {
@@ -1383,7 +1370,6 @@ public class MatsyaClientsExecutor {
 		final char[] password,
 		final File privateKey
 	) throws MatsyaException {
-
 		final boolean authenticated;
 		try {
 			if (privateKey != null) {
@@ -1423,25 +1409,25 @@ public class MatsyaClientsExecutor {
 	 * @param localFiles The local files list.
 	 * @return The updated command.
 	 */
-	static String updateCommandWithLocalList(
-		final String command,
-		final List<File> localFiles
-	) {
-		return localFiles == null || localFiles.isEmpty() ?
-				command :
-				localFiles.stream().reduce(
+	static String updateCommandWithLocalList(final String command, final List<File> localFiles) {
+		return localFiles == null || localFiles.isEmpty()
+			? command
+			: localFiles
+				.stream()
+				.reduce(
 					command,
-					(s, file) -> command.replaceAll(
-						OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()),
-						SSH_REMOTE_DIRECTORY + file.getName()
-					),
+					(s, file) ->
+						command.replaceAll(
+							OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()),
+							SSH_REMOTE_DIRECTORY + file.getName()
+						),
 					(s1, s2) -> null
 				);
 	}
 
 	/**
 	 * Create a new instance of the {@link SSHClient}
-	 * 
+	 *
 	 * @param hostname
 	 * @return {@link SSHClient} instance
 	 */
@@ -1472,13 +1458,11 @@ public class MatsyaClientsExecutor {
 		final File privateKey,
 		final int timeout
 	) throws MatsyaException {
-
 		isTrue(timeout > 0, "timeout must be > 0");
 
 		final SSHClient sshClient = createSshClientInstance(hostname);
 
 		try {
-
 			sshClient.connect(timeout * 1000);
 
 			authenticateSsh(sshClient, hostname, username, password, privateKey);
@@ -1488,7 +1472,6 @@ public class MatsyaClientsExecutor {
 			sshClient.openTerminal();
 
 			return sshClient;
-
 		} catch (final IOException e) {
 			sshClient.close();
 			throw new MatsyaException(e);
@@ -1510,11 +1493,9 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("host.hostname") String hostname,
 		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
 	) throws InterruptedException, ExecutionException, TimeoutException {
-
 		trace(() ->
 			log.trace(
-				"Executing IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" // NOSONAR on text block
-					+ "- Timeout: {} s\n",
+				"Executing IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + "- Timeout: {} s\n",
 				hostname,
 				ipmiConfiguration.getUsername(),
 				ipmiConfiguration.isSkipAuth(),
@@ -1524,15 +1505,16 @@ public class MatsyaClientsExecutor {
 
 		final long startTime = System.currentTimeMillis();
 
-		String result = MatsyaIpmiClient.getChassisStatusAsStringResult(buildIpmiConfiguration(hostname,
-				ipmiConfiguration));
+		String result = MatsyaIpmiClient.getChassisStatusAsStringResult(
+			buildIpmiConfiguration(hostname, ipmiConfiguration)
+		);
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
 		trace(() ->
 			log.trace(
-				"Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" // NOSONAR on text block
-					+ "- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
+				"Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" +
+				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 				hostname,
 				ipmiConfiguration.getUsername(),
 				ipmiConfiguration.isSkipAuth(),
@@ -1589,11 +1571,10 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("host.hostname") String hostname,
 		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
 	) throws InterruptedException, ExecutionException, TimeoutException {
-
 		trace(() ->
 			log.trace(
-				"Executing IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" // NOSONAR on text block
-					+ "- Timeout: {} s\n",
+				"Executing IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" +
+				"- Timeout: {} s\n",
 				hostname,
 				ipmiConfiguration.getUsername(),
 				ipmiConfiguration.isSkipAuth(),
@@ -1603,15 +1584,16 @@ public class MatsyaClientsExecutor {
 
 		final long startTime = System.currentTimeMillis();
 
-		String result = MatsyaIpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname,
-				ipmiConfiguration));
+		String result = MatsyaIpmiClient.getFrusAndSensorsAsStringResult(
+			buildIpmiConfiguration(hostname, ipmiConfiguration)
+		);
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
 		trace(() ->
 			log.trace(
-				"Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" // NOSONAR on text block
-					+ "- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
+				"Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" +
+				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 				hostname,
 				ipmiConfiguration.getUsername(),
 				ipmiConfiguration.isSkipAuth(),
@@ -1636,22 +1618,23 @@ public class MatsyaClientsExecutor {
 	 */
 	@WithSpan("WQL WinRM")
 	public List<List<String>> executeWqlThroughWinRm(
-			@SpanAttribute("host.hostname") @NonNull final String hostname,
-			@SpanAttribute("wql.config") @NonNull final WinRmConfiguration winRmConfiguration,
-			@SpanAttribute("wql.query") @NonNull final String query,
-			@SpanAttribute("wql.namespace") @NonNull final String namespace
+		@SpanAttribute("host.hostname") @NonNull final String hostname,
+		@SpanAttribute("wql.config") @NonNull final WinRmConfiguration winRmConfiguration,
+		@SpanAttribute("wql.query") @NonNull final String query,
+		@SpanAttribute("wql.namespace") @NonNull final String namespace
 	) throws MatsyaException {
 		final String username = winRmConfiguration.getUsername();
-		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol()) ?
-				HttpProtocolEnum.HTTP : HttpProtocolEnum.HTTPS;
+		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
+			? HttpProtocolEnum.HTTP
+			: HttpProtocolEnum.HTTPS;
 		final Integer port = winRmConfiguration.getPort();
 		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
 		final Long timeout = winRmConfiguration.getTimeout();
 
 		trace(() ->
 			log.trace(
-				"Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" // NOSONAR on text block
-					+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
+				"Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" +
+				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
 				hostname,
 				username,
 				query,
@@ -1665,7 +1648,6 @@ public class MatsyaClientsExecutor {
 
 		// launching the request
 		try {
-
 			final long startTime = System.currentTimeMillis();
 
 			WinRMWqlExecutor result = WinRMWqlExecutor.executeWql(
@@ -1687,8 +1669,8 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" // NOSONAR on text block
-						+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n- Result:\n{}\n- response-time: {}\n",
+					"Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" +
+					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					username,
 					query,
@@ -1725,16 +1707,17 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("winrm.command") @NonNull final String command
 	) throws MatsyaException {
 		final String username = winRmConfiguration.getUsername();
-		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol()) ?
-				HttpProtocolEnum.HTTP : HttpProtocolEnum.HTTPS;
+		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
+			? HttpProtocolEnum.HTTP
+			: HttpProtocolEnum.HTTPS;
 		final Integer port = winRmConfiguration.getPort();
 		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
 		final Long timeout = winRmConfiguration.getTimeout();
 
 		trace(() ->
 			log.trace(
-				"Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" // NOSONAR on text block
-					+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n",
+				"Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" +
+				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n",
 				hostname,
 				username,
 				command,
@@ -1747,7 +1730,6 @@ public class MatsyaClientsExecutor {
 
 		// launching the command
 		try {
-
 			final long startTime = System.currentTimeMillis();
 
 			WindowsRemoteCommandResult result = WinRMCommandExecutor.execute(
@@ -1775,8 +1757,8 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" // NOSONAR on text block
-						+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- Result:\n{}\n- response-time: {}\n",
+					"Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" +
+					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					username,
 					command,
@@ -1806,5 +1788,4 @@ public class MatsyaClientsExecutor {
 			runnable.run();
 		}
 	}
-
 }

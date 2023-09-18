@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
 import java.util.function.UnaryOperator;
-
 import lombok.Getter;
 
 public class MappingKeyWithValueConverter extends MappingKey {

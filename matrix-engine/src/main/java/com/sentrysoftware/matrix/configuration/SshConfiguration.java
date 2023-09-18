@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.configuration;
 
+import java.io.File;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.io.File;
-import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

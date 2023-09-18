@@ -20,20 +20,20 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VOLTAG
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VOLTAGE_LOW_CRITICAL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VOLTAGE_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VOLTAGE_VALUE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class VoltageConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -45,8 +45,8 @@ public class VoltageConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_VOLTAGE_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
@@ -81,11 +81,7 @@ public class VoltageConverter extends AbstractMappingConverter {
 
 		newAttributes.set(
 			YAML_NAME,
-			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, voltageType)
-				)
-			)
+			new TextNode(wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, voltageType)))
 		);
 	}
 
@@ -98,7 +94,6 @@ public class VoltageConverter extends AbstractMappingConverter {
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode voltageTypeNode) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (voltageTypeNode == null) {
 			return firstArg;
@@ -121,5 +116,4 @@ public class VoltageConverter extends AbstractMappingConverter {
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
 		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
-
 }

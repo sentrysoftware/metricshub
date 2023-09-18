@@ -6,15 +6,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Base64;	
-
+import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -32,7 +30,7 @@ public class CryptoCipher {
 
 	/**
 	 * Encrypt the given text value using the initialization vector
-	 * 
+	 *
 	 * @param plaintext text in byte array
 	 * @param key       the secret key used to encrypt the text
 	 * @param iv        the initialization vector to use
@@ -40,7 +38,6 @@ public class CryptoCipher {
 	 * @throws MatrixSecurityException
 	 */
 	private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) throws MatrixSecurityException {
-
 		try {
 			final Cipher cipher = Cipher.getInstance(CIPHER_ALGO);
 
@@ -54,19 +51,17 @@ public class CryptoCipher {
 		} catch (Exception e) {
 			throw new MatrixSecurityException("Cannot perform encryption", e);
 		}
-
 	}
 
 	/**
 	 * Decrypt the given cipher text which has been clipped and mixed
-	 * 
+	 *
 	 * @param str        The text we wish to decrypt
 	 * @param passPhrase The pass phrase used to decrypt the text
 	 * @return char array of decrypted data
 	 * @throws MatrixSecurityException
 	 */
 	private static char[] decrypt(byte[] cipherText, SecretKey key, byte[] iv) throws MatrixSecurityException {
-
 		try {
 			final Cipher cipher = Cipher.getInstance(CIPHER_ALGO);
 
@@ -82,17 +77,15 @@ public class CryptoCipher {
 		} catch (Exception e) {
 			throw new MatrixSecurityException("Cannot perform decryption", e);
 		}
-
 	}
 
 	/**
 	 * Generate a random master key
-	 * 
+	 *
 	 * @return char array
 	 * @throws MatrixSecurityException
 	 */
-	public static char[] generateRandomMasterKey() throws MatrixSecurityException  {
-
+	public static char[] generateRandomMasterKey() throws MatrixSecurityException {
 		try {
 			final byte[] salt = getSalt();
 
@@ -103,17 +96,15 @@ public class CryptoCipher {
 		} catch (Exception e) {
 			throw new MatrixSecurityException("Error while building the master key", e);
 		}
-
 	}
 
 	/**
 	 * Get a new random salt data
-	 * 
+	 *
 	 * @return a random salt used to safeguard the password
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static byte[] getSalt() throws NoSuchAlgorithmException {
-
 		final SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
 		final byte[] salt = new byte[64];
 		sr.nextBytes(salt);
@@ -122,7 +113,7 @@ public class CryptoCipher {
 
 	/**
 	 * Encrypt the given text value
-	 * 
+	 *
 	 * @param str       The text we wish to encrypt
 	 * @param secretKey The {@link SecretKey} instance used by the encryption
 	 *                  algorithm
@@ -130,20 +121,18 @@ public class CryptoCipher {
 	 * @throws MatrixSecurityException
 	 */
 	public static char[] encrypt(char[] plainText, SecretKey secretKey) throws MatrixSecurityException {
-
 		final byte[] cipherText = encrypt(charsToBytes(plainText), secretKey, IV);
 		return bytesToChars(Base64.getEncoder().encode(cipherText));
 	}
 
 	/**
 	 * Decrypt the given text value using a secreteKey
-	 * 
+	 *
 	 * @param str       The text we wish to decrypt
 	 * @param secretKey The {@link SecretKey} instance used to decrypt the text value
 	 * @return char array of decrypted data
 	 */
 	public static char[] decrypt(char[] crypted, SecretKey secretKey) {
-
 		try {
 			final byte[] decodedCrypt = Base64.getDecoder().decode(charsToBytes(crypted));
 			return decrypt(decodedCrypt, secretKey, IV);
@@ -151,12 +140,11 @@ public class CryptoCipher {
 			// Password cannot be decrypted, so it is probably a none encrypted password
 			return crypted;
 		}
-
 	}
 
 	/**
 	 * Converts chars to bytes
-	 * 
+	 *
 	 * @param chars char array to convert
 	 * @return byte array
 	 */
@@ -167,7 +155,7 @@ public class CryptoCipher {
 
 	/**
 	 * Converts bytes to chars
-	 * 
+	 *
 	 * @param bytes byte array
 	 * @return char array
 	 */

@@ -10,5 +10,4 @@ public class ControlledSshException extends Exception {
 	public ControlledSshException(String message) {
 		super(message);
 	}
-
 }

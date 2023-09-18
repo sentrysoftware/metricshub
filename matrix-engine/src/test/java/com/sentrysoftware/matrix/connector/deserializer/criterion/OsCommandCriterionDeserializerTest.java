@@ -10,11 +10,9 @@ import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.OsCommandCriterion;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +42,8 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 		final Long timeout = 1234L;
 
 		expected.add(
-				new OsCommandCriterion("osCommand", true, commandLine, errorMessage, expectedResult, executeLocally, timeout));
+			new OsCommandCriterion("osCommand", true, commandLine, errorMessage, expectedResult, executeLocally, timeout)
+		);
 
 		assertNotNull(osCommand);
 

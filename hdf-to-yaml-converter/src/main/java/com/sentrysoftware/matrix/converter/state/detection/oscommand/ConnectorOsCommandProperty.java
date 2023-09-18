@@ -1,16 +1,14 @@
 package com.sentrysoftware.matrix.converter.state.detection.oscommand;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.detection.common.ErrorMessageProcessor;
 import com.sentrysoftware.matrix.converter.state.detection.common.ExpectedResultProcessor;
 import com.sentrysoftware.matrix.converter.state.detection.common.ForceSerializationProcessor;
 import com.sentrysoftware.matrix.converter.state.detection.common.TimeoutProcessor;
 import com.sentrysoftware.matrix.converter.state.detection.common.TypeProcessor;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -21,17 +19,16 @@ public class ConnectorOsCommandProperty {
 	private static final String OSCOMMAND_YAML_TYPE_VALUE = "osCommand";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-
-		return Stream.of(
-			new TypeProcessor(OSCOMMAND_HDF_TYPE_VALUE, OSCOMMAND_YAML_TYPE_VALUE),
-			new ForceSerializationProcessor(),
-			new ExpectedResultProcessor(),
-			new ErrorMessageProcessor(),
-			new CommandLineProcessor(),
-			new ExecuteLocallyProcessor(),
-			new TimeoutProcessor()
-		)
-		.collect(Collectors.toSet());
+		return Stream
+			.of(
+				new TypeProcessor(OSCOMMAND_HDF_TYPE_VALUE, OSCOMMAND_YAML_TYPE_VALUE),
+				new ForceSerializationProcessor(),
+				new ExpectedResultProcessor(),
+				new ErrorMessageProcessor(),
+				new CommandLineProcessor(),
+				new ExecuteLocallyProcessor(),
+				new TimeoutProcessor()
+			)
+			.collect(Collectors.toSet());
 	}
-
 }

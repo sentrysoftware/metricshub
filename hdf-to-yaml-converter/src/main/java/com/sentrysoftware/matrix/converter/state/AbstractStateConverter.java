@@ -14,18 +14,16 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCES;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.detection.snmp.OidProcessor;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
 
 public abstract class AbstractStateConverter implements IConnectorStateConverter {
@@ -36,13 +34,17 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	@Override
 	public boolean detect(final String key, final String value, final JsonNode connector) {
+		if (value == null || key == null) {
+			return false;
+		}
 
-		Matcher matcher;
+		final Matcher matcher = getMatcher(key);
 
-		return value != null
-			&& key != null
-			&& (matcher = getMatcher(key)).matches() // NOSONAR - Assigning matcher on purpose
-			&& isAccurateContext(key, value, matcher, connector);
+		if (!matcher.matches()) {
+			return false;
+		}
+
+		return isAccurateContext(key, value, matcher, connector);
 	}
 
 	/**
@@ -64,15 +66,19 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *
 	 * @return			Whether or not the context evaluation method call evaluates to <i>true</i>.
 	 */
-	private boolean isAccurateContext(final String key, final String value, final Matcher matcher, final JsonNode connector) {
-
+	private boolean isAccurateContext(
+		final String key,
+		final String value,
+		final Matcher matcher,
+		final JsonNode connector
+	) {
 		if (key.startsWith(DETECTION_DOT_CRITERIA)) {
 			return isCriterionContext(value, connector);
 		}
 
 		return key.contains(DOT_COMPUTE)
-				? isComputeContext(value, matcher, connector)
-				: isSourceContext(value, matcher, connector);
+			? isComputeContext(value, matcher, connector)
+			: isSourceContext(value, matcher, connector);
 	}
 
 	/**
@@ -98,15 +104,14 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *					</ul>
 	 */
 	private boolean isSourceContext(final String value, final Matcher matcher, final JsonNode connector) {
-
 		if (this instanceof com.sentrysoftware.matrix.converter.state.source.common.TypeProcessor typeProcessor) {
-
 			return typeProcessor.getHdfType().equalsIgnoreCase(value);
 		}
 
 		return getSource(matcher, connector) != null;
 	}
-/**
+
+	/**
 	 * @param matcher			A <u>NON-NULL</u> {@link Matcher},
 	 * 							whose match operation has been called successfully,
 	 * 							and from which
@@ -118,7 +123,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * 							connector matching the given {@link Matcher}, if available.
 	 */
 	protected ObjectNode getLastCompute(final Matcher matcher, final JsonNode connector) {
-
 		final ObjectNode source = getSource(matcher, connector);
 		if (source == null) {
 			return null;
@@ -130,7 +134,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		return (ObjectNode) computes.get(computes.size() - 1);
-
 	}
 
 	/**
@@ -145,7 +148,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * 							connector matching the given {@link Matcher}, if available.
 	 */
 	protected ObjectNode getSource(final Matcher matcher, final JsonNode connector) {
-
 		final String monitorName = getMonitorName(matcher);
 		final String monitorJobName = getMonitorJobName(matcher);
 		final String sourceName = getSourceName(matcher);
@@ -204,7 +206,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * 										in the given {@link Matcher}'s inner {@link Pattern}.
 	 */
 	protected String getMonitorJobName(@NonNull Matcher matcher) {
-
 		return matcher.group(3).toLowerCase();
 	}
 
@@ -274,7 +275,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *
 	 */
 	protected String getSourceName(@NonNull Matcher matcher) {
-
 		return String.format("source(%s)", matcher.group(4));
 	}
 
@@ -301,7 +301,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 */
 	private boolean isComputeContext(final String value, final Matcher matcher, final JsonNode connector) {
 		if (this instanceof com.sentrysoftware.matrix.converter.state.computes.common.ComputeTypeProcessor typeProcessor) {
-
 			return typeProcessor.getHdfType().equalsIgnoreCase(value);
 		}
 
@@ -332,9 +331,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *					</ul>
 	 */
 	private boolean isCriterionContext(final String value, final JsonNode connector) {
-
 		if (this instanceof com.sentrysoftware.matrix.converter.state.detection.common.TypeProcessor typeProcessor) {
-
 			return typeProcessor.getHdfType().equalsIgnoreCase(value);
 		}
 
@@ -348,7 +345,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * @return	The criterion in the given {@link JsonNode}
 	 */
 	protected JsonNode getLastCriterion(final @NonNull JsonNode connector) {
-
 		final JsonNode connectorSection = connector.get(CONNECTOR);
 
 		if (connectorSection == null) {
@@ -375,7 +371,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * @return	The criterion matching the given key.
 	 */
 	protected JsonNode getLastCriterion(final String key, final JsonNode connector) {
-
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
 			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
@@ -392,7 +387,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new text node in the last criterion object
-	 * 
+	 *
 	 * @param key The key of the criterion context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -410,7 +405,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new boolean node in the last criterion object
-	 * 
+	 *
 	 * @param key The key of the criterion context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -428,7 +423,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new integer node in the last criterion object
-	 * 
+	 *
 	 * @param key The key of the criterion context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -446,7 +441,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new array node in the last criterion object
-	 * 
+	 *
 	 * @param key The key of the criterion context
 	 * @param arrayValues The array values to create
 	 * @param connector The whole connector
@@ -464,7 +459,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new array node in the last criterion object
-	 * 
+	 *
 	 * @param key The key of the criterion context
 	 * @param arrayValues The array values to create
 	 * @param connector The whole connector
@@ -480,19 +475,14 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		createStringArrayNode(newNodeKey, arrayValues, objectNode);
 	}
 
-
 	/**
 	 * Create the a new array node with the array values in the given object node
-	 * 
+	 *
 	 * @param key The node key
 	 * @param arrayValues The array values to add in the new array node
 	 * @param objectNode The {@link ObjectNode} to update
 	 */
-	protected void createStringArrayNode(
-		final String key,
-		final String[] arrayValues,
-		final ObjectNode objectNode
-	) {
+	protected void createStringArrayNode(final String key, final String[] arrayValues, final ObjectNode objectNode) {
 		final ArrayNode arrayNode = JsonNodeFactory.instance.arrayNode();
 		Stream.of(arrayValues).forEach(value -> arrayNode.add(performValueConversions(value)));
 		objectNode.set(key, arrayNode);
@@ -500,13 +490,12 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create the a new text node in the given object node
-	 * 
+	 *
 	 * @param key The node key
 	 * @param value The text value
 	 * @param objectNode The {@link ObjectNode} to update
 	 */
 	protected void createTextNode(final String key, final String value, final ObjectNode objectNode) {
-
 		final String converted = performValueConversions(value);
 
 		objectNode.set(key, JsonNodeFactory.instance.textNode(converted));
@@ -515,18 +504,19 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	/**
 	 * Create the a new boolean node in the given object node if the text value is either
 	 * “1“, “0”, “true”, or “false“. Create a textNode using the text value in any other case.
-	 * 
+	 *
 	 * @param key The node key
 	 * @param value The text value
 	 * @param objectNode The {@link ObjectNode} to update
 	 */
 	protected void createBooleanNode(final String key, final String value, final ObjectNode objectNode) {
 		final String trimedValue = value.trim();
-		if ("1".equals(trimedValue)
-				|| "0".equals(trimedValue)
-				|| "true".equalsIgnoreCase(trimedValue)
-				|| "false".equalsIgnoreCase(trimedValue)
-				) {
+		if (
+			"1".equals(trimedValue) ||
+			"0".equals(trimedValue) ||
+			"true".equalsIgnoreCase(trimedValue) ||
+			"false".equalsIgnoreCase(trimedValue)
+		) {
 			objectNode.set(key, JsonNodeFactory.instance.booleanNode(convertToBoolean(trimedValue)));
 		} else {
 			objectNode.set(key, JsonNodeFactory.instance.textNode(trimedValue));
@@ -535,7 +525,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create the a new integer node in the given object node
-	 * 
+	 *
 	 * @param key The node key
 	 * @param value The text value
 	 * @param objectNode The {@link ObjectNode} to update
@@ -546,7 +536,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create the a new number node in the given object node
-	 * 
+	 *
 	 * @param key The node key
 	 * @param value The text value
 	 * @param objectNode The {@link ObjectNode} to update
@@ -557,7 +547,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Get or create the criteria array node in the given connector node
-	 * 
+	 *
 	 * @param connector {@link JsonNode} instance
 	 * @return {@link JsonNode} of the criteria
 	 */
@@ -567,19 +557,11 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		ArrayNode criteria;
 		if (connectorSection == null) {
 			criteria = JsonNodeFactory.instance.arrayNode();
-			((ObjectNode) connector)
-				.set(
-					CONNECTOR, 
-					JsonNodeFactory
-						.instance
+			((ObjectNode) connector).set(
+					CONNECTOR,
+					JsonNodeFactory.instance
 						.objectNode()
-						.set(
-							DETECTION,
-							JsonNodeFactory
-								.instance
-								.objectNode()
-								.set(CRITERIA, criteria)
-						)
+						.set(DETECTION, JsonNodeFactory.instance.objectNode().set(CRITERIA, criteria))
 				);
 			return criteria;
 		}
@@ -587,14 +569,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final JsonNode detection = connectorSection.get(DETECTION);
 		if (detection == null) {
 			criteria = JsonNodeFactory.instance.arrayNode();
-			((ObjectNode) connectorSection)
-				.set(
-					DETECTION,
-					JsonNodeFactory
-						.instance
-						.objectNode()
-						.set(CRITERIA, criteria)
-				);
+			((ObjectNode) connectorSection).set(DETECTION, JsonNodeFactory.instance.objectNode().set(CRITERIA, criteria));
 			return criteria;
 		}
 
@@ -610,7 +585,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Convert a string of "1" or "0" to boolean
-	 * 
+	 *
 	 * @param value "1" or "0"
 	 * @return converted boolean value
 	 */
@@ -620,7 +595,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a _comment text entry in the given object node
-	 * 
+	 *
 	 * @param key The hardware connector key
 	 * @param preConnector The {@link PreConnector} providing all the comments
 	 * @param node The node we wish to update with the comment
@@ -634,7 +609,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new boolean node in the current source object
-	 * 
+	 *
 	 * @param key The key of the source context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -652,7 +627,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new text node in the current source object
-	 * 
+	 *
 	 * @param key The key of the source context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -672,17 +647,18 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * Create a new array node in the current source object
 	 * if it does not exist
 	 * or simply adds a value
-	 * 
+	 *
 	 * @param key        The key of the source context
 	 * @param value      The value to create
 	 * @param connector  The whole connector
 	 * @param newNodeKey The new node key to create
 	 */
 	protected void createOrAppendToSourceArrayNode(
-			final String key,
-			final String value,
-			final JsonNode connector,
-			final String newNodeKey) {
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
 		final ObjectNode source = getCurrentSource(key, connector);
 		final ArrayNode existing = (ArrayNode) source.get(newNodeKey);
 		if (existing == null) {
@@ -694,7 +670,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new integer node in the current source object
-	 * 
+	 *
 	 * @param key The key of the source context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -712,7 +688,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new integer node in the last compute object
-	 * 
+	 *
 	 * @param key The key of the compute context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -730,7 +706,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new integer node in the last compute object
-	 * 
+	 *
 	 * @param key The key of the compute context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -748,7 +724,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a new integer node in the last compute object
-	 * 
+	 *
 	 * @param key The key of the compute context
 	 * @param value The value to create
 	 * @param connector The whole connector
@@ -766,7 +742,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Get the current source node.
-	 * 
+	 *
 	 * @param key The source context key
 	 * @param connector The global connector {@link JsonNode}
 	 * @return source {@link ObjectNode}. Never <code>null</code>
@@ -786,10 +762,9 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		return source;
 	}
 
-
 	/**
 	 * Get the current compute node.
-	 * 
+	 *
 	 * @param key The compute context key
 	 * @param connector The global connector {@link JsonNode}
 	 * @return source {@link ObjectNode}. Never <code>null</code>
@@ -811,17 +786,17 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Get or create the attributes node
-	 * 
+	 *
 	 * @param key The context key
 	 * @param connector the global connector {@Link JsonNode}
- 	 * @return attributesNode {@link ObjectNode}. Never <code>null</code>
+	 * @return attributesNode {@link ObjectNode}. Never <code>null</code>
 	 */
 	protected ObjectNode getOrCreateAttributes(final String key, final JsonNode connector) {
 		ObjectNode mapping = getOrCreateMapping(key, connector, DISCOVERY);
 
 		final JsonNode attributesNode = mapping.get(ATTRIBUTES);
 
-		if(attributesNode == null) {
+		if (attributesNode == null) {
 			final ObjectNode attributes = JsonNodeFactory.instance.objectNode();
 			mapping.set(ATTRIBUTES, attributes);
 			return attributes;
@@ -832,14 +807,13 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * get or create mapping node
-	 * 
+	 *
 	 * @param key the context key
 	 * @param connector the global connector {@Link JsonNode}
 	 * @param jobType the type of the job: <em>discovery</em> or <em>collect</em>
- 	 * @return mapping {@link ObjectNode}. Never <code>null</code>
+	 * @return mapping {@link ObjectNode}. Never <code>null</code>
 	 */
 	protected ObjectNode getOrCreateMapping(final String key, final JsonNode connector, final String jobType) {
-
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
 			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
@@ -852,20 +826,17 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		if (monitors == null) {
 			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
 			// Create the whole hierarchy
-			((ObjectNode) connector)
-					.set(
-						MONITORS,
-						JsonNodeFactory.instance.objectNode()
-							.set(
-								monitorName,
-								JsonNodeFactory.instance.objectNode()
-									.set(
-										jobType,
-										JsonNodeFactory.instance.objectNode()
-											.set(MAPPING, mapping)
-									)
-							)
-					);
+			((ObjectNode) connector).set(
+					MONITORS,
+					JsonNodeFactory.instance
+						.objectNode()
+						.set(
+							monitorName,
+							JsonNodeFactory.instance
+								.objectNode()
+								.set(jobType, JsonNodeFactory.instance.objectNode().set(MAPPING, mapping))
+						)
+				);
 			return mapping;
 		}
 
@@ -873,15 +844,11 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final JsonNode monitor = monitors.get(monitorName);
 		if (monitor == null) {
 			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
-			((ObjectNode) monitors)
-				.set(
+			((ObjectNode) monitors).set(
 					monitorName,
-					JsonNodeFactory.instance.objectNode()
-						.set(
-							jobType,
-							JsonNodeFactory.instance.objectNode()
-								.set(MAPPING, mapping)
-						)
+					JsonNodeFactory.instance
+						.objectNode()
+						.set(jobType, JsonNodeFactory.instance.objectNode().set(MAPPING, mapping))
 				);
 
 			return mapping;
@@ -891,12 +858,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final JsonNode job = monitor.get(jobType);
 		if (job == null) {
 			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
-			((ObjectNode) monitor)
-				.set(
-					jobType,
-					JsonNodeFactory.instance.objectNode()
-						.set(MAPPING, mapping)
-				);
+			((ObjectNode) monitor).set(jobType, JsonNodeFactory.instance.objectNode().set(MAPPING, mapping));
 			return mapping;
 		}
 
@@ -933,14 +895,13 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Create a source node in the given connector
-	 * 
+	 *
 	 * @param key The matcher used to determine the monitor name, the job
 	 * name and the source name
 	 * @param connector The global connector node
 	 * @return {@link ObjectNode} instance
 	 */
 	protected ObjectNode createSource(final String key, final JsonNode connector) {
-
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
 			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
@@ -954,21 +915,19 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 		if (monitors == null) {
 			// Create the whole hierarchy
-			((ObjectNode)connector)
-				.set(
+			((ObjectNode) connector).set(
 					MONITORS,
-					JsonNodeFactory.instance.objectNode()
+					JsonNodeFactory.instance
+						.objectNode()
 						.set(
 							monitorName,
-							JsonNodeFactory.instance.objectNode()
+							JsonNodeFactory.instance
+								.objectNode()
 								.set(
 									jobName,
-									JsonNodeFactory.instance.objectNode()
-										.set(
-											SOURCES,
-											JsonNodeFactory.instance.objectNode()
-												.set(sourceName, source)
-										)
+									JsonNodeFactory.instance
+										.objectNode()
+										.set(SOURCES, JsonNodeFactory.instance.objectNode().set(sourceName, source))
 								)
 						)
 				);
@@ -978,18 +937,15 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		// Check the monitor
 		final JsonNode monitor = monitors.get(monitorName);
 		if (monitor == null) {
-			((ObjectNode) monitors)
-				.set(
+			((ObjectNode) monitors).set(
 					monitorName,
-					JsonNodeFactory.instance.objectNode()
+					JsonNodeFactory.instance
+						.objectNode()
 						.set(
 							jobName,
-							JsonNodeFactory.instance.objectNode()
-								.set(
-									SOURCES,
-									JsonNodeFactory.instance.objectNode()
-										.set(sourceName, source)
-								)
+							JsonNodeFactory.instance
+								.objectNode()
+								.set(SOURCES, JsonNodeFactory.instance.objectNode().set(sourceName, source))
 						)
 				);
 			return source;
@@ -998,15 +954,11 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		// Check the job
 		final JsonNode job = monitor.get(jobName);
 		if (job == null) {
-			((ObjectNode) monitor)
-				.set(
+			((ObjectNode) monitor).set(
 					jobName,
-					JsonNodeFactory.instance.objectNode()
-						.set(
-							SOURCES,
-							JsonNodeFactory.instance.objectNode()
-								.set(sourceName, source)
-						)
+					JsonNodeFactory.instance
+						.objectNode()
+						.set(SOURCES, JsonNodeFactory.instance.objectNode().set(sourceName, source))
 				);
 			return source;
 		}
@@ -1015,10 +967,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final JsonNode sources = job.get(SOURCES);
 
 		if (sources == null) {
-			((ObjectNode) job).set(
-					SOURCES,
-					JsonNodeFactory.instance.objectNode()
-							.set(sourceName, source));
+			((ObjectNode) job).set(SOURCES, JsonNodeFactory.instance.objectNode().set(sourceName, source));
 
 			return source;
 		}

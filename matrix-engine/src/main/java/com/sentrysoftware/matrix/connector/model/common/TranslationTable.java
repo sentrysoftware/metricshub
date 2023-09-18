@@ -1,15 +1,13 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -30,32 +28,26 @@ public class TranslationTable implements Serializable {
 
 	/**
 	 * Copy the {@link TranslationTable} instance
-	 * 
+	 *
 	 * @return {@link TranslationTable} deep copy
 	 */
 	public TranslationTable copy() {
 		return TranslationTable
 			.builder()
 			.translations(
-					translations == null ? null : translations
-					.entrySet()
-					.stream()
-					.collect(
-						Collectors
-							.toMap(
-								Map.Entry::getKey,
-								Map.Entry::getValue,
-								(k1, k2) -> k2,
-								HashMap::new
-							)
-					)
+				translations == null
+					? null
+					: translations
+						.entrySet()
+						.stream()
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (k1, k2) -> k2, HashMap::new))
 			)
 			.build();
 	}
 
 	/**
 	 * Update the given translation table
-	 * 
+	 *
 	 * @param updater An operation on a single operand that produces a result of the
 	 *                same type as its operand.
 	 */
@@ -74,5 +66,4 @@ public class TranslationTable implements Serializable {
 	public Map<String, String> getTranslations() {
 		return this.translations;
 	}
-
 }

@@ -1,18 +1,16 @@
 package com.sentrysoftware.matrix.connector.deserializer.criterion;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.SnmpGetNextCriterion;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 
@@ -23,7 +21,6 @@ class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializeSnmpGetNext() throws IOException { // NOSONAR compareCriterion performs assertion
-
 		final Connector snmpGetNext = getConnector("snmpGetNextCriterion");
 
 		final String oid = "1.3.6.1.4.1.674.10892.5.5.1.20.130.4";
@@ -68,7 +65,6 @@ class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 			checkMessage(e, message);
 		}
 	}
-
 
 	@Test
 	/**

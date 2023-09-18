@@ -14,16 +14,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import org.springframework.util.Assert;
 
 public class TextTableHelper {
 
 	private static final String N_A = "N/A";
 
-	private TextTableHelper() {
-
-	}
+	private TextTableHelper() {}
 
 	private static final int PADDING_SIZE = 1;
 	private static final String NEW_LINE = "\n";
@@ -42,17 +39,13 @@ public class TextTableHelper {
 	 * @return		A formatted text table representing the given rows.
 	 */
 	public static String generateTextTable(List<List<String>> rows) {
-
 		if (rows == null || rows.isEmpty()) {
 			return "<empty>";
 		}
 
 		List<String> longestRow = null;
 		for (List<String> row : rows) {
-
-			longestRow = longestRow == null || (row != null && row.size() > longestRow.size())
-				? row
-				: longestRow;
+			longestRow = longestRow == null || (row != null && row.size() > longestRow.size()) ? row : longestRow;
 		}
 
 		if (longestRow == null || longestRow.isEmpty()) {
@@ -79,10 +72,9 @@ public class TextTableHelper {
 	 * 									with the given column names as the headers.
 	 */
 	public static String generateTextTable(String semiColonSeparatedColumns, List<List<String>> rows) {
-
 		return (semiColonSeparatedColumns == null || semiColonSeparatedColumns.isBlank())
-		? generateTextTable(rows)
-		: generateTextTable(semiColonSeparatedColumns.split(TABLE_SEP), rows);
+			? generateTextTable(rows)
+			: generateTextTable(semiColonSeparatedColumns.split(TABLE_SEP), rows);
 	}
 
 	/**
@@ -97,7 +89,6 @@ public class TextTableHelper {
 	 * 					with the given column names as the headers.
 	 */
 	public static String generateTextTable(String[] columns, List<List<String>> rows) {
-
 		if (columns == null || columns.length == 0) {
 			return generateTextTable(rows);
 		}
@@ -122,7 +113,6 @@ public class TextTableHelper {
 	 * 					with the given column names as the headers.
 	 */
 	public static String generateTextTable(Collection<String> columns, List<List<String>> rows) {
-
 		if (columns == null || columns.isEmpty()) {
 			return generateTextTable(rows);
 		}
@@ -153,7 +143,6 @@ public class TextTableHelper {
 	 * @return Text table
 	 */
 	public static String generateTextTable(final List<TableHeader> headers, List<List<String>> rows) {
-
 		checkArguments(headers, rows);
 
 		rows = cleanRows(rows, headers.size());
@@ -168,9 +157,13 @@ public class TextTableHelper {
 
 		// Create the header line
 		for (int headerIndex = 0; headerIndex < headers.size(); headerIndex++) {
-
-			fillCell(stringBuilder, headers.get(headerIndex).getTitle(), headerIndex, columnMaxWidthMapping,
-				headers.get(headerIndex).getType());
+			fillCell(
+				stringBuilder,
+				headers.get(headerIndex).getTitle(),
+				headerIndex,
+				columnMaxWidthMapping,
+				headers.get(headerIndex).getType()
+			);
 		}
 		stringBuilder.append(NEW_LINE);
 
@@ -179,14 +172,11 @@ public class TextTableHelper {
 
 		// Loop over each row to append them in the current table
 		for (List<String> row : rows) {
-
 			stringBuilder.append(NEW_LINE);
 
 			// Append each cell the row
 			for (int cellIndex = 0; cellIndex < row.size(); cellIndex++) {
-
-				fillCell(stringBuilder, row.get(cellIndex), cellIndex, columnMaxWidthMapping,
-					headers.get(cellIndex).getType());
+				fillCell(stringBuilder, row.get(cellIndex), cellIndex, columnMaxWidthMapping, headers.get(cellIndex).getType());
 			}
 		}
 		stringBuilder.append(NEW_LINE);
@@ -204,12 +194,7 @@ public class TextTableHelper {
 	 * @return new cleaned rows
 	 */
 	private static List<List<String>> cleanRows(final List<List<String>> rows, final int headersSize) {
-
-		return rows
-			.stream()
-			.filter(Objects::nonNull)
-			.map(row -> cleanRow(row, headersSize))
-			.collect(Collectors.toList()); //NOSONAR
+		return rows.stream().filter(Objects::nonNull).map(row -> cleanRow(row, headersSize)).collect(Collectors.toList()); //NOSONAR
 	}
 
 	/**
@@ -224,7 +209,6 @@ public class TextTableHelper {
 	 * @return new cleaned row
 	 */
 	private static List<String> cleanRow(final List<String> row, final int headersSize) {
-
 		// Creating a copy of the row
 		ArrayList<String> result = new ArrayList<>(row);
 
@@ -234,25 +218,18 @@ public class TextTableHelper {
 
 		// Creating missing cells
 		if (result.size() < headersSize) {
-
 			return Stream
 				.concat(result.stream(), Stream.generate(() -> N_A).limit((long) headersSize - result.size()))
 				.collect(Collectors.toList()); //NOSONAR
-
 		} else if (result.size() > headersSize) {
-
 			// Removing extra cells
-			return result
-				.stream()
-				.limit(headersSize)
-				.collect(Collectors.toList()); //NOSONAR
+			return result.stream().limit(headersSize).collect(Collectors.toList()); //NOSONAR
 		}
 
 		return result;
 	}
 
 	private static void checkArguments(final List<TableHeader> headers, final List<List<String>> rows) {
-
 		Assert.notNull(headers, "headers cannot be null.");
 		Assert.notNull(rows, "rows cannot be null.");
 
@@ -267,11 +244,12 @@ public class TextTableHelper {
 	 * @param headersSize the number of columns
 	 * @param columnMaxWidthMapping maximum size for each column
 	 */
-	private static void createRowLine(final StringBuilder stringBuilder, final int headersSize,
-									  Map<Integer, Integer> columnMaxWidthMapping) {
-
+	private static void createRowLine(
+		final StringBuilder stringBuilder,
+		final int headersSize,
+		Map<Integer, Integer> columnMaxWidthMapping
+	) {
 		for (int i = 0; i < headersSize; i++) {
-
 			// First start with the table joint e.g. '+' character
 			if (i == 0) {
 				stringBuilder.append(TABLE_JOINT_SYMBOL);
@@ -293,9 +271,10 @@ public class TextTableHelper {
 	 * @param rows {@link List} of {@link List} elements
 	 * @return {@link Map} where each column index defines maximum length.
 	 */
-	private static Map<Integer, Integer> getMaximumWidthOfTable(final List<TableHeader> headers,
-																final List<List<String>> rows) {
-
+	private static Map<Integer, Integer> getMaximumWidthOfTable(
+		final List<TableHeader> headers,
+		final List<List<String>> rows
+	) {
 		final Map<Integer, Integer> columnMaxWidthMapping = new HashMap<>();
 
 		// Initialize the map with header sizes as max lengths
@@ -305,9 +284,7 @@ public class TextTableHelper {
 
 		// Loop over all the row cells and determine the maximum size for each column index
 		for (final List<String> row : rows) {
-
 			for (int columnIndex = 0; columnIndex < row.size(); columnIndex++) {
-
 				if (row.get(columnIndex).length() > columnMaxWidthMapping.get(columnIndex)) {
 					columnMaxWidthMapping.put(columnIndex, row.get(columnIndex).length());
 				}
@@ -324,9 +301,11 @@ public class TextTableHelper {
 	 * @param columnMaxWidthMapping max column lengths
 	 * @return a cell padding size to append before or after the data value
 	 */
-	private static int getOptimumCellPadding(final int cellIndex, int dataLength,
-											 final Map<Integer, Integer> columnMaxWidthMapping) {
-
+	private static int getOptimumCellPadding(
+		final int cellIndex,
+		int dataLength,
+		final Map<Integer, Integer> columnMaxWidthMapping
+	) {
 		int cellPaddingSize = PADDING_SIZE;
 
 		if (dataLength < columnMaxWidthMapping.get(cellIndex)) {
@@ -342,7 +321,6 @@ public class TextTableHelper {
 	 * @param times number of append operations we wish to perform
 	 */
 	private static void fillSpace(final StringBuilder stringBuilder, final int times) {
-
 		stringBuilder.append(WHITE_SPACE.repeat(times));
 	}
 
@@ -354,9 +332,13 @@ public class TextTableHelper {
 	 * @param columnMaxWidthMapping maximum size for each column
 	 * @param textDataType the type of the data (possible types are in {@link TextDataType})
 	 */
-	private static void fillCell(final StringBuilder stringBuilder, final String cell, final int cellIndex,
-								 final Map<Integer, Integer> columnMaxWidthMapping, TextDataType textDataType) {
-
+	private static void fillCell(
+		final StringBuilder stringBuilder,
+		final String cell,
+		final int cellIndex,
+		final Map<Integer, Integer> columnMaxWidthMapping,
+		TextDataType textDataType
+	) {
 		final int cellPaddingSize = getOptimumCellPadding(cellIndex, cell.length(), columnMaxWidthMapping);
 
 		// Open the row, if we are on the first cell then append the split symbol. E.g. '|'

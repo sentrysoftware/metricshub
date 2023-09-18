@@ -14,6 +14,7 @@ public class WmiConfiguration implements IWinConfiguration {
 	private String username;
 	private char[] password;
 	private String namespace;
+
 	@Builder.Default
 	private Long timeout = 120L;
 

@@ -1,24 +1,21 @@
 package com.sentrysoftware.matrix.converter.state;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.computes.ConnectorComputeProperty;
 import com.sentrysoftware.matrix.converter.state.detection.ConnectorDetectionProperty;
 import com.sentrysoftware.matrix.converter.state.instance.ConnectorInstanceProperty;
 import com.sentrysoftware.matrix.converter.state.source.ConnectorSourceProperty;
-import com.sentrysoftware.matrix.converter.state.valuetable.ConnectorValueTableProperty;
 import com.sentrysoftware.matrix.converter.state.sudo.ConnectorSudoProperty;
-
+import com.sentrysoftware.matrix.converter.state.valuetable.ConnectorValueTableProperty;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum ConnectorState implements IConnectorStateConverter {
-
 	CONNECTOR_SIMPLE_PROPERTY(new StateConverterParent(ConnectorSimpleProperty.getConnectorProperties())),
 	CONNECTOR_DETECTION(new StateConverterParent(ConnectorDetectionProperty.getConnectorProperties())),
 	CONNECTOR_SOURCE(new StateConverterParent(ConnectorSourceProperty.getConnectorProperties())),
@@ -27,7 +24,6 @@ public enum ConnectorState implements IConnectorStateConverter {
 	CONNECTOR_VALUE_TABLE(new StateConverterParent(ConnectorValueTableProperty.getConnectorProperties())),
 	CONNECTOR_INSTANCE(new StateConverterParent(ConnectorInstanceProperty.getConnectorProperties())),
 	CONNECTOR_SUDO(new StateConverterParent(ConnectorSudoProperty.getConnectorProperties()));
-
 
 	private final IConnectorStateConverter connectorStateConverter;
 

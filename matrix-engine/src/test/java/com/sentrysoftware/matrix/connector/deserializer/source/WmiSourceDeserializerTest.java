@@ -2,17 +2,15 @@ package com.sentrysoftware.matrix.connector.deserializer.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.WmiSource;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 class WmiSourceDeserializerTest extends DeserializerTest {
 
@@ -27,7 +25,8 @@ class WmiSourceDeserializerTest extends DeserializerTest {
 		final Connector connector = getConnector(testResource);
 
 		final Map<String, Source> expected = new LinkedHashMap<>(
-			Map.of("testWmiSource",
+			Map.of(
+				"testWmiSource",
 				WmiSource
 					.builder()
 					.key("${source::pre.testWmiSource}")

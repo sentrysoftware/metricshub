@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.connector.parser;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,16 +13,10 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class ConstantsProcessor implements NodeProcessor {
 
 	@Override
 	public JsonNode process(JsonNode node) {
-
 		final JsonNode constantsNode = node.get("constants");
 
 		if (constantsNode != null && constantsNode.isObject()) {
@@ -31,7 +29,7 @@ public class ConstantsProcessor implements NodeProcessor {
 				replacements.put(key, child.asText());
 			}
 
-			final UnaryOperator<String> transformer = value ->  performReplacements(replacements, value);
+			final UnaryOperator<String> transformer = value -> performReplacements(replacements, value);
 
 			final Predicate<String> replacementPredicate = Objects::nonNull;
 			replacePlaceholderValues(node, transformer, replacementPredicate);
@@ -45,7 +43,7 @@ public class ConstantsProcessor implements NodeProcessor {
 	/**
 	 * Perform replacements on the given value using the key-value pairs
 	 * provided in the replacements {@link Map}
-	 * 
+	 *
 	 * @param replacements Key-value pairs of placeholder to value to replace.
 	 * E.g { $constants.query1=MyQuery1, $constants.query2=MyQuery2 }
 	 * @param value to replace
@@ -70,7 +68,7 @@ public class ConstantsProcessor implements NodeProcessor {
 
 	/**
 	 * Traverse the given node and replace values
-	 * 
+	 *
 	 * @param node {@link JsonNode} instance
 	 * @param transformer value transformer function
 	 * @param replacementPredicate replacement predicate
@@ -81,14 +79,12 @@ public class ConstantsProcessor implements NodeProcessor {
 		final Predicate<String> replacementPredicate
 	) {
 		if (node.isObject()) {
-
 			// Get JsonNode fields
 			final List<String> fieldNames = new ArrayList<>(node.size());
 			node.fieldNames().forEachRemaining(fieldNames::add);
 
 			// Get the corresponding JsonNode for each field
 			for (final String fieldName : fieldNames) {
-
 				final JsonNode child = node.get(fieldName);
 
 				// Means it wrap sub JsonNode(s)
@@ -106,10 +102,8 @@ public class ConstantsProcessor implements NodeProcessor {
 				}
 			}
 		} else if (node.isArray()) {
-
-			// Loop over the array and get each JsonNode element 
+			// Loop over the array and get each JsonNode element
 			for (int i = 0; i < node.size(); i++) {
-
 				final JsonNode child = node.get(i);
 
 				// Means this node is a JsonNode element
@@ -132,7 +126,7 @@ public class ConstantsProcessor implements NodeProcessor {
 
 	/**
 	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the placeholder
-	 * 
+	 *
 	 * @param replacer
 	 * @param oldValue
 	 */

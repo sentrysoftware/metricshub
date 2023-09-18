@@ -4,12 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class SecurityManagerTest {
-
 
 	private static File securityPath;
 
@@ -36,5 +34,4 @@ class SecurityManagerTest {
 		encryptedPassword = SecurityManager.encrypt(password, securityPath);
 		assertArrayEquals(password, SecurityManager.decrypt(encryptedPassword, securityPath));
 	}
-
 }

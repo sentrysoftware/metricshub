@@ -4,7 +4,6 @@ import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirementsCriterion;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,6 @@ class ProductRequirementsCriterionDeserializerTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testDeserializeProductRequirementsDeserializer() throws Exception { // NOSONAR compareCriterion performs assertion
-
 		final Connector productRequirements = getConnector("productRequirementsCriterion");
 
 		List<Criterion> expected = new ArrayList<>();

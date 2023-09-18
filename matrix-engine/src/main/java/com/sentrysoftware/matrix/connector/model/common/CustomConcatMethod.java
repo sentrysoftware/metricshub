@@ -5,7 +5,6 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +19,7 @@ public class CustomConcatMethod implements IEntryConcatMethod {
 	@JsonSetter(nulls = FAIL)
 	@NonNull
 	private String concatStart;
+
 	@JsonSetter(nulls = FAIL)
 	@NonNull
 	private String concatEnd;
@@ -36,11 +36,7 @@ public class CustomConcatMethod implements IEntryConcatMethod {
 
 	@Override
 	public CustomConcatMethod copy() {
-		return CustomConcatMethod
-			.builder()
-			.concatStart(concatStart)
-			.concatEnd(concatEnd)
-			.build();
+		return CustomConcatMethod.builder().concatStart(concatStart).concatEnd(concatEnd).build();
 	}
 
 	@Override

@@ -2,13 +2,11 @@ package com.sentrysoftware.matrix.common.helpers.state;
 
 import java.util.Map;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 public enum PredictedFailure implements IState {
-
 	OK(0),
 	FAILURE_PREDICTED(1);
 
@@ -19,14 +17,22 @@ public enum PredictedFailure implements IState {
 	 * Map each state value to a {@link PredictedFailure}
 	 */
 	private static final Map<String, PredictedFailure> PREDICTED_FAILURE_MAP = Map.of(
-		"0", OK,
-		"ok", OK,
-		"false", OK,
-		"1", FAILURE_PREDICTED,
-		"degraded", FAILURE_PREDICTED,
-		"2", FAILURE_PREDICTED,
-		"failed", FAILURE_PREDICTED,
-		"true", FAILURE_PREDICTED
+		"0",
+		OK,
+		"ok",
+		OK,
+		"false",
+		OK,
+		"1",
+		FAILURE_PREDICTED,
+		"degraded",
+		FAILURE_PREDICTED,
+		"2",
+		FAILURE_PREDICTED,
+		"failed",
+		FAILURE_PREDICTED,
+		"true",
+		FAILURE_PREDICTED
 	);
 
 	/**

@@ -8,7 +8,6 @@ import com.sentrysoftware.matrix.configuration.IConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration.Privacy;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration.SnmpVersion;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -48,7 +47,7 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 
 	/**
 	 * Create a new {@link SnmpConfiguration} instance based on the current members
-	 * 
+	 *
 	 * @return The {@link SnmpConfiguration} instance
 	 */
 	@Override
@@ -81,5 +80,4 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 		}
 		return desc;
 	}
-
 }

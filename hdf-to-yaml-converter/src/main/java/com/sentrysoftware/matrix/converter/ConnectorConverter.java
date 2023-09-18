@@ -4,12 +4,6 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTION_
 import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -18,7 +12,11 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.state.ConnectorState;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 import com.sentrysoftware.matrix.converter.state.mapping.MappingConvertersWrapper;
-
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class ConnectorConverter {
 
 	private static final Map<Pattern, String> IGNORED_KEY_PATTERNS = Map.of(
-		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")), "snmp"
+		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")),
+		"snmp"
 	);
 
 	@NonNull
@@ -34,11 +33,10 @@ public class ConnectorConverter {
 
 	/**
 	 * Convert the {@link PreConnector} into a JsonNode connector instance
-	 * 
+	 *
 	 * @return new {@link JsonNode} instance
 	 */
 	public JsonNode convert() {
-
 		final JsonNode connector = JsonNodeFactory.instance.objectNode();
 
 		// Set extended connectors
@@ -54,7 +52,7 @@ public class ConnectorConverter {
 		setTranslationTables(connector);
 
 		// Post conversion for the discovery mapping properties
-		MappingConvertersWrapper wrapper  = new MappingConvertersWrapper();
+		MappingConvertersWrapper wrapper = new MappingConvertersWrapper();
 
 		wrapper.removeMonitor(connector, ConverterConstants.YAML_CPU_CORE);
 		wrapper.postConvertDiscovery(connector);
@@ -67,7 +65,7 @@ public class ConnectorConverter {
 
 	/**
 	 * If the HDF doesn't define hdf.localsupport add "local" to the connectionTypes array node
-	 * 
+	 *
 	 * @param connector Global YAML connector
 	 * @param codeKeys code keys. Example: <em>[ hdf.remotesupport, hdf.localsupport, hdf.onlastresort, ... ]</em>
 	 */
@@ -79,8 +77,7 @@ public class ConnectorConverter {
 			if (detectionNode != null) {
 				final ArrayNode connectionTypeNode = (ArrayNode) detectionNode.get(CONNECTION_TYPES);
 				if (
-					connectionTypeNode != null &&
-					codeKeys.stream().noneMatch(s -> s.toLowerCase().startsWith("hdf.localsupport"))
+					connectionTypeNode != null && codeKeys.stream().noneMatch(s -> s.toLowerCase().startsWith("hdf.localsupport"))
 				) {
 					connectionTypeNode.add("local");
 				}
@@ -90,7 +87,7 @@ public class ConnectorConverter {
 
 	/**
 	 * Set the connector's translation tables.
-	 * 
+	 *
 	 * @param connector
 	 */
 	private void setTranslationTables(final JsonNode connector) {
@@ -101,7 +98,7 @@ public class ConnectorConverter {
 		}
 
 		final ObjectNode translations = JsonNodeFactory.instance.objectNode();
-		((ObjectNode)connector).set("translations", translations);
+		((ObjectNode) connector).set("translations", translations);
 		for (final Entry<String, Map<String, String>> translationsEntry : translationTablesMap.entrySet()) {
 			final String tableKey = translationsEntry.getKey();
 
@@ -109,35 +106,24 @@ public class ConnectorConverter {
 			translations.set(tableKey, translationTable);
 			translationsEntry
 				.getValue()
-				.forEach(
-					(key, value) -> translationTable
-						.set(key, JsonNodeFactory.instance.textNode(value))
-				);
-
+				.forEach((key, value) -> translationTable.set(key, JsonNodeFactory.instance.textNode(value)));
 		}
-
 	}
-
 
 	/**
 	 * Detect and convert the given line
-	 * 
+	 *
 	 * @param key the Connector key we wish to extract its value
 	 * @param value the corresponding value we wish to process
 	 * @param connector {@link JsonNod} instance to update
 	 */
-	private void convertKeyValue(
-		final String key,
-		final String value,
-		final JsonNode connector
-	) {
-
+	private void convertKeyValue(final String key, final String value, final JsonNode connector) {
 		// Get the detected state
 		final Optional<ConnectorState> optionalState = ConnectorState
-				.getConnectorStates()
-				.stream()
-				.filter(state ->  state.detect(key, value, connector))
-				.findFirst();
+			.getConnectorStates()
+			.stream()
+			.filter(state -> state.detect(key, value, connector))
+			.findFirst();
 
 		optionalState.ifPresentOrElse(
 			// We've got the key
@@ -150,12 +136,11 @@ public class ConnectorConverter {
 				}
 			}
 		);
-
 	}
 
 	/**
 	 * Set the connector's constants
-	 * 
+	 *
 	 * @param jsonNode
 	 */
 	private void setConstants(final JsonNode jsonNode) {
@@ -168,18 +153,15 @@ public class ConnectorConverter {
 		final ObjectNode constants = JsonNodeFactory.instance.objectNode();
 		constantsMap
 			.entrySet()
-			.forEach(entry -> 
-				constants.set(
-					entry.getKey(),
-					new TextNode(ConversionHelper.performValueConversions(entry.getValue()))
-				)
+			.forEach(entry ->
+				constants.set(entry.getKey(), new TextNode(ConversionHelper.performValueConversions(entry.getValue())))
 			);
 		((ObjectNode) jsonNode).set("constants", constants);
 	}
 
 	/**
 	 * Set the extended connectors
-	 * 
+	 *
 	 * @param jsonNode
 	 */
 	private void setExtendedConnectors(final JsonNode jsonNode) {
@@ -198,20 +180,19 @@ public class ConnectorConverter {
 		});
 
 		((ObjectNode) jsonNode).set("extends", extendedConnectors);
-
 	}
 
 	/**
 	 * Check whether the specified key is in the "safe ignore" list (i.e. there
 	 * is no converter matching, but it's still a valid key)
-	 * 
+	 *
 	 * @param key 	Key to check
 	 * @param value value to check
 	 * @return whether the specified key is safe to ignore
 	 */
 	static boolean isKeyValueSafeToIgnore(final String key, final String value) {
-		for(Entry<Pattern,String> entry : IGNORED_KEY_PATTERNS.entrySet()){
-			if(entry.getKey().matcher(key).find() && entry.getValue().equals(value.toLowerCase())){
+		for (Entry<Pattern, String> entry : IGNORED_KEY_PATTERNS.entrySet()) {
+			if (entry.getKey().matcher(key).find() && entry.getValue().equals(value.toLowerCase())) {
 				return true;
 			}
 		}

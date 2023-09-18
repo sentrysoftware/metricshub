@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,10 +32,10 @@ public class ProcessCriterion extends Criterion {
 	@Builder
 	@JsonCreator
 	public ProcessCriterion(
-			@JsonProperty("type") String type,
-			@JsonProperty("forceSerialization") boolean forceSerialization,
-			@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine) {
-
+		@JsonProperty("type") String type,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine
+	) {
 		super(type, forceSerialization);
 		this.commandLine = commandLine;
 	}

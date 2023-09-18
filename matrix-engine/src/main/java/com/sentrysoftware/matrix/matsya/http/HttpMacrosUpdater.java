@@ -1,16 +1,15 @@
 package com.sentrysoftware.matrix.matsya.http;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
-import java.util.Base64;
-
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PASSWORD_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.USERNAME_MACRO;
 import static com.sentrysoftware.matsya.jutils.JUtils.encodeSha256;
+
+import java.util.Base64;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpMacrosUpdater {
@@ -18,7 +17,6 @@ public class HttpMacrosUpdater {
 	private static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
 	private static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
 	private static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
-
 
 	/**
 	 * Replaces each known HTTP macro in the given text with the literal target sequences:<br>
@@ -38,7 +36,6 @@ public class HttpMacrosUpdater {
 		String authenticationToken,
 		@NonNull String hostname
 	) {
-
 		if (text == null || text.isEmpty()) {
 			return EMPTY;
 		}
@@ -58,37 +55,27 @@ public class HttpMacrosUpdater {
 		// Encode the password into a base64 string
 		// then replace the macro with the resulting value
 		if (updatedContent.indexOf(PASSWORD_BASE64_MACRO) != -1) {
-			updatedContent = updatedContent
-				.replace(
-					PASSWORD_BASE64_MACRO,
-					Base64.getEncoder().encodeToString(passwordAsString.getBytes())
-				);
+			updatedContent =
+				updatedContent.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()));
 		}
 
 		// Join the username and password with a colon `username:password`
 		// and encode the resulting string in `base64`
 		// then replace the macro with the resulting value
 		if (updatedContent.indexOf(BASIC_AUTH_BASE64_MACRO) != -1) {
-			updatedContent = updatedContent
-				.replace(
+			updatedContent =
+				updatedContent.replace(
 					BASIC_AUTH_BASE64_MACRO,
-					Base64.getEncoder().encodeToString(
-						String.format("%s:%s", username, passwordAsString).getBytes()
-					)
+					Base64.getEncoder().encodeToString(String.format("%s:%s", username, passwordAsString).getBytes())
 				);
 		}
 
 		// Encode the authentication token into SHA256 string
 		// then replace the macro with the resulting value
 		if (updatedContent.indexOf(SHA256_AUTH_MACRO) != -1) {
-			updatedContent = updatedContent
-				.replace(
-					SHA256_AUTH_MACRO,
-					encodeSha256(authenticationToken)
-				);
+			updatedContent = updatedContent.replace(SHA256_AUTH_MACRO, encodeSha256(authenticationToken));
 		}
 
 		return updatedContent;
 	}
-
 }

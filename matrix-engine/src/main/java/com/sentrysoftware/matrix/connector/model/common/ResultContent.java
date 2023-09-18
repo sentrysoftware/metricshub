@@ -1,18 +1,15 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
 public enum ResultContent {
-
-	@JsonAlias(value = {"httpStatus", "http_status" })
+	@JsonAlias(value = { "httpStatus", "http_status" })
 	HTTP_STATUS("httpStatus"),
 	@JsonAlias("header")
 	HEADER("header"),
@@ -25,17 +22,21 @@ public enum ResultContent {
 	 * Map each ResultContent with a regular expression that detects it
 	 */
 	private static final Map<ResultContent, Pattern> DETECTORS = Map.of(
-		HTTP_STATUS, Pattern.compile("^httpstatus$|^http_status$"),
-		HEADER, Pattern.compile("^header$"),
-		BODY, Pattern.compile("^body$"),
-		ALL, Pattern.compile("^all$")
+		HTTP_STATUS,
+		Pattern.compile("^httpstatus$|^http_status$"),
+		HEADER,
+		Pattern.compile("^header$"),
+		BODY,
+		Pattern.compile("^body$"),
+		ALL,
+		Pattern.compile("^all$")
 	);
 
 	private String name;
 
 	/**
 	 * Detect {@link ResultContent} using the value defined in the connector code
-	 * 
+	 *
 	 * @param value
 	 * @return {@link ResultContent} instance
 	 */
@@ -54,7 +55,8 @@ public enum ResultContent {
 		}
 
 		// No match => Exception
-		throw new IllegalArgumentException("'" + value + "' is not a supported ResultContent. Accepted values are: [ httpStatus, header, body, all ].");
+		throw new IllegalArgumentException(
+			"'" + value + "' is not a supported ResultContent. Accepted values are: [ httpStatus, header, body, all ]."
+		);
 	}
-
 }

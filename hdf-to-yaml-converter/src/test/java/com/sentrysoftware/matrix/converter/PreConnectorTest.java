@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.matrix.converter.PreConnector.ConnectorEntry;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,11 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.matrix.converter.PreConnector.ConnectorEntry;
 
 class PreConnectorTest {
 
@@ -36,13 +34,11 @@ class PreConnectorTest {
 
 	@BeforeEach
 	void setup() {
-
 		preConnector = new PreConnector();
 	}
 
 	@Test
 	void testLoad() {
-
 		assertDoesNotThrow(() -> preConnector.load(DELL_OPEN_MANAGE_HDFS));
 
 		// Testing processTranslationTables()
@@ -71,38 +67,28 @@ class PreConnectorTest {
 		assertNotNull(genericStatusTranslationTable);
 		assertEquals(5, genericStatusTranslationTable.size());
 		assertEquals(
-			Map.of(
-				"3", "ok",
-				"4", "degraded",
-				"5", "failed",
-				"6", "failed",
-				"Default", "UNKNOWN"
-			),
+			Map.of("3", "ok", "4", "degraded", "5", "failed", "6", "failed", "Default", "UNKNOWN"),
 			genericStatusTranslationTable
 		);
 	}
 
 	@Test
 	void testGetProblemList() {
-
 		assertEquals(0, preConnector.getProblemList().size());
 	}
 
 	@Test
 	void testGet() {
-
 		assertNull(preConnector.get(FOO));
 	}
 
 	@Test
 	void testGetOrDefault() {
-
 		assertEquals(BAR, preConnector.getOrDefault(FOO, BAR));
 	}
 
 	@Test
 	void testPut() {
-
 		assertNull(preConnector.get(FOO));
 		preConnector.put(FOO, BAR);
 		assertEquals(BAR, preConnector.get(FOO));
@@ -110,13 +96,11 @@ class PreConnectorTest {
 
 	@Test
 	void testEntrySet() {
-
 		assertTrue(preConnector.entrySet().isEmpty());
 	}
 
 	@Test
 	void testSortCodeMap() {
-
 		assertNull(PreConnector.sortCodeMap(null));
 		assertEquals(Collections.emptyMap(), PreConnector.sortCodeMap(Collections.emptyMap()));
 
@@ -199,35 +183,38 @@ class PreConnectorTest {
 
 	@Test
 	void testCompareCodeMap() {
-
 		// check connector entries null
 		assertEquals(IS_EQUAL, PreConnector.compareCodeMap(null, null));
 		assertEquals(IS_BEFORE, PreConnector.compareCodeMap(new ConnectorEntry(0, "hdf.displayname", "test"), null));
 		assertEquals(IS_AFTER, PreConnector.compareCodeMap(null, new ConnectorEntry(0, "hdf.displayname", "test")));
 
 		// compare hdf
-		assertEquals(IS_BEFORE,
+		assertEquals(
+			IS_BEFORE,
 			PreConnector.compareCodeMap(
 				new ConnectorEntry(0, "hdf.DisplayName", "HP StorageWorks EVA (SSSU) - Patrol Agent on Windows"),
 				new ConnectorEntry(1, "hdf.TypicalPlatform", "HP StorageWorks EVA")
 			)
 		);
 
-		assertEquals(IS_AFTER,
+		assertEquals(
+			IS_AFTER,
 			PreConnector.compareCodeMap(
 				new ConnectorEntry(1, "hdf.TypicalPlatform", "HP StorageWorks EVA"),
 				new ConnectorEntry(0, "hdf.DisplayName", "HP StorageWorks EVA (SSSU) - Patrol Agent on Windows")
 			)
 		);
 
-		assertEquals(IS_BEFORE,
+		assertEquals(
+			IS_BEFORE,
 			PreConnector.compareCodeMap(
 				new ConnectorEntry(0, "hdf.DisplayName", "HP StorageWorks EVA (SSSU) - Patrol Agent on Windows"),
 				new ConnectorEntry(0, "detection.criteria(1).type", "Process")
 			)
 		);
 
-		assertEquals(IS_AFTER,
+		assertEquals(
+			IS_AFTER,
 			PreConnector.compareCodeMap(
 				new ConnectorEntry(0, "Enclosure.Discovery.Source(1).Type", "TelnetInteractive"),
 				new ConnectorEntry(0, "hdf.DisplayName", "HP StorageWorks EVA (SSSU) - Patrol Agent on Windows")
@@ -237,10 +224,9 @@ class PreConnectorTest {
 
 	@Test
 	void testCompareDetectionConnectorEntries() {
-
 		// check if Detection
 		assertEquals(
-			OptionalInt.empty(), 
+			OptionalInt.empty(),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "hdf.DisplayName", "HP StorageWorks EVA (SSSU) - Patrol Agent on Windows"),
 				new ConnectorEntry(0, "hdf.TypicalPlatform", "HP StorageWorks EVA")
@@ -248,7 +234,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(1).type", "OS"),
 				new ConnectorEntry(0, "hdf.TypicalPlatform", "HP StorageWorks EVA")
@@ -256,7 +242,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "hdf.DisplayName", "HP StorageWorks EVA (SSSU) - Patrol Agent on Windows"),
 				new ConnectorEntry(0, "detection.criteria(1).type", "OS")
@@ -265,7 +251,7 @@ class PreConnectorTest {
 
 		// compare criteria index first
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(1).type", "OS"),
 				new ConnectorEntry(0, "Detection.Criteria(2).Type", "TelnetInteractive")
@@ -273,7 +259,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "Detection.Criteria(2).Type", "TelnetInteractive"),
 				new ConnectorEntry(0, "detection.criteria(1).type", "OS")
@@ -282,7 +268,7 @@ class PreConnectorTest {
 
 		// compare criteria type before
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(1).type", "OSCommand"),
 				new ConnectorEntry(0, "detection.criteria(1).CommandLine", "echo %OS%")
@@ -290,7 +276,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(1).CommandLine", "echo %OS%"),
 				new ConnectorEntry(0, "detection.criteria(1).type", "OSCommand")
@@ -299,7 +285,7 @@ class PreConnectorTest {
 
 		// compare parameter values
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(1).CommandLine", "echo %OS%"),
 				new ConnectorEntry(0, "detection.criteria(2).CommandLine", "echo %OS%")
@@ -307,7 +293,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(2).CommandLine", "echo %OS%"),
 				new ConnectorEntry(0, "detection.criteria(1).CommandLine", "echo %OS%")
@@ -315,7 +301,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(2, "detection.criteria(1).CommandLine", "echo %OS%"),
 				new ConnectorEntry(3, "detection.criteria(1).Timeout", "30")
@@ -323,7 +309,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(3, "detection.criteria(1).Timeout", "30"),
 				new ConnectorEntry(2, "detection.criteria(1).CommandLine", "echo %OS%")
@@ -332,7 +318,7 @@ class PreConnectorTest {
 
 		// compare steps
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(1).type", "TelnetInteractive"),
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Type", "Sleep")
@@ -340,7 +326,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Type", "Sleep"),
 				new ConnectorEntry(0, "detection.criteria(1).type", "TelnetInteractive")
@@ -348,7 +334,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "detection.criteria(1).ExpectedResult", "HP.* BladeSystem Onboard Administrator"),
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Type", "Sleep")
@@ -356,7 +342,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Type", "Sleep"),
 				new ConnectorEntry(0, "detection.criteria(1).ExpectedResult", "HP.* BladeSystem Onboard Administrator")
@@ -364,7 +350,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Type", "Sleep"),
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(2).Type", "Sleep")
@@ -380,7 +366,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Type", "Sleep"),
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Duration", "1")
@@ -388,7 +374,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_AFTER), 
+			OptionalInt.of(IS_AFTER),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Duration", "1"),
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Type", "Sleep")
@@ -396,7 +382,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(1).Duration", "1"),
 				new ConnectorEntry(0, "Detection.Criteria(1).Step(2).Duration", "1")
@@ -412,7 +398,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			OptionalInt.of(IS_BEFORE), 
+			OptionalInt.of(IS_BEFORE),
 			PreConnector.compareDetectionConnectorEntries(
 				new ConnectorEntry(1, "Detection.Criteria(1).Step(1).TelnetOnly", "1"),
 				new ConnectorEntry(2, "Detection.Criteria(1).Step(1).TimeOut", "20")
@@ -430,16 +416,17 @@ class PreConnectorTest {
 
 	@Test
 	void testCompareSourceConnectorEntries() { // NOSONAR
-
 		// compare Discovery before Collect
-		assertEquals(IS_BEFORE,
+		assertEquals(
+			IS_BEFORE,
 			PreConnector.compareCodeMap(
 				new ConnectorEntry(0, "Enclosure.Discovery.Source(1).Type", "TelnetInteractive"),
 				new ConnectorEntry(0, "Battery.Collect.Source(1).Type", "TelnetInteractive")
 			)
 		);
 
-		assertEquals(IS_AFTER,
+		assertEquals(
+			IS_AFTER,
 			PreConnector.compareCodeMap(
 				new ConnectorEntry(0, "Battery.Collect.Source(1).Type", "TelnetInteractive"),
 				new ConnectorEntry(0, "Enclosure.Discovery.Source(1).Type", "TelnetInteractive")
@@ -448,7 +435,7 @@ class PreConnectorTest {
 
 		// compare other sources like instances
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(10, "Enclosure.Collect.ValueTable", "%Enclosure.Collect.Source(1)%"),
 				new ConnectorEntry(15, "Blade.Collect.Type", "MultiInstance")
@@ -465,7 +452,7 @@ class PreConnectorTest {
 
 		// compare instance type before source
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Blade.Collect.Type", "MultiInstance"),
 				new ConnectorEntry(0, "Blade.Collect.Source(1).Type", "HTTP")
@@ -482,7 +469,7 @@ class PreConnectorTest {
 
 		// compare value  after source
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Blade.Collect.Source(1).Type", "HTTP"),
 				new ConnectorEntry(0, "Blade.Collect.ValueTable", "%Enclosure.Collect.Source(1)%")
@@ -501,7 +488,7 @@ class PreConnectorTest {
 
 		// compare source index
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1).Type", "HTTP"),
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(2).Type", "HTTP")
@@ -517,7 +504,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1).Method", "GET"),
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(2).Method", "GET")
@@ -533,7 +520,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(3).Type", "Sleep"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(2).Step(1).Type", "Sleep")
@@ -549,7 +536,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(3).Type", "Translate"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(2).Compute(1).Type", "Translate")
@@ -566,7 +553,7 @@ class PreConnectorTest {
 
 		// compare source reference over parameter
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1)", "%Enclosure.Collect.Source(1)%"),
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1).Method", "GET")
@@ -583,7 +570,7 @@ class PreConnectorTest {
 
 		// compare source reference over type
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1)", "%Enclosure.Collect.Source(1)%"),
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1).Type", "HTTP")
@@ -600,7 +587,7 @@ class PreConnectorTest {
 
 		// compare source type over parameter
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1).Type", "HTTP"),
 				new ConnectorEntry(0, "PowerSupply.Collect.Source(1).Method", "GET")
@@ -617,7 +604,7 @@ class PreConnectorTest {
 
 		// compare source parameters
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(2, "PowerSupply.Collect.Source(1).Method", "GET"),
 				new ConnectorEntry(4, "PowerSupply.Collect.Source(1).ResultContent", "Body")
@@ -634,7 +621,7 @@ class PreConnectorTest {
 
 		// compare source over step
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Timeout", "1"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(1).Type", "Sleep")
@@ -651,7 +638,7 @@ class PreConnectorTest {
 
 		// compare source over compute
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Timeout", "1"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(1).Type", "Awk")
@@ -670,7 +657,7 @@ class PreConnectorTest {
 
 		// compare step index
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(1).Type", "Sleep"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(2).Type", "Sleep")
@@ -686,7 +673,7 @@ class PreConnectorTest {
 		);
 
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(2).Type", "Sleep"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(1).Type", "Translate")
@@ -703,7 +690,7 @@ class PreConnectorTest {
 
 		// compare step type
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(1).Type", "Sleep"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(1).Duration", "1")
@@ -720,7 +707,7 @@ class PreConnectorTest {
 
 		// compare steps parameters
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(10, "Enclosure.Collect.Source(1).Step(1).TimeOut", "1"),
 				new ConnectorEntry(11, "Enclosure.Collect.Source(1).Step(1).TelnetOnly", "1")
@@ -737,7 +724,7 @@ class PreConnectorTest {
 
 		// compare step over compute
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Step(2).Text", "ogin:"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(1).Type", "Awk")
@@ -756,7 +743,7 @@ class PreConnectorTest {
 
 		// compare compute index
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(1).Type", "Awk"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(2).Type", "Awk")
@@ -773,7 +760,7 @@ class PreConnectorTest {
 
 		// compare compute type over parameter
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(1).Type", "Awk"),
 				new ConnectorEntry(0, "Enclosure.Collect.Source(1).Compute(1).Separators", ":")
@@ -790,7 +777,7 @@ class PreConnectorTest {
 
 		// compare compute parameters
 		assertEquals(
-			IS_BEFORE, 
+			IS_BEFORE,
 			PreConnector.compareSourceConnectorEntries(
 				new ConnectorEntry(11, "Enclosure.Collect.Source(1).Compute(1).KeepOnlyRegExp", "MSHW;"),
 				new ConnectorEntry(12, "Enclosure.Collect.Source(1).Compute(1).Separators", ":")
@@ -928,7 +915,11 @@ class PreConnectorTest {
 			assertEquals(OptionalInt.empty(), connectorEntry.extractComputeIndex());
 		}
 		{
-			final ConnectorEntry connectorEntry = new ConnectorEntry(22, "Enclosure.Collect.Source(1)", "%Enclosure.Discovery.Source(1)%");
+			final ConnectorEntry connectorEntry = new ConnectorEntry(
+				22,
+				"Enclosure.Collect.Source(1)",
+				"%Enclosure.Discovery.Source(1)%"
+			);
 			assertEquals(22, connectorEntry.getOriginalIndex());
 			assertEquals("Enclosure.Collect.Source(1)", connectorEntry.getKey());
 			assertEquals("%Enclosure.Discovery.Source(1)%", connectorEntry.getValue());
@@ -979,7 +970,11 @@ class PreConnectorTest {
 			assertEquals(OptionalInt.empty(), connectorEntry.extractComputeIndex());
 		}
 		{
-			final ConnectorEntry connectorEntry = new ConnectorEntry(51, "PhysicalDisk.Discovery.Source(3).Compute(1).Type", "RightConcat");
+			final ConnectorEntry connectorEntry = new ConnectorEntry(
+				51,
+				"PhysicalDisk.Discovery.Source(3).Compute(1).Type",
+				"RightConcat"
+			);
 			assertEquals(51, connectorEntry.getOriginalIndex());
 			assertEquals("PhysicalDisk.Discovery.Source(3).Compute(1).Type", connectorEntry.getKey());
 			assertEquals("RightConcat", connectorEntry.getValue());
@@ -996,7 +991,11 @@ class PreConnectorTest {
 			assertEquals(OptionalInt.of(1), connectorEntry.extractComputeIndex());
 		}
 		{
-			final ConnectorEntry connectorEntry = new ConnectorEntry(52, "PhysicalDisk.Discovery.Source(3).Compute(1).Column", "2");
+			final ConnectorEntry connectorEntry = new ConnectorEntry(
+				52,
+				"PhysicalDisk.Discovery.Source(3).Compute(1).Column",
+				"2"
+			);
 			assertEquals(52, connectorEntry.getOriginalIndex());
 			assertEquals("PhysicalDisk.Discovery.Source(3).Compute(1).Column", connectorEntry.getKey());
 			assertEquals("physicaldisk", connectorEntry.extractEntryType());
@@ -1018,8 +1017,9 @@ class PreConnectorTest {
 	void testProcessCode() {
 		{
 			final PreConnector preConnector = new PreConnector();
-			preConnector.processCode("Detection.Criteria(1).Step(9).Type=\"SendText\"\n"
-				+ "Detection.Criteria(1).Step(9).Text=\"exit\\n\"");
+			preConnector.processCode(
+				"Detection.Criteria(1).Step(9).Type=\"SendText\"\n" + "Detection.Criteria(1).Step(9).Text=\"exit\\n\""
+			);
 			final Map<String, String> codeMap = preConnector.getCodeMap();
 			assertEquals("SendText", codeMap.get("detection.criteria(1).step(9).type"));
 			assertEquals("exit\n", codeMap.get("detection.criteria(1).step(9).text"));
@@ -1032,10 +1032,13 @@ class PreConnectorTest {
 		}
 		{
 			final PreConnector preConnector = new PreConnector();
-			preConnector.processCode("PhysicalDisk.Collect.Source(1).CommandLine=\"/bin/echo \"\"select path %PhysicalDisk.Collect.DeviceID%;wait;information;wait;infolog\"\"|/usr/bin/stm -c\\n/bin/echo \"\"select path %PhysicalDisk.Collect.DeviceID%;wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus\"\"|/usr/bin/stm -c\"");
+			preConnector.processCode(
+				"PhysicalDisk.Collect.Source(1).CommandLine=\"/bin/echo \"\"select path %PhysicalDisk.Collect.DeviceID%;wait;information;wait;infolog\"\"|/usr/bin/stm -c\\n/bin/echo \"\"select path %PhysicalDisk.Collect.DeviceID%;wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus\"\"|/usr/bin/stm -c\""
+			);
 			final Map<String, String> codeMap = preConnector.getCodeMap();
-			final String expected = "/bin/echo \"select path %PhysicalDisk.Collect.DeviceID%;wait;information;wait;infolog\"|/usr/bin/stm -c\n"
-				+ "/bin/echo \"select path %PhysicalDisk.Collect.DeviceID%;wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus\"|/usr/bin/stm -c";
+			final String expected =
+				"/bin/echo \"select path %PhysicalDisk.Collect.DeviceID%;wait;information;wait;infolog\"|/usr/bin/stm -c\n" +
+				"/bin/echo \"select path %PhysicalDisk.Collect.DeviceID%;wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus\"|/usr/bin/stm -c";
 			assertEquals(expected, codeMap.get("physicaldisk.collect.source(1).commandline"));
 		}
 	}
@@ -1044,8 +1047,9 @@ class PreConnectorTest {
 	void testProcessDefineDirectives() {
 		{
 			// Simple use case
-			final String rawCode = "#define _IsiStatusCommand /usr/bin/isi status -w\n"
-					+ "Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
+			final String rawCode =
+				"#define _IsiStatusCommand /usr/bin/isi status -w\n" +
+				"Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
 
 			final PreConnector preConnector = new PreConnector();
 			preConnector.processDefineDirectives(rawCode);
@@ -1055,10 +1059,10 @@ class PreConnectorTest {
 			assertEquals(expected, actual);
 		}
 		{
-
 			// $1 is extracted correctly
-			final String rawCode = "#define _IsiStatusCommand /usr/bin/isi($1) status -w\n"
-					+ "Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
+			final String rawCode =
+				"#define _IsiStatusCommand /usr/bin/isi($1) status -w\n" +
+				"Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
 
 			final PreConnector preConnector = new PreConnector();
 			preConnector.processDefineDirectives(rawCode);
@@ -1068,10 +1072,10 @@ class PreConnectorTest {
 			assertEquals(expected, actual);
 		}
 		{
-
 			// (\\w+) is extracted
-			final String rawCode = "#define _IsiStatusCommand /usr/bin/isi(\\w+) status -w\n"
-					+ "Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
+			final String rawCode =
+				"#define _IsiStatusCommand /usr/bin/isi(\\w+) status -w\n" +
+				"Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
 
 			final PreConnector preConnector = new PreConnector();
 			preConnector.processDefineDirectives(rawCode);
@@ -1081,7 +1085,6 @@ class PreConnectorTest {
 			assertEquals(expected, actual);
 		}
 		{
-
 			// Extract value enclosed in double quotes
 			final String rawCode = "#define _IsiStatusCommand \"/usr/bin/isi(\\w+) status -w\"\n";
 
@@ -1093,7 +1096,6 @@ class PreConnectorTest {
 			assertEquals(expected, actual);
 		}
 		{
-
 			// Extract value enclosed in double quotes where double quotes are also located in the extracted string
 			final String rawCode = "#define _IsiStatusCommand \"\"/usr/bin/isi(\\w+)\" status -w\"\n";
 
@@ -1105,7 +1107,6 @@ class PreConnectorTest {
 			assertEquals(expected, actual);
 		}
 		{
-
 			// Extract value enclosed in protected double quotes
 			final String rawCode = "#define _IsiStatusCommand \\\"/usr/bin/isi(\\w+) status -w\\\"\n";
 
@@ -1121,57 +1122,61 @@ class PreConnectorTest {
 	@Test
 	void testProcessComments() {
 		{
-			final String rawCode = """
-					// Comment to be ignored
-					
-					// Comment1
-					// Comment2
-					key=value
-					""";
+			final String rawCode =
+				"""
+				// Comment to be ignored
+
+				// Comment1
+				// Comment2
+				key=value
+				""";
 			final PreConnector preConnector = new PreConnector();
 			String rawCodeResult = preConnector.processComments(rawCode);
-			assertEquals("key=value",rawCodeResult.trim());
+			assertEquals("key=value", rawCodeResult.trim());
 			assertEquals(Map.of("key", List.of("Comment1", "Comment2")), preConnector.getComments());
 		}
 
 		{
-			final String rawCode = """
-					// Comment to be ignored
-					
-					/* Comment1 */
-					// Comment2
-					key=value
-					""";
+			final String rawCode =
+				"""
+				// Comment to be ignored
+
+				/* Comment1 */
+				// Comment2
+				key=value
+				""";
 			final PreConnector preConnector = new PreConnector();
 			String rawCodeResult = preConnector.processComments(rawCode);
-			assertEquals("key=value",rawCodeResult.trim());
+			assertEquals("key=value", rawCodeResult.trim());
 			assertEquals(Map.of("key", List.of("Comment1", "Comment2")), preConnector.getComments());
 		}
 
 		{
-			final String rawCode = """
-					// Comment to be ignored
-					
-					/* 
-					 * Comment1
-					 * Comment2
-					 */
-					// Comment3
-					key=value
-					""";
+			final String rawCode =
+				"""
+				// Comment to be ignored
+
+				/*
+				 * Comment1
+				 * Comment2
+				 */
+				// Comment3
+				key=value
+				""";
 			final PreConnector preConnector = new PreConnector();
 			String rawCodeResult = preConnector.processComments(rawCode);
-			assertEquals("key=value",rawCodeResult.trim());
+			assertEquals("key=value", rawCodeResult.trim());
 			assertEquals(Map.of("key", List.of("Comment1", "Comment2", "Comment3")), preConnector.getComments());
 		}
 	}
 
 	@Test
 	void testProcessIncludeDirectives() {
-		final String rawCode = """
-				#include Parent1Connector.hhdf
-				#include Parent2Connector.hhdf
-				""";
+		final String rawCode =
+			"""
+			#include Parent1Connector.hhdf
+			#include Parent2Connector.hhdf
+			""";
 
 		final PreConnector preConnector = new PreConnector();
 		preConnector.processIncludeDirectives(rawCode);
@@ -1182,5 +1187,4 @@ class PreConnectorTest {
 			preConnector.getExtendedConnectors().stream().toList()
 		);
 	}
-
 }

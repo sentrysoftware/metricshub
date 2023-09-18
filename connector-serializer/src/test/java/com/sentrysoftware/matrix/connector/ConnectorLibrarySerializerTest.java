@@ -4,6 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,20 +23,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 
 class ConnectorLibrarySerializerTest {
 
@@ -112,7 +110,7 @@ class ConnectorLibrarySerializerTest {
 				"${source::monitors.enclosure.discovery.sources.source(5)}"
 			)
 		);
-		SOURCE4.setReferences(			
+		SOURCE4.setReferences(
 			Set.of(
 				"${source::monitors.enclosure.discovery.sources.source(2)}",
 				"${source::monitors.enclosure.discovery.sources.source(3)}"
@@ -125,16 +123,19 @@ class ConnectorLibrarySerializerTest {
 			)
 		);
 	}
+
 	@Test
 	void testSerializeConnectorSources() throws IOException, ClassNotFoundException {
-		ConnectorLibrarySerializer.main(new String[] { "src/test/resources/connector", tempDir.toAbsolutePath().toString() });
+		ConnectorLibrarySerializer.main(
+			new String[] { "src/test/resources/connector", tempDir.toAbsolutePath().toString() }
+		);
 
 		final Connector connector;
-		try (InputStream inputStream = new FileInputStream(tempDir.resolve("WBEMConnector").toFile());
-				ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
-
+		try (
+			InputStream inputStream = new FileInputStream(tempDir.resolve("WBEMConnector").toFile());
+			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)
+		) {
 			connector = (Connector) objectInputStream.readObject();
-
 		}
 
 		final Map<String, MonitorJob> monitors = connector.getMonitors();
@@ -150,53 +151,36 @@ class ConnectorLibrarySerializerTest {
 		assertNotNull(discovery);
 
 		final Map<String, Source> expectedSources = new LinkedHashMap<>() {
-
 			private static final long serialVersionUID = 1L;
 
 			{
-				put(
-					"source(1)",
-					SOURCE1
-				);
+				put("source(1)", SOURCE1);
 			}
+
 			{
-				put(
-					"source(2)",
-					SOURCE2
-				);
+				put("source(2)", SOURCE2);
 			}
+
 			{
-				put(
-					"source(3)",
-					SOURCE3
-				);
+				put("source(3)", SOURCE3);
 			}
+
 			{
-				put(
-					"source(4)",
-					SOURCE4
-				);
+				put("source(4)", SOURCE4);
 			}
+
 			{
-				put(
-					"source(5)",
-					SOURCE5
-				);
+				put("source(5)", SOURCE5);
 			}
+
 			{
-				put(
-					"source(6)",
-					SOURCE6
-				);
+				put("source(6)", SOURCE6);
 			}
+
 			{
-				put(
-					"source(7)",
-					SOURCE7
-				);
+				put("source(7)", SOURCE7);
 			}
 		};
-
 
 		assertEquals(expectedSources, discovery.getSources());
 
@@ -210,13 +194,20 @@ class ConnectorLibrarySerializerTest {
 			.source("${source::monitors.enclosure.discovery.sources.source(7)}")
 			.attributes(
 				Map.of(
-					"id", "buildId($column(6))",
-					"parent", "",
-					"name", "buildName(Storage, EMC, $column(2), (, $column(7), ))",
-					"model", "$column(2)",
-					"vendor", "EMC",
-					"serial_number", "$column(3)",
-					"type", "Storage"
+					"id",
+					"buildId($column(6))",
+					"parent",
+					"",
+					"name",
+					"buildName(Storage, EMC, $column(2), (, $column(7), ))",
+					"model",
+					"$column(2)",
+					"vendor",
+					"EMC",
+					"serial_number",
+					"$column(3)",
+					"type",
+					"Storage"
 				)
 			)
 			.conditionalCollection(Map.of("hw.status", "$column(10)"))
@@ -224,5 +215,4 @@ class ConnectorLibrarySerializerTest {
 
 		assertEquals(expectedMapping, mapping);
 	}
-
 }

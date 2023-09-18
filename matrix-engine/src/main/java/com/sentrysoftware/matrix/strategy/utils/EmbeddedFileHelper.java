@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.utils;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CANT_FIND_EMBEDDED_FILE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
 
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,9 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -24,7 +22,7 @@ public class EmbeddedFileHelper {
 
 	/**
 	 * Find all the embedded files that are referenced in the given string
-	 * 
+	 *
 	 * @param value the value can be a command line, AWK directive, header, body, etc.
 	 * @return Map of the file reference to {@link EmbeddedFile} instance
 	 * @throws IOException
@@ -36,7 +34,6 @@ public class EmbeddedFileHelper {
 		final Matcher fileMatcher = FILE_PATTERN.matcher(value);
 
 		while (fileMatcher.find()) {
-
 			// The absolute path of the file
 			final String fileName = fileMatcher.group(1);
 
@@ -55,7 +52,7 @@ public class EmbeddedFileHelper {
 
 	/**
 	 * Create a new {@link EmbeddedFile} object
-	 * 
+	 *
 	 * @param fileName    The file name used to get the path
 	 * @param fileNameRef The file name reference. E.g. ${file::script.awk}
 	 * @return a new {@link EmbeddedFile} instance
@@ -72,7 +69,7 @@ public class EmbeddedFileHelper {
 
 	/**
 	 * Returns the extension of a file from the given the file name
-	 * 
+	 *
 	 * @param fileName
 	 * @return String value
 	 */
@@ -86,16 +83,14 @@ public class EmbeddedFileHelper {
 
 	/**
 	 * Read the file at the filePath location, and return its content
-	 * 
+	 *
 	 * @param filePath The absolute path of the file to read
 	 * @return String value
 	 * @throws IOException
 	 */
 	static String parseEmbeddedFile(final Path filePath) throws IOException {
 		try {
-			return Files.readAllLines(filePath)
-				.stream()
-				.collect(Collectors.joining("\n"));
+			return Files.readAllLines(filePath).stream().collect(Collectors.joining("\n"));
 		} catch (Exception e) {
 			throw new IOException("Could not read embedded file: " + filePath);
 		}

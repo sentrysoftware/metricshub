@@ -1,8 +1,34 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BLINKING_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_COLOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_LED_INDICATOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_LED_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_OFF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ON_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLINKING_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LED_COLOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LED_INDICATOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LED_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LED_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OFF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ON_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,13 +39,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class LedConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -33,9 +56,13 @@ public class LedConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
-		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_LED_STATUS, AbstractMappingConverter::buildLegacyLedStatusFunction));
+		metricsMap.put(
+			HDF_STATUS,
+			IMappingKey.of(METRICS, YAML_LED_STATUS, AbstractMappingConverter::buildLegacyLedStatusFunction)
+		);
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
 		metricsMap.put(HDF_LED_INDICATOR, IMappingKey.of(METRICS, YAML_LED_INDICATOR));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
@@ -69,11 +96,7 @@ public class LedConverter extends AbstractMappingConverter {
 
 		newAttributes.set(
 			YAML_NAME,
-			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, new JsonNode[] { color, name })
-				)
-			)
+			new TextNode(wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, new JsonNode[] { color, name })))
 		);
 	}
 
@@ -81,12 +104,11 @@ public class LedConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the LED name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param colorAndName         {@link JsonNode} array of color and name to be joined 
+	 * @param colorAndName         {@link JsonNode} array of color and name to be joined
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] colorAndName) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (Stream.of(colorAndName).allMatch(Objects::isNull)) {
 			return firstArg;
@@ -97,40 +119,23 @@ public class LedConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(colorAndName)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
+		sprintfArgs.addAll(Stream.of(colorAndName).filter(Objects::nonNull).map(JsonNode::asText).toList());
 
 		// Means color or name is not null
 		if (!sprintfArgs.isEmpty()) {
-			format.append(
-				sprintfArgs
-					.stream()
-					.map(v -> "%s")
-					.collect(Collectors.joining(" - "," (",")"))
-			);
+			format.append(sprintfArgs.stream().map(v -> "%s").collect(Collectors.joining(" - ", " (", ")")));
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $column(1), $column(2), $column(3))
 		// append the result to our format variable in order to get something like
 		// sprint("%s (%s - %s)", $column(1), $column(2), $column(3))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override

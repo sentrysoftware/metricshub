@@ -8,29 +8,26 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
-import org.awaitility.Awaitility;
-import org.awaitility.Durations;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-
 import com.sentrysoftware.matrix.agent.process.config.ProcessConfig;
 import com.sentrysoftware.matrix.agent.process.config.ProcessOutput;
 import com.sentrysoftware.matrix.agent.process.io.CustomInputStream;
 import com.sentrysoftware.matrix.agent.process.io.GobblerStreamProcessor;
 import com.sentrysoftware.matrix.agent.process.io.LineReaderProcessor;
 import com.sentrysoftware.matrix.agent.process.io.ProcessorHelper;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 class AbstractProcessTest {
 
 	@Test
 	void test() throws IOException {
-
 		{
 			// Runs a mocked process and process STDOUT and STDERR
 
@@ -38,14 +35,9 @@ class AbstractProcessTest {
 			final Process process = Mockito.mock(Process.class);
 
 			try (MockedStatic<ProcessControl> processControl = mockStatic(ProcessControl.class)) {
-				processControl.when(() -> ProcessControl
-					.newProcessBuilder(
-						anyList(),
-						anyMap(),
-						any(File.class),
-						anyBoolean()
-					)
-				).thenReturn(pb);
+				processControl
+					.when(() -> ProcessControl.newProcessBuilder(anyList(), anyMap(), any(File.class), anyBoolean()))
+					.thenReturn(pb);
 
 				processControl.when(() -> ProcessControl.start(any(ProcessBuilder.class))).thenCallRealMethod();
 
@@ -60,12 +52,7 @@ class AbstractProcessTest {
 					ProcessConfig
 						.builder()
 						.commandLine(List.of("otelcol-contrib", "--config", "/opt/hws-otel-collector/config/otel-config.yaml"))
-						.output(ProcessOutput
-							.builder()
-							.outputProcessor(outputProcessor)
-							.errorProcessor(errorProcessor)
-							.build()
-						)
+						.output(ProcessOutput.builder().outputProcessor(outputProcessor).errorProcessor(errorProcessor).build())
 						.environment(Collections.emptyMap())
 						.workingDir(new File("."))
 						.build()
@@ -92,9 +79,7 @@ class AbstractProcessTest {
 				assertTrue(testProcess.onAfterProcessStop);
 
 				assertDoesNotThrow(() -> testProcess.stop());
-
 			}
-
 		}
 
 		{
@@ -104,14 +89,9 @@ class AbstractProcessTest {
 			final Process process = Mockito.mock(Process.class);
 
 			try (MockedStatic<ProcessControl> processControl = mockStatic(ProcessControl.class)) {
-				processControl.when(() -> ProcessControl
-					.newProcessBuilder(
-						anyList(),
-						anyMap(),
-						any(File.class),
-						anyBoolean()
-					)
-				).thenReturn(pb);
+				processControl
+					.when(() -> ProcessControl.newProcessBuilder(anyList(), anyMap(), any(File.class), anyBoolean()))
+					.thenReturn(pb);
 
 				processControl.when(() -> ProcessControl.start(any(ProcessBuilder.class))).thenCallRealMethod();
 
@@ -124,11 +104,7 @@ class AbstractProcessTest {
 					ProcessConfig
 						.builder()
 						.commandLine(List.of("otelcol-contrib", "--config", "/opt/hws-otel-collector/config/otel-config.yaml"))
-						.output(ProcessOutput
-							.builder()
-							.outputProcessor(outputProcessor)
-							.build()
-						)
+						.output(ProcessOutput.builder().outputProcessor(outputProcessor).build())
 						.environment(Collections.emptyMap())
 						.workingDir(new File("."))
 						.build()
@@ -154,9 +130,7 @@ class AbstractProcessTest {
 				assertTrue(testProcess.onAfterProcessStop);
 
 				assertDoesNotThrow(() -> testProcess.stop());
-
 			}
-
 		}
 	}
 
@@ -206,7 +180,5 @@ class AbstractProcessTest {
 		protected void stopInternal() {
 			super.stopProcess();
 		}
-
 	}
-
 }

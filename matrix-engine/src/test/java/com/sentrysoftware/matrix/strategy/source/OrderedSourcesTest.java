@@ -3,16 +3,6 @@ package com.sentrysoftware.matrix.strategy.source;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
@@ -20,6 +10,14 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.strategy.source.OrderedSources.OrderedSourcesBuilder;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class OrderedSourcesTest {
 
@@ -40,14 +38,14 @@ class OrderedSourcesTest {
 	private static final String SOURCE_NAME_3 = "source3";
 	private static final String SOURCE_NAME_4 = "source4";
 
-	private static final  HttpSource SOURCE1 = HttpSource
+	private static final HttpSource SOURCE1 = HttpSource
 		.builder()
 		.method(HttpMethod.GET)
 		.url("/system")
 		.resultContent(ResultContent.BODY)
 		.build();
 
-	private static final  HttpSource SOURCE2 = HttpSource
+	private static final HttpSource SOURCE2 = HttpSource
 		.builder()
 		.method(HttpMethod.GET)
 		.url("/health")
@@ -64,8 +62,7 @@ class OrderedSourcesTest {
 
 	@Test
 	void testOrderThroughExecutionOrder() {
-
-		final Map<String, Source> sources = new LinkedHashMap<>(); 
+		final Map<String, Source> sources = new LinkedHashMap<>();
 		sources.put(SOURCE_NAME_3, SOURCE3);
 		sources.put(SOURCE_NAME_2, SOURCE2);
 		sources.put(SOURCE_NAME_1, SOURCE1);
@@ -83,7 +80,7 @@ class OrderedSourcesTest {
 
 	@Test
 	void testOrderThrowsExceptionOnSourceNameNotFound() {
-		final Map<String, Source> sources = new LinkedHashMap<>(); 
+		final Map<String, Source> sources = new LinkedHashMap<>();
 		sources.put(SOURCE_NAME_3, SOURCE3);
 		sources.put(SOURCE_NAME_2, SOURCE2);
 		sources.put(SOURCE_NAME_1, SOURCE1);
@@ -91,15 +88,12 @@ class OrderedSourcesTest {
 		final List<String> executionOrder = List.of(SOURCE_NAME_1, SOURCE_NAME_2, SOURCE_NAME_4);
 
 		final OrderedSourcesBuilder builder = OrderedSources.builder();
-		assertThrows(
-			IllegalStateException.class,
-			() -> builder.sources(sources, executionOrder, EMPTY_DEP_TREE, JOB_INFO)
-		);
+		assertThrows(IllegalStateException.class, () -> builder.sources(sources, executionOrder, EMPTY_DEP_TREE, JOB_INFO));
 	}
 
 	@Test
 	void testOrderThrowsExceptionOnOrderHavingDifferentSize() {
-		final Map<String, Source> sources = new LinkedHashMap<>(); 
+		final Map<String, Source> sources = new LinkedHashMap<>();
 		sources.put(SOURCE_NAME_3, SOURCE3);
 		sources.put(SOURCE_NAME_2, SOURCE2);
 		sources.put(SOURCE_NAME_1, SOURCE1);
@@ -107,15 +101,11 @@ class OrderedSourcesTest {
 		final List<String> executionOrder = List.of(SOURCE_NAME_1, SOURCE_NAME_2);
 
 		final OrderedSourcesBuilder builder = OrderedSources.builder();
-		assertThrows(
-			IllegalStateException.class,
-			() -> builder.sources(sources, executionOrder, EMPTY_DEP_TREE, JOB_INFO)
-		);
+		assertThrows(IllegalStateException.class, () -> builder.sources(sources, executionOrder, EMPTY_DEP_TREE, JOB_INFO));
 	}
 
 	@Test
 	void testOrderEmptyOrNullSources() {
-
 		assertEquals(
 			EMPTY_DEP_TREE,
 			OrderedSources
@@ -137,8 +127,7 @@ class OrderedSourcesTest {
 
 	@Test
 	void testOrderThroughSourceDepTree() {
-
-		final Map<String, Source> sources = new LinkedHashMap<>(); 
+		final Map<String, Source> sources = new LinkedHashMap<>();
 		sources.put(SOURCE_NAME_3, SOURCE3);
 		sources.put(SOURCE_NAME_2, SOURCE2);
 		sources.put(SOURCE_NAME_1, SOURCE1);
@@ -167,7 +156,6 @@ class OrderedSourcesTest {
 
 	@Test
 	void testOrderKeepsOrgin() {
-
 		final Map<String, Source> sources = new LinkedHashMap<>();
 		sources.put(SOURCE_NAME_1, SOURCE1);
 		sources.put(SOURCE_NAME_2, SOURCE2);

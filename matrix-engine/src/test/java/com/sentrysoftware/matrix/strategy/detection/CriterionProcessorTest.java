@@ -19,26 +19,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.collections.Sets;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
@@ -72,6 +52,24 @@ import com.sentrysoftware.matrix.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.MockitoAnnotations;
+import org.mockito.internal.util.collections.Sets;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * This is a test for {@link CriterionProcessor}
@@ -81,8 +79,10 @@ class CriterionProcessorTest {
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+
 	@Mock
 	private WqlDetectionHelper wqlDetectionHelperMock;
+
 	@InjectMocks
 	private CriterionProcessor criterionProcessor;
 
@@ -95,18 +95,19 @@ class CriterionProcessorTest {
 
 	private void initWbem() {
 		wbemConfiguration = WbemConfiguration.builder().build();
-		telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(LOCALHOST)
-					.hostId(LOCALHOST)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
-					.build()
-			)
-			.build();
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+						.build()
+				)
+				.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 	}
 
@@ -114,7 +115,11 @@ class CriterionProcessorTest {
 	void testProcessWbemCriterionSuccess() throws Exception {
 		initWbem();
 		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WbemCriterion wbemCriterion = WbemCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 
 		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
 		assertTrue(result.isSuccess());
@@ -124,7 +129,11 @@ class CriterionProcessorTest {
 	void testProcessWbemCriterionActualResultIsNotExpectedResult() throws Exception {
 		initWbem();
 		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT).build();
+		final WbemCriterion wbemCriterion = WbemCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT)
+			.build();
 		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getMessage().contains(WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE));
@@ -141,7 +150,11 @@ class CriterionProcessorTest {
 	void testProcessWbemEmptyQueryResult() throws Exception {
 		initWbem();
 		doReturn(List.of()).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WbemCriterion wbemCriterion = WbemCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 
 		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
 		assertFalse(result.isSuccess());
@@ -151,12 +164,25 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWbemCriterionWithNullWbemConfiguration() throws Exception {
 		wbemConfiguration = null;
-		telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).configurations(Map.of())
-					.build())
-			.build();
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of())
+						.build()
+				)
+				.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WbemCriterion wbemCriterion = WbemCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 
 		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
 		assertFalse(result.isSuccess());
@@ -166,8 +192,14 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWbemCriterionWithMatsyaException() throws Exception {
 		initWbem();
-		doThrow(MatsyaException.class).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		doThrow(MatsyaException.class)
+			.when(matsyaClientsExecutorMock)
+			.executeWql(any(), eq(wbemConfiguration), any(), any());
+		final WbemCriterion wbemCriterion = WbemCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getException() instanceof MatsyaException);
@@ -182,28 +214,29 @@ class CriterionProcessorTest {
 			.timeout(120L)
 			.build();
 
-		telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(HOST_WIN)
-					.hostId(HOST_WIN)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
-					.build()
-			)
-			.build();
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(HOST_WIN)
+						.hostId(HOST_WIN)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
+						.build()
+				)
+				.build();
 	}
 
 	@Test
 	void testProcessSNMPGetNextException() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doThrow(new TimeoutException(SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE)).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(),
-				any(), any(), eq(false));
+		doThrow(new TimeoutException(SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NEXT_TIMEOUT_MESSAGE).build();
 		assertEquals(expected, actual);
@@ -211,48 +244,58 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetNextNullResult() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(null).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_NULL_MESSAGE).build();
+		final CriterionTestResult expected = CriterionTestResult
+			.builder()
+			.message(FAILED_SNMP_GET_NEXT_NULL_MESSAGE)
+			.build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testProcessSNMPGetNextEmptyResult() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE).result(EMPTY).build();
+		final CriterionTestResult expected = CriterionTestResult
+			.builder()
+			.message(FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE)
+			.result(EMPTY)
+			.build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testProcessSNMPGetNextNotSameSubTreeOID() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FIRST_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_FIRST_RESULT)
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE)
-				.result(SNMP_GET_NEXT_FIRST_RESULT).build();
+		final CriterionTestResult expected = CriterionTestResult
+			.builder()
+			.message(FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE)
+			.result(SNMP_GET_NEXT_FIRST_RESULT)
+			.build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testProcessSNMPGetNextSuccessWithNoExpectedResult() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -265,13 +308,15 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetNextExpectedResultNotMatches() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID)
-			.expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build());
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessor.process(
+			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
 			.message(FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE)
@@ -282,13 +327,15 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetNextExpectedResultMatches() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_THIRD_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID)
-				.expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build());
+		doReturn(SNMP_GET_NEXT_THIRD_RESULT)
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = criterionProcessor.process(
+			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
 			.message(SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE)
@@ -300,16 +347,14 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetNextExpectedResultCannotExtract() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FOURTH_RESULT).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_FOURTH_RESULT)
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetNextCriterion.builder()
-				.oid(OID)
-				.expectedResult(SNMP_GET_NEXT_CRITERION_VERSION)
-				.build()
+			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
 		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -321,7 +366,6 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetNextReturnsEmptyResult() {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
@@ -332,7 +376,6 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetReturnsEmptyResult() {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
@@ -342,13 +385,13 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetExpectedResultMatches() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder()
-				.oid(OID).expectedResult(EXPECTED_SNMP_RESULT).build());
+		final CriterionTestResult actual = criterionProcessor.process(
+			SnmpGetCriterion.builder().oid(OID).expectedResult(EXPECTED_SNMP_RESULT).build()
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
 			.message(SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE)
@@ -360,12 +403,13 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetExpectedResultNotMatches() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build());
+		final CriterionTestResult actual = criterionProcessor.process(
+			SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
 			.message(SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE)
@@ -376,7 +420,6 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetSuccessWithNoExpectedResult() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
@@ -393,7 +436,6 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetEmptyResult() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
@@ -409,32 +451,25 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSNMPGetNullResult() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(null).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_NULL_RESULT_MESSAGE)
-			.build();
+		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NULL_RESULT_MESSAGE).build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testProcessSNMPGetException() throws Exception {
-
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doThrow(new TimeoutException(SNMP_GET_TIMEOUT_MESSAGE)).when(matsyaClientsExecutorMock)
+		doThrow(new TimeoutException(SNMP_GET_TIMEOUT_MESSAGE))
+			.when(matsyaClientsExecutorMock)
 			.executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_EXCEPTION_MESSAGE)
-			.build();
+		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_EXCEPTION_MESSAGE).build();
 		assertEquals(expected, actual);
 	}
 
@@ -443,9 +478,11 @@ class CriterionProcessorTest {
 		final ProcessCriterion processCriterion = null;
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
-				.build();
+			.builder()
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
+			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(processCriterion));
@@ -458,7 +495,9 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
@@ -477,7 +516,9 @@ class CriterionProcessorTest {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostProperties(HostProperties.builder().build())
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
@@ -497,14 +538,16 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.empty());
+			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.empty());
 
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
 
@@ -517,7 +560,6 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessProcessWindowsEmptyResult() {
-
 		// Init the mocks
 		MockitoAnnotations.openMocks(this);
 
@@ -526,14 +568,16 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
 			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
 
 			doReturn(CriterionTestResult.error(processCriterion, WMI_QUERY_EMPTY_VALUE_MESSAGE))
@@ -554,26 +598,26 @@ class CriterionProcessorTest {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
 		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
-		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
+		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder().timeout(STRATEGY_TIMEOUT).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration
-				.builder()
-				.hostname(LOCALHOST)
-				.hostId(LOCALHOST)
-				.hostType(DeviceKind.WINDOWS)
-				.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-				.build())
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(LOCALHOST)
+					.hostId(LOCALHOST)
+					.hostType(DeviceKind.WINDOWS)
+					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+					.build()
+			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
 			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
 
 			final WmiConfiguration localWmiConfiguration = WmiConfiguration
@@ -585,12 +629,7 @@ class CriterionProcessorTest {
 
 			doReturn(EXECUTE_WMI_RESULT)
 				.when(matsyaClientsExecutorMock)
-				.executeWql(
-					LOCALHOST,
-					localWmiConfiguration,
-					WMI_PROCESS_QUERY,
-					CRITERION_WMI_NAMESPACE
-				);
+				.executeWql(LOCALHOST, localWmiConfiguration, WMI_PROCESS_QUERY, CRITERION_WMI_NAMESPACE);
 
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
 
@@ -608,27 +647,30 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
-
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
-			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses)
+		try (
+			final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+			final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(
+				CriterionProcessVisitor.class
+			)
+		) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.LINUX));
+			mockedCriterionProcessVisitorImpl
+				.when(CriterionProcessVisitor::listAllLinuxProcesses)
 				.thenReturn(LIST_ALL_LINUX_PROCESSES_RESULT);
 
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(process);
 
 			assertNotNull(criterionTestResult);
 			assertFalse(criterionTestResult.isSuccess());
-			assertEquals(
-				NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE,
-				criterionTestResult.getMessage()
-			);
+			assertEquals(NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE, criterionTestResult.getMessage());
 			assertNull(criterionTestResult.getResult());
 		}
 	}
@@ -640,16 +682,24 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
-			 final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(CriterionProcessVisitor.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.LINUX));
-			mockedCriterionProcessVisitorImpl.when(CriterionProcessVisitor::listAllLinuxProcesses).thenReturn(EXECUTE_WMI_RESULT);
+		try (
+			final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+			final MockedStatic<CriterionProcessVisitor> mockedCriterionProcessVisitorImpl = mockStatic(
+				CriterionProcessVisitor.class
+			)
+		) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.LINUX));
+			mockedCriterionProcessVisitorImpl
+				.when(CriterionProcessVisitor::listAllLinuxProcesses)
+				.thenReturn(EXECUTE_WMI_RESULT);
 
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
 
@@ -667,14 +717,16 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build())
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
+			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOs).thenReturn(Optional.of(LocalOsHandler.AIX));
+			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.AIX));
 
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
 
@@ -701,20 +753,23 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessServiceCheckOsNull() {
-		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.timeout(STRATEGY_TIMEOUT)
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-				.hostConfiguration(
-					HostConfiguration.builder()
-						.hostname(HOST_WIN)
-						.hostId(HOST_WIN)
-						.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-						.build()
-				)
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(HOST_WIN)
+					.hostId(HOST_WIN)
+					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+					.build()
+			)
+			.build();
 		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
@@ -744,18 +799,22 @@ class CriterionProcessorTest {
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testProcessServiceCheckServiceNameEmpty() {
-		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder()
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.timeout(STRATEGY_TIMEOUT)
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(HostConfiguration.builder()
-				.hostname(LOCALHOST)
-				.hostId(LOCALHOST)
-				.hostType(DeviceKind.WINDOWS)
-				.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
-				.build()
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(LOCALHOST)
+					.hostId(LOCALHOST)
+					.hostType(DeviceKind.WINDOWS)
+					.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+					.build()
 			)
 			.build();
 		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
@@ -773,11 +832,13 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessDeviceTypeCriterion() {
-
 		// Init configurations
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.NETWORK).build())
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.NETWORK).build()
+			)
+			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
 		// Init CriterionTestResult success and failure instances
@@ -836,8 +897,9 @@ class CriterionProcessorTest {
 		// Prepare CriterionTestResult with specific SOLARIS CriterionTestResult instances
 		successfulTestResult.setResult(CONFIGURED_OS_SOLARIS_MESSAGE);
 		failedTestResult.setResult(CONFIGURED_OS_SOLARIS_MESSAGE);
-		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST)
-				.hostType(DeviceKind.SOLARIS).build());
+		telemetryManager.setHostConfiguration(
+			HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.SOLARIS).build()
+		);
 
 		// Exclude only SOLARIS OS
 		deviceTypeCriterion.setKeep(Collections.emptySet());
@@ -890,10 +952,7 @@ class CriterionProcessorTest {
 			.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
 			.build();
 
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			matsyaClientsExecutorMock,
 			telemetryManager,
@@ -905,7 +964,8 @@ class CriterionProcessorTest {
 
 	@Test
 	void HttpCriterionProcessHttpConfigurationNullTest() {
-		final HttpCriterion httpCriterion = HttpCriterion.builder()
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
 			.type(HTTP)
 			.method(HttpMethod.GET)
 			.url(TEST)
@@ -915,9 +975,7 @@ class CriterionProcessorTest {
 			.errorMessage(ERROR)
 			.build();
 
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			matsyaClientsExecutorMock,
 			telemetryManager,
@@ -929,7 +987,8 @@ class CriterionProcessorTest {
 
 	@Test
 	void HttpCriterionProcessRequestWrongResultTest() throws IOException {
-		final HttpCriterion httpCriterion = HttpCriterion.builder()
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
 			.type(HTTP)
 			.method(HttpMethod.GET)
 			.url(TEST)
@@ -947,10 +1006,7 @@ class CriterionProcessorTest {
 			.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
 			.build();
 
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		final String result = "Something went Wrong";
 		final HttpRequest httpRequest = HttpRequest
@@ -973,9 +1029,9 @@ class CriterionProcessorTest {
 		);
 
 		final String message = String.format(
-			"Hostname %s - HTTP test failed - "
-				+ "The result (%s) returned by the HTTP test did not match the expected result (%s)."
-				+ "Expected value: %s - returned value %s.",
+			"Hostname %s - HTTP test failed - " +
+			"The result (%s) returned by the HTTP test did not match the expected result (%s)." +
+			"Expected value: %s - returned value %s.",
 			HOST_ID,
 			result,
 			RESULT,
@@ -992,7 +1048,8 @@ class CriterionProcessorTest {
 
 	@Test
 	void HttpCriterionProcessOKTest() throws IOException {
-		final HttpCriterion httpCriterion = HttpCriterion.builder()
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
 			.type(HTTP)
 			.method(HttpMethod.GET)
 			.url(TEST)
@@ -1010,10 +1067,7 @@ class CriterionProcessorTest {
 			.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
 			.build();
 
-		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		final HttpRequest httpRequest = HttpRequest
 			.builder()
@@ -1045,13 +1099,13 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessIpmiWindowsSuccess() {
-
 		// Init the mocks
 		MockitoAnnotations.openMocks(this);
 
 		// Init configurations
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final WmiConfiguration wmiProtocol = WmiConfiguration.builder()
+		final WmiConfiguration wmiProtocol = WmiConfiguration
+			.builder()
 			.namespace(HOST_WIN)
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -1071,17 +1125,15 @@ class CriterionProcessorTest {
 			.build();
 
 		// Create a TelemetryManager instance
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		// Mock getHostConfiguration and getWinConfiguration
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(configurations.get(wmiProtocol.getClass())).when(telemetryManagerMock).getWinConfiguration();
 
 		// Mock performDetectionTest
 		doReturn(CriterionTestResult.success(ipmi, IPMI_SUCCESS_MESSAGE))
-			.when(wqlDetectionHelperMock).performDetectionTest(any(), any(), any());
+			.when(wqlDetectionHelperMock)
+			.performDetectionTest(any(), any(), any());
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(ipmi);
 
@@ -1092,13 +1144,13 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessIpmiWindowsFailure() {
-
 		// Init the mocks
 		MockitoAnnotations.openMocks(this);
 
 		// Init configurations
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final WmiConfiguration wmiProtocol = WmiConfiguration.builder()
+		final WmiConfiguration wmiProtocol = WmiConfiguration
+			.builder()
 			.namespace(HOST_WIN)
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -1118,32 +1170,31 @@ class CriterionProcessorTest {
 			.hostType(DeviceKind.WINDOWS)
 			.configurations(configurations)
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		// mock getHostConfiguration, getWinConfiguration and performDetectionTest
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(configurations.get(wmiProtocol.getClass())).when(telemetryManagerMock).getWinConfiguration();
 		doReturn(CriterionTestResult.success(ipmi, IPMI_FAILURE_MESSAGE))
-			.when(wqlDetectionHelperMock).performDetectionTest(any(), any(), any());
+			.when(wqlDetectionHelperMock)
+			.performDetectionTest(any(), any(), any());
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(ipmi);
 
 		assertNotNull(criterionTestResult);
 		assertEquals(IPMI_FAILURE_MESSAGE, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
-
 	}
 
 	@Test
 	void testProcessIpmiLinuxWithWrongIpmitoolCommand() {
 		// Init configurations
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT).build();
+			.timeout(STRATEGY_TIMEOUT)
+			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(HOST_LINUX)
@@ -1152,15 +1203,9 @@ class CriterionProcessorTest {
 			.configurations(
 				Map.of(
 					HttpConfiguration.class,
-					HttpConfiguration
-						.builder()
-						.timeout(STRATEGY_TIMEOUT)
-						.build(),
+					HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
 					OsCommandConfiguration.class,
-					OsCommandConfiguration
-						.builder()
-						.timeout(STRATEGY_TIMEOUT)
-						.build()
+					OsCommandConfiguration.builder().timeout(STRATEGY_TIMEOUT).build()
 				)
 			)
 			.build();
@@ -1176,27 +1221,25 @@ class CriterionProcessorTest {
 				HttpConfiguration.class,
 				HttpConfiguration.builder().build(),
 				OsCommandConfiguration.class,
-				OsCommandConfiguration
-					.builder()
-					.useSudoCommands(Sets.newSet())
-					.timeout(STRATEGY_TIMEOUT)
-					.build(),
-				SshConfiguration.class, sshConfiguration
+				OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build(),
+				SshConfiguration.class,
+				sshConfiguration
 			)
 		);
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 		assertFalse(criterionProcessor.process(new IpmiCriterion()).isSuccess());
-
 	}
 
 	@Test
 	void testProcessIpmiLinuxWithWrongSshCommandResult() {
 		// Init configurations
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT).build();
+			.timeout(STRATEGY_TIMEOUT)
+			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(HOST_LINUX)
@@ -1205,16 +1248,9 @@ class CriterionProcessorTest {
 			.configurations(
 				Map.of(
 					HttpConfiguration.class,
-					HttpConfiguration
-						.builder()
-						.timeout(STRATEGY_TIMEOUT)
-						.build(),
+					HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
 					OsCommandConfiguration.class,
-					OsCommandConfiguration
-						.builder()
-						.useSudoCommands(Sets.newSet())
-						.timeout(STRATEGY_TIMEOUT)
-						.build()
+					OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build()
 				)
 			)
 			.build();
@@ -1230,12 +1266,14 @@ class CriterionProcessorTest {
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper.when(() -> OsCommandHelper.runSshCommand(anyString(), eq(HOST_LINUX), eq(sshConfiguration), anyInt(), isNull(), isNull()))
+			osCommandHelper
+				.when(() ->
+					OsCommandHelper.runSshCommand(anyString(), eq(HOST_LINUX), eq(sshConfiguration), anyInt(), isNull(), isNull())
+				)
 				.thenReturn(INVALID_SSH_RESPONSE);
 			assertFalse(criterionProcessor.process(new IpmiCriterion()).isSuccess());
 		}
 	}
-
 
 	@Test
 	void testProcessIpmiLinuxWithNullOsConfiguration() {
@@ -1245,7 +1283,8 @@ class CriterionProcessorTest {
 			.hostname(HOST_LINUX)
 			.hostId(HOST_LINUX)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build())).build();
+			.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build()))
+			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(hostConfiguration)
@@ -1256,9 +1295,15 @@ class CriterionProcessorTest {
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
-		assertEquals(CriterionTestResult.builder().result("").success(false)
-						.message("Hostname " + HOST_LINUX + NO_OS_CONFIGURATION_MESSAGE).build(),
-				criterionProcessor.process(new IpmiCriterion()));
+		assertEquals(
+			CriterionTestResult
+				.builder()
+				.result("")
+				.success(false)
+				.message("Hostname " + HOST_LINUX + NO_OS_CONFIGURATION_MESSAGE)
+				.build(),
+			criterionProcessor.process(new IpmiCriterion())
+		);
 	}
 
 	@Test
@@ -1271,13 +1316,10 @@ class CriterionProcessorTest {
 			.hostType(DeviceKind.LINUX)
 			.configurations(
 				Map.of(
-					HttpConfiguration.class, HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
+					HttpConfiguration.class,
+					HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
 					OsCommandConfiguration.class,
-					OsCommandConfiguration
-						.builder()
-						.useSudoCommands(Sets.newSet())
-						.timeout(STRATEGY_TIMEOUT)
-						.build()
+					OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build()
 				)
 			)
 			.build();
@@ -1301,20 +1343,21 @@ class CriterionProcessorTest {
 					.message(IPMI_CONNECTION_SUCCESS_WITH_IN_BAND_DRIVER_MESSAGE)
 					.build()
 					.getMessage(),
-					criterionProcessor.process(new IpmiCriterion()).getMessage()
+				criterionProcessor.process(new IpmiCriterion()).getMessage()
 			);
 		}
 	}
 
-
 	@Test
 	void testBuildIpmiCommand() {
-
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT).build();
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder()
+			.timeout(STRATEGY_TIMEOUT)
+			.build();
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration
+			.builder()
 			.sudoCommand(SUDO_KEYWORD)
 			.useSudoCommands(Sets.newSet())
 			.timeout(STRATEGY_TIMEOUT)
@@ -1324,7 +1367,8 @@ class CriterionProcessorTest {
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.SOLARIS)
-			.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration)).build();
+			.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
+			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(hostConfiguration)
@@ -1337,28 +1381,34 @@ class CriterionProcessorTest {
 
 		// Test successful command
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull())).thenReturn(VALID_SOLARIS_VERSION_TEN);
-			commandResult = criterionProcessor.buildIpmiCommand(
-				DeviceKind.SOLARIS,
-				LOCALHOST,
-				sshConfiguration,
-				osCommandConfiguration,
-				STRATEGY_TIMEOUT.intValue()
-			);
+			osCommandHelper
+				.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull()))
+				.thenReturn(VALID_SOLARIS_VERSION_TEN);
+			commandResult =
+				criterionProcessor.buildIpmiCommand(
+					DeviceKind.SOLARIS,
+					LOCALHOST,
+					sshConfiguration,
+					osCommandConfiguration,
+					STRATEGY_TIMEOUT.intValue()
+				);
 			assertNotNull(commandResult);
 			assertTrue(commandResult.startsWith(PATH));
 		}
 
 		// Test failed command
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull())).thenReturn(INVALID_SOLARIS_VERSION);
-			commandResult = criterionProcessor.buildIpmiCommand(
-				DeviceKind.SOLARIS,
-				LOCALHOST,
-				sshConfiguration,
-				osCommandConfiguration,
-				STRATEGY_TIMEOUT.intValue()
-			);
+			osCommandHelper
+				.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull()))
+				.thenReturn(INVALID_SOLARIS_VERSION);
+			commandResult =
+				criterionProcessor.buildIpmiCommand(
+					DeviceKind.SOLARIS,
+					LOCALHOST,
+					sshConfiguration,
+					osCommandConfiguration,
+					STRATEGY_TIMEOUT.intValue()
+				);
 			assertNotNull(commandResult);
 			assertTrue(commandResult.contains(SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN)); // Not Successful command the response starts with Couldn't identify
 		}
@@ -1366,101 +1416,110 @@ class CriterionProcessorTest {
 		// Test sudo command
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
 			osCommandConfiguration.setUseSudo(true);
-			osCommandHelper.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull())).thenReturn(VALID_SOLARIS_VERSION_TEN);
-			commandResult = criterionProcessor.buildIpmiCommand(
-				DeviceKind.SOLARIS,
-				LOCALHOST,
-				sshConfiguration,
-				osCommandConfiguration,
-				STRATEGY_TIMEOUT.intValue()
-			);
+			osCommandHelper
+				.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull()))
+				.thenReturn(VALID_SOLARIS_VERSION_TEN);
+			commandResult =
+				criterionProcessor.buildIpmiCommand(
+					DeviceKind.SOLARIS,
+					LOCALHOST,
+					sshConfiguration,
+					osCommandConfiguration,
+					STRATEGY_TIMEOUT.intValue()
+				);
 			assertNotNull(commandResult);
 			assertTrue(commandResult.contains(SUDO_KEYWORD)); // Successful sudo command
 		}
 
 		// Test Linux
 		osCommandConfiguration.setUseSudo(false);
-		commandResult = criterionProcessor.buildIpmiCommand(
-			DeviceKind.LINUX,
-			LOCALHOST,
-			sshConfiguration,
-			osCommandConfiguration,
-			120
-		);
+		commandResult =
+			criterionProcessor.buildIpmiCommand(DeviceKind.LINUX, LOCALHOST, sshConfiguration, osCommandConfiguration, 120);
 		assertEquals(LINUX_BUILD_IPMI_COMMAND, commandResult);
-
-
 	}
 
 	@Test
 	void testGetIpmiCommandForSolaris() throws Exception {
 		// Solaris Version 10 => bmc
-		String commandResult = criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_TEN);
+		String commandResult = criterionProcessor.getIpmiCommandForSolaris(
+			IPMI_TOOL_COMMAND,
+			LOCALHOST,
+			VALID_SOLARIS_VERSION_TEN
+		);
 		assertEquals(IPMI_TOOL_COMMAND + BMC, commandResult);
 
 		// Solaris version 9 => lipmi
-		commandResult = criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_NINE);
+		commandResult =
+			criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_NINE);
 		assertEquals(IPMI_TOOL_COMMAND + LIPMI, commandResult);
 
-
 		// wrong String OS version
-		Exception exception = assertThrows(Exception.class, () -> {
-			criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, INVALID_SOLARIS_VERSION);
-		});
+		Exception exception = assertThrows(
+			Exception.class,
+			() -> {
+				criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, INVALID_SOLARIS_VERSION);
+			}
+		);
 
 		String actualMessage = exception.getMessage();
 
 		assertTrue(actualMessage.contains(UNKNOWN_SOLARIS_VERSION));
 
 		// old OS version
-		exception = assertThrows(Exception.class, () -> {
-			criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, OLD_SOLARIS_VERSION);
-		});
+		exception =
+			assertThrows(
+				Exception.class,
+				() -> {
+					criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, OLD_SOLARIS_VERSION);
+				}
+			);
 
 		actualMessage = exception.getMessage();
 
 		assertTrue(actualMessage.contains(OLD_SOLARIS_VERSION_MESSAGE));
-
 	}
-
 
 	@Test
 	void testProcessIPMIOutOfBandConfigurationNotFound() {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration
-				.builder()
-				.hostId(MANAGEMENT_CARD_HOST).hostType(DeviceKind.OOB).hostname(MANAGEMENT_CARD_HOST)
-				.configurations(Collections.emptyMap())
-				.build()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(MANAGEMENT_CARD_HOST)
+					.hostType(DeviceKind.OOB)
+					.hostname(MANAGEMENT_CARD_HOST)
+					.configurations(Collections.emptyMap())
+					.build()
 			)
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(new IpmiCriterion()));
 	}
 
-
 	@Test
 	void testProcessIPMIOutOfBand() throws Exception {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder()
-				.hostId(MANAGEMENT_CARD_HOST).hostType(DeviceKind.OOB).hostname(MANAGEMENT_CARD_HOST)
-				.configurations(
-					Map.of(
-						IpmiConfiguration.class, 
-						IpmiConfiguration
-							.builder()
-							.username(USERNAME)
-							.password(PASSWORD.toCharArray()).build()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(MANAGEMENT_CARD_HOST)
+					.hostType(DeviceKind.OOB)
+					.hostname(MANAGEMENT_CARD_HOST)
+					.configurations(
+						Map.of(
+							IpmiConfiguration.class,
+							IpmiConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build()
+						)
 					)
-				)
-				.build()
+					.build()
 			)
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SYSTEM_POWER_UP_MESSAGE).when(matsyaClientsExecutorMock)
-				.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
+		doReturn(SYSTEM_POWER_UP_MESSAGE)
+			.when(matsyaClientsExecutorMock)
+			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
 		assertEquals(
 			CriterionTestResult
 				.builder()
@@ -1475,13 +1534,15 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessIPMIOutOfBandNullResult() throws Exception {
 		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray()).build();
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 
 		configurations.put(IpmiConfiguration.class, ipmiConfiguration);
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostId(MANAGEMENT_CARD_HOST)
 			.hostType(DeviceKind.OOB)
 			.hostname(MANAGEMENT_CARD_HOST)
@@ -1494,13 +1555,11 @@ class CriterionProcessorTest {
 			.build();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(matsyaClientsExecutorMock)
-				.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
+		doReturn(null)
+			.when(matsyaClientsExecutorMock)
+			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
 		assertEquals(
-			CriterionTestResult
-				.builder()
-				.message(OOB_NULL_RESULT_MESSAGE)
-				.build().getMessage(),
+			CriterionTestResult.builder().message(OOB_NULL_RESULT_MESSAGE).build().getMessage(),
 			criterionProcessor.process(new IpmiCriterion()).getMessage()
 		);
 	}
@@ -1514,9 +1573,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void ProductRequirementsCriterionProcessCriterionNullVersionTest() {
-		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
-			.builder()
-			.build();
+		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion.builder().build();
 
 		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
@@ -1552,28 +1609,34 @@ class CriterionProcessorTest {
 
 	private void initWmi() {
 		wmiConfiguration = WmiConfiguration.builder().build();
-		telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(LOCALHOST)
-					.hostId(LOCALHOST)
-					.hostType(DeviceKind.WINDOWS)
-					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-					.build()
-			)
-			.build();
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.WINDOWS)
+						.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+						.build()
+				)
+				.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class))
-			.when(telemetryManagerMock).getWinConfiguration();
+			.when(telemetryManagerMock)
+			.getWinConfiguration();
 	}
 
 	@Test
 	void testProcessWmiCriterionSuccess() throws Exception {
 		initWmi();
 		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WmiCriterion wmiCriterion = WmiCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 
 		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
 		assertTrue(result.isSuccess());
@@ -1583,7 +1646,11 @@ class CriterionProcessorTest {
 	void testProcessWmiCriterionActualResultIsNotExpectedResult() throws Exception {
 		initWmi();
 		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT).build();
+		final WmiCriterion wmiCriterion = WmiCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT)
+			.build();
 		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getMessage().contains(WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE));
@@ -1600,7 +1667,11 @@ class CriterionProcessorTest {
 	void testProcessWmiEmptyQueryResult() throws Exception {
 		initWmi();
 		doReturn(List.of()).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WmiCriterion wmiCriterion = WmiCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 
 		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
 		assertFalse(result.isSuccess());
@@ -1610,19 +1681,25 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWmiCriterionWithNullWmiConfiguration() throws Exception {
 		wmiConfiguration = null;
-		telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(LOCALHOST)
-					.hostId(LOCALHOST)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of())
-					.build()
-			)
-			.build();
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of())
+						.build()
+				)
+				.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		final WmiCriterion wmiCriterion = WmiCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 
 		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
 		assertFalse(result.isSuccess());
@@ -1632,8 +1709,14 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWmiCriterionWithMatsyaException() throws Exception {
 		initWmi();
-		doThrow(MatsyaException.class).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT).build();
+		doThrow(MatsyaException.class)
+			.when(matsyaClientsExecutorMock)
+			.executeWql(any(), eq(wmiConfiguration), any(), any());
+		final WmiCriterion wmiCriterion = WmiCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
 		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getException() instanceof MatsyaException);
@@ -1641,17 +1724,15 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessOsCommandNotExpectedResult() {
-		final OsCommandCriterion osCommandCriterion = OsCommandCriterion.builder()
-				.commandLine(SSH_SUDO_COMMAND)
-				.errorMessage(EMPTY)
-				.expectedResult(RESULT)
-				.executeLocally(true)
-				.timeout(30L)
-				.build();
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final OsCommandCriterion osCommandCriterion = OsCommandCriterion
+			.builder()
+			.commandLine(SSH_SUDO_COMMAND)
+			.errorMessage(EMPTY)
+			.expectedResult(RESULT)
+			.executeLocally(true)
+			.timeout(30L)
+			.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		final SshConfiguration sshConfiguration = new SshConfiguration();
@@ -1667,38 +1748,39 @@ class CriterionProcessorTest {
 		hostConfiguration.setConfigurations(configurations);
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostProperties(hostProperties)
-				.hostConfiguration(hostConfiguration)
-				.build();
+			.builder()
+			.hostProperties(hostProperties)
+			.hostConfiguration(hostConfiguration)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		// The result is not the same as the expected result
 		OsCommandResult result = new OsCommandResult(ERROR, SSH_SUDO_COMMAND);
 
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper.when(() -> OsCommandHelper.runOsCommand(
-					SSH_SUDO_COMMAND,
-					telemetryManager,
-					30L,
-					true,
-					true))
-			.thenReturn(result);
+			osCommandHelper
+				.when(() -> OsCommandHelper.runOsCommand(SSH_SUDO_COMMAND, telemetryManager, 30L, true, true))
+				.thenReturn(result);
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 			final String message = String.format(
-					"OsCommandCriterion test ran but failed:\n"
-							+ "- CommandLine: %s\n"
-							+ "- ExecuteLocally: true\n"
-							+ "- ExpectedResult: %s\n"
-							+ "- Timeout: 30\n"
-							+ "\n"
-							+ "Actual result:\n"
-							+ "%s", SSH_SUDO_COMMAND, RESULT, ERROR);
+				"OsCommandCriterion test ran but failed:\n" +
+				"- CommandLine: %s\n" +
+				"- ExecuteLocally: true\n" +
+				"- ExpectedResult: %s\n" +
+				"- Timeout: 30\n" +
+				"\n" +
+				"Actual result:\n" +
+				"%s",
+				SSH_SUDO_COMMAND,
+				RESULT,
+				ERROR
+			);
 
 			assertEquals(ERROR, criterionTestResult.getResult());
 			assertFalse(criterionTestResult.isSuccess());
@@ -1709,17 +1791,15 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessOsCommandOK() {
-		final OsCommandCriterion osCommandCriterion = OsCommandCriterion.builder()
-				.commandLine(SSH_SUDO_COMMAND)
-				.errorMessage(EMPTY)
-				.expectedResult(RESULT)
-				.executeLocally(true)
-				.timeout(30L)
-				.build();
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final OsCommandCriterion osCommandCriterion = OsCommandCriterion
+			.builder()
+			.commandLine(SSH_SUDO_COMMAND)
+			.errorMessage(EMPTY)
+			.expectedResult(RESULT)
+			.executeLocally(true)
+			.timeout(30L)
+			.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		final SshConfiguration sshConfiguration = new SshConfiguration();
@@ -1735,36 +1815,37 @@ class CriterionProcessorTest {
 		hostConfiguration.setConfigurations(configurations);
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostProperties(hostProperties)
-				.hostConfiguration(hostConfiguration)
-				.build();
+			.builder()
+			.hostProperties(hostProperties)
+			.hostConfiguration(hostConfiguration)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		OsCommandResult result = new OsCommandResult(RESULT, SSH_SUDO_COMMAND);
 
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper.when(() -> OsCommandHelper.runOsCommand(
-					SSH_SUDO_COMMAND,
-					telemetryManager,
-					30L,
-					true,
-					true))
-			.thenReturn(result);
+			osCommandHelper
+				.when(() -> OsCommandHelper.runOsCommand(SSH_SUDO_COMMAND, telemetryManager, 30L, true, true))
+				.thenReturn(result);
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 			final String message = String.format(
-					"OsCommandCriterion test succeeded:\n"
-							+ "- CommandLine: %s\n"
-							+ "- ExecuteLocally: true\n"
-							+ "- ExpectedResult: %s\n"
-							+ "- Timeout: 30\n"
-							+ "\n"
-							+ "Result: %s", SSH_SUDO_COMMAND, RESULT, RESULT);
+				"OsCommandCriterion test succeeded:\n" +
+				"- CommandLine: %s\n" +
+				"- ExecuteLocally: true\n" +
+				"- ExpectedResult: %s\n" +
+				"- Timeout: 30\n" +
+				"\n" +
+				"Result: %s",
+				SSH_SUDO_COMMAND,
+				RESULT,
+				RESULT
+			);
 
 			assertEquals(RESULT, criterionTestResult.getResult());
 			assertTrue(criterionTestResult.isSuccess());
@@ -1775,17 +1856,15 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessOsCommandEmbeddedFileOK() {
-		final OsCommandCriterion osCommandCriterion = OsCommandCriterion.builder()
-				.commandLine(COMMAND_FILE_ABSOLUTE_PATH)
-				.errorMessage(EMPTY)
-				.expectedResult(RESULT)
-				.executeLocally(true)
-				.timeout(120L)
-				.build();
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final OsCommandCriterion osCommandCriterion = OsCommandCriterion
+			.builder()
+			.commandLine(COMMAND_FILE_ABSOLUTE_PATH)
+			.errorMessage(EMPTY)
+			.expectedResult(RESULT)
+			.executeLocally(true)
+			.timeout(120L)
+			.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		final SshConfiguration sshConfiguration = new SshConfiguration();
@@ -1801,36 +1880,37 @@ class CriterionProcessorTest {
 		hostConfiguration.setConfigurations(configurations);
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostProperties(hostProperties)
-				.hostConfiguration(hostConfiguration)
-				.build();
+			.builder()
+			.hostProperties(hostProperties)
+			.hostConfiguration(hostConfiguration)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		OsCommandResult result = new OsCommandResult(RESULT, COMMAND_FILE_ABSOLUTE_PATH);
 
 		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper.when(() -> OsCommandHelper.runOsCommand(
-					COMMAND_FILE_ABSOLUTE_PATH,
-					telemetryManager,
-					120L,
-					true,
-					true))
-			.thenReturn(result);
+			osCommandHelper
+				.when(() -> OsCommandHelper.runOsCommand(COMMAND_FILE_ABSOLUTE_PATH, telemetryManager, 120L, true, true))
+				.thenReturn(result);
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 			final String message = String.format(
-					"OsCommandCriterion test succeeded:\n"
-							+ "- CommandLine: %s\n"
-							+ "- ExecuteLocally: true\n"
-							+ "- ExpectedResult: %s\n"
-							+ "- Timeout: 120\n"
-							+ "\n"
-							+ "Result: %s", COMMAND_FILE_ABSOLUTE_PATH, RESULT, RESULT);
+				"OsCommandCriterion test succeeded:\n" +
+				"- CommandLine: %s\n" +
+				"- ExecuteLocally: true\n" +
+				"- ExpectedResult: %s\n" +
+				"- Timeout: 120\n" +
+				"\n" +
+				"Result: %s",
+				COMMAND_FILE_ABSOLUTE_PATH,
+				RESULT,
+				RESULT
+			);
 
 			assertEquals(RESULT, criterionTestResult.getResult());
 			assertTrue(criterionTestResult.isSuccess());
@@ -1854,27 +1934,30 @@ class CriterionProcessorTest {
 	@Test
 	void testVisitOsCommandExpectedResultNull() {
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent");
+		osCommandCriterion.setCommandLine(
+			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
+		);
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
 
-		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
-				criterionTestResult.getMessage());
+			"OsCommandCriterion test succeeded:\n" +
+			osCommandCriterion.toString() +
+			"\n\n" +
+			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+			criterionTestResult.getMessage()
+		);
 		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
 
@@ -1886,100 +1969,104 @@ class CriterionProcessorTest {
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
 
-		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
-				criterionTestResult.getMessage());
+			"OsCommandCriterion test succeeded:\n" +
+			osCommandCriterion.toString() +
+			"\n\n" +
+			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+			criterionTestResult.getMessage()
+		);
 		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitOsCommandExpectedResultEmpty() {
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent");
+		osCommandCriterion.setCommandLine(
+			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
+		);
 		osCommandCriterion.setExpectedResult("");
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
 
-		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
-				criterionTestResult.getMessage());
+			"OsCommandCriterion test succeeded:\n" +
+			osCommandCriterion.toString() +
+			"\n\n" +
+			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+			criterionTestResult.getMessage()
+		);
 		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
 	}
 
 	@Test
 	void testVisitOsCommandRemoteNoUser() {
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent");
+		osCommandCriterion.setCommandLine(
+			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
+		);
 		osCommandCriterion.setExpectedResult("Agent Rev:");
 		osCommandCriterion.setExecuteLocally(false);
 		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
 
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
-				.username(" ")
-				.password("pwd".toCharArray())
-				.build();
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostId("id")
-				.hostname("host")
-				.hostType(DeviceKind.LINUX)
-				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-				.build();
+			.builder()
+			.hostId("id")
+			.hostname("host")
+			.hostType(DeviceKind.LINUX)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
 
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(false)
-				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(false).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.hostProperties(hostProperties)
-				.build();
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"No credentials provided.",
-				criterionTestResult.getMessage());
+			"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() + "\n\n" + "No credentials provided.",
+			criterionTestResult.getMessage()
+		);
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -1992,47 +2079,50 @@ class CriterionProcessorTest {
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("No date.");
 
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
-				.username(" ")
-				.password("pwd".toCharArray())
-				.build();
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.build();
 
 		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
 		osCommandConfiguration.setTimeout(1L);
 
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostId("id")
-				.hostname("localhost")
-				.hostType(DeviceKind.WINDOWS)
-				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration))
-				.build();
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(
+				Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration)
+			)
+			.build();
 
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.hostProperties(hostProperties)
-				.build();
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"TimeoutException: Command \"PAUSE\" execution has timed out after 1 s",
-				criterionTestResult.getMessage());
+			"Error in OsCommandCriterion test:\n" +
+			osCommandCriterion.toString() +
+			"\n\n" +
+			"TimeoutException: Command \"PAUSE\" execution has timed out after 1 s",
+			criterionTestResult.getMessage()
+		);
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -2046,54 +2136,56 @@ class CriterionProcessorTest {
 		osCommandCriterion.setErrorMessage("No date.");
 		osCommandCriterion.setTimeout(1L);
 
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
-				.username(" ")
-				.password("pwd".toCharArray())
-				.build();
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.build();
 
 		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
 		osCommandConfiguration.setTimeout(1L);
 
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostId("id")
-				.hostname("localhost")
-				.hostType(DeviceKind.WINDOWS)
-				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration))
-				.build();
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(
+				Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration)
+			)
+			.build();
 
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.hostProperties(hostProperties)
-				.build();
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
-				criterionTestResult.getMessage());
+			"Error in OsCommandCriterion test:\n" +
+			osCommandCriterion.toString() +
+			"\n\n" +
+			"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
+			criterionTestResult.getMessage()
+		);
 		assertNull(criterionTestResult.getResult());
 	}
 
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandLocalWindowsFailedToMatchCriteria() {
-
 		final String result = "Test";
 
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
@@ -2102,51 +2194,52 @@ class CriterionProcessorTest {
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("No display.");
 
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
-				.username(" ")
-				.password("pwd".toCharArray())
-				.build();
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostId("id")
-				.hostname("localhost")
-				.hostType(DeviceKind.WINDOWS)
-				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-				.build();
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
 
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.hostProperties(hostProperties)
-				.build();
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"OsCommandCriterion test ran but failed:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"Actual result:\n" + result,
-				criterionTestResult.getMessage());
+			"OsCommandCriterion test ran but failed:\n" +
+			osCommandCriterion.toString() +
+			"\n\n" +
+			"Actual result:\n" +
+			result,
+			criterionTestResult.getMessage()
+		);
 		assertEquals(result, criterionTestResult.getResult());
 	}
 
 	@Test
 	@EnabledOnOs(LINUX)
 	void testVisitOsCommandLocalLinuxFailedToMatchCriteria() {
-
 		final String result = "Test";
 
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
@@ -2155,52 +2248,53 @@ class CriterionProcessorTest {
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("No display.");
 
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
-				.username(" ")
-				.password("pwd".toCharArray())
-				.timeout(1L)
-				.build();
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.timeout(1L)
+			.build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostId("id")
-				.hostname("localhost")
-				.hostType(DeviceKind.LINUX)
-				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-				.build();
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.LINUX)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
 
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.hostProperties(hostProperties)
-				.build();
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"OsCommandCriterion test ran but failed:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"Actual result:\n" + result,
-				criterionTestResult.getMessage());
+			"OsCommandCriterion test ran but failed:\n" +
+			osCommandCriterion.toString() +
+			"\n\n" +
+			"Actual result:\n" +
+			result,
+			criterionTestResult.getMessage()
+		);
 		assertEquals(result, criterionTestResult.getResult());
 	}
 
 	@Test
 	@EnabledOnOs(WINDOWS)
 	void testVisitOsCommandLocalWindows() {
-
 		final String result = "Test";
 
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
@@ -2209,52 +2303,49 @@ class CriterionProcessorTest {
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("No display.");
 
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
-				.username(" ")
-				.password("pwd".toCharArray())
-				.timeout(1L)
-				.build();
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.timeout(1L)
+			.build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostId("id")
-				.hostname("localhost")
-				.hostType(DeviceKind.WINDOWS)
-				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-				.build();
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
 
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.hostProperties(hostProperties)
-				.build();
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"Result: " + result,
-				criterionTestResult.getMessage());
+			"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() + "\n\n" + "Result: " + result,
+			criterionTestResult.getMessage()
+		);
 		assertEquals(result, criterionTestResult.getResult());
 	}
 
 	@Test
 	@EnabledOnOs(LINUX)
 	void testVisitOsCommandLocalLinux() {
-
 		final String result = "Test";
 
 		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
@@ -2263,45 +2354,43 @@ class CriterionProcessorTest {
 		osCommandCriterion.setExecuteLocally(true);
 		osCommandCriterion.setErrorMessage("No display.");
 
-		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder()
-				.username(" ")
-				.password("pwd".toCharArray())
-				.timeout(1L)
-				.build();
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.timeout(1L)
+			.build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.hostId("id")
-				.hostname("localhost")
-				.hostType(DeviceKind.LINUX)
-				.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-				.build();
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.LINUX)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
 
-		final HostProperties hostProperties = HostProperties
-				.builder()
-				.isLocalhost(true)
-				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(hostConfiguration)
-				.hostProperties(hostProperties)
-				.build();
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-				matsyaClientsExecutorMock,
-				telemetryManager,
-				MY_CONNECTOR_1_NAME);
+			matsyaClientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME
+		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-				"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() +
-				"\n\n" +
-				"Result: " + result,
-				criterionTestResult.getMessage());
+			"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() + "\n\n" + "Result: " + result,
+			criterionTestResult.getMessage()
+		);
 		assertEquals(result, criterionTestResult.getResult());
 	}
 }

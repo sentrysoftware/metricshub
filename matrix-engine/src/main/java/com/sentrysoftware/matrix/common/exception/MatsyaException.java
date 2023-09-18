@@ -19,5 +19,4 @@ public class MatsyaException extends Exception {
 	public MatsyaException(String message, Exception cause) {
 		super(message, cause);
 	}
-
 }

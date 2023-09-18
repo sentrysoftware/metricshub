@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.telemetry.metric;
 
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -18,12 +17,7 @@ public class NumberMetric extends AbstractMetric {
 	private Double previousValue;
 
 	@Builder
-	public NumberMetric(
-			String name,
-			long collectTime,
-			Map<String, String> attributes,
-			Double value
-	) {
+	public NumberMetric(String name, long collectTime, Map<String, String> attributes, Double value) {
 		super(name, collectTime, attributes);
 		this.value = value;
 	}

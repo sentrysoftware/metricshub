@@ -1,12 +1,10 @@
 package com.sentrysoftware.matrix.converter;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 class ConnectorConverterTest extends AbstractConnectorPropertyConverterTest {
 

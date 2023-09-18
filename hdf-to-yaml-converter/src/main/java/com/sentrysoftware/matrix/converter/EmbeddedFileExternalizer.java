@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.converter;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.sentrysoftware.matrix.connector.parser.ConstantsProcessor;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,11 +11,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.sentrysoftware.matrix.connector.parser.ConstantsProcessor;
-import com.sentrysoftware.matrix.converter.state.ConversionHelper;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,7 +44,7 @@ public class EmbeddedFileExternalizer {
 	/**
 	 * Externalize the embedded files then traverse the connector
 	 * and replace all the references of the embedded files.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void externalize() throws IOException {
@@ -59,11 +57,10 @@ public class EmbeddedFileExternalizer {
 
 		// Traverse the connector node and replace embedded files references
 		// E.g. $embedded.EmbeddedFile(1)$ becomes $file("embeddedFile-1")$
-		ConstantsProcessor
-			.replacePlaceholderValues(
-				connector,
-				this::transform,
-				value -> value.toLowerCase().indexOf("$embedded.embeddedfile") != -1
+		ConstantsProcessor.replacePlaceholderValues(
+			connector,
+			this::transform,
+			value -> value.toLowerCase().indexOf("$embedded.embeddedfile") != -1
 		);
 	}
 
@@ -73,7 +70,7 @@ public class EmbeddedFileExternalizer {
 	 * <code>${file::embedded_file_relative_path}</code>. E.g.
 	 * <code>${file::embeddedFile-1}</code> or
 	 * <code>${file::../Connector/embeddedFile-1}</code>
-	 * 
+	 *
 	 * @param value value to transform (input)
 	 * @return transformed value as String
 	 */
@@ -91,11 +88,10 @@ public class EmbeddedFileExternalizer {
 	 * @param input   Input to replace
 	 * @param matcher An engine that performs match operations on a character sequence.<br>
 	 *                <code>Matcher.find</code> or <code>Matcher.matches</code> must be called before
-	 *                calling this method 
+	 *                calling this method
 	 * @return String value
 	 */
 	private String doReplacement(final String input, final Matcher matcher) {
-
 		// Build the new name
 		final String embeddedFileName = String.format("embeddedFile-%s", matcher.group(1));
 
@@ -103,16 +99,13 @@ public class EmbeddedFileExternalizer {
 		final String path = findRelativePath(embeddedFileName);
 
 		// Do replacement
-		return input.replace(
-			matcher.group(),
-			String.format("${file::%s}", path)
-		);
+		return input.replace(matcher.group(), String.format("${file::%s}", path));
 	}
 
 	/**
 	 * Find the path relative to the connector directory for the given embedded
 	 * file
-	 * 
+	 *
 	 * @param embeddedFileName The name of the embedded file we are looking for.
 	 */
 	private String findRelativePath(final String embeddedFileName) {
@@ -141,25 +134,20 @@ public class EmbeddedFileExternalizer {
 
 	/**
 	 * Extract the embedded file content into an external file.
-	 * 
+	 *
 	 * @param originalName The original name of the embedded file. E.g. EmbeddedFile(1)
 	 * @param content The content of the embedded file.
 	 * @throws IOException
 	 */
 	private void extractEmbeddedFile(final String originalName, final String content) throws IOException {
-
-		// Perform HDF to YAML value conversions to make sure that any HDF reference is correctly 
+		// Perform HDF to YAML value conversions to make sure that any HDF reference is correctly
 		// converted to the YAML expected reference
 		final String updatedContent = ConversionHelper.performValueConversions(content);
 
 		// Build the final name
-		final String finalName = originalName
-			.toLowerCase()
-			.replace("embeddedfile(", "embeddedFile-")
-			.replace(")", "");
+		final String finalName = originalName.toLowerCase().replace("embeddedfile(", "embeddedFile-").replace(")", "");
 
 		// Write the content to the file
 		Files.writeString(connectorDirectory.resolve(finalName), updatedContent);
 	}
-
 }

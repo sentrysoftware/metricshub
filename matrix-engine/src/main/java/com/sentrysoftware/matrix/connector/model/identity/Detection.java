@@ -2,29 +2,27 @@ package com.sentrysoftware.matrix.connector.model.identity;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.ConnectionTypeSetDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.DeviceKindSetDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.SupersedesDeserializer;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.connector.deserializer.custom.DeviceKindSetDeserializer;
-import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
-import com.sentrysoftware.matrix.connector.deserializer.custom.SupersedesDeserializer;
-import com.sentrysoftware.matrix.connector.deserializer.custom.ConnectionTypeSetDeserializer;
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
-
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -62,14 +60,12 @@ public class Detection implements Serializable {
 		@JsonProperty("supersedes") Set<String> supersedes,
 		@JsonProperty("criteria") List<Criterion> criteria
 	) {
-		this.connectionTypes = connectionTypes == null
-			? new HashSet<>(Collections.singleton(ConnectionType.LOCAL))
-			: connectionTypes;
+		this.connectionTypes =
+			connectionTypes == null ? new HashSet<>(Collections.singleton(ConnectionType.LOCAL)) : connectionTypes;
 		this.disableAutoDetection = disableAutoDetection;
 		this.onLastResort = onLastResort;
 		this.appliesTo = appliesTo;
 		this.supersedes = supersedes == null ? new HashSet<>() : supersedes;
 		this.criteria = criteria == null ? new ArrayList<>() : criteria;
 	}
-
 }

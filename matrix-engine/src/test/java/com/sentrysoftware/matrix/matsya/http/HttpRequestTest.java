@@ -10,19 +10,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.matsya.http.HttpRequest.HttpRequestBuilder;
 import com.sentrysoftware.matrix.strategy.utils.EmbeddedFileHelper;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 class HttpRequestTest {
 
@@ -71,11 +69,12 @@ class HttpRequestTest {
 		}
 
 		{
-			final EmbeddedFile expectedEmbeddedFile = new EmbeddedFile(CONNECTION_KEEP_ALIVE_HEADER, null, EMBEDDED_FILE_1_REF);
-			commandLineEmbeddedFiles.put(
-				EMBEDDED_FILE_1_REF,
-				expectedEmbeddedFile
+			final EmbeddedFile expectedEmbeddedFile = new EmbeddedFile(
+				CONNECTION_KEEP_ALIVE_HEADER,
+				null,
+				EMBEDDED_FILE_1_REF
 			);
+			commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, expectedEmbeddedFile);
 
 			try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 				mockedEmbeddedFileHelper
@@ -120,10 +119,7 @@ class HttpRequestTest {
 
 		{
 			final EmbeddedFile expectedEmbeddedFile = new EmbeddedFile(BODY, null, EMBEDDED_FILE_1_REF);
-			commandLineEmbeddedFiles.put(
-				EMBEDDED_FILE_1_REF,
-				expectedEmbeddedFile
-			);
+			commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, expectedEmbeddedFile);
 
 			try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 				mockedEmbeddedFileHelper
@@ -160,14 +156,14 @@ class HttpRequestTest {
 
 			assertThrows(
 				IllegalStateException.class,
-				() -> HttpRequestBuilder.getHttpEmbeddedFile(
-					EMBEDDED_FILE_1_REF + " "+  EMBEDDED_FILE_2_REF,
-					"header",
-					MY_CONNECTOR_1_NAME,
-					HOST
-				)
+				() ->
+					HttpRequestBuilder.getHttpEmbeddedFile(
+						EMBEDDED_FILE_1_REF + " " + EMBEDDED_FILE_2_REF,
+						"header",
+						MY_CONNECTOR_1_NAME,
+						HOST
+					)
 			);
 		}
 	}
-
 }

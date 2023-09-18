@@ -2,9 +2,8 @@ package com.sentrysoftware.matrix.common.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.jupiter.api.Test;
 
 class JsonHelperTest {
 
@@ -14,5 +13,4 @@ class JsonHelperTest {
 		assertEquals("[ 0 ]", JsonHelper.serialize(new int[1]));
 		assertEquals("null", JsonHelper.serialize(null));
 	}
-
 }

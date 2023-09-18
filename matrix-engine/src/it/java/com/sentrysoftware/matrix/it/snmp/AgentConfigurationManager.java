@@ -17,19 +17,26 @@ import org.snmp4j.util.WorkerPool;
  */
 public class AgentConfigurationManager extends AgentConfigManager {
 
-	public AgentConfigurationManager(OctetString agentsOwnEngineID,
-			MessageDispatcher messageDispatcher,
-			VACM vacm,
-			MOServer[] moServers,
-			WorkerPool workerPool,
-			MOInputFactory configurationFactory,
-			MOPersistenceProvider persistenceProvider,
-			EngineBootsProvider engineBootsProvider) {
-
-		super(agentsOwnEngineID, messageDispatcher,
-				vacm, moServers,
-				workerPool, configurationFactory,
-				persistenceProvider, engineBootsProvider);
+	public AgentConfigurationManager(
+		OctetString agentsOwnEngineID,
+		MessageDispatcher messageDispatcher,
+		VACM vacm,
+		MOServer[] moServers,
+		WorkerPool workerPool,
+		MOInputFactory configurationFactory,
+		MOPersistenceProvider persistenceProvider,
+		EngineBootsProvider engineBootsProvider
+	) {
+		super(
+			agentsOwnEngineID,
+			messageDispatcher,
+			vacm,
+			moServers,
+			workerPool,
+			configurationFactory,
+			persistenceProvider,
+			engineBootsProvider
+		);
 	}
 
 	@Override

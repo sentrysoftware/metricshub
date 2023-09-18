@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -45,7 +43,6 @@ public class ArrayTranslate extends Compute {
 		@JsonProperty("arraySeparator") String arraySeparator,
 		@JsonProperty("resultSeparator") String resultSeparator
 	) {
-
 		super(type);
 		this.column = column;
 		this.translationTable = translationTable;
@@ -90,5 +87,4 @@ public class ArrayTranslate extends Compute {
 	public void accept(IComputeProcessor computeProcessor) {
 		computeProcessor.process(this);
 	}
-
 }

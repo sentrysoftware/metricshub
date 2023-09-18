@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.converter.state.source.wmi;
 
-import java.util.Set;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.source.common.EntryConcatEndProcessor;
 import com.sentrysoftware.matrix.converter.state.source.common.EntryConcatMethodProcessor;
@@ -11,7 +9,7 @@ import com.sentrysoftware.matrix.converter.state.source.common.ForceSerializatio
 import com.sentrysoftware.matrix.converter.state.source.common.TypeProcessor;
 import com.sentrysoftware.matrix.converter.state.source.common.WbemNamespaceProcessor;
 import com.sentrysoftware.matrix.converter.state.source.common.WbemQueryProcessor;
-
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +20,6 @@ public class ConnectorWmiProperty {
 	private static final String WMI_YAML_TYPE_VALUE = "wmi";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-
 		return Set.of(
 			new TypeProcessor(WMI_HDF_TYPE_VALUE, WMI_YAML_TYPE_VALUE),
 			new ForceSerializationProcessor(),
@@ -33,6 +30,5 @@ public class ConnectorWmiProperty {
 			new EntryConcatStartProcessor(),
 			new EntryConcatEndProcessor()
 		);
-
 	}
 }

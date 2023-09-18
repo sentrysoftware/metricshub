@@ -1,10 +1,9 @@
 package com.sentrysoftware.matrix.converter.state.computes.perbittranslation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 import com.sentrysoftware.matrix.converter.state.computes.common.TranslationTableProcessor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BitTranslationTableProcessor extends TranslationTableProcessor {
 
@@ -17,5 +16,4 @@ public class BitTranslationTableProcessor extends TranslationTableProcessor {
 	protected Matcher getMatcher(String key) {
 		return PATTERN.matcher(key);
 	}
-
 }

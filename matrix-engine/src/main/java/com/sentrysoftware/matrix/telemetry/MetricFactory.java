@@ -1,5 +1,10 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.matrix.connector.model.metric.MetricType;
@@ -8,6 +13,10 @@ import com.sentrysoftware.matrix.strategy.detection.ConnectorTestResult;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,15 +24,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 @Slf4j
 @Data
 @AllArgsConstructor
@@ -46,13 +46,12 @@ public class MetricFactory {
 	 * @return collected metric
 	 */
 	public StateSetMetric collectStateSetMetric(
-			final Monitor monitor,
-			final String metricName,
-			final String value,
-			final String[] stateSet,
-			final long collectTime
+		final Monitor monitor,
+		final String metricName,
+		final String value,
+		final String[] stateSet,
+		final long collectTime
 	) {
-
 		final StateSetMetric metric = monitor.getMetric(metricName, StateSetMetric.class);
 		if (metric == null) {
 			// Add the metric directly in the monitor's metrics
@@ -82,7 +81,6 @@ public class MetricFactory {
 	 * @return a Map with attributes names as keys and attributes values as values
 	 */
 	public static Map<String, String> extractAttributesFromMetricName(final String metricName) {
-
 		// Create a map to store the extracted attributes
 		final Map<String, String> attributes = new HashMap<>();
 
@@ -123,7 +121,6 @@ public class MetricFactory {
 		@NonNull final Double value,
 		final Long collectTime
 	) {
-
 		final NumberMetric metric = monitor.getMetric(name, NumberMetric.class);
 		if (metric == null) {
 			// Add the metric directly in the monitor's metrics
@@ -134,7 +131,7 @@ public class MetricFactory {
 				.value(value)
 				.attributes(extractAttributesFromMetricName(name))
 				.build();
-			monitor.addMetric(name , newMetric);
+			monitor.addMetric(name, newMetric);
 			return newMetric;
 		} else {
 			// stateSet, metricName, and metric's attributes will never change over the collects
@@ -143,7 +140,6 @@ public class MetricFactory {
 			metric.setCollectTime(collectTime);
 			return metric;
 		}
-
 	}
 
 	/**
@@ -162,11 +158,11 @@ public class MetricFactory {
 		@NonNull final String value,
 		final Long collectTime
 	) {
-
 		try {
 			return collectNumberMetric(monitor, name, Double.parseDouble(value), collectTime);
 		} catch (Exception e) {
-			log.warn("Hostname {} - Cannot parse the {} value '{}' for monitor id {}. {} won't be collected",
+			log.warn(
+				"Hostname {} - Cannot parse the {} value '{}' for monitor id {}. {} won't be collected",
 				telemetryManager.getHostConfiguration().getHostname(),
 				name,
 				value,
@@ -204,8 +200,11 @@ public class MetricFactory {
 	 * @param metricName a given metric name
 	 * @return MetricDefinition instance
 	 */
-	public MetricDefinition getMetricDefinitionFromExtractedMetricName(final Connector connector, final Monitor monitor, final String metricName) {
-
+	public MetricDefinition getMetricDefinitionFromExtractedMetricName(
+		final Connector connector,
+		final Monitor monitor,
+		final String metricName
+	) {
 		// Get monitor metrics from connector
 		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
 
@@ -233,11 +232,14 @@ public class MetricFactory {
 		final String metricName,
 		final String metricValue
 	) {
-
 		AbstractMetric metric = null;
 
 		// Retrieve the metric definition using the extracted metric name
-		final MetricDefinition metricDefinition = getMetricDefinitionFromExtractedMetricName(connector, monitor, metricName);
+		final MetricDefinition metricDefinition = getMetricDefinitionFromExtractedMetricName(
+			connector,
+			monitor,
+			metricName
+		);
 
 		// Retrieve metric attributes from metric's name
 		final Map<String, String> metricAttributes = extractAttributesFromMetricName(metricName);
@@ -298,11 +300,10 @@ public class MetricFactory {
 		final boolean isDiscovery
 	) {
 		for (final Map.Entry<String, String> metricEntry : metrics.entrySet()) {
-
 			final String name = metricEntry.getKey();
 
 			// Check if the conditional collection tells that the metric shouldn't be collected
-			if (monitor.isMetricDeactivated(name)){
+			if (monitor.isMetricDeactivated(name)) {
 				continue;
 			}
 
@@ -310,11 +311,11 @@ public class MetricFactory {
 
 			if (value == null) {
 				log.warn(
-						"Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
-						hostname,
-						name,
-						monitorType,
-						connectorId
+					"Hostname {} - No value found for metric {}. Skip metric collection on {}. Connector: {}",
+					hostname,
+					name,
+					monitorType,
+					connectorId
 				);
 
 				continue;
@@ -330,5 +331,4 @@ public class MetricFactory {
 			}
 		}
 	}
-
 }

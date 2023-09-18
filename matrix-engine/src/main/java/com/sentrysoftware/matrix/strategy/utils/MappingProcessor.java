@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.FunctionArgumentsExtractor;
 import com.sentrysoftware.matrix.common.helpers.state.DuplexMode;
@@ -12,13 +15,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,9 +24,12 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @AllArgsConstructor
@@ -50,15 +49,42 @@ public class MappingProcessor {
 	private static final String TRUE = "true";
 	private static final String INVALID_VALUE = "Hostname {} - Value {} is invalid for {}.";
 
-	private static final Pattern MEBIBYTE_2_BYTE_PATTERN = Pattern.compile("mebibyte2byte\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern MEGABIT_2_BIT_PATTERN = Pattern.compile("megabit2bit\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern MEGAHERTZ_2_HERTZ_PATTERN = Pattern.compile("megahertz2hertz\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern PERCENT_2_RATIO_PATTERN = Pattern.compile("percent2ratio\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern LEGACY_FULL_DUPLEX_PATTERN = Pattern.compile("legacyfullduplex\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern LEGACY_LINK_STATUS_PATTERN = Pattern.compile("legacylinkstatus\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern LEGACY_PREDICTED_FAILURE_PATTERN = Pattern.compile("legacypredictedfailure\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern LEGACY_NEEDS_CLEANING_PATTERN = Pattern.compile("legacyneedscleaning\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern LEGACY_INTRUSION_STATUS_PATTERN = Pattern.compile("legacyintrusionstatus\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern MEBIBYTE_2_BYTE_PATTERN = Pattern.compile(
+		"mebibyte2byte\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern MEGABIT_2_BIT_PATTERN = Pattern.compile(
+		"megabit2bit\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern MEGAHERTZ_2_HERTZ_PATTERN = Pattern.compile(
+		"megahertz2hertz\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern PERCENT_2_RATIO_PATTERN = Pattern.compile(
+		"percent2ratio\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern LEGACY_FULL_DUPLEX_PATTERN = Pattern.compile(
+		"legacyfullduplex\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern LEGACY_LINK_STATUS_PATTERN = Pattern.compile(
+		"legacylinkstatus\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern LEGACY_PREDICTED_FAILURE_PATTERN = Pattern.compile(
+		"legacypredictedfailure\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern LEGACY_NEEDS_CLEANING_PATTERN = Pattern.compile(
+		"legacyneedscleaning\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern LEGACY_INTRUSION_STATUS_PATTERN = Pattern.compile(
+		"legacyintrusionstatus\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
 	private static final Pattern LOOKUP_PATTERN = Pattern.compile("lookup\\((.+)\\)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern BOOLEAN_PATTERN = Pattern.compile("boolean\\((.+)\\)", Pattern.CASE_INSENSITIVE);
 
@@ -98,7 +124,7 @@ public class MappingProcessor {
 	public Map<String, String> interpretNonContextMappingConditionalCollection() {
 		return interpretNonContextMapping(mapping.getConditionalCollection());
 	}
-	
+
 	/**
 	 * This method interprets non context mapping legacy text parameters
 	 * @return Map<String, String>
@@ -125,7 +151,7 @@ public class MappingProcessor {
 				result.put(key, extractColumnValue(value, key));
 			} else if (isAwkScript(value)) {
 				result.put(key, executeAwkScript(value));
-			} else if (isMegaBit2Bit(value)) { 
+			} else if (isMegaBit2Bit(value)) {
 				result.put(key, megaBit2bit(value, key));
 			} else if (isPercentToRatioFunction(value)) {
 				result.put(key, percent2Ratio(value, key));
@@ -173,13 +199,12 @@ public class MappingProcessor {
 	 * @return The result of the lookup operation, or null if an error occurs during the lookup process.
 	 */
 	private String lookup(final String functionCode, String key) {
-
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(functionCode);
 
 		if (functionArguments.size() != 4) {
 			log.error(
-				"Hostname {} - Lookup should contain exactly 4 arguments (detected {}) in lookup function {}. "
-					+ RESULT_MESSAGE,
+				"Hostname {} - Lookup should contain exactly 4 arguments (detected {}) in lookup function {}. " +
+				RESULT_MESSAGE,
 				jobInfo.getHostname(),
 				functionArguments.size(),
 				functionCode,
@@ -193,8 +218,7 @@ public class MappingProcessor {
 
 		if (monitorType.isEmpty()) {
 			log.error(
-				"Hostname {} - Unable to extract the 1st argument value passed to the lookup function. "
-					+ RESULT_MESSAGE,
+				"Hostname {} - Unable to extract the 1st argument value passed to the lookup function. " + RESULT_MESSAGE,
 				jobInfo.getHostname(),
 				key
 			);
@@ -205,8 +229,7 @@ public class MappingProcessor {
 
 		if (attributeValueToExtract.isEmpty()) {
 			log.error(
-				"Hostname {} - Unable to extract the 2nd argument value passed to the lookup function. "
-					+ RESULT_MESSAGE,
+				"Hostname {} - Unable to extract the 2nd argument value passed to the lookup function. " + RESULT_MESSAGE,
 				jobInfo.getHostname(),
 				key
 			);
@@ -217,8 +240,7 @@ public class MappingProcessor {
 
 		if (lookupAttributeKey.isEmpty()) {
 			log.error(
-				"Hostname {} - Unable to extract the 3rd argument value passed to the lookup function. "
-					+ RESULT_MESSAGE,
+				"Hostname {} - Unable to extract the 3rd argument value passed to the lookup function. " + RESULT_MESSAGE,
 				jobInfo.getHostname(),
 				key
 			);
@@ -229,8 +251,7 @@ public class MappingProcessor {
 
 		if (lookupAttributeValue.isEmpty()) {
 			log.error(
-				"Hostname {} - Unable to extract the 4th argument value passed to the lookup function. "
-					+ RESULT_MESSAGE,
+				"Hostname {} - Unable to extract the 4th argument value passed to the lookup function. " + RESULT_MESSAGE,
 				jobInfo.getHostname(),
 				key
 			);
@@ -240,12 +261,7 @@ public class MappingProcessor {
 		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorByType(monitorType);
 
 		if (typedMonitors == null) {
-			log.error(
-				"Hostname {} - No monitors found of type {}. Cannot set {}.",
-				jobInfo.getHostname(),
-				monitorType,
-				key
-			);
+			log.error("Hostname {} - No monitors found of type {}. Cannot set {}.", jobInfo.getHostname(), monitorType, key);
 			return null;
 		}
 
@@ -258,8 +274,7 @@ public class MappingProcessor {
 
 		if (monitor == null) {
 			log.error(
-				"Hostname {} - No monitor found matching attribute {} with value {}."
-					+ RESULT_MESSAGE,
+				"Hostname {} - No monitor found matching attribute {} with value {}." + RESULT_MESSAGE,
 				jobInfo.getHostname(),
 				lookupAttributeKey,
 				lookupAttributeValue,
@@ -295,7 +310,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a lookup function "lookup()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -308,10 +323,9 @@ public class MappingProcessor {
 		return false;
 	}
 
-	
 	/**
 	 * Converts megabit values to bit values
-	 * 
+	 *
 	 * @param value		String representing a megabit2bit function with a value in megabits
 	 * @param key		The attribute key
 	 * @return			String representing a double value in bits
@@ -329,7 +343,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a megabit2bit function "megabit2bit()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -339,7 +353,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts legacyfullduplex status into a current status
-	 * 
+	 *
 	 * @param value		String representing a legacyfullduplex function with a legacy status
 	 * @param key		The attribute key
 	 * @return			String representing a current status
@@ -365,7 +379,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a legacyfullduplex function "legacyfullduplex()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -375,7 +389,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts legacylinkstatus status into a current status
-	 * 
+	 *
 	 * @param value		String representing a legacylinkstatus function with a legacy status
 	 * @param key		The attribute key
 	 * @return			String representing a current status
@@ -401,7 +415,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a legacylinkstatus function "legacylinkstatus()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -421,7 +435,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts legacyneedscleaning status into a current status
-	 * 
+	 *
 	 * @param value		String representing a legacyneedscleaning function with a legacy status
 	 * @param key		The attribute key
 	 * @return			String representing a current a current status
@@ -447,7 +461,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a legacyneedscleaning function "legacyneedscleaning()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -457,7 +471,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts legacyneedscleaning status into a current status
-	 * 
+	 *
 	 * @param value		String representing a legacyneedscleaning function with a legacy status
 	 * @param key		The attribute key
 	 * @return			String representing a current a current status
@@ -483,7 +497,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a legacypredictedfailure function "legacypredictedfailure()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -493,7 +507,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts legacyintrusionstatus status into a current status
-	 * 
+	 *
 	 * @param value		String representing a legacyintrusionstatus function with a legacy status
 	 * @param key		The attribute key
 	 * @return			String representing a current a current status
@@ -519,7 +533,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a legacyintrusionstatus function "legacyintrusionstatus()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -539,7 +553,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts a boolean status into a current status
-	 * 
+	 *
 	 * @param value		String representing a boolean function with a legacy status
 	 * @param key		The attribute key
 	 * @return			String representing a current a current status
@@ -562,7 +576,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a boolean function "boolean()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -572,7 +586,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts megabyte values to byte values
-	 * 
+	 *
 	 * @param value		String representing a megabit2bit function with a value in megabytes
 	 * @param key		The attribute key
 	 * @return			String representing a double value in bytes
@@ -590,7 +604,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a mebibyte2byte function "mebibyte2byte()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -600,7 +614,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts megahertz values to hertz values
-	 * 
+	 *
 	 * @param value		String representing a megabit2bit function with a value in megahertz
 	 * @param key		The attribute key
 	 * @return			String representing a double value in hertz
@@ -618,7 +632,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a megahertz2hertz function "megahertz2hertz()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -628,7 +642,7 @@ public class MappingProcessor {
 
 	/**
 	 * Converts percent values to ratio values
-	 * 
+	 *
 	 * @param value		String representing a megabit2bit function with a value in percent
 	 * @param key		The attribute key
 	 * @return			String representing a double value as a ratio
@@ -646,7 +660,7 @@ public class MappingProcessor {
 
 	/**
 	 * Checks to see if the value contains a percent2ration function "percent2ration()"
-	 * 
+	 *
 	 * @param value		Value to be parsed
 	 * @return 			Returns true if the function is found
 	 */
@@ -661,14 +675,13 @@ public class MappingProcessor {
 
 	/**
 	 * We multiply the value by a predetermined factor, usually for unit conversion
-	 * 
+	 *
 	 * @param value		A string with an already extracted value
-	 * @param key 
+	 * @param key
 	 * @param factor	Double value to be multiplied to the value
 	 * @return			A String containing only the new value
 	 */
 	private String multiplyValueByFactor(final String value, String key, final double factor) {
-
 		try {
 			double doubleValue = Double.parseDouble(value);
 			return Double.toString(doubleValue * factor);
@@ -694,7 +707,7 @@ public class MappingProcessor {
 		} else {
 			log.warn(
 				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
-					"Row {} - monitor type {}.",
+				"Row {} - monitor type {}.",
 				jobInfo.getHostname(),
 				columnIndex,
 				mapping.getSource(),
@@ -749,15 +762,12 @@ public class MappingProcessor {
 	 * @return Resource
 	 */
 	public Resource interpretMappingResource() {
-
 		final MappingResource mappingResource = mapping.getResource();
 
 		if (mappingResource != null && mappingResource.hasType()) {
-			return Resource.builder()
-				.type(
-					interpretNonContextMapping(Map.of("type", mappingResource.getType()))
-					.get("type")
-				)
+			return Resource
+				.builder()
+				.type(interpretNonContextMapping(Map.of("type", mappingResource.getType())).get("type"))
 				.attributes(interpretNonContextMapping(mappingResource.getAttributes()))
 				.build();
 		}
@@ -792,7 +802,6 @@ public class MappingProcessor {
 		return interpretContextKeyValuePairs(monitor, mapping.getConditionalCollection());
 	}
 
-
 	/**
 	 * This method interprets context mapping legacy text parameters
 	 * @param monitor a given monitor
@@ -802,15 +811,17 @@ public class MappingProcessor {
 		return interpretContextKeyValuePairs(monitor, mapping.getLegacyTextParameters());
 	}
 
-
 	/**
 	 * This method interprets context key value pairs
 	 * @param monitor a given monitor
 	 * @param keyValuePairs key value pairs (for example: attribute key and attribute value)
 	 * @return Map<String, String>
 	 */
-	private Map<String, String> interpretContextKeyValuePairs(final Monitor monitor, final Map<String, String> keyValuePairs) {
-		if (keyValuePairs== null) {
+	private Map<String, String> interpretContextKeyValuePairs(
+		final Monitor monitor,
+		final Map<String, String> keyValuePairs
+	) {
+		if (keyValuePairs == null) {
 			return Collections.emptyMap();
 		}
 
@@ -820,10 +831,7 @@ public class MappingProcessor {
 			.entrySet()
 			.forEach(entry -> {
 				final String attributeKey = entry.getKey();
-				result.put(
-					attributeKey,
-					entry.getValue().apply(keyValuePairs.get(attributeKey), monitor)
-				);
+				result.put(attributeKey, entry.getValue().apply(keyValuePairs.get(attributeKey), monitor));
 			});
 
 		computationFunctions
@@ -845,6 +853,7 @@ public class MappingProcessor {
 	@Data
 	@Builder
 	static class KeyValuePair {
+
 		String key;
 		String value;
 	}

@@ -7,11 +7,9 @@ import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProcessCriterion;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +27,6 @@ class ProcessCriterionDeserializerTest extends DeserializerTest {
 	 * @throws IOException
 	 */
 	void testDeserializeProcess() throws IOException { // NOSONAR compareCriterion performs assertion
-
 		final Connector process = getConnector("processCriterion");
 
 		List<Criterion> expected = new ArrayList<>();

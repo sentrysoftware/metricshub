@@ -1,10 +1,8 @@
 package com.sentrysoftware.matrix.converter.state.computes;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 class ConvertComputeTest extends AbstractConnectorPropertyConverterTest {
 
@@ -15,7 +13,6 @@ class ConvertComputeTest extends AbstractConnectorPropertyConverterTest {
 
 	@Test
 	void test() throws IOException {
-
 		testConversion("discovery");
 		testConversion("collect");
 

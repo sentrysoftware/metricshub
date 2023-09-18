@@ -26,20 +26,20 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SENSOR_LOCATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class FanConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -47,20 +47,29 @@ public class FanConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_FAN_TYPE, IMappingKey.of(ATTRIBUTES, YAML_SENSOR_LOCATION));
 		attributesMap.put(HDF_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_FAN_SPEED_LIMIT_DEGRADED));
 		attributesMap.put(HDF_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_FAN_SPEED_LIMIT_CRITICAL));
-		attributesMap.put(HDF_PERCENT_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_FAN_SPEED_RATIO_LIMIT_DEGRADED, AbstractMappingConverter::buildPercent2RatioFunction));
-		attributesMap.put(HDF_PERCENT_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_FAN_SPEED_RATIO_LIMIT_CRITICAL, AbstractMappingConverter::buildPercent2RatioFunction));
+		attributesMap.put(
+			HDF_PERCENT_WARNING_THRESHOLD,
+			IMappingKey.of(METRICS, YAML_FAN_SPEED_RATIO_LIMIT_DEGRADED, AbstractMappingConverter::buildPercent2RatioFunction)
+		);
+		attributesMap.put(
+			HDF_PERCENT_ALARM_THRESHOLD,
+			IMappingKey.of(METRICS, YAML_FAN_SPEED_RATIO_LIMIT_CRITICAL, AbstractMappingConverter::buildPercent2RatioFunction)
+		);
 
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_FAN_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
 		metricsMap.put(HDF_SPEED, IMappingKey.of(METRICS, YAML_FAN_SPEED));
-		metricsMap.put(HDF_SPEED_PERCENT, IMappingKey.of(METRICS, YAML_FAN_SPEED_RATIO, AbstractMappingConverter::buildPercent2RatioFunction));
+		metricsMap.put(
+			HDF_SPEED_PERCENT,
+			IMappingKey.of(METRICS, YAML_FAN_SPEED_RATIO, AbstractMappingConverter::buildPercent2RatioFunction)
+		);
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
 
@@ -87,10 +96,7 @@ public class FanConverter extends AbstractMappingConverter {
 			YAML_NAME,
 			new TextNode(
 				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(
-						displayId != null ? displayId : deviceId,
-						existingAttributes.get(HDF_FAN_TYPE)
-					)
+					buildNameValue(displayId != null ? displayId : deviceId, existingAttributes.get(HDF_FAN_TYPE))
 				)
 			)
 		);
@@ -104,7 +110,6 @@ public class FanConverter extends AbstractMappingConverter {
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode fanType) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (fanType == null) {
 			return firstArg;
@@ -116,7 +121,6 @@ public class FanConverter extends AbstractMappingConverter {
 			.append(getFunctionArgument(fanType.asText()))
 			.append(")")
 			.toString();
-
 	}
 
 	@Override
@@ -128,5 +132,4 @@ public class FanConverter extends AbstractMappingConverter {
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
 		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
-
 }

@@ -12,12 +12,11 @@ public abstract class AbstractNonBlankNonNullInCollectionDeserializer extends Ab
 
 	/**
 	 * Return a function that extracts a non-null and non-blank value
-	 * 
+	 *
 	 * @return {@link Function} instance
 	 */
 	private Function<String, String> nonNullNonBlankExtractor() {
 		return str -> {
-
 			if (Objects.nonNull(str) && !str.isBlank()) {
 				return str;
 			}
@@ -27,5 +26,4 @@ public abstract class AbstractNonBlankNonNullInCollectionDeserializer extends Ab
 	}
 
 	protected abstract String getErrorMessage();
-
 }

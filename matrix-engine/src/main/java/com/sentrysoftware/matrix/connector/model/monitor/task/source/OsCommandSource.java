@@ -5,10 +5,6 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TAB;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +18,10 @@ import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,20 +43,25 @@ public class OsCommandSource extends Source {
 
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
+
 	@JsonDeserialize(using = BooleanDeserializer.class)
 	private Boolean executeLocally;
+
 	private String exclude;
 	private String keep;
+
 	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer beginAtLineNumber;
+
 	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer endAtLineNumber;
+
 	private String separators = WHITE_SPACE_TAB;
 	private String selectColumns;
 
 	@Builder
 	@JsonCreator
-	public OsCommandSource( // NOSONAR on constructor
+	public OsCommandSource(
 		@JsonProperty("type") String type,
 		@JsonProperty("computes") List<Compute> computes,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
@@ -73,9 +77,7 @@ public class OsCommandSource extends Source {
 		@JsonProperty("key") String key,
 		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
-
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
-
 		this.commandLine = commandLine;
 		this.timeout = timeout;
 		this.executeLocally = executeLocally;
@@ -89,26 +91,27 @@ public class OsCommandSource extends Source {
 
 	/**
 	 * Copy the current instance
-	 * 
+	 *
 	 * @return new {@link OsCommandSource} instance
 	 */
 	public OsCommandSource copy() {
-		return OsCommandSource.builder()
-				.type(type)
-				.key(key)
-				.forceSerialization(forceSerialization)
-				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
-				.commandLine(commandLine)
-				.executeLocally(executeLocally)
-				.exclude(exclude)
-				.keep(keep)
-				.beginAtLineNumber(beginAtLineNumber)
-				.endAtLineNumber(endAtLineNumber)
-				.selectColumns(selectColumns)
-				.separators(separators)
-				.timeout(timeout)
-				.build();
+		return OsCommandSource
+			.builder()
+			.type(type)
+			.key(key)
+			.forceSerialization(forceSerialization)
+			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
+			.commandLine(commandLine)
+			.executeLocally(executeLocally)
+			.exclude(exclude)
+			.keep(keep)
+			.beginAtLineNumber(beginAtLineNumber)
+			.endAtLineNumber(endAtLineNumber)
+			.selectColumns(selectColumns)
+			.separators(separators)
+			.timeout(timeout)
+			.build();
 	}
 
 	@Override
@@ -122,7 +125,6 @@ public class OsCommandSource extends Source {
 
 	@Override
 	public String toString() {
-
 		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
 
 		stringJoiner.add(super.toString());
@@ -138,12 +140,10 @@ public class OsCommandSource extends Source {
 		addNonNull(stringJoiner, "- selectColumns=", selectColumns);
 
 		return stringJoiner.toString();
-
 	}
 
 	@Override
 	public SourceTable accept(final ISourceProcessor sourceProcessor) {
 		return sourceProcessor.process(this);
 	}
-
 }

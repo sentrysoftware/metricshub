@@ -1,12 +1,10 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,5 +36,4 @@ public abstract class Criterion implements Serializable {
 	protected boolean forceSerialization;
 
 	public abstract CriterionTestResult accept(ICriterionProcessor criterionProcessor);
-
 }

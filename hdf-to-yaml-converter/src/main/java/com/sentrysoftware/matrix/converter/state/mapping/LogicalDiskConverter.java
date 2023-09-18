@@ -1,8 +1,35 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_LOGICALDISK_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_RAID_LEVEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SIZE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_UNALLOCATED_SPACE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_USE_FOR_CAPACITY_REPORT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOGICALDISK_ERRORS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOGICALDISK_LIMIT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOGICALDISK_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOGICALDISK_USAGE_FREE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOGICALDISK_USAGE_USED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_RAID_LEVEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_USE_FOR_CAPACITY_REPORT;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,13 +41,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class LogicalDiskConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -33,6 +57,7 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_LOGICALDISK_STATUS));
@@ -71,11 +96,7 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 
 		newAttributes.set(
 			YAML_NAME,
-			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, raidLevel, size)
-				)
-			)
+			new TextNode(wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, raidLevel, size)))
 		);
 	}
 
@@ -83,17 +104,12 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the Logical Disk name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param raidLevel            {@link JsonNode} representing the raid level 
+	 * @param raidLevel            {@link JsonNode} representing the raid level
 	 * @param size                 {@link JsonNode} representing the logical disk size
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(
-		final JsonNode firstDisplayArgument,
-		final JsonNode raidLevel,
-		final JsonNode size
-	) {
-
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode raidLevel, final JsonNode size) {
 		final String firstArg = firstDisplayArgument.asText();
 		if (Stream.of(raidLevel, size).allMatch(Objects::isNull)) {
 			return firstArg;
@@ -108,40 +124,37 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 		// Means raid level or size is not empty
 		if (raidLevel != null || size != null) {
 			format.append(
-					Stream.concat(
-						Optional.ofNullable(raidLevel)
+				Stream
+					.concat(
+						Optional
+							.ofNullable(raidLevel)
 							.map(v -> {
 								sprintfArgs.add(v.asText());
 								return "%s";
 							})
 							.stream(),
-						Optional.ofNullable(size)
+						Optional
+							.ofNullable(size)
 							.map(v -> {
 								sprintfArgs.add(String.format("bytes2HumanFormatBase2(%s)", v.asText()));
 								return "%s"; // Bytes to human format using base 2 conversion
 							})
 							.stream()
 					)
-					.collect(Collectors.joining(" - "," (",")"))
+					.collect(Collectors.joining(" - ", " (", ")"))
 			);
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $column(1), $column(2), $column(3))
 		// append the result to our format variable in order to get something like
 		// sprintf("%s (%s - %s)", $column(1), $column(2), bytes2HumanFormatBase2($column(3)))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s -  %s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s (%s -  %s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override
@@ -159,17 +172,14 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 		if (metrics != null) {
 			final JsonNode free = metrics.get(YAML_LOGICALDISK_USAGE_FREE);
 			if (free != null) {
-				((ObjectNode) metrics).set(
-					YAML_LOGICALDISK_USAGE_USED,
-					new TextNode("collectAllocatedSpace()")
-				);
+				((ObjectNode) metrics).set(YAML_LOGICALDISK_USAGE_USED, new TextNode("collectAllocatedSpace()"));
 			}
 		}
 	}
 
 	@Override
 	protected String getFunctionArgument(String value) {
-		// It is not required to concatenated the value with the opening and closing quotation marks 
+		// It is not required to concatenated the value with the opening and closing quotation marks
 		if (value.indexOf("bytes2HumanFormatBase2") != -1) {
 			return value;
 		}

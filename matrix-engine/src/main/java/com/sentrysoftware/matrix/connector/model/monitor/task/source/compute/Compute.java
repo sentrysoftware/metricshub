@@ -1,12 +1,10 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
-import java.io.Serializable;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.io.Serializable;
+import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,7 +33,7 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = Subtract.class, name = "subtract"),
 		@JsonSubTypes.Type(value = Substring.class, name = "substring"),
 		@JsonSubTypes.Type(value = Translate.class, name = "translate"),
-		@JsonSubTypes.Type(value = Xml2Csv.class, name = "xml2Csv"),
+		@JsonSubTypes.Type(value = Xml2Csv.class, name = "xml2Csv")
 	}
 )
 @Data
@@ -53,11 +51,8 @@ public abstract class Compute implements Serializable {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("- type=")
-			.append(this.getClass().getSimpleName())
-			.toString();
+		return new StringBuilder("- type=").append(this.getClass().getSimpleName()).toString();
 	}
 
 	public abstract void accept(IComputeProcessor computeProcessor);
-
 }

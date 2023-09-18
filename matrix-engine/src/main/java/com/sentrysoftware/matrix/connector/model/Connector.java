@@ -2,16 +2,6 @@ package com.sentrysoftware.matrix.connector.model;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -22,7 +12,15 @@ import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -70,7 +68,7 @@ public class Connector implements Serializable {
 	private Map<String, TranslationTable> translations = new HashMap<>();
 
 	@Default
-	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
+	private Set<Class<? extends Source>> sourceTypes = new HashSet<>();
 
 	@Default
 	private List<Set<String>> preSourceDep = new ArrayList<>();
@@ -89,7 +87,7 @@ public class Connector implements Serializable {
 	/**
 	 * Get the compiled filename of the connector, if the compiled filename
 	 * cannot be retrieved then the {@link IllegalStateException} is thrown
-	 * 
+	 *
 	 * @return String value
 	 */
 	public String getCompiledFilename() {

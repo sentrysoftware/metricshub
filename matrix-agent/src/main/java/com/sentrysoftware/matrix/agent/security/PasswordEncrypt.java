@@ -1,40 +1,37 @@
 package com.sentrysoftware.matrix.agent.security;
 
-import java.io.Console;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-
 import com.sentrysoftware.matrix.agent.helper.AgentConstants;
 import com.sentrysoftware.matrix.agent.helper.ConfigHelper;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.security.SecurityManager;
-
+import java.io.Console;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access =  AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PasswordEncrypt {
-
 	static {
 		Locale.setDefault(Locale.US);
 	}
 
 	/**
 	 * Get the key-store file
-	 * 
+	 *
 	 * @param mkdir Whether we should create the security directory
 	 *              (<em>libPath/../security</em> or <em>%PROGRAMDATA%\PRODUCT-CODE\security</em>)
 	 * @return File instance
 	 */
 	public static File getKeyStoreFile(final boolean mkdir) {
-
-		final Path securityDirectoryPath = LocalOsHandler.isWindows() ?
-			getSecurityFolderOnWindows() : getSecurityFolderFromInstallDir();
+		final Path securityDirectoryPath = LocalOsHandler.isWindows()
+			? getSecurityFolderOnWindows()
+			: getSecurityFolderFromInstallDir();
 
 		return resolveKeyStoreFile(securityDirectoryPath, mkdir);
 	}
@@ -43,11 +40,12 @@ public class PasswordEncrypt {
 	 * Get the security folder located under <em>%PROGRAMDATA%\PRODUCT-CODE</em>.<br>
 	 * If the ProgramData path is not valid then the security file will be located
 	 * under the install directory.
-	 * 
+	 *
 	 * @return {@link Path} instance
 	 */
 	static Path getSecurityFolderOnWindows() {
-		return ConfigHelper.getProgramDataPath()
+		return ConfigHelper
+			.getProgramDataPath()
 			.stream()
 			.map(path -> Paths.get(path, AgentConstants.PRODUCT_CODE, AgentConstants.SECURITY_DIRECTORY_NAME))
 			.findFirst()
@@ -57,7 +55,7 @@ public class PasswordEncrypt {
 	/**
 	 * Get the security folder located under the install directory in Linux systems e.g.
 	 * under /opt/PRODUCT-CODE/lib/app/../security
-	 * 
+	 *
 	 * @return {@link Path} instance
 	 */
 	static Path getSecurityFolderFromInstallDir() {
@@ -65,8 +63,7 @@ public class PasswordEncrypt {
 		try {
 			sourceDirectory = ResourceHelper.findSourceDirectory(PasswordEncrypt.class);
 		} catch (Exception e) {
-			throw new IllegalStateException(
-					"Error detected when getting local source file to get the keyStore.", e);
+			throw new IllegalStateException("Error detected when getting local source file to get the keyStore.", e);
 		}
 
 		if (sourceDirectory == null) {
@@ -87,23 +84,23 @@ public class PasswordEncrypt {
 
 	/**
 	 * Create the security directory then return the key-store file.
-	 * 
+	 *
 	 * @param securityDirectory Security folder path which contains the key-store file.
 	 * @param mkdir             Whether the security directory should be created or not
 	 * @return {@link File} instance
 	 */
 	static File resolveKeyStoreFile(Path securityDirectory, final boolean mkdir) {
-
 		if (mkdir && !Files.isDirectory(securityDirectory)) {
 			securityDirectory = ConfigHelper.createDirectories(securityDirectory);
 		}
 
 		// path/hws-keystore.p12
-		return Paths.get(securityDirectory.toAbsolutePath().toString(), SecurityManager.MATRIX_KEY_STORE_FILE_NAME).toFile();
+		return Paths
+			.get(securityDirectory.toAbsolutePath().toString(), SecurityManager.MATRIX_KEY_STORE_FILE_NAME)
+			.toFile();
 	}
 
 	public static void main(String[] args) {
-
 		try {
 			char[] password;
 

@@ -10,7 +10,9 @@ public class NonBlankDeserializer extends JsonDeserializer<String> {
 
 	@Override
 	public String deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
-		if (parser == null) return null;
+		if (parser == null) {
+			return null;
+		}
 
 		final String key = parser.getCurrentName();
 		final String value = parser.getValueAsString();

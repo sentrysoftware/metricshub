@@ -5,7 +5,6 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -24,14 +23,10 @@ public abstract class SnmpCriterion extends Criterion {
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String oid;
+
 	private String expectedResult;
 
-	protected SnmpCriterion(
-			String type, 
-			boolean forceSerialization, 
-			@NonNull String oid, 
-			String expectedResult) {
-
+	protected SnmpCriterion(String type, boolean forceSerialization, @NonNull String oid, String expectedResult) {
 		super(type, forceSerialization);
 		this.oid = oid;
 		this.expectedResult = expectedResult;

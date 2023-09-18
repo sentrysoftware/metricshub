@@ -5,6 +5,7 @@ package com.sentrysoftware.matrix.common.exception;
  * implementations used to run commands through Matsya.
  */
 public class MatsyaRuntimeException extends RuntimeException {
+
 	private static final long serialVersionUID = 1L;
 
 	public MatsyaRuntimeException(final MatsyaException cause) {

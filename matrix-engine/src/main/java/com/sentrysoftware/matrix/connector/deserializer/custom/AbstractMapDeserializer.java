@@ -1,16 +1,15 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<String, T>> {
 
@@ -18,8 +17,9 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 
 	@Override
 	public Map<String, T> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
-		if (parser == null)
+		if (parser == null) {
 			return emptyMap();
+		}
 
 		nodePath = getNodePath(parser.getParsingContext().getParent(), new LinkedList<>());
 
@@ -30,12 +30,7 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 		}
 
 		if (!isValidMap(map)) {
-			throw new InvalidFormatException(
-				parser,
-				messageOnInvalidMap(parser.getCurrentName()),
-				map,
-				Map.class
-			);
+			throw new InvalidFormatException(parser, messageOnInvalidMap(parser.getCurrentName()), map, Map.class);
 		}
 
 		updateMapValues(parser, ctxt, map);
@@ -49,13 +44,13 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 
 	/**
 	 * Get the current node path E.g. monitors.enclosure.discovery.sources
-	 * 
+	 *
 	 * @param context streaming processing contexts used during reading the content
 	 * @param path    linked list used to construct a sequence of characters separated by the dot delimiter
 	 * @return String value
 	 */
 	private String getNodePath(final JsonStreamContext context, final LinkedList<String> path) {
-		// Recursively call the parent of the context to build the full node path 
+		// Recursively call the parent of the context to build the full node path
 		// Stop if the parent is null, it means that root parent is reached
 		if (context != null && context.getParent() != null) {
 			if (context.inObject()) {
@@ -67,14 +62,12 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 			getNodePath(context.getParent(), path);
 		}
 
-
 		return path.stream().collect(Collectors.joining(".", "${source::", ""));
-
 	}
 
 	/**
 	 * Update the given map using the current parser and its context
-	 * 
+	 *
 	 * @param parser
 	 * @param ctxt Context that can be used to access information about this deserialization activity
 	 * @param map  Parsed used for reading JSON content
@@ -83,7 +76,7 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 
 	/**
 	 * Get the error message to display when the map is invalid
-	 * 
+	 *
 	 * @param nodeKey the current node key. E.g. sources
 	 * @return String value
 	 */
@@ -91,7 +84,7 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 
 	/**
 	 * Builds a map from the map passed as argument
-	 * 
+	 *
 	 * @param map
 	 * @return new {@link Map}
 	 */
@@ -99,7 +92,7 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 
 	/**
 	 * Whether the map is expected or not
-	 * 
+	 *
 	 * @param map
 	 * @return <code>true</code> if the map is in an expected type otherwise
 	 * false.
@@ -108,14 +101,14 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 
 	/**
 	 * Create a new empty map
-	 * 
+	 *
 	 * @return new {@link Map}
 	 */
 	protected abstract Map<String, T> emptyMap();
 
 	/**
 	 * Whether the given map is valid or not
-	 * 
+	 *
 	 * @param map
 	 * @return <code>true</code> if the map is valid otherwise false
 	 */
@@ -124,9 +117,8 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 	/**
 	 * Create the Java type to read content as (passed to ObjectCodec that
 	 * deserializes content)
-	 * 
+	 *
 	 * @return a new {@link TypeReference}
 	 */
 	protected abstract TypeReference<Map<String, T>> getTypeReference();
-
 }

@@ -4,16 +4,14 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
-
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,13 +31,12 @@ public abstract class SnmpSource extends Source {
 
 	protected SnmpSource(
 		String type,
-		List<Compute> computes, 
+		List<Compute> computes,
 		boolean forceSerialization,
 		@NonNull String oid,
 		String key,
 		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
-
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.oid = oid;
 	}

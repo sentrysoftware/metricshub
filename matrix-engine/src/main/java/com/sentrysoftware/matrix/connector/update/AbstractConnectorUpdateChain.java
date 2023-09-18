@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.update;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-
 import lombok.Data;
 import lombok.NonNull;
 
@@ -17,7 +16,6 @@ public abstract class AbstractConnectorUpdateChain implements ConnectorUpdateCha
 
 	@Override
 	public void update(@NonNull Connector connector) {
-
 		doUpdate(connector);
 
 		// Call next update chain

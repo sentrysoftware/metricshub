@@ -1,12 +1,8 @@
 package com.sentrysoftware.matrix.strategy.source.compute;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.*;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.regex.Matcher;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
@@ -35,9 +31,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.regex.Matcher;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -61,17 +60,23 @@ public class ComputeProcessor implements IComputeProcessor {
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 
 	static {
-		MATH_FUNCTIONS_MAP = Map.of(
-			Add.class, (op1, op2) -> Double.toString(Double.parseDouble(op1) + Double.parseDouble(op2)),
-			Subtract.class, (op1, op2) -> Double.toString(Double.parseDouble(op1) - Double.parseDouble(op2)),
-			Multiply.class, (op1, op2) -> Double.toString(Double.parseDouble(op1) * Double.parseDouble(op2)),
-			Divide.class, (op1, op2) -> {
-				Double op2Value = Double.parseDouble(op2);
-				if (op2Value != 0) {
-					return Double.toString(Double.parseDouble(op1) / op2Value);
+		MATH_FUNCTIONS_MAP =
+			Map.of(
+				Add.class,
+				(op1, op2) -> Double.toString(Double.parseDouble(op1) + Double.parseDouble(op2)),
+				Subtract.class,
+				(op1, op2) -> Double.toString(Double.parseDouble(op1) - Double.parseDouble(op2)),
+				Multiply.class,
+				(op1, op2) -> Double.toString(Double.parseDouble(op1) * Double.parseDouble(op2)),
+				Divide.class,
+				(op1, op2) -> {
+					Double op2Value = Double.parseDouble(op2);
+					if (op2Value != 0) {
+						return Double.toString(Double.parseDouble(op1) / op2Value);
+					}
+					return null;
 				}
-				return null;
-			});
+			);
 	}
 
 	@Override
@@ -83,7 +88,6 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute And Exec")
 	public void process(@SpanAttribute("compute.definition") final And and) {
-
 		if (and == null) {
 			log.warn("Hostname {} - Compute Operation (And) is null, the table remains unchanged.", hostname);
 			return;
@@ -92,14 +96,21 @@ public class ComputeProcessor implements IComputeProcessor {
 		String operand2 = and.getValue();
 
 		if (and.getColumn() == null || operand2 == null) {
-			log.warn("Hostname {} - Arguments in Compute Operation (And) : {} are wrong, the table remains unchanged.", hostname, and);
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (And) : {} are wrong, the table remains unchanged.",
+				hostname,
+				and
+			);
 			return;
 		}
 
 		int columnIndex = and.getColumn() - 1;
 
 		if (columnIndex < 0) {
-			log.warn("Hostname {} - The index of the column to which apply the And operation cannot be < 1, the And computation cannot be performed.", hostname);
+			log.warn(
+				"Hostname {} - The index of the column to which apply the And operation cannot be < 1, the And computation cannot be performed.",
+				hostname
+			);
 			return;
 		}
 
@@ -114,11 +125,10 @@ public class ComputeProcessor implements IComputeProcessor {
 					line.set(
 						columnIndex,
 						String.valueOf(
-							(long) Double.parseDouble(line.get(columnIndex))
-							&
+							(long) Double.parseDouble(line.get(columnIndex)) &
 							(
-								colOperand2 == -1 ?
-									(long) Double.parseDouble(operand2)
+								colOperand2 == -1
+									? (long) Double.parseDouble(operand2)
 									: (long) Double.parseDouble(line.get(colOperand2))
 							)
 						)
@@ -135,7 +145,6 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Add Exec")
 	public void process(@SpanAttribute("compute.definition") final Add add) {
-
 		if (add == null) {
 			log.warn("Hostname {} - Compute Operation (Add) is null, the table remains unchanged.", hostname);
 			return;
@@ -145,12 +154,19 @@ public class ComputeProcessor implements IComputeProcessor {
 		String operand2 = add.getValue();
 
 		if (columnIndex == null || operand2 == null) {
-			log.warn("Hostname {} - Arguments in Compute Operation (Add) : {} are wrong, the table remains unchanged.", hostname, add);
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (Add) : {} are wrong, the table remains unchanged.",
+				hostname,
+				add
+			);
 			return;
 		}
 
 		if (columnIndex < 1) {
-			log.warn("Hostname {} - The index of the column to add cannot be < 1, the addition computation cannot be performed.", hostname);
+			log.warn(
+				"Hostname {} - The index of the column to add cannot be < 1, the addition computation cannot be performed.",
+				hostname
+			);
 			return;
 		}
 
@@ -172,14 +188,17 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Divide Exec")
 	public void process(@SpanAttribute("compute.definition") final Divide divide) {
-
 		if (divide == null) {
 			log.warn("Hostname {} - Compute Operation (Divide) is null, the table remains unchanged.", hostname);
 			return;
 		}
 
 		if (divide.getColumn() == null || divide.getValue() == null) {
-			log.warn("Hostname {} - Arguments in Compute Operation (Divide) : {} are wrong, the table remains unchanged.",  hostname, divide);
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (Divide) : {} are wrong, the table remains unchanged.",
+				hostname,
+				divide
+			);
 			return;
 		}
 
@@ -187,7 +206,10 @@ public class ComputeProcessor implements IComputeProcessor {
 		String divideBy = divide.getValue();
 
 		if (columnIndex < 1) {
-			log.warn("Hostname {} - The index of the column to divide cannot be < 1, the division computation cannot be performed.", hostname);
+			log.warn(
+				"Hostname {} - The index of the column to divide cannot be < 1, the division computation cannot be performed.",
+				hostname
+			);
 			return;
 		}
 
@@ -214,7 +236,9 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	@Override
 	@WithSpan("Compute ExtractPropertyFromWbemPath Exec")
-	public void process(@SpanAttribute("compute.definition") final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
+	public void process(
+		@SpanAttribute("compute.definition") final ExtractPropertyFromWbemPath extractPropertyFromWbemPath
+	) {
 		// TODO Auto-generated method stub
 	}
 
@@ -245,7 +269,6 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Multiply Exec")
 	public void process(@SpanAttribute("compute.definition") final Multiply multiply) {
-
 		if (multiply == null) {
 			log.warn("Hostname {} - Compute Operation (Multiply) is null, the table remains unchanged.", hostname);
 			return;
@@ -255,12 +278,19 @@ public class ComputeProcessor implements IComputeProcessor {
 		String operand2 = multiply.getValue();
 
 		if (columnIndex == null || operand2 == null) {
-			log.warn("Hostname {} - Arguments in Compute Operation (Multiply) : {} are wrong, the table remains unchanged.", hostname, multiply);
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (Multiply) : {} are wrong, the table remains unchanged.",
+				hostname,
+				multiply
+			);
 			return;
 		}
 
 		if (columnIndex < 1) {
-			log.warn("Hostname {} - The index of the column to multiply cannot be < 1, the multiplication computation cannot be performed.", hostname);
+			log.warn(
+				"Hostname {} - The index of the column to multiply cannot be < 1, the multiplication computation cannot be performed.",
+				hostname
+			);
 			return;
 		}
 
@@ -288,7 +318,6 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Subtract Exec")
 	public void process(@SpanAttribute("compute.definition") final Subtract subtract) {
-
 		if (subtract == null) {
 			log.warn("Hostname {} - Compute Operation (Subtract) is null, the table remains unchanged.", hostname);
 			return;
@@ -298,12 +327,19 @@ public class ComputeProcessor implements IComputeProcessor {
 		String operand2 = subtract.getValue();
 
 		if (columnIndex == null || operand2 == null) {
-			log.warn("Hostname {} - Arguments in Compute Operation (Subtract) : {} are wrong, the table remains unchanged.", hostname, subtract);
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (Subtract) : {} are wrong, the table remains unchanged.",
+				hostname,
+				subtract
+			);
 			return;
 		}
 
 		if (columnIndex < 1) {
-			log.warn("Hostname {} - The index of the column to add cannot be < 1, the addition computation cannot be performed.", hostname);
+			log.warn(
+				"Hostname {} - The index of the column to add cannot be < 1, the addition computation cannot be performed.",
+				hostname
+			);
 			return;
 		}
 
@@ -335,8 +371,11 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * @param column           Column to be changed
 	 * @param operand2         Can be a reference to another column or a raw value
 	 */
-	private void performMathematicalOperation(final Compute computeOperation, final Integer column, final String operand2) {
-
+	private void performMathematicalOperation(
+		final Compute computeOperation,
+		final Integer column,
+		final String operand2
+	) {
 		if (!MATH_FUNCTIONS_MAP.containsKey(computeOperation.getClass())) {
 			log.warn("Hostname {} - The compute operation must be one of : Add, Subtract, Multiply, Divide.", hostname);
 			return;
@@ -350,20 +389,23 @@ public class ComputeProcessor implements IComputeProcessor {
 			try {
 				operandByIndex = Integer.parseInt(matcher.group(1)) - 1;
 				if (operandByIndex < 0) {
-					log.warn("Hostname {} - The operand2 column index cannot be < 1, the {} computation cannot be performed, the table remains unchanged.",
+					log.warn(
+						"Hostname {} - The operand2 column index cannot be < 1, the {} computation cannot be performed, the table remains unchanged.",
 						hostname,
-						computeOperation.getClass());
+						computeOperation.getClass()
+					);
 					return;
 				}
 			} catch (NumberFormatException e) {
-				log.warn("Hostname {} - NumberFormatException: {} is not a correct operand2 for {}, the table remains unchanged.",
+				log.warn(
+					"Hostname {} - NumberFormatException: {} is not a correct operand2 for {}, the table remains unchanged.",
 					hostname,
 					operand2,
-					computeOperation);
+					computeOperation
+				);
 				log.debug("Hostname {} - Stack trace:", hostname, e);
 				return;
 			}
-
 		} else if (!DOUBLE_PATTERN.matcher(operand2).matches()) {
 			log.warn("Hostname {} - operand2 is not a number: {}, the table remains unchanged.", hostname, operand2);
 			return;
@@ -380,8 +422,12 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * @param operand2         The second operand of the operation.
 	 * @param operand2Index    The column holding the value of the second operand in the {@link SourceTable}.
 	 */
-	private void performMathComputeOnTable(final Compute computeOperation, final Integer columnIndex, final String operand2, final int operand2Index) {
-
+	private void performMathComputeOnTable(
+		final Compute computeOperation,
+		final Integer columnIndex,
+		final String operand2,
+		final int operand2Index
+	) {
 		for (List<String> line : sourceTable.getTable()) {
 			performMathComputeOnLine(computeOperation, columnIndex, operand2, operand2Index, line);
 		}
@@ -401,10 +447,9 @@ public class ComputeProcessor implements IComputeProcessor {
 		final Integer columnIndex,
 		final String operand2,
 		final int operand2Index,
-		final List<String> line) {
-
+		final List<String> line
+	) {
 		if (columnIndex < line.size()) {
-
 			String operand1 = line.get(columnIndex);
 			if (!operand1.isBlank()) {
 				if (operand2Index != -1) {
@@ -433,8 +478,8 @@ public class ComputeProcessor implements IComputeProcessor {
 		final Integer columnIndex,
 		final List<String> line,
 		final String operand1,
-		final String operand2) {
-
+		final String operand2
+	) {
 		if (operand1.isBlank() || operand2.isBlank()) {
 			return;
 		}
@@ -447,7 +492,12 @@ public class ComputeProcessor implements IComputeProcessor {
 				}
 			}
 		} catch (NumberFormatException e) {
-			log.warn("Hostname {} - There is a NumberFormatException on operand 1: {} or the operand 2: {}.", hostname, operand1, operand2);
+			log.warn(
+				"Hostname {} - There is a NumberFormatException on operand 1: {} or the operand 2: {}.",
+				hostname,
+				operand1,
+				operand2
+			);
 			log.debug("Hostname {} - Stack trace:", hostname, e);
 		}
 	}
@@ -468,52 +518,49 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * @param abstractConcat
 	 */
 	private void processAbstractConcat(final AbstractConcat abstractConcat) {
+		boolean firstChecks =
+			abstractConcat != null &&
+			abstractConcat.getValue() != null &&
+			abstractConcat.getColumn() != null &&
+			abstractConcat.getColumn() > 0 &&
+			sourceTable != null &&
+			sourceTable.getTable() != null &&
+			!sourceTable.getTable().isEmpty();
 
-		boolean firstChecks = abstractConcat != null && abstractConcat.getValue() != null
-			&& abstractConcat.getColumn() != null && abstractConcat.getColumn() > 0 && sourceTable != null
-			&& sourceTable.getTable() != null && !sourceTable.getTable().isEmpty();
+		if (firstChecks) {
+			// Case 1 : concatenation with an exiting column
+			if (abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
+				int columnIndex = abstractConcat.getColumn() - 1;
+				String concatString = abstractConcat.getValue();
 
-			if (firstChecks) {
+				// If abstractConcat.getValue() is like "$n",
+				// we concat the column n instead of abstractConcat.getString()
+				Matcher matcher = COLUMN_PATTERN.matcher(concatString);
+				if (matcher.matches()) {
+					int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
+					if (concatColumnIndex < sourceTable.getTable().get(0).size()) {
+						sourceTable.getTable().forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
+					}
+				} else {
+					sourceTable.getTable().forEach(line -> concatString(line, columnIndex, abstractConcat));
 
-				// Case 1 : concatenation with an exiting column
-				if (abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
-
-					int columnIndex = abstractConcat.getColumn() - 1;
-					String concatString = abstractConcat.getValue();
-
-					// If abstractConcat.getValue() is like "$n",
-					// we concat the column n instead of abstractConcat.getString()
-					Matcher matcher = COLUMN_PATTERN.matcher(concatString);
-					if (matcher.matches()) {
-
-						int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
-						if (concatColumnIndex < sourceTable.getTable().get(0).size()) {
-
-							sourceTable.getTable().forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
-						}
-
-					} else {
-
-						sourceTable.getTable().forEach(line -> concatString(line, columnIndex, abstractConcat));
-
-						// Serialize and deserialize
-						// in case the String to concat contains a ';'
-						// so that a new column is created.
-						if (concatString.contains(TABLE_SEP)) {
-
-							sourceTable.setTable(SourceTable.csvToTable(
-								SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP));
-						}
+					// Serialize and deserialize
+					// in case the String to concat contains a ';'
+					// so that a new column is created.
+					if (concatString.contains(TABLE_SEP)) {
+						sourceTable.setTable(
+							SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
+						);
 					}
 				}
-
+			} else if (abstractConcat.getColumn() == sourceTable.getTable().get(0).size() + 1) {
 				// Case 2 : concatenation with non existing column
-				else if (abstractConcat.getColumn() == sourceTable.getTable().get(0).size() + 1) {
-					// add at the end of the list (or at the beginning if the list is empty)
-					sourceTable.getTable().forEach(line -> line.add(abstractConcat.getValue()));
-				}
-				sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+
+				// add at the end of the list (or at the beginning if the list is empty)
+				sourceTable.getTable().forEach(line -> line.add(abstractConcat.getValue()));
 			}
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+		}
 	}
 
 	/**
@@ -538,7 +585,6 @@ public class ComputeProcessor implements IComputeProcessor {
 		final int concatColumnIndex,
 		final AbstractConcat abstractConcat
 	) {
-
 		String result = abstractConcat instanceof LeftConcat
 			? line.get(concatColumnIndex).concat(line.get(columnIndex))
 			: line.get(columnIndex).concat(line.get(concatColumnIndex));
@@ -562,7 +608,6 @@ public class ComputeProcessor implements IComputeProcessor {
 	 *                          whether the concatenation should be a left concatenation or a right concatenation.
 	 */
 	private void concatString(final List<String> line, final int columnIndex, final AbstractConcat abstractConcat) {
-
 		String result = abstractConcat instanceof LeftConcat
 			? abstractConcat.getValue().concat(line.get(columnIndex))
 			: line.get(columnIndex).concat(abstractConcat.getValue());

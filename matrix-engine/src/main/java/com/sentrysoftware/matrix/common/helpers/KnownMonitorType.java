@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum KnownMonitorType {
-
 	CONNECTOR("connector"),
 	HOST("host"),
 	BATTERY("battery"),
@@ -31,6 +30,4 @@ public enum KnownMonitorType {
 	VOLTAGE("voltage");
 
 	private String key;
-
 }
-

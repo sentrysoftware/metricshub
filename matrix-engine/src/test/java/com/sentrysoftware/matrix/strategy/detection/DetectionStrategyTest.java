@@ -16,18 +16,6 @@ import static com.sentrysoftware.matrix.constants.Constants.YAML_TEST_FILE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -42,19 +30,36 @@ import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class DetectionStrategyTest {
 
 	Connector getConnector() throws IOException {
 		// Retrieve connectors from connectors directory
-		final Path yamlTestPath = Paths.get("src", "test", "resources", "test-files", "connector", "connectorLibraryParser");
-		final Map<String, Connector> connectors = new ConnectorLibraryParser().parseConnectorsFromAllYamlFiles(yamlTestPath);
+		final Path yamlTestPath = Paths.get(
+			"src",
+			"test",
+			"resources",
+			"test-files",
+			"connector",
+			"connectorLibraryParser"
+		);
+		final Map<String, Connector> connectors = new ConnectorLibraryParser()
+			.parseConnectorsFromAllYamlFiles(yamlTestPath);
 		return connectors.get(YAML_TEST_FILE_NAME + ".yaml");
 	}
 
 	@Test
 	void testCreateMonitors() throws IOException {
-
 		// Retrieve connector from connectors directory
 		final Connector connector = getConnector();
 		final Map<String, MetricDefinition> connectorMetrics = new HashMap<>();
@@ -62,24 +67,30 @@ class DetectionStrategyTest {
 		connector.setMetrics(connectorMetrics);
 
 		// Initiate telemetryManager with host configuration
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-			.hostConfiguration(HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build())
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build()
+			)
 			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
-		final DetectionStrategy detectionStrategy = new DetectionStrategy(telemetryManager, new Date().getTime(), new MatsyaClientsExecutor(telemetryManager));
+		final DetectionStrategy detectionStrategy = new DetectionStrategy(
+			telemetryManager,
+			new Date().getTime(),
+			new MatsyaClientsExecutor(telemetryManager)
+		);
 
 		// Create a list of CriterionTestResult
 		final List<CriterionTestResult> criterionTestResultList = new ArrayList<>();
 
 		// Create an instance of CriterionTestResult with success set to true and add to the CriterionTestResult list
-		final CriterionTestResult criterionTestResult = CriterionTestResult.builder()
-			.success(true)
-			.build();
+		final CriterionTestResult criterionTestResult = CriterionTestResult.builder().success(true).build();
 		criterionTestResultList.add(criterionTestResult);
 
 		// Create a ConnectorTestResult instance and set the connector and the previously created criterionTestResultList
-		final ConnectorTestResult connectorTestResult = ConnectorTestResult.builder()
+		final ConnectorTestResult connectorTestResult = ConnectorTestResult
+			.builder()
 			.connector(connector)
 			.criterionTestResults(criterionTestResultList)
 			.build();
@@ -92,40 +103,80 @@ class DetectionStrategyTest {
 		detectionStrategy.createMonitors(connectorTestResultList);
 
 		final String compiledFilename = connector.getCompiledFilename();
-		
+
 		// Check monitor attributes
-		final String monitorId = String.format(
-			"%s_%s",
-			KnownMonitorType.CONNECTOR.getKey(),
-			compiledFilename
-		);
+		final String monitorId = String.format("%s_%s", KnownMonitorType.CONNECTOR.getKey(), compiledFilename);
 
 		assertEquals(1, telemetryManager.getMonitors().size());
 		assertEquals(1, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).size());
-		assertEquals("AAC", telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
-			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_ID));
-		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
-			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_NAME));
-		assertEquals(YAML_TEST_FILE_NAME, telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey())
-			.get(monitorId).getAttributes().get(MONITOR_ATTRIBUTE_CONNECTOR_ID));
-		assertTrue(telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getAttributes()
-			.get(MONITOR_ATTRIBUTE_APPLIES_TO_OS).contains(LINUX));
-		assertTrue(telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId)
-			.getAttributes().get(MONITOR_ATTRIBUTE_APPLIES_TO_OS).contains(WINDOWS));
+		assertEquals(
+			"AAC",
+			telemetryManager
+				.getMonitors()
+				.get(KnownMonitorType.CONNECTOR.getKey())
+				.get(monitorId)
+				.getAttributes()
+				.get(MONITOR_ATTRIBUTE_ID)
+		);
+		assertEquals(
+			YAML_TEST_FILE_NAME,
+			telemetryManager
+				.getMonitors()
+				.get(KnownMonitorType.CONNECTOR.getKey())
+				.get(monitorId)
+				.getAttributes()
+				.get(MONITOR_ATTRIBUTE_NAME)
+		);
+		assertEquals(
+			YAML_TEST_FILE_NAME,
+			telemetryManager
+				.getMonitors()
+				.get(KnownMonitorType.CONNECTOR.getKey())
+				.get(monitorId)
+				.getAttributes()
+				.get(MONITOR_ATTRIBUTE_CONNECTOR_ID)
+		);
+		assertTrue(
+			telemetryManager
+				.getMonitors()
+				.get(KnownMonitorType.CONNECTOR.getKey())
+				.get(monitorId)
+				.getAttributes()
+				.get(MONITOR_ATTRIBUTE_APPLIES_TO_OS)
+				.contains(LINUX)
+		);
+		assertTrue(
+			telemetryManager
+				.getMonitors()
+				.get(KnownMonitorType.CONNECTOR.getKey())
+				.get(monitorId)
+				.getAttributes()
+				.get(MONITOR_ATTRIBUTE_APPLIES_TO_OS)
+				.contains(WINDOWS)
+		);
 
 		// Check monitor metrics
-		NumberMetric numberMetric = (NumberMetric) telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId)
-			.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
+		NumberMetric numberMetric = (NumberMetric) telemetryManager
+			.getMonitors()
+			.get(KnownMonitorType.CONNECTOR.getKey())
+			.get(monitorId)
+			.getMetrics()
+			.get(CONNECTOR_STATUS_METRIC_KEY);
 		assertEquals(1.0, numberMetric.getValue());
 
 		// Set criterion test result to isSuccess = false, call DetectionStrategy and expect the metric to be set to 0.0
 		criterionTestResult.setSuccess(false);
 		detectionStrategy.createMonitors(connectorTestResultList);
-		numberMetric = (NumberMetric) telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey()).get(monitorId).getMetrics()
-			.get(CONNECTOR_STATUS_METRIC_KEY);
+		numberMetric =
+			(NumberMetric) telemetryManager
+				.getMonitors()
+				.get(KnownMonitorType.CONNECTOR.getKey())
+				.get(monitorId)
+				.getMetrics()
+				.get(CONNECTOR_STATUS_METRIC_KEY);
 		assertEquals(0.0, numberMetric.getValue());
-
 	}
+
 	@Test
 	void testCollectNumberMetricUsingConnectorResult() throws IOException {
 		// Retrieve connector from connectors directory
@@ -135,21 +186,23 @@ class DetectionStrategyTest {
 		final List<CriterionTestResult> criterionTestResultList = new ArrayList<>();
 
 		// Create an instance of CriterionTestResult with success set to true and add to the CriterionTestResult list
-		final CriterionTestResult criterionTestResult = CriterionTestResult.builder()
-				.success(true)
-				.build();
+		final CriterionTestResult criterionTestResult = CriterionTestResult.builder().success(true).build();
 		criterionTestResultList.add(criterionTestResult);
 
 		// Create a ConnectorTestResult instance and set the connector and the previously created criterionTestResultList
-		final ConnectorTestResult connectorTestResult = ConnectorTestResult.builder()
-				.connector(connector)
-				.criterionTestResults(criterionTestResultList)
-				.build();
+		final ConnectorTestResult connectorTestResult = ConnectorTestResult
+			.builder()
+			.connector(connector)
+			.criterionTestResults(criterionTestResultList)
+			.build();
 
 		// Initiate telemetryManager with host configuration
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-				.hostConfiguration(HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build())
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build()
+			)
+			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
 		final DetectionStrategy detectionStrategy = new DetectionStrategy(
@@ -159,18 +212,18 @@ class DetectionStrategyTest {
 		);
 
 		// Set a NumberMetric in the connector
-		connector.setMetrics(Map.of(CONNECTOR_STATUS_METRIC_KEY, MetricDefinition.builder().type(MetricType.GAUGE).build()));
+		connector.setMetrics(
+			Map.of(CONNECTOR_STATUS_METRIC_KEY, MetricDefinition.builder().type(MetricType.GAUGE).build())
+		);
 		detectionStrategy.createMonitor(connectorTestResult);
 
 		// Retrieve the created monitor
-		final Map<String, Monitor> connectorMonitorMap = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
+		final Map<String, Monitor> connectorMonitorMap = telemetryManager
+			.getMonitors()
+			.get(KnownMonitorType.CONNECTOR.getKey());
 		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
 		final Monitor monitor = connectorMonitorMap.get(
-			String.format(
-				DetectionStrategy.CONNECTOR_ID_FORMAT,
-				KnownMonitorType.CONNECTOR.getKey(),
-				compiledFilename
-			)
+			String.format(DetectionStrategy.CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), compiledFilename)
 		);
 
 		// Retrieve monitor's metric value (ConnectorResult is successful)
@@ -198,21 +251,23 @@ class DetectionStrategyTest {
 		final List<CriterionTestResult> criterionTestResultList = new ArrayList<>();
 
 		// Create an instance of CriterionTestResult with success set to true and add to the CriterionTestResult list
-		final CriterionTestResult criterionTestResult = CriterionTestResult.builder()
-				.success(true)
-				.build();
+		final CriterionTestResult criterionTestResult = CriterionTestResult.builder().success(true).build();
 		criterionTestResultList.add(criterionTestResult);
 
 		// Create a ConnectorTestResult instance and set the connector and the previously created criterionTestResultList
-		final ConnectorTestResult connectorTestResult = ConnectorTestResult.builder()
-				.connector(connector)
-				.criterionTestResults(criterionTestResultList)
-				.build();
+		final ConnectorTestResult connectorTestResult = ConnectorTestResult
+			.builder()
+			.connector(connector)
+			.criterionTestResults(criterionTestResultList)
+			.build();
 
 		// Initiate telemetryManager with host configuration
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-				.hostConfiguration(HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build())
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build()
+			)
+			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
 		final DetectionStrategy detectionStrategy = new DetectionStrategy(
@@ -228,14 +283,12 @@ class DetectionStrategyTest {
 		detectionStrategy.createMonitor(connectorTestResult);
 
 		// Retrieve the created monitor
-		final Map<String, Monitor> connectorMonitorMap = telemetryManager.getMonitors().get(KnownMonitorType.CONNECTOR.getKey());
+		final Map<String, Monitor> connectorMonitorMap = telemetryManager
+			.getMonitors()
+			.get(KnownMonitorType.CONNECTOR.getKey());
 		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
 		final Monitor monitor = connectorMonitorMap.get(
-			String.format(
-				DetectionStrategy.CONNECTOR_ID_FORMAT,
-				KnownMonitorType.CONNECTOR.getKey(),
-				compiledFilename
-			)
+			String.format(DetectionStrategy.CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), compiledFilename)
 		);
 		// Retrieve monitor's metric value (ConnectorResult is successful)
 		AbstractMetric metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);

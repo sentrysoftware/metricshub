@@ -6,12 +6,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
@@ -19,6 +13,11 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Lef
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ComputeUpdaterProcessorTest {

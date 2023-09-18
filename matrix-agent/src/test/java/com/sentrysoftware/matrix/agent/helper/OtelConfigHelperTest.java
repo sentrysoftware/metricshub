@@ -5,15 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.agent.config.AgentConfig;
 import com.sentrysoftware.matrix.agent.config.exporter.ExporterConfig;
 import com.sentrysoftware.matrix.agent.config.exporter.OtlpExporterConfig;
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
 
 class OtelConfigHelperTest {
 
@@ -26,11 +24,11 @@ class OtelConfigHelperTest {
 
 	@Test
 	void testGetSecurityFilePath() {
-
 		// Null certificate file configured, the default is loaded
 		assertTrue(
-			OtelConfigHelper.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, null, HTTPS_GRPC_ENDPOINT)
-			.isPresent()
+			OtelConfigHelper
+				.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, null, HTTPS_GRPC_ENDPOINT)
+				.isPresent()
 		);
 
 		// Empty certificate file configured, the default is loaded
@@ -42,58 +40,55 @@ class OtelConfigHelperTest {
 
 		// Blank certificate file, the default is loaded
 		assertTrue(
-			OtelConfigHelper.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, " ", HTTPS_GRPC_ENDPOINT)
-			.isPresent()
+			OtelConfigHelper
+				.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, " ", HTTPS_GRPC_ENDPOINT)
+				.isPresent()
 		);
 
 		// Certificate file not found, it cannot be loaded
 		final String randomFilename = UUID.randomUUID().toString();
-		assertFalse(OtelConfigHelper
-			.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, randomFilename, HTTPS_GRPC_ENDPOINT)
-			.isPresent()
+		assertFalse(
+			OtelConfigHelper
+				.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, randomFilename, HTTPS_GRPC_ENDPOINT)
+				.isPresent()
 		);
 
 		// HTTP instead of HTTPS, no certificate to load
 		assertTrue(
-			OtelConfigHelper.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, null, HTTP_GRPC_ENDPOINT)
-			.isEmpty()
+			OtelConfigHelper
+				.getSecurityFilePath(TEST_SECURITY_PATH, DEFAULT_OTEL_CRT_FILENAME, null, HTTP_GRPC_ENDPOINT)
+				.isEmpty()
 		);
 
 		// The certificate file is found
 		assertFalse(
-			OtelConfigHelper.getSecurityFilePath(
-				TEST_SECURITY_PATH,
-				DEFAULT_OTEL_CRT_FILENAME,
-				TEST_SECURITY_PATH + "/" + DEFAULT_OTEL_CRT_FILENAME,
-				HTTPS_GRPC_ENDPOINT
-			)
-			.isEmpty()
+			OtelConfigHelper
+				.getSecurityFilePath(
+					TEST_SECURITY_PATH,
+					DEFAULT_OTEL_CRT_FILENAME,
+					TEST_SECURITY_PATH + "/" + DEFAULT_OTEL_CRT_FILENAME,
+					HTTPS_GRPC_ENDPOINT
+				)
+				.isEmpty()
 		);
 	}
 
 	@Test
 	void testBuildOtelSdkConfiguration() {
-		assertDoesNotThrow(
-			() -> OtelConfigHelper.buildOtelSdkConfiguration(new AgentConfig())
-		);
+		assertDoesNotThrow(() -> OtelConfigHelper.buildOtelSdkConfiguration(new AgentConfig()));
 	}
 
 	@Test
 	void testBuildOtelSdkConfigurationHeaders() {
-
 		{
 			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(AgentConfig.empty());
 			assertTrue(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
 		}
 
 		{
-			final AgentConfig agentConfig = AgentConfig.builder()
-				.exporter(
-					ExporterConfig
-						.builder()
-						.otlp(OtlpExporterConfig.builder().headers(null).build())
-						.build()
-				)
+			final AgentConfig agentConfig = AgentConfig
+				.builder()
+				.exporter(ExporterConfig.builder().otlp(OtlpExporterConfig.builder().headers(null).build()).build())
 				.build();
 			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
 			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
@@ -103,11 +98,8 @@ class OtelConfigHelperTest {
 			final AgentConfig agentConfig = AgentConfig
 				.builder()
 				.exporter(
-					ExporterConfig
-						.builder()
-						.otlp(OtlpExporterConfig.builder().headers(Collections.emptyMap()).build())
-						.build()
-					)
+					ExporterConfig.builder().otlp(OtlpExporterConfig.builder().headers(Collections.emptyMap()).build()).build()
+				)
 				.build();
 			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
 			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
@@ -123,14 +115,9 @@ class OtelConfigHelperTest {
 		}
 
 		{
-			final AgentConfig agentConfig = AgentConfig
-				.builder()
-				.exporter(null)
-				.build();
+			final AgentConfig agentConfig = AgentConfig.builder().exporter(null).build();
 			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
 			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
 		}
-
 	}
-
 }
