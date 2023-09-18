@@ -79,7 +79,6 @@ public class SimpleStrategyTest {
 			)
 			.build();
 
-		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
 		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_FILE_NAME);
 
 		// Create the connector store
@@ -87,7 +86,6 @@ public class SimpleStrategyTest {
 		telemetryManager.setConnectorStore(connectorStore);
 		simpleStrategy.setTelemetryManager(telemetryManager);
 		simpleStrategy.setStrategyTime(strategyTime);
-		simpleStrategy.setSimple(true);
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MatrixConstants.TABLE_SEP))

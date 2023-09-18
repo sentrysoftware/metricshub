@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.strategy.common;
+package com.sentrysoftware.matrix.strategy;
 
 import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
@@ -14,14 +14,11 @@ import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractMonitorTask;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.strategy.source.OrderedSources;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.strategy.utils.MappingProcessor;
@@ -50,28 +47,23 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
+public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
-	// Indicates whether the current operation is a SimpleStrategy operation
-	private boolean isSimple;
-
-	public DiscoveryOrSimpleStrategy(
+	AbstractAllAtOnceStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor,
-		final boolean isDiscovery
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);
-		this.isSimple = isDiscovery;
 	}
 
 	/**
-	 * This method discovers each connector
+	 * This method processes each connector
 	 *
 	 * @param currentConnector
 	 * @param hostname
 	 */
-	private void discover(final Connector currentConnector, final String hostname) {
+	private void process(final Connector currentConnector, final String hostname) {
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
 			.getMonitors()
@@ -113,8 +105,9 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 		} else {
 			// Execute monitor jobs in parallel
 			log.info(
-				"Hostname {} - Running discovery in parallel mode. Connector: {}.",
+				"Hostname {} - Running {} in parallel mode. Connector: {}.",
 				hostname,
+				getJobName(),
 				currentConnector.getConnectorIdentity().getCompiledFilename()
 			);
 
@@ -145,6 +138,7 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 	 * @param currentConnector
 	 * @param hostname
 	 * @param monitorJobEntry
+	 * @param jobDescription
 	 */
 	private void processMonitorJob(
 		final Connector currentConnector,
@@ -153,13 +147,11 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 	) {
 		final MonitorJob monitorJob = monitorJobEntry.getValue();
 
-		// If the current task is Simple create a new Simple Object, else create a new Discovery object
-		AbstractMonitorTask monitorTask = isSimple ? new Simple() : new Discovery();
+		// Get the monitor task
+		AbstractMonitorTask monitorTask = retrieveTask(monitorJob);
 
-		if (monitorJob instanceof StandardMonitorJob standardMonitorJob) {
-			monitorTask = standardMonitorJob.getDiscovery();
-		} else if (monitorJob instanceof SimpleMonitorJob simpleMonitorJob) {
-			monitorTask = simpleMonitorJob.getSimple();
+		if (monitorTask == null) {
+			return;
 		}
 
 		final String monitorType = monitorJobEntry.getKey();
@@ -168,7 +160,7 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 			.builder()
 			.hostname(hostname)
 			.connectorName(currentConnector.getCompiledFilename())
-			.jobName(monitorTask.getClass().getSimpleName())
+			.jobName(getJobName())
 			.monitorType(monitorType)
 			.build();
 
@@ -212,9 +204,10 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 		final String source = mapping.getSource();
 		if (source == null) {
 			log.warn(
-				"Hostname {} - No instance tables found with {} during the discovery for the connector {}.",
+				"Hostname {} - No instance tables found with {} during the {} for the connector {}.",
 				hostname,
 				monitorType,
+				getJobName(),
 				connectorId
 			);
 			return;
@@ -225,9 +218,10 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 
 		if (maybeSourceTable.isEmpty()) {
 			log.warn(
-				"Hostname {} - The source table {} is not found during the discovery for the connector {}.",
+				"Hostname {} - The source table {} is not found during the {} for the connector {}.",
 				hostname,
 				source,
+				getJobName(),
 				connectorId
 			);
 			return;
@@ -248,7 +242,7 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 						.connectorName(connectorId)
 						.hostname(hostname)
 						.monitorType(monitorType)
-						.jobName(isSimple ? "simple" : "discovery")
+						.jobName(getJobName())
 						.build()
 				)
 				.collectTime(strategyTime)
@@ -308,7 +302,7 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * This is the main discovery method. It runs the discovery operation
+	 * This is the main method. It runs the all the job operations
 	 */
 	public void run() {
 		// Get the host name from telemetry manager
@@ -318,7 +312,7 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 		final Map<String, Monitor> hostMonitors = telemetryManager.getMonitors().get(HOST.getKey());
 
 		if (hostMonitors == null) {
-			log.error("Hostname {} - No host found. Stopping discovery strategy.", hostname);
+			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, getJobName());
 			return;
 		}
 
@@ -331,7 +325,7 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 			.orElse(null);
 
 		if (host == null) {
-			log.error("Hostname {} - No host found. Stopping discovery strategy.", hostname);
+			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, getJobName());
 			return;
 		}
 
@@ -384,8 +378,23 @@ public class DiscoveryOrSimpleStrategy extends AbstractStrategy {
 			.collect(Collectors.toList()); //NOSONAR
 
 		// Discover each connector
-		sortedConnectors.forEach(connector -> discover(connector, hostname));
+		sortedConnectors.forEach(connector -> process(connector, hostname));
 	}
+
+	/**
+	 * Get the name of the job
+	 * @return String value
+	 */
+	protected abstract String getJobName();
+
+	/**
+	 * Retrieve the task of the given {@link MonitorJob}. E.g. {@link Discovery}
+	 * or {@link Simple}
+	 *
+	 * @param monitorJob
+	 * @return The {@link AbstractMonitorTask} implementation
+	 */
+	protected abstract AbstractMonitorTask retrieveTask(MonitorJob monitorJob);
 
 	@Override
 	public void prepare() {
