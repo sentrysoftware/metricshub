@@ -14,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SimpleStrategy extends DiscoveryOrSimpleStrategy {
 
 	public SimpleStrategy(
-			@NonNull final TelemetryManager telemetryManager,
-			final long strategyTime,
-			@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final TelemetryManager telemetryManager,
+		final long strategyTime,
+		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor, true);
 	}

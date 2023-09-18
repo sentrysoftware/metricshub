@@ -1,26 +1,5 @@
 package com.sentrysoftware.matrix.strategy.collect;
 
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
-import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR;
@@ -37,8 +16,29 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.MonitorFactory;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 @ExtendWith(MockitoExtension.class)
 public class CollectStrategyTest {
+
 	private static final String HEALTHY = "healthy";
 	private static final String STATUS_INFORMATION = "StatusInformation";
 
