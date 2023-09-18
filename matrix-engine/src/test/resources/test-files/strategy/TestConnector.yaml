@@ -29,6 +29,8 @@ monitors:
           model: $3
           serial_number: $2
           name: "${awk::sprintf(\"Enclosure: %s (%s)\", $2, $3)}"
+        metrics:
+          hw.status{hw.type="enclosure"}: $2
     collect:
       type: multiInstance
       sources:
@@ -61,6 +63,8 @@ monitors:
           bios_version: $4
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $3)}"
+        metrics:
+          hw.status{hw.type="disk_controller"}: $2
     collect:
       type: monoInstance
       sources:

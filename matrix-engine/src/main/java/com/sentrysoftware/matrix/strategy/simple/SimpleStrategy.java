@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.strategy.discovery;
+package com.sentrysoftware.matrix.strategy.simple;
 
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.common.DiscoveryOrSimpleStrategy;
@@ -11,9 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DiscoveryStrategy extends DiscoveryOrSimpleStrategy {
+public class SimpleStrategy extends DiscoveryOrSimpleStrategy {
 
-	public DiscoveryStrategy(
+	public SimpleStrategy(
 			@NonNull final TelemetryManager telemetryManager,
 			final long strategyTime,
 			@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
