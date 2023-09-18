@@ -1,7 +1,0 @@
-project:
-  name: "@project.name@"
-  version: "@project.version@"
-buildNumber: "@buildNumber@"
-buildDate: "@timestamp@"
-hcVersion: "@hardware-connectors.version@"
-otelVersion: "@otelVersion@"

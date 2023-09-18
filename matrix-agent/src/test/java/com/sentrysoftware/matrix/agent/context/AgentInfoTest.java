@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.agent.context;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Map;
 import org.junit.jupiter.api.Test;
