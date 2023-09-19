@@ -32,7 +32,7 @@ class PasswordEncryptTest {
 			try (final MockedStatic<PasswordEncrypt> mockedPasswordEncrypt = mockStatic(PasswordEncrypt.class)) {
 				mockedPasswordEncrypt
 					.when(() -> PasswordEncrypt.getSecurityFolderOnWindows())
-					.thenAnswer(invocation -> Files.createDirectories(tempDir.resolve("matrix/security")));
+					.thenAnswer(invocation -> Files.createDirectories(tempDir.resolve("metricshub/security")));
 
 				mockedPasswordEncrypt
 					.when(() -> PasswordEncrypt.resolveKeyStoreFile(any(Path.class), any(Boolean.class)))
@@ -60,7 +60,7 @@ class PasswordEncryptTest {
 			try (final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)) {
 				mockedResourceHelper
 					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
-					.thenAnswer(invocation -> Files.createDirectories(tempDir.resolve("matrix/lib/app/jar")).toFile());
+					.thenAnswer(invocation -> Files.createDirectories(tempDir.resolve("metricshub/lib/app/jar")).toFile());
 
 				final File actual = PasswordEncrypt.getKeyStoreFile(true);
 				assertNotNull(actual);
@@ -72,7 +72,7 @@ class PasswordEncryptTest {
 			try (final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)) {
 				mockedResourceHelper
 					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
-					.thenAnswer(invocation -> tempDir.resolve("matrix/lib/app/jar").toFile());
+					.thenAnswer(invocation -> tempDir.resolve("metricshub/lib/app/jar").toFile());
 
 				final File keyStoreFile = PasswordEncrypt.getKeyStoreFile(false);
 				assertNotNull(keyStoreFile);
@@ -92,13 +92,13 @@ class PasswordEncryptTest {
 			) {
 				mockedResourceHelper
 					.when(() -> ResourceHelper.findSourceDirectory(PasswordEncrypt.class))
-					.thenAnswer(invocation -> tempDir.resolve("matrix/app/jar").toFile());
+					.thenAnswer(invocation -> tempDir.resolve("metricshub/app/jar").toFile());
 
 				mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.empty());
 
 				final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
 
-				final String expectedPath = "matrix\\app\\..\\security";
+				final String expectedPath = "metricshub\\app\\..\\security";
 
 				assertNotNull(securityFolderOnWindows);
 				assertTrue(
@@ -115,7 +115,7 @@ class PasswordEncryptTest {
 
 				final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
 
-				final String expectedPath = "matrix\\security";
+				final String expectedPath = "metricshub\\security";
 
 				assertNotNull(securityFolderOnWindows);
 				assertTrue(
