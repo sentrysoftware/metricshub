@@ -138,7 +138,6 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	 * @param currentConnector
 	 * @param hostname
 	 * @param monitorJobEntry
-	 * @param jobDescription
 	 */
 	private void processMonitorJob(
 		final Connector currentConnector,
@@ -377,7 +376,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			.sorted(new ConnectorMonitorTypeComparator())
 			.collect(Collectors.toList()); //NOSONAR
 
-		// Discover each connector
+		// Process each connector
 		sortedConnectors.forEach(connector -> process(connector, hostname));
 	}
 

@@ -9,8 +9,7 @@ import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.ID;
 import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_FILE_NAME;
-import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_PATH;
+import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,6 +26,8 @@ import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class SimpleStrategyTest {
+
+	private static final Path TEST_CONNECTOR_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"strategy",
+		"TestConnectorWithSimple.yaml"
+	);
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
@@ -59,7 +69,7 @@ public class SimpleStrategyTest {
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(TEST_CONNECTOR_FILE_NAME, connectorMonitor)
+				Map.of(TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME, connectorMonitor)
 			)
 		);
 
@@ -79,11 +89,13 @@ public class SimpleStrategyTest {
 			)
 			.build();
 
-		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_FILE_NAME);
+		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
+
+		// Set simple strategy information
 		simpleStrategy.setTelemetryManager(telemetryManager);
 		simpleStrategy.setStrategyTime(strategyTime);
 
@@ -110,19 +122,19 @@ public class SimpleStrategyTest {
 			);
 		simpleStrategy.run();
 
-		// Check discovered monitors
-		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
+		// Check processed monitors
+		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
 
-		final Map<String, Monitor> enclosureMonitors = discoveredMonitors.get(ENCLOSURE);
-		final Map<String, Monitor> diskControllerMonitors = discoveredMonitors.get(DISK_CONTROLLER);
+		final Map<String, Monitor> enclosureMonitors = processedMonitors.get(ENCLOSURE);
+		final Map<String, Monitor> diskControllerMonitors = processedMonitors.get(DISK_CONTROLLER);
 
-		assertEquals(4, discoveredMonitors.size());
+		assertEquals(4, processedMonitors.size());
 		assertEquals(1, enclosureMonitors.size());
 		assertEquals(1, diskControllerMonitors.size());
 
-		// Check discovered monitors metrics
-		final Monitor enclosure = enclosureMonitors.get("TestConnector_enclosure_enclosure-1");
-		final Monitor diskController = diskControllerMonitors.get("TestConnector_disk_controller_1");
+		// Check processed monitors metrics
+		final Monitor enclosure = enclosureMonitors.get("TestConnectorWithSimple_enclosure_enclosure-1");
+		final Monitor diskController = diskControllerMonitors.get("TestConnectorWithSimple_disk_controller_1");
 
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(

@@ -9,7 +9,6 @@ import static com.sentrysoftware.matrix.constants.Constants.HOST_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.ID;
 import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_FILE_NAME;
-import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,6 +26,8 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class CollectStrategyTest {
 
+	private static final Path TEST_CONNECTOR_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"strategy",
+		"TestConnector.yaml"
+	);
 	private static final String HEALTHY = "healthy";
 	private static final String STATUS_INFORMATION = "StatusInformation";
 

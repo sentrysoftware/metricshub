@@ -23,8 +23,6 @@ public class Constants {
 	public static final String SSH_SUDO_COMMAND = "sudo pwd";
 	public static final String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
 	public static final String CONNECTOR_YAML = "connector.yaml";
-	public static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "test-files", "strategy");
-
 	public static final String IPMI_SUCCESS_MESSAGE = "System description;";
 	public static final String IPMI_FAILURE_MESSAGE = "No result";
 	public static final String HTTP_GET = "GET";
@@ -254,6 +252,7 @@ public class Constants {
 	public static final String YAML_TEST_FILE_NAME = "AAC";
 	public static final String YAML_TEST_FILE_NAME_WITH_EXTENSION = YAML_TEST_FILE_NAME + ".yaml";
 	public static final String TEST_CONNECTOR_FILE_NAME = "TestConnector.yaml";
+	public static final String TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME = "TestConnectorWithSimple.yaml";
 	public static final String COMMAND_FILE_ABSOLUTE_PATH =
 		"${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
