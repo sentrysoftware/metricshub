@@ -38,7 +38,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class SimpleStrategyTest {
+class SimpleStrategyTest {
 
 	private static final Path TEST_CONNECTOR_PATH = Paths.get(
 		"src",
