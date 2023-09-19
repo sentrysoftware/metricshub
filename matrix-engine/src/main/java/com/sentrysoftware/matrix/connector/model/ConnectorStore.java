@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,5 +38,15 @@ public class ConnectorStore {
 	private Map<String, Connector> deserializeConnectors() throws IOException {
 		final ConnectorLibraryParser connectorLibraryParser = new ConnectorLibraryParser();
 		return connectorLibraryParser.parseConnectorsFromAllYamlFiles(connectorDirectory);
+	}
+
+	/**
+	 * Add a new {@link Connector} instance
+	 *
+	 * @param id        the id of the connector
+	 * @param connector the {@link Connector} instance to add
+	 */
+	public void addOne(@NonNull final String id, @NonNull final Connector connector) {
+		store.put(id, connector);
 	}
 }

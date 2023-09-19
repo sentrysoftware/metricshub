@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Supplier;
@@ -74,5 +75,13 @@ class StringHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace(null, () -> "b", "$a $a cc"));
 		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace("$a", () -> "b", null));
 		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace("$a", (Supplier<String>) null, "$a $a cc"));
+	}
+
+	@Test
+	void testStringify() {
+		assertEquals(EMPTY, StringHelper.stringify(null));
+		assertEquals("a", StringHelper.stringify("a"));
+		assertEquals("a,b", StringHelper.stringify(List.of("a", "b")));
+		assertEquals("a,b", StringHelper.stringify(new String[] { "a", "b" }));
 	}
 }
