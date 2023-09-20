@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.strategy;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
+
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.exception.RetryableException;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
@@ -39,7 +41,6 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	private static final String COMPUTE = "compute";
 	private static final String SOURCE = "source";
-	private static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s -> computes[%d]";
 
 	/**
 	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
@@ -145,6 +146,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			// Loop over the computes to process each compute
 			for (int index = 0; index < computes.size(); index++) {
 				final Compute compute = computes.get(index);
+				computeProcessor.setIndex(index);
 
 				final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, index);
 
