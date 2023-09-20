@@ -53,6 +53,8 @@ public class MatrixConstants {
 	);
 	// @formatter:on
 
+	public static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s -> computes[%d]";
+
 	/**
 	 * Macros
 	 **/
