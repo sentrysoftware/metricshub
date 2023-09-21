@@ -7,6 +7,7 @@ import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,6 +28,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Jso
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
@@ -42,7 +44,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -944,7 +945,174 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessArrayTranslate() throws IOException {
+	void visitSubstringNOK() {
+		final List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
+		);
+
+		sourceTable.setTable(table);
+		computeProcessor.process((Substring) null);
+		assertEquals(table, sourceTable.getTable());
+
+		computeProcessor.process(Substring.builder().column(-1).start("-1").length("-1").build());
+		assertEquals(table, sourceTable.getTable());
+
+		computeProcessor.process(Substring.builder().column(2).start("TOTO").length("4").build());
+		assertEquals(table, sourceTable.getTable());
+
+		computeProcessor.process(Substring.builder().column(2).start("1").length("TOTO").build());
+		assertEquals(table, sourceTable.getTable());
+	}
+
+	@Test
+	void testCheckSubstring() {
+		assertTrue(computeProcessor.checkSubstring(Substring.builder().column(2).start("1").length("4").build()));
+		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-2).start("1").length("4").build()));
+		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-1).start("1").length("4").build()));
+		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-1).start("-1").length("-1").build()));
+		assertFalse(computeProcessor.checkSubstring(null));
+	}
+
+	@Test
+	void testProcessSubstring() {
+		final List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
+		);
+
+		sourceTable.setTable(table);
+
+		final Substring substring = Substring.builder().column(2).start("1").length("4").build();
+
+		computeProcessor.process(substring);
+
+		final List<List<String>> expected = Arrays.asList(
+			Arrays.asList("ID1", "Dell"),
+			Arrays.asList("ID2", "Dell"),
+			Arrays.asList("ID3", "Dell")
+		);
+		assertEquals(expected, sourceTable.getTable());
+	}
+
+	@Test
+	void testProcessSubstringViaColumn() {
+		final List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "Dell+1", "4"),
+			Arrays.asList("ID2", "Dell+33", "4"),
+			Arrays.asList("ID3", "Dell+xyz", "4")
+		);
+
+		sourceTable.setTable(table);
+
+		final Substring substring = Substring.builder().column(2).start("1").length("$3").build();
+
+		computeProcessor.process(substring);
+
+		final List<List<String>> expected = Arrays.asList(
+			Arrays.asList("ID1", "Dell", "4"),
+			Arrays.asList("ID2", "Dell", "4"),
+			Arrays.asList("ID3", "Dell", "4")
+		);
+		assertEquals(expected, sourceTable.getTable());
+	}
+
+	@Test
+	void testPerformSubstringWrongBeginIndex() {
+		final List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
+		);
+
+		sourceTable.setTable(table);
+
+		computeProcessor.performSubstring(1, "Column(4)", 3, "4", -1);
+
+		assertEquals(table, sourceTable.getTable());
+	}
+
+	@Test
+	void testPerformSubstringWrongColumnIndex() {
+		final List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
+		);
+
+		sourceTable.setTable(table);
+
+		computeProcessor.performSubstring(3, "1", -1, "4", -1);
+
+		assertEquals(table, sourceTable.getTable());
+	}
+
+	@Test
+	void testPerformSubstring() {
+		final List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
+		);
+
+		sourceTable.setTable(table);
+
+		computeProcessor.performSubstring(1, "1", -1, "4", -1);
+
+		final List<List<String>> expected = Arrays.asList(
+			Arrays.asList("ID1", "Dell"),
+			Arrays.asList("ID2", "Dell"),
+			Arrays.asList("ID3", "Dell")
+		);
+		assertEquals(expected, sourceTable.getTable());
+	}
+
+	@Test
+	void testCheckSubstringArguments() {
+		assertTrue(computeProcessor.checkSubstringArguments(1, 3, 3));
+
+		//noinspection ConstantConditions
+		assertFalse(computeProcessor.checkSubstringArguments(null, 3, 3));
+
+		//noinspection ConstantConditions
+		assertFalse(computeProcessor.checkSubstringArguments(1, null, 3));
+
+		assertFalse(computeProcessor.checkSubstringArguments(0, 3, 3));
+		assertFalse(computeProcessor.checkSubstringArguments(2, 0, 3));
+		assertFalse(computeProcessor.checkSubstringArguments(1, 4, 3));
+	}
+
+	@Test
+	void testTransformToIntegerValue() {
+		assertNull(computeProcessor.transformToIntegerValue(null));
+		assertNull(computeProcessor.transformToIntegerValue("a"));
+		assertEquals(1, computeProcessor.transformToIntegerValue("1"));
+	}
+
+	@Test
+	void testGetValueFunction() {
+		assertNotNull(computeProcessor.getValueFunction(-1));
+		assertNotNull(computeProcessor.getValueFunction(0));
+	}
+
+	@Test
+	void testCheckValueAndColumnIndexConsistency() {
+		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("1", -1));
+		assertFalse(computeProcessor.checkValueAndColumnIndexConsistency("Column(0)", -1));
+		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("Column(1)", 0));
+		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("1", 1));
+	}
+
+	@Test
+	void testGetColumnIndex() {
+		assertEquals(1, computeProcessor.getColumnIndex(" $2 "));
+		assertEquals(-1, computeProcessor.getColumnIndex("2"));
+	}
+
+	@Test
+		void testProcessArrayTranslate() throws IOException {
 		List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, null, TYPE1),
 			Arrays.asList(ID2, null, TYPE2),

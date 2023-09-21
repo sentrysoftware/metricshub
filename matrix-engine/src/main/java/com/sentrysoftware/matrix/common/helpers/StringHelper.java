@@ -1,7 +1,10 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -151,5 +154,32 @@ public class StringHelper {
 		}
 
 		return template;
+	}
+
+	/**
+	 * Convert the given value to a string representation. If the value is a collection or an array,
+	 * it is transformed into a CSV (Comma-Separated Values) string.
+	 *
+	 * @param value The value to be converted to a string.
+	 * @return The string representation of the value, or a CSV string if the value is a collection or an array.
+	 */
+	public static String stringify(final Object value) {
+		if (value == null) {
+			// Handle null input
+			return EMPTY;
+		} else if (value instanceof Collection<?> collection) {
+			// If the input is a List, convert it to a CSV string
+			return collection.stream().map(item -> item != null ? item.toString() : EMPTY).collect(Collectors.joining(COMMA));
+		} else if (value.getClass().isArray()) {
+			// If the input is an array, convert it to a CSV string
+			Object[] array = (Object[]) value;
+			return Arrays
+				.stream(array)
+				.map(item -> item != null ? item.toString() : EMPTY)
+				.collect(Collectors.joining(COMMA));
+		} else {
+			// For any other type of value, simply convert it to a string
+			return value.toString();
+		}
 	}
 }

@@ -47,11 +47,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,6 +73,18 @@ public class ComputeProcessor implements IComputeProcessor {
 	private SourceTable sourceTable;
 	private Integer index;
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
+
+	private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
+
+	private static final Function<ComputeValue, String> GET_VALUE_FROM_ROW = computeValue -> {
+		if (computeValue.getColumnIndex() < computeValue.getRow().size()) {
+			return computeValue.getRow().get(computeValue.getColumnIndex());
+		}
+		log.warn("Cannot get value at index {} from the row {}.", computeValue.getColumnIndex(), computeValue.getRow());
+		return null;
+	};
+
+	private static final Function<ComputeValue, String> GET_VALUE = ComputeValue::getValue;
 
 	static {
 		MATH_FUNCTIONS_MAP =
@@ -515,7 +530,158 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Substring Exec")
 	public void process(@SpanAttribute("compute.definition") final Substring substring) {
-		// TODO Auto-generated method stub
+		if (!checkSubstring(substring)) {
+			log.warn("Hostname {} - The substring {} is not valid, the table remains unchanged.", hostname, substring);
+			return;
+		}
+
+		final String start = substring.getStart();
+		final String length = substring.getLength();
+
+		final Integer startColumnIndex = getColumnIndex(start);
+		if (!checkValueAndColumnIndexConsistency(start, startColumnIndex)) {
+			log.warn("Hostname {} - Inconsistent substring start value {}, the table remains unchanged.", hostname, start);
+			return;
+		}
+
+		final Integer lengthColumnIndex = getColumnIndex(length);
+		if (!checkValueAndColumnIndexConsistency(length, lengthColumnIndex)) {
+			log.warn("Hostname {} - Inconsistent substring length value {}, the table remains unchanged.", hostname, length);
+			return;
+		}
+
+		performSubstring(substring.getColumn() - 1, start, startColumnIndex, length, lengthColumnIndex);
+	}
+
+	/**
+	 * Check value and column index consistency. At least we need one data available
+	 *
+	 * @param value              The string value as a number
+	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>Column($index)</em>
+	 * @return <code>true</code> if data is consistent
+	 */
+	static boolean checkValueAndColumnIndexConsistency(final String value, final Integer foreignColumnIndex) {
+		return foreignColumnIndex >= 0 || NUMBER_PATTERN.matcher(value).matches();
+	}
+
+	/**
+	 * Check the given {@link Substring} instance
+	 *
+	 * @param substring The substring instance we wish to check
+	 * @return true if the substring is valid
+	 */
+	static boolean checkSubstring(final Substring substring) {
+		return substring != null && substring.getColumn() >= 1;
+	}
+
+	/**
+	 * Perform a substring operation on the column identified by the given <code>columnIndex</code>
+	 *
+	 * @param columnIndex      The column number in the current {@link SourceTable}
+	 * @param start            The begin index, inclusive and starts at 1
+	 * @param startColumnIndex The column index, so that we extract the start index. If equals -1 then it is not used
+	 * @param end              The ending index, exclusive
+	 * @param endColumnIndex   The column index, so that we extract the length index. If equals -1 then it is not used
+	 */
+	void performSubstring(
+		final int columnIndex,
+		final String start,
+		final int startColumnIndex,
+		final String end,
+		final int endColumnIndex
+	) {
+		final Function<ComputeValue, String> startFunction = getValueFunction(startColumnIndex);
+		final Function<ComputeValue, String> endFunction = getValueFunction(endColumnIndex);
+
+		sourceTable
+			.getTable()
+			.forEach(row -> {
+				if (columnIndex < row.size()) {
+					final String columnValue = row.get(columnIndex);
+
+					final Integer beginIndex = transformToIntegerValue(
+						startFunction.apply(new ComputeValue(row, startColumnIndex, start))
+					);
+
+					final Integer endIndex = transformToIntegerValue(
+						endFunction.apply(new ComputeValue(row, endColumnIndex, end))
+					);
+
+					if (checkSubstringArguments(beginIndex, endIndex, columnValue.length())) {
+						// No need to put endIndex -1 as the String substring end index is exclusive
+						// PSL substr(1,3) is equivalent to Java String substring(0, 3)
+						row.set(columnIndex, columnValue.substring(beginIndex - 1, endIndex));
+						return;
+					}
+					log.warn(
+						"Hostname {} - Substring arguments are not valid: start={}, end={}," +
+						" startColumnIndex={}, endColumnIndex={}," +
+						" computed beginIndex={}, computed endIndex={}," +
+						" row={}, columnValue={}",
+						hostname,
+						start,
+						end,
+						startColumnIndex,
+						endColumnIndex,
+						beginIndex,
+						endIndex,
+						row,
+						columnValue
+					);
+				}
+
+				log.warn("Hostname {} - Cannot perform substring on row {} on column index {}", hostname, row, columnIndex);
+			});
+
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+	}
+
+	/**
+	 * Check the substring argument to avoid the {@link StringIndexOutOfBoundsException}
+	 *
+	 * @param begin  Starts from 1
+	 * @param end    The end index of the string
+	 * @param length The length of the {@link String}
+	 * @return <code>true</code> if a {@link String} substring can be performed
+	 */
+	static boolean checkSubstringArguments(final Integer begin, final Integer end, final int length) {
+		return begin != null && end != null && (begin - 1) >= 0 && (begin - 1) <= end && end <= length;
+	}
+
+	/**
+	 * Return the right {@link Function} based on the <code>foreignColumnIndex</code>
+	 *
+	 * @param foreignColumnIndex The index of the column we wish to check so that we choose the right function to return
+	 * @return {@link Function} used to get the value
+	 */
+	static Function<ComputeValue, String> getValueFunction(final int foreignColumnIndex) {
+		return (foreignColumnIndex >= 0) ? GET_VALUE_FROM_ROW : GET_VALUE;
+	}
+
+	/**
+	 * Transform the given {@link String} value to an {@link Integer} value
+	 *
+	 * @param value The value we wish to parse
+	 * @return {@link Integer} value
+	 */
+	static Integer transformToIntegerValue(final String value) {
+		if (value != null && DOUBLE_PATTERN.matcher(value).matches()) {
+			return (int) Double.parseDouble(value);
+		}
+		return null;
+	}
+
+	@AllArgsConstructor
+	private static class ComputeValue {
+
+		@Getter
+		private final List<String> row;
+
+		@Getter
+		private final int columnIndex;
+
+		@Getter
+		private final String value;
 	}
 
 	@Override

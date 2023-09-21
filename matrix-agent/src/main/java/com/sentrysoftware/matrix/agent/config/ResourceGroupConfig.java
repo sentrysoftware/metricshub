@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.agent.deserialization.AttributesDeserializer;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,15 +24,17 @@ public class ResourceGroupConfig {
 	private String outputDirectory;
 
 	@JsonDeserialize(using = TimeDeserializer.class)
-	private long collectPeriod;
+	private Long collectPeriod;
 
-	private int discoveryCycle;
+	private Integer discoveryCycle;
 	private AlertingSystemConfig alertingSystemConfig;
 	private Boolean sequential;
 	private Boolean resolveHostnameToFqdn;
+	private Long jobTimeout;
 
 	@Default
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = AttributesDeserializer.class)
 	private Map<String, String> attributes = new HashMap<>();
 
 	@Default
