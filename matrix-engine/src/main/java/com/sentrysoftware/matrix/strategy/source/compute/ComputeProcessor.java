@@ -411,7 +411,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		int columnIndex = columnToReplace - 1;
+		final int columnIndex = columnToReplace - 1;
 
 		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
 		if (COLUMN_PATTERN.matcher(replacement).matches()) {
