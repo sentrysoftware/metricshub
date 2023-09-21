@@ -7,4 +7,4 @@ translations:
     0: ok
     1: degraded
     2: failed
-    default: unknown
+    Default: unknown

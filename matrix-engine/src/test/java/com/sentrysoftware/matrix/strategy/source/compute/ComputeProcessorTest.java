@@ -969,11 +969,11 @@ class ComputeProcessorTest {
 
 	@Test
 	void testCheckSubstring() {
-		assertTrue(computeProcessor.checkSubstring(Substring.builder().column(2).start("1").length("4").build()));
-		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-2).start("1").length("4").build()));
-		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-1).start("1").length("4").build()));
-		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-1).start("-1").length("-1").build()));
-		assertFalse(computeProcessor.checkSubstring(null));
+		assertTrue(ComputeProcessor.checkSubstring(Substring.builder().column(2).start("1").length("4").build()));
+		assertFalse(ComputeProcessor.checkSubstring(Substring.builder().column(-2).start("1").length("4").build()));
+		assertFalse(ComputeProcessor.checkSubstring(Substring.builder().column(-1).start("1").length("4").build()));
+		assertFalse(ComputeProcessor.checkSubstring(Substring.builder().column(-1).start("-1").length("-1").build()));
+		assertFalse(ComputeProcessor.checkSubstring(null));
 	}
 
 	@Test
@@ -1072,44 +1072,44 @@ class ComputeProcessorTest {
 
 	@Test
 	void testCheckSubstringArguments() {
-		assertTrue(computeProcessor.checkSubstringArguments(1, 3, 3));
+		assertTrue(ComputeProcessor.checkSubstringArguments(1, 3, 3));
 
 		//noinspection ConstantConditions
-		assertFalse(computeProcessor.checkSubstringArguments(null, 3, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(null, 3, 3));
 
 		//noinspection ConstantConditions
-		assertFalse(computeProcessor.checkSubstringArguments(1, null, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(1, null, 3));
 
-		assertFalse(computeProcessor.checkSubstringArguments(0, 3, 3));
-		assertFalse(computeProcessor.checkSubstringArguments(2, 0, 3));
-		assertFalse(computeProcessor.checkSubstringArguments(1, 4, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(0, 3, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(2, 0, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(1, 4, 3));
 	}
 
 	@Test
 	void testTransformToIntegerValue() {
-		assertNull(computeProcessor.transformToIntegerValue(null));
-		assertNull(computeProcessor.transformToIntegerValue("a"));
-		assertEquals(1, computeProcessor.transformToIntegerValue("1"));
+		assertNull(ComputeProcessor.transformToIntegerValue(null));
+		assertNull(ComputeProcessor.transformToIntegerValue("a"));
+		assertEquals(1, ComputeProcessor.transformToIntegerValue("1"));
 	}
 
 	@Test
 	void testGetValueFunction() {
-		assertNotNull(computeProcessor.getValueFunction(-1));
-		assertNotNull(computeProcessor.getValueFunction(0));
+		assertNotNull(ComputeProcessor.getValueFunction(-1));
+		assertNotNull(ComputeProcessor.getValueFunction(0));
 	}
 
 	@Test
 	void testCheckValueAndColumnIndexConsistency() {
-		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("1", -1));
-		assertFalse(computeProcessor.checkValueAndColumnIndexConsistency("Column(0)", -1));
-		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("Column(1)", 0));
-		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("1", 1));
+		assertTrue(ComputeProcessor.checkValueAndColumnIndexConsistency("1", -1));
+		assertFalse(ComputeProcessor.checkValueAndColumnIndexConsistency("Column(0)", -1));
+		assertTrue(ComputeProcessor.checkValueAndColumnIndexConsistency("Column(1)", 0));
+		assertTrue(ComputeProcessor.checkValueAndColumnIndexConsistency("1", 1));
 	}
 
 	@Test
 	void testGetColumnIndex() {
-		assertEquals(1, computeProcessor.getColumnIndex(" $2 "));
-		assertEquals(-1, computeProcessor.getColumnIndex("2"));
+		assertEquals(1, ComputeProcessor.getColumnIndex(" $2 "));
+		assertEquals(-1, ComputeProcessor.getColumnIndex("2"));
 	}
 
 	@Test
