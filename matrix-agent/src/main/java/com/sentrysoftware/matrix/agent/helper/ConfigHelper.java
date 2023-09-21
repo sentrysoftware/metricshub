@@ -295,7 +295,7 @@ public class ConfigHelper {
 			);
 		}
 
-		File configFile = Files.copy(exampleConfigPath, configPath, StandardCopyOption.REPLACE_EXISTING).toFile();
+		final File configFile = Files.copy(exampleConfigPath, configPath, StandardCopyOption.REPLACE_EXISTING).toFile();
 
 		setUserPermissionsOnWindows(configPath, true);
 

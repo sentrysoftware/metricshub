@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.agent.deserialization;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -108,7 +109,7 @@ public class PostConfigDeserializer extends DelegatingDeserializer {
 			final String hostname = hostnameValue.trim();
 
 			// Add the host.name attribute
-			newAttributes.put("host.name", hostname);
+			newAttributes.put(HOST_NAME, hostname);
 
 			// Build a new unique identifier and save the new resource configuration
 			newResourceConfigMap.put(String.format("%s-%s", multiResourceConfigKey, hostname), newResourceConfig);

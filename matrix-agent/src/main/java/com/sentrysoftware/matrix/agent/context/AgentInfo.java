@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.agent.context;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_AIX_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_FREE_BSD_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_HPUX_OS_TYPE;
@@ -103,7 +104,7 @@ public class AgentInfo {
 			Map.of(
 				"service.name", project.name(),
 				"host.id", AGENT_HOSTNAME,
-				"host.name", AGENT_HOSTNAME,
+				HOST_NAME, AGENT_HOSTNAME,
 				"agent.host.name", AGENT_HOSTNAME,
 				"host.type", "compute",
 				"os.type", OTEL_LOCAL_OS_TYPE

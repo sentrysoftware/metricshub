@@ -1,5 +1,14 @@
 package com.sentrysoftware.matrix.agent.deserialization;
 
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_DB_STATE_METRIC;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_REF;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_MONITOR_JOB_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_ACCEPT_HEADER;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_KEY_TYPE;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_SERVICE_URL;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.ID_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.SERVICE_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doReturn;
@@ -31,8 +40,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class MonitorJobsDeserializerTest {
 
-	public static final String SOURCE_REF = "${source::monitors.grafana.simple.sources.grafanaHealth}";
-
 	@Mock
 	private YAMLParser yamlParserMock;
 
@@ -61,34 +68,39 @@ class MonitorJobsDeserializerTest {
 		doReturn(resourceConfig).when(jsonReadContext).getCurrentValue();
 
 		final Map<String, String> attributes = new LinkedHashMap<>();
-		attributes.put("id", "$1");
-		attributes.put("service.version", "$3");
+		attributes.put(ID_ATTRIBUTE_KEY, "$1");
+		attributes.put(SERVICE_VERSION, "$3");
 
 		final Simple simple = Simple
 			.builder()
 			.sources(
 				Map.of(
-					"grafanaHealth",
+					GRAFANA_HEALTH_SOURCE_KEY,
 					HttpSource
 						.builder()
-						.header("Accept: application/json")
+						.header(HTTP_ACCEPT_HEADER)
 						.method(HttpMethod.GET)
 						.resultContent(ResultContent.BODY)
-						.url("https://hws-demo.sentrysoftware.com/api/health")
-						.key(SOURCE_REF)
-						.type("http")
+						.url(HTTP_SERVICE_URL)
+						.key(GRAFANA_HEALTH_SOURCE_REF)
+						.type(HTTP_KEY_TYPE)
 						.build()
 				)
 			)
 			.mapping(
-				Mapping.builder().source(SOURCE_REF).attributes(attributes).metrics(Map.of("grafana.db.state", "$2")).build()
+				Mapping
+					.builder()
+					.source(GRAFANA_HEALTH_SOURCE_REF)
+					.attributes(attributes)
+					.metrics(Map.of(GRAFANA_DB_STATE_METRIC, "$2"))
+					.build()
 			)
 			.build();
 
-		simple.setSourceDep(List.of(Set.of("grafanaHealth")));
+		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY)));
 
 		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob.builder().simple(simple).build();
-		final Map<String, SimpleMonitorJob> expected = Map.of("grafana", simpleMonitorJobExpected);
+		final Map<String, SimpleMonitorJob> expected = Map.of(GRAFANA_MONITOR_JOB_KEY, simpleMonitorJobExpected);
 
 		final Map<String, MonitorJob> result = new MonitorJobsDeserializer().deserialize(yamlParserMock, null);
 

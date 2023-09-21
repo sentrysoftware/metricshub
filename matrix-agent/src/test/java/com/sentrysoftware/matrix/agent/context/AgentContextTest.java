@@ -1,5 +1,18 @@
 package com.sentrysoftware.matrix.agent.context;
 
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_DB_STATE_METRIC;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_REF;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_MONITOR_JOB_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.GRAFANA_SERVICE_RESOURCE_CONFIG_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_ACCEPT_HEADER;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_KEY_TYPE;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_SERVICE_URL;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.ID_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_PARIS_SITE_VALUE;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.SERVICE_VERSION_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.SITE_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -21,9 +34,6 @@ import org.junit.jupiter.api.Test;
 
 class AgentContextTest {
 
-	private static final String HOST_NAME = "host.name";
-	public static final String SOURCE_REF = "${source::monitors.grafana.simple.sources.grafanaHealth}";
-
 	@Test
 	void testInitialize() throws IOException {
 		AgentContext.initialize("src/test/resources/config/metricshub.yaml");
@@ -43,41 +53,48 @@ class AgentContextTest {
 		final Map<String, ResourceConfig> resourcesConfigInTheGroup = resourceGroupConfig.getResources();
 		assertNotNull(resourcesConfigInTheGroup);
 		assertNotNull(resourcesConfigInTheGroup.get("server-1"));
-		final ResourceConfig grafanaServiceResourceConfig = resourcesConfigInTheGroup.get("grafana-service");
+		final ResourceConfig grafanaServiceResourceConfig = resourcesConfigInTheGroup.get(
+			GRAFANA_SERVICE_RESOURCE_CONFIG_KEY
+		);
 		assertNotNull(grafanaServiceResourceConfig);
 		final Map<String, String> attributesConfig = grafanaServiceResourceConfig.getAttributes();
 		assertNotNull(attributesConfig);
-		assertEquals("Sentry-Paris", attributesConfig.get("site"));
+		assertEquals(SENTRY_PARIS_SITE_VALUE, attributesConfig.get(SITE_ATTRIBUTE_KEY));
 
 		final Map<String, String> attributes = new LinkedHashMap<>();
-		attributes.put("id", "$1");
-		attributes.put("service.version", "$3");
+		attributes.put(ID_ATTRIBUTE_KEY, "$1");
+		attributes.put(SERVICE_VERSION_ATTRIBUTE_KEY, "$3");
 
 		final Simple simple = Simple
 			.builder()
 			.sources(
 				Map.of(
-					"grafanaHealth",
+					GRAFANA_HEALTH_SOURCE_KEY,
 					HttpSource
 						.builder()
-						.header("Accept: application/json")
+						.header(HTTP_ACCEPT_HEADER)
 						.method(HttpMethod.GET)
 						.resultContent(ResultContent.BODY)
-						.url("https://hws-demo.sentrysoftware.com/api/health")
-						.key(SOURCE_REF)
-						.type("http")
+						.url(HTTP_SERVICE_URL)
+						.key(GRAFANA_HEALTH_SOURCE_REF)
+						.type(HTTP_KEY_TYPE)
 						.build()
 				)
 			)
 			.mapping(
-				Mapping.builder().source(SOURCE_REF).attributes(attributes).metrics(Map.of("grafana.db.state", "$2")).build()
+				Mapping
+					.builder()
+					.source(GRAFANA_HEALTH_SOURCE_REF)
+					.attributes(attributes)
+					.metrics(Map.of(GRAFANA_DB_STATE_METRIC, "$2"))
+					.build()
 			)
 			.build();
 
-		simple.setSourceDep(List.of(Set.of("grafanaHealth")));
+		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY)));
 
 		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob.builder().simple(simple).build();
-		final Map<String, SimpleMonitorJob> expectedMonitors = Map.of("grafana", simpleMonitorJobExpected);
+		final Map<String, SimpleMonitorJob> expectedMonitors = Map.of(GRAFANA_MONITOR_JOB_KEY, simpleMonitorJobExpected);
 		assertEquals(expectedMonitors, grafanaServiceResourceConfig.getMonitors());
 
 		// Multi-hosts checks

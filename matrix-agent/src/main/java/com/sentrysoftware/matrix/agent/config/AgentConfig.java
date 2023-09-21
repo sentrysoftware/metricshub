@@ -5,6 +5,7 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.agent.config.exporter.ExporterConfig;
+import com.sentrysoftware.matrix.agent.config.exporter.OtlpExporterConfig;
 import com.sentrysoftware.matrix.agent.config.otel.OtelCollectorConfig;
 import com.sentrysoftware.matrix.agent.deserialization.AttributesDeserializer;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
