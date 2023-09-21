@@ -1,10 +1,17 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
 
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class PslUtils {
@@ -140,7 +147,7 @@ public class PslUtils {
 	 * 		}
 	 * 	}
 	 *
-	 * @param entry The row of values.
+	 * @param row The row of values.
 	 * @param tableResult The output returned by the SourceVisitor.
 	 * @return String value
 	 */
@@ -170,5 +177,192 @@ public class PslUtils {
 		jsonContent.append("\"Value\":").append(rawData).append("\n}\n}");
 
 		return jsonContent.toString();
+	}
+
+	/**
+	 * @param text				The text that should be parsed.
+	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
+	 * @param separators		The set of characters used to split the given text.
+	 * @param resultSeparator	The separator used to join the resulting elements.
+	 *
+	 * @return					The nth group in the given text,
+	 * 							as formatted according to the given separators and column numbers.
+	 */
+	public static String nthArgf(String text, String selectColumns, String separators, String resultSeparator) {
+
+		return nthArgCommon(text, selectColumns, separators, resultSeparator, false);
+	}
+
+	/**
+	 * @param text				The text that should be parsed.
+	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
+	 * @param separators		The set of characters used to split the given text.
+	 * @param resultSeparator	The separator used to join the resulting elements.
+	 * @param isNthArg			Indicates whether an <em>nthArg</em> operation should be performed
+	 *                          (as opposed to a <em>nthArgf</em> operation).
+	 *
+	 * @return					The nth group in the given text,
+	 * 							as formatted according to the given separators and column numbers.
+	 */
+	private static String nthArgCommon(String text, String selectColumns, String separators, String resultSeparator,
+									   boolean isNthArg) {
+
+		// If any arg is null, then return empty String
+		if (text == null || selectColumns == null || separators == null
+				|| text.isEmpty() || selectColumns.isEmpty() || separators.isEmpty()) {
+
+			return "";
+		}
+
+		// Replace special chars with their literal equivalents
+		String separatorsRegExp = String.format("[%s]", separators.replaceAll("([()\\[\\]{}\\\\^\\-$|?*+.])", "\\\\$1"));
+
+		if (isNthArg) {
+
+			// Remove redundant separators
+			text = text.replaceAll(String.format("(%s)(%s)+", separatorsRegExp, separatorsRegExp), "$1");
+			// Remove leading separators
+			text = text.replaceAll("^" + separatorsRegExp + "+", "");
+		}
+
+		// Check the result separator
+		if (resultSeparator == null) {
+			resultSeparator = WHITE_SPACE;
+		}
+
+		// The list holding the final result
+		List<String> finalResult = new ArrayList<>();
+
+		// Split the text value using the new line separator
+		String [] textArray = text.split(NEW_LINE);
+		for (String line : textArray) {
+			processText(line, selectColumns, separatorsRegExp, resultSeparator, finalResult, isNthArg);
+		}
+
+		// Alright, we did it!
+		return finalResult.stream().collect(Collectors.joining(resultSeparator));
+	}
+
+	/**
+	 * Process the given text value and update the finalResult {@link List}
+	 *
+	 * @param text             The text we wish to process
+	 * @param selectColumns    The columns to select. E.g. <em>1-2</em> <em>1,2,3</em> <em>1-</em> <em>-4</em>
+	 * @param separatorsRegExp The separator used to split the text value
+	 * @param resultSeparator  The separator of the final result
+	 * @param finalResult      The final result as {@link List}
+	 * @param isNthArg         Indicate whether we want ntharg or nthargf.
+	 */
+	static void processText(final String text,
+							final String selectColumns,
+							final String separatorsRegExp,
+							final String resultSeparator,
+							final List<String> finalResult,
+							final boolean isNthArg) {
+
+		// Split the input text into a String array thanks to the separatorsRegExp
+		final String[] splitText = text.split(separatorsRegExp, -1);
+
+		// The user can specify several columns.
+		// Split the selectColumns into an array too.
+		final String[] columnsArray = selectColumns.split(",");
+
+		// So, for each columns group requested
+		String result = null;
+		int[] columnsRange;
+		int fromColumnNumber;
+		int toColumnNumber;
+		for (String columns : columnsArray) {
+
+			// Get the columns range
+			columnsRange = getColumnsRange(columns, splitText.length);
+			fromColumnNumber = columnsRange[0];
+			toColumnNumber = columnsRange[1];
+
+			// If we have valid fromColumnNumber and toColumnNumber, then retrieve these columns
+			// which are actually items in the splitText array
+			if (fromColumnNumber > 0 && fromColumnNumber <= toColumnNumber) {
+
+				result = Arrays
+						.stream(splitText, fromColumnNumber - 1, toColumnNumber)
+						.filter(value -> !isNthArg || !value.trim().isEmpty())
+						.collect(Collectors.joining(resultSeparator));
+
+				finalResult.add(result);
+			}
+		}
+	}
+
+	/**
+	 * @param columns       The {@link String} denoting the range of columns, in one of the following forms:
+	 *                      "m-n", "m-" or "-n".
+	 * @param columnCount	The total number of columns.
+	 *
+	 * @return				A 2-element array A with:
+	 * 						<ul>
+	 * 							<li>A[0] being the start of the range, inclusive</li>
+	 * 							<li>A[1] being the end of the range, inclusive</li>
+	 * 						</ul>
+	 */
+	private static int[] getColumnsRange(String columns, int columnCount) {
+
+		int fromColumnNumber;
+		int toColumnNumber;
+
+		try {
+
+			int dashIndex = columns.indexOf("-");
+			int columnsLength = columns.length();
+
+			// If it is a simple number, we'll retrieve only that column number
+			if (dashIndex == -1) {
+
+				fromColumnNumber = Integer.parseInt(columns);
+				toColumnNumber = fromColumnNumber;
+			}
+
+			// If it is "-n", then we'll retrieve all columns til number n
+			else if (dashIndex == 0) {
+
+				fromColumnNumber = 1;
+				toColumnNumber = Integer.parseInt(columns.substring(1));
+			}
+
+			// If it is "n-", then we'll retrieve all columns starting from n
+			else if (dashIndex == columnsLength - 1) {
+
+				fromColumnNumber = Integer.parseInt(columns.substring(0, columnsLength - 1));
+				toColumnNumber = columnCount;
+			}
+
+			// Else, if it is "m-n", we'll retrieve all columns starting from m til n
+			else {
+
+				fromColumnNumber = Integer.parseInt(columns.substring(0, dashIndex));
+				toColumnNumber = Integer.parseInt(columns.substring(dashIndex + 1));
+				if (toColumnNumber > columnCount) {
+					toColumnNumber = columnCount;
+				}
+			}
+
+			if (fromColumnNumber > columnCount || toColumnNumber > columnCount) {
+
+				log.warn("getColumnRange: Invalid range for a {}-length array: [{}-{}].",
+						columnCount, fromColumnNumber, toColumnNumber);
+
+				fromColumnNumber = 0;
+				toColumnNumber = 0;
+			}
+
+		} catch (NumberFormatException e) {
+
+			log.warn("getColumnRange: Could not determine the range denoted by {}: {}.",
+					columns, e.getMessage());
+
+			fromColumnNumber = 0;
+			toColumnNumber = 0;
+		}
+
+		return new int[]{fromColumnNumber, toColumnNumber};
 	}
 }

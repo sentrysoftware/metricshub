@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
@@ -33,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -353,7 +353,7 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessSubtract() {
+	void testprocessubtract() {
 		final List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
 			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
@@ -926,5 +926,114 @@ class ComputeProcessorTest {
 			"/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;hostId;\n" +
 			"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;hostId;\n";
 		assertEquals(expectedRawDataResult, sourceTable.getRawData());
+	}
+
+	@Test
+	void testExtract() {
+
+		List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "STATUS1", "TYPE1", null, "NAME1"),
+				Arrays.asList("ID2", "STATUS2", "TYPE2", null, "NAME2"),
+				Arrays.asList("ID3", "STATUS3", "TYPE3", null, "NAME3")
+		);
+
+		sourceTable.setTable(table);
+
+		// Extract is null
+		computeProcessor.process((Extract) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column is not valid, subColumn is not valid
+		Extract extract = Extract.builder().column(-1).subColumn(-1).build();
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column < 1
+		extract.setColumn(0);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn is null
+		extract.setColumn(1);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn < 1
+		extract.setSubColumn(-1);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is null
+		extract.setSubColumn(1);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is empty
+		extract.setSubSeparators("");
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column > row size
+		extract.setSubSeparators("|");
+		extract.setColumn(6);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is null
+		extract.setColumn(4);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is not null, subColumn < 1
+		table.get(0).set(3, "|OK|1");
+		table.get(1).set(3, "|OK|2");
+		table.get(2).set(3, "|OK|3");
+		extract.setSubColumn(0);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is not null, subColumn > text.length()
+		extract.setSubColumn(4);
+		computeProcessor.process(extract);
+		List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "STATUS1", "TYPE1", "", "NAME1"),
+				Arrays.asList("ID2", "STATUS2", "TYPE2", "", "NAME2"),
+				Arrays.asList("ID3", "STATUS3", "TYPE3", "", "NAME3")
+		);
+		assertEquals(expected, sourceTable.getTable());
+
+		// Test OK, subSeparators is a single character
+		List<List<String>> result = Arrays.asList(
+				Arrays.asList("ID1", "STATUS1", "TYPE1", "1", "NAME1"),
+				Arrays.asList("ID2", "STATUS2", "TYPE2", "2", "NAME2"),
+				Arrays.asList("ID3", "STATUS3", "TYPE3", "3", "NAME3")
+		);
+		extract.setSubColumn(3);
+		computeProcessor.process(extract);
+		assertEquals(expected, sourceTable.getTable());
+
+		// Test OK, subSeparators is "()"
+		table.get(0).set(3, "STATUS1 (1)");
+		table.get(1).set(3, "STATUS2 (2)");
+		table.get(2).set(3, "STATUS3 (3)");
+		sourceTable.setTable(table);
+		extract.setSubColumn(2);
+		extract.setSubSeparators("()");
+		computeProcessor.process(extract);
+		assertEquals(result, sourceTable.getTable());
+
+		// Test OK, subSeparators is "%%"
+		table.get(0).set(3, "1% of maximum");
+		table.get(1).set(3, "2% of maximum");
+		table.get(2).set(3, "3% of maximum");
+		sourceTable.setTable(table);
+		extract.setSubColumn(1);
+		extract.setSubSeparators("%%");
+		computeProcessor.process(extract);
+		assertEquals(result, sourceTable.getTable());
 	}
 }
