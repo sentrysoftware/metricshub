@@ -44,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -1112,7 +1113,7 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-		void testProcessArrayTranslate() throws IOException {
+	void testProcessArrayTranslate() throws IOException {
 		List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, null, TYPE1),
 			Arrays.asList(ID2, null, TYPE2),
