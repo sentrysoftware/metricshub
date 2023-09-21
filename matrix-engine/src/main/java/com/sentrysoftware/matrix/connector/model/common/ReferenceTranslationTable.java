@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.connector.model.common;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -18,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TranslationTable implements Serializable {
+public class ReferenceTranslationTable implements ITranslationTable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,13 +25,11 @@ public class TranslationTable implements Serializable {
 	@JsonIgnore
 	private Map<String, String> translations = new HashMap<>();
 
-	/**
-	 * Copy the {@link TranslationTable} instance
-	 *
-	 * @return {@link TranslationTable} deep copy
-	 */
-	public TranslationTable copy() {
-		return TranslationTable
+	private String name;
+
+	@Override
+	public ReferenceTranslationTable copy() {
+		return ReferenceTranslationTable
 			.builder()
 			.translations(
 				translations == null
@@ -45,12 +42,7 @@ public class TranslationTable implements Serializable {
 			.build();
 	}
 
-	/**
-	 * Update the given translation table
-	 *
-	 * @param updater An operation on a single operand that produces a result of the
-	 *                same type as its operand.
-	 */
+	@Override
 	public void update(UnaryOperator<String> updater) {
 		if (translations != null) {
 			translations.replaceAll((key, val) -> updater.apply(val));

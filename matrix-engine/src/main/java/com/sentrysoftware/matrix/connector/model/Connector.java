@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.ExtendsDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.SourcesDeserializer;
-import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
@@ -65,7 +65,7 @@ public class Connector implements Serializable {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	private Map<String, TranslationTable> translations = new HashMap<>();
+	private Map<String, ReferenceTranslationTable> translations = new HashMap<>();
 
 	@Default
 	private Set<Class<? extends Source>> sourceTypes = new HashSet<>();

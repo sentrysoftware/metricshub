@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ class TranslationsDeserializerTest extends DeserializerTest {
 		final Connector connector = getConnector("translationTable");
 		assertNotNull(connector);
 
-		final Map<String, TranslationTable> translationsConnector = connector.getTranslations();
+		final Map<String, ReferenceTranslationTable> translationsConnector = connector.getTranslations();
 
 		assertTrue(translationsConnector instanceof HashMap, "translations are expected to be a HashMap.");
 
@@ -33,8 +33,8 @@ class TranslationsDeserializerTest extends DeserializerTest {
 		expectedTranslationTable.put("2", "failed");
 		expectedTranslationTable.put("default", "unknown");
 
-		final Map<String, TranslationTable> expected = new HashMap<String, TranslationTable>(
-			Map.of("statusToTranslate", TranslationTable.builder().translations(expectedTranslationTable).build())
+		final Map<String, ReferenceTranslationTable> expected = new HashMap<String, ReferenceTranslationTable>(
+			Map.of("statusToTranslate", ReferenceTranslationTable.builder().translations(expectedTranslationTable).build())
 		);
 
 		assertEquals(expected, translationsConnector);

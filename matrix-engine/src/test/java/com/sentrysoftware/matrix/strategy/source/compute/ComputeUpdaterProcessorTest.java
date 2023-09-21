@@ -6,8 +6,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.sentrysoftware.matrix.connector.model.common.InlineTranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
@@ -75,5 +78,19 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(RightConcat.class));
 		computeUpdaterProcessor.process(RightConcat.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(RightConcat.class));
+	}
+
+	@Test
+	void testProcessArrayTranslate() {
+		doNothing().when(computeProcessor).process(any(ArrayTranslate.class));
+		computeUpdaterProcessor.process(
+			ArrayTranslate.builder().column(1).translationTable(new ReferenceTranslationTable()).build()
+		);
+
+		computeUpdaterProcessor.process(
+			ArrayTranslate.builder().column(1).translationTable(new InlineTranslationTable()).build()
+		);
+
+		verify(computeProcessor, times(2)).process(any(ArrayTranslate.class));
 	}
 }

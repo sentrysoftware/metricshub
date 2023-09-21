@@ -3,7 +3,12 @@ package com.sentrysoftware.matrix.strategy.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TRANSLATION_REF_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
 
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
@@ -33,10 +38,13 @@ import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -82,7 +90,91 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute ArrayTranslate Exec")
 	public void process(@SpanAttribute("compute.definition") final ArrayTranslate arrayTranslate) {
-		// TODO Auto-generated method stub
+		if (arrayTranslate == null) {
+			log.warn(
+				"Hostname {} - The Source (Array Translate) to visit is null, the array translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final ITranslationTable translationTable = arrayTranslate.getTranslationTable();
+		if (translationTable == null) {
+			log.warn(
+				"Hostname {} - Translation Table is null, the array translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final Map<String, String> translations = findTranslations(translationTable);
+
+		if (translations == null) {
+			log.warn(
+				"Hostname {} - The Translation Map is null, the array translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final int column = arrayTranslate.getColumn();
+		if (column < 1) {
+			log.warn(
+				"Hostname {} - The column number to translate cannot be < 1, the translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final int columnIndex = column - 1;
+
+		String arraySeparator = arrayTranslate.getArraySeparator();
+		if (arraySeparator == null || VERTICAL_BAR.equals(arraySeparator)) {
+			arraySeparator = "\\|";
+		}
+
+		String resultSeparator = arrayTranslate.getResultSeparator();
+		if (resultSeparator == null) {
+			resultSeparator = VERTICAL_BAR;
+		}
+
+		final String defaultTranslation = translations.get("default");
+
+		final List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+
+		for (List<String> row : sourceTable.getTable()) {
+			if (columnIndex >= row.size()) {
+				log.warn(
+					"Hostname {} - The index of the column is {} but the row size is {}, the translate computation cannot be performed.",
+					hostname,
+					column,
+					row.size()
+				);
+
+				return;
+			}
+
+			resultRow = new ArrayList<>(row);
+
+			final String arrayValue = row.get(columnIndex);
+			if (arrayValue != null) {
+				final String[] splitArrayValue = arrayValue.split(arraySeparator);
+
+				final String translatedArrayValue = Arrays
+					.stream(splitArrayValue)
+					.map(value -> translations.getOrDefault(value.toLowerCase(), defaultTranslation))
+					.filter(value -> value != null && !value.isBlank())
+					.collect(Collectors.joining(resultSeparator));
+
+				resultRow.set(columnIndex, translatedArrayValue);
+			}
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -613,5 +705,43 @@ public class ComputeProcessor implements IComputeProcessor {
 			: line.get(columnIndex).concat(abstractConcat.getValue());
 
 		line.set(columnIndex, result);
+	}
+
+	/**
+	 * Find the translation map associated with the {@link ITranslationTable} in parameter.
+	 * @param translationTable
+	 * @return
+	 */
+	public Map<String, String> findTranslations(final ITranslationTable translationTable) {
+		// In case of a ReferenceTranslationTable, we try to find its TranslationTable in the connector if the translations Map has not already been found.
+		// In case of an InLineTranslationTable, the Map retrieved through translationTable.getTranslations()
+		if (translationTable instanceof ReferenceTranslationTable) {
+			final Map<String, String> translations = translationTable.getTranslations();
+			if (translations == null || translations.isEmpty()) {
+				final String name = ((ReferenceTranslationTable) translationTable).getName();
+				final Matcher matcher = TRANSLATION_REF_PATTERN.matcher(name);
+
+				if (matcher.find()) {
+					final String arrayTranslateKey = matcher.group(1);
+
+					final Connector connector = telemetryManager.getConnectorStore().getStore().get(connectorName);
+					if (connector != null && connector.getTranslations() != null) {
+						final ITranslationTable connectorTranslation = connector.getTranslations().get(arrayTranslateKey);
+						if (connectorTranslation != null) {
+							// We set the translationMap in the ReferenceTranslationTable so we don't have to look for it again
+							((ReferenceTranslationTable) translationTable).setTranslations(connectorTranslation.getTranslations());
+						}
+					}
+				} else {
+					log.warn(
+						"Hostname {} - Error while looking for the Translation Table {}, the array translate computation cannot be performed.",
+						hostname,
+						name
+					);
+				}
+			}
+		}
+
+		return translationTable.getTranslations();
 	}
 }
