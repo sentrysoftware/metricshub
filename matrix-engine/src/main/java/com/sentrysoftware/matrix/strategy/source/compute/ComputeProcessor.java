@@ -8,10 +8,10 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TRANSLATION_REF_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
 
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
-import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
